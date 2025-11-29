@@ -53,7 +53,11 @@ Route::post('/exception', 'ExceptionController@index')->name('exception');
 // Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');  
 // Route::get('/profile', 'HomeController@myprofile')->name('profile');   
 //Login and Register
-Auth::routes();
+// Auth::routes(); // Removed - not compatible with Laravel 12
+// Note: Regular user auth routes commented out - using admin login instead
+// Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+// Route::post('login', 'Auth\LoginController@login');
+// Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 // Route::get('auth/{provider}', 'Auth\AuthController@redirectToProvider');
 // Route::get('auth/{provider}/callback', 'Auth\AuthController@handleProviderCallback');
 
@@ -100,16 +104,17 @@ Route::get('/search_result', 'HomeController@search_result')->name('search_resul
 //Route::get('/blogs/{slug}', 'HomeController@blogdetail')->name('blogdetail');  
 Route::get('/contact-us', 'HomeController@contactus');*/
 
-Route::get('stripe/{appointmentId}', 'HomeController@stripe');
+// Frontend Website Routes - Commented out (keeping client self-update feature)
+/*Route::get('stripe/{appointmentId}', 'HomeController@stripe');
 Route::post('stripe', 'HomeController@stripePost')->name('stripe.post1');
 
-/*Route::get('/book-an-appointment', 'HomeController@bookappointment')->name('bookappointment');
+Route::get('/book-an-appointment', 'HomeController@bookappointment')->name('bookappointment');
 Route::get('/book-an-appointment1', 'HomeController@bookappointment1')->name('bookappointment1');
 Route::post('/book-an-appointment/store', 'AppointmentBookController@store');
-Route::post('/book-an-appointment/storepaid', 'AppointmentBookController@storepaid')->name('stripe.post');*/
+Route::post('/book-an-appointment/storepaid', 'AppointmentBookController@storepaid')->name('stripe.post');
 Route::post('/getdatetime', 'HomeController@getdatetime');
 Route::post('/getdatetimebackend', 'HomeController@getdatetimebackend');
-Route::post('/getdisableddatetime', 'HomeController@getdisableddatetime');
+Route::post('/getdisableddatetime', 'HomeController@getdisableddatetime');*/
 
 //Route::post('/contact', 'HomeController@contact');
 /*
@@ -121,11 +126,11 @@ Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_downloa
 Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');     
 Route::get('/profile', 'HomeController@myprofile')->name('profile');  */
 
-//Thank you page after email verification
+//Thank you page after email verification (KEEP - used by client self-update feature)
 Route::get('thankyou', 'HomeController@thankyou')->name('thankyou');
 
 /*---------------Agent Route-------------------*/
-include_once 'agent.php';
+require __DIR__ . '/agent.php';
 /*********************Admin Panel Start ***********************/
 Route::prefix('admin')->group(function() {
 	
@@ -1090,11 +1095,11 @@ Route::prefix('admin')->group(function() {
         Route::post('/download-document', 'Admin\ClientsController@download_document');
 });     
 
-	//Email verfiy link in send email
+	//Email verfiy link in send email (KEEP - Client Self-Update Feature)
     Route::post('email-verify', 'HomeController@emailVerify')->name('emailVerify');
     Route::get('email-verify-token/{token}', 'HomeController@emailVerifyToken')->name('emailVerifyToken');
 
-    //Client edit form link in send email
+    //Client edit form link in send email (KEEP - Client Self-Update Feature)
     Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');
     Route::post('/verify-dob', 'HomeController@verifyDob');
     //Route::get('/editclient/{id}', 'HomeController@editclient')->name('editclient');
@@ -1105,7 +1110,8 @@ Route::prefix('admin')->group(function() {
 	//Route::get('/pr-points', 'PRPointsController@index')->name('pr-points.index');
     //Route::post('/pr-points/calculate', 'PRPointsController@calculate')->name('pr-points.calculate');
 
-Route::get('/{slug}', 'HomeController@Page')->name('page.slug');
-Auth::routes();
+// Frontend Website - Dynamic Pages Route (Commented out)
+// Route::get('/{slug}', 'HomeController@Page')->name('page.slug');
+// Auth::routes(); // Removed - already defined above
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

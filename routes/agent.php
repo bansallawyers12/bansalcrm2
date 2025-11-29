@@ -63,5 +63,3 @@
         Route::get('/application/export/pdf/{id}', 'Agent\ApplicationsController@exportapplicationpdf'); 
         Route::get('/getapplicationnotes', 'Agent\ApplicationsController@getapplicationnotes');
 });
-
-?>

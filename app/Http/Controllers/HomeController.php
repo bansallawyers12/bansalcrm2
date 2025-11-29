@@ -10,12 +10,8 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Redirect;
 
 use App\WebsiteSetting;
-use App\Slider;
+// Frontend-only models removed: Slider, OurService, Testimonial, WhyChooseus, HomeContent
 use App\Contact;
-use App\OurService;
-use App\Testimonial;
-use App\WhyChooseus;
-use App\HomeContent;
 use App\Mail\CommonMail;
 
 use Illuminate\Support\Facades\Session;
@@ -29,7 +25,6 @@ use Helper;
 
 use Stripe;
 use App\Enquiry;
-
 
 use App\Admin;
 use App\ActivitiesLog;
@@ -49,11 +44,28 @@ class HomeController extends Controller
 		\View::share('siteData', $siteData);
 	}
 	
+	/**************************************************************************
+	 * FRONTEND WEBSITE METHODS - COMMENTED OUT
+	 * These methods were used for the public-facing website which is no longer active.
+	 * 
+	 * ACTIVE METHODS (Client Self-Update Feature):
+	 * - emailVerify() - Send email verification link
+	 * - emailVerifyToken() - Verify email from link
+	 * - thankyou() - Thank you page after verification
+	 * - showDobForm() - DOB verification form
+	 * - verifyDob() - Validate DOB
+	 * - editClient() - Client edit form
+	 * - calculateAge() - Helper function
+	 **************************************************************************/
+	
+    /* FRONTEND METHOD - COMMENTED OUT
     public function coming_soon()
     {
         return view('coming_soon');
     }
+	*/
 	
+	/* FRONTEND METHOD - COMMENTED OUT
 	public function sicaptcha(Request $request)
     {
 		 $code=$request->code;
