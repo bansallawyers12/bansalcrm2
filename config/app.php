@@ -209,7 +209,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-		// 'Form' => Collective\Html\FormFacade::class, // Removed - not compatible with Laravel 12
+		'Form' => App\Helpers\Form::class,
 		// 'Html' => Collective\Html\HtmlFacade::class, // Removed - not compatible with Laravel 12
 		'PDF' => Barryvdh\DomPDF\Facade::class,
 		'Excel' =>  Maatwebsite\Excel\Facades\Excel::class,
