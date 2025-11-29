@@ -82,9 +82,7 @@ class HomeController extends Controller
 		}
 	
 	public function Page(Request $request, $slug= null)
-    { 
-		//$client_id = env('TRAVEL_CLIENT_ID', '');
-	    //$durl = env('TRAVEL_API_URL', '')."page?slug=".$slug."&client_id=".$client_id;
+    {
 		
         /*$pagequery 		= CmsPage::where('slug', '=', $slug);		
 		$pagedata 	= $pagequery->first();	//for all data

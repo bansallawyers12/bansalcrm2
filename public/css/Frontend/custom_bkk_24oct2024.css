@@ -1,16 +1,11 @@
 /*============================================================================================*/
 /* Your custom styles below */
 /*============================================================================================*/
-.packagedethotelimg img {width: 100%;height: 90px;}
 .topmargin10px {margin-top: 10px;}
 .padding5pxarea {padding: 0 10px;}
 .padding5px {padding: 0 5px;}
-.packagedethotelimg {margin-bottom: 0;}
 .zoomicon {position: absolute;right: 5px;bottom: 0;}
 .zoomicon img {width: 22px!important; height: 21px!important;}
-.packagelistboxheading {margin: 0;padding: 0;}
-.packagelistboxheading h3 {font-weight: 500;font-size: 15px;color: #3b3e3b;line-height: 18px;    margin-top: 0;margin-bottom: 0;}
-.packagelistboxheading a {color: #3b3e3b;text-decoration: none;}
 .starmargin {margin: 10px 0;}
 .textblack13cont {font-weight: 400;font-size: 13px;color: #3b3e3b;line-height: 18px;}
 .textblack13bold {font-weight: 700;font-size: 13px;color: #3b3e3b;line-height: 20px;}

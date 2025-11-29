@@ -58,10 +58,9 @@
 							<div class="form-group row">
 								<label for="name" class="col-sm-2 col-form-label">Offer Type</label>
 								<div class="col-sm-10">
-									<select class="form-control" name="type">
-										<option value="flights" @if(@$fetchedData->type == 'flights') selected @endif>Flights</option>
-										<option value="hotels" @if(@$fetchedData->type == 'hotels') selected @endif>Hotels</option>
-									</select>
+								<select class="form-control" name="type">
+									<option value="">Select Offer Type</option>
+								</select>
 								</div>
 							</div>
 							<div class="form-group row"> 

@@ -18,7 +18,7 @@ class Profile extends Authenticatable
 	
 	 
 	protected $fillable = [
-        'id', 'package_id', 'dest_type', 'destination', 'hotel_name', 'created_at', 'updated_at'
+        'id', 'company_name', 'address', 'phone', 'other_phone', 'email', 'website', 'abn', 'note', 'logo', 'created_at', 'updated_at'
     ];
    
   public $sortable = ['id', 'created_at', 'updated_at'];

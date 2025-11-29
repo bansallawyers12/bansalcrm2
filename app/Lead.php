@@ -16,11 +16,6 @@ class Lead extends Authenticatable
 	
 	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
 	
-	public function package_detail()
-    {
-        return $this->belongsTo('App\Package','package_id','id');
-    }
-	
 	public function user()
     {
         return $this->belongsTo('App\User','user_id','id');
