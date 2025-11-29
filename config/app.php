@@ -211,7 +211,6 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 		// 'Form' => Collective\Html\FormFacade::class, // Removed - not compatible with Laravel 12
 		// 'Html' => Collective\Html\HtmlFacade::class, // Removed - not compatible with Laravel 12
-		// 'Payment' => Tzsk\Payu\Facade\Payment::class, // Removed - not compatible with Laravel 12
 		'PDF' => Barryvdh\DomPDF\Facade::class,
 		'Excel' =>  Maatwebsite\Excel\Facades\Excel::class,
 		'Settings' => App\Helpers\Settings::class,

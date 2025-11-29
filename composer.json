@@ -13,6 +13,7 @@
         "hfig/mapi": "^1.4",
         "illuminate/http": "*",
         "illuminate/support": "*",
+        "kyslik/column-sortable": "^7.0",
         "laravel/framework": "^12.0",
         "laravel/helpers": "*",
         "laravel/passport": "^12.0",
