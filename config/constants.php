@@ -13,7 +13,6 @@ return [
 	'unlimited' => '1000000',
 	'limit' => '20',
 	'empty' => 'N/A',
-	'payumoney_unique_token' => 'a31ff1b91fd9b8ae9c82f38b02348d21fsdfd8',
 	'developer' =>'raghavgarg.jpiet@gmail.com',
 	'no_data' =>'There are no data in this table.',
 	'logoImg' => '/public/img/logo.png', 

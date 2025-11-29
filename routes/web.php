@@ -73,11 +73,6 @@ Route::post('/reset_link', 'HomeController@resetLink')->name('reset_link');	 */
 // Route::get('/address', 'DashboardController@address')->name('dashboard.address');
 // Route::post('/address', 'DashboardController@address')->name('dashboard.address');
 
-//Payment Process		
-//Route::get('/payment', 'PaymentController@index')->name('payment.index');
-//Route::post('/checkout', 'PaymentController@checkout')->name('payment.checkout');
-//Route::get('/payment_status', 'PaymentController@status')->name('payment.status');
-	
 //Thankyou Page
 // Route::get('/thankyou', 'PaymentController@thankyou')->name('payment.thankyou');
 

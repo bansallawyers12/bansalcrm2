@@ -148,7 +148,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 		// Collective\Html\HtmlServiceProvider::class, // Removed - not compatible with Laravel 12
-	    // Kyslik\ColumnSortable\ColumnSortableServiceProvider::class, // Removed - not compatible with Laravel 12
+	    Kyslik\ColumnSortable\ColumnSortableServiceProvider::class,
 		// Tzsk\Payu\Provider\PayuServiceProvider::class, // Removed - not compatible with Laravel 12
 		Barryvdh\DomPDF\ServiceProvider::class,
        
