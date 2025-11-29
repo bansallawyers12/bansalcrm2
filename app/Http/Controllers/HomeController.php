@@ -11,14 +11,11 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\WebsiteSetting;
 use App\Slider;
-use App\Blog;
 use App\Contact;
-use App\BlogCategory;
 use App\OurService;
 use App\Testimonial;
 use App\WhyChooseus;
 use App\HomeContent;
-use App\CmsPage;
 use App\Mail\CommonMail;
 
 use Illuminate\Support\Facades\Session;
@@ -102,18 +99,18 @@ class HomeController extends Controller
         //     $blogdetailists		=  $blogdetailquery->first(); //dd($blogdetailists);
         //     return view('blogdetail', compact(['blogdetailists']));
         // }
-        // else 
-        if(CmsPage::where('slug', '=', $slug)->exists()) {
-          //for all data
-          $pagequery 	= CmsPage::where('slug', '=', $slug);
-          $pagedata 	= $pagequery->first(); //dd($pagedata);
-          if($pagedata){
-            return view('Frontend.cms.index', compact(['pagedata']));
-          }
-        }
-        else {
+        // CMS Page functionality removed - frontend no longer needed
+        // if(CmsPage::where('slug', '=', $slug)->exists()) {
+        //   //for all data
+        //   $pagequery 	= CmsPage::where('slug', '=', $slug);
+        //   $pagedata 	= $pagequery->first(); //dd($pagedata);
+        //   if($pagedata){
+        //     return view('Frontend.cms.index', compact(['pagedata']));
+        //   }
+        // }
+        // else {
           abort(404);
-        }
+        // }
     } 
 	
 	public function index(Request $request)
@@ -867,12 +864,13 @@ class HomeController extends Controller
         } else {
             $search_string 	= 'search_string';
         }
+        // CMS Page functionality removed - frontend no longer needed
         /*$query 	= CmsPage::where('title', 'LIKE', '%'.$search_string.'%')
         ->orWhere('slug', 'LIKE', '%' . $search_string . '%')
         ->orWhere('content', 'LIKE', '%' . $search_string . '%')
         ->orWhere('meta_title', 'LIKE', '%' . $search_string . '%')
         ->orWhere('meta_description', 'LIKE', '%' . $search_string . '%')
-        ->orWhere('meta_keyward', 'LIKE', '%' . $search_string . '%');*/
+        ->orWhere('meta_keyward', 'LIKE', '%' . $search_string . '%');
       
         $query 	= CmsPage::where('title', 'LIKE', '%'.$search_string.'%')
         ->orWhere('slug', 'LIKE', '%' . $search_string . '%')
@@ -882,7 +880,10 @@ class HomeController extends Controller
         $totalData 	= $query->count();//dd($totalData);
         //$lists = $query->toSql();
         $lists	= $query->sortable(['id' => 'desc'])->paginate(20); //dd($lists);
-        return view('searchresults', compact(['lists', 'totalData']));
+        return view('searchresults', compact(['lists', 'totalData']));*/
+        
+        // Search functionality disabled - website no longer needed
+        abort(404);
     }
   
   
