@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Redirect;
 use App\Admin;
 use App\Lead;
 use App\FollowupType;
-use App\Package;
 use App\Followup;
  
 use Auth; 
