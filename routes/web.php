@@ -97,11 +97,9 @@ Route::post('/reset_link', 'HomeController@resetLink')->name('reset_link');	 */
 //Home Page
 /*Route::get('/', 'HomeController@index')->name('home');
 Route::get('/index', 'HomeController@index')->name('home');
-//Route::get('/about-us', 'HomeController@about')->name('about');
 Route::get('/testimonials', 'HomeController@testimonial')->name('testimonial');
 Route::get('/ourservices', 'HomeController@ourservices')->name('ourservices');
 Route::get('/ourservices/{slug}', 'HomeController@servicesdetail')->name('servicesdetail');  
-Route::get('/blogs', 'HomeController@blogs')->name('blogs');  
 Route::get('/search_result', 'HomeController@search_result')->name('search_result');
 
 //Route::get('/blogs/{slug}', 'HomeController@blogdetail')->name('blogdetail');  
@@ -121,7 +119,6 @@ Route::post('/getdisableddatetime', 'HomeController@getdisableddatetime');
 //Route::post('/contact', 'HomeController@contact');
 /*
 Route::get('/refresh-captcha', 'HomeController@refresh_captcha'); 
-//Route::get('/mission-vision', 'HomeController@missionvision')->name('mission_vision'); 
 Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
 Route::get('sicaptcha', 'HomeController@sicaptcha')->name('sicaptcha');    
 Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
