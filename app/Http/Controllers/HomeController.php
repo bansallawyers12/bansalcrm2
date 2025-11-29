@@ -96,12 +96,14 @@ class HomeController extends Controller
 			abort(404);
 		}*/
       
-        if( Blog::where('slug', '=', $slug)->exists() ) {
-            $blogdetailquery 		= Blog::where('slug', '=', $slug)->where('status', '=', 1)->with(['categorydetail']);
-            $blogdetailists		=  $blogdetailquery->first(); //dd($blogdetailists);
-            return view('blogdetail', compact(['blogdetailists']));
-        }
-        else if(CmsPage::where('slug', '=', $slug)->exists()) {
+        // Blog functionality removed - frontend no longer needed
+        // if( Blog::where('slug', '=', $slug)->exists() ) {
+        //     $blogdetailquery 		= Blog::where('slug', '=', $slug)->where('status', '=', 1)->with(['categorydetail']);
+        //     $blogdetailists		=  $blogdetailquery->first(); //dd($blogdetailists);
+        //     return view('blogdetail', compact(['blogdetailists']));
+        // }
+        // else 
+        if(CmsPage::where('slug', '=', $slug)->exists()) {
           //for all data
           $pagequery 	= CmsPage::where('slug', '=', $slug);
           $pagedata 	= $pagequery->first(); //dd($pagedata);
@@ -120,9 +122,10 @@ class HomeController extends Controller
 		$sliderData 	= $sliderquery->count();	//for all data
 		$sliderlists		=  $sliderquery->orderby('id','ASC')->paginate(5);
 	
-		$blogquery 		= Blog::where('id', '!=', '')->where('status', '=', 1);		
-		$blogData 	= $blogquery->count();	//for all data
-		$bloglists		=  $blogquery->orderby('id','DESC')->paginate(3);	
+		// Blog functionality removed - frontend no longer needed
+		// $blogquery 		= Blog::where('id', '!=', '')->where('status', '=', 1);		
+		// $blogData 	= $blogquery->count();	//for all data
+		// $bloglists		=  $blogquery->orderby('id','DESC')->paginate(3);	
 		
 		$servicequery 		= OurService::where('id', '!=', '')->where('status', '=', 1);		
 		$serviceData 	= $servicequery->count();	//for all data
@@ -150,7 +153,7 @@ class HomeController extends Controller
 			$captcha = $cap['image'];
 			session()->put('captchaWord', $cap['word']);
 			
-	   return view('index', compact(['sliderlists', 'sliderData', 'bloglists', 'blogData', 'servicelists', 'serviceData', 'testimoniallists', 'whychoosequeryData', 'whychoosequerylists', 'testimonialData', 'captcha']));
+	   return view('index', compact(['sliderlists', 'sliderData', 'servicelists', 'serviceData', 'testimoniallists', 'whychoosequeryData', 'whychoosequerylists', 'testimonialData', 'captcha']));
     }
 	
 	public function myprofile(Request $request)
@@ -290,7 +293,8 @@ class HomeController extends Controller
 	   return view('ourservices', compact(['servicelists', 'serviceData']));
     }	
 	 
-	public function blogs(Request $request)
+	// Blog functionality removed - frontend no longer needed
+	/*public function blogs(Request $request)
     {
 		$blogquery 		= Blog::where('id', '!=', '')->where('status', '=', 1);		
 		$blogData 	= $blogquery->count();	//for all data
@@ -316,7 +320,7 @@ class HomeController extends Controller
 		else{
 			return Redirect::to('/blogs')->with('error', Config::get('constants.unauthorized'));
 		}		
-    }
+    }*/
 	public function servicesdetail(Request $request, $slug = null)
     {
 		if(isset($slug) && !empty($slug)){

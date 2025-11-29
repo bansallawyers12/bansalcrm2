@@ -314,10 +314,12 @@ if(@$servicestat == 1){
  
 <!-- ##### Currency Area End ##### -->
 
-<?php $blogstat = @\App\HomeContent::where('meta_key','blogstatus')->first()->meta_value;
-if(@$blogstat == 1){
+{{-- Blog functionality removed - frontend no longer needed --}}
+<?php 
+// $blogstat = @\App\HomeContent::where('meta_key','blogstatus')->first()->meta_value;
+// if(@$blogstat == 1){
  ?>
-<!-- ##### Blog Area Start ##### -->
+{{-- <!-- ##### Blog Area Start ##### -->
 <section class="cryptos-blog-area blog_sec">
 	<div class="container">
 		<h3 class="text-center" style="Merienda, cursive;font-optical-sizing: auto;font-style: normal;font-weight:500"><span>RECENT BLOGS</span></h3>
@@ -345,8 +347,8 @@ if(@$blogstat == 1){
 </section>
 
 
-<!-- ##### Blog Area End ##### -->
-<?php } ?>
+<!-- ##### Blog Area End ##### --> --}}
+<?php // } ?>
 
 
 

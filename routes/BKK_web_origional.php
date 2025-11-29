@@ -34,7 +34,6 @@ Route::get('/clear-cache', function() {
 /*********************Exception Handling ***********************/
 Route::get('/exception', 'ExceptionController@index')->name('exception');
 Route::post('/exception', 'ExceptionController@index')->name('exception');
-// Route::get('destinationtour', 'DestinationController@destinationList');
 // Route::get('/import', 'TestController@import');
 /*********************Front Panel Start ***********************/
 //Coming Soon
@@ -43,7 +42,6 @@ Route::post('/exception', 'ExceptionController@index')->name('exception');
 //Home Page
 //Route::get('/', 'HomeController@index')->name('home');
 //Route::get('/index', 'HomeController@index')->name('home');
-// Route::get('/searchtour', 'HomeController@Searchtour')->name('Searchtour'); 
 // Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
 
 // Route::get('/enquiry', 'HomeController@enquiry')->name('enquiry');
@@ -53,9 +51,6 @@ Route::post('/exception', 'ExceptionController@index')->name('exception');
 // Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
 // Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
 // Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');  
-// //singlepackage     
-// Route::get('/singlepackage', 'HomeController@singlepack')->name('singlepackage');
-// Route::get('/packdetails', 'HomeController@packdetails')->name('packdetails');
 // Route::get('/profile', 'HomeController@myprofile')->name('profile');   
 //Login and Register
 Auth::routes();
@@ -128,8 +123,6 @@ Route::get('/refresh-captcha', 'HomeController@refresh_captcha');
 //Route::get('/mission-vision', 'HomeController@missionvision')->name('mission_vision'); 
 Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
 Route::get('sicaptcha', 'HomeController@sicaptcha')->name('sicaptcha'); 
-Route::post('enquiry-contact', 'PackageController@enquiryContact')->name('query.contact'); 
-Route::get('thanks', 'PackageController@thanks')->name('thanks');    
 Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
 Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
 Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');     
