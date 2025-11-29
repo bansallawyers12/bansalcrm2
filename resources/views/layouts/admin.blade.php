@@ -8,6 +8,7 @@
 	<meta name="author" content="">
 	<meta name="keyword" content="Bansal CRM">
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; script-src-attr 'unsafe-inline' 'unsafe-hashes'; style-src 'self' 'unsafe-inline' https:;">
 	<title>Bansal CRM | @yield('title')</title>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
 	<link rel="stylesheet" href="{{asset('css/app.min.css')}}">
