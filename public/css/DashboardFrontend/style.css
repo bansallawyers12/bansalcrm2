@@ -1,0 +1,27 @@
+@font-face{ 
+	font-family: 'Open Sans';
+	src:url("../../fonts/OpenSans-Regular.ttf") format("truetype");font-weight:normal;font-style:normal;
+}
+body{font-family: 'Open Sans';}
+ul{list-style-type:none;padding:0px;margin: 0px;}
+ul li{display:inline-block;}
+a, a:hover, a:focus{text-decoration: none;}
+input, select, textarea, button, input:hover, select:hover, textarea:hover, button:hover, input:focus, select:focus, textarea:focus, button:focus, input.form-control, select.form-control, textarea.form-control, input.form-control:hover, select.form-control:hover, textarea.form-control:hover, input.form-control:focus, select.form-control:focus, textarea.form-control:focus, button.btn, button.btn:hover, button.btn:focus, a, a:hover, a:focus, a.btn, a.btn:hover, a.btn:focus{outline:none;box-shadow:none;}
+h1{font-size:40px;line-height:45px;}
+h2{font-size:32px;line-height:36px;}
+h3{font-size:28px;line-height:32px;}
+h4{font-size:21px;line-height:24px;}
+h5{font-size:18px;line-height:21px;}
+h6{font-size:14px;line-height:18px;}
+p{font-size:14px;line-height:21px;}
+
+ 
+.enquiry_sec{background:#f4f4f4;}
+.enquiry_sec .enquiry_form{background: #fff;padding: 20px;border-radius: 7px;margin: 40px 0px;}
+.enquiry_sec .enquiry_form h3{margin:0px 0px 15px;text-align:center;font-weight: 600;}
+.enquiry_sec .enquiry_form .form-group{margin-bottom:15px;}
+.enquiry_sec .enquiry_form .form-group label, .enquiry_sec .enquiry_form .form-group .form-control{font-size:14px;line-height:18px;color:#000;}
+.enquiry_sec .enquiry_form .form-group label{margin-bottom: 8px;display: block;font-weight: 500;}
+.enquiry_sec .enquiry_form .form-group .form-control{padding:8px 10px;}
+.custom-error{font-size:12px;line-height:16px;color:#ff0000;}
+.server-error .alert button{display:none;}

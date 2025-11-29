@@ -1,0 +1,179 @@
+@media(min-width:1600px){
+	.container-fluid{max-width:1580px;margin:0px auto;}
+}
+@media(min-width:1367px){
+	.header-area .cryptos-main-menu .classy-navbar{position: relative;}
+	.header-area .cryptos-main-menu .classy-navbar .classynav ul li a, .header-area .cryptos-main-menu .classynav ul li .dropdown li a, .header-area .cryptos-main-menu .classynav ul li .megamenu li a{font-size:13px;}
+	nav.classy-navbar .nav-brand{width:200px;margin-right:20px;}
+	nav.classy-navbar .classy-menu{width:calc(100% - 220px);}
+	.breakpoint-off .classynav>ul>li>a{padding:25px 3px;} 
+}
+@media(min-width:1200px) and (max-width:1366px){
+	nav.classy-navbar .nav-brand{width:160px;margin-right:20px;}
+	nav.classy-navbar .classy-menu{width:calc(100% - 180px);}
+	.breakpoint-off .classynav>ul>li>a{padding:25px 2px;} 
+	.header-area .cryptos-main-menu .classy-navbar .classynav ul li a, .header-area .cryptos-main-menu .classynav ul li .dropdown li a, .header-area .cryptos-main-menu .classynav ul li .megamenu li a{font-size:12px;}
+}
+@media(min-width:1200px){
+	.breakpoint-off .classynav ul>li:nth-last-child(2) .dropdown{left: -20px;}
+	.hero-slides .single-hero-slide h1{font-size: 62px;line-height:70px;margin-bottom: 20px;}
+	.hero-slides .single-hero-slide h2{font-size: 50px;line-height:55px;margin-bottom: 30px;}
+	.hero-slides .single-hero-slide h4{font-size: 30px;line-height:35px;margin-bottom: 10px;} 
+	.services_area .service_col{width:16.6%;}
+	.appointment_form_tabs .cus_tab_form>ul{width: 20%;}
+	.appointment_form_tabs .cus_tab_form .tab-content{width:80%;}
+}
+@media(min-width:1025px) and (max-width:1199px){
+	nav.classy-navbar .nav-brand{width:130px;margin-right:10px;}
+	nav.classy-navbar .classy-menu{width:calc(100% - 140px);}
+	.breakpoint-off .classynav>ul>li>a{padding:25px 0px;} 
+	.header-area .cryptos-main-menu .classy-navbar .classynav ul li a, .header-area .cryptos-main-menu .classynav ul li .dropdown li a, .header-area .cryptos-main-menu .classynav ul li .megamenu li a{font-size:10px;}    
+	.breakpoint-off .classynav ul>li:nth-last-child(2) .dropdown{left: -55px;} 
+}
+@media(max-width:1024px){
+	.classy-navbar-toggler{display:block;} 
+	.classy-navbar .nav-brand{width:180px;}
+	.breakpoint-on .classy-navbar .classy-menu{background-color: #fff;position: fixed;top: 0;left: -310px;z-index: 1000;width: 300px;height: 100%;-webkit-transition-duration: .5s;transition-duration: .5s;padding: 0;box-shadow: 0 5px 20px rgb(0 0 0 / 10%);overflow-x: hidden;overflow-y: scroll;} 
+	.cryptos-main-menu .classy-nav-container{display:none;}
+	.cryptos-main-menu .classy-nav-container.breakpoint-on{display:block;}
+	.breakpoint-on .classy-navbar .classy-menu.menu-on{left:0px;} 
+} 
+@media(min-width:992px) and (max-width:1199px){
+	.hero-slides .single-hero-slide h1{font-size: 58px;line-height:65px;margin-bottom: 20px;}
+	.hero-slides .single-hero-slide h2{font-size: 45px;line-height:50px;margin-bottom: 20px;}
+	.hero-slides .single-hero-slide h4{font-size: 26px;line-height:30px;margin-bottom: 10px;} 
+}
+@media(min-width:768px) and (max-width:991px){
+	.hero-slides .single-hero-slide h1{font-size: 50px;line-height:55px;margin-bottom: 15px;}
+	.hero-slides .single-hero-slide h2{font-size: 40px;line-height:45px;margin-bottom: 15px;}
+	.hero-slides .single-hero-slide h4{font-size: 24px;line-height:30px;margin-bottom: 10px;} 
+}
+@media(min-width:576px) and (max-width:991px){
+	.footer-area .main-footer-area .office_row>.office_info_col:nth-child(1), .footer-area .main-footer-area .office_row>.office_info_col:nth-child(2){margin-bottom:30px;}
+}
+@media(min-width:768px) and (max-width:1199px){
+	.services_area .service_col{width:33.33%;}
+	.appointment_form_tabs .cus_tab_form>ul{width: 30%;}
+	.appointment_form_tabs .cus_tab_form .tab-content{width:70%;}
+}
+@media(min-width:992px){
+	
+}
+@media(max-width:991px){
+	
+}
+@media(min-width:768px){
+	.top-header-content{display:flex;align-items: center;justify-content: space-between;}
+	.header-area .top-header{height: 40px;}
+	.hero-slides .single-hero-slide {height: 541px;} 
+	.login-faq-earn-money{margin-left:20px;}
+	.why_immigration_sec, .blog_sec{padding:50px 0px;}
+	.meet_us{padding:60px 0px;}
+	.section-heading h3{ font-size: 35px;}
+	.why_immigration_sec .section-heading{margin-bottom:50px;}
+	.why_immigration_sec .why_box .why_icon i{font-size:40px;}
+	.why_immigration_sec .why_box .why_content{width:calc(100% - 65px);margin-left: 20px;}
+	.why_immigration_sec .why_box .why_content h4{font-size:32px;line-height:36px;}
+	.why_immigration_sec .why_box .why_content p{font-size:15px;line-height:21px;}
+	.services_area .service_col:nth-child(odd){background:#0f3f70;}
+	.services_area .service_col:nth-child(even){background:#fcd21d;}
+	.services_area .service_col .service_item .service_icon{margin-bottom:20px;}
+	.services_area .service_col .service_item .service_icon i{font-size: 50px;}
+	.services_area .service_col .service_item h4{font-size: 16px;line-height: 21px;}
+	.services_area .service_col .service_item p{font-size: 14px;line-height: 21px;}
+	.services_area .service_col .service_item a.readmore{font-size: 14px;line-height: 18px;padding: 8px 15px;} 
+	.currency-calculator-area{padding-top:60px;}
+	.currency-calculator-area .section-heading h3{margin-bottom:30px;}
+	.blog_sec h3{margin:0px 0px 30px;}
+	.blog_sec .single-feature-area h4{font-size:18px;line-height:21px;height: 43px;}
+	.blog_sec .single-feature-area p{font-size:14px;line-height:21px;margin:0px 0px 10px;}
+	.blog_sec .single-feature-area a{font-size:14px;line-height:18px;}
+	.view_all_btn, .contact_btn{margin-top:40px;}
+	.footer-area .main-footer-area{padding:40px 0px;}
+	.custom_breadcrumb{padding:50px 0px;}
+	.custom_inner_page{padding: 40px 0px;}
+	.cus_inner_content{padding-bottom: 30px;}
+	.blog_detail{padding:40px 0px 20px;}
+	.blog_detail h1{font-size:40px;line-height:45px;margin:0px 0px 20px;}
+	.blog_detail h2, .blog_detail h3{font-size:30px;line-height:35px;margin:0px 0px 15px;}
+	.blog_detail h4, .blog_detail h5{font-size:24px;line-height:30px;margin:0px 0px 15px;}
+	.blog_detail p, .blog_detail ul li, .blog_detail ol li{font-size:15px;line-height:24px;}
+	.appointment_form_tabs .cus_tab_form{display: flex;}
+	.appointment_form_tabs .cus_tab_form>ul li.tab_logo a img{width:100%;}
+}
+@media(max-width:767px){ 
+	.header-area .top-header{padding:10px 0px;text-align:center;}
+	.header-area .cryptos-main-menu .classy-navbar .classynav ul li a{font-size: 14px;}
+	.header-area .cryptos-main-menu .classynav ul li .dropdown li a, .header-area .cryptos-main-menu .classynav ul li .megamenu li a{font-size: 13px;height: auto;line-height: 18px;padding: 6px 10px;}
+	.why_immigration_sec{padding: 30px 10px;}
+	.blog_sec{padding: 30px 0px;}
+	.meet_us{padding:40px 0px;}
+	.why_immigration_sec .why_box .why_icon i{font-size:35px;}
+	.why_immigration_sec .why_box .why_content{width:calc(100% - 60px);margin-left: 15px;}
+	.why_immigration_sec .why_box .why_content h4{font-size:21px;line-height:28px;}
+	.why_immigration_sec .why_box .why_content p{font-size:14px;line-height:18px;}
+	.services_area .service_col{width:50%;}
+	.services_area .service_col:nth-child(1), .services_area .service_col:nth-child(4), .services_area .service_col:nth-child(5){background:#0f3f70;}
+	.services_area .service_col:nth-child(2), .services_area .service_col:nth-child(3), .services_area .service_col:nth-child(6){background:#fcd21d;}
+	.services_area h2{font-size: 24px;line-height:28px;}
+	.services_area .service_col .service_item .service_icon{margin-bottom:10px;}
+	.services_area .service_col .service_item .service_icon i{font-size: 35px;}
+	.services_area .service_col .service_item h4{font-size: 15px;line-height: 21px;}
+	.services_area .service_col .service_item p{font-size: 13px;line-height: 18px;}
+	.services_area .service_col .service_item a.readmore{font-size: 13px;line-height: 16px;padding: 6px 12px;}
+	#testimonials .section-header{text-align:center;}
+	#testimonials a.cryptos-btn{margin-bottom:30px;}
+	.currency-calculator-area .section-heading{margin-bottom:40px;}
+	.currency-calculator-area .section-heading h3{margin-bottom:20px;}
+	.currency-calculator-area .section-heading h5{font-size: 16px;line-height:1.5;}
+	.currency-calculator-area{padding-top:40px;}
+	.blog_sec h3{margin:0px 0px 20px;}
+	.blog_sec .single-feature-area p{font-size:13px;line-height:18px;margin:0px 0px 8px;}
+	.blog_sec .single-feature-area a{font-size:13px;line-height:18px;}
+	.view_all_btn, .contact_btn{margin-top:20px;}
+	.meet_us .about-content p{line-height:1.5;}
+	.meet_us .about-content{margin: 30px 0px;}
+	.footer-area .main-footer-area{padding:25px 0px;}
+	.main-footer-area .footer-widget .widget-title{margin-bottom: 25px;}
+	.meet_us .about-content .section-heading{text-align: center;}
+	.custom_breadcrumb{padding:30px 0px;}
+	.custom_inner_page{padding: 20px 0px;} 
+	.custom_inner_page h1{font-size:24px;line-height:28px;}
+	.custom_inner_page h2{font-size:21px;line-height:26px;}
+	.custom_inner_page h3{font-size:18px;line-height:21px;}
+	.cus_inner_content{padding-bottom: 20px;}
+	.blog_detail{padding:20px 0px 20px;}
+	.blog_detail h1{font-size:24px;line-height:30px;margin:0px 0px 15px;}
+	.blog_detail h2, .blog_detail h3{font-size:21px;line-height:26px;margin:0px 0px 10px;}
+	.blog_detail h4, .blog_detail h5{font-size:18px;line-height:24px;margin:0px 0px 8px;}
+	.blog_detail p, .blog_detail ul li, .blog_detail ol li{font-size:14px;line-height:21px;}
+	
+	.appointment_form_tabs .cus_tab_form>ul{width: 100%;margin-bottom:20px;}
+	.appointment_form_tabs .cus_tab_form .tab-content{width:100%;}
+	.appointment_form_tabs .cus_tab_form>ul li.tab_logo a img{width:200px;margin: 0px auto;display: block;}
+}
+@media(min-width:576px) and (max-width:767px){
+	.blog_sec .single-feature-area h4{font-size:16px;line-height:21px;height: 43px;}
+}
+@media(min-width:481px) and (max-width:767px){
+	.hero-slides .single-hero-slide h1{font-size: 38px;line-height:42px;margin-bottom: 15px;}
+	.hero-slides .single-hero-slide h2{font-size: 32px;line-height:36px;margin-bottom: 15px;}
+	.hero-slides .single-hero-slide h4{font-size: 21px;line-height:26px;margin-bottom: 10px;}
+	.hero-slides .single-hero-slide {padding: 50px 35px;}
+	.section-heading h3{ font-size: 30px;}
+	.why_immigration_sec .section-heading{margin-bottom:30px;}
+}
+@media(max-width:575px){
+	.blog_sec .single-feature-area h4{font-size:15px;line-height:21px;}
+	.footer-area .main-footer-area .office_row .office_info_col{margin-bottom: 25px;}
+	.footer-area .main-footer-area .office_row .office_info_col:last-child{margin-bottom: 0px;}
+}
+@media(max-width:480px){
+	.headline_left{display:none;} 
+	.hero-slides .single-hero-slide h1{font-size: 32px;line-height:36px;margin-bottom: 12px;}
+	.hero-slides .single-hero-slide h2{font-size: 26px;line-height:30px;margin-bottom: 15px;}
+	.hero-slides .single-hero-slide h4{font-size: 18px;line-height:21px;margin-bottom: 10px;}
+	.hero-slides .single-hero-slide {padding: 35px 15px;}
+	.section-heading h3{ font-size: 24px;}
+	.why_immigration_sec .section-heading{margin-bottom:20px;}
+}

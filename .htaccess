@@ -1,0 +1,42 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
+    RewriteEngine On
+
+
+    # Force HTTPS
+    # Rewrite rules for robots.txt
+    RewriteCond %{REQUEST_URI} ^/robots\.txt$
+    RewriteRule ^ /public/robots.txt [R=301,L]
+
+    # Rewrite rules for sitemap.xml
+    RewriteCond %{REQUEST_URI} ^/sitemap\.xml$
+    RewriteRule ^ /public/sitemap.xml [R=301,L]
+
+    # Redirect for /contact/
+    RewriteCond %{REQUEST_URI} ^/contact/?$
+    RewriteRule ^ /contact-us [R=301,L]
+
+    # Redirect for /visa-checklists/
+    RewriteCond %{REQUEST_URI} ^/visa-checklists/?$
+    RewriteRule ^ /contact-us [R=301,L]
+  
+    RewriteCond %{REQUEST_URI} ^/australias-immigration-changes-for-2024-25-what-you-need-to-know/?$
+	RewriteRule ^ /what-are-the-changes-in-australia-immigration-2024-25 [R=301,L]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

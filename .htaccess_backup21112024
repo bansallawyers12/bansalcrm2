@@ -1,0 +1,51 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+      
+    </IfModule>
+
+    RewriteEngine On
+  
+    #RewriteCond %{REQUEST_URI} ^/blogs/([^/]+)$
+    #RewriteRule ^blogs/(.*)$ /$1 [R=301,L]
+  
+    #RewriteCond %{REQUEST_URI} ^/blogs/(.+)$
+	#RewriteRule ^blogs/(.+)$ /$1 [R=301,L]
+  
+    RewriteCond %{REQUEST_URI} ^/robots\.txt$
+    RewriteRule ^ /public/robots.txt [R=301,L]
+
+    RewriteCond %{REQUEST_URI} ^/sitemap\.xml$
+    RewriteRule ^ /public/sitemap.xml [R=301,L]
+
+    RewriteCond %{REQUEST_URI} ^/contact/?$
+    RewriteRule ^ /contact-us [R=301,L]
+
+    RewriteCond %{REQUEST_URI} ^/visa-checklists/?$
+    RewriteRule ^ /contact-us [R=301,L]
+
+	
+	# Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+  
+    
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+  
+  
+   
+  
+  
+  
+  
+</IfModule>
+
