@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use App\WebsiteSetting;
+use App\Models\WebsiteSetting;
 use Illuminate\Support\Facades\Session;
 use Config;
-use App\Admin;
-use App\ActivitiesLog;
-use App\ClientPhone;
+use App\Models\Admin;
+use App\Models\ActivitiesLog;
+use App\Models\ClientPhone;
 
 class HomeController extends Controller
 {

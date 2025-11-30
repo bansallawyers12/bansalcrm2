@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Admin;
-use App\Quotation;
-use App\Template;
-use App\TemplateInfo;
+use App\Models\Admin;
+use App\Models\Quotation;
+use App\Models\Template;
+use App\Models\TemplateInfo;
  
 use PDF; 
 use Auth; 

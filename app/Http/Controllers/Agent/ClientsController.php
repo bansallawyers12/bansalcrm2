@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Admin;
-use App\ActivitiesLog;
-use App\ServiceFeeOption;
-use App\ServiceFeeOptionType;
+use App\Models\Admin;
+use App\Models\ActivitiesLog;
+use App\Models\ServiceFeeOption;
+use App\Models\ServiceFeeOptionType;
    
 use Auth;
 use Config;

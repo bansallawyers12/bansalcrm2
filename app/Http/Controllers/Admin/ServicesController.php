@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Admin;
-use App\Product;
-use App\Partner;
+use App\Models\Admin;
+use App\Models\Product;
+use App\Models\Partner;
  
 use Auth;
 use Config;

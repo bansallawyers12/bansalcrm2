@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Routing\Route;
 
-use App\BlogCategory;
+use App\Models\BlogCategory;
 
 use Auth;
 use Config;

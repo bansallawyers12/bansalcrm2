@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Admin;
+use App\Models\Admin;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller

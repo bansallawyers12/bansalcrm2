@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Appointment;
-use App\Admin;
-use App\NatureOfEnquiry;
-use App\BookService;
+use App\Models\Appointment;
+use App\Models\Admin;
+use App\Models\NatureOfEnquiry;
+use App\Models\BookService;
 use Illuminate\Support\Facades\Validator;
 
 

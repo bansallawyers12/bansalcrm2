@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Followup;
-use App\FollowupType;
-use App\Lead;
-use App\Attachment;
+use App\Models\Followup;
+use App\Models\FollowupType;
+use App\Models\Lead;
+use App\Models\Attachment;
  
 use Auth;
 use Config;

@@ -5,8 +5,8 @@ use Illuminate\Http\Request;
 //use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Response;
 
-use App\CmsPage;
-use App\Admin;
+use App\Models\CmsPage;
+use App\Models\Admin;
 
 use Config;
 class PageController extends BaseController

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Routing\Route;
 
-use App\CmsPage;
+use App\Models\CmsPage;
 
 use Auth;
 use Config;

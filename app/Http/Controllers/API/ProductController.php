@@ -4,12 +4,12 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 
-use App\Product;
-use App\Professor;
-use App\ModeProduct;
-use App\ProductOtherInformation;
-use App\ProductDemoVideo;
-use App\ProductReview;
+use App\Models\Product;
+use App\Models\Professor;
+use App\Models\ModeProduct;
+use App\Models\ProductOtherInformation;
+use App\Models\ProductDemoVideo;
+use App\Models\ProductReview;
 
 use Config;
 

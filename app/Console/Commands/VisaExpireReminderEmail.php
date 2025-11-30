@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use DB;
-use App\Admin;
-use App\CrmEmailTemplate;
+use App\Models\Admin;
+use App\Models\CrmEmailTemplate;
 use Carbon\Carbon;
 //use Mail;
 use Auth;

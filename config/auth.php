@@ -19,11 +19,11 @@ return [
     ],
 	'admins' => [
         'driver' => 'eloquent',
-        'model' => App\Admin::class,
+        'model' => App\Models\Admin::class,
     ],
     'agents' => [
         'driver' => 'eloquent',
-        'model' => App\Agent::class,
+        'model' => App\Models\Agent::class,
     ],
     /*
     |--------------------------------------------------------------------------
@@ -86,19 +86,19 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\User::class,
+            'model' => App\Models\User::class,
         ],
 		'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Admin::class,
+            'model' => App\Models\Admin::class,
         ],
 		'providers' => [
             'driver' => 'eloquent',
-            'model' => App\Provider::class,
+            'model' => App\Models\Provider::class,
         ],
         'agents' => [
             'driver' => 'eloquent',
-            'model' => App\Agent::class,
+            'model' => App\Models\Agent::class,
         ]
     ],
 

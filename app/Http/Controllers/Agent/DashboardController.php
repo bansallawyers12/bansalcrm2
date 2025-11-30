@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Agent;
+use App\Models\Agent;
 use Auth;
 use Config;
 

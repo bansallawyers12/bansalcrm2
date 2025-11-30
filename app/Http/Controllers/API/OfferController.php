@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 //use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Support\Facades\Response;
 
-use App\Admin;
+use App\Models\Admin;
 use DB;
 
-use App\Offer;
+use App\Models\Offer;
 
 use Config;
 

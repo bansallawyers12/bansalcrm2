@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 
-use App\VerifiedNumber;
+use App\Models\VerifiedNumber;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 

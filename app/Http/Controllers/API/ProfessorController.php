@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 
-use App\Professor;
+use App\Models\Professor;
 
 use Config;
 

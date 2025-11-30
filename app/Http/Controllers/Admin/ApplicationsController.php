@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-use App\Admin;
-use App\Application;
-use App\ApplicationFeeOptionType;
-use App\ApplicationFeeOption;
+use App\Models\Admin;
+use App\Models\Application;
+use App\Models\ApplicationFeeOptionType;
+use App\Models\ApplicationFeeOption;
    use PDF; 
 use Auth;
 use Config;
-use App\Partner;
+use App\Models\Partner;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 

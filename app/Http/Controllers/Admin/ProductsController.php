@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-use App\Admin;
-use App\Product;
-use App\AcademicRequirement;
-use App\ProductAreaLevel;
-use App\FeeOption;
-use App\FeeOptionType;
+use App\Models\Admin;
+use App\Models\Product;
+use App\Models\AcademicRequirement;
+use App\Models\ProductAreaLevel;
+use App\Models\FeeOption;
+use App\Models\FeeOptionType;
  
 use Auth;
 use Config;

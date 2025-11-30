@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
-use App\Admin;
-use App\Task;
-use App\TaskLog;
-use App\ToDoGroup;
+use App\Models\Admin;
+use App\Models\Task;
+use App\Models\TaskLog;
+use App\Models\ToDoGroup;
  
 use Auth;
 use Config;

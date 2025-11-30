@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 
 
-use App\TestSeriesTransactionHistory;
-use App\ProductTransactionHistory;
-use App\PurchasedSubject;
-use App\User;
+use App\Models\TestSeriesTransactionHistory;
+use App\Models\ProductTransactionHistory;
+use App\Models\PurchasedSubject;
+use App\Models\User;
 
 use Auth;
 

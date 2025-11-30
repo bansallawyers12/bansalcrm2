@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-use App\Admin;
-use App\Partner;
-use App\Contact;
-use App\PartnerBranch;
-use App\Task;
-use App\TaskLog;
-//use App\ActivitiesLog;
+use App\Models\Admin;
+use App\Models\Partner;
+use App\Models\Contact;
+use App\Models\PartnerBranch;
+use App\Models\Task;
+use App\Models\TaskLog;
+//use App\Models\ActivitiesLog;
  
 use Auth; 
 use Config;
@@ -28,9 +28,9 @@ use Hfig\MAPI\MapiMessageFactory;
 
 use DateTime;
 use DateTimeZone;
-use App\ActivitiesLog;
-use App\PartnerEmail;
-use App\PartnerPhone;
+use App\Models\ActivitiesLog;
+use App\Models\PartnerEmail;
+use App\Models\PartnerPhone;
 
 class PartnersController extends Controller
 {
