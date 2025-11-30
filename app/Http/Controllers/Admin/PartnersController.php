@@ -239,7 +239,7 @@ class PartnersController extends Controller
                 $partner_email =  $requestData['partner_email'];
                 $partner_email_type =  $requestData['partner_email_type'];
                 for($ii=0; $ii< count($partner_email); $ii++){
-                    $oe = new \App\PartnerEmail;
+                    $oe = new \App\Models\PartnerEmail;
                     $oe->user_id = @Auth::user()->id;
                     $oe->partner_id = @$obj->id;
                     $oe->partner_email_type = @$partner_email_type[$ii];
@@ -266,7 +266,7 @@ class PartnersController extends Controller
                 $partner_phone =  $requestData['partner_phone'];
                 $partner_country_code =  $requestData['partner_country_code'];
                 for($iii=0; $iii< count($partner_phone); $iii++){
-                    $oe1 = new \App\PartnerPhone;
+                    $oe1 = new \App\Models\PartnerPhone;
                     $oe1->user_id = @Auth::user()->id;
                     $oe1->partner_id = @$obj->id;
                     $oe1->partner_phone_type = @$partner_phone_type[$iii];
@@ -311,7 +311,7 @@ class PartnersController extends Controller
                     if($i==0){
                         $is_headoffice = 1;
                     }
-                    $o = new \App\PartnerBranch;
+                    $o = new \App\Models\PartnerBranch;
                     $o->user_id = @Auth::user()->id;
                     $o->partner_id = @$obj->id;
                     $o->name = @$branchname[$i];
@@ -329,7 +329,7 @@ class PartnersController extends Controller
                 }
 		    } else {
 		        $is_headoffice = 1;
-		        $o = new \App\PartnerBranch;
+		        $o = new \App\Models\PartnerBranch;
 				$o->user_id = @Auth::user()->id;
 				$o->partner_id = @$obj->id;
 				$o->name = 'Head Office';
@@ -422,8 +422,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem_email'])){
                 $rem_email =  @$requestData['rem_email'];
                 for($irem_email=0; $irem_email< count($rem_email); $irem_email++){
-                    if(\App\PartnerEmail::where('id', $rem_email[$irem_email])->exists()){
-                        \App\PartnerEmail::where('id', $rem_email[$irem_email])->delete();
+                    if(\App\Models\PartnerEmail::where('id', $rem_email[$irem_email])->exists()){
+                        \App\Models\PartnerEmail::where('id', $rem_email[$irem_email])->delete();
                     }
                 }
             }
@@ -443,8 +443,8 @@ class PartnersController extends Controller
             if(count($partner_email) >0){
                 for($ii=0; $ii< count($partner_email); $ii++){
 
-                    if(\App\PartnerEmail::where('id', $requestData['partneremailid'][$ii])->exists()){
-                        $os = \App\PartnerEmail::find($requestData['partneremailid'][$ii]);
+                    if(\App\Models\PartnerEmail::where('id', $requestData['partneremailid'][$ii])->exists()){
+                        $os = \App\Models\PartnerEmail::find($requestData['partneremailid'][$ii]);
                         $os->user_id = @Auth::user()->id;
                         $os->partner_id = @$obj->id;
                         $os->partner_email_type = @$partner_email_type[$ii];
@@ -452,7 +452,7 @@ class PartnersController extends Controller
                         $os->updated_at = date('Y-m-d H:i:s');
                         $os->save();
                     }else{
-                        $oe = new \App\PartnerEmail;
+                        $oe = new \App\Models\PartnerEmail;
                         $oe->user_id = @Auth::user()->id;
                         $oe->partner_id = @$obj->id;
                         $oe->partner_email_type = @$partner_email_type[$ii];
@@ -487,8 +487,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem_phone'])){
                 $rem_phone =  @$requestData['rem_phone'];
                 for($irem_phone=0; $irem_phone< count($rem_phone); $irem_phone++){
-                    if(\App\PartnerPhone::where('id', $rem_phone[$irem_phone])->exists()){
-                        \App\PartnerPhone::where('id', $rem_phone[$irem_phone])->delete();
+                    if(\App\Models\PartnerPhone::where('id', $rem_phone[$irem_phone])->exists()){
+                        \App\Models\PartnerPhone::where('id', $rem_phone[$irem_phone])->delete();
                     }
                 }
             }
@@ -514,8 +514,8 @@ class PartnersController extends Controller
             if(count($partner_phone) >0){
                 for($iii=0; $iii< count($partner_phone); $iii++){
 
-                    if(\App\PartnerPhone::where('id', $requestData['partnerphoneid'][$iii])->exists()){
-                        $os1 = \App\PartnerPhone::find($requestData['partnerphoneid'][$iii]);
+                    if(\App\Models\PartnerPhone::where('id', $requestData['partnerphoneid'][$iii])->exists()){
+                        $os1 = \App\Models\PartnerPhone::find($requestData['partnerphoneid'][$iii]);
                         $os1->user_id = @Auth::user()->id;
                         $os1->partner_id = @$obj->id;
                         $os1->partner_phone_type = @$partner_phone_type[$iii];
@@ -524,7 +524,7 @@ class PartnersController extends Controller
                         $os1->updated_at = date('Y-m-d H:i:s');
                         $os1->save();
                     }else{
-                        $oe1 = new \App\PartnerPhone;
+                        $oe1 = new \App\Models\PartnerPhone;
                         $oe1->user_id = @Auth::user()->id;
                         $oe1->partner_id = @$obj->id;
                         $oe1->partner_phone_type = @$partner_phone_type[$iii];
@@ -562,8 +562,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem'])){
                 $rem =  @$requestData['rem'];
                 for($irem=0; $irem< count($rem); $irem++){
-                    if(\App\PartnerBranch::where('id', $rem[$irem])->exists()){
-                        \App\PartnerBranch::where('id', $rem[$irem])->delete();
+                    if(\App\Models\PartnerBranch::where('id', $rem[$irem])->exists()){
+                        \App\Models\PartnerBranch::where('id', $rem[$irem])->delete();
                     }
                 }
             }
@@ -615,8 +615,8 @@ class PartnersController extends Controller
                     if($i==0){
                         $is_headoffice = 1;
                     }
-                    if(\App\PartnerBranch::where('id', $requestData['branchid'][$i])->exists()){
-                        $os = \App\PartnerBranch::find($requestData['branchid'][$i]);
+                    if(\App\Models\PartnerBranch::where('id', $requestData['branchid'][$i])->exists()){
+                        $os = \App\Models\PartnerBranch::find($requestData['branchid'][$i]);
 
                         $os->name = @$branchname[$i];
                         $os->email = @$branchemail[$i];
@@ -631,7 +631,7 @@ class PartnersController extends Controller
 
                         $os->save();
                     }else{
-                        $o = new \App\PartnerBranch;
+                        $o = new \App\Models\PartnerBranch;
                         $o->user_id = @Auth::user()->id;
                         $o->partner_id = @$obj->id;
                         $o->name = @$branchname[$i];
@@ -671,8 +671,8 @@ class PartnersController extends Controller
 					$fetchedData = Partner::find($id); //dd($fetchedData);
 
                     //Check email record is exist in partner email table
-                    if( \App\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
-                        $oef = new \App\PartnerEmail;
+                    if( \App\Models\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
+                        $oef = new \App\Models\PartnerEmail;
                         $oef->user_id = @Auth::user()->id;
                         $oef->partner_id = $id;
                         $oef->partner_email = $fetchedData->email;
@@ -682,8 +682,8 @@ class PartnersController extends Controller
                     }
 
                     //Check phone record is exist in partner phone table
-                    if( \App\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
-                        $oef1 = new \App\PartnerPhone;
+                    if( \App\Models\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
+                        $oef1 = new \App\Models\PartnerPhone;
                         $oef1->user_id = @Auth::user()->id;
                         $oef1->partner_id = $id;
                         $oef1->partner_country_code = $fetchedData->country_code;
@@ -711,7 +711,7 @@ class PartnersController extends Controller
 	
 	public function getpaymenttype(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\PartnerType::where('category_id', $catid)->orderby('name','ASC')->get();
+		$lists = \App\Models\PartnerType::where('category_id', $catid)->orderby('name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select a Partner Type</option>
@@ -733,8 +733,8 @@ class PartnersController extends Controller
 					$fetchedData = Partner::find($id);
                   
                     //Check email record is exist in partner email table
-                    if( \App\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
-                        $oef = new \App\PartnerEmail;
+                    if( \App\Models\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
+                        $oef = new \App\Models\PartnerEmail;
                         $oef->user_id = @Auth::user()->id;
                         $oef->partner_id = $id;
                         $oef->partner_email = $fetchedData->email;
@@ -744,8 +744,8 @@ class PartnersController extends Controller
                     }
 
                     //Check phone record is exist in partner phone table
-                    if( \App\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
-                        $oef1 = new \App\PartnerPhone;
+                    if( \App\Models\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
+                        $oef1 = new \App\Models\PartnerPhone;
                         $oef1->user_id = @Auth::user()->id;
                         $oef1->partner_id = $id;
                         $oef1->partner_country_code = $fetchedData->country_code;
@@ -772,7 +772,7 @@ class PartnersController extends Controller
 		$squery = $request->q;
 		if($squery != ''){
 			
-			 $partners = \App\Partner::where('id', '!=', '')
+			 $partners = \App\Models\Partner::where('id', '!=', '')
       
        ->where(
            function($query) use ($squery) {
@@ -796,7 +796,7 @@ class PartnersController extends Controller
 		$squery = $request->q;
 		if($squery != ''){
 			
-			 $partners = \App\Partner::where('id', '!=', '')
+			 $partners = \App\Models\Partner::where('id', '!=', '')
        
        ->where( 
            function($query) use ($squery) {
@@ -894,12 +894,12 @@ class PartnersController extends Controller
 	}
 	
 	public function getcontacts(Request $request){
-		$querycontactlist = \App\Contact::where('user_id', $request->clientid)->orderby('created_at', 'DESC');
+		$querycontactlist = \App\Models\Contact::where('user_id', $request->clientid)->orderby('created_at', 'DESC');
 		$contactlistcount = $querycontactlist->count();
 		$contactlist = $querycontactlist->get();
 		if($contactlistcount !== 0){
 			foreach($contactlist as $clist){
-				$branch = \App\PartnerBranch::where('id', $clist->branch)->first();
+				$branch = \App\Models\PartnerBranch::where('id', $clist->branch)->first();
 				?>
 				<div class="note_col" id="contact_<?php echo $clist->id; ?>" style="width:33.33333333%"> 
 					<div class="note_content">
@@ -938,7 +938,7 @@ class PartnersController extends Controller
 	
 	public function deletecontact(Request $request){
 		$note_id = $request->note_id;
-		if(\App\Contact::where('id',$note_id)->exists()){
+		if(\App\Models\Contact::where('id',$note_id)->exists()){
 			$res = DB::table('contacts')->where('id', @$note_id)->delete();
 			if($res){
 				
@@ -956,8 +956,8 @@ class PartnersController extends Controller
 	
 	public function getcontactdetail(Request $request){
 		$note_id = $request->note_id;
-		if(\App\Contact::where('id',$note_id)->exists()){
-			$data = \App\Contact::select('name','contact_email','contact_phone','department','branch','fax','position','primary_contact','countrycode')->where('id',$note_id)->first();
+		if(\App\Models\Contact::where('id',$note_id)->exists()){
+			$data = \App\Models\Contact::select('name','contact_email','contact_phone','department','branch','fax','position','primary_contact','countrycode')->where('id',$note_id)->first();
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
 		}else{
@@ -1040,8 +1040,8 @@ class PartnersController extends Controller
 	
 	public function getbranchdetail(Request $request){
 		$note_id = $request->note_id;
-		if(\App\PartnerBranch::where('id',$note_id)->exists()){
-			$data = \App\PartnerBranch::where('id',$note_id)->first();
+		if(\App\Models\PartnerBranch::where('id',$note_id)->exists()){
+			$data = \App\Models\PartnerBranch::where('id',$note_id)->first();
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
 		}else{
@@ -1053,7 +1053,7 @@ class PartnersController extends Controller
 	
 	public function deletebranch(Request $request){
 		$note_id = $request->note_id;
-		if(\App\PartnerBranch::where('id',$note_id)->exists()){
+		if(\App\Models\PartnerBranch::where('id',$note_id)->exists()){
 			$res = DB::table('partner_branches')->where('id', @$note_id)->delete();
 			if($res){
 				
@@ -1072,7 +1072,7 @@ class PartnersController extends Controller
 	public function addappointment(Request $request){
 		$requestData = $request->all();
 		
-		$obj = new \App\Appointment;
+		$obj = new \App\Models\Appointment;
 		$obj->user_id = @Auth::user()->id;
 		$obj->client_id = @$request->client_id;
 		$obj->timezone = @$request->timezone;
@@ -1098,7 +1098,7 @@ class PartnersController extends Controller
 	
 	public function getappointment(Request $request){
 		ob_start();
-		$appointmentlistsquery = \App\Appointment::where('client_id', $request->clientid)->where('related_to', 'partner')->orderby('created_at', 'DESC');
+		$appointmentlistsquery = \App\Models\Appointment::where('client_id', $request->clientid)->where('related_to', 'partner')->orderby('created_at', 'DESC');
 		$appointmentlistscount = $appointmentlistsquery->count();
 		$appointmentlists = $appointmentlistsquery->get();
 		if($appointmentlistscount !== 0){
@@ -1109,9 +1109,9 @@ class PartnersController extends Controller
 				$rr=0;
 				$appointmentdata = array();
 				
-				$appointmentlistslast = \App\Appointment::where('client_id', $request->clientid)->where('related_to', 'partner')->orderby('created_at', 'DESC')->first();
+				$appointmentlistslast = \App\Models\Appointment::where('client_id', $request->clientid)->where('related_to', 'partner')->orderby('created_at', 'DESC')->first();
 				foreach($appointmentlists as $appointmentlist){
-					$admin = \App\Admin::where('id', $appointmentlist->user_id)->first();
+					$admin = \App\Models\Admin::where('id', $appointmentlist->user_id)->first();
 					$datetime = $appointmentlist->created_at;
 					$timeago = Controller::time_elapsed_string($datetime);
 					
@@ -1155,7 +1155,7 @@ class PartnersController extends Controller
 				<div class="editappointment">
 					<a class="edit_link edit_appointment" href="javascript:;" data-id="<?php echo $appointmentlistslast->id; ?>"><i class="fa fa-edit"></i></a>
 					<?php
-					$adminfirst = \App\Admin::where('id', $appointmentlistslast->user_id)->first();
+					$adminfirst = \App\Models\Admin::where('id', $appointmentlistslast->user_id)->first();
 					?>
 					<div class="content">
 						<h4 class="appointmentname"><?php echo $appointmentlistslast->title; ?></h4>
@@ -1191,7 +1191,7 @@ class PartnersController extends Controller
 	}
 	
 	public function getAppointmentdetail(Request $request){
-		$obj = \App\Appointment::find($request->id);
+		$obj = \App\Models\Appointment::find($request->id);
 		if($obj){
 			?>
 			<form method="post" action="<?php echo \URL::to('/admin/editappointment'); ?>" name="editpartnerappointment" id="editpartnerappointment" autocomplete="off" enctype="multipart/form-data">
@@ -1380,10 +1380,10 @@ class PartnersController extends Controller
 	public function gettasks(Request $request){
 		$client_id = $request->clientid;
 		
-		$notelist = \App\Task::where('client_id',$client_id)->where('type','partner')->orderby('created_at', 'DESC')->get();
+		$notelist = \App\Models\Task::where('client_id',$client_id)->where('type','partner')->orderby('created_at', 'DESC')->get();
 		ob_start();
 		foreach($notelist as $alist){
-			$admin = \App\Admin::where('id', $alist->user_id)->first();
+			$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
 			?>
 			<tr class="opentaskview" style="cursor:pointer;" id="<?php echo $alist->id; ?>">
 				<td></td> 
@@ -1410,7 +1410,7 @@ class PartnersController extends Controller
 	}
 	
 	public function taskdetail(Request $request){
-		$notedetail = \App\Task::where('id',$request->task_id)->where('type','partner')->first();
+		$notedetail = \App\Models\Task::where('id',$request->task_id)->where('type','partner')->first();
 		?>
 		<div class="modal-header">
 				<h5 class="modal-title" id="taskModalLabel"><i class="fa fa-bag"></i> <?php echo $notedetail->title; ?></h5>
@@ -1507,7 +1507,7 @@ class PartnersController extends Controller
 				<div class="col-12 col-md-4 col-lg-4">
 					<div class="form-group">
 					<?php
-					$admindetail = \App\Admin::where('id',$notedetail->assignee)->first();
+					$admindetail = \App\Models\Admin::where('id',$notedetail->assignee)->first();
 					?>
 						<label for="title">Assignee:</label>
 						<br>
@@ -1533,7 +1533,7 @@ class PartnersController extends Controller
 						<label for="title">Followers:</label>
 						<br>
 						<?php
-					$admindetailfollowers = \App\Admin::where('id',$notedetail->followers)->first();
+					$admindetailfollowers = \App\Models\Admin::where('id',$notedetail->followers)->first();
 					if($admindetailfollowers){
 					?>
 						<div style="display: flex;">
@@ -1559,7 +1559,7 @@ class PartnersController extends Controller
 						<label for="title">Added By:</label>
 						<br>
 						<?php
-					$admindetailadded = \App\Admin::where('id',$notedetail->user_id)->first();
+					$admindetailadded = \App\Models\Admin::where('id',$notedetail->user_id)->first();
 					?>
 						<div style="display: flex;">
 						<span  title="Arun " class="col-hr-1 ag-avatar ag-avatar--xs" style="position: relative; background: rgb(3, 169, 244);color: #fff;display: block;
@@ -1613,7 +1613,7 @@ class PartnersController extends Controller
 						<?php
 						$datas = TaskLog::where('task_id', $notedetail->id)->orderby('created_at','DESC')->get();
 							foreach($datas as $data){
-								$admindetailcreated_by = \App\Admin::where('id',$data->created_by)->first();
+								$admindetailcreated_by = \App\Models\Admin::where('id',$data->created_by)->first();
 								?>
 							
 								<div  class="task-log-item text-semi-light-grey col-v-1" style="margin-top: 5px!important;background-color: #fff;
@@ -1676,7 +1676,7 @@ class PartnersController extends Controller
 			$datas = TaskLog::where('task_id', $request->taskid)->orderby('created_at','DESC')->get();
 			ob_start();
 			foreach($datas as $data){
-				$admindetailcreated_by = \App\Admin::where('id',$data->created_by)->first();
+				$admindetailcreated_by = \App\Models\Admin::where('id',$data->created_by)->first();
 				?>
 				<div  class="task-log-item text-semi-light-grey col-v-1" style="margin-top: 5px!important;background-color: #fff;border-radius: 4px;box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);padding: 7px 15px;">
 			<div class="ag-flex">
@@ -1750,7 +1750,7 @@ class PartnersController extends Controller
 		$datas = TaskLog::where('task_id', $request->id)->orderby('created_at','DESC')->get();
 			ob_start();
 			foreach($datas as $data){
-				$admindetailcreated_by = \App\Admin::where('id',$data->created_by)->first();
+				$admindetailcreated_by = \App\Models\Admin::where('id',$data->created_by)->first();
 				?>
 				<div  class="task-log-item text-semi-light-grey col-v-1" style="margin-top: 5px!important;background-color: #fff;border-radius: 4px;box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);padding: 7px 15px;">
 			<div class="ag-flex">
@@ -1808,7 +1808,7 @@ class PartnersController extends Controller
 		$datas = TaskLog::where('task_id', $request->id)->orderby('created_at','DESC')->get();
 			ob_start();
 			foreach($datas as $data){
-				$admindetailcreated_by = \App\Admin::where('id',$data->created_by)->first();
+				$admindetailcreated_by = \App\Models\Admin::where('id',$data->created_by)->first();
 				?>
 				<div  class="task-log-item text-semi-light-grey col-v-1" style="margin-top: 5px!important;background-color: #fff;border-radius: 4px;box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);padding: 7px 15px;">
 			<div class="ag-flex">
@@ -1977,7 +1977,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -1992,7 +1992,7 @@ class PartnersController extends Controller
                     $filePath = $client_unique_id.'/'.$doctype.'/'. $name;
                     Storage::disk('s3')->put($filePath, file_get_contents($file));
                     $exploadename = explode('.', $name);
-                    $obj = new \App\Document;
+                    $obj = new \App\Models\Document;
                     $obj->file_name = $explodeFileName[0];
                     $obj->filetype = $exploadename[1];
                     $obj->user_id = Auth::user()->id;
@@ -2107,7 +2107,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -2122,7 +2122,7 @@ class PartnersController extends Controller
                     $filePath = $client_unique_id.'/'.$doctype.'/'. $name;
                     Storage::disk('s3')->put($filePath, file_get_contents($file));
                     $exploadename = explode('.', $name);
-                    $obj2 = new \App\Document;
+                    $obj2 = new \App\Models\Document;
                     $obj2->file_name = $explodeFileName[0];
                     $obj2->filetype = $exploadename[1];
                     $obj2->user_id = Auth::user()->id;
@@ -2315,7 +2315,7 @@ class PartnersController extends Controller
     public function getEnrolledStudentList(Request $request)
 	{
         //dd($request->partnerid);
-        $record_get = \App\Application::join('admins', 'applications.client_id', '=', 'admins.id')
+        $record_get = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
         ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
         ->select('admins.client_id as client_reference','admins.first_name','admins.last_name','admins.id')
         ->where('applications.partner_id', $request->partnerid)
@@ -2359,7 +2359,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -2377,7 +2377,7 @@ class PartnersController extends Controller
                     Storage::disk('s3')->put($filePath, file_get_contents($file));
                     $exploadename = explode('.', $name);
 
-                    $obj = new \App\Document;
+                    $obj = new \App\Models\Document;
                     $obj->file_name = $explodeFileName[0];
                     $obj->filetype = $exploadename[1];
                     $obj->user_id = Auth::user()->id;
@@ -2510,7 +2510,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -2528,7 +2528,7 @@ class PartnersController extends Controller
                     Storage::disk('s3')->put($filePath, file_get_contents($file));
                     $exploadename = explode('.', $name);
 
-                    $obj = new \App\Document;
+                    $obj = new \App\Models\Document;
                     $obj->file_name = $explodeFileName[0];
                     $obj->filetype = $exploadename[1];
                     $obj->user_id = Auth::user()->id;
@@ -2675,7 +2675,7 @@ class PartnersController extends Controller
     public function getStudentInfo(Request $request)
 	{
         //dd($request->sel_student_id);
-        $record_get = \App\Admin::select('first_name','last_name','id','dob','client_id')
+        $record_get = \App\Models\Admin::select('first_name','last_name','id','dob','client_id')
         ->where('id', $request->sel_student_id)->first(); //dd($record_get);
         if($record_get) {
             if( $record_get->dob != ""){
@@ -2701,7 +2701,7 @@ class PartnersController extends Controller
     public function getStudentCourseInfo(Request $request)
 	{
         //dd($request->sel_student_id);
-        $studentCourseInfo = \App\Application::join('partners', 'applications.partner_id', '=', 'partners.id')
+        $studentCourseInfo = \App\Models\Application::join('partners', 'applications.partner_id', '=', 'partners.id')
         ->leftJoin('products', 'applications.product_id', '=', 'products.id')
         ->leftJoin('application_fee_options', 'applications.id', '=', 'application_fee_options.app_id')
         ->select('applications.student_id','products.name as coursename','application_fee_options.commission_pending')
@@ -2850,7 +2850,7 @@ class PartnersController extends Controller
     public function getEnrolledStudentListInEditMode(Request $request)
     {
         //dd($request->partnerid);
-        $record_get = \App\Application::join('admins', 'applications.client_id', '=', 'admins.id')
+        $record_get = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
         ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
         ->select('admins.client_id as client_reference','admins.first_name','admins.last_name','admins.id')
         ->where('applications.partner_id', $request->partnerid)
@@ -2894,7 +2894,7 @@ class PartnersController extends Controller
             'email_file' => 'required|array', // Ensure the field is an array
             'email_file.*' => 'required|mimes:msg|max:20480', // Validate each file (20MB max per file)
         ]);
-        $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
+        $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
         if(!empty($partner_info)){
             $partner_unique_id = $partner_info->email;
         } else {
@@ -2925,7 +2925,7 @@ class PartnersController extends Controller
                 //$exploadename = explode('.', $name);
 
                 //save uploaded image at aws server
-                $obj = new \App\Document;
+                $obj = new \App\Models\Document;
                 $obj->file_name = $fileName;
                 $obj->filetype = $fileExtension;
                 $obj->user_id = Auth::user()->id;
@@ -2992,7 +2992,7 @@ class PartnersController extends Controller
                         $sentTimeFinal = "";
                     }
 
-                    $obj1				=  new \App\MailReport;
+                    $obj1				=  new \App\Models\MailReport;
                     $obj1->user_id		=  Auth::user()->id;
                     $obj1->from_mail 	=  $mail_sender;
                     $obj1->to_mail 		=  $mail_to_arr;
@@ -3031,7 +3031,7 @@ class PartnersController extends Controller
             'email_file' => 'required|array', // Ensure the field is an array
             'email_file.*' => 'required|mimes:msg|max:20480', // Validate each file (20MB max per file)
         ]);
-        $partner_info = \App\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
+        $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
         if(!empty($partner_info)){
             $partner_unique_id = $partner_info->email;
         } else {
@@ -3062,7 +3062,7 @@ class PartnersController extends Controller
                 //$exploadename = explode('.', $name);
 
                 //save uploaded image at aws server
-                $obj = new \App\Document;
+                $obj = new \App\Models\Document;
                 $obj->file_name = $fileName;
                 $obj->filetype = $fileExtension;
                 $obj->user_id = Auth::user()->id;
@@ -3128,7 +3128,7 @@ class PartnersController extends Controller
                         $sentTimeFinal = "";
                     }
 
-                    $obj1				=  new \App\MailReport;
+                    $obj1				=  new \App\Models\MailReport;
                     $obj1->user_id		=  Auth::user()->id;
                     $obj1->from_mail 	=  $mail_sender;
                     $obj1->to_mail 		=  $mail_to_arr;
@@ -3259,13 +3259,13 @@ class PartnersController extends Controller
 	public function followupstore_partner(Request $request){
 	    $requestData = $request->all(); //echo '<pre>'; print_r($requestData); die;
         $partner_decode_id = base64_encode(convert_uuencode($requestData['partner_id'])); //dd($partner_decode_id);
-        $followup 				    = new \App\Note;
+        $followup 				    = new \App\Models\Note;
         $followup->client_id		= @$requestData['partner_id'];
 		$followup->user_id			= Auth::user()->id;
         $followup->description		= $requestData['assignnote'];
 
         //Get assigner name
-        $assignee_info = \App\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat123'])->first();
+        $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat123'])->first();
         if($assignee_info){
             $assignee_name = $assignee_info->first_name;
         } else {
@@ -3313,7 +3313,7 @@ class PartnersController extends Controller
         if(!$saved) {
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'clientID' => $partner_decode_id));
 		} else {
-			$o = new \App\Notification;
+			$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat123'];
 	    	$o->module_id = $requestData['partner_id'];
@@ -3379,10 +3379,10 @@ class PartnersController extends Controller
   
     //Fetch all contact list of any partner at create note popup
      public function fetchPartnerContactNo(Request $request){ //dd($request->all());
-        if( \App\PartnerPhone::where('partner_id', $request->partner_id)->exists())
+        if( \App\Models\PartnerPhone::where('partner_id', $request->partner_id)->exists())
         {
             //Fetch All partner contacts
-            $partnerContacts = \App\PartnerPhone::select('partner_phone','partner_country_code')->where('partner_id', $request->partner_id)->get();
+            $partnerContacts = \App\Models\PartnerPhone::select('partner_phone','partner_country_code')->where('partner_id', $request->partner_id)->get();
             //dd($partnerContacts);
             if( !empty($partnerContacts) && count($partnerContacts)>0 ){
                 $response['status'] 	= 	true;
@@ -3396,9 +3396,9 @@ class PartnersController extends Controller
         }
         else
         {
-            if( \App\Partner::where('id', $request->partner_id)->exists()){
+            if( \App\Models\Partner::where('id', $request->partner_id)->exists()){
                 //Fetch All partner contacts
-                $partnerContacts = \App\Partner::select('phone as partner_phone','country_code as partner_country_code')->where('id', $request->partner_id)->get();
+                $partnerContacts = \App\Models\Partner::select('phone as partner_phone','country_code as partner_country_code')->where('id', $request->partner_id)->get();
                 //dd($partnerContacts);
                 if( !empty($partnerContacts) && count($partnerContacts)>0 ){
                     $response['status'] 	= 	true;
@@ -3447,9 +3447,9 @@ class PartnersController extends Controller
     public function addstudentnote(Request $request){ //dd($request->all());
         //In Student Note
         if(isset($request->noteid) && $request->noteid != ''){
-            $obj = \App\Note::find($request->noteid);
+            $obj = \App\Models\Note::find($request->noteid);
         } else {
-            $obj = new \App\Note;
+            $obj = new \App\Models\Note;
         }
 
         $obj->client_id = $request->student_id; // In student note
@@ -3706,10 +3706,10 @@ class PartnersController extends Controller
 		$client_id = $request->clientid;
 		$type = $request->type;
 
-		$notelist = \App\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
+		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
 		ob_start();
 		foreach($notelist as $list){
-			$admin = \App\Admin::where('id', $list->user_id)->first();
+			$admin = \App\Models\Admin::where('id', $list->user_id)->first();
 			?>
 			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
                 <div class="note-icon bg-primary text-white" style="width: 50px;height: 50px;line-height: 50px;font-size: 20px;margin-right: 20px;border-radius: 50%;text-align: center;">
@@ -3775,7 +3775,7 @@ class PartnersController extends Controller
     public function uploadpartnerdocumentupload(Request $request){ //dd($request->all());
         $id = $request->clientid;
         //get partner info
-        $partner_info = \App\Partner::select('email')->where('id', $id)->first(); //dd($partner_info);
+        $partner_info = \App\Models\Partner::select('email')->where('id', $id)->first(); //dd($partner_info);
         if(!empty($partner_info)){
             $partner_unique_email = $partner_info->email;
         } else {
@@ -3800,7 +3800,7 @@ class PartnersController extends Controller
                 $filePath = $partner_unique_email.'/partner_document/'. $name;
                 Storage::disk('s3')->put($filePath, file_get_contents($file));
 
-                $obj = new \App\Document;
+                $obj = new \App\Models\Document;
                 $obj->file_name = $nameWithoutExtension;
                 $obj->filetype = $fileExtension;
                 $obj->user_id = Auth::user()->id;
@@ -3828,14 +3828,14 @@ class PartnersController extends Controller
                 }
 				$response['status'] 	= 	true;
 				$response['message']	=	'You have successfully uploaded your partner document';
-				$fetchd = \App\Document::where('client_id',$id)
+				$fetchd = \App\Models\Document::where('client_id',$id)
                         ->where(function ($query) {
                             $query->whereNull('doc_type')
                                 ->orWhere('doc_type', '');
                         })->where('type','partner')->orderby('created_at', 'DESC')->get();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
                     ?>
 					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
                         <td style="white-space: initial;">
@@ -3892,7 +3892,7 @@ class PartnersController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
 					?>
 					<div class="grid_list">
 						<div class="grid_col">

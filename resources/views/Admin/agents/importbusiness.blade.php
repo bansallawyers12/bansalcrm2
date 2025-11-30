@@ -51,7 +51,7 @@
 													<label for="related_office">Related Office <span class="span_req">*</span></label>
 													<select data-valid="required" class="form-control select2" name="related_office">
 														<?php
-												$branches = \App\Branch::all();
+												$branches = \App\Models\Branch::all();
 												foreach($branches as $branch){
 												?>
 													<option  value="{{$branch->id}}">{{$branch->office_name}}</option>

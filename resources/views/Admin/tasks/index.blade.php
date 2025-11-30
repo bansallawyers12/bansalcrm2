@@ -74,10 +74,10 @@ display: inline-block;}
 						<div class="card-body">
 							
 							<?php
-						$totalgroupcount = 	\App\ToDoGroup::where('user_id', Auth::user()->id)->count();
+						$totalgroupcount = 	\App\Models\ToDoGroup::where('user_id', Auth::user()->id)->count();
 						$class = 'col-md-9';
 						
-						$groups = \App\ToDoGroup::where('user_id', Auth::user()->id)->orderby('name', 'ASC')->get();
+						$groups = \App\Models\ToDoGroup::where('user_id', Auth::user()->id)->orderby('name', 'ASC')->get();
 							?>
 							
 							<div class="row">
@@ -85,8 +85,8 @@ display: inline-block;}
 							    <div class="col-md-3">
 							        <div class="custom_nav_setting">
 									<?php
-								$countasstodo 		= \App\Task::where('status',0)->where('assignee', '=', Auth::user()->id)->count(); 
-								$countasstodoall 		= \App\Task::where('status',0)->count(); 
+								$countasstodo 		= \App\Models\Task::where('status',0)->where('assignee', '=', Auth::user()->id)->count(); 
+								$countasstodoall 		= \App\Models\Task::where('status',0)->count(); 
 								?>
 									<ul>
 										<li class=""><a class="nav-link" href="{{URL::to('/admin/tasks/')}}"><span class="groupname" style="float: left;">All</span> <span class="countgroups" style="background-color: rgba(0,0,0,0.04);padding: 0px 5px;border-radius: 50%;color: #666; float: right;">{{$countasstodoall}}</span><div class="clearfix"></div></a></li> 
@@ -96,10 +96,10 @@ display: inline-block;}
 							                     @foreach($groups as $grouplists)
 							                     <?php
 							                     if(Auth::user()->role == 1){
-	        $counttodo 		= \App\Task::where('status',0)->where('group_id', '=', $grouplists->id)->count(); 
+	        $counttodo 		= \App\Models\Task::where('status',0)->where('group_id', '=', $grouplists->id)->count(); 
 	    }else{
 	       
-	        $counttodo 		= \App\Task::where('status',0)->where('group_id', '=', $grouplists->id)
+	        $counttodo 		= \App\Models\Task::where('status',0)->where('group_id', '=', $grouplists->id)
 	        ->where(function($query){
                             $query->where('assignee', Auth::user()->id)
                                   ->orWhere('followers', Auth::user()->id);
@@ -136,9 +136,9 @@ display: inline-block;}
 									<tbody class="taskdata ">
 									<?php
 									foreach($lists as $alist){
-										$admin = \App\Admin::where('id', $alist->user_id)->first();
-											$assignee = \App\Admin::where('id', $alist->assignee)->first();
-											$clint = \App\Admin::where('id', $alist->client_id)->first();
+										$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
+											$assignee = \App\Models\Admin::where('id', $alist->assignee)->first();
+											$clint = \App\Models\Admin::where('id', $alist->client_id)->first();
 										if($alist->status == 0){
 											$status = 'To Do';
 										}else if($alist->status == 2){
@@ -184,9 +184,9 @@ display: inline-block;}
 									?>											
 										<?php
 									foreach($listscom as $alist){
-										$admin = \App\Admin::where('id', $alist->user_id)->first();
-											$assignee = \App\Admin::where('id', $alist->assignee)->first();
-											$clint = \App\Admin::where('id', $alist->client_id)->first();
+										$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
+											$assignee = \App\Models\Admin::where('id', $alist->assignee)->first();
+											$clint = \App\Models\Admin::where('id', $alist->client_id)->first();
 										if($alist->status == 0){
 											$status = 'To Do';
 										}else if($alist->status == 2){
@@ -315,7 +315,7 @@ display: inline-block;}
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 							<?php
-								$assignee = \App\Admin::where('role','!=',7)->get();
+								$assignee = \App\Models\Admin::where('role','!=',7)->get();
 								?>
 								<label for="assignee">Assignee</label> 
 								<select data-valid="" class="form-control cleintselect2 select2" name="assignee">
@@ -420,7 +420,7 @@ display: inline-block;}
 								<select data-valid="" class="form-control cleintselect2 select2" name="partner_name">
 									<option value="">Choose Partner</option>
 									<?php
-									$Partners = \App\Partner::where('id', '!=', '')->get();
+									$Partners = \App\Models\Partner::where('id', '!=', '')->get();
 									foreach($Partners as $Partner){
 									?>
 									<option value="{{$Partner->id}} ">{{$Partner->first_name}} ({{$Partner->email}})</option>
@@ -470,7 +470,7 @@ display: inline-block;}
 								<select data-valid="" class="form-control cleintselect2 select2" name="followers">
 									<option value="">Choose Followers</option>
 									<?php
-									$followers = \App\Admin::where('role', '!=', '7')->get();
+									$followers = \App\Models\Admin::where('role', '!=', '7')->get();
 									foreach($followers as $follower){
 									?>
 									<option value="{{$follower->id}} ">{{$follower->first_name}} ({{$follower->email}})</option>
@@ -566,7 +566,7 @@ display: inline-block;}
 						<div class="col-12 col-md-12 col-lg-12">
 							<ul style="list-style:none;height: 200px;overflow: auto;">
 							<?php
-							$followers = \App\Admin::where('role', '!=', '7')->get();
+							$followers = \App\Models\Admin::where('role', '!=', '7')->get();
 							foreach($followers as $follower){
 							?>
 								<li><label><input type="checkbox" name="invite_users[]" value="{{$follower->id}}"> {{$follower->first_name}} ({{$follower->email}})</label></li>

@@ -115,10 +115,10 @@
 										@foreach (@$lists as $list)
 									<?php
 								
-									$client = \App\Admin::where('id',$list->client_id)->where('role', 7)->first();
-									$createdby = \App\Admin::where('id',$list->user_id)->first();
-									$countqou = \App\QuotationInfo::where('quotation_id',$list->id)->count();
-									$getq = \App\QuotationInfo::where('quotation_id',$list->id)->get();
+									$client = \App\Models\Admin::where('id',$list->client_id)->where('role', 7)->first();
+									$createdby = \App\Models\Admin::where('id',$list->user_id)->first();
+									$countqou = \App\Models\QuotationInfo::where('quotation_id',$list->id)->count();
+									$getq = \App\Models\QuotationInfo::where('quotation_id',$list->id)->get();
 									$totfare = 0;
 									foreach($getq as $q){
 										$servicefee = $q->service_fee;
@@ -235,7 +235,7 @@
 								<label for="client_name">Choose Client <span class="span_req">*</span></label> 
 								<select data-valid="required" class="form-control client_name select2" name="client_name">
 									<option value="">Select</option>
-									@foreach(\App\Admin::where('role',7)->get() as $list)
+									@foreach(\App\Models\Admin::where('role',7)->get() as $list)
 									<option value="{{$list->id}}">{{$list->first_name}} {{$list->last_name}}</option>
 									@endforeach
 								</select> 
@@ -273,7 +273,7 @@
 								<label for="email_from">From <span class="span_req">*</span></label>
 								<select class="form-control" name="email_from">
 									<?php
-									$emails = \App\Email::select('email')->where('status', 1)->get();
+									$emails = \App\Models\Email::select('email')->where('status', 1)->get();
 									foreach($emails as $nemail){
 										?>
 											<option value="<?php echo $nemail->email; ?>"><?php echo $nemail->email; ?></option>
@@ -315,7 +315,7 @@
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selecttemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\CrmEmailTemplate::all() as $list)
+									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
 									@endforeach
 								</select>

@@ -190,7 +190,7 @@
                                     </script>
                                     <div class="clientphonedata">
                                         <?php
-                                        $clientphones = \App\ClientPhone::where('client_id', $fetchedData->id)->get();
+                                        $clientphones = \App\Models\ClientPhone::where('client_id', $fetchedData->id)->get();
                                         $iii=0;
                                         $clientphonedata = array();
 
@@ -252,7 +252,7 @@
                                                                 <?php
                                                                 //Check phone is verified or not
 											                    $check_verified_phoneno = $clientphone->client_country_code."".$clientphone->client_phone;
-											                    $verifiedNumber = \App\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
+											                    $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
                                                                 if ( $verifiedNumber) {
                                                                     echo '<i class="fas fa-check-circle verified-icon fa-lg"></i>';
                                                                 } else { ?>
@@ -419,7 +419,7 @@
 											<label for="visa_type">Visa Type</label>
 											<select class="form-control select2" name="visa_type">
 											<option value="">- Select Visa Type -</option>
-											@foreach(\App\VisaType::orderby('name', 'ASC')->get() as $visalist)
+											@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
 												<option @if($fetchedData->visa_type == $visalist->name) selected @endif value="{{$visalist->name}}">{{$visalist->name}}</option>
 											@endforeach
 											</select>
@@ -481,7 +481,7 @@
 											<label for="country_passport">Country of Passport</label>
 											<select class="form-control  select2" name="country_passport" >
 											<?php
-												foreach(\App\Country::all() as $list){
+												foreach(\App\Models\Country::all() as $list){
 													?>
 													<option <?php if(@$fetchedData->country_passport == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
 													<?php
@@ -575,7 +575,7 @@
 											<label for="country">Country</label>
 											<select class="form-control select2" id="country_select" name="country" >
 											<?php
-												foreach(\App\Country::all() as $list){
+												foreach(\App\Models\Country::all() as $list){
 													?>
 													<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
 													<?php
@@ -756,7 +756,7 @@
 											<label for="service">Service <span style="color:#ff0000;">*</span></label>
 											<select class="form-control select2" name="service" data-valid="required">
 												<option value="">- Select Lead Service -</option>
-												@foreach(\App\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
+												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
 												<option @if($fetchedData->service == $leadservlist->name) selected @endif value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
 												@endforeach
 											</select>
@@ -781,10 +781,10 @@
                                                     $assigneeArr = array($fetchedData->assignee);
                                                 }
 
-                                                $admins = \App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
                                                 foreach($admins as $admin)
                                                 {
-                                                    $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                     foreach($assigneeArr as $assigneeKey=>$assigneeVal ) {
                                             ?>
                                                 <option @if($assigneeVal == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
@@ -795,9 +795,9 @@
                                             else
                                             {
                                                 $assigneeArr = array();
-                                                $admins = \App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
                                                 foreach($admins as $admin){
-                                                    $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                 ?>
                                                 <option @if($fetchedData->assignee == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                             <?php
@@ -853,7 +853,7 @@
 											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
 												<option value="">- Source -</option>
 												<option value="Sub Agent" @if(@$fetchedData->source == 'Sub Agent') selected @endif>Sub Agent</option>
-												@foreach(\App\Source::all() as $sources)
+												@foreach(\App\Models\Source::all() as $sources)
 													<option value="{{$sources->name}}" @if(@$fetchedData->source == $sources->name) selected @endif>{{$sources->name}}</option>
 												@endforeach
 											</select>
@@ -869,7 +869,7 @@
 											<label for="subagent">Sub Agent <span class="span_req">*</span></label>
 											<select class="form-control select2" name="subagent">  
 												<option>-- Choose a sub agent --</option>
-												@foreach(\App\Agent::all() as $agentlist)
+												@foreach(\App\Models\Agent::all() as $agentlist)
 													<option <?php if(@$fetchedData->agent_id == $agentlist->id){ echo 'selected'; } ?> value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
 												@endforeach
 											</select>
@@ -893,8 +893,8 @@
 											<!--<select multiple class="form-control select2" name="tagname[]">
 												<option value="">-- Search & Select tag --</option>-->
 												<?php
-												//foreach(\App\Tag::all() as $tags){
-                                                 //foreach(\App\Tag::select('id', 'name')->paginate(50) as $tags){
+												//foreach(\App\Models\Tag::all() as $tags){
+                                                 //foreach(\App\Models\Tag::select('id', 'name')->paginate(50) as $tags){
 												?>
 										<!--<option <?php //if(in_array($tags->id, $explodee)){ echo 'selected'; } ?>  value="{{--$tags->id--}}">{{--$tags->name--}}</option>-->
 												<?php
@@ -922,7 +922,7 @@
                                         <div class="client_info">
                                             <ul style="margin-left: -40px;">
                                                 <?php
-                                                $serviceTakenArr = \App\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
+                                                $serviceTakenArr = \App\Models\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
                                                 //dd($serviceTakenArr);
                                                 if( !empty($serviceTakenArr) && count($serviceTakenArr) >0 ){
                                                     foreach ($serviceTakenArr as $tokenkey => $tokenval) {
@@ -970,7 +970,7 @@
  <?php if($fetchedData->related_files != ''){
      $exploderel = explode(',', $fetchedData->related_files);
      foreach($exploderel AS $EXP){ 
-         $relatedclients = \App\Admin::where('id', $EXP)->first();	
+         $relatedclients = \App\Models\Admin::where('id', $EXP)->first();	
     ?>
  <input type="hidden" class="relatedfile" data-email="<?php echo $relatedclients->email; ?>" data-name="<?php echo $relatedclients->first_name.' '.$relatedclients->last_name; ?>" data-id="<?php echo $relatedclients->id; ?>">
  <?php
@@ -982,7 +982,7 @@
 if($fetchedData->tagname != ''){
    $tagnameArr = explode(',', $fetchedData->tagname);
    foreach($tagnameArr AS $tag1){
-       $tagWord = \App\Tag::where('id', $tag1)->first();
+       $tagWord = \App\Models\Tag::where('id', $tag1)->first();
    ?>
 <input type="hidden" class="relatedtag" data-name="<?php echo $tagWord->name; ?>" data-id="<?php echo $tagWord->id; ?>">
 <?php

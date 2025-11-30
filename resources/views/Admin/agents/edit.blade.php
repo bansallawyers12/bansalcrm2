@@ -271,7 +271,7 @@
 												
 												<select class="form-control  select2" name="country" >
 												<?php
-													foreach(\App\Country::all() as $list){
+													foreach(\App\Models\Country::all() as $list){
 														?>
 														<option value="{{@$list->sortname}}" <?php if($fetchedData->country == @$list->sortname){ echo 'selected'; } ?>>{{@$list->name}}</option>
 														<?php
@@ -299,7 +299,7 @@
 												<label for="related_office">Related Office <span class="span_req">*</span></label>
 												<select class="form-control select2" name="related_office">
 													<?php
-													$branches = \App\Branch::all();
+													$branches = \App\Models\Branch::all();
 													foreach($branches as $branch){
 													?>
 														<option <?php if($fetchedData->related_office == $branch->id){ echo 'selected'; } ?> value="{{$branch->id}}">{{$branch->office_name}}</option>

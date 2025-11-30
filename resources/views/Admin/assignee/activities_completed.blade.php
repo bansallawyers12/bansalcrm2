@@ -41,45 +41,45 @@
                                         <div class="col-md-12 group_type_section">
                                             <?php
                                             if(\Auth::user()->role == 1){
-                                                $assigneesCount_All_type = \App\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_call_type = \App\Note::where('task_group','like','Call')
+                                                $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Checklist_type = \App\Note::where('task_group','like','Checklist')
+                                                $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Review_type = \App\Note::where('task_group','like','Review')
+                                                $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Query_type = \App\Note::where('task_group','like','Query')
+                                                $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Urgent_type = \App\Note::where('task_group','like','Urgent')
+                                                $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Personal_Task_type = \App\Note::where('task_group','like','Personal Task')
+                                                $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
                                                 ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                             } else {
-                                                $assigneesCount_All_type = \App\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_call_type = \App\Note::where('task_group','like','Call')
+                                                $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Checklist_type = \App\Note::where('task_group','like','Checklist')
+                                                $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Review_type = \App\Note::where('task_group','like','Review')
+                                                $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Query_type = \App\Note::where('task_group','like','Query')
+                                                $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Urgent_type = \App\Note::where('task_group','like','Urgent')
+                                                $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
-                                                $assigneesCount_Personal_Task_type = \App\Note::where('task_group','like','Personal Task')
+                                                $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
                                                 ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
                                             } ?>
 
@@ -138,7 +138,7 @@
                                             ?>
                                             @foreach ($assignees_completed as $list)
                                             <?php //echo "<pre>list==";print_r($list);
-                                                $admin = \App\Admin::where('id', $list->user_id)->first();//dd($admin);
+                                                $admin = \App\Models\Admin::where('id', $list->user_id)->first();//dd($admin);
                                                 if($admin){
                                                     $first_name = $admin->first_name ?? 'N/A';
                                                     $last_name = $admin->last_name ?? 'N/A';
@@ -203,10 +203,10 @@
                                                                 <div class=&quot;col-sm-9&quot;>
                                                                     <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                                         <option value=&quot;&quot; >Select</option>
-                                                                        {{--  @foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                        @foreach(\App\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                        {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
+                                                                        @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                         <?php
-                                                                        $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                                         ?>
                                                                         <option value=&quot;<?php echo $admin->id; ?>&quot; <?php if($admin->id == $list->assigned_to){ echo "selected";} ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                                                         @endforeach
@@ -279,10 +279,10 @@
                                                                 <div class=&quot;col-sm-9&quot;>
                                                                     <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                                         <option value=&quot;&quot; >Select</option>
-                                                                        {{--  @foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                        @foreach(\App\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                        {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
+                                                                        @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                         <?php
-                                                                        $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                                         ?>
                                                                         <option value=&quot;<?php echo $admin->id; ?>&quot;><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                                                         @endforeach

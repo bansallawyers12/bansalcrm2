@@ -106,7 +106,7 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix"> 
 								<span class="float-left">Associated Offices:</span>
 								<?php 
-									$branches = \App\Branch::where('id', $fetchedData->related_office)->first();
+									$branches = \App\Models\Branch::where('id', $fetchedData->related_office)->first();
 								?>	
 								<span class="float-right text-muted"><?php echo $branches->office_name;?></span>
 							</p>							
@@ -144,9 +144,9 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="note_term_list"> 									
 									<?php									
-									$notelist = \App\Note::where('client_id', $fetchedData->id)->where('type', 'agent')->orderby('created_at', 'DESC')->get();
+									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->where('type', 'agent')->orderby('created_at', 'DESC')->get();
 									foreach($notelist as $list){
-										$admin = \App\Admin::where('id', $list->user_id)->first();
+										$admin = \App\Models\Admin::where('id', $list->user_id)->first();
 									?>
 										<div class="note_col" id="note_id_{{$list->id}}"> 
 											<div class="note_content">
@@ -192,11 +192,11 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="referredclienttdata">
 												<?php
-													foreach(\App\Admin::where('agent_id', $fetchedData->id)->orderby('created_at','Desc')->get() as $reflist){
-													//$productdetail = \App\Product::where('id', $alist->product_id)->first();
-													//$partnerdetail = \App\Partner::where('id', $alist->partner_id)->first();
-													//$PartnerBranch = \App\PartnerBranch::where('id', $alist->branch)->first();
-													//$workflow = \App\Workflow::where('id', $alist->workflow)->first();
+													foreach(\App\Models\Admin::where('agent_id', $fetchedData->id)->orderby('created_at','Desc')->get() as $reflist){
+													//$productdetail = \App\Models\Product::where('id', $alist->product_id)->first();
+													//$partnerdetail = \App\Models\Partner::where('id', $alist->partner_id)->first();
+													//$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
+													//$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
 												?>
 												<tr id="id_{{$reflist->id}}">
 													<td>{{$reflist->first_name}} {{$reflist->last_name}}</td>
@@ -240,12 +240,12 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="applicationtdata">
 											<?php
-											foreach(\App\Application::where('sub_agent', $fetchedData->id)->orwhere('super_agent', $fetchedData->id)->orderby('created_at','Desc')->get() as $alist){
-												$productdetail = \App\Product::where('id', $alist->product_id)->first();
-				$partnerdetail = \App\Partner::where('id', $alist->partner_id)->first();
-				$PartnerBranch = \App\PartnerBranch::where('id', $alist->branch)->first();
-				$workflow = \App\Workflow::where('id', $alist->workflow)->first();
-				$clientdetail = \App\Admin::where('id', $alist->client_id)->first();
+											foreach(\App\Models\Application::where('sub_agent', $fetchedData->id)->orwhere('super_agent', $fetchedData->id)->orderby('created_at','Desc')->get() as $alist){
+												$productdetail = \App\Models\Product::where('id', $alist->product_id)->first();
+				$partnerdetail = \App\Models\Partner::where('id', $alist->partner_id)->first();
+				$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
+				$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
+				$clientdetail = \App\Models\Admin::where('id', $alist->client_id)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
 													<td><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><br/>{{@$clientdetail->email}}</td> 
@@ -354,9 +354,9 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="partnerdata">
 												<?php 
-													$representpartnerlists = \App\RepresentingPartner::where('agent_id', $fetchedData->id)->orderby('created_at', 'DESC')->with(['partners'])->get();
+													$representpartnerlists = \App\Models\RepresentingPartner::where('agent_id', $fetchedData->id)->orderby('created_at', 'DESC')->with(['partners'])->get();
 													foreach($representpartnerlists as $partnertlist){
-													$PartnerBranch = \App\PartnerBranch::select('name')->where('partner_id', $partnertlist->partner_id)->get();
+													$PartnerBranch = \App\Models\PartnerBranch::select('name')->where('partner_id', $partnertlist->partner_id)->get();
 													$branch = '';
 													foreach($PartnerBranch as $pb){
 														$branch .= $pb->name.',';
@@ -405,7 +405,7 @@ use App\Http\Controllers\Controller;
 								<label for="email_from">From <span class="span_req">*</span></label>
 								<select class="form-control" name="email_from">
 									<?php
-									$emails = \App\Email::select('email')->where('status', 1)->get();
+									$emails = \App\Models\Email::select('email')->where('status', 1)->get();
 									foreach($emails as $nemail){
 										?>
 											<option value="<?php echo $nemail->email; ?>"><?php echo $nemail->email; ?></option>
@@ -451,7 +451,7 @@ use App\Http\Controllers\Controller;
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selecttemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\CrmEmailTemplate::all() as $list)
+									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
 									@endforeach
 								</select>

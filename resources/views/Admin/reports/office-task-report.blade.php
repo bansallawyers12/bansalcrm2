@@ -57,9 +57,9 @@
 												@if(@$totalData !== 0)
 												@foreach (@$lists as $list)
 												<?php
-													$client = \App\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
-													$productdetail = \App\Product::where('id', $list->product_id)->first();
-													$partnerdetail = \App\Partner::where('id', $list->partner_id)->first();	
+													$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+													$productdetail = \App\Models\Product::where('id', $list->product_id)->first();
+													$partnerdetail = \App\Models\Partner::where('id', $list->partner_id)->first();	
 												?>
 												<tr id="id_{{@$list->id}}">
 													<td>{{ @$list->category == "" ? config('constants.empty') : str_limit(@$list->category, '50', '...') }}</td>

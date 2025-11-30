@@ -79,7 +79,7 @@ use App\Http\Controllers\Controller;
 							
 							</div>
 							<?php
-	$agent = \App\Agent::where('id',@$fetchedData->agent_id)->first();
+	$agent = \App\Models\Agent::where('id',@$fetchedData->agent_id)->first();
 	if($agent){
 		?>
 		<div class="client_assign client_info_tags"> 
@@ -120,7 +120,7 @@ use App\Http\Controllers\Controller;
 							if($fetchedData->tagname != ''){
 								$rs = explode(',', $fetchedData->tagname);
 								foreach($rs as $r){
-									$stagd = \App\Tag::where('id','=',$r)->first();
+									$stagd = \App\Models\Tag::where('id','=',$r)->first();
 									if($stagd){
 									?>
 										<span class="ui label ag-flex ag-align-center ag-space-between" style="display: inline-flex;">
@@ -184,7 +184,7 @@ use App\Http\Controllers\Controller;
 								<span class="float-right text-muted">{{$fetchedData->visa_type}}</span>
 							</p> 
 							<?php
-								$addedby = \App\Admin::where('id',@$fetchedData->user_id)->first();
+								$addedby = \App\Models\Admin::where('id',@$fetchedData->user_id)->first();
 							?>
 							<div class="client_added client_info_tags"> 
 								<span class="">Added By:</span>
@@ -201,7 +201,7 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 							<?php
-								$assignee = \App\Admin::where('id',@$fetchedData->assignee)->first();
+								$assignee = \App\Models\Admin::where('id',@$fetchedData->assignee)->first();
 							?>
 							<div class="client_assign client_info_tags"> 
 								<span class="">Assignee:</span>
@@ -224,7 +224,7 @@ use App\Http\Controllers\Controller;
 								<div class="client_info">
 								    <ul>
 								    <?php   
-								        $relatedclientss = \App\Admin::whereRaw("FIND_IN_SET($fetchedData->id,related_files)")->get();	
+								        $relatedclientss = \App\Models\Admin::whereRaw("FIND_IN_SET($fetchedData->id,related_files)")->get();	
 								        foreach($relatedclientss AS $res){ 
 									?>
 									    <li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))}}">{{$res->first_name}} {{$res->last_name}}</a></li>
@@ -236,7 +236,7 @@ use App\Http\Controllers\Controller;
 							
 							?>
 									<?php   foreach($exploder AS $EXP){ 
-								        $relatedclients = \App\Admin::where('id', $EXP)->first();	
+								        $relatedclients = \App\Models\Admin::where('id', $EXP)->first();	
 									?>
 									    <li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
 									<?php } ?>
@@ -294,11 +294,11 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="applicationtdata">
 											<?php
-											foreach(\App\Application::where('client_id', $fetchedData->id)->orderby('created_at','Desc')->get() as $alist){
-												$productdetail = \App\Product::where('id', $alist->product_id)->first();
-												$partnerdetail = \App\Partner::where('id', $alist->partner_id)->first();
-												$PartnerBranch = \App\PartnerBranch::where('id', $alist->branch)->first();
-												$workflow = \App\Workflow::where('id', $alist->workflow)->first();
+											foreach(\App\Models\Application::where('client_id', $fetchedData->id)->orderby('created_at','Desc')->get() as $alist){
+												$productdetail = \App\Models\Product::where('id', $alist->product_id)->first();
+												$partnerdetail = \App\Models\Partner::where('id', $alist->partner_id)->first();
+												$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
+												$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
 													<td><a class="openapplicationdetail" data-id="{{$alist->id}}" href="javascript:;" style="display:block;">{{@$productdetail->name}}</a> <small>{{@$partnerdetail->partner_name}} ({{@$PartnerBranch->name}})</small></td> 
@@ -351,13 +351,13 @@ use App\Http\Controllers\Controller;
 								
 									<?php
 									
-									$inteservices = \App\InterestedService::where('client_id',$fetchedData->id)->orderby('created_at', 'DESC')->get();
+									$inteservices = \App\Models\InterestedService::where('client_id',$fetchedData->id)->orderby('created_at', 'DESC')->get();
 									foreach($inteservices as $inteservice){
-										$workflowdetail = \App\Workflow::where('id', $inteservice->workflow)->first();
-										 $productdetail = \App\Product::where('id', $inteservice->product)->first();
-										$partnerdetail = \App\Partner::where('id', $inteservice->partner)->first();
-										$PartnerBranch = \App\PartnerBranch::where('id', $inteservice->branch)->first(); 
-										$admin = \App\Admin::where('id', $inteservice->user_id)->first();
+										$workflowdetail = \App\Models\Workflow::where('id', $inteservice->workflow)->first();
+										 $productdetail = \App\Models\Product::where('id', $inteservice->product)->first();
+										$partnerdetail = \App\Models\Partner::where('id', $inteservice->partner)->first();
+										$PartnerBranch = \App\Models\PartnerBranch::where('id', $inteservice->branch)->first(); 
+										$admin = \App\Models\Admin::where('id', $inteservice->user_id)->first();
 									?>
 										<div class="interest_column">
 											<?php
@@ -391,13 +391,13 @@ use App\Http\Controllers\Controller;
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			
 			
-			$appfeeoption = \App\ServiceFeeOption::where('app_id', $inteservice->id)->first();
+			$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $inteservice->id)->first();
 			
 			$totl = 0.00;
 			$net = 0.00;
 			$discount = 0.00;
 			if($appfeeoption){
-				$appfeeoptiontype = \App\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
+				$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
 				foreach($appfeeoptiontype as $fee){
 					$totl += $fee->total_fee;
 				}
@@ -492,9 +492,9 @@ use App\Http\Controllers\Controller;
 												</thead>
 												<tbody class="tdata documnetlist">
 										<?php 
-										$fetchd = \App\Document::where('client_id',$fetchedData->id)->where('type','client')->orderby('created_at', 'DESC')->get();
+										$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->where('type','client')->orderby('created_at', 'DESC')->get();
 										foreach($fetchd as $fetch){ 
-										$admin = \App\Admin::where('id', $fetch->user_id)->first();
+										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
 										?>												
 													<tr class="drow" id="id_{{$fetch->id}}">
 													<td  >
@@ -526,7 +526,7 @@ use App\Http\Controllers\Controller;
 									<div class="grid_data griddata">
 									<?php
 									foreach($fetchd as $fetch){ 
-										$admin = \App\Admin::where('id', $fetch->user_id)->first();
+										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
 									?>
 										<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
 											<div class="grid_col"> 
@@ -561,10 +561,10 @@ use App\Http\Controllers\Controller;
 												<?php
 												$rr=0;
 												$appointmentdata = array();
-												$appointmentlists = \App\Appointment::where('client_id', $fetchedData->id)->where('related_to', 'client')->orderby('created_at', 'DESC')->get();
-												$appointmentlistslast = \App\Appointment::where('client_id', $fetchedData->id)->where('related_to', 'client')->orderby('created_at', 'DESC')->first();
+												$appointmentlists = \App\Models\Appointment::where('client_id', $fetchedData->id)->where('related_to', 'client')->orderby('created_at', 'DESC')->get();
+												$appointmentlistslast = \App\Models\Appointment::where('client_id', $fetchedData->id)->where('related_to', 'client')->orderby('created_at', 'DESC')->first();
 												foreach($appointmentlists as $appointmentlist){
-													$admin = \App\Admin::where('id', $appointmentlist->user_id)->first();
+													$admin = \App\Models\Admin::where('id', $appointmentlist->user_id)->first();
 													$datetime = $appointmentlist->created_at;
 													$timeago = Controller::time_elapsed_string($datetime);
 													
@@ -603,7 +603,7 @@ use App\Http\Controllers\Controller;
 												@if($appointmentlistslast)
 													
 													<?php
-													$adminfirst = \App\Admin::where('id', @$appointmentlistslast->user_id)->first();
+													$adminfirst = \App\Models\Admin::where('id', @$appointmentlistslast->user_id)->first();
 													?>
 													<div class="content">
 														<h4 class="appointmentname"><?php echo @$appointmentlistslast->title; ?></h4>
@@ -641,9 +641,9 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="note_term_list"> 									
 									<?php									
-									$notelist = \App\Note::where('client_id', $fetchedData->id)->where('type', 'client')->orderby('pin', 'DESC')->get();
+									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->where('type', 'client')->orderby('pin', 'DESC')->get();
 									foreach($notelist as $list){
-										$admin = \App\Admin::where('id', $list->user_id)->first();
+										$admin = \App\Models\Admin::where('id', $list->user_id)->first();
 									?>
 										<div class="note_col" id="note_id_{{$list->id}}"> 
 											<div class="note_content">
@@ -2937,7 +2937,7 @@ $(document).ready(function() {
 								<label for="super_agent">Super Agent <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control super_agent" id="super_agent" name="super_agent">
 									<option value="">Please Select</option>
-									<?php $sagents = \App\Agent::whereRaw('FIND_IN_SET("Super Agent", agent_type)')->get(); ?>
+									<?php $sagents = \App\Models\Agent::whereRaw('FIND_IN_SET("Super Agent", agent_type)')->get(); ?>
 									@foreach($sagents as $sa)
 										<option value="{{$sa->id}}">{{$sa->full_name}} {{$sa->email}}</option>
 									@endforeach
@@ -2978,7 +2978,7 @@ $(document).ready(function() {
 								<label for="sub_agent">Sub Agent <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control sub_agent" id="sub_agent" name="sub_agent">
 									<option value="">Please Select</option>
-									<?php $sagents = \App\Agent::whereRaw('FIND_IN_SET("Sub Agent", agent_type)')->where('is_acrchived',0)->get(); ?>
+									<?php $sagents = \App\Models\Agent::whereRaw('FIND_IN_SET("Sub Agent", agent_type)')->where('is_acrchived',0)->get(); ?>
 									@foreach($sagents as $sa)
 										<option value="{{$sa->id}}">{{$sa->full_name}} {{$sa->email}}</option>
 									@endforeach
@@ -3024,7 +3024,7 @@ $(document).ready(function() {
 								} 
 								?>
 									<option value="">Please Select</option>
-									<?php $stagd = \App\Tag::where('id','!=','')->get(); ?>
+									<?php $stagd = \App\Models\Tag::where('id','!=','')->get(); ?>
 									@foreach($stagd as $sa)
 										<option <?php if(in_array($sa->id, $r)){ echo 'selected'; } ?> value="{{$sa->id}}">{{$sa->name}}</option>
 									@endforeach

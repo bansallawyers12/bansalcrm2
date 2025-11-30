@@ -18,7 +18,7 @@
 								<label for="workflow">Select Workflow <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control workflow select2" id="workflow" name="workflow">
 									<option value="">Please Select a Workflow</option>
-									@foreach(\App\Workflow::all() as $wlist)
+									@foreach(\App\Models\Workflow::all() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->name}}</option>
 									@endforeach
 								</select>
@@ -286,10 +286,10 @@
 								<label for="description">Service <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control select2" name="application">
 									<option value="">Select</option>
-									@foreach(\App\Application::where('client_id',$fetchedData->id)->groupby('workflow')->get() as $aplist)
+									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->groupby('workflow')->get() as $aplist)
 									<?php
 									
-				$workflow = \App\Workflow::where('id', $aplist->workflow)->first();
+				$workflow = \App\Models\Workflow::where('id', $aplist->workflow)->first();
 									?>
 										<option value="{{$workflow->id}}">{{$workflow->name}}</option>
 									@endforeach
@@ -376,7 +376,7 @@
 								<label for="represent_partner">Select Representing Partners <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control partner select2" id="represent_partner" name="represent_partner">
 									<option value="">Please Select a Partners</option>
-									@foreach(\App\Partner::all() as $replist)
+									@foreach(\App\Models\Partner::all() as $replist)
 										<option value="{{$replist->id}}">{{$replist->partner_name}}</option>
 									@endforeach
 								</select>

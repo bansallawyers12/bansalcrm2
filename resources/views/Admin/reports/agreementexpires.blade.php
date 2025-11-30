@@ -34,7 +34,7 @@
 </div>
 <?php
  $sched_res = [];
-$partners = \App\Partner::where('id','!=', '')->get();
+$partners = \App\Models\Partner::where('id','!=', '')->get();
 foreach($partners as $partner){
 	if($partner->contract_expiry != ''){
 		$row['id'] = $partner->id;

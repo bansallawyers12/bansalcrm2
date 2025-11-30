@@ -64,7 +64,7 @@
 
 										<td>
                                             <?php
-                                            $disableSlotArr = \App\BookServiceDisableSlot::select('id','book_service_slot_per_person_id','disabledates','slots','block_all')->where('book_service_slot_per_person_id',$list->id)->get();
+                                            $disableSlotArr = \App\Models\BookServiceDisableSlot::select('id','book_service_slot_per_person_id','disabledates','slots','block_all')->where('book_service_slot_per_person_id',$list->id)->get();
                                             //echo count($disableSlotArr);
                                             if( !empty($disableSlotArr) && count($disableSlotArr)>0){
                                                 foreach($disableSlotArr as $slotVal){

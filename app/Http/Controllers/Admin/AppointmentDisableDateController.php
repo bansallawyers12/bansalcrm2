@@ -75,19 +75,19 @@ class AppointmentDisableDateController extends Controller
             ]);
 
             if($requestData['id'] == 1){ //Ajay
-                $recordExist = \App\BookServiceDisableSlot::select('id')->whereIn('book_service_slot_per_person_id', [1, 2])->exists();
+                $recordExist = \App\Models\BookServiceDisableSlot::select('id')->whereIn('book_service_slot_per_person_id', [1, 2])->exists();
                 if ($recordExist) {
-                    \App\BookServiceDisableSlot::whereIn('book_service_slot_per_person_id', [1, 2])->delete();
+                    \App\Models\BookServiceDisableSlot::whereIn('book_service_slot_per_person_id', [1, 2])->delete();
                 }
             } else if($requestData['id'] == 6){ //Adelaide
-                $recordExist = \App\BookServiceDisableSlot::select('id')->whereIn('book_service_slot_per_person_id', [6, 8])->exists();
+                $recordExist = \App\Models\BookServiceDisableSlot::select('id')->whereIn('book_service_slot_per_person_id', [6, 8])->exists();
                 if ($recordExist) {
-                    \App\BookServiceDisableSlot::whereIn('book_service_slot_per_person_id', [6, 8])->delete();
+                    \App\Models\BookServiceDisableSlot::whereIn('book_service_slot_per_person_id', [6, 8])->delete();
                 }
             } else { //except Ajay
-                $recordExist = \App\BookServiceDisableSlot::select('id')->where('book_service_slot_per_person_id', $requestData['id'])->exists();
+                $recordExist = \App\Models\BookServiceDisableSlot::select('id')->where('book_service_slot_per_person_id', $requestData['id'])->exists();
                 if ($recordExist) {
-                    \App\BookServiceDisableSlot::where('book_service_slot_per_person_id', $requestData['id'])->delete();
+                    \App\Models\BookServiceDisableSlot::where('book_service_slot_per_person_id', $requestData['id'])->delete();
                 }
             }
 
@@ -206,9 +206,9 @@ class AppointmentDisableDateController extends Controller
 				if(BookServiceSlotPerPerson::where('id', '=', $id)->exists()) {
 					$fetchedData = BookServiceSlotPerPerson::find($id);//dd($fetchedData);
 
-                    $disableSlotArr = \App\BookServiceDisableSlot::select('id','book_service_slot_per_person_id','disabledates','slots','block_all')->where('book_service_slot_per_person_id',$id)->get();
+                    $disableSlotArr = \App\Models\BookServiceDisableSlot::select('id','book_service_slot_per_person_id','disabledates','slots','block_all')->where('book_service_slot_per_person_id',$id)->get();
 
-                    //$disableDatesArr = \App\BookServiceDisableSlot::select('disabledates')->where('book_service_id',$id)->get();
+                    //$disableDatesArr = \App\Models\BookServiceDisableSlot::select('disabledates')->where('book_service_id',$id)->get();
                     //dd($disableDatesArr);
                     /*if( isset($disableDatesArr) && !empty($disableDatesArr) && count($disableDatesArr) >0 )
                     {

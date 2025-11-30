@@ -82,8 +82,8 @@
 												@if(@$totalData !== 0)
 												@foreach (@$lists as $list)
 												<?php 
-													$partner = \App\Partner::where('id', $list->partner)->first();
-													$partnerbranch = \App\PartnerBranch::where('id', $list->branches)->first();
+													$partner = \App\Models\Partner::where('id', $list->partner)->first();
+													$partnerbranch = \App\Models\PartnerBranch::where('id', $list->branches)->first();
 												?>	
 												<tr id="id_{{@$list->id}}"> 
 													<td style="white-space: initial;"><a href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '30', '...') }}</a></td> 

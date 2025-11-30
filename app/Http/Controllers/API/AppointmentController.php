@@ -170,7 +170,7 @@ class AppointmentController extends Controller
         $requestData = $request->all();
         try {
 
-            $user = \App\Admin::where(function ($query) use($requestData){
+            $user = \App\Models\Admin::where(function ($query) use($requestData){
                 $query->where('email',$requestData['email'])
                       ->orWhere('phone',$requestData['phone']);
             })->first();

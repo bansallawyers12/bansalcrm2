@@ -230,7 +230,7 @@
 														
 														<select class="form-control  select2" name="country" >
 														<?php
-															foreach(\App\Country::all() as $list){
+															foreach(\App\Models\Country::all() as $list){
 																?>
 																<option value="{{@$list->sortname}}" <?php if($fetchedData->country == @$list->sortname){ echo 'selected'; } ?>>{{@$list->name}}</option>
 																<?php
@@ -276,7 +276,7 @@
 														<label for="country_passport">Country of Passport</label>
 														<select class="form-control  select2" name="country_passport" >
 														<?php
-															foreach(\App\Country::all() as $list){
+															foreach(\App\Models\Country::all() as $list){
 																?>
 																<option value="{{@$list->sortname}}" <?php if($fetchedData->country_passport == @$list->sortname){ echo 'selected'; } ?>>{{@$list->name}}</option>
 																<?php
@@ -307,7 +307,7 @@
 														<label for="visa_type">Visa Type</label>
 														<select class="form-control select2" name="visa_type">
 														<option value=""></option>
-														@foreach(\App\VisaType::all() as $visalist)
+														@foreach(\App\Models\VisaType::all() as $visalist)
 															<option @if($fetchedData->visa_type == $visalist->name) selected @endif value="{{$visalist->name}}">{{$visalist->name}}</option>
 														@endforeach
 														</select>
@@ -352,7 +352,7 @@
 														<select class="form-control select2" name="assignee">
 															<option value="">-- Assignee --	</option>
 															<?php
-															$admins = \App\Admin::where('role','!=',7)->get();
+															$admins = \App\Models\Admin::where('role','!=',7)->get();
 															foreach($admins as $admin){
 															?>
 															<option <?php if($fetchedData->assignee == $admin->id){  echo "selected"; } ?> value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name; ?></option>
@@ -374,7 +374,7 @@
 														<select class="form-control select2" multiple name="followers[]">
 															<option value="">-- Followers --</option>
 															<?php
-															$admins = \App\Admin::where('role','!=',7)->get();
+															$admins = \App\Models\Admin::where('role','!=',7)->get();
 															foreach($admins as $admin){
 															?>
 															<option <?php if(in_array($admin->id, $explode)){  echo "selected"; } ?> value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name; ?></option>
@@ -393,7 +393,7 @@
 														<select class="form-control select2" name="source">
 															<option>-- Choose a source --</option>
 															
-															@foreach(\App\Source::all() as $sourcelist)
+															@foreach(\App\Models\Source::all() as $sourcelist)
 																<option @if($fetchedData->source == $sourcelist->id) selected @endif value="{{$sourcelist->id}}">{{$sourcelist->name}}</option>
 															@endforeach
 														</select>
@@ -415,7 +415,7 @@
 														if($fetchedData->tagname != ''){
 															$explodee = explode(',', $fetchedData->tagname);
 														} 
-														foreach(\App\Tag::all() as $tags){
+														foreach(\App\Models\Tag::all() as $tags){
 															?>
 															<option <?php if(in_array($tags->id, $explodee)){ echo 'selected'; } ?> value="{{$tags->id}}">{{$tags->name}}</option>
 															<?php
@@ -451,7 +451,7 @@
 if($fetchedData->related_files != ''){
     $exploder = explode(',', $fetchedData->related_files);
        foreach($exploder AS $EXP){ 
-			$relatedclients = \App\Admin::where('id', $EXP)->first();	
+			$relatedclients = \App\Models\Admin::where('id', $EXP)->first();	
 			?>
 			<input type="hidden" class="relatedfile" data-id="{{$relatedclients->id}}" data-email="{{$relatedclients->email}}" data-name="{{$relatedclients->first_name}} {{$relatedclients->last_name}}">
 			<?php

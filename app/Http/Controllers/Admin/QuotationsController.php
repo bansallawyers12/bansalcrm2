@@ -154,7 +154,7 @@ class QuotationsController extends Controller
 			$exg_rate  = $requestData['exg_rate'];
 			
 			for($i=0; $i<count($workflowid); $i++){
-				$objs = new \App\TemplateInfo;
+				$objs = new \App\Models\TemplateInfo;
 				$objs->quotation_id = $obj->id;
 				$objs->workflow = $workflowid[$i];
 				$objs->partner = $partnerid[$i];
@@ -212,7 +212,7 @@ class QuotationsController extends Controller
 			$exg_rate  = $requestData['exg_rate'];
 			
 			for($i=0; $i<count($workflowid); $i++){
-				$objs = new \App\QuotationInfo;
+				$objs = new \App\Models\QuotationInfo;
 				$objs->quotation_id = $obj->id;
 				$objs->workflow = $workflowid[$i];
 				$objs->partner = $partnerid[$i];
@@ -274,7 +274,7 @@ class QuotationsController extends Controller
 			$exg_rate  = $requestData['exg_rate'];
 			DB::table('quotation_infos')->where('quotation_id', @$requestData['id'])->delete();
 			for($i=0; $i<count($workflowid); $i++){
-				$objs = new \App\QuotationInfo;
+				$objs = new \App\Models\QuotationInfo;
 				$objs->quotation_id = $obj->id;
 				$objs->workflow = $workflowid[$i];
 				$objs->partner = $partnerid[$i];
@@ -361,7 +361,7 @@ class QuotationsController extends Controller
 			$exg_rate  = $requestData['exg_rate'];
 			DB::table('template_infos')->where('quotation_id', @$requestData['id'])->delete();
 			for($i=0; $i<count($workflowid); $i++){
-				$objs = new \App\TemplateInfo;
+				$objs = new \App\Models\TemplateInfo;
 				$objs->quotation_id = $obj->id;
 				$objs->workflow = $workflowid[$i];
 				$objs->partner = $partnerid[$i];
@@ -431,7 +431,7 @@ class QuotationsController extends Controller
 		//echo '<pre>'; print_r($requestData); die;
 		$user_id = @Auth::user()->id;
 		
-		 $obj = new \App\MailReport;
+		 $obj = new \App\Models\MailReport;
 		$obj->user_id =  $user_id;
 		$obj->from_mail =  $requestData['email_from'];
 		$obj->to_mail =  $requestData['to'];
@@ -464,7 +464,7 @@ class QuotationsController extends Controller
 				$array['file'] = '/home/digitrex/crm.digitrex.live/public/invoices/'.$invoicefilename;
 				$array['file_name'] = $invoicefilename;
 			
-			$client = \App\Admin::Where('id', $l)->first();
+			$client = \App\Models\Admin::Where('id', $l)->first();
 			$subject = str_replace('{Client First Name}',$client->first_name, $subject);
 			$message = str_replace('{Client First Name}',$client->first_name, $message);
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);

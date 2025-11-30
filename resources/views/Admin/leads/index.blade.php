@@ -108,8 +108,8 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 									<tbody class="tdata">	
 										@if(@$totalData !== 0)
 										@foreach (@$lists as $list)	
-										<?php $followpe = \App\Followup::where('lead_id','=',$list->id)->where('followup_type','!=','assigned_to')->orderby('id','DESC')->with(['followutype'])->first(); 
-										$followp = \App\Followup::where('lead_id','=',$list->id)->where('followup_type','=','follow_up')->orderby('id','DESC')->with(['followutype'])->first();
+										<?php $followpe = \App\Models\Followup::where('lead_id','=',$list->id)->where('followup_type','!=','assigned_to')->orderby('id','DESC')->with(['followutype'])->first(); 
+										$followp = \App\Models\Followup::where('lead_id','=',$list->id)->where('followup_type','=','follow_up')->orderby('id','DESC')->with(['followutype'])->first();
 
 										?> 
 										<tr id="id_{{@$list->id}}">
@@ -117,7 +117,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										
 											{{@$list->created_at}}
 											<?php
-											$assigneduser = \App\Admin::where('id', $list->assign_to)->first();
+											$assigneduser = \App\Models\Admin::where('id', $list->assign_to)->first();
 											if($assigneduser){
 											    ?>
 											    <br>
@@ -196,7 +196,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 						<input id="mlead_id" name="mlead_id" type="hidden" value="">
 						<select name="assignto" class="form-control select2 " style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
 							<option value="">Select</option>
-							@foreach(\App\Admin::Where('role', '!=', '7')->get() as $ulist)
+							@foreach(\App\Models\Admin::Where('role', '!=', '7')->get() as $ulist)
 							<option value="{{@$ulist->id}}">{{@$ulist->first_name}} {{@$ulist->last_name}}</option>
 							@endforeach
 						</select>

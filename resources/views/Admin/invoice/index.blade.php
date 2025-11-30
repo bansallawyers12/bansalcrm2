@@ -104,7 +104,7 @@
 										}
 									?>
 								  </td>
-								  <?php $currencydata = \App\Currency::where('id',$list->currency_id)->first(); 
+								  <?php $currencydata = \App\Models\Currency::where('id',$list->currency_id)->first(); 
 								  
 								  ?>
 								  <td>{{date('d/m/Y',strtotime($list->due_date))}}</td> 

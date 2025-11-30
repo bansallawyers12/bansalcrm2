@@ -72,7 +72,7 @@
                                             ?>
                                             @foreach ($assignees_notCompleted as $list)
                                             <?php //echo "<pre>list==";print_r($list);
-                                                $admin = \App\Admin::where('id', $list->assigned_to)->first();//dd($admin);
+                                                $admin = \App\Models\Admin::where('id', $list->assigned_to)->first();//dd($admin);
                                                 if($admin){
                                                     $first_name = $admin->first_name ?? 'N/A';
                                                     $last_name = $admin->last_name ?? 'N/A';
@@ -138,10 +138,10 @@
                                                                     <div class=&quot;col-sm-9&quot;>
                                                                         <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                                             <option value=&quot;&quot; >Select</option>
-                                                                            {{--  @foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                            @foreach(\App\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                            {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
+                                                                            @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php
-                                                                            $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                                                            $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                                             ?>
                                                                             <option value=&quot;<?php echo $admin->id; ?>&quot; <?php if($admin->id == $list->assigned_to){ echo "selected";} ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                                                             @endforeach

@@ -1,5 +1,5 @@
 <?php
-		$roles = \App\UserRole::find(Auth::user()->role);
+		$roles = \App\Models\UserRole::find(Auth::user()->role);
 		$newarray = json_decode($roles->module_access);
 		$module_access = (array) $newarray;
 ?>

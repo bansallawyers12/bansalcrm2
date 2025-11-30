@@ -16,9 +16,9 @@
 				    <?php
 
 					if(Auth::user()->role == 1){
-						$countfollowup = \App\Note::select('id')->whereDate('followup_date', date('Y-m-d'))->count();
+						$countfollowup = \App\Models\Note::select('id')->whereDate('followup_date', date('Y-m-d'))->count();
 					}else{
-						$countfollowup = \App\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
+						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
 					}
                     
                     ?>
@@ -49,14 +49,14 @@
                             </div>
                             <div class="card_body">
                                 <?php
-                                //$atotalData = \App\Appointment::whereDate('date', date('Y-m-d'))->count(); dd($atotalData );
-                                $atotalData = \App\Appointment::whereDate('date', date('Y-m-d'))->select('date','time','client_id','title')->orderby('created_at','Desc')->get();
+                                //$atotalData = \App\Models\Appointment::whereDate('date', date('Y-m-d'))->count(); dd($atotalData );
+                                $atotalData = \App\Models\Appointment::whereDate('date', date('Y-m-d'))->select('date','time','client_id','title')->orderby('created_at','Desc')->get();
                                 //echo "$$$".count($atotalData);die;
                                 ?>
                                 @if(@count($atotalData) !== 0)
                                 <div class="appli_remind">
                                 <?php
-                                //foreach(\App\Appointment::whereDate('date', date('Y-m-d'))->orderby('created_at','Desc')->get() as $alist)
+                                //foreach(\App\Models\Appointment::whereDate('date', date('Y-m-d'))->orderby('created_at','Desc')->get() as $alist)
                                 foreach($atotalData as $alist)
                                 {
                                     $day = date('d', strtotime($alist->date));
@@ -64,7 +64,7 @@
                                     $week = date('D', strtotime($alist->date));
                                     $month = date('M', strtotime($alist->date));
                                     $year = date('Y', strtotime($alist->date));
-                                    $admin = \App\Admin::where('id', $alist->client_id)->select('id','first_name')->first();
+                                    $admin = \App\Models\Admin::where('id', $alist->client_id)->select('id','first_name')->first();
                                     ?>
                                     <div class="appli_column">
                                         <div class="date">{{$day}}<span>{{$week}}</span>
@@ -102,9 +102,9 @@
                                 <?php
                                 if(Auth::user()->role == 1){
                                     //echo date('Y-m-d');
-                                    $liststodo = \App\Task::whereDate('due_date', date('Y-m-d'))->select('id','user_id','status','due_date','due_time')->orderby('created_at','Desc')->get();
+                                    $liststodo = \App\Models\Task::whereDate('due_date', date('Y-m-d'))->select('id','user_id','status','due_date','due_time')->orderby('created_at','Desc')->get();
                                 }else{
-                                    $liststodo = \App\Task::whereDate('due_date', date('Y-m-d'))
+                                    $liststodo = \App\Models\Task::whereDate('due_date', date('Y-m-d'))
                                     ->where(function($query){
                                         $query->where('assignee', Auth::user()->id)
                                               ->orWhere('followers', Auth::user()->id);
@@ -119,7 +119,7 @@
                                             <?php
                                             foreach($liststodo as $alist)
                                             { //dd($alist);
-                                                $admin = \App\Admin::where('id', $alist->user_id)->select('last_name','first_name')->first();//dd($admin);
+                                                $admin = \App\Models\Admin::where('id', $alist->user_id)->select('last_name','first_name')->first();//dd($admin);
                                                 if($admin){
                                                     $first_name = $admin->first_name ?? 'N/A';
                                                     $last_name = $admin->last_name ?? 'N/A';
@@ -162,7 +162,7 @@
                 <div class="card dash_card">
                     <div class="card-statistic-4">
                         <?php
-                        $checkins 		= \App\CheckinLog::where('id', '!=', '')->where('status', '=', '0')->select('id','client_id','created_at');
+                        $checkins 		= \App\Models\CheckinLog::where('id', '!=', '')->where('status', '=', '0')->select('id','client_id','created_at');
                         $checkinstotalData 	= $checkins->count();
                         $checkinslists		= 		$checkins->get()
                         ?>
@@ -176,7 +176,7 @@
                                     <tbody>
                                     @foreach($checkinslists as $checkinslist)
                                         <?php
-                                        $client = \App\Admin::where('role', '=', '7')->where('id', '=', $checkinslist->client_id)->select('last_name','first_name')->first();
+                                        $client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $checkinslist->client_id)->select('last_name','first_name')->first();
                                         ?>
                                         <tr>
                                             <td><a id="{{@$checkinslist->id}}" class="opencheckindetail" href="javascript:;">{{@$client->first_name}} {{@$client->last_name}} </a>
@@ -226,7 +226,7 @@
                                     @else
                                     @foreach($notesData as $note)
                                     <?php
-                                    $note_client = \App\Partner::select('id','partner_name')->where('id', $note->client_id)->first();
+                                    $note_client = \App\Models\Partner::select('id','partner_name')->where('id', $note->client_id)->first();
                                     ?>
                                     <tr>
                                         <td><a href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$note_client->id)) )}}">{{ @$note_client->partner_name == "" ? config('constants.empty') : str_limit(@$note_client->partner_name, '50', '...') }}</a></td>

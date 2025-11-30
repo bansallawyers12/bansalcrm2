@@ -40,14 +40,14 @@
 <?php
  $sched_res = [];
  if(Auth::user()->role == 1){
-     $visaexpires = \App\Note::select('client_id','id', 'followup_date', 'description')->where('type','client')->where('folloup',1)->where('status',0)->get()->toArray();
+     $visaexpires = \App\Models\Note::select('client_id','id', 'followup_date', 'description')->where('type','client')->where('folloup',1)->where('status',0)->get()->toArray();
  }else{
-     $visaexpires = \App\Note::select('client_id','id', 'followup_date', 'description')->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->get()->toArray();
+     $visaexpires = \App\Models\Note::select('client_id','id', 'followup_date', 'description')->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->get()->toArray();
 
  }
 foreach($visaexpires as $visaexpire){
   
-    $addd = \App\Admin::where('id',$visaexpire['client_id'])->select('id','client_id','first_name','last_name','email','phone')->first();
+    $addd = \App\Models\Admin::where('id',$visaexpire['client_id'])->select('id','client_id','first_name','last_name','email','phone')->first();
     //print_r($addd->id);
 	/*if($visaexpire['followup_date'] != ''){
 	    $visaexpire['id'] = $visaexpire['id'];
@@ -171,8 +171,8 @@ var calendar = $("#myEvent").fullCalendar({
                                     <select data-valid="required" class="form-control select2" id="changeassignee" name="changeassignee">
                                          <option value="">Select</option>
 						                 <?php 
-											foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
-												$branchname = \App\Branch::where('id',$admin->office_id)->first();
+											foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+												$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
 										?>
 												<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
 										<?php } ?>

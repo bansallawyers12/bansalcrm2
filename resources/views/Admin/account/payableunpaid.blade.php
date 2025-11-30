@@ -66,9 +66,9 @@
 														@foreach($lists as $list)
 														<?php
 														    if( isset($list->invoice) && $list->invoice != ""){
-																$applicationdata = \App\Application::where('id', $list->invoice->application_id)->first();//dd($applicationdata);
-																$partnerdata = \App\Partner::where('id', @$applicationdata->partner_id)->first();
-																$productdata = \App\Product::where('id', @$applicationdata->product_id)->first();
+																$applicationdata = \App\Models\Application::where('id', $list->invoice->application_id)->first();//dd($applicationdata);
+																$partnerdata = \App\Models\Partner::where('id', @$applicationdata->partner_id)->first();
+																$productdata = \App\Models\Product::where('id', @$applicationdata->product_id)->first();
 																
 																$customer_id = $list->invoice->customer->id;
 														    }

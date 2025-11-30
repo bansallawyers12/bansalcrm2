@@ -107,13 +107,13 @@ class ApplicationsController extends Controller
 		$id = $request->id;
 		$fetchData = Application::find($id);
 		
-		$stagesquery = \App\WorkflowStage::where('w_id', $fetchData->workflow)->get();
+		$stagesquery = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->get();
 		foreach($stagesquery as $stages){
 		$stage1 = '';
 						
-							$workflowstagess = \App\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
+							$workflowstagess = \App\Models\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
 					
-					$prevdata = \App\WorkflowStage::where('id', '<', $workflowstagess->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->get();
+					$prevdata = \App\Models\WorkflowStage::where('id', '<', $workflowstagess->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->get();
 					$stagearray = array();
 					foreach($prevdata as $pre){
 						$stagearray[] = $pre->id;
@@ -140,13 +140,13 @@ class ApplicationsController extends Controller
 								</div>
 							</div>
 							<?php
-							$applicationlists = \App\ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage',$stages->name)->orderby('created_at', 'DESC')->get();
+							$applicationlists = \App\Models\ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage',$stages->name)->orderby('created_at', 'DESC')->get();
 							
 							?>
 							<div class="accordion-body collapse" id="<?php echo $stagname; ?>_accor" data-parent="#accordion" style="">
 								<div class="activity_list">
 								<?php foreach($applicationlists as $applicationlist){ 
-								$admin = \App\Admin::where('id',$applicationlist->user_id)->first();
+								$admin = \App\Models\Admin::where('id',$applicationlist->user_id)->first();
 								?>
 									<div class="activity_col">
 										<div class="activity_txt_time">
@@ -180,14 +180,14 @@ class ApplicationsController extends Controller
 		$noteid =  $request->id;
 
 		
-		$lists = \App\ApplicationActivitiesLog::where('type','note')->where('app_id',$noteid)->orderby('created_at', 'DESC')->get();
+		$lists = \App\Models\ApplicationActivitiesLog::where('type','note')->where('app_id',$noteid)->orderby('created_at', 'DESC')->get();
 		
 		ob_start();
 			?>
 			<div class="note_term_list"> 
 				<?php
 				foreach($lists as $list){
-					$admin = \App\Admin::where('id', $list->user_id)->first();
+					$admin = \App\Models\Admin::where('id', $list->user_id)->first();
 				?>
 					<div class="note_col" id="note_id_<?php echo $list->id; ?>"> 
 						<div class="note_content">
@@ -235,7 +235,7 @@ class ApplicationsController extends Controller
 			$obj->super_agent = $request->super_agent;
 			$saved = $obj->save();
 			if($saved){
-				$agent = \App\Agent::where('id',$request->super_agent)->first();
+				$agent = \App\Models\Agent::where('id',$request->super_agent)->first();
 				$response['status'] 	= 	true;
 				$response['message']	=	'Application successfully updated.';
 				$response['data']	=	'<div class="client_info">
@@ -278,7 +278,7 @@ class ApplicationsController extends Controller
 			$obj->sub_agent = $request->sub_agent;
 			$saved = $obj->save();
 			if($saved){
-				$agent = \App\Agent::where('id',$request->sub_agent)->first();
+				$agent = \App\Models\Agent::where('id',$request->sub_agent)->first();
 				$response['status'] 	= 	true;
 				$response['message']	=	'Application successfully updated.';
 				$response['data']	=	'<div class="client_info">
@@ -375,7 +375,7 @@ class ApplicationsController extends Controller
 									$totl = 0.00;
 									$discount = 0.00;
 									if($appfeeoption){
-										$appfeeoptiontype = \App\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)->get();
+										$appfeeoptiontype = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)->get();
 										foreach($appfeeoptiontype as $fee){
 											$totl += $fee->total_fee;
 										?>
@@ -568,11 +568,11 @@ class ApplicationsController extends Controller
 	}
 	
 	public function exportapplicationpdf(Request $request, $id){
-		$applications = \App\Application::where('id', $id)->first();
-		$partnerdetail = \App\Partner::where('id', @$applications->partner_id)->first();
-		$productdetail = \App\Product::where('id', @$applications->product_id)->first();
-		$cleintname = \App\Admin::where('role',7)->where('id',@$applications->client_id)->first();
-		$PartnerBranch = \App\PartnerBranch::where('id', @$applications->branch)->first();
+		$applications = \App\Models\Application::where('id', $id)->first();
+		$partnerdetail = \App\Models\Partner::where('id', @$applications->partner_id)->first();
+		$productdetail = \App\Models\Product::where('id', @$applications->product_id)->first();
+		$cleintname = \App\Models\Admin::where('role',7)->where('id',@$applications->client_id)->first();
+		$PartnerBranch = \App\Models\PartnerBranch::where('id', @$applications->branch)->first();
 		$pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
 			'logOutputFile' => storage_path('logs/log.htm'),
@@ -588,7 +588,7 @@ class ApplicationsController extends Controller
 		$app_id = $requestData['app_id'];
 		$type = $requestData['type'];
 		$typename = $requestData['typename'];
-		$obj = new \App\ApplicationDocumentList;
+		$obj = new \App\Models\ApplicationDocumentList;
 		$obj->type = $type;
 		$obj->typename = $typename;
 		$obj->client_id = $client_id;
@@ -605,10 +605,10 @@ class ApplicationsController extends Controller
 		
 		$saved = $obj->save();
 		if($saved){
-			$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $app_id)->where('client_id', $client_id)->where('type', $type)->get();
+			$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $app_id)->where('client_id', $client_id)->where('type', $type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -625,7 +625,7 @@ class ApplicationsController extends Controller
 			$response['status'] 	= 	true;
 			$response['message']	=	'CHecklist added successfully';
 			$response['data']	=	$checklistdata;
-			$countchecklist = \App\ApplicationDocumentList::where('application_id', $app_id)->count();
+			$countchecklist = \App\Models\ApplicationDocumentList::where('application_id', $app_id)->count();
 			$response['countchecklist']	=	$countchecklist;
 		}else{
 			$response['status'] 	= 	false;
@@ -640,7 +640,7 @@ class ApplicationsController extends Controller
 		  foreach ($_FILES['file']['name'] as $keys => $values) {
 			$fileName = $_FILES['file']['name'][$keys];
 			if (move_uploaded_file($_FILES['file']['tmp_name'][$keys], Config::get('constants.documents').'/'. $fileName)) {
-				$obj = new \App\ApplicationDocument;
+				$obj = new \App\Models\ApplicationDocument;
 				$obj->type = $request->type;
 				$obj->typename = $request->typename;
 				$obj->list_id = $request->id;
@@ -653,16 +653,16 @@ class ApplicationsController extends Controller
 		  }
 		}
 		
-		$doclists = \App\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
+		$doclists = \App\Models\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 					$doclistdata .=  $doclist->typename;
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', @$doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', @$doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr(@$admin->first_name, 0, 1).'</span>'.@$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -695,10 +695,10 @@ class ApplicationsController extends Controller
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
 		
 		
-		$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
+		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -718,25 +718,25 @@ class ApplicationsController extends Controller
 	}
 	
 	public function deleteapplicationdocs(Request $request){
-		if(\App\ApplicationDocument::where('id', $request->note_id)->exists()){
-			$appdoc = \App\ApplicationDocument::where('id', $request->note_id)->first();
-			$res = \App\ApplicationDocument::where('id', $request->note_id)->delete();
+		if(\App\Models\ApplicationDocument::where('id', $request->note_id)->exists()){
+			$appdoc = \App\Models\ApplicationDocument::where('id', $request->note_id)->first();
+			$res = \App\Models\ApplicationDocument::where('id', $request->note_id)->delete();
 			if($res){
 				$response['status'] 	= 	true;
 				$response['message'] 	= 	'Record removed successfully';
 				
 				
 				
-				$doclists = \App\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
+				$doclists = \App\Models\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -769,10 +769,10 @@ class ApplicationsController extends Controller
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
 		
 		
-		$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $application_id)->where('type', $appdoc->type)->get();
+		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $appdoc->type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -801,24 +801,24 @@ class ApplicationsController extends Controller
 	
 	
 	public function publishdoc(Request $request){
-		if(\App\ApplicationDocument::where('id', $request->appid)->exists()){
-			$appdoc = \App\ApplicationDocument::where('id', $request->appid)->first();
-			$obj = \App\ApplicationDocument::find($request->appid);
+		if(\App\Models\ApplicationDocument::where('id', $request->appid)->exists()){
+			$appdoc = \App\Models\ApplicationDocument::where('id', $request->appid)->first();
+			$obj = \App\Models\ApplicationDocument::find($request->appid);
 			$obj->status = $request->status;
 			$saved = $obj->save();
 			if($saved){
 				$response['status'] 	= 	true;
 				$response['message'] 	= 	'Record updated successfully';
-				$doclists = \App\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
+				$doclists = \App\Models\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -867,8 +867,8 @@ class ApplicationsController extends Controller
 		<option value="">Choose Application</option>
 		<?php
 		foreach($applications as $application){
-			$Products = \App\Product::where('id', '=', @$application->product_id)->first(); 
-			$Partners = \App\Partner::where('id', '=', @$application->partner_id)->first(); 
+			$Products = \App\Models\Product::where('id', '=', @$application->product_id)->first(); 
+			$Partners = \App\Models\Partner::where('id', '=', @$application->partner_id)->first(); 
 			?>
 		<option value="<?php echo $application->id; ?>">(#<?php echo $application->id; ?>) <?php echo @$Products->name; ?>  (<?php echo @$Partners->partner_name; ?>)</option>
 			<?php

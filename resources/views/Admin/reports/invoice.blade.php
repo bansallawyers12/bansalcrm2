@@ -87,12 +87,12 @@
 										@if(@$totalData !== 0)
 										@foreach (@$lists as $list)
 										<?php
-											$client = \App\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
-											$productdetail = \App\Product::where('id', $list->product_id)->first();
-											$partnerdetail = \App\Partner::where('id', $list->partner_id)->first();	
-											$partnerdetail = \App\Partner::where('id', $list->partner_id)->first();	
-											$Appldetail = \App\Application::where('id', $list->branch)->first();
-											$invoicedetail = \App\InvoiceDetail::where('id', $list->branch)->first();
+											$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+											$productdetail = \App\Models\Product::where('id', $list->product_id)->first();
+											$partnerdetail = \App\Models\Partner::where('id', $list->partner_id)->first();	
+											$partnerdetail = \App\Models\Partner::where('id', $list->partner_id)->first();	
+											$Appldetail = \App\Models\Application::where('id', $list->branch)->first();
+											$invoicedetail = \App\Models\InvoiceDetail::where('id', $list->branch)->first();
 										?>
 										<tr id="id_{{@$list->id}}">
 											<td>{{@$client->id}}</td>

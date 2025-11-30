@@ -39,11 +39,11 @@
 </div>
 <?php
  $sched_res = [];
-$visaexpires = \App\Admin::select('id','visaExpiry')->where('role',7)->where('visaExpiry','!=','')->get()->toArray();
+$visaexpires = \App\Models\Admin::select('id','visaExpiry')->where('role',7)->where('visaExpiry','!=','')->get()->toArray();
 //echo '<pre>'; print_r($visaexpires); die;
 foreach($visaexpires as $visaexpire){
 	if($visaexpire['visaExpiry'] != '' && $visaexpire['visaExpiry'] != '0000-00-00'){
-	   $t= \App\Admin::select('first_name','last_name')->where('id', $visaexpire['id'])->first();
+	   $t= \App\Models\Admin::select('first_name','last_name')->where('id', $visaexpire['id'])->first();
 		$visaexpire['stitle'] = addslashes($t->first_name);
 	//	$visaexpire['ltitle'] = $t->last_name;
 		$visaexpire['startdate'] = date("F d, Y",strtotime($visaexpire['visaExpiry']));

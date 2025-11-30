@@ -106,11 +106,11 @@
 										@foreach (@$lists as $list)
 									<?php
 								
-									$client = \App\Admin::where('id',$list->client_id)->where('role', 7)->first();
-									$office = \App\Branch::where('id',$list->office)->first();
-									$createdby = \App\Admin::where('id',$list->user_id)->first();
-									$countqou = \App\QuotationInfo::where('quotation_id',$list->id)->count();
-									$getq = \App\QuotationInfo::where('quotation_id',$list->id)->get();
+									$client = \App\Models\Admin::where('id',$list->client_id)->where('role', 7)->first();
+									$office = \App\Models\Branch::where('id',$list->office)->first();
+									$createdby = \App\Models\Admin::where('id',$list->user_id)->first();
+									$countqou = \App\Models\QuotationInfo::where('quotation_id',$list->id)->count();
+									$getq = \App\Models\QuotationInfo::where('quotation_id',$list->id)->get();
 									$totfare = 0;
 									foreach($getq as $q){
 										$servicefee = $q->service_fee;
@@ -198,7 +198,7 @@
 								<label for="client_name">Choose Client <span class="span_req">*</span></label> 
 								<select data-valid="required" class="form-control client_name select2" name="client_name">
 									<option value="">Select</option>
-									@foreach(\App\Admin::where('role',7)->get() as $list)
+									@foreach(\App\Models\Admin::where('role',7)->get() as $list)
 									<option value="{{$list->id}}">{{$list->first_name}} {{$list->last_name}}</option>
 									@endforeach
 								</select> 

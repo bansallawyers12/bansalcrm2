@@ -65,7 +65,7 @@
 												</tr> 
 											</thead>
 											<?php
-										$query =\App\Enquiry::where('is_archived',1)->orderby('created_at','Desc');
+										$query =\App\Models\Enquiry::where('is_archived',1)->orderby('created_at','Desc');
 										$totalcount = $query->count();
 										$enqs = $query->get();
 										if($totalcount !== 0){
@@ -73,7 +73,7 @@
 									<tbody class="referredclienttdata">
 												<?php
 													foreach($enqs as $enqlist){
-														$admin = \App\Admin::where('id', $enqlist->archived_by)->first();
+														$admin = \App\Models\Admin::where('id', $enqlist->archived_by)->first();
 												?>
 												<tr id="id_{{$enqlist->id}}">
 													<td>{{$enqlist->first_name ?? 'N/A'}} {{$enqlist->last_name ?? 'N/A'}}</td>

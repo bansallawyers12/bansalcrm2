@@ -54,7 +54,7 @@
 								<?php
 								$i=1;
 								$l=0;
-								$getq = \App\QuotationInfo::where('quotation_id',$fetchedData->id)->get();
+								$getq = \App\Models\QuotationInfo::where('quotation_id',$fetchedData->id)->get();
 								$totfare = 0;
 								foreach($getq as $q){
 									$servicefee = $q->service_fee;
@@ -64,9 +64,9 @@
 									$netfare = $servicefee - $discount;
 									$exgrw = $netfare * $exg_rate;
 									$totfare += $exgrw;
-								$workflowdata = \App\Workflow::where('id',$q->workflow)->first();	
-								$Productdata = \App\Product::where('id',$q->product)->first();	
-								$Partnerdata = \App\Partner::where('id',$q->partner)->first();	
+								$workflowdata = \App\Models\Workflow::where('id',$q->workflow)->first();	
+								$Productdata = \App\Models\Product::where('id',$q->product)->first();	
+								$Partnerdata = \App\Models\Partner::where('id',$q->partner)->first();	
 									?>
 									<tr >
 										<td class="sortsn">{{$i}}</td>

@@ -111,12 +111,12 @@
 										<?php $i=0; ?>
 										@foreach (@$lists as $list)
 										<?php 
-											$partnertype = \App\PartnerType::where('id', $list->partner_type)->first();	
-											$workflow = \App\Workflow::where('id', $list->service_workflow)->first();
-											$product = \App\Product::where('partner', $list->id)->count();
+											$partnertype = \App\Models\PartnerType::where('id', $list->partner_type)->first();	
+											$workflow = \App\Models\Workflow::where('id', $list->service_workflow)->first();
+											$product = \App\Models\Product::where('partner', $list->id)->count();
 
 											//Get partner latest notes
-                                            $latestnote = \App\Note::where('client_id',$list->id)->whereNull('assigned_to')->whereNull('task_group')->where('type','partner')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->first();
+                                            $latestnote = \App\Models\Note::where('client_id',$list->id)->whereNull('assigned_to')->whereNull('task_group')->where('type','partner')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->first();
 
 
 										?>	
@@ -139,7 +139,7 @@
                                             
                                           <!--<td style="white-space: initial;">
 											<?php
-											/*$branchesquery = \App\PartnerBranch::where('partner_id', $list->id)->orderby('created_at', 'DESC')->get();
+											/*$branchesquery = \App\Models\PartnerBranch::where('partner_id', $list->id)->orderby('created_at', 'DESC')->get();
 											$branches = '';
 											foreach($branchesquery as $branch){
 												$branches .= $branch->name.', ';
@@ -162,7 +162,7 @@
 
                                                             <!--<div class="left">
                                                                 <?php
-                                                                //$adminInfo = \App\Admin::select('first_name')->where('id', $latestnote->user_id)->first();
+                                                                //$adminInfo = \App\Models\Admin::select('first_name')->where('id', $latestnote->user_id)->first();
                                                                 ?>
                                                                 <div class="author">
                                                                     <a href="#">{{--substr($adminInfo->first_name, 0, 1)--}}</a>
@@ -299,7 +299,7 @@
 								<label for="email_from">From <span class="span_req">*</span></label>
 								<select class="form-control" name="email_from">
 									<?php
-									$emails = \App\Email::select('email')->where('status', 1)->get();
+									$emails = \App\Models\Email::select('email')->where('status', 1)->get();
 									foreach($emails as $nemail){
 										?>
 											<option value="<?php echo $nemail->email; ?>"><?php echo $nemail->email; ?></option>
@@ -345,7 +345,7 @@
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selecttemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\CrmEmailTemplate::all() as $list)
+									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
 									@endforeach
 								</select>

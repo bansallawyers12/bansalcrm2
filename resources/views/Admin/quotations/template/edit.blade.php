@@ -53,7 +53,7 @@
 											<select class="form-control select2" name="office">
 												<option value="">Select</option>
 												<?php
-												$offices = \App\Branch::all();
+												$offices = \App\Models\Branch::all();
 												foreach($offices as $office){
 													?>
 													<option <?php if($fetchedData->office == $office->id){ echo 'selected'; } ?> value="{{$office->id}}">{{$office->office_name}}</option>
@@ -104,7 +104,7 @@
 											<?php
 											$i=1;
 											$l=0;
-											$getq = \App\QuotationInfo::where('quotation_id',$fetchedData->id)->get();
+											$getq = \App\Models\QuotationInfo::where('quotation_id',$fetchedData->id)->get();
 											$totfare = 0;
 											foreach($getq as $q){
 												$servicefee = $q->service_fee;
@@ -114,9 +114,9 @@
 												$netfare = $servicefee - $discount;
 												$exgrw = $netfare * $exg_rate;
 												$totfare += $exgrw;
-											$workflowdata = \App\Workflow::where('id',$q->workflow)->first();	
-											$Productdata = \App\Product::where('id',$q->product)->first();	
-											$Partnerdata = \App\Partner::where('id',$q->partner)->first();	
+											$workflowdata = \App\Models\Workflow::where('id',$q->workflow)->first();	
+											$Productdata = \App\Models\Product::where('id',$q->product)->first();	
+											$Partnerdata = \App\Models\Partner::where('id',$q->partner)->first();	
 												?>
 												<tr >
 													<td class="sortsn">{{$i}}</td>
@@ -183,7 +183,7 @@
 								<label for="workflow">Workflow <span class="span_req">*</span></label> 
 								<select data-valid="required" class="form-control workflow select2" id="workflow" name="workflow">
 									<option value="">Please Select Workflow</option>
-									@foreach(\App\Workflow::all() as $wlist)
+									@foreach(\App\Models\Workflow::all() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->name}}</option>
 									@endforeach
 								</select> 

@@ -82,7 +82,7 @@ class HomeController extends Controller
             'email'=> $client_email,
             'client_id'=> $client_id
         ];
-        if( \Mail::to($client_email)->send(new \App\Mail\ClientVerifyMail($details))) {
+        if( \Mail::to($client_email)->send(new \App\Models\Mail\ClientVerifyMail($details))) {
             $message = 'Email is successfully sent at this email';
 		    return json_encode(array('success'=>true,'message'=>$message));
         } else {
@@ -289,9 +289,9 @@ class HomeController extends Controller
                     }
 
                     //Check phone record is exist in client phone table
-                    if( \App\ClientPhone::where('client_id', $id)->doesntExist() ){
+                    if( \App\Models\ClientPhone::where('client_id', $id)->doesntExist() ){
                         if( $fetchedData->phone != "" ) {
-                            $oef1 = new \App\ClientPhone;
+                            $oef1 = new \App\Models\ClientPhone;
                             $oef1->user_id = @Auth::user()->id;
                             $oef1->client_id = $id;
                             $oef1->contact_type = $fetchedData->contact_type;
@@ -303,7 +303,7 @@ class HomeController extends Controller
                         }
 
                         if( $fetchedData->att_phone != "" ) {
-                            $oef1 = new \App\ClientPhone;
+                            $oef1 = new \App\Models\ClientPhone;
                             $oef1->user_id = @Auth::user()->id;
                             $oef1->client_id = $id;
                             $oef1->contact_type = '';

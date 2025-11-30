@@ -34,8 +34,8 @@ class TasksController extends Controller
 	public function index(Request $request)
 	{
 	     if(isset($request->t)){
-    	    if(\App\Notification::where('id', $request->t)->exists()){
-    	       $ovv =  \App\Notification::find($request->t);
+    	    if(\App\Models\Notification::where('id', $request->t)->exists()){
+    	       $ovv =  \App\Models\Notification::find($request->t);
     	       $ovv->receiver_status = 1;
     	       $ovv->save();
     	    }
@@ -386,10 +386,10 @@ class TasksController extends Controller
 	public function gettasks(Request $request){
 		$client_id = $request->clientid;
 		
-		$notelist = \App\Task::where('client_id',$client_id)->where('type','client')->orderby('created_at', 'DESC')->get();
+		$notelist = \App\Models\Task::where('client_id',$client_id)->where('type','client')->orderby('created_at', 'DESC')->get();
 		ob_start();
 		foreach($notelist as $alist){
-			$admin = \App\Admin::where('id', $alist->user_id)->first();
+			$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
 			?>
 			<tr class="opentaskview" style="cursor:pointer;" id="<?php echo $alist->id; ?>">
 				<td></td> 
@@ -417,11 +417,11 @@ class TasksController extends Controller
 	
 	public function taskdetail(Request $request){
 	   
-			$notedetail = \App\Task::where('id',$request->task_id)->where('type','client')->first();
-		$admin = \App\Admin::where('id', $notedetail->assignee)->first();
-		$followers = \App\Admin::where('id', @$notedetail->followers)->first();
-		$addedby = \App\Admin::where('id', $notedetail->user_id)->first();
-		$client = \App\Admin::where('id', $notedetail->client_id)->first();
+			$notedetail = \App\Models\Task::where('id',$request->task_id)->where('type','client')->first();
+		$admin = \App\Models\Admin::where('id', $notedetail->assignee)->first();
+		$followers = \App\Models\Admin::where('id', @$notedetail->followers)->first();
+		$addedby = \App\Models\Admin::where('id', $notedetail->user_id)->first();
+		$client = \App\Models\Admin::where('id', $notedetail->client_id)->first();
 		?>
 		<div class="modal-header"> 
 		
@@ -571,8 +571,8 @@ class TasksController extends Controller
 		<div class="col-md-8">
 			<select class="form-control select2" id="changeassignee" name="changeassignee">
 				 <?php 
-					foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
-						$branchname = \App\Branch::where('id',$admin->office_id)->first();
+					foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+						$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
 				?>
 						<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
 				<?php } ?>
@@ -626,7 +626,7 @@ class TasksController extends Controller
 						<?php
 						$logslist = TaskLog::where('task_id',$notedetail->id)->orderby('created_at', 'DESC')->get();						
 						foreach($logslist as $llist){
-							$admin = \App\Admin::where('id', $llist->created_by)->first();
+							$admin = \App\Models\Admin::where('id', $llist->created_by)->first();
 						?>
 							<div class="logsitem">
 								<div class="row">
@@ -808,7 +808,7 @@ class TasksController extends Controller
 	
 		$saved = $objs->save();
 		if($saved){
-	    	$o = new \App\Notification;
+	    	$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = $request->assinee;
 	    	$o->module_id = $request->id;

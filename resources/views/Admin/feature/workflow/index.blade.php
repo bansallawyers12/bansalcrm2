@@ -41,7 +41,7 @@
 								<tbody class="tdata">	
 								@foreach (@$lists as $list)
 									<?php
-									$countpartners = \App\Partner::where('service_workflow', $list->id)->count();
+									$countpartners = \App\Models\Partner::where('service_workflow', $list->id)->count();
 									?>
 									<tr id="id_{{@$list->id}}">
 										

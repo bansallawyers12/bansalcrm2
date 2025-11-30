@@ -226,7 +226,7 @@
 														<label for="country">Country</label>
 														<select class="form-control select2" name="country" >
 														<?php
-															foreach(\App\Country::all() as $list){
+															foreach(\App\Models\Country::all() as $list){
 																?>
 																<option <?php if(@$list->sortname == 'AU'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
 																<?php
@@ -272,7 +272,7 @@
 														<label for="country_passport">Country of Passport</label>
 														<select class="form-control  select2" name="country_passport" >
 														<?php
-															foreach(\App\Country::all() as $list){
+															foreach(\App\Models\Country::all() as $list){
 																?>
 																<option <?php if(@$list->sortname == 'IN'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
 																<?php
@@ -303,7 +303,7 @@
 														<label for="visa_type">Visa Type</label>
 														<select class="form-control select2" name="visa_type">
 														<option value=""></option>
-														@foreach(\App\VisaType::all() as $visalist)
+														@foreach(\App\Models\VisaType::all() as $visalist)
 															<option value="{{$visalist->name}}">{{$visalist->name}}</option>
 														@endforeach
 														</select>
@@ -348,7 +348,7 @@
 														<select class="form-control select2" name="assignee">
 															<option value="">-- Assignee --	</option>
 															<?php
-															$admins = \App\Admin::where('role','!=',7)->get();
+															$admins = \App\Models\Admin::where('role','!=',7)->get();
 															foreach($admins as $admin){
 															?>
 															<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name; ?></option>
@@ -367,7 +367,7 @@
 														<select multiple class="form-control select2" name="followers[]">
 															<option value="">-- Followers --</option>
 															<?php
-															$admins = \App\Admin::where('role','!=',7)->get();
+															$admins = \App\Models\Admin::where('role','!=',7)->get();
 															foreach($admins as $admin){
 															?>
 															<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name; ?></option>
@@ -386,7 +386,7 @@
 														<select class="form-control select2" name="source">
 															<option>-- Choose a source --</option>
 															
-															@foreach(\App\Source::all() as $sourcelist)
+															@foreach(\App\Models\Source::all() as $sourcelist)
 																<option value="{{$sourcelist->id}}">{{$sourcelist->name}}</option>
 															@endforeach
 														</select>
@@ -404,7 +404,7 @@
 														<select multiple class="form-control select2" name="tagname[]">
 															<option value="">-- Search & Select tag --</option>
 														<?php
-														foreach(\App\Tag::all() as $tags){
+														foreach(\App\Models\Tag::all() as $tags){
 															?>
 															<option value="{{$tags->id}}">{{$tags->name}}</option>
 															<?php

@@ -613,7 +613,7 @@ class LeadController extends Controller
 	                	if(@$Followup->note != ''){
 	                	    $r .= @$Followup->note;
 	                	}
-				        $objn = new \App\Note;
+				        $objn = new \App\Models\Note;
 				        $objn->client_id = $obj->id;
 		            	$objn->user_id = Auth::user()->id;
 		        	    $objn->title = @$Followupstype->name;
@@ -679,8 +679,8 @@ class LeadController extends Controller
 	//Check Email is unique or not
     public function is_email_unique(Request $request){
         $email = $request->email;
-        $email_count = \App\Admin::where('email',$email)->count();//dd($email_count); //->where('status',1)
-        //$email_count = \App\Admin::where('email','LIKE','%'.$email.'%')->count();//dd($email_count);
+        $email_count = \App\Models\Admin::where('email',$email)->count();//dd($email_count); //->where('status',1)
+        //$email_count = \App\Models\Admin::where('email','LIKE','%'.$email.'%')->count();//dd($email_count);
         if($email_count >0){
             $response['status'] 	= 	1;
             $response['message']	=	"The email has already been taken.";
@@ -694,8 +694,8 @@ class LeadController extends Controller
     //Check Contact no is unique or not
     public function is_contactno_unique(Request $request){
         $contact = $request->contact;
-        //$phone_count = \App\Admin::where('phone',$contact)->count();//dd($phone_count); //->where('status',1)
-        $phone_count = \App\Admin::where('phone','LIKE','%'.$contact.'%')->count();//dd($phone_count);
+        //$phone_count = \App\Models\Admin::where('phone',$contact)->count();//dd($phone_count); //->where('status',1)
+        $phone_count = \App\Models\Admin::where('phone','LIKE','%'.$contact.'%')->count();//dd($phone_count);
         if($phone_count >0){
             $response['status'] 	= 	1;
             $response['message']	=	"The phone has already been taken.";

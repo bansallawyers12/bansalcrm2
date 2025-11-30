@@ -136,14 +136,14 @@ class ApplicationsController extends Controller
 	}
 	public function updatestage(Request $request){
 		$fetchData = Application::find($request->id);
-		$workflowstagecount = \App\WorkflowStage::where('w_id', $fetchData->workflow)->count();
+		$workflowstagecount = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->count();
 		$widthcount = 0;
 		if($workflowstagecount !== 0){
 			$s = 100 / $workflowstagecount;
 			$widthcount = round($s);
 		}
-		$workflowstage = \App\WorkflowStage::where('name', 'like', '%'.$fetchData->stage.'%')->where('w_id', $fetchData->workflow)->first();
-		$nextid = \App\WorkflowStage::where('id', '>', @$workflowstage->id)->where('w_id', $fetchData->workflow)->orderBy('id','asc')->first();//dd($nextid);
+		$workflowstage = \App\Models\WorkflowStage::where('name', 'like', '%'.$fetchData->stage.'%')->where('w_id', $fetchData->workflow)->first();
+		$nextid = \App\Models\WorkflowStage::where('id', '>', @$workflowstage->id)->where('w_id', $fetchData->workflow)->orderBy('id','asc')->first();//dd($nextid);
 		
 		$fetchData->stage = $nextid->name;
 		$comments = 'moved the stage from  <b>'.$workflowstage->name.'</b> to <b>'.$nextid->name.'</b>';
@@ -152,7 +152,7 @@ class ApplicationsController extends Controller
 		$fetchData->progresswidth = $width;
 		$saved = $fetchData->save();
 		if($saved){
-			$obj = new \App\ApplicationActivitiesLog;
+			$obj = new \App\Models\ApplicationActivitiesLog;
 			$obj->stage = $workflowstage->name;
 			$obj->comment = @$comments;
 			$obj->app_id = $request->id;
@@ -160,7 +160,7 @@ class ApplicationsController extends Controller
 			$obj->user_id = Auth::user()->id;
 			$saved = $obj->save();
 			$displayback = false;
-			$workflowstage = \App\WorkflowStage::where('w_id', $fetchData->workflow)->orderBy('id','desc')->first();
+			$workflowstage = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->orderBy('id','desc')->first();
 		
 			if($workflowstage->name == $fetchData->stage){
 				$displayback = true;
@@ -179,10 +179,10 @@ class ApplicationsController extends Controller
 	
 	public function updatebackstage(Request $request){
 		$fetchData = Application::find($request->id);
-		$workflowstage = \App\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
-		$nextid = \App\WorkflowStage::where('id', '<', $workflowstage->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->first();
+		$workflowstage = \App\Models\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
+		$nextid = \App\Models\WorkflowStage::where('id', '<', $workflowstage->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->first();
 		if($nextid){
-			$workflowstagecount = \App\WorkflowStage::where('w_id', $fetchData->workflow)->count();
+			$workflowstagecount = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->count();
 			$widthcount = 0;
 			if($workflowstagecount !== 0){
 				$s = 100 / $workflowstagecount;
@@ -201,7 +201,7 @@ class ApplicationsController extends Controller
 			if($saved){
 				
 				
-				$obj = new \App\ApplicationActivitiesLog;
+				$obj = new \App\Models\ApplicationActivitiesLog;
 				$obj->stage = $workflowstage->stage;
 				$obj->type = 'stage';
 				$obj->comment = $comments;
@@ -210,7 +210,7 @@ class ApplicationsController extends Controller
 				$saved = $obj->save();
 				
 				$displayback = false;
-				$workflowstage = \App\WorkflowStage::where('w_id', $fetchData->workflow)->orderBy('id','desc')->first();
+				$workflowstage = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->orderBy('id','desc')->first();
 			
 				if($workflowstage->name == $fetchData->stage){
 					$displayback = true;
@@ -239,7 +239,7 @@ class ApplicationsController extends Controller
 		$fetchData = Application::find($id);
       
         if(isset($fetchData->product_id) && $fetchData->product_id !=""){
-            $productdetail = \App\Product::where('id', $fetchData->product_id)->first();
+            $productdetail = \App\Models\Product::where('id', $fetchData->product_id)->first();
             if($productdetail){
                 $course_name = $productdetail->name;
             } else {
@@ -250,7 +250,7 @@ class ApplicationsController extends Controller
         }
 
         if(isset($fetchData->partner_id) && $fetchData->partner_id !=""){
-            $partnerdetail = \App\Partner::where('id', $fetchData->partner_id)->first();
+            $partnerdetail = \App\Models\Partner::where('id', $fetchData->partner_id)->first();
             if($partnerdetail){
                 $school_name = $partnerdetail->partner_name;
             } else {
@@ -260,13 +260,13 @@ class ApplicationsController extends Controller
             $school_name = "";
         }
 		
-		$stagesquery = \App\WorkflowStage::where('w_id', $fetchData->workflow)->get();
+		$stagesquery = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->get();
 		foreach($stagesquery as $stages){
 		$stage1 = '';
 						
-							$workflowstagess = \App\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
+							$workflowstagess = \App\Models\WorkflowStage::where('name', $fetchData->stage)->where('w_id', $fetchData->workflow)->first();
 					
-					$prevdata = \App\WorkflowStage::where('id', '<', $workflowstagess->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->get();
+					$prevdata = \App\Models\WorkflowStage::where('id', '<', $workflowstagess->id)->where('w_id', $fetchData->workflow)->orderBy('id','Desc')->get();
 					$stagearray = array();
 					foreach($prevdata as $pre){
 						$stagearray[] = $pre->id;
@@ -296,13 +296,13 @@ class ApplicationsController extends Controller
 								</div>
 							</div>
 							<?php
-							$applicationlists = \App\ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage',$stages->name)->orderby('created_at', 'DESC')->get();
+							$applicationlists = \App\Models\ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('stage',$stages->name)->orderby('created_at', 'DESC')->get();
 							
 							?>
 							<div class="accordion-body collapse" id="<?php echo $stagname; ?>_accor" data-parent="#accordion" style="">
 								<div class="activity_list">
 								<?php foreach($applicationlists as $applicationlist){ 
-								$admin = \App\Admin::where('id',$applicationlist->user_id)->first();
+								$admin = \App\Models\Admin::where('id',$applicationlist->user_id)->first();
 								?>
 									<div class="activity_col">
 										<div class="activity_txt_time">
@@ -334,7 +334,7 @@ class ApplicationsController extends Controller
 		$noteid =  $request->noteid;
 		$type =  $request->type;
 		
-		$obj = new \App\ApplicationActivitiesLog;
+		$obj = new \App\Models\ApplicationActivitiesLog;
 			$obj->stage = $type;
 			$obj->type = 'note';
 			$obj->comment = 'added a note';
@@ -358,14 +358,14 @@ class ApplicationsController extends Controller
 		$noteid =  $request->id;
 
 		
-		$lists = \App\ApplicationActivitiesLog::where('type','note')->where('app_id',$noteid)->orderby('created_at', 'DESC')->get();
+		$lists = \App\Models\ApplicationActivitiesLog::where('type','note')->where('app_id',$noteid)->orderby('created_at', 'DESC')->get();
 		
 		ob_start();
 			?>
 			<div class="note_term_list"> 
 				<?php
 				foreach($lists as $list){
-					$admin = \App\Admin::where('id', $list->user_id)->first();
+					$admin = \App\Models\Admin::where('id', $list->user_id)->first();
 				?>
 					<div class="note_col" id="note_id_<?php echo $list->id; ?>"> 
 						<div class="note_content">
@@ -402,7 +402,7 @@ class ApplicationsController extends Controller
 		$message = $requestData['message'];
 		$to = $requestData['to'];
 		
-	$client = \App\Admin::Where('email', $requestData['to'])->first();
+	$client = \App\Models\Admin::Where('email', $requestData['to'])->first();
 			$subject = str_replace('{Client First Name}',$client->first_name, $subject);
 			$message = str_replace('{Client First Name}',$client->first_name, $message);
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
@@ -411,13 +411,13 @@ class ApplicationsController extends Controller
 			$ccarray = array();
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
 				foreach($requestData['email_cc'] as $cc){
-					$clientcc = \App\Admin::Where('id', $cc)->first();
+					$clientcc = \App\Models\Admin::Where('id', $cc)->first();
 					$ccarray[] = $clientcc;
 				}
 			}
 				$sent = $this->send_compose_template($to, $subject, 'support@digitrex.live', $message, 'digitrex', $array,@$ccarray);
 			if($sent){
-				$objs = new \App\ApplicationActivitiesLog;
+				$objs = new \App\Models\ApplicationActivitiesLog;
 				$objs->stage = $request->type;
 				$objs->type = 'appointment';
 				$objs->comment = 'sent an email';
@@ -562,7 +562,7 @@ class ApplicationsController extends Controller
 		$user_id = @Auth::user()->id;
 		$obj = Application::find($request->revapp_id);
 		$obj->status = 0;
-		$workflowstagecount = \App\WorkflowStage::where('w_id', $obj->workflow)->count();
+		$workflowstagecount = \App\Models\WorkflowStage::where('w_id', $obj->workflow)->count();
 			$widthcount = 0;
 			if($workflowstagecount !== 0){
 				$s = 100 / $workflowstagecount;
@@ -573,7 +573,7 @@ class ApplicationsController extends Controller
 		$saved = $obj->save();
 			if($saved){
 			$displayback = false;
-				$workflowstage = \App\WorkflowStage::where('w_id', $obj->workflow)->orderBy('id','desc')->first();
+				$workflowstage = \App\Models\WorkflowStage::where('w_id', $obj->workflow)->orderBy('id','desc')->first();
 			
 				if($workflowstage->name == $obj->stage){
 					$displayback = true;
@@ -607,7 +607,7 @@ class ApplicationsController extends Controller
 			$obj->super_agent = $request->super_agent;
 			$saved = $obj->save();
 			if($saved){
-				$agent = \App\Agent::where('id',$request->super_agent)->first();
+				$agent = \App\Models\Agent::where('id',$request->super_agent)->first();
 				$response['status'] 	= 	true;
 				$response['message']	=	'Application successfully updated.';
 				$response['data']	=	'<div class="client_info">
@@ -650,7 +650,7 @@ class ApplicationsController extends Controller
 			$obj->sub_agent = $request->sub_agent;
 			$saved = $obj->save();
 			if($saved){
-				$agent = \App\Agent::where('id',$request->sub_agent)->first();
+				$agent = \App\Models\Agent::where('id',$request->sub_agent)->first();
 				$response['status'] 	= 	true;
 				$response['message']	=	'Application successfully updated.';
 				$response['data']	=	'<div class="client_info">
@@ -771,10 +771,10 @@ class ApplicationsController extends Controller
 		<option value="">Select Application</option>
 		<?php
 		foreach($applications as $application){
-			$productdetail = \App\Product::where('id', $application->product_id)->first();
-			$partnerdetail = \App\Partner::where('id', $application->partner_id)->first();		
-			$clientdetail = \App\Admin::where('id', $application->client_id)->first();
-			$PartnerBranch = \App\PartnerBranch::where('id', $application->branch)->first();
+			$productdetail = \App\Models\Product::where('id', $application->product_id)->first();
+			$partnerdetail = \App\Models\Partner::where('id', $application->partner_id)->first();		
+			$clientdetail = \App\Models\Admin::where('id', $application->client_id)->first();
+			$PartnerBranch = \App\Models\PartnerBranch::where('id', $application->branch)->first();
 			?>
 			<option value="<?php echo $application->id; ?>"><?php echo @$productdetail->name.'('.@$partnerdetail->partner_name; ?> <?php echo @$PartnerBranch->name; ?>)</option>
 			<?php
@@ -1112,11 +1112,11 @@ class ApplicationsController extends Controller
 	
     
 	public function exportapplicationpdf(Request $request, $id){
-		$applications = \App\Application::where('id', $id)->first();
-		$partnerdetail = \App\Partner::where('id', @$applications->partner_id)->first();
-		$productdetail = \App\Product::where('id', @$applications->product_id)->first();
-		$cleintname = \App\Admin::where('role',7)->where('id',@$applications->client_id)->first();
-		$PartnerBranch = \App\PartnerBranch::where('id', @$applications->branch)->first();
+		$applications = \App\Models\Application::where('id', $id)->first();
+		$partnerdetail = \App\Models\Partner::where('id', @$applications->partner_id)->first();
+		$productdetail = \App\Models\Product::where('id', @$applications->product_id)->first();
+		$cleintname = \App\Models\Admin::where('role',7)->where('id',@$applications->client_id)->first();
+		$PartnerBranch = \App\Models\PartnerBranch::where('id', @$applications->branch)->first();
 		$pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
 			'logOutputFile' => storage_path('logs/log.htm'),
@@ -1132,7 +1132,7 @@ class ApplicationsController extends Controller
 		$app_id = $requestData['app_id'];
 		$type = $requestData['type'];
 		$typename = $requestData['typename'];
-		$obj = new \App\ApplicationDocumentList;
+		$obj = new \App\Models\ApplicationDocumentList;
 		$obj->type = $type;
 		$obj->typename = $typename;
 		$obj->client_id = $client_id;
@@ -1149,10 +1149,10 @@ class ApplicationsController extends Controller
 		
 		$saved = $obj->save();
 		if($saved){
-			$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $app_id)->where('client_id', $client_id)->where('type', $type)->get();
+			$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $app_id)->where('client_id', $client_id)->where('type', $type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -1169,7 +1169,7 @@ class ApplicationsController extends Controller
 			$response['status'] 	= 	true;
 			$response['message']	=	'CHecklist added successfully';
 			$response['data']	=	$checklistdata;
-			$countchecklist = \App\ApplicationDocumentList::where('application_id', $app_id)->count();
+			$countchecklist = \App\Models\ApplicationDocumentList::where('application_id', $app_id)->count();
 			$response['countchecklist']	=	$countchecklist;
 		}else{
 			$response['status'] 	= 	false;
@@ -1184,7 +1184,7 @@ class ApplicationsController extends Controller
 		  foreach ($_FILES['file']['name'] as $keys => $values) {
 			$fileName = $_FILES['file']['name'][$keys];
 			if (move_uploaded_file($_FILES['file']['tmp_name'][$keys], Config::get('constants.documents').'/'. $fileName)) {
-				$obj = new \App\ApplicationDocument;
+				$obj = new \App\Models\ApplicationDocument;
 				$obj->type = $request->type;
 				$obj->typename = $request->typename;
 				$obj->list_id = $request->id;
@@ -1197,16 +1197,16 @@ class ApplicationsController extends Controller
 		  }
 		}
 		
-		$doclists = \App\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
+		$doclists = \App\Models\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 					$doclistdata .=  $doclist->typename;
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', @$doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', @$doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr(@$admin->first_name, 0, 1).'</span>'.@$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -1239,10 +1239,10 @@ class ApplicationsController extends Controller
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
 		
 		
-		$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
+		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -1265,7 +1265,7 @@ class ApplicationsController extends Controller
         $imageData = "";
         if ($request->hasfile('file'))  {
             $client_id = $request->client_id;
-            $admin_info1 = \App\Admin::select('client_id')->where('id', $client_id)->first(); //dd($admin);
+            $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $client_id)->first(); //dd($admin);
             if(!empty($admin_info1)){
                 $client_unique_id = $admin_info1->client_id;
             } else {
@@ -1291,7 +1291,7 @@ class ApplicationsController extends Controller
                 Storage::disk('s3')->put($filePath, file_get_contents($file));
                 $exploadename = explode('.', $name);
 
-                $obj = new \App\ApplicationDocument;
+                $obj = new \App\Models\ApplicationDocument;
                 $obj->type = $request->type;
                 //$typename = ucwords(str_replace("-", " ", $request->type));
                 $obj->typename = $request->typename;
@@ -1309,7 +1309,7 @@ class ApplicationsController extends Controller
 
                 $save = $obj->save();
                 if($save){
-                    $obj1 = new \App\ApplicationActivitiesLog;
+                    $obj1 = new \App\Models\ApplicationActivitiesLog;
                     $obj1->stage = $request->typename;
                     $obj1->type = 'document';
                     $obj1->comment = 'added a document';
@@ -1325,16 +1325,16 @@ class ApplicationsController extends Controller
             }
         }
 
-		$doclists = \App\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
+		$doclists = \App\Models\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = '';
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
             $doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
             $doclistdata .= '<td>';
             $doclistdata .=  $doclist->typename;
             $doclistdata .= '</td>';
-            $admin = \App\Admin::where('id', @$doclist->user_id)->first();
+            $admin = \App\Models\Admin::where('id', @$doclist->user_id)->first();
 
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr(@$admin->first_name, 0, 1).'</span>'.@$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('d/m/Y',strtotime($doclist->created_at)).'</td>';
@@ -1363,10 +1363,10 @@ class ApplicationsController extends Controller
 		$response['imagedata']	=	$imageData;
 		$response['doclistdata']	=	$doclistdata;
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
-        $applicationdocuments = \App\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
+        $applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
         $checklistdata = '<table class="table"><tbody>';
         foreach($applicationdocuments as $applicationdocument){
-            $appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+            $appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
             $checklistdata .= '<tr>';
             if($appcount >0){
                 $checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -1387,8 +1387,8 @@ class ApplicationsController extends Controller
 	}
 	
 	public function deleteapplicationdocs(Request $request){
-		if(\App\ApplicationDocument::where('id', $request->note_id)->exists()){
-			$appdoc = \App\ApplicationDocument::where('id', $request->note_id)->first();
+		if(\App\Models\ApplicationDocument::where('id', $request->note_id)->exists()){
+			$appdoc = \App\Models\ApplicationDocument::where('id', $request->note_id)->first();
             
             if( isset($appdoc->myfile_key) && $appdoc->myfile_key != '' ){
                 // Extract the file path from the URL
@@ -1409,13 +1409,13 @@ class ApplicationsController extends Controller
                 }
             }
           
-			$res = \App\ApplicationDocument::where('id', $request->note_id)->delete();
+			$res = \App\Models\ApplicationDocument::where('id', $request->note_id)->delete();
 			if($res){
 				$response['status'] 	= 	true;
 				$response['message'] 	= 	'Record removed successfully';
 				
 				//save in application activity log
-                $obj1 = new \App\ApplicationActivitiesLog;
+                $obj1 = new \App\Models\ApplicationActivitiesLog;
                 $obj1->stage = $appdoc->typename;
                 $obj1->type = 'document';
                 $obj1->comment = 'deleted a document';
@@ -1427,16 +1427,16 @@ class ApplicationsController extends Controller
               
               
 				
-				$doclists = \App\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
+				$doclists = \App\Models\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -1470,10 +1470,10 @@ class ApplicationsController extends Controller
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
 		
 		
-		$applicationdocuments = \App\ApplicationDocumentList::where('application_id', $application_id)->where('type', $appdoc->type)->get();
+		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $appdoc->type)->get();
 			$checklistdata = '<table class="table"><tbody>';
 			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
+				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 				$checklistdata .= '<tr>';
 				if($appcount >0){
 					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
@@ -1505,24 +1505,24 @@ class ApplicationsController extends Controller
 	
 	
 	public function publishdoc(Request $request){
-		if(\App\ApplicationDocument::where('id', $request->appid)->exists()){
-			$appdoc = \App\ApplicationDocument::where('id', $request->appid)->first();
-			$obj = \App\ApplicationDocument::find($request->appid);
+		if(\App\Models\ApplicationDocument::where('id', $request->appid)->exists()){
+			$appdoc = \App\Models\ApplicationDocument::where('id', $request->appid)->first();
+			$obj = \App\Models\ApplicationDocument::find($request->appid);
 			$obj->status = $request->status;
 			$saved = $obj->save();
 			if($saved){
 				$response['status'] 	= 	true;
 				$response['message'] 	= 	'Record updated successfully';
-				$doclists = \App\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
+				$doclists = \App\Models\ApplicationDocument::where('application_id',$appdoc->application_id)->orderby('created_at','DESC')->get();
 		$doclistdata = ''; 
 		foreach($doclists as $doclist){
-			$docdata = \App\ApplicationDocumentList::where('id', $doclist->list_id)->first();
+			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 			$doclistdata .= '<tr id="">';
 				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -1571,8 +1571,8 @@ class ApplicationsController extends Controller
 		<option value="">Choose Application</option>
 		<?php
 		foreach($applications as $application){
-			$Products = \App\Product::where('id', '=', @$application->product_id)->first(); 
-			$Partners = \App\Partner::where('id', '=', @$application->partner_id)->first(); 
+			$Products = \App\Models\Product::where('id', '=', @$application->product_id)->first(); 
+			$Partners = \App\Models\Partner::where('id', '=', @$application->partner_id)->first(); 
 			?>
 		<option value="<?php echo $application->id; ?>">(#<?php echo $application->id; ?>) <?php echo @$Products->name; ?>  (<?php echo @$Partners->partner_name; ?>)</option>
 			<?php
@@ -1800,7 +1800,7 @@ class ApplicationsController extends Controller
                             $sum_of_anticipated_commission = 0;
                             if($appfeeoption)
                             {
-                                $appfeeoptiontype = \App\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)->where('fee_option_type', 2)->get();
+                                $appfeeoptiontype = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)->where('fee_option_type', 2)->get();
                                 foreach($appfeeoptiontype as $fee)
                                 {
                                     $totl += $fee->total_fee;

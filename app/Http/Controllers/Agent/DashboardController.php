@@ -32,7 +32,7 @@ class DashboardController extends Controller
      
      public function getpartner(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\Partner::where('service_workflow', $catid)->orderby('partner_name','ASC')->get();
+		$lists = \App\Models\Partner::where('service_workflow', $catid)->orderby('partner_name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select a Partner</option>
@@ -47,7 +47,7 @@ class DashboardController extends Controller
 	
 	public function getproduct(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\Product::where('partner', $catid)->orderby('name','ASC')->get();
+		$lists = \App\Models\Product::where('partner', $catid)->orderby('name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select a Product</option>
@@ -61,10 +61,10 @@ class DashboardController extends Controller
 	}
 		public function getbranch(Request $request){
 		$catid = $request->cat_id;
-		$pro = \App\Product::where('id', $catid)->first();
+		$pro = \App\Models\Product::where('id', $catid)->first();
 		if($pro){
 		$user_array = explode(',',$pro->branches);
-		$lists = \App\PartnerBranch::WhereIn('id',$user_array)->Where('partner_id',$pro->partner)->orderby('name','ASC')->get();
+		$lists = \App\Models\PartnerBranch::WhereIn('id',$user_array)->Where('partner_id',$pro->partner)->orderby('name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select a Branch</option>

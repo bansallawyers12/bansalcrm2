@@ -121,11 +121,11 @@ class EducationController extends Controller
 	public function geteducations(Request $request){
 		$client_id = $request->clientid;
 		
-		$edulists = \App\Education::where('client_id', $client_id)->orderby('created_at','DESC')->get();
+		$edulists = \App\Models\Education::where('client_id', $client_id)->orderby('created_at','DESC')->get();
 		ob_start();
 		foreach($edulists as $edulist){
-			$subjectdetail = \App\Subject::where('id',$edulist->subject)->first();
-			$subjectareadetail = \App\SubjectArea::where('id',$edulist->subject_area)->first();
+			$subjectdetail = \App\Models\Subject::where('id',$edulist->subject)->first();
+			$subjectareadetail = \App\Models\SubjectArea::where('id',$edulist->subject_area)->first();
 			?>
 			<div class="education_item" id="edu_id_<?php echo $edulist->id; ?>">
 				<div class="row">
@@ -170,9 +170,9 @@ class EducationController extends Controller
 	}
 	
 	public function edittestscores(Request $request){
-		if(\App\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->exists()){
-			$testscores = \App\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
-			$obj = \App\TestScore::find($testscores->id);
+		if(\App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->exists()){
+			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
+			$obj = \App\Models\TestScore::find($testscores->id);
 			$obj->user_id = @Auth::user()->id;
 			$obj->client_id = $request->client_id;
 			$obj->toefl_Listening = $request->band_score_1_1;
@@ -196,7 +196,7 @@ class EducationController extends Controller
 			$obj->pte_Date = $request->band_score_7_1;
 			$saved = $obj->save();
 		}else{
-			$obj = new \App\TestScore;
+			$obj = new \App\Models\TestScore;
 			$obj->user_id = @Auth::user()->id;
 			$obj->client_id = $request->client_id;
 			$obj->toefl_Listening = $request->band_score_1_1;
@@ -222,7 +222,7 @@ class EducationController extends Controller
 		}
 		
 		if($saved){
-			$testscores = \App\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
+			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
 			$toefl_Listening = '-';
 			if($testscores->toefl_Listening != ''){
 				$toefl_Listening = $testscores->toefl_Listening;
@@ -327,9 +327,9 @@ class EducationController extends Controller
 	}
 	
 	public function othertestscores(Request $request){
-		if(\App\TestScore::where('client_id', $request->client_id)->exists()){
-			$testscores = \App\TestScore::where('client_id', $request->client_id)->first();
-			$obj = \App\TestScore::find($testscores->id);
+		if(\App\Models\TestScore::where('client_id', $request->client_id)->exists()){
+			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->first();
+			$obj = \App\Models\TestScore::find($testscores->id);
 			
 			$obj->sat_i = $request->sat_i;
 			$obj->sat_ii = $request->sat_ii;
@@ -337,7 +337,7 @@ class EducationController extends Controller
 			$obj->gmat = $request->gmat;
 			$saved = $obj->save();
 		}else{
-			$obj = new \App\TestScore;
+			$obj = new \App\Models\TestScore;
 			$obj->user_id = @Auth::user()->id;
 			$obj->client_id = $request->client_id;
 			$obj->sat_i = $request->sat_i;
@@ -349,7 +349,7 @@ class EducationController extends Controller
 		}
 		
 		if($saved){
-			$testscores = \App\TestScore::where('client_id', $request->client_id)->first();
+			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->first();
 			$sat_i = '-';
 			if($testscores->sat_i != ''){
 				$sat_i = $testscores->sat_i;
@@ -462,7 +462,7 @@ class EducationController extends Controller
 								<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
 									<option value="">Please Select Subject Area</option>
 									<?php
-									foreach(\App\SubjectArea::all() as $sublist){
+									foreach(\App\Models\SubjectArea::all() as $sublist){
 										?>
 										<option <?php if($obj->subject_area == $sublist->id){ echo 'selected'; } ?> value="<?php echo $sublist->id; ?>"><?php echo $sublist->name; ?></option>
 										<?php
@@ -480,7 +480,7 @@ class EducationController extends Controller
 								<select data-valid="" class="form-control subject select2" id="subject" name="subject">
 									<option value="">Please Select Subject</option>
 									<?php
-									$subjects = \App\Subject::where('subject_area', $obj->subject_area)->get();
+									$subjects = \App\Models\Subject::where('subject_area', $obj->subject_area)->get();
 									?>
 									<?php
 									foreach($subjects as $subjlist){

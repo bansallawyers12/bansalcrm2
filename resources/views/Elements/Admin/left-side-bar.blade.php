@@ -9,7 +9,7 @@
 		<ul class="sidebar-menu">
 		<?php
 		
-		$roles = \App\UserRole::find(Auth::user()->role);
+		$roles = \App\Models\UserRole::find(Auth::user()->role);
 		$newarray = json_decode($roles->module_access);
 	
 		$module_access = (array) $newarray;
@@ -72,15 +72,15 @@
 			}
 			
 			if(\Auth::user()->role == 1){
-                //$assigneesCount = \App\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
-               // $assigneesCount = \App\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->count();
+                //$assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+               // $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->count();
               
-                  $assigneesCount = \App\Note::whereIn('type', ['client', 'partner'])->whereNotNull('client_id')->where('folloup',1)->where('status','<>','1')->count();
+                  $assigneesCount = \App\Models\Note::whereIn('type', ['client', 'partner'])->whereNotNull('client_id')->where('folloup',1)->where('status','<>','1')->count();
             }else{
-                //$assigneesCount = \App\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
-                //$assigneesCount = \App\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->count();
+                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->count();
               
-                 $assigneesCount = \App\Note::where('assigned_to',Auth::user()->id)->whereIn('type', ['client', 'partner'])->where('folloup',1)->where('status','<>','1')->count();
+                 $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type', ['client', 'partner'])->where('folloup',1)->where('status','<>','1')->count();
            
             }
 			?>
@@ -121,9 +121,9 @@
 				$checlasstype = 'active'; 
 			}
 			 //if(\Auth::user()->role == 1){
-                $InPersonwaitingCount = \App\CheckinLog::where('status',0)->count();
+                $InPersonwaitingCount = \App\Models\CheckinLog::where('status',0)->count();
             /*}else{
-                $InPersonwaitingCount = \App\CheckinLog::where('user_id',Auth::user()->id)->where('status',0)->orderBy('created_at', 'desc')->count();
+                $InPersonwaitingCount = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',0)->orderBy('created_at', 'desc')->count();
             }*/
 			?>
 			<li class="dropdown {{@$checlasstype}}">
@@ -184,9 +184,9 @@
 			}
 		
 				/*	if(Auth::user()->role == 1){
-						$countfollowup = \App\Note::whereDate('followup_date', date('Y-m-d'))->count();					
+						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->count();					
 					}else{
-						$countfollowup = \App\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
+						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
 					}*/
 					
 	

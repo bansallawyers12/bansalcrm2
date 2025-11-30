@@ -44,7 +44,7 @@ class FollowupController extends Controller
 		$requestData 		= 	$request->all();
 		$ledID = $this->decodeString(@$requestData['lead_id']);
 		 $LEADS = Lead::where('id', $ledID)->first();
-		 $assi = \App\Admin::where('id', @$LEADS->assign_to)->first();
+		 $assi = \App\Models\Admin::where('id', @$LEADS->assign_to)->first();
 			 $message = @$requestData['message'];
 			    			 	 $subject = @$requestData['subject'];
 			    	$subject = str_replace('{Client First Name}',$LEADS->first_name, $subject);

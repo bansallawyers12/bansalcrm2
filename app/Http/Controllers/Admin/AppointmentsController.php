@@ -108,7 +108,7 @@ class AppointmentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Appointment  $appointment
+     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
     public function show(Appointment $appointment)
@@ -121,7 +121,7 @@ class AppointmentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Appointment  $appointment
+     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request, Appointment $appointment)
@@ -134,7 +134,7 @@ class AppointmentsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Appointment  $appointment
+     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
      public function update(Request $request, Appointment $appointment)
@@ -154,7 +154,7 @@ class AppointmentsController extends Controller
         ]);
 
         $requestData = $request->all();
-        $obj = \App\Appointment::find($requestData['id']);
+        $obj = \App\Models\Appointment::find($requestData['id']);
         $obj->user_id = @Auth::user()->id;
         if( isset($request->date) && $request->date != "") {
             $date = explode('/', $request->date);
@@ -166,7 +166,7 @@ class AppointmentsController extends Controller
         //Adelaide
         if( isset($obj->inperson_address) && $obj->inperson_address == 1 )
         {
-            $appointExist = \App\Appointment::where('id','!=',$requestData['id'])
+            $appointExist = \App\Models\Appointment::where('id','!=',$requestData['id'])
             ->where('inperson_address', '=', 1)
             ->where('status', '!=', 7)
             ->whereDate('date', $datey)
@@ -188,7 +188,7 @@ class AppointmentsController extends Controller
                 )
             ) { //Paid
 
-                $appointExist = \App\Appointment::where('id','!=',$requestData['id'])
+                $appointExist = \App\Models\Appointment::where('id','!=',$requestData['id'])
                 ->where('status', '!=', 7)
                 ->whereDate('date', $datey)
                 ->where('time', $request->time)
@@ -205,7 +205,7 @@ class AppointmentsController extends Controller
             }
             else if( isset($obj->service_id) && $obj->service_id == 2) { //Free
                 if( isset($obj->noe_id) && ( $obj->noe_id == 2 || $obj->noe_id == 3 ) ) { //Temporary and JRP
-                    $appointExist = \App\Appointment::where('id','!=',$requestData['id'])
+                    $appointExist = \App\Models\Appointment::where('id','!=',$requestData['id'])
                     ->where('status', '!=', 7)
                     ->whereDate('date', $datey)
                     ->where('time', $request->time)
@@ -215,7 +215,7 @@ class AppointmentsController extends Controller
                     })->count();
                 }
                 else if( isset($obj->noe_id) && ( $obj->noe_id == 4 ) ) { //Tourist Visa
-                    $appointExist = \App\Appointment::where('id','!=',$requestData['id'])
+                    $appointExist = \App\Models\Appointment::where('id','!=',$requestData['id'])
                     ->where('status', '!=', 7)
                     ->whereDate('date', $datey)
                     ->where('time', $request->time)
@@ -225,7 +225,7 @@ class AppointmentsController extends Controller
                     })->count();
                 }
                 else if( isset($obj->noe_id) && ( $obj->noe_id == 5 ) ) { //Education/Course Change
-                    $appointExist = \App\Appointment::where('id','!=',$requestData['id'])
+                    $appointExist = \App\Models\Appointment::where('id','!=',$requestData['id'])
                     ->where('status', '!=', 7)
                     ->whereDate('date', $datey)
                     ->where('time', $request->time)
@@ -323,7 +323,7 @@ class AppointmentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Appointment  $appointment
+     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
     public function destroy(Appointment $appointment)
@@ -336,10 +336,10 @@ class AppointmentsController extends Controller
     public function assignedetail(Request $request){
         $appointmentdetail = Appointment::with(['user','clients','service','assignee_user','natureOfEnquiry'])->where('id',$request->id)->first();
         // dd($appointmentdetail->assignee_user->id);
-    // $admin = \App\Admin::where('id', $notedetail->assignee)->first();
-    // $noe = \App\NatureOfEnquiry::where('id', @$appointmentdetail->noeid)->first();
-    // $addedby = \App\Admin::where('id', $appointmentdetail->user_id)->first();
-    // $client = \App\Admin::where('id', $appointmentdetail->client_id)->first();
+    // $admin = \App\Models\Admin::where('id', $notedetail->assignee)->first();
+    // $noe = \App\Models\NatureOfEnquiry::where('id', @$appointmentdetail->noeid)->first();
+    // $addedby = \App\Models\Admin::where('id', $appointmentdetail->user_id)->first();
+    // $client = \App\Models\Admin::where('id', $appointmentdetail->client_id)->first();
     // ?>
     <div class="modal-header">
             <h5 class="modal-title" id="taskModalLabel"><i class="fa fa-bag"></i> <?php echo $appointmentdetail->title ?? $appointmentdetail->service->title; ?></h5>
@@ -445,8 +445,8 @@ class AppointmentsController extends Controller
                     <div class="col-md-8">
                         <select class="form-control select2" id="changeassignee" name="changeassignee">
                             <?php
-                                foreach(\App\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
-                                    $branchname = \App\Branch::where('id',$admin->office_id)->first();
+                                foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                             ?>
                                     <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                             <?php } ?>
@@ -488,7 +488,7 @@ class AppointmentsController extends Controller
   <?php
                     $logslist = AppointmentLog::where('appointment_id',$appointmentdetail->id)->orderby('created_at', 'DESC')->get();
                     foreach($logslist as $llist){
-                       $admin = \App\Admin::where('id', $llist->created_by)->first();
+                       $admin = \App\Models\Admin::where('id', $llist->created_by)->first();
                     ?>
                         <div class="logsitem">
                             <div class="row">
@@ -601,7 +601,7 @@ public function change_assignee(Request $request){
 
     $saved = $objs->save();
     if($saved){
-        $o = new \App\Notification;
+        $o = new \App\Models\Notification;
         $o->sender_id = \Auth::user()->id;
         $o->receiver_id = $request->assinee;
         $o->module_id = $request->id;

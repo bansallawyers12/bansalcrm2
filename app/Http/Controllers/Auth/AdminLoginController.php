@@ -64,7 +64,7 @@ class AdminLoginController extends Controller
 			\Cookie::queue(\Cookie::forget('password'));
 		}
 	
-		$obj = new \App\UserLog;
+		$obj = new \App\Models\UserLog;
 		$obj->level = 'info';
 		$obj->user_id = @$user->id;
 		$obj->ip_address = $request->getClientIp();
@@ -102,7 +102,7 @@ class AdminLoginController extends Controller
                 \Cookie::queue(\Cookie::forget('password'));
             }
           
-             if(! \App\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
+             if(! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
             {
                 $message  = '<html><body>';
                 $message .= '<p>Dear Admin,</p>';
@@ -118,7 +118,7 @@ class AdminLoginController extends Controller
             }
 
 
-            $obj = new \App\UserLog;
+            $obj = new \App\Models\UserLog;
             $obj->level = 'info';
             $obj->user_id = @$user->id;
             $obj->ip_address = $request->getClientIp();
@@ -137,7 +137,7 @@ class AdminLoginController extends Controller
         $errors = [$this->username() => trans('auth.failed')];
   
         // Load user from database
-        $user = \App\User::where($this->username(), $request->{$this->username()})->first();
+        $user = \App\Models\User::where($this->username(), $request->{$this->username()})->first();
     
         if ($user && !\Hash::check($request->password, $user->password)) {
             $errors = ['password' => 'Wrong password'];
@@ -147,7 +147,7 @@ class AdminLoginController extends Controller
             return response()->json($errors, 422);
         }
        
-         if(! \App\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
+         if(! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
          {
            $message  = '<html><body>';
            $message .= '<p>Dear Admin,</p>';
@@ -163,7 +163,7 @@ class AdminLoginController extends Controller
          }
 
        
-		$obj = new \App\UserLog;
+		$obj = new \App\Models\UserLog;
 		$obj->level = 'critical';
 		$obj->user_id = @$user;
 		$obj->ip_address = $request->getClientIp();
@@ -179,7 +179,7 @@ class AdminLoginController extends Controller
     {
 		  $user = $request->id;
 	
-		$obj = new \App\UserLog;
+		$obj = new \App\Models\UserLog;
 		$obj->level = 'info';
 		$obj->user_id = @$user;
 		$obj->ip_address = $request->getClientIp();
