@@ -39,9 +39,6 @@ Route::post('/exception', 'ExceptionController@index')->name('exception');
 //Coming Soon
 // Route::get('/coming_soon', 'HomeController@coming_soon')->name('coming_soon');	
 
-//Home Page
-//Route::get('/', 'HomeController@index')->name('home');
-//Route::get('/index', 'HomeController@index')->name('home');
 // Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
 
 // Route::get('/enquiry', 'HomeController@enquiry')->name('enquiry');
@@ -51,7 +48,6 @@ Route::post('/exception', 'ExceptionController@index')->name('exception');
 // Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
 // Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
 // Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');  
-// Route::get('/profile', 'HomeController@myprofile')->name('profile');   
 //Login and Register
 // Auth::routes(); // Removed - not compatible with Laravel 12
 // Note: Regular user auth routes commented out - using admin login instead
@@ -92,39 +88,15 @@ Route::post('/reset_link', 'HomeController@resetLink')->name('reset_link');	 */
 // Route::get('/edit_profile', 'DashboardController@editProfile')->name('dashboard.edit_profile');
 // Route::post('/edit_profile', 'DashboardController@editProfile')->name('dashboard.edit_profile');
 
-// Frontend Route
-//Home Page
-/*Route::get('/', 'HomeController@index')->name('home');
-Route::get('/index', 'HomeController@index')->name('home');
-Route::get('/testimonials', 'HomeController@testimonial')->name('testimonial');
-Route::get('/ourservices', 'HomeController@ourservices')->name('ourservices');
-Route::get('/ourservices/{slug}', 'HomeController@servicesdetail')->name('servicesdetail');  
-Route::get('/search_result', 'HomeController@search_result')->name('search_result');
+// Frontend website routes removed - methods deleted from HomeController
+// Removed routes: index, testimonial, ourservices, servicesdetail, search_result, contactus, 
+// contact, stripe, stripePost, bookappointment, getdatetime, refresh_captcha, myprofile
 
-//Route::get('/blogs/{slug}', 'HomeController@blogdetail')->name('blogdetail');  
-Route::get('/contact-us', 'HomeController@contactus');*/
-
-// Frontend Website Routes - Commented out (keeping client self-update feature)
-/*Route::get('stripe/{appointmentId}', 'HomeController@stripe');
-Route::post('stripe', 'HomeController@stripePost')->name('stripe.post1');
-
-Route::get('/book-an-appointment', 'HomeController@bookappointment')->name('bookappointment');
-Route::get('/book-an-appointment1', 'HomeController@bookappointment1')->name('bookappointment1');
-Route::post('/book-an-appointment/store', 'AppointmentBookController@store');
-Route::post('/book-an-appointment/storepaid', 'AppointmentBookController@storepaid')->name('stripe.post');
-Route::post('/getdatetime', 'HomeController@getdatetime');
-Route::post('/getdatetimebackend', 'HomeController@getdatetimebackend');
-Route::post('/getdisableddatetime', 'HomeController@getdisableddatetime');*/
-
-//Route::post('/contact', 'HomeController@contact');
-/*
-Route::get('/refresh-captcha', 'HomeController@refresh_captcha'); 
-Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
-Route::get('sicaptcha', 'HomeController@sicaptcha')->name('sicaptcha');    
-Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
-Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
-Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');     
-Route::get('/profile', 'HomeController@myprofile')->name('profile');  */
+// Route::get('page/{slug}', 'HomeController@Page')->name('page.slug'); 
+// Route::get('sicaptcha', 'HomeController@sicaptcha')->name('sicaptcha');    
+// Route::get('invoice/secure/{slug}', 'InvoiceController@invoice')->name('invoice');   
+// Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
+// Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');
 
 //Thank you page after email verification (KEEP - used by client self-update feature)
 Route::get('thankyou', 'HomeController@thankyou')->name('thankyou');

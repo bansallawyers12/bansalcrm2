@@ -245,5 +245,21 @@ class Form
         
         return $label->toHtml();
     }
+    
+    /**
+     * Create a time input field
+     */
+    public static function time($name, $value = null, $options = [])
+    {
+        $attributes = is_array($options) ? $options : [];
+        
+        $input = Html::input('time', $name, $value);
+        
+        if (!empty($attributes)) {
+            $input->attributes($attributes);
+        }
+        
+        return $input->toHtml();
+    }
 }
 
