@@ -262,13 +262,6 @@ Route::prefix('admin')->group(function() {
 	 // Route::get('/api-key', 'Admin\ApiController@index')->name('admin.apikey.index');
 	  //Manage Api key  
 				      
-	//CMS Pages
-		/*Route::get('/cms_pages', 'Admin\CmsPageController@index')->name('admin.cms_pages.index');
-		Route::get('/cms_pages/create', 'Admin\CmsPageController@create')->name('admin.cms_pages.create');
-		Route::post('/cms_pages/store', 'Admin\CmsPageController@store')->name('admin.cms_pages.store');
-		Route::get('/cms_pages/edit/{id}', 'Admin\CmsPageController@editCmsPage')->name('admin.edit_cms_page');
-		Route::post('/cms_pages/edit', 'Admin\CmsPageController@editCmsPage')->name('admin.edit_cms_page');*/
-		
 	//Email Templates Pages
 		Route::get('/email_templates', 'Admin\EmailTemplateController@index')->name('admin.email.index');
 		Route::get('/email_templates/create', 'Admin\EmailTemplateController@create')->name('admin.email.create');
@@ -621,21 +614,21 @@ Route::prefix('admin')->group(function() {
 		Route::get('/checklist/create', 'Admin\ChecklistController@create')->name('admin.checklist.create');  
 		Route::post('checklist/store', 'Admin\ChecklistController@store')->name('admin.checklist.store');     
 		Route::get('/checklist/edit/{id}', 'Admin\ChecklistController@edit')->name('admin.checklist.edit');
-		Route::post('/checklist/edit', 'Admin\ChecklistController@edit')->name('admin.checklist.edit');
+		Route::post('/checklist/edit', 'Admin\ChecklistController@edit')->name('admin.checklist.update');
 		
 		//Enquiry Source Start
 		Route::get('/enquirysource', 'Admin\EnquirySourceController@index')->name('admin.enquirysource.index');  
 		Route::get('/enquirysource/create', 'Admin\EnquirySourceController@create')->name('admin.enquirysource.create');  
 		Route::post('enquirysource/store', 'Admin\EnquirySourceController@store')->name('admin.enquirysource.store');     
 		Route::get('/enquirysource/edit/{id}', 'Admin\EnquirySourceController@edit')->name('admin.enquirysource.edit');
-		Route::post('/enquirysource/edit', 'Admin\EnquirySourceController@edit')->name('admin.enquirysource.edit');
+		Route::post('/enquirysource/edit', 'Admin\EnquirySourceController@edit')->name('admin.enquirysource.update');
 		
 		//FeeType Start
 		Route::get('/feetype', 'Admin\FeeTypeController@index')->name('admin.feetype.index');  
 		Route::get('/feetype/create', 'Admin\FeeTypeController@create')->name('admin.feetype.create');  
 		Route::post('feetype/store', 'Admin\FeeTypeController@store')->name('admin.feetype.store');     
-		Route::get('/feetype/edit/{id}', 'Admin\FeeTypeController@edit')->name('admin.enquirysource.edit');
-		Route::post('/feetype/edit', 'Admin\FeeTypeController@edit')->name('admin.feetype.edit');
+		Route::get('/feetype/edit/{id}', 'Admin\FeeTypeController@edit')->name('admin.feetype.edit');
+		Route::post('/feetype/edit', 'Admin\FeeTypeController@edit')->name('admin.feetype.update');
 		
 		
 		//workflow Start
@@ -645,7 +638,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/workflow/edit/{id}', 'Admin\WorkflowController@edit')->name('admin.workflow.edit');
 		Route::get('/workflow/deactivate-workflow/{id}', 'Admin\WorkflowController@deactivateWorkflow')->name('admin.workflow.deactivate');
 		Route::get('/workflow/activate-workflow/{id}', 'Admin\WorkflowController@activateWorkflow')->name('admin.workflow.activate');
-		Route::post('/workflow/edit', 'Admin\WorkflowController@edit')->name('admin.workflow.edit');
+		Route::post('/workflow/edit', 'Admin\WorkflowController@edit')->name('admin.workflow.update');
 		
 		Route::post('/partner/saveagreement', 'Admin\PartnersController@saveagreement');
 		Route::post('/partner/create-contact', 'Admin\PartnersController@createcontact');
@@ -744,14 +737,14 @@ Route::prefix('admin')->group(function() {
 		Route::get('/emails/create', 'Admin\EmailController@create')->name('admin.emails.create');  
 		Route::post('emails/store', 'Admin\EmailController@store')->name('admin.emails.store');     
 		Route::get('/emails/edit/{id}', 'Admin\EmailController@edit')->name('admin.emails.edit');
-		Route::post('/emails/edit', 'Admin\EmailController@edit')->name('admin.emails.edit');
+		Route::post('/emails/edit', 'Admin\EmailController@edit')->name('admin.emails.update');
 		
 		//Crm Email Template Start
 		Route::get('/crm_email_template', 'Admin\CrmEmailTemplateController@index')->name('admin.crmemailtemplate.index');  
 		Route::get('/crm_email_template/create', 'Admin\CrmEmailTemplateController@create')->name('admin.crmemailtemplate.create');  
 		Route::post('crm_email_template/store', 'Admin\CrmEmailTemplateController@store')->name('admin.crmemailtemplate.store');     
 		Route::get('/crm_email_template/edit/{id}', 'Admin\CrmEmailTemplateController@edit')->name('admin.crmemailtemplate.edit');
-		Route::post('/crm_email_template/edit', 'Admin\CrmEmailTemplateController@edit')->name('admin.crmemailtemplate.edit'); 
+		Route::post('/crm_email_template/edit', 'Admin\CrmEmailTemplateController@edit')->name('admin.crmemailtemplate.update'); 
 		
 		Route::get('/gen-settings', 'Admin\AdminController@gensettings')->name('admin.gensettings.index');
 		Route::post('/gen-settings/update', 'Admin\AdminController@gensettingsupdate')->name('admin.gensettings.update');
@@ -765,30 +758,6 @@ Route::prefix('admin')->group(function() {
 		Route::post('/teams/edit', 'Admin\TeamController@edit');
 		Route::post('/teams/store', 'Admin\TeamController@store')->name('admin.teamsupload');	
 		Route::get('/all-notifications', 'Admin\AdminController@allnotification');	
-		
-		
-
-
-		//Blog 
-		/*Route::get('/blog', 'Admin\BlogController@index')->name('admin.blog.index');
-		Route::get('/blog/create', 'Admin\BlogController@create')->name('admin.blog.create');
-		Route::post('/blog/store', 'Admin\BlogController@store')->name('admin.blog.store');
-		Route::get('/blog/edit/{id}', 'Admin\BlogController@edit')->name('admin.blog.edit');
-		Route::post('/blog/edit', 'Admin\BlogController@edit')->name('admin.blog.edit');
-
-	//Blog Category
-		Route::get('/blogcategories', 'Admin\BlogCategoryController@index')->name('admin.blogcategory.index');
-		Route::get('/blogcategories/create', 'Admin\BlogCategoryController@create')->name('admin.blogcategory.create');
-		Route::post('/blogcategories/store', 'Admin\BlogCategoryController@store')->name('admin.blogcategory.store');
-		Route::get('/blogcategories/edit/{id}', 'Admin\BlogCategoryController@edit')->name('admin.blogcategory.edit');
-		Route::post('/blogcategories/edit', 'Admin\BlogCategoryController@edit')->name('admin.blogcategory.edit');
-
-		//CMS Pages
-		Route::get('/cms_pages', 'Admin\CmsPageController@index')->name('admin.cms_pages.index');
-		Route::get('/cms_pages/create', 'Admin\CmsPageController@create')->name('admin.cms_pages.create');
-		Route::post('/cms_pages/store', 'Admin\CmsPageController@store')->name('admin.cms_pages.store');
-		Route::get('/cms_pages/edit/{id}', 'Admin\CmsPageController@editCmsPage')->name('admin.edit_cms_page');
-		Route::post('/cms_pages/edit', 'Admin\CmsPageController@editCmsPage')->name('admin.edit_cms_page');*/
 		
 		// Assignee modulle
 		Route::resource('/assignee', Admin\AssigneeController::class);
@@ -856,7 +825,7 @@ Route::prefix('admin')->group(function() {
   
   		//Account Receipts section
         Route::get('/clients/saveaccountreport/{id}', 'Admin\ClientsController@saveaccountreport')->name('admin.clients.saveaccountreport');
-        Route::post('/clients/saveaccountreport', 'Admin\ClientsController@saveaccountreport')->name('admin.clients.saveaccountreport');
+        Route::post('/clients/saveaccountreport', 'Admin\ClientsController@saveaccountreport')->name('admin.clients.saveaccountreport.update');
         Route::post('/clients/getTopReceiptValInDB', 'Admin\ClientsController@getTopReceiptValInDB')->name('admin.clients.getTopReceiptValInDB');
         Route::get('/clients/printpreview/{id}', 'Admin\ClientsController@printpreview'); //Client receipt print preview
 		Route::post('/clients/getClientReceiptInfoById', 'Admin\ClientsController@getClientReceiptInfoById')->name('admin.clients.getClientReceiptInfoById');
@@ -904,18 +873,18 @@ Route::prefix('admin')->group(function() {
   
        //Partner Student Invoice
         Route::get('/partners/savepartnerstudentinvoice/{id}', 'Admin\PartnersController@savepartnerstudentinvoice')->name('admin.partners.savepartnerstudentinvoice');
-        Route::post('/partners/savepartnerstudentinvoice', 'Admin\PartnersController@savepartnerstudentinvoice')->name('admin.partners.savepartnerstudentinvoice');
+        Route::post('/partners/savepartnerstudentinvoice', 'Admin\PartnersController@savepartnerstudentinvoice')->name('admin.partners.savepartnerstudentinvoice.update');
         Route::post('/partners/getTopReceiptValInDB', 'Admin\PartnersController@getTopReceiptValInDB')->name('admin.partners.getTopReceiptValInDB');
         Route::post('/partners/getEnrolledStudentList', 'Admin\PartnersController@getEnrolledStudentList')->name('admin.partners.getEnrolledStudentList');
 
 
         //Partner Student Record Invoice
         Route::get('/partners/savepartnerrecordinvoice/{id}', 'Admin\PartnersController@savepartnerrecordinvoice')->name('admin.partners.savepartnerrecordinvoice');
-        Route::post('/partners/savepartnerrecordinvoice', 'Admin\PartnersController@savepartnerrecordinvoice')->name('admin.partners.savepartnerrecordinvoice');
+        Route::post('/partners/savepartnerrecordinvoice', 'Admin\PartnersController@savepartnerrecordinvoice')->name('admin.partners.savepartnerrecordinvoice.update');
 
         //Partner Student Record payment
         Route::get('/partners/savepartnerrecordpayment/{id}', 'Admin\PartnersController@savepartnerrecordpayment')->name('admin.partners.savepartnerrecordpayment');
-        Route::post('/partners/savepartnerrecordpayment', 'Admin\PartnersController@savepartnerrecordpayment')->name('admin.partners.savepartnerrecordpayment');
+        Route::post('/partners/savepartnerrecordpayment', 'Admin\PartnersController@savepartnerrecordpayment')->name('admin.partners.savepartnerrecordpayment.update');
         Route::post('/partners/getRecordedInvoiceList', 'Admin\PartnersController@getRecordedInvoiceList')->name('admin.partners.getRecordedInvoiceList');
         //update student status
         Route::post('/partners/update-student-status', 'Admin\PartnersController@updateStudentStatus')->name('admin.partners.updateStudentStatus');
