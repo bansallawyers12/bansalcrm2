@@ -7,7 +7,7 @@
 <div id="login" class="myregister">
 		<aside class="tside">
 			<figure>
-				<a href="#"><img src="{!! asset('public/img/Frontend/img/bookmatic-logo.png') !!}" data-retina="true" alt="" class="Book Matic"></a>
+				<a href="#"><img src="{!! asset('img/Frontend/img/bookmatic-logo.png') !!}" data-retina="true" alt="" class="Book Matic"></a>
 			</figure>
 			  <form method="POST" action="{{ route('register') }}">
                 @csrf
@@ -104,7 +104,7 @@
                         </div>
 			{{ Form::close() }}
 			<div class="locking_img">
-				<img src="{!! asset('public/img/Frontend/img/lock_img.jpg') !!}" alt=""/>
+				<img src="{!! asset('img/Frontend/img/lock_img.jpg') !!}" alt=""/>
 			</div>
 		</aside>
 	</div>

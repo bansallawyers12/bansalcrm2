@@ -1219,7 +1219,7 @@ use App\Http\Controllers\Controller;
 													<tr class="drow" id="id_{{$fetch->id}}">
 													<td  style="white-space: initial;">
 														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('/public/img/documents/'.$fetch->myfile); ?>','preview-container-documentlist')">
+															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','preview-container-documentlist')">
                                                                 <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                             </a>
 														</div>
@@ -1232,14 +1232,14 @@ use App\Http\Controllers\Controller;
 															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																<a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
 																<?php
 																$explodeimg = explode('.',$fetch->myfile);
                                           						if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 																?>
 																	<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
 																	<?php } ?>
-																<a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
 															</div>
 														</div>
@@ -1267,8 +1267,8 @@ use App\Http\Controllers\Controller;
 														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 
-																<a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
 														</div>
 													</div>
@@ -1324,7 +1324,7 @@ use App\Http\Controllers\Controller;
 													<tr class="drow" id="id_{{$fetch->id}}">
 													<td  style="white-space: initial;">
 														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('/public/img/documents/'.$fetch->myfile); ?>','preview-container-migrationdocumentlist')">
+															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','preview-container-migrationdocumentlist')">
                                                                 <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                             </a>
 														</div>
@@ -1337,14 +1337,14 @@ use App\Http\Controllers\Controller;
 															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																<a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
 																<?php
 																$explodeimg = explode('.',$fetch->myfile);
 																if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 																?>
 																	<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
 																	<?php } ?>
-																<a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
 															</div>
 														</div>
@@ -1372,8 +1372,8 @@ use App\Http\Controllers\Controller;
 														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 
-																<a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
 														</div>
 													</div>
@@ -2247,7 +2247,7 @@ use App\Http\Controllers\Controller;
 										@foreach($decodeatta as $attaa)
 										    <li style="display:inline-block;padding: 0px 11px;
 											border-radius: 4px;
-											box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo URL::to('/public/checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
+											box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo asset('checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
 																				@endforeach
 										</ul>
 														    </div>
@@ -2332,7 +2332,7 @@ use App\Http\Controllers\Controller;
 											@foreach($decodeatta as $attaa)
 												<li style="display:inline-block;padding: 0px 11px;
 												border-radius: 4px;
-												box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo URL::to('/public/checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
+												box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo asset('checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
 											@endforeach
 										</ul>
 														    </div>
@@ -3552,7 +3552,7 @@ use App\Http\Controllers\Controller;
                                                     <tr>
                                                         <td><input type="checkbox" name="checklistfile[]" value="{{$uclist->id}}" {{ old('checklistfile') && in_array($uclist->id, old('checklistfile', [])) ? 'checked' : '' }}></td>
                                                         <td style="white-space: initial;">{{$uclist->name}}</td>
-                                                        <td style="white-space: initial;"><a target="_blank" href="{{ URL::to('/public/checklists/'.$uclist->file) }}">{{$uclist->name}}</a></td>
+                                                        <td style="white-space: initial;"><a target="_blank" href="{{ asset('checklists/'.$uclist->file) }}">{{$uclist->name}}</a></td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -3595,7 +3595,7 @@ use App\Http\Controllers\Controller;
                                                         if( isset($composedoclist->doc_type) && $composedoclist->doc_type != "" )
                                                         {
                                                             if( $composedoclist->doc_type == "education" || $composedoclist->doc_type == "migration" ){ ?>
-                                                                <a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/{{$composedoclist->myfile}}">{{$composedoclist->file_name}}</a>
+                                                                <a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/{{$composedoclist->myfile}}">{{$composedoclist->file_name}}</a>
                                                             <?php
                                                             }
                                                             else if( $composedoclist->doc_type == "documents")

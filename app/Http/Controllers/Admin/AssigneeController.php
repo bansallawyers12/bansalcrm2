@@ -434,7 +434,7 @@ class AssigneeController extends Controller
         if ($request->ajax()) {
            if(\Auth::user()->role == 1)
             { //admin role
-            	$data = \App\Models\Note::with(['noteUser','noteClient','lead.natureOfEnquiry','lead.service','assigned_user'])
+            	$data = \App\Models\Note::with(['noteUser','noteClient','assigned_user'])
             	->where('status','<>','1')
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
@@ -444,7 +444,7 @@ class AssigneeController extends Controller
             }
             else
             { //role is not admin
-            	$data = \App\Models\Note::with(['noteUser','noteClient','lead.natureOfEnquiry','lead.service','assigned_user'])
+            	$data = \App\Models\Note::with(['noteUser','noteClient','assigned_user'])
             	->where('status','<>','1')
             	->where('assigned_to',\Auth::user()->id)
             	//->where('type','client')

@@ -483,7 +483,7 @@ console.log(e);
 		 var showPopover = $.fn.popover.Constructor.prototype.show;
             $.fn.popover.Constructor.prototype.show = function () {
                 showPopover.call(this);
-                if (this.options.showCallback) {
+                if (this.options && this.options.showCallback) {
                     this.options.showCallback.call(this); 
                 }
             } 

@@ -136,8 +136,8 @@ class ClientsController extends Controller
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 
 		}else{
-		    $query 		= Admin::where('id', '=', '')->where('role', '=', '7');
-		    $lists		= $query->sortable(['id' => 'desc'])->paginate(20);
+		    // Return empty result set for users without module access
+		    $lists = Admin::whereRaw('1 = 0')->paginate(20);
 		    $totalData = 0;
 		}
 		return view('Admin.clients.index', compact(['lists', 'totalData']));
@@ -184,7 +184,8 @@ class ClientsController extends Controller
 			$requestData 		= 	$request->all();
 			$related_files = '';
 	        if(isset($requestData['related_files'])){
-	            for($i=0; $i<count($requestData['related_files']); $i++){
+	            $relatedFilesCount = count($requestData['related_files']);
+	            for($i=0; $i<$relatedFilesCount; $i++){
 	                $related_files .= $requestData['related_files'][$i].',';
 	            }
 
@@ -346,7 +347,8 @@ class ClientsController extends Controller
 									  ]);
 				$related_files = '';
 	        if(isset($requestData['related_files'])){
-	            for($i=0; $i<count($requestData['related_files']); $i++){
+	            $relatedFilesCount = count($requestData['related_files']);
+	            for($i=0; $i<$relatedFilesCount; $i++){
 	                $related_files .= $requestData['related_files'][$i].',';
 	            }
 
@@ -405,9 +407,10 @@ class ClientsController extends Controller
           
 			//$obj->assignee	=	@$requestData['assign_to'];
             if( isset($requestData['assign_to']) && is_array($requestData['assign_to']) ){
-                if( count($requestData['assign_to']) >1 ) {
+                $assignToCount = count($requestData['assign_to']);
+                if( $assignToCount >1 ) {
                     $obj->assignee	=  implode(",", $requestData['assign_to']);
-                } else if( count($requestData['assign_to']) == 1 ) {
+                } else if( $assignToCount == 1 ) {
                     $obj->assignee	=  $requestData['assign_to'][0];
                 } else {
                     $obj->assignee	= "";
@@ -516,7 +519,8 @@ class ClientsController extends Controller
               //Code for addition of simiar related files in added users account  
                     if(isset($requestData['related_files']))
                     {
-                        for($j=0; $j<count($requestData['related_files']); $j++){
+                        $relatedFilesCount = count($requestData['related_files']);
+                        for($j=0; $j<$relatedFilesCount; $j++){
                             if(Admin::where('id', '=', $requestData['related_files'][$j])->exists())
                             {
                                 $objsY = Admin::select('id', 'related_files')->where('id', $requestData['related_files'][$j])->get();
@@ -583,7 +587,8 @@ class ClientsController extends Controller
 
                   if( isset($diff_arr) && !empty($diff_arr))
                   {
-                      for($k=0; $k<count($diff_arr); $k++)
+                      $diffArrCount = count($diff_arr);
+                      for($k=0; $k<$diffArrCount; $k++)
                       {
                           if(Admin::where('id', '=', $diff_arr[$k])->exists())
                           {
@@ -678,7 +683,8 @@ class ClientsController extends Controller
           
 			$related_files = '';
 	        if(isset($requestData['related_files'])){
-	            for($i=0; $i<count($requestData['related_files']); $i++){
+	            $relatedFilesCount = count($requestData['related_files']);
+	            for($i=0; $i<$relatedFilesCount; $i++){
 	                $related_files .= $requestData['related_files'][$i].',';
 	            }
 
@@ -753,9 +759,10 @@ class ClientsController extends Controller
           
 			//$obj->assignee	=	@$requestData['assign_to'];
             if( isset($requestData['assign_to']) && is_array($requestData['assign_to']) ){
-                if( count($requestData['assign_to']) >1 ) {
+                $assignToCount = count($requestData['assign_to']);
+                if( $assignToCount >1 ) {
                     $obj->assignee	=  implode(",", $requestData['assign_to']);
-                } else if( count($requestData['assign_to']) == 1 ) {
+                } else if( $assignToCount == 1 ) {
                     $obj->assignee	=  $requestData['assign_to'][0];
                 } else {
                     $obj->assignee	= "";
@@ -835,7 +842,8 @@ class ClientsController extends Controller
             //Update partner phone table
             if(isset($requestData['rem_phone'])){
                 $rem_phone =  @$requestData['rem_phone'];
-                for($irem_phone=0; $irem_phone< count($rem_phone); $irem_phone++){
+                $remPhoneCount = count($rem_phone);
+                for($irem_phone=0; $irem_phone< $remPhoneCount; $irem_phone++){
                     if(\App\Models\ClientPhone::where('id', $rem_phone[$irem_phone])->exists()){
                         \App\Models\ClientPhone::where('id', $rem_phone[$irem_phone])->delete();
                     }
@@ -860,8 +868,9 @@ class ClientsController extends Controller
                 $client_phone = array();
             }
 
-            if(count($client_phone) >0){
-                for($iii=0; $iii< count($client_phone); $iii++){
+            $clientPhoneCount = count($client_phone);
+            if($clientPhoneCount >0){
+                for($iii=0; $iii< $clientPhoneCount; $iii++){
                     if(\App\Models\ClientPhone::where('id', $requestData['clientphoneid'][$iii])->exists()){
                         $os1 = \App\Models\ClientPhone::find($requestData['clientphoneid'][$iii]);
                         $os1->user_id = @Auth::user()->id;
@@ -941,7 +950,8 @@ class ClientsController extends Controller
               //Code for addition of simiar related files in added users account  
                     if(isset($requestData['related_files']))
                     {
-                        for($j=0; $j<count($requestData['related_files']); $j++){
+                        $relatedFilesCount = count($requestData['related_files']);
+                        for($j=0; $j<$relatedFilesCount; $j++){
                             if(Admin::where('id', '=', $requestData['related_files'][$j])->exists())
                             {
                                 $objsY = Admin::select('id', 'related_files')->where('id', $requestData['related_files'][$j])->get();
@@ -1008,7 +1018,8 @@ class ClientsController extends Controller
 
                   if( isset($diff_arr) && !empty($diff_arr))
                   {
-                      for($k=0; $k<count($diff_arr); $k++)
+                      $diffArrCount = count($diff_arr);
+                      for($k=0; $k<$diffArrCount; $k++)
                       {
                           if(Admin::where('id', '=', $diff_arr[$k])->exists())
                           {
@@ -1993,7 +2004,7 @@ class ClientsController extends Controller
 					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
 						<td style="white-space: initial;">
                             <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-								<a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('/public/img/documents/'.$fetch->myfile); ?>','<?php echo $preview_container_type;?>')">
+								<a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','<?php echo $preview_container_type;?>')">
                                     <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                 </a>
 							</div>
@@ -2006,14 +2017,14 @@ class ClientsController extends Controller
 								<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 								<div class="dropdown-menu">
 									<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-									<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+									<a target="_blank" class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
 									<?php
 																$explodeimg = explode('.',$fetch->myfile);
 										if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 																?>
 																	<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
 																	<?php } ?>
-									<a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+									<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 
 									<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
 								</div>
@@ -2037,8 +2048,8 @@ class ClientsController extends Controller
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
 									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 									<div class="dropdown-menu">
-										<a class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
-										<a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+										<a class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+										<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 										<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
 									</div>
 								</div>
@@ -2478,69 +2489,6 @@ class ClientsController extends Controller
 		}
         echo json_encode($response);
     }
-		$obj->user_id = @Auth::user()->id;
-		$obj->client_id = @$request->client_id;
-		$obj->timezone = @$request->timezone;
-		$obj->date = @$request->appoint_date;
-		$obj->time = @$request->appoint_time;
-		$obj->title = @$request->title;
-		$obj->description = @$request->description;
-		$obj->invites = @$request->invites;
-
-		$obj->status = 0;
-		$obj->related_to = 'client';
-		$saved = $obj->save();
-		if($saved){
-
-			if(isset($request->type) && $request->atype == 'application'){
-				$objs = new \App\Models\ApplicationActivitiesLog;
-				$objs->stage = $request->type;
-				$objs->type = 'appointment';
-				$objs->comment = 'created appointment '.@$request->appoint_date;
-				$objs->title = '';
-				$objs->description = '';
-				$objs->app_id = $request->noteid;
-				$objs->user_id = Auth::user()->id;
-				$saved = $objs->save();
-
-			}else{
-				$subject = 'scheduled an appointment';
-			$objs = new ActivitiesLog;
-			$objs->client_id = $request->client_id;
-			$objs->created_by = Auth::user()->id;
-			$objs->description = '<div  style="margin-right: 1rem;float:left;">
-						<span style="height: 60px; width: 60px; border: 1px solid rgb(3, 169, 244); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px;overflow: hidden;">
-							<span  style="flex: 1 1 0%; width: 100%; text-align: center; background: rgb(237, 237, 237); border-top-left-radius: 120px; border-top-right-radius: 120px; font-size: 12px;line-height: 24px;">
-							  '.date('d M', strtotime($obj->date)).'
-							</span>
-							<span style="background: rgb(84, 178, 75); color: rgb(255, 255, 255); flex: 1 1 0%; width: 100%; border-bottom-left-radius: 120px; border-bottom-right-radius: 120px; text-align: center;font-size: 12px; line-height: 21px;">
-							   '.date('Y', strtotime($obj->date)).'
-							</span>
-						</span>
-					</div>
-					<div style="float:right;"><span  class="text-semi-bold">'.$obj->title.'</span> <p  class="text-semi-light-grey col-v-1">
-				@ '.date('H:i A', strtotime($obj->time)).'
-				</p></div>';
-			$objs->subject = $subject;
-			$objs->save();
-			}
-
-
-			$response['status'] 	= 	true;
-			$response['data']	=	'Appointment saved successfully';
-				if(isset($requestData['is_ajax']) && $requestData['is_ajax'] == 1){
-		            $response['reloadpage'] 	= 	true;
-	        	}else{
-		        $response['reloadpage'] 	= 	false;
-	        	}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-
-		 echo json_encode($response);
-
-	}
 
 
 	public function editappointment(Request $request){
@@ -4010,6 +3958,12 @@ class ClientsController extends Controller
         }*/
 
         $followup = \App\Models\Note::where('id', '=', $requestData['note_id'])->first();
+        
+        if(!$followup) {
+            echo json_encode(array('success' => false, 'message' => 'Note not found', 'clientID' => $requestData['client_id']));
+            exit;
+        }
+        
         //$followup 				= new \App\Models\Note;
         $followup->id               = $followup ->id;
 		$followup->client_id		= $this->decodeString(@$requestData['client_id']);
@@ -4031,10 +3985,13 @@ class ClientsController extends Controller
 		}
 		else
 		{
+			$Lead = null;
 			if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
                 $Lead = Admin::find($this->decodeString($requestData['client_id']));
-                $Lead->followup_date = @$requestData['followup_datetime'];
-                $Lead->save();
+                if($Lead) {
+                    $Lead->followup_date = @$requestData['followup_datetime'];
+                    $Lead->save();
+                }
 			}
 
 			$o = new \App\Models\Notification;
@@ -4043,7 +4000,8 @@ class ClientsController extends Controller
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
 	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
-	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
+	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
+	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -4211,11 +4169,12 @@ class ClientsController extends Controller
             //dd( $request->all() );
     		$objs = Admin::find($request->id);
             if ( is_array($request->assinee) ) {
-                if( count($request->assinee) < 1){
+                $assineeCount = count($request->assinee);
+                if( $assineeCount < 1){
                     $objs->assignee = "";
-                } else if( count($request->assinee) == 1){
+                } else if( $assineeCount == 1){
                     $objs->assignee = $request->assinee[0];
-                } else if( count($request->assinee) > 1){
+                } else if( $assineeCount > 1){
                     $objs->assignee = implode(",",$request->assinee);
                 }
             }

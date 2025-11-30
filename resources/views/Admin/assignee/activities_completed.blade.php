@@ -379,7 +379,7 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{URL::to('/')}}/public/js/popover.js"></script>
+<script src="{{asset('js/popover.js')}}"></script>
 <script>
 jQuery(document).ready(function($){
     $('[data-toggle="tooltip"]').tooltip();

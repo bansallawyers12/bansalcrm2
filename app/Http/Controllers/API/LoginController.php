@@ -67,7 +67,7 @@ class LoginController extends BaseController
 				$link = $request->url.'/reset_link/'.$token;
 				
 				$replace = array('{logo}', '{customer_name}', '{link}', '{year}');					
-				$replace_with = array(\URL::to('/public/img/profile_imgs').'/'.@$users->profile_img, @$userData->first_name.' '.@$userData->last_name, $link, date('Y'));
+				$replace_with = array(asset('img/profile_imgs').'/'.@$users->profile_img, @$userData->first_name.' '.@$userData->last_name, $link, date('Y'));
 		 
 				$this->send_email_template($replace, $replace_with, 'forgot-password', $requestData['email'],'Reset Password Request',$users->email);
 				$success['message'] = "1";

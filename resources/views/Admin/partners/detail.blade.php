@@ -2,7 +2,7 @@
 @section('title', 'Partner Detail')
 
 @section('content')
-<link rel="stylesheet" href="{{URL::asset('public/css/bootstrap-datepicker.min.css')}}">
+<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -879,8 +879,8 @@ use App\Http\Controllers\Controller;
                                                                     else
                                                                     { //String is not a valid URL
                                                                     ?>
-                                                                        <a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-                                                                        <a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+                                                                        <a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+                                                                        <a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
                                                                     <?php
                                                                     }
                                                                 } ?>
@@ -912,8 +912,8 @@ use App\Http\Controllers\Controller;
 														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														
-																<a target="_blank" class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{URL::to('/public/img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
+																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
+																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
 														</div>
 													</div>
@@ -2854,7 +2854,7 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<script src="{{URL::asset('public/js/bootstrap-datepicker.js')}}"></script>
+<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 <!-- jQuery Confirm for custom confirmation box -->
 <script src="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.css">

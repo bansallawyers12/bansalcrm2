@@ -47,7 +47,7 @@ class OfferController extends BaseController
 				}
 			}
 			$success['offers'] =  @$data;
-			$success['image_gallery_path'] 	=  \URL::to('/public/img/gallery_img').'/';
+			$success['image_gallery_path'] 	=  asset('img/gallery_img').'/';
 			return $this->sendResponse($success, '');
 		}else{
 			return $this->sendError('Error', array('client_id'=>array('Client id not found'))); 

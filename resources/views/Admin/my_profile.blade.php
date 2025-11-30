@@ -32,9 +32,9 @@
 										<div class="profile_upload">
 											<div class="upload_content">
 											@if(@$fetchedData->profile_img != '')
-												<img src="{{asset('public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
+												<img src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
 											@else
-												<img id="output" src="{{asset('public/images/no_image.jpg')}}"/> 
+												<img id="output" src="{{asset('img/user.png')}}"/> 
 											@endif
 												<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fa fa-camera if_image"></i>
 												<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Company Logo</span>

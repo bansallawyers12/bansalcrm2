@@ -91,7 +91,7 @@
 				   
 					<a href="#" class="dropdown-item">
 						<span class="dropdown-item-avatar text-white">
-							<img alt="image" src="{!! asset('public/img/users/user-2.png') !!}" class="rounded-circle">
+							<img alt="image" src="{!! asset('img/users/user-2.png') !!}" class="rounded-circle">
 						</span>
 						<span class="dropdown-item-desc">
 							<span class="message-user"></span>
@@ -102,7 +102,7 @@
 				
 					<a href="#" class="dropdown-item">
 						<span class="dropdown-item-avatar text-white">
-							<img alt="image" src="{!! asset('public/img/users/user-2.png') !!}" class="rounded-circle">
+							<img alt="image" src="{!! asset('img/users/user-2.png') !!}" class="rounded-circle">
 						</span>
 						<span class="dropdown-item-desc">
 							<span class="message-user">Sarah Smith</span>
@@ -112,7 +112,7 @@
 					</a>
 					<a href="#" class="dropdown-item">
 						<span class="dropdown-item-avatar text-white">
-							<img alt="image" src="{!! asset('public/img/users/user-5.png') !!}" class="rounded-circle">
+							<img alt="image" src="{!! asset('img/users/user-5.png') !!}" class="rounded-circle">
 						</span>
 						<span class="dropdown-item-desc">
 							<span class="message-user">Jacob Ryan</span>
@@ -159,9 +159,9 @@
 		<li class="dropdown">
 			<a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 				@if(@Auth::user()->profile_img == '')
-				<img alt="user image" src="{{ asset('public/img/user.png') }}" class="user-img-radious-style">
+				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">
 				@else
-				<img  alt="{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}" src="{{asset('public/img/profile_imgs')}}/{{@Auth::user()->profile_img}}" class="user-img-radious-style"/>
+				<img  alt="{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}" src="{{asset('img/profile_imgs')}}/{{@Auth::user()->profile_img}}" class="user-img-radious-style"/>
 				@endif	
 				<span class="d-sm-none d-lg-inline-block"></span>
 			</a>

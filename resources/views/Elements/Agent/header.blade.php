@@ -88,9 +88,9 @@
 		<li class="dropdown">
 			<a href="#" data-toggle="dropdown"class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 				@if(@Auth::user()->profile_img == '')
-				<img alt="user image" src="{{ asset('/public/img/user.png') }}" class="user-img-radious-style">
+				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">
 				@else
-				<img  alt="{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}" src="{{URL::to('/public/img/profile_imgs')}}/{{@Auth::user()->profile_img}}" class="user-img-radious-style"/>
+				<img  alt="{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}" src="{{asset('img/profile_imgs')}}/{{@Auth::user()->profile_img}}" class="user-img-radious-style"/>
 				@endif	
 				<span class="d-sm-none d-lg-inline-block"></span>
 			</a>

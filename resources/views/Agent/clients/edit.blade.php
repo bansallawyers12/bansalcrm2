@@ -35,7 +35,7 @@
 														<div class="profile_upload">
 															<div class="upload_content">
 															@if(@$fetchedData->profile_img != '')
-																<img src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
+																<img src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
 															@else
 																<img id="output"/> 
 															@endif

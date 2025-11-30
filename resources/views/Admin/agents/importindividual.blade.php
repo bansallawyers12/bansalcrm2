@@ -19,7 +19,7 @@
 							<h4>Import Individual Agents</h4>
 							
 							<div class="card-header-action">
-									<a href="{{URL::to('/public/img/IndividualTemplate.xlsx')}}" class="btn btn-primary"><i class="fa fa-download"></i> Download Template</a>
+									<a href="{{asset('img/IndividualTemplate.xlsx')}}" class="btn btn-primary"><i class="fa fa-download"></i> Download Template</a>
 								</div>
 						</div>
 						<div class="card-body">

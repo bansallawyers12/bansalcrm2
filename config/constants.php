@@ -15,7 +15,7 @@ return [
 	'empty' => 'N/A',
 	'developer' =>'raghavgarg.jpiet@gmail.com',
 	'no_data' =>'There are no data in this table.',
-	'logoImg' => '/public/img/logo.png', 
+	'logoImg' => '/img/logo.png', 
 	'test_pdfs' => public_path().'/img/test_pdfs',
 	'test_suggestion_pdfs' => public_path().'/img/test_suggestion_pdfs',
 	'test_submitted_copies' => public_path().'/img/test_submitted_copies',

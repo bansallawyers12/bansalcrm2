@@ -33,9 +33,5 @@ class Note extends Model
         return $this->belongsTo('App\Models\Admin','assigned_to','id');
     }
 
-    public function lead()
-    {
-        return $this->belongsTo('App\Models\Appointment','lead_id','id');
-    }
 	
 }

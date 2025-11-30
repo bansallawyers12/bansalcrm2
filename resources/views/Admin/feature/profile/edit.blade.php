@@ -115,7 +115,7 @@
 												<input type="hidden" id="old_profile_img" name="old_profile_img" value="{{@$fetchedData->logo}}" />
 												<input type="file" id="profile_img" name="profile_img" value="" />
 												@if($fetchedData->logo != '')
-													<img src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->logo}}">
+													<img src="{{asset('img/profile_imgs')}}/{{@$fetchedData->logo}}">
 												@endif
 											</div> 
 										</div>

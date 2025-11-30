@@ -78,7 +78,6 @@ class UserController extends BaseController
 		
 		$users = Admin::where('client_id', '=', $client_id)->first();
 		if($users){
-			DB::enableQueryLog(); 
 			$userss = User::where('client_id',$users->id)->where('id',$request->user_id)->first();
 			
 			$success['users'] =  @$userss;

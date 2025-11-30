@@ -533,7 +533,7 @@
 											<h4>Attachments</h4>
 											<div class="invoice_attach_file">
 											@if(@$invoicedetail->attachments != '')
-												<span><a download href="{{URL::to('/public/img/invoice')}}/{{@$invoicedetail->attachments}}">{{@$invoicedetail->attachments}}</a></span>
+												<span><a download href="{{asset('img/invoice')}}/{{@$invoicedetail->attachments}}">{{@$invoicedetail->attachments}}</a></span>
 												@else
 												No Attachment Found
 											@endif

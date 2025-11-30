@@ -673,9 +673,9 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<div class="dropdown d-inline">
 					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 					<div class="dropdown-menu">
-						<a target="_blank" class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Preview</a>
+						<a target="_blank" class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Preview</a>
 						<a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
-						<a download class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Download</a>';
+						<a download class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Download</a>';
 						if($doclist->status == 0){
 							$doclistdata .= '<a data-id="'.$doclist->id.'" class="dropdown-item publishdoc" href="javascript:;">Publish Document</a>';
 						}else{
@@ -747,9 +747,9 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<div class="dropdown d-inline">
 					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 					<div class="dropdown-menu">
-						<a target="_blank" class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Preview</a>
+						<a target="_blank" class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Preview</a>
 						<a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
-						<a download class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Download</a>';
+						<a download class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Download</a>';
 						if($doclist->status == 0){
 							$doclistdata .= '<a data-id="'.$doclist->id.'" class="dropdown-item publishdoc" href="javascript:;">Publish Document</a>';
 						}else{
@@ -829,9 +829,9 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<div class="dropdown d-inline">
 					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 					<div class="dropdown-menu">
-						<a target="_blank" class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Preview</a>
+						<a target="_blank" class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Preview</a>
 						<a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
-						<a download class="dropdown-item" href="'.\URL::to('/public/img/documents').'/'.$doclist->file_name.'">Download</a>';
+						<a download class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Download</a>';
 						if($doclist->status == 0){
 							$doclistdata .= '<a data-id="'.$doclist->id.'" class="dropdown-item publishdoc" href="javascript:;">Publish Document</a>';
 						}else{

@@ -2,7 +2,7 @@
 @section('title', 'Edit Client')
 
 @section('content')
-<link rel="stylesheet" href="{{URL::asset('public/css/bootstrap-datepicker.min.css')}}">
+<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
@@ -34,7 +34,7 @@
 											<div class="profile_upload">
 												<div class="upload_content">
 													@if(@$fetchedData->profile_img != '')
-														<img src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
+														<img src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
 													@else
 														<img id="output"/> 
 													@endif
@@ -1293,7 +1293,7 @@ function initAutocomplete() {
 
 window.initAutocomplete = initAutocomplete;
 </script>
-<script src="{{URL::asset('public/js/bootstrap-datepicker.js')}}"></script>
+<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 
 @if($showAlert)
     <script>

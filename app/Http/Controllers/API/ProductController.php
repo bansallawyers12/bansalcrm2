@@ -22,7 +22,7 @@ class ProductController extends BaseController
      */
     public function productsList(Request $request)
     {
-		$subjects	= Product::select('id', 'subject_name')->where('id', '!=', '')->where('status', '=', 1)->get();
+		$subjects	= Product::select('id', 'subject_name')->where('status', '=', 1)->get();
 		
 		$success['product_list'] =  @$subjects;
 		return $this->sendResponse($success, 'Subjects has been fetched suceessfully.');
@@ -51,7 +51,7 @@ class ProductController extends BaseController
 				
 				$success['professor_detail'] 	=  @$professor;
 				$success['product_list'] 				=  @$data;
-				$success['image_base_path'] 	=  \URL::to('/public/mg/product_img').'/';
+				$success['image_base_path'] 	=  asset('img/product_img').'/';
 				
 				return $this->sendResponse($success, 'Products have been fetched suceessfully.');
 			}
@@ -114,7 +114,7 @@ class ProductController extends BaseController
 				$success['product_review_info'] =  @$productReviewInfo;
 				$success['min_product_info'] 	=  @$minProduct;
 				$success['mode_of_product'] 	=  @$modeOfProduct;
-				$success['image_base_path'] 	=  \URL::to('/public/mg/product_img').'/';
+				$success['image_base_path'] 	=  asset('img/product_img').'/';
 				
 				return $this->sendResponse($success, 'Product has been fetched suceessfully.');
 			}

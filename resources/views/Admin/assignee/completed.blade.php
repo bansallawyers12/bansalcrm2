@@ -241,7 +241,7 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{URL::to('/')}}/public/js/popover.js"></script>
+<script src="{{asset('js/popover.js')}}"></script>
 <script>
 	jQuery(document).ready(function($){
      $(document).delegate('.openassignee', 'click', function(){

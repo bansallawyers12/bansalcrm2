@@ -61,7 +61,7 @@
 									  
 									  <div class="col-md-3">
 										  <div class="form-group">
-											<a href="{{URL::to('/public/usersample.csv')}}" download><i class="fa fa-download"></i> Sample</a>
+											<a href="{{asset('usersample.csv')}}" download><i class="fa fa-download"></i> Sample</a>
 										  </div>
 									  </div>
 									 </div>

@@ -92,7 +92,7 @@
 														
 														<img id="output"/>
 															@if(@$fetchedData->profile_img != '')
-																<img  src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
+																<img  src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
 															@else
 																<i class="fa fa-camera"></i>
 																<span>Upload Profile Image</span>

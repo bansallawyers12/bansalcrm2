@@ -93,7 +93,7 @@
 								<input type="hidden" id="old_image" name="old_image" value="{{@$fetchedData->image}}" />
 								<input type="file" name="image" class="form-control">
 								@if(@$fetchedData->image != '')
-									<img width="70" src="{{URL::to('/public/img/gallery_img')}}/{{@$fetchedData->image}}" class="img-avatar"/>
+									<img width="70" src="{{asset('img/gallery_img')}}/{{@$fetchedData->image}}" class="img-avatar"/>
 								@endif
 								@if ($errors->has('image'))
 									<span class="custom-error" role="alert">

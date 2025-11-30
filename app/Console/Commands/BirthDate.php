@@ -59,8 +59,8 @@ class BirthDate extends Command
 				$interval = $datetime1->diff($datetime2);
 				$diff = $interval->format('%a');
 				 if(strtotime($today) == strtotime($contact->birth_date)){
-				 $replace = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo \URL::to('/').'/public/img/profile_imgs/'.@$contact->company->profile_img; die;			
-					$replace_with = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, \URL::to('/').'/public/img/profile_imgs/'.@$contact->company->profile_img, @$contact->company->email);
+				 $replace = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo asset('img/profile_imgs/'.@$contact->company->profile_img); die;			
+					$replace_with = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, asset('img/profile_imgs/'.@$contact->company->profile_img), @$contact->company->email);
 				
 				 $replacesub = array('{sur_name}', '{customer_name}');					
 				$replace_with_sub = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name);
@@ -81,8 +81,8 @@ class BirthDate extends Command
 				$interval1 = $datetime11->diff($datetime21);
 				$diff2 = $interval1->format('%a');
 				 if(strtotime($todayav) == strtotime($contact->anniversary_date)){
-				 $replaceav = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo \URL::to('/').'/public/img/profile_imgs/'.@$contact->company->profile_img; die;			
-					$replace_withav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, \URL::to('/').'/public/img/profile_imgs/'.@$contact->company->profile_img, @$contact->company->email);
+				 $replaceav = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo asset('img/profile_imgs/'.@$contact->company->profile_img); die;			
+					$replace_withav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, asset('img/profile_imgs/'.@$contact->company->profile_img), @$contact->company->email);
 				
 				 $replacesubav = array('{surname}', '{customer_name}');					
 				$replace_with_subav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name);

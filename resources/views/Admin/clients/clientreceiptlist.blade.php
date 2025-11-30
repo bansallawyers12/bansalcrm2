@@ -2,7 +2,7 @@
 @section('title', 'Clients Receipt List')
 
 @section('content')
-<link rel="stylesheet" href="{{URL::asset('public/css/bootstrap-datepicker.min.css')}}">
+<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <style>
 .ag-space-between {
     justify-content: space-between;
@@ -263,7 +263,7 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{URL::asset('public/js/bootstrap-datepicker.js')}}"></script>
+<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 <script>
 jQuery(document).ready(function($){
   

@@ -25,7 +25,7 @@
             <table role="presentation" style="width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;">
                 <tr>
                     <td align="center" style="padding:40px 0 30px 0;background:#70bbd9;">
-                    <img src="{{URL::to('/public/img/logo_img/bansal-imm-logo-11_vrUFM77pu7.png')}}" alt="" width="300" style="height:auto;display:block;" />
+                    <img src="{{asset('img/logo_img/bansal-imm-logo-11_vrUFM77pu7.png')}}" alt="" width="300" style="height:auto;display:block;" />
                     </td>
                 </tr>
                 <tr>

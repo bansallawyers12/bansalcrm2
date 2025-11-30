@@ -24,7 +24,7 @@ class PageController extends BaseController
 			$pagedetail = CmsPage::where('user_id',$users->id)->where('slug',$request->slug)->first();
 			if($pagedetail){
 				$success['pagedetail'] 	=  $pagedetail;
-				$success['image_base_path'] 	=  \URL::to('/public/img/cmspage').'/';
+				$success['image_base_path'] 	=  asset('img/cmspage').'/';
 			return $this->sendResponse($success, '');
 		}else{
 			return $this->sendError('Error', array('id'=>array('id not found'))); 

@@ -8,24 +8,24 @@
 	<meta name="author" content="">
 	<meta name="keyword" content="E-Weblink CRM">
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
-	<link rel="shortcut icon" type="image/png" href="{{ asset('public/img/favicon.png') }}"/>
+	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	 
-	<link rel="stylesheet" href="{{asset('public/css/app.min.css')}}">
-	 <link rel="stylesheet" href="{{asset('public/css/fullcalendar.min.css')}}">
+	<link rel="stylesheet" href="{{asset('css/app.min.css')}}">
+	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('public/css/daterangepicker.css')}}">
-	<link rel="stylesheet" href="{{asset('public/css/bootstrap-timepicker.min.css')}}">
-	<link rel="stylesheet" href="{{asset('public/css/select2.min.css')}}">
+	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
+	<link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
 	<!-- Template CSS -->
-	<link rel="stylesheet" href="{{asset('public/css/niceCountryInput.css')}}">
-	<!--<link rel="stylesheet" href="{{asset('public/css/flagstrap.css')}}">-->
-	<link rel="stylesheet" href="{{asset('public/css/bootstrap-formhelpers.min.css')}}">
-	<link rel="stylesheet" href="{{asset('public/css/intlTelInput.css')}}">
-	<link rel="stylesheet" href="{{asset('public/css/style.css')}}">
-	<link rel="stylesheet" href="{{asset('public/css/components.css')}}">
+	<link rel="stylesheet" href="{{asset('css/niceCountryInput.css')}}">
+	<!--<link rel="stylesheet" href="{{asset('css/flagstrap.css')}}">-->
+	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
+	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
+	<link rel="stylesheet" href="{{asset('css/style.css')}}">
+	<link rel="stylesheet" href="{{asset('css/components.css')}}">
 	<!-- Custom style CSS -->
-	<link rel="stylesheet" href="{{asset('public/css/custom.css')}}">
+	<link rel="stylesheet" href="{{asset('css/custom.css')}}">
 	   <style>
 .dropbtn {
   background-color: transparent;
@@ -81,32 +81,32 @@
 		</div>
 	</div>
 	<script>var site_url = '{{URL::to('/')}}';</script>	 
-	<!--<script src="{{asset('public/js/niceCountryInput.js')}}"></script> -->  
-	<script src="{{asset('public/js/app.min.js')}}"></script>   
-	<script src="{{asset('public/js/fullcalendar.min.js')}}"></script>   
-	<script src="{{asset('public/js/chart.min.js')}}"></script>   
-	<script src="{{asset('public/js/datatables.min.js')}}"></script>   
-	<script src="{{asset('public/js/dataTables.bootstrap4.js')}}"></script>   
+	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  
+	<script src="{{asset('js/app.min.js')}}"></script>   
+	<script src="{{asset('js/fullcalendar.min.js')}}"></script>   
+	<script src="{{asset('js/chart.min.js')}}"></script>   
+	<script src="{{asset('js/datatables.min.js')}}"></script>   
+	<script src="{{asset('js/dataTables.bootstrap4.js')}}"></script>   
 	 <!-- JS Libraies -->
-	<!--<script src="{{asset('public/js/apexcharts.min.js')}}"></script>--> 
+	<!--<script src="{{asset('js/apexcharts.min.js')}}"></script>--> 
 	<!-- Page Specific JS File -->	
-	<!--<script src="{{asset('public/js/index.js')}}"></script> -->  
-	<script src="{{asset('public/assets/tinymce/js/tinymce/tinymce.min.js')}}"></script>
-	<script src="{{asset('public/js/tinymce-init.js')}}"></script>
-	<script src="{{asset('public/js/tinymce-summernote-compat.js')}}"></script> 
-	<script src="{{asset('public/js/daterangepicker.js')}}"></script> 
-	<script src="{{asset('public/js/bootstrap-timepicker.min.js')}}"></script> 
+	<!--<script src="{{asset('js/index.js')}}"></script> -->  
+	<script src="{{asset('assets/tinymce/js/tinymce/tinymce.min.js')}}"></script>
+	<script src="{{asset('js/tinymce-init.js')}}"></script>
+	<script src="{{asset('js/tinymce-summernote-compat.js')}}"></script> 
+	<script src="{{asset('js/daterangepicker.js')}}"></script> 
+	<script src="{{asset('js/bootstrap-timepicker.min.js')}}"></script> 
 	
-	<script src="{{asset('public/js/select2.full.min.js')}}"></script> 
-	<!--<script src="{{asset('public/js/jquery.flagstrap.js')}}"></script>--> 
-	<script src="{{asset('public/js/bootstrap-formhelpers.min.js')}}"></script> 
-	<script src="{{asset('public/js/intlTelInput.js')}}"></script> 
-	<script src="{{asset('public/js/agent-custom-form-validation.js')}}"></script> 
+	<script src="{{asset('js/select2.full.min.js')}}"></script> 
+	<!--<script src="{{asset('js/jquery.flagstrap.js')}}"></script>--> 
+	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}"></script> 
+	<script src="{{asset('js/intlTelInput.js')}}"></script> 
+	<script src="{{asset('js/agent-custom-form-validation.js')}}"></script> 
 	<!-- Template JS File -->
-	<script src="{{asset('public/js/scripts.js')}}"></script>   
+	<script src="{{asset('js/scripts.js')}}"></script>   
 
 	<!-- Custom JS File -->	
-	<script src="{{asset('public/js/custom.js')}}"></script> 
+	<script src="{{asset('js/custom.js')}}"></script> 
 	<script>
 		$(document).ready(function () {
 			$('.js-data-example-ajaxccsearch').select2({
@@ -837,6 +837,6 @@ function formatRepoSelectioncheck (repo) {
 	</div>
 </div>
 @yield('scripts')	
-	<script src="{{asset('public/js/custom-chart.js')}}"></script>  
+	<script src="{{asset('js/custom-chart.js')}}"></script>  
 </body>
 </html> 

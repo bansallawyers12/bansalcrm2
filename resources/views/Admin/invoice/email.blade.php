@@ -105,7 +105,7 @@
 											<?php
 											$currencydata = \App\Models\Currency::where('id',$invoice->currency_id)->first();
 												 $replace = array('{customer_name}', '{currency}', '{invoice_amount}', '{invoice_no}', '{invoice_date}','{due_date}','{invoice_link}','{company_name}','{support_mail}','{company_logo}');					
-					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, $currencydata->currency_symbol, number_format($invoice->amount, $currencydata->decimal), @$invoice->invoice, @$invoice->invoice_date, @$invoice->due_date, '#', @Auth::user()->company_name,@Auth::user()->email, \URL::to('/').'/public/img/profile_imgs/'.@@Auth::user()->profile_img);
+					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, $currencydata->currency_symbol, number_format($invoice->amount, $currencydata->decimal), @$invoice->invoice, @$invoice->invoice_date, @$invoice->due_date, '#', @Auth::user()->company_name,@Auth::user()->email, asset('img/profile_imgs/'.@Auth::user()->profile_img));
 					
 					$emailContent 	= 	$emailtemplate->description;
 					$emailContent	=	str_replace($replace,$replace_with,$emailContent);

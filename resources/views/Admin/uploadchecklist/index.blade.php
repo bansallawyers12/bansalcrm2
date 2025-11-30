@@ -93,7 +93,7 @@
                                                           <td>{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '50', '...') }}</td> 	
 
                                                           <td>
-                                                              <a href="{{URL::to('/public/checklists/'.$list->file)}}">File</a>							  
+                                                              <a href="{{asset('checklists/'.$list->file)}}">File</a>							  
                                                           </td>
                                                           <td>
                                                           <a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'upload_checklists')"><i class="fas fa-trash"></i> Delete</a>							  

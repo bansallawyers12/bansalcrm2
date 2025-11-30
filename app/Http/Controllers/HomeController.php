@@ -95,8 +95,8 @@ class HomeController extends Controller
     public function emailVerifyToken(Request $request,$id = NULL)
     {
         $db_id = $this->decodeString($id);  //dd($db_id);
-        if(Admin::where('id', '=', $db_id)->exists()){
-            $obj = 	Admin::find($db_id);
+        $obj = Admin::find($db_id);
+        if($obj){
 			$obj->manual_email_phone_verified = 1;
             $obj->email_verified_at = now();
 			$obj->updated_at = now();

@@ -937,8 +937,8 @@ class ClientsController extends Controller
 								<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 								<div class="dropdown-menu">
 									<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-									<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
-									<a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+									<a target="_blank" class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+									<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 									
 									<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
 								</div>
@@ -962,8 +962,8 @@ class ClientsController extends Controller
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
 									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 									<div class="dropdown-menu">
-										<a class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
-										<a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+										<a class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+										<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 										<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
 									</div>
 								</div>

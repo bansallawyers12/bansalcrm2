@@ -10,21 +10,21 @@
     <title>@yield('title') </title>
 	<!--<title>@yield('title')</title>-->
 	<!-- Favicons-->
-    <link rel="shortcut icon" href="{{asset('public/img/favicon.png')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 
  <!-- GOOGLE WEB FONT -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800" rel="stylesheet">
     <!-- BASE CSS -->
-    <link href="{{URL::asset('public/css/DashboardFrontend/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{URL::asset('css/DashboardFrontend/bootstrap.min.css')}}" rel="stylesheet">
    
 	<!-- ALTERNATIVE COLORS CSS -->
     <link href="#" id="colors" rel="stylesheet">
     <!-- YOUR CUSTOM CSS -->
-    <link href="{{URL::asset('public/css/DashboardFrontend/invoice.css')}}" rel="stylesheet">
+    <link href="{{URL::asset('css/DashboardFrontend/invoice.css')}}" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<script src="{{URL::asset('public/js/DashboardFrontend/jquery-2.2.4.min.js')}}"></script>
+<script src="{{URL::asset('js/DashboardFrontend/jquery-2.2.4.min.js')}}"></script>
 	</style>
-	<!--<script src="{{URL::asset('public/js/DashboardFrontend/jquery-min.js')}}"></script>	-->
+	<!--<script src="{{URL::asset('js/DashboardFrontend/jquery-min.js')}}"></script>	-->
 	</head>
 	<body>
 		<div id="page">		
@@ -38,7 +38,7 @@
 			<!--Footer-->
 				
 		</div>
-		<script src="{{URL::asset('public/js/DashboardFrontend/bootstrap.min.js')}}"></script>
+		<script src="{{URL::asset('js/DashboardFrontend/bootstrap.min.js')}}"></script>
 		 <!-- page -->	
 		<script>
 		var site_url = "<?php echo URL::to('/'); ?>"; 

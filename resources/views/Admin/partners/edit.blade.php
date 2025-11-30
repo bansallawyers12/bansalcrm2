@@ -35,7 +35,7 @@
 														<div class="profile_upload">
 															<div class="upload_content">
 																<img id="output"/>@if(@$fetchedData->profile_img != '')
-																<img  src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
+																<img  src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
 															@else
 																<i class="fa fa-camera"></i>
 																<span>Upload Profile Image</span>
@@ -45,7 +45,7 @@
 														</div>
 														<div class="show-uploded-img">
 															@if(@$fetchedData->profile_img != '')
-																<img width="70" src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
+																<img width="70" src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
 															@endif
 														</div>
 														@if ($errors->has('profile_img'))

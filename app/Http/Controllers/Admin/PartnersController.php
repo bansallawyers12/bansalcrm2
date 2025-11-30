@@ -3749,13 +3749,13 @@ class PartnersController extends Controller
                                         else
                                         { //String is not a valid URL
                                         ?>
-                                            <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+                                            <a target="_blank" class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
                                             <?php
                                             $explodeimg = explode('.',$fetch->myfile);
                                             if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){ ?>
                                                 <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
                                             <?php } ?>
-                                            <a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+                                            <a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
                                         <?php
                                         }
                                     }
@@ -3801,8 +3801,8 @@ class PartnersController extends Controller
                                             else
                                             { //String is not a valid URL
                                             ?>
-                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
-                                                <a download class="dropdown-item" href="<?php echo \URL::to('/public/img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+                                                <a target="_blank" class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+                                                <a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
                                             <?php
                                             }
                                         }

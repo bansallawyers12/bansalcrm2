@@ -250,7 +250,7 @@
 @section('scripts')
 
 
-<script src="{{URL::to('/')}}/public/js/popover.js"></script>
+<script src="{{asset('js/popover.js')}}"></script>
 
 <script type="text/javascript">
 $(function () {
@@ -288,10 +288,14 @@ $(function () {
         },*/
 
         "fnDrawCallback": function() {
-            $('[data-toggle="popover"]').popover({
-                html: true,
-                sanitize: false,
-                outsideClick:true
+            // Only initialize popovers that aren't already initialized
+            $('[data-toggle="popover"]').each(function() {
+                if (!$(this).data('bs.popover')) {
+                    $(this).popover({
+                        html: true,
+                        sanitize: false
+                    });
+                }
             });
            // $('[data-toggle="tooltip"]').tooltip();
         },

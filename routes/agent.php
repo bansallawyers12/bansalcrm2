@@ -1,8 +1,8 @@
 <?php Route::prefix('agent')->group(function() {
         Route::get('/', 'Auth\AgentLoginController@showLoginForm')->name('agent.login');
-        Route::get('/login', 'Auth\AgentLoginController@showLoginForm')->name('agent.login');
+        Route::get('/login', 'Auth\AgentLoginController@showLoginForm');
         
-        Route::post('/login', 'Auth\AgentLoginController@login')->name('agent.login');
+        Route::post('/login', 'Auth\AgentLoginController@login');
         
         Route::post('/logout', 'Auth\AgentLoginController@logout')->name('agent.logout');
         
@@ -11,10 +11,9 @@
         
         Route::get('/clients', 'Agent\ClientsController@index')->name('agent.clients.index');
         Route::get('/clients/create', 'Agent\ClientsController@create')->name('agent.clients.create');
-        Route::get('/clients/create', 'Agent\ClientsController@create')->name('agent.clients.create'); 
         Route::post('/clients/store', 'Agent\ClientsController@store')->name('agent.clients.store');
         Route::get('/clients/edit/{id}', 'Agent\ClientsController@edit')->name('agent.clients.edit');
-        Route::post('/clients/edit', 'Agent\ClientsController@edit')->name('agent.clients.edit');
+        Route::post('/clients/edit', 'Agent\ClientsController@edit');
         
         Route::get('/clients/detail/{id}', 'Agent\ClientsController@detail')->name('agent.clients.detail');	
         Route::get('/clients/get-recipients', 'Agent\ClientsController@getrecipients')->name('agent.clients.getrecipients');

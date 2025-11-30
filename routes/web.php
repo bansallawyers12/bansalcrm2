@@ -32,8 +32,7 @@ Route::get('/clear-cache', function() {
 });
 
 /*********************Exception Handling ***********************/
-Route::get('/exception', 'ExceptionController@index')->name('exception');
-Route::post('/exception', 'ExceptionController@index')->name('exception');
+Route::match(['get', 'post'], '/exception', 'ExceptionController@index')->name('exception');
 // Route::get('/import', 'TestController@import');
 /*********************Front Panel Start ***********************/
 //Coming Soon
@@ -108,19 +107,19 @@ Route::prefix('admin')->group(function() {
 	
     //Login and Logout 
 		Route::get('/', 'Auth\AdminLoginController@showLoginForm')->name('admin.login');
-		Route::get('/login', 'Auth\AdminLoginController@showLoginForm')->name('admin.login');
-		Route::post('/login', 'Auth\AdminLoginController@login')->name('admin.login');
+		Route::get('/login', 'Auth\AdminLoginController@showLoginForm');
+		Route::post('/login', 'Auth\AdminLoginController@login');
 		Route::post('/logout', 'Auth\AdminLoginController@logout')->name('admin.logout');
 	
 	//General
         Route::get('/dashboard', 'Admin\AdminController@dashboard')->name('admin.dashboard');
 		Route::get('/get_customer_detail', 'Admin\AdminController@CustomerDetail')->name('admin.get_customer_detail');
 		Route::get('/my_profile', 'Admin\AdminController@myProfile')->name('admin.my_profile');
-		Route::post('/my_profile', 'Admin\AdminController@myProfile')->name('admin.my_profile');
+		Route::post('/my_profile', 'Admin\AdminController@myProfile');
 		Route::get('/change_password', 'Admin\AdminController@change_password')->name('admin.change_password');
-		Route::post('/change_password', 'Admin\AdminController@change_password')->name('admin.change_password');
+		Route::post('/change_password', 'Admin\AdminController@change_password');
 		Route::get('/sessions', 'Admin\AdminController@sessions')->name('admin.sessions');
-		Route::post('/sessions', 'Admin\AdminController@sessions')->name('admin.sessions'); 
+		Route::post('/sessions', 'Admin\AdminController@sessions'); 
 		Route::post('/update_action', 'Admin\AdminController@updateAction');
 		Route::post('/approved_action', 'Admin\AdminController@approveAction');
 		Route::post('/process_action', 'Admin\AdminController@processAction');
@@ -134,14 +133,14 @@ Route::prefix('admin')->group(function() {
 		Route::post('/add_ckeditior_image', 'Admin\AdminController@addCkeditiorImage')->name('add_ckeditior_image');
 		Route::post('/get_chapters', 'Admin\AdminController@getChapters')->name('admin.get_chapters');
 		Route::get('/website_setting', 'Admin\AdminController@websiteSetting')->name('admin.website_setting');
-		Route::post('/website_setting', 'Admin\AdminController@websiteSetting')->name('admin.website_setting');
+		Route::post('/website_setting', 'Admin\AdminController@websiteSetting');
 		Route::post('/get_states', 'Admin\AdminController@getStates');
 		Route::get('/settings/taxes/returnsetting', 'Admin\AdminController@returnsetting')->name('admin.returnsetting');
 		Route::get('/settings/taxes/taxrates', 'Admin\AdminController@taxrates')->name('admin.taxrates');
 		Route::get('/settings/taxes/taxrates/create', 'Admin\AdminController@taxratescreate')->name('admin.taxrates.create');
 		Route::post('/settings/taxes/taxrates/store', 'Admin\AdminController@savetaxrate')->name('admin.taxrates.store');
 		Route::get('/settings/taxes/taxrates/edit/{id}', 'Admin\AdminController@edittaxrates')->name('admin.edittaxrates');
-		Route::post('/settings/taxes/taxrates/edit', 'Admin\AdminController@edittaxrates')->name('admin.edittaxrates');
+		Route::post('/settings/taxes/taxrates/edit', 'Admin\AdminController@edittaxrates');
 		Route::post('/settings/taxes/savereturnsetting', 'Admin\AdminController@returnsetting')->name('admin.savereturnsetting');
 		Route::get('/getsubcategories', 'Admin\AdminController@getsubcategories');
 		Route::get('/getproductbranch', 'Admin\AdminController@getproductbranch');
@@ -159,7 +158,7 @@ Route::prefix('admin')->group(function() {
 		Route::post('/users/store', 'Admin\UserController@store')->name('admin.users.store');
 		Route::get('/users/edit/{id}', 'Admin\UserController@edit')->name('admin.users.edit');
 		Route::get('/users/view/{id}', 'Admin\UserController@view')->name('admin.users.view');
-		Route::post('/users/edit', 'Admin\UserController@edit')->name('admin.users.edit');
+		Route::post('/users/edit', 'Admin\UserController@edit');
 		Route::post('/users/savezone', 'Admin\UserController@savezone');
 		
 		Route::get('/users/active', 'Admin\UserController@active')->name('admin.users.active');
@@ -170,20 +169,20 @@ Route::prefix('admin')->group(function() {
 		Route::get('/staff/create', 'Admin\StaffController@create')->name('admin.staff.create'); 
 		Route::post('/staff/store', 'Admin\StaffController@store')->name('admin.staff.store');
 		Route::get('/staff/edit/{id}', 'Admin\StaffController@edit')->name('admin.staff.edit');
-		Route::post('/staff/edit', 'Admin\StaffController@edit')->name('admin.staff.edit');
+		Route::post('/staff/edit', 'Admin\StaffController@edit');
 		
 		Route::get('/customer', 'Admin\CustomerController@index')->name('admin.customer.index');
 		Route::get('/customer/create', 'Admin\CustomerController@create')->name('admin.customer.create'); 
 		Route::post('/customer/store', 'Admin\CustomerController@store')->name('admin.customer.store');
 		Route::get('/customer/edit/{id}', 'Admin\CustomerController@edit')->name('admin.customer.edit');
-		Route::post('/customer/edit', 'Admin\CustomerController@edit')->name('admin.customer.edit');
+		Route::post('/customer/edit', 'Admin\CustomerController@edit');
 		Route::post('/customer/upload', 'Admin\CustomerController@uploadcsv')->name('admin.customer.upload');
 		
 		Route::get('/users/clientlist', 'Admin\UserController@clientlist')->name('admin.users.clientlist'); 		
 		Route::get('/users/createclient', 'Admin\UserController@createclient')->name('admin.users.createclient'); 
 		Route::post('/users/storeclient', 'Admin\UserController@storeclient')->name('admin.users.storeclient'); 
 		Route::get('/users/editclient/{id}', 'Admin\UserController@editclient')->name('admin.users.editclient');
-		Route::post('/users/editclient', 'Admin\UserController@editclient')->name('admin.users.editclient'); 
+		Route::post('/users/editclient', 'Admin\UserController@editclient'); 
 		
 		Route::post('/followup/store', 'Admin\FollowupController@store')->name('admin.followup.store'); 
 		Route::get('/followup/list', 'Admin\FollowupController@index')->name('admin.followup.index'); 
@@ -193,20 +192,20 @@ Route::prefix('admin')->group(function() {
 		Route::get('/usertype/create', 'Admin\UsertypeController@create')->name('admin.usertype.create');  		
 		Route::post('/usertype/store', 'Admin\UsertypeController@store')->name('admin.usertype.store');
 		Route::get('/usertype/edit/{id}', 'Admin\UsertypeController@edit')->name('admin.usertype.edit');
-		Route::post('/usertype/edit', 'Admin\UsertypeController@edit')->name('admin.usertype.edit');
+		Route::post('/usertype/edit', 'Admin\UsertypeController@edit');
 		
 		Route::get('/userrole', 'Admin\UserroleController@index')->name('admin.userrole.index');
 		Route::get('/userrole/create', 'Admin\UserroleController@create')->name('admin.userrole.create');  
 		Route::post('/userrole/store', 'Admin\UserroleController@store')->name('admin.userrole.store');
 		Route::get('/userrole/edit/{id}', 'Admin\UserroleController@edit')->name('admin.userrole.edit');
-		Route::post('/userrole/edit', 'Admin\UserroleController@edit')->name('admin.userrole.edit');
+		Route::post('/userrole/edit', 'Admin\UserroleController@edit');
 		
 	//Services Start
 		Route::get('/services', 'Admin\ServicesController@index')->name('admin.services.index');
 		Route::get('/services/create', 'Admin\ServicesController@create')->name('admin.services.create'); 
 		Route::post('/services/store', 'Admin\ServicesController@store')->name('admin.services.store');
 		Route::get('/services/edit/{id}', 'Admin\ServicesController@edit')->name('admin.services.edit');
-		Route::post('/services/edit', 'Admin\ServicesController@edit')->name('admin.services.edit');
+		Route::post('/services/edit', 'Admin\ServicesController@edit');
 			     
 	  //Manage Contacts Start   
 		Route::get('/contact', 'Admin\ContactController@index')->name('admin.managecontact.index'); 
@@ -214,8 +213,8 @@ Route::prefix('admin')->group(function() {
 		Route::post('/managecontact/store', 'Admin\ContactController@store')->name('admin.managecontact.store');
 		Route::post('/contact/add', 'Admin\ContactController@add')->name('admin.managecontact.add');
 		Route::get('/contact/edit/{id}', 'Admin\ContactController@edit')->name('admin.managecontact.edit');
-		Route::post('/contact/edit', 'Admin\ContactController@edit')->name('admin.managecontact.edit');
-		Route::post('/contact/storeaddress', 'Admin\ContactController@storeaddress')->name('admin.managecontact.edit');
+		Route::post('/contact/edit', 'Admin\ContactController@edit');
+		Route::post('/contact/storeaddress', 'Admin\ContactController@storeaddress');
 		 
 		//Leads Start    
 		Route::get('/leads', 'Admin\LeadController@index')->name('admin.leads.index');  
@@ -223,7 +222,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/leads/create', 'Admin\LeadController@create')->name('admin.leads.create');   
 		Route::post('/leads/assign', 'Admin\LeadController@assign')->name('admin.leads.assign');    
 		Route::get('/leads/edit/{id}', 'Admin\LeadController@edit')->name('admin.leads.edit');
-		Route::post('/leads/edit', 'Admin\LeadController@edit')->name('admin.leads.edit');
+		Route::post('/leads/edit', 'Admin\LeadController@edit');
 	    Route::get('/leads/notes/delete/{id}', 'Admin\LeadController@leaddeleteNotes');
 	    Route::get('/get-notedetail', 'Admin\LeadController@getnotedetail');
 	    Route::post('/followup/update', 'Admin\FollowupController@followupupdate');
@@ -235,12 +234,12 @@ Route::prefix('admin')->group(function() {
 		
 		Route::get('/invoice/lists/{id}', 'Admin\InvoiceController@lists')->name('admin.invoice.lists');  
 		Route::get('/invoice/edit/{id}', 'Admin\InvoiceController@edit')->name('admin.invoice.edit');  
-		Route::post('/invoice/edit', 'Admin\InvoiceController@edit')->name('admin.invoice.edit');  
+		Route::post('/invoice/edit', 'Admin\InvoiceController@edit');  
 		Route::get('/invoice/create', 'Admin\InvoiceController@create')->name('admin.invoice.create');   
 		Route::post('/invoice/store', 'Admin\InvoiceController@store')->name('admin.invoice.store'); 
 		Route::get('/invoice/detail', 'Admin\InvoiceController@detail')->name('admin.invoice.detail'); 
 		Route::get('/invoice/email/{id}', 'Admin\InvoiceController@email')->name('admin.invoice.email'); 
-		Route::post('/invoice/email', 'Admin\InvoiceController@email')->name('admin.invoice.email'); 
+		Route::post('/invoice/email', 'Admin\InvoiceController@email'); 
 		Route::get('/invoice/editpayment', 'Admin\InvoiceController@editpayment')->name('admin.invoice.editpayment'); 
 		Route::get('/invoice/invoicebyid', 'Admin\InvoiceController@invoicebyid')->name('admin.invoice.invoicebyid'); 
 		Route::get('/invoice/history', 'Admin\InvoiceController@history')->name('admin.invoice.history'); 
@@ -254,7 +253,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/invoice/printall', 'Admin\InvoiceController@customer_invoice_printall')->name('admin.invoice.customer_invoice_printall'); 
 		Route::get('/invoice/print/{id}', 'Admin\InvoiceController@customer_invoice_print')->name('admin.invoice.customer_invoice_print'); 
 		Route::get('/invoice/reminder/{id}', 'Admin\InvoiceController@reminder')->name('admin.invoice.reminder'); 
-		Route::post('/invoice/reminder', 'Admin\InvoiceController@reminder')->name('admin.invoice.reminder'); 
+		Route::post('/invoice/reminder', 'Admin\InvoiceController@reminder'); 
 		Route::post('/invoice/attachfile', 'Admin\InvoiceController@attachfile')->name('admin.invoice.attachfile'); 
 		Route::get('/invoice/getattachfile', 'Admin\InvoiceController@getattachfile')->name('admin.invoice.getattachfile'); 
 		Route::get('/invoice/removeattachfile', 'Admin\InvoiceController@removeattachfile')->name('admin.invoice.removeattachfile'); 
@@ -275,20 +274,20 @@ Route::prefix('admin')->group(function() {
 		Route::get('/email_templates/create', 'Admin\EmailTemplateController@create')->name('admin.email.create');
 		Route::post('/email_templates/store', 'Admin\EmailTemplateController@store')->name('admin.email.store');
 		Route::get('/edit_email_template/{id}', 'Admin\EmailTemplateController@editEmailTemplate')->name('admin.edit_email_template');
-		Route::post('/edit_email_template', 'Admin\EmailTemplateController@editEmailTemplate')->name('admin.edit_email_template');	
+		Route::post('/edit_email_template', 'Admin\EmailTemplateController@editEmailTemplate');	
 		
 	//SEO Tool
 		Route::get('/edit_seo/{id}', 'Admin\AdminController@editSeo')->name('admin.edit_seo');
-		Route::post('/edit_seo', 'Admin\AdminController@editSeo')->name('admin.edit_seo');
+		Route::post('/edit_seo', 'Admin\AdminController@editSeo');
 		
 		Route::get('/api-key', 'Admin\AdminController@editapi')->name('admin.edit_api');
-		Route::post('/api-key', 'Admin\AdminController@editapi')->name('admin.edit_api');	
+		Route::post('/api-key', 'Admin\AdminController@editapi');	
 		
 		Route::get('/offer/index', 'Admin\OfferController@index')->name('admin.offer.index'); 
 		Route::get('/offer/create', 'Admin\OfferController@create')->name('admin.offer.create'); 
 		Route::post('/offer/store', 'Admin\OfferController@store')->name('admin.offer.store'); 
 		Route::get('/offer/edit/{id}', 'Admin\OfferController@edit')->name('admin.offer.edit'); 
-		Route::post('/offer/edit', 'Admin\OfferController@edit')->name('admin.offer.edit'); 
+		Route::post('/offer/edit', 'Admin\OfferController@edit'); 
 		
 		Route::get('/photo-gallery/getlist', 'Admin\MediaController@getlist')->name('admin.photo.getlist');
 		Route::post('/photo-gallery/uploadlist', 'Admin\MediaController@uploadlist')->name('admin.photo.uploadlist');
@@ -299,7 +298,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/clients/create', 'Admin\ClientsController@create')->name('admin.clients.create'); 
 		Route::post('/clients/store', 'Admin\ClientsController@store')->name('admin.clients.store');
 		Route::get('/clients/edit/{id}', 'Admin\ClientsController@edit')->name('admin.clients.edit');
-		Route::post('/clients/edit', 'Admin\ClientsController@edit')->name('admin.clients.edit');
+		Route::post('/clients/edit', 'Admin\ClientsController@edit');
   
 		Route::post('/clients/followup/store', 'Admin\ClientsController@followupstore');
         Route::post('/clients/followup_application/store_application', 'Admin\ClientsController@followupstore_application');
@@ -351,7 +350,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/products/create', 'Admin\ProductsController@create')->name('admin.products.create'); 
 		Route::post('/products/store', 'Admin\ProductsController@store')->name('admin.products.store');
 		Route::get('/products/edit/{id}', 'Admin\ProductsController@edit')->name('admin.products.edit');
-		Route::post('/products/edit', 'Admin\ProductsController@edit')->name('admin.products.edit');
+		Route::post('/products/edit', 'Admin\ProductsController@edit');
 		Route::post('/products-import', 'Admin\ProductsController@import')->name('admin.products.import');
 
 		
@@ -364,7 +363,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/partners/create', 'Admin\PartnersController@create')->name('admin.partners.create');  
 		Route::post('/partners/store', 'Admin\PartnersController@store')->name('admin.partners.store');
 		Route::get('/partners/edit/{id}', 'Admin\PartnersController@edit')->name('admin.partners.edit');
-		Route::post('/partners/edit', 'Admin\PartnersController@edit')->name('admin.partners.edit');
+		Route::post('/partners/edit', 'Admin\PartnersController@edit');
 		Route::get('/getpaymenttype', 'Admin\PartnersController@getpaymenttype')->name('admin.partners.getpaymenttype');
 		
 		Route::get('/partners/detail/{id}', 'Admin\PartnersController@detail')->name('admin.partners.detail');	 
@@ -378,7 +377,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/branch/edit/{id}', 'Admin\BranchesController@edit')->name('admin.branch.edit');
 		Route::get('/branch/view/{id}', 'Admin\BranchesController@view')->name('admin.branch.userview');
 		Route::get('/branch/view/client/{id}', 'Admin\BranchesController@viewclient')->name('admin.branch.clientview'); 
-		Route::post('/branch/edit', 'Admin\BranchesController@edit')->name('admin.branch.edit');
+		Route::post('/branch/edit', 'Admin\BranchesController@edit');
 		 
 		//Quotations Start
 		Route::get('/quotations', 'Admin\QuotationsController@index')->name('admin.quotations.index'); 
@@ -387,13 +386,13 @@ Route::prefix('admin')->group(function() {
 		Route::get('/quotations/client/create/{id}', 'Admin\QuotationsController@create')->name('admin.quotations.create');  
 		Route::post('/quotations/store', 'Admin\QuotationsController@store')->name('admin.quotations.store');
 		Route::get('/quotations/edit/{id}', 'Admin\QuotationsController@edit')->name('admin.quotations.edit');
-		Route::post('/quotations/edit', 'Admin\QuotationsController@edit')->name('admin.quotations.edit');
+		Route::post('/quotations/edit', 'Admin\QuotationsController@edit');
 		 
 		Route::get('/quotations/template', 'Admin\QuotationsController@template')->name('admin.quotations.template.index');   
 		Route::get('/quotations/template/create', 'Admin\QuotationsController@template_create')->name('admin.quotations.template.create');  
 		Route::post('/quotations/template/store', 'Admin\QuotationsController@template_store')->name('admin.quotations.template.store');  
 		Route::get('/quotations/template/edit/{id}', 'Admin\QuotationsController@template_edit')->name('admin.quotations.template.edit');  
-		Route::post('/quotations/template/edit', 'Admin\QuotationsController@template_edit')->name('admin.quotations.template.edit');  
+		Route::post('/quotations/template/edit', 'Admin\QuotationsController@template_edit');  
 		Route::get('/quotation/detail/{id}', 'Admin\QuotationsController@quotationDetail');
 		Route::get('/quotation/preview/{id}', 'Admin\QuotationsController@quotationpreview');
 		//archived Start  
@@ -547,75 +546,75 @@ Route::prefix('admin')->group(function() {
 		Route::get('/product-type/create', 'Admin\ProductTypeController@create')->name('admin.feature.producttype.create');  
 		Route::post('/product-type/store', 'Admin\ProductTypeController@store')->name('admin.feature.producttype.store');   
 		Route::get('/product-type/edit/{id}', 'Admin\ProductTypeController@edit')->name('admin.feature.producttype.edit');
-		Route::post('/product-type/edit', 'Admin\ProductTypeController@edit')->name('admin.feature.producttype.edit');
+		Route::post('/product-type/edit', 'Admin\ProductTypeController@edit');
 		
 		Route::get('/profiles', 'Admin\ProfileController@index')->name('admin.feature.profiles.index');  
 		Route::get('/profiles/create', 'Admin\ProfileController@create')->name('admin.feature.profiles.create');  
 		Route::post('/profiles/store', 'Admin\ProfileController@store')->name('admin.feature.profiles.store');  
 		Route::get('/profiles/edit/{id}', 'Admin\ProfileController@edit')->name('admin.feature.profiles.edit');
-		Route::post('/profiles/edit', 'Admin\ProfileController@edit')->name('admin.feature.profiles.edit');
+		Route::post('/profiles/edit', 'Admin\ProfileController@edit');
 		//Partner Type Start    
 		Route::get('/partner-type', 'Admin\PartnerTypeController@index')->name('admin.feature.partnertype.index');  
 		Route::get('/partner-type/create', 'Admin\PartnerTypeController@create')->name('admin.feature.partnertype.create');  
 		Route::post('/partner-type/store', 'Admin\PartnerTypeController@store')->name('admin.feature.partnertype.store');   
 		Route::get('/partner-type/edit/{id}', 'Admin\PartnerTypeController@edit')->name('admin.feature.partnertype.edit');
-		Route::post('/partner-type/edit', 'Admin\PartnerTypeController@edit')->name('admin.feature.partnertype.edit');
+		Route::post('/partner-type/edit', 'Admin\PartnerTypeController@edit');
 		   
 		//Visa Type Start    
 		Route::get('/visa-type', 'Admin\VisaTypeController@index')->name('admin.feature.visatype.index');  
 		Route::get('/visa-type/create', 'Admin\VisaTypeController@create')->name('admin.feature.visatype.create');  
 		Route::post('/visa-type/store', 'Admin\VisaTypeController@store')->name('admin.feature.visatype.store');     
 		Route::get('/visa-type/edit/{id}', 'Admin\VisaTypeController@edit')->name('admin.feature.visatype.edit');
-		Route::post('/visa-type/edit', 'Admin\VisaTypeController@edit')->name('admin.feature.visatype.edit');
+		Route::post('/visa-type/edit', 'Admin\VisaTypeController@edit');
 		
 		//Master Category Start    
 		Route::get('/master-category', 'Admin\MasterCategoryController@index')->name('admin.feature.mastercategory.index');  
 		Route::get('/master-category/create', 'Admin\MasterCategoryController@create')->name('admin.feature.mastercategory.create');  
 		Route::post('/master-category/store', 'Admin\MasterCategoryController@store')->name('admin.feature.mastercategory.store');     
 		Route::get('/master-category/edit/{id}', 'Admin\MasterCategoryController@edit')->name('admin.feature.mastercategory.edit');
-		Route::post('/master-category/edit', 'Admin\MasterCategoryController@edit')->name('admin.feature.mastercategory.edit');
+		Route::post('/master-category/edit', 'Admin\MasterCategoryController@edit');
 		
 		//Lead Service Start    
 		Route::get('/lead-service', 'Admin\LeadServiceController@index')->name('admin.feature.leadservice.index');  
 		Route::get('/lead-service/create', 'Admin\LeadServiceController@create')->name('admin.feature.leadservice.create');  
 		Route::post('/lead-service/store', 'Admin\LeadServiceController@store')->name('admin.feature.leadservice.store');     
 		Route::get('/lead-service/edit/{id}', 'Admin\LeadServiceController@edit')->name('admin.feature.leadservice.edit');
-		Route::post('/lead-service/edit', 'Admin\LeadServiceController@edit')->name('admin.feature.leadservice.edit');
+		Route::post('/lead-service/edit', 'Admin\LeadServiceController@edit');
 		
 		//Tax Start  
 		Route::get('/tax', 'Admin\TaxController@index')->name('admin.feature.tax.index');  
 		Route::get('/tax/create', 'Admin\TaxController@create')->name('admin.feature.tax.create');  
 		Route::post('/tax/store', 'Admin\TaxController@store')->name('admin.feature.tax.store');  
 		Route::get('/tax/edit/{id}', 'Admin\TaxController@edit')->name('admin.feature.tax.edit');
-		Route::post('/tax/edit', 'Admin\TaxController@edit')->name('admin.feature.tax.edit');
+		Route::post('/tax/edit', 'Admin\TaxController@edit');
 		
 		//Subject Area Start  	
 		Route::get('/subjectarea', 'Admin\SubjectAreaController@index')->name('admin.feature.subjectarea.index');  
 		Route::get('/subjectarea/create', 'Admin\SubjectAreaController@create')->name('admin.feature.subjectarea.create');  
 		Route::post('/subjectarea/store', 'Admin\SubjectAreaController@store')->name('admin.feature.subjectarea.store');  
 		Route::get('/subjectarea/edit/{id}', 'Admin\SubjectAreaController@edit')->name('admin.feature.subjectarea.edit');
-		Route::post('/subjectarea/edit', 'Admin\SubjectAreaController@edit')->name('admin.feature.subjectarea.edit');
+		Route::post('/subjectarea/edit', 'Admin\SubjectAreaController@edit');
 		
 		//Subject Start  
 		Route::get('/subject', 'Admin\SubjectController@index')->name('admin.feature.subject.index');
 		Route::get('/subject/create', 'Admin\SubjectController@create')->name('admin.feature.subject.create');  
 		Route::post('/subject/store', 'Admin\SubjectController@store')->name('admin.feature.subject.store');  
 		Route::get('/subject/edit/{id}', 'Admin\SubjectController@edit')->name('admin.feature.subject.edit');
-		Route::post('/subject/edit', 'Admin\SubjectController@edit')->name('admin.feature.subject.edit');
+		Route::post('/subject/edit', 'Admin\SubjectController@edit');
 		
 		//Source Start
 		Route::get('/source', 'Admin\SourceController@index')->name('admin.feature.source.index');  
 		Route::get('/source/create', 'Admin\SourceController@create')->name('admin.feature.source.create');  
 		Route::post('source/store', 'Admin\SourceController@store')->name('admin.feature.source.store');     
 		Route::get('/source/edit/{id}', 'Admin\SourceController@edit')->name('admin.feature.source.edit');
-		Route::post('/source/edit', 'Admin\SourceController@edit')->name('admin.feature.source.edit');
+		Route::post('/source/edit', 'Admin\SourceController@edit');
 		
 		//Tags Start
 		Route::get('/tags', 'Admin\TagController@index')->name('admin.feature.tags.index');  
 		Route::get('/tags/create', 'Admin\TagController@create')->name('admin.feature.tags.create');  
 		Route::post('tags/store', 'Admin\TagController@store')->name('admin.feature.tags.store');     
 		Route::get('/tags/edit/{id}', 'Admin\TagController@edit')->name('admin.feature.tags.edit');
-		Route::post('/tags/edit', 'Admin\TagController@edit')->name('admin.feature.tags.edit');
+		Route::post('/tags/edit', 'Admin\TagController@edit');
 		
 		//Checklist Start
 		Route::get('/checklist', 'Admin\ChecklistController@index')->name('admin.checklist.index');  
@@ -844,7 +843,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/promo-code/create', 'Admin\PromoCodeController@create')->name('admin.feature.promocode.create');
 		Route::post('/promo-code/store', 'Admin\PromoCodeController@store')->name('admin.feature.promocode.store');
 		Route::get('/promo-code/edit/{id}', 'Admin\PromoCodeController@edit')->name('admin.feature.promocode.edit');
-		Route::post('/promo-code/edit', 'Admin\PromoCodeController@edit')->name('admin.feature.promocode.edit');
+		Route::post('/promo-code/edit', 'Admin\PromoCodeController@edit');
         Route::post('/promo-code/checkpromocode', 'Admin\PromoCodeController@checkpromocode');
         
         Route::post('/address_auto_populate', 'Admin\ClientsController@address_auto_populate');
@@ -880,7 +879,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/documentchecklist/create', 'Admin\DocumentChecklistController@create')->name('admin.feature.documentchecklist.create');
 		Route::post('/documentchecklist/store', 'Admin\DocumentChecklistController@store')->name('admin.feature.documentchecklist.store');
 		Route::get('/documentchecklist/edit/{id}', 'Admin\DocumentChecklistController@edit')->name('admin.feature.documentchecklist.edit');
-		Route::post('/documentchecklist/edit', 'Admin\DocumentChecklistController@edit')->name('admin.feature.documentchecklist.edit');
+		Route::post('/documentchecklist/edit', 'Admin\DocumentChecklistController@edit');
   
   		//All Document Upload
         Route::post('/add-alldocchecklist', 'Admin\ClientsController@addalldocchecklist')->name('admin.clients.addalldocchecklist');

@@ -39,56 +39,6 @@
 			</div>
 
 
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 mb-4">
-                <div class="card dash_card">
-                    <div class="card-statistic-4">
-                        <div class="card-content cus_card_content">
-                            <div class="card_header">
-                                <h5 class="font-14">My Appointment</h5>
-                                <!--<a href="javascript:;" data-toggle="modal" data-target=".add_appiontment" class="btn btn-outline-primary btn-sm add_btn"><i class="fa fa-plus"></i> Add</a>-->
-                            </div>
-                            <div class="card_body">
-                                <?php
-                                //$atotalData = \App\Models\Appointment::whereDate('date', date('Y-m-d'))->count(); dd($atotalData );
-                                $atotalData = \App\Models\Appointment::whereDate('date', date('Y-m-d'))->select('date','time','client_id','title')->orderby('created_at','Desc')->get();
-                                //echo "$$$".count($atotalData);die;
-                                ?>
-                                @if(@count($atotalData) !== 0)
-                                <div class="appli_remind">
-                                <?php
-                                //foreach(\App\Models\Appointment::whereDate('date', date('Y-m-d'))->orderby('created_at','Desc')->get() as $alist)
-                                foreach($atotalData as $alist)
-                                {
-                                    $day = date('d', strtotime($alist->date));
-                                    $time = date('h:i A', strtotime($alist->time));
-                                    $week = date('D', strtotime($alist->date));
-                                    $month = date('M', strtotime($alist->date));
-                                    $year = date('Y', strtotime($alist->date));
-                                    $admin = \App\Models\Admin::where('id', $alist->client_id)->select('id','first_name')->first();
-                                    ?>
-                                    <div class="appli_column">
-                                        <div class="date">{{$day}}<span>{{$week}}</span>
-                                        </div>
-                                        <div class="appli_content">
-                                            <a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$admin->id))}}">{{@$admin->first_name}}</a>
-                                            <div class="event_end"><span></span> - {{@$alist->title}}</div>
-                                            <span class="end_date">{{$month}} {{$year}} {{$time}}</span>
-                                        </div>
-                                    </div>
-                                    </tr>
-                                <?php
-                                }
-                                ?>
-                                </div>
-                                @else
-                                <p class="text-muted">All Clear! No appointments.</p>
-                                @endif
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12 mb-4">
                 <div class="card dash_card">

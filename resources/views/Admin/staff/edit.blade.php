@@ -115,7 +115,7 @@
 								
 								<div class="show-uploded-img">	
 									@if(@$fetchedData->profile_img != '')
-										<img width="70" src="{{URL::to('/public/img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
+										<img width="70" src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
 									@endif
 								</div>							
 														

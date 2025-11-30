@@ -2044,7 +2044,7 @@ function customValidate(formName, savetype = '')
 							}
 						});		
 					}
-					else if(formName == 'appliappointform'){
+					else if(formName == 'applipaidserviceform'){
 						var client_id = $('#appliappointform input[name="client_id"]').val();
 						var noteid = $('#appliappointform input[name="noteid"]').val();
 						var myform = document.getElementById('appliappointform');

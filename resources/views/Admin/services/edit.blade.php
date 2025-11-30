@@ -72,7 +72,7 @@
 									</div>								
 									<div class="show-uploded-img">	
 										@if(@$fetchedData->services_image != '')
-											<img width="70" src="{{URL::to('/public/img/service_imgs')}}/{{@$fetchedData->services_image}}" class="img-avatar"/>
+											<img width="70" src="{{asset('img/service_imgs')}}/{{@$fetchedData->services_image}}" class="img-avatar"/>
 										@endif
 									</div>							
 																

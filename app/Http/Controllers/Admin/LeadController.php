@@ -51,15 +51,7 @@ class LeadController extends Controller
 			$todaycall = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 15)->whereHas('followupload', function ($q) {
 					$q->whereDate('followup_date',Carbon::today());
 						})->count();
-		DB::enableQueryLog();
 		$query 		= Lead::where('user_id','!=','' )->where('converted', '=', 0)->with(['user','agentdetail','staffuser']); 
-		 if(Auth::user()->role == 1){
-		//	$query 		= Lead::where('user_id','!=','' )->where('converted', '=', 0)->with(['user','agentdetail','staffuser']); 
-		 }else if(Auth::user()->role == 7){	
-		//	$query 		= Lead::where('user_id', '=', Auth::user()->id)->where('converted', '=', 0);
-		 }else{
-			// $query 		= Lead::where('assign_to', '=', Auth::user()->id)->where('converted', '=', 0);
-		 }	
 		
 		  
 		$totalData 	= $query->count();	//for all data
@@ -161,7 +153,6 @@ class LeadController extends Controller
 			$totalData 	= $query->count();//after search
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
-	//	dd(DB::getQueryLog());
 		$cur_url = $request->fullUrl();
 		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'followup', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url', 'todaycall'])); 
 
