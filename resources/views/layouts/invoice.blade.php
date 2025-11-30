@@ -10,10 +10,7 @@
     <title>@yield('title') </title>
 	<!--<title>@yield('title')</title>-->
 	<!-- Favicons-->
-    <link rel="shortcut icon" href="{!! asset('public/img/Frontend/img/favicon.png') !!}" type="image/x-icon">
-    <link rel="apple-touch-icon" type="image/x-icon" href="{!! asset('public/img/Frontend/img/apple-touch-icon-57x57-precomposed.png') !!}">
-    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="{!! asset('public/img/Frontend/img/apple-touch-icon-72x72-precomposed.png') !!}">
-    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="{!! asset('public/img/Frontend/img/apple-touch-icon-114x114-precomposed.png') !!}">
+    <link rel="shortcut icon" href="{{asset('public/img/favicon.png')}}" type="image/x-icon">
 
  <!-- GOOGLE WEB FONT -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800" rel="stylesheet">

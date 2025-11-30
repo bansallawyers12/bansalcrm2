@@ -1,38 +1,4 @@
 User-agent: *
-Allow: /
-
-User-agent: GoogleBot
-Allow: /
-
-User-agent: Google-News
-Allow: /
-
-User-agent: GoogleBot-Mobile
-Allow: /
-
-User-agent: Adsbot-Google
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: NinjaBot
-Allow: /
-
-User-agent: Yandex
-Allow: /
-
-
-User-agent: Mediapartners-Google
-Allow: /
-
-User-agent: Googlebot-Image
-Allow: /assets/images
-
-User-agent: AhrefsBot
-Allow: /
-
-User-agent: MozBot
-Allow: /
-
-Sitemap: https://www.bansalimmigration.com.au/public/sitemap.xml
+Disallow: /admin/
+Disallow: /agent/
+Disallow: /api/

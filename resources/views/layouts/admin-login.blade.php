@@ -11,7 +11,7 @@
 	<link rel="shortcut icon" type="image/png" href="{{asset('public/img/favicon.png')}}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	<!-- Favicons-->
-	<link rel="shortcut icon" href="{{asset('public/img/Frontend/img/bansal-favicon.png')}}" type="image/x-icon">
+	<link rel="shortcut icon" href="{{asset('public/img/favicon.png')}}" type="image/x-icon">
 			 
 	 <!-- BASE CSS -->
 	<link href="{{asset('public/css/app.min.css')}}" rel="stylesheet">	
