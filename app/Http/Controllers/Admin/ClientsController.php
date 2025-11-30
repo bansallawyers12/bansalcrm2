@@ -2270,11 +2270,8 @@ class ClientsController extends Controller
 		}
 		echo json_encode($response);
 	}
-	
-	
-    public function addAppointmentBook(Request $request){
-		$requestData = $request->all(); //dd($requestData);
-        $obj = new \App\Models\Appointment;
+
+	public function addAppointment(Request $request){
 		$obj->user_id = @Auth::user()->id;
 		$obj->client_id = @$request->client_id;
 		$obj->timezone = @$request->timezone;
@@ -2481,11 +2478,6 @@ class ClientsController extends Controller
 		}
         echo json_encode($response);
     }
-
-	public function addAppointment(Request $request){
-		$requestData = $request->all();
-
-		$obj = new \App\Models\Appointment;
 		$obj->user_id = @Auth::user()->id;
 		$obj->client_id = @$request->client_id;
 		$obj->timezone = @$request->timezone;

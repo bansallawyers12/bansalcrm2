@@ -1898,30 +1898,6 @@ class AdminController extends Controller
 
 		echo json_encode($agents);
 	}
-	public function appointmentsEducation(Request $request){
-		$type='Education';
-		return view('Admin.appointments.calender', compact('type'));
-	}
-
-	public function appointmentsJrp(Request $request){
-		$type='Jrp';
-		return view('Admin.appointments.calender', compact('type'));
-	}
-
-	public function appointmentsTourist(Request $request){
-		$type='Tourist';
-		return view('Admin.appointments.calender', compact('type'));
-	}
-
-	public function appointmentsOthers(Request $request){
-		$type='Others';
-		return view('Admin.appointments.calender', compact('type'));
-	}
-  
-     public function appointmentsAdelaide(Request $request){
-		$type = 'Adelaide';
-		return view('Admin.appointments.calender', compact('type'));
-	}
 
 	public function gensettings(Request $request){
 	   $setting = Setting::where('office_id', Auth::user()->office_id)->first();

@@ -27,35 +27,6 @@
 				<a href="{{URL::to('/admin/appointments-cal')}}" class="nav-link"><i data-feather="calendar"></i><span>Appointment</span></a>
 			</li> -->
 			
-            <?php
-            //echo Route::currentRouteName();
-            if( Route::currentRouteName() == 'appointments.index' || Route::currentRouteName() == 'appointments-education'  || Route::currentRouteName() == 'appointments-jrp' || Route::currentRouteName() == 'appointments-tourist' || Route::currentRouteName() == 'appointments-others' || Route::currentRouteName() == 'admin.feature.appointmentdisabledate.index'){
-				$appointmentsclasstype = 'active';
-			}
-			?>
-			
-			<li class="dropdown {{@$appointmentsclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				data-feather="file-text"></i><span>Appointments</span></a> 
-				<ul class="dropdown-menu"> 
-				    <li class=""><a class="nav-link" href="{{ route('appointments.index') }}">Listings</a></li>
-                  
-                    <li class="{{(Route::currentRouteName() == 'appointments-others') ? 'active' : ''}}"><a class="nav-link" href="{{URL::to('/admin/appointments-others')}}">Arun Calendar</a></li>
-                    <li class="{{(Route::currentRouteName() == 'appointments-jrp') ? 'active' : ''}}"><a class="nav-link" href="{{URL::to('/admin/appointments-jrp')}}">Tr Calendar</a></li>
-                    <li class="{{(Route::currentRouteName() == 'appointments-education') ? 'active' : ''}}"><a class="nav-link" href="{{URL::to('/admin/appointments-education')}}">Education</a></li>
-                    <li class="{{(Route::currentRouteName() == 'appointments-tourist') ? 'active' : ''}}"><a class="nav-link" href="{{URL::to('/admin/appointments-tourist')}}">Tourist visa</a></li>
-                  
-                    <li class="{{(Route::currentRouteName() == 'appointments-adelaide') ? 'active' : ''}}"><a class="nav-link" href="{{URL::to('/admin/appointments-adelaide')}}">Adelaide Calendar</a></li>
-
-                  
-					 <?php
-                    if( Auth::user()->role == 1 || Auth::user()->role == 12 ){ //super admin or admin
-                    ?>
-                    <li class="{{(Route::currentRouteName() == 'admin.feature.appointmentdisabledate.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.feature.appointmentdisabledate.index')}}">Block Slot</a></li>
-                    <?php } ?>
-					
-				</ul> 
-			</li>
             
 				<?php
 			if(Route::currentRouteName() == 'admin.leads.index' || Route::currentRouteName() == 'admin.leads.create' || Route::currentRouteName() == 'admin.leads.edit' || Route::currentRouteName() == 'admin.leads.history'){

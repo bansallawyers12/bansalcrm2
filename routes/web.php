@@ -130,16 +130,6 @@ Route::prefix('admin')->group(function() {
          Route::post('/delete_slot_action', 'Admin\AdminController@deleteSlotAction');
 		Route::post('/move_action', 'Admin\AdminController@moveAction');
 		
-		/*Route::get('/appointments-education', 'Admin\AdminController@appointmentsEducation');
-		Route::get('/appointments-jrp', 'Admin\AdminController@appointmentsJrp');
-		Route::get('/appointments-tourist', 'Admin\AdminController@appointmentsTourist');
-		Route::get('/appointments-others', 'Admin\AdminController@appointmentsOthers');*/
-		
-		Route::get('/appointments-education', 'Admin\AdminController@appointmentsEducation')->name('appointments-education');
-		Route::get('/appointments-jrp', 'Admin\AdminController@appointmentsJrp')->name('appointments-jrp');
-		Route::get('/appointments-tourist', 'Admin\AdminController@appointmentsTourist')->name('appointments-tourist');
-		Route::get('/appointments-others', 'Admin\AdminController@appointmentsOthers')->name('appointments-others');
-        Route::get('/appointments-adelaide', 'Admin\AdminController@appointmentsAdelaide')->name('appointments-adelaide');
 		
 		Route::post('/add_ckeditior_image', 'Admin\AdminController@addCkeditiorImage')->name('add_ckeditior_image');
 		Route::post('/get_chapters', 'Admin\AdminController@getChapters')->name('admin.get_chapters');
@@ -158,11 +148,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/getservicemodal', 'Admin\ServicesController@servicemodal');
 		Route::get('/getassigneeajax', 'Admin\AdminController@getassigneeajax');
 		Route::get('/getpartnerajax', 'Admin\AdminController@getpartnerajax');
-		Route::get('/settings/currencies', 'Admin\CurrencyController@index')->name('admin.currency.index');
-		Route::get('/settings/currencies/edit/{id}', 'Admin\CurrencyController@edit')->name('admin.currency.edit');
-		Route::post('/settings/currencies/edit', 'Admin\CurrencyController@edit')->name('admin.currency.edit');
-		Route::get('/settings/currencies/create', 'Admin\CurrencyController@create')->name('admin.currency.create');
-		Route::post('/settings/currencies/store', 'Admin\CurrencyController@store')->name('admin.currency.store');
 		Route::get('/checkclientexist', 'Admin\AdminController@checkclientexist');
 	/*CRM route start*/
 		Route::post('/uploadfile/store', 'Admin\MediaController@store')->name('admin.media.store');
@@ -470,16 +455,8 @@ Route::prefix('admin')->group(function() {
 		Route::post('/edit-interested-service', 'Admin\ClientsController@editinterestedService'); 	 
 		Route::get('/get-services', 'Admin\ClientsController@getServices'); 	 
 		Route::get('/showproductfeeserv', 'Admin\ClientsController@showproductfeeserv');Route::post('/servicesavefee', 'Admin\ClientsController@servicesavefee');		 	 
-		Route::get('/deleteappointment', 'Admin\ClientsController@deleteappointment'); 
-		Route::post('/add-appointment', 'Admin\ClientsController@addAppointment'); 	 
-		
-		Route::post('/add-appointment-book', 'Admin\ClientsController@addAppointmentBook');
-		
-		Route::post('/editappointment', 'Admin\ClientsController@editappointment'); 	 
 		Route::post('/upload-mail', 'Admin\ClientsController@uploadmail'); 	 
-		Route::post('/updatefollowupschedule', 'Admin\ClientsController@updatefollowupschedule'); 	 
-		Route::get('/updateappointmentstatus/{status}/{id}', 'Admin\ClientsController@updateappointmentstatus'); 	 
-		Route::get('/get-appointments', 'Admin\ClientsController@getAppointments'); 
+		Route::post('/updatefollowupschedule', 'Admin\ClientsController@updatefollowupschedule'); 
   
         Route::get('/pinnote', 'Admin\ClientsController@pinnote'); 	 
   	    Route::get('/pinactivitylog', 'Admin\ClientsController@pinactivitylog');
@@ -487,7 +464,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/getintrestedservice', 'Admin\ClientsController@getintrestedservice'); 	 
 		Route::post('/application/saleforcastservice', 'Admin\ClientsController@saleforcastservice');
 		Route::get('/getintrestedserviceedit', 'Admin\ClientsController@getintrestedserviceedit'); 	 
-		Route::get('/getAppointmentdetail', 'Admin\ClientsController@getAppointmentdetail');
 		Route::post('/saveeducation', 'Admin\EducationController@store'); 	 
 		Route::post('/editeducation', 'Admin\EducationController@edit'); 	 
 		Route::get('/get-educations', 'Admin\EducationController@geteducations'); 	 
@@ -694,9 +670,6 @@ Route::prefix('admin')->group(function() {
 		Route::post('/editfee', 'Admin\ProductsController@editfeeform');
 		Route::get('/deletefee', 'Admin\ProductsController@deletefee');
 		
-		Route::post('/add-partner-appointment', 'Admin\PartnersController@addappointment');
-		Route::get('/partner/get-appointments', 'Admin\PartnersController@getappointment');
-		Route::get('/partner/getAppointmentdetail', 'Admin\PartnersController@getAppointmentdetail');
 		
 		Route::post('/partner/addtask', 'Admin\PartnersController@addTask');
 		Route::get('/partner/get-tasks', 'Admin\PartnersController@gettasks');
@@ -794,14 +767,6 @@ Route::prefix('admin')->group(function() {
 		Route::post('/teams/store', 'Admin\TeamController@store')->name('admin.teamsupload');	
 		Route::get('/all-notifications', 'Admin\AdminController@allnotification');	
 		
-		// Appointment modulle
-		Route::resource('appointments', Admin\AppointmentsController::class);
-		Route::get('/get-assigne-detail', 'Admin\AppointmentsController@assignedetail');
-		Route::post('/update_appointment_status', 'Admin\AppointmentsController@update_appointment_status');
-		Route::post('/update_appointment_priority', 'Admin\AppointmentsController@update_appointment_priority');
-		Route::get('/change_assignee', 'Admin\AppointmentsController@change_assignee');  
-		Route::post('/update_apppointment_comment', 'Admin\AppointmentsController@update_apppointment_comment');
-		Route::post('/update_apppointment_description', 'Admin\AppointmentsController@update_apppointment_description');
 		
 
 
@@ -873,12 +838,6 @@ Route::prefix('admin')->group(function() {
         //update email verified at client detail page
         Route::post('/clients/update-email-verified', 'Admin\ClientsController@updateemailverified');
         
-         //Appointment Dates Not Available
-		Route::get('/appointment-dates-disable', 'Admin\AppointmentDisableDateController@index')->name('admin.feature.appointmentdisabledate.index');
-		Route::get('/appointment-dates-disable/create', 'Admin\AppointmentDisableDateController@create')->name('admin.feature.appointmentdisabledate.create');
-		Route::post('/appointment-dates-disable/store', 'Admin\AppointmentDisableDateController@store')->name('admin.feature.appointmentdisabledate.store');
-		Route::get('/appointment-dates-disable/edit/{id}', 'Admin\AppointmentDisableDateController@edit')->name('admin.feature.appointmentdisabledate.edit');
-		Route::post('/appointment-dates-disable/edit', 'Admin\AppointmentDisableDateController@edit')->name('admin.feature.appointmentdisabledate.edit');
 		
 		 //Promo code
 		Route::get('/promo-code', 'Admin\PromoCodeController@index')->name('admin.feature.promocode.index');
