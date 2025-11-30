@@ -70,6 +70,22 @@ class Form
     }
     
     /**
+     * Create a number input field
+     */
+    public static function number($name, $value = null, $options = [])
+    {
+        $attributes = is_array($options) ? $options : [];
+        
+        $input = Html::input('number', $name, $value);
+        
+        if (!empty($attributes)) {
+            $input->attributes($attributes);
+        }
+        
+        return $input->toHtml();
+    }
+    
+    /**
      * Create a hidden input field
      */
     public static function hidden($name, $value = null, $options = [])
@@ -254,6 +270,22 @@ class Form
         $attributes = is_array($options) ? $options : [];
         
         $input = Html::input('time', $name, $value);
+        
+        if (!empty($attributes)) {
+            $input->attributes($attributes);
+        }
+        
+        return $input->toHtml();
+    }
+    
+    /**
+     * Create a date input field
+     */
+    public static function date($name, $value = null, $options = [])
+    {
+        $attributes = is_array($options) ? $options : [];
+        
+        $input = Html::input('date', $name, $value);
         
         if (!empty($attributes)) {
             $input->attributes($attributes);
