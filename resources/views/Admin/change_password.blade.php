@@ -39,12 +39,12 @@
 						<div class="card-header">
 							<h3 class="card-title" style="display:block;">Change Password</h3>
 						</div>
-						{{ Form::open(array('url' => 'admin/change_password', 'name'=>"change-password")) }}
-							{{ Form::hidden('admin_id', @Auth::user()->id) }}
+						{!! Form::open(array('url' => 'admin/change_password', 'name'=>"change-password"))  !!}
+							{!! Form::hidden('admin_id', @Auth::user()->id)  !!}
 							<div class="card-body">
 								<div class="form-group">
 									<label for="old_password">Old Password <span style="color:#ff0000;">*</span></label>
-									{{ Form::password('old_password', array('class' => 'form-control', 'data-valid'=>'required')) }}
+									{!! Form::password('old_password', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 								
 									@if ($errors->has('old_password'))
 										<span class="custom-error" role="alert">
@@ -54,7 +54,7 @@
 								</div>
 								<div class="form-group">
 									<label for="password">New Password <span style="color:#ff0000;">*</span></label>
-									{{ Form::password('password', array('class' => 'form-control', 'data-valid'=>'required')) }}
+									{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 								
 									@if ($errors->has('password'))
 										<span class="custom-error" role="alert">
@@ -64,7 +64,7 @@
 								</div>
 								<div class="form-group">
 									<label for="password_confirmation">Confirm Password <span style="color:#ff0000;">*</span></label>
-									{{ Form::password('password_confirmation', array('class' => 'form-control', 'data-valid'=>'required')) }}
+									{!! Form::password('password_confirmation', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 								
 									@if ($errors->has('password_confirmation'))
 										<span class="custom-error" role="alert">
@@ -73,10 +73,10 @@
 									@endif
 								</div>
 								<div class="form-group">
-									{{ Form::button('<i class="fa fa-refresh"></i> Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")']) }}
+									{!! Form::button('<i class="fa fa-refresh"></i> Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")'])  !!}
 								</div>
 							</div>    
-						{{ Form::close() }}	
+						{!! Form::close()  !!}	
 					</div>
 				</div>
 			</div>

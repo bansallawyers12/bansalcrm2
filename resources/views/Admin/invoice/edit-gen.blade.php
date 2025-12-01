@@ -20,7 +20,7 @@
 	
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/invoice/general-edit', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+			{!! Form::open(array('url' => 'admin/invoice/general-edit', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			<input type="hidden" name="id" value="{{$invoicedetail->id}}">
 			<input type="hidden" name="client_id" value="{{$invoicedetail->client_id}}">
 			<input type="hidden" name="applicationid" value="{{$invoicedetail->application_id}}">
@@ -58,7 +58,7 @@
 							<div class="card-body">
 								<div class="form-group"> 
 									<label for="invoice_date">Invoice Date:</label>
-									{{ Form::text('invoice_date', $invoicedetail->invoice_date, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('invoice_date', $invoicedetail->invoice_date, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 									@if ($errors->has('invoice_date'))
 										<span class="custom-error" role="alert">
@@ -68,7 +68,7 @@
 								</div>
 								<div class="form-group"> 
 									<label for="invoice_due_date">Invoice Due Date:</label>
-									{{ Form::text('invoice_due_date', $invoicedetail->due_date, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('invoice_due_date', $invoicedetail->due_date, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 									@if ($errors->has('invoice_due_date'))
 										<span class="custom-error" role="alert">

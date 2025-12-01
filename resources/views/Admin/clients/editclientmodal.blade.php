@@ -35,7 +35,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="title">Title <span class="span_req">*</span></label>
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' )) }}
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!}
 								<select name="title" class="form-control" data-valid="required">
 								    <option value="">Please Select Note</option>
 								    <option value="Call" <?php if($fetchedData->title = 'Call') { echo 'selected'; } ?>>Call</option>

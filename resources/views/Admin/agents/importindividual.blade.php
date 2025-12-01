@@ -66,7 +66,7 @@
 												</div>
 												
 												<div class="form-group">
-												{{ Form::submit('Save', ['class'=>'btn btn-primary' ]) }}
+												{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 											</div>
 											</div>
 											<div class="col-6 col-md-6 col-lg-6">

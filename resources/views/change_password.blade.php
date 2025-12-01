@@ -39,12 +39,12 @@
 								<div role="tabpanel" class="fade in active" id="Section0">		
 									<div class="table-responsive">
 										<div id="orderSummary_wrapper" class="dataTables_wrapper no-footer">
-											{{ Form::open(array('url' => 'change_password', 'name'=>"change-password")) }}
-												{{ Form::hidden('user_id', @Auth::user()->id) }}
+											{!! Form::open(array('url' => 'change_password', 'name'=>"change-password"))  !!}
+												{!! Form::hidden('user_id', @Auth::user()->id)  !!}
 												<div>
 													<div class="form-group">
 														<label for="old_password">Old Password<em>*</em></label>
-														{{ Form::password('old_password', array('class' => 'form-control', 'data-valid'=>'required')) }}
+														{!! Form::password('old_password', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 													
 														@if ($errors->has('old_password'))
 															<span class="custom-error" role="alert">
@@ -54,7 +54,7 @@
 													</div>
 													<div class="form-group">
 														<label for="password">New Password<em>*</em></label>
-														{{ Form::password('password', array('class' => 'form-control', 'data-valid'=>'required')) }}
+														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 													
 														@if ($errors->has('password'))
 															<span class="custom-error" role="alert">
@@ -64,7 +64,7 @@
 													</div>
 													<div class="form-group">
 														<label for="password_confirmation">Confirm Password<em>*</em></label>
-														{{ Form::password('password_confirmation', array('class' => 'form-control', 'data-valid'=>'required')) }}
+														{!! Form::password('password_confirmation', array('class' => 'form-control', 'data-valid'=>'required'))  !!}
 													
 														@if ($errors->has('password_confirmation'))
 															<span class="custom-error" role="alert">
@@ -73,10 +73,10 @@
 														@endif
 													</div>
 													<div class="form-group">
-														{{ Form::button('Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")']) }}
+														{!! Form::button('Change', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("change-password")'])  !!}
 													</div>
 												</div>
-											{{ Form::close() }}	
+											{!! Form::close()  !!}	
 											
 										</div>
 									</div>

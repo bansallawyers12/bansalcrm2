@@ -33,7 +33,7 @@
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="ass_id" class="col-form-label">Assignee</label>
-												{{ Form::text('ass_id', Request::get('ass_id'), array('class' => 'form-control assignee', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Assignee', 'id' => 'ass_id', 'onkeyup' => "suggestassignee(this.value)" )) }}
+												{!! Form::text('ass_id', Request::get('ass_id'), array('class' => 'form-control assignee', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Assignee', 'id' => 'ass_id', 'onkeyup' => "suggestassignee(this.value)" ))  !!}
 											</div>
 											<input type="hidden" value="{{Request::get('assignee')}}" id="assigneeid" name="assignee">
 										</div>
@@ -43,7 +43,7 @@
 											    $par = \App\Models\Partner::where('id', Request::get('partner'))->first();
 											    ?>
 												<label for="partner" class="col-form-label">Partner</label>
-												{{ Form::text('partner', @$par->partner_name, array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Partner', 'id' => 'partner', 'onkeyup' => "suggest(this.value)" )) }}
+												{!! Form::text('partner', @$par->partner_name, array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Partner', 'id' => 'partner', 'onkeyup' => "suggest(this.value)" ))  !!}
 												
 													<input type="hidden" value="{{Request::get('partner')}}" id="partnerid" name="partner">
 											</div>
@@ -66,7 +66,7 @@
 									<div class="row">
 										<div class="col-md-12 text-center">
 									
-											{{ Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ]) }}
+											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
 											<a class="btn btn-info" href="{{URL::to('/admin/migration')}}">Reset</a>
 										</div>
 									</div>

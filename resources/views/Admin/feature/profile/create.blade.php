@@ -7,7 +7,7 @@
 <div class="main-content">
 <section class="section">
 <div class="section-body">
-	{{ Form::open(array('url' => 'admin/profiles/store', 'name'=>"add-profiles", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }} 
+	{!! Form::open(array('url' => 'admin/profiles/store', 'name'=>"add-profiles", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 		<div class="row">   
 			<div class="col-12 col-md-12 col-lg-12">
 				<div class="card">
@@ -35,7 +35,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="company_name">Company Name <span class="span_req">*</span></label>
-												{{ Form::text('company_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('company_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												@if ($errors->has('company_name'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('company_name') }}</strong>
@@ -46,7 +46,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="abn">ABN NO <span class="span_req">*</span></label>
-												{{ Form::text('abn', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('abn', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('abn'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('abn') }}</strong>
@@ -57,7 +57,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="address">Address <span class="span_req">*</span></label>
-												{{ Form::text('address', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('address', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												@if ($errors->has('address'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('address') }}</strong>
@@ -69,7 +69,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="phone">Phone <span class="span_req">*</span></label>
-												{{ Form::text('phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												@if ($errors->has('phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('phone') }}</strong>
@@ -81,7 +81,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="other_phone">Other Phone <span class="span_req">*</span></label>
-												{{ Form::text('other_phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('other_phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												@if ($errors->has('other_phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('other_phone') }}</strong>
@@ -93,7 +93,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="email">Email <span class="span_req">*</span></label>
-												{{ Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												@if ($errors->has('email'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('email') }}</strong>
@@ -104,7 +104,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="website">Website <span class="span_req">*</span></label>
-												{{ Form::text('website', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+												{!! Form::text('website', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 												
 											</div>
 										</div>
@@ -127,13 +127,13 @@
 							</div>
 						</div>
 						<div class="form-group float-right">
-							{{ Form::submit('Save', ['class'=>'btn btn-primary' ]) }}
+							{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 						</div> 
 					</div>
 				</div>	
 			</div>
 		</div>
-	 {{ Form::close() }}	
+	 {!! Form::close()  !!}	
 </div>
 </section>
 </div>

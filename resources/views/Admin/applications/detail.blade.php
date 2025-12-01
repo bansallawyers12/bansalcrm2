@@ -715,7 +715,7 @@
 											<div class="cus_sidebar">
 												<div class="form-group">
 													<label for="applied_intake">Applied Intake:</label>
-													{{ Form::text('applied_intake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+													{!! Form::text('applied_intake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 													<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 													@if ($errors->has('applied_intake'))
 														<span class="custom-error" role="alert">
@@ -800,7 +800,7 @@
 												</p>
 												<div class="form-group">
 													<label for="expect_win_date">Expected Win Date:</label>
-													{{ Form::text('expect_win_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+													{!! Form::text('expect_win_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 													<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 													@if ($errors->has('expect_win_date'))
 														<span class="custom-error" role="alert">

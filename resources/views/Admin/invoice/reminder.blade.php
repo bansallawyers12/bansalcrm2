@@ -48,21 +48,21 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {{ Form::open(array('url' => 'admin/invoice/reminder', 'name'=>"email-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-					  {{ Form::hidden('id', @$invoice->id) }}
-					  {{ Form::hidden('type', 'reminder') }}
+					  {!! Form::open(array('url' => 'admin/invoice/reminder', 'name'=>"email-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::hidden('id', @$invoice->id)  !!}
+					  {!! Form::hidden('type', 'reminder')  !!}
 						<div class="card-body">
 							<div class="row">
 								<div class="col-sm-12">
 									<div class="form-group" style="text-align:right;">
 										<a style="margin-right:5px;" href="{{route('admin.invoice.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
-										{{ Form::button('<i class="fa fa-mail"></i> Send', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("email-invoice")' ]) }}
+										{!! Form::button('<i class="fa fa-mail"></i> Send', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("email-invoice")' ])  !!}
 									</div>
 								</div>
 								<div class="col-sm-12">
 									<div class="form-group"> 
 										<label for="from" class="col-form-label">From <span style="color:#ff0000;">*</span></label>
-										{{ Form::text('from', Auth::user()->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+										{!! Form::text('from', Auth::user()->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 										@if ($errors->has('from'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('from') }}</strong>
@@ -73,7 +73,7 @@
 								<div class="col-sm-12">
 									<div class="form-group"> 
 										<label for="send_to" class="col-form-label">Send To <span style="color:#ff0000;">*</span></label>
-										{{ Form::text('send_to', @$invoice->customer->contact_email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+										{!! Form::text('send_to', @$invoice->customer->contact_email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 										@if ($errors->has('send_to'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('send_to') }}</strong>
@@ -94,7 +94,7 @@
 									$subContent	=	str_replace($replacesub,$replace_with_sub,$subContent);
 									?>
 										<label for="subject" class="col-form-label">Subject <span style="color:#ff0000;">*</span></label>
-										{{ Form::text('subject', @$subContent, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+										{!! Form::text('subject', @$subContent, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 										@if ($errors->has('subject'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('subject') }}</strong>
@@ -131,12 +131,12 @@
 								</div>
 								<div class="col-sm-12">
 									<div class="form-group float-right">
-										{{ Form::button('<i class="fa fa-mail"></i> Send', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("email-invoice")' ]) }}
+										{!! Form::button('<i class="fa fa-mail"></i> Send', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("email-invoice")' ])  !!}
 									</div> 
 								</div> 
 							</div> 
 						</div> 
-					  {{ Form::close() }}
+					  {!! Form::close()  !!}
 					</div>	
 				</div>	
 			</div>

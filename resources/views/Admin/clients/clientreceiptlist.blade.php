@@ -98,20 +98,20 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="pnr" class="col-form-label">Client ID</label>
-                                                {{ Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' )) }}
+                                                {!! Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' ))  !!}
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="company_name" class="col-form-label">Name</label>
-                                                {{ Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' )) }}
+                                                {!! Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
                                             </div>
                                         </div>
                                       
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="trans_date" class="col-form-label">Trans Date</label>
-                                                {{ Form::text('trans_date', Request::get('trans_date'), array('class' => 'form-control trans_date_fields', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Trans Date', 'id' => 'trans_date' )) }}
+                                                {!! Form::text('trans_date', Request::get('trans_date'), array('class' => 'form-control trans_date_fields', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Trans Date', 'id' => 'trans_date' ))  !!}
                                             </div>
                                         </div>
                                   	</div>
@@ -119,12 +119,12 @@
                                     	<div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="deposit_amount" class="col-form-label">Amount</label>
-                                                {{ Form::text('deposit_amount', Request::get('deposit_amount'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Amount', 'id' => 'amount' )) }}
+                                                {!! Form::text('deposit_amount', Request::get('deposit_amount'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Amount', 'id' => 'amount' ))  !!}
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-left" style="margin-top: 38px;">
                                             <div class="form-group">
-                                                {{ Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ]) }}
+                                                {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
                                                 <a class="btn btn-info" href="{{URL::to('/admin/clients/clientreceiptlist')}}">Reset</a>
                                             </div>
                                         </div>

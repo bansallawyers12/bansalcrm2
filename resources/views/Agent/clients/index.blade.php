@@ -111,25 +111,25 @@
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="pnr" class="col-form-label">Client ID</label>
-												{{ Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' )) }}
+												{!! Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="company_name" class="col-form-label">Name</label>
-												{{ Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' )) }}
+												{!! Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="email" class="col-form-label">Email</label>
-												{{ Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' )) }}
+												{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="phone" class="col-form-label">Phone</label>
-												{{ Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' )) }}
+												{!! Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' ))  !!}
 											</div>
 										</div>
 										
@@ -138,7 +138,7 @@
 									<div class="row">
 										<div class="col-md-12 text-center">
 									
-											{{ Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ]) }}
+											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
 											<a class="btn btn-info" href="{{URL::to('/agent/clients')}}">Reset</a>
 										</div>
 									</div>
@@ -342,7 +342,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{{ Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>

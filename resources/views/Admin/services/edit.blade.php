@@ -6,8 +6,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/services/edit', 'name'=>"edit-service", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-			{{ Form::hidden('id', @$fetchedData->id) }}
+			{!! Form::open(array('url' => 'admin/services/edit', 'name'=>"edit-service", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -24,7 +24,7 @@
 							<div class="card-body">
 								<div class="form-group"> 
 									<label for="title">Title</label>
-									{{ Form::text('title', @$fetchedData->title, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Service Name' )) }}
+									{!! Form::text('title', @$fetchedData->title, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Service Name' ))  !!}
 									@if ($errors->has('title'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('title') }}</strong>
@@ -56,7 +56,7 @@
 								</div>
 								<div class="form-group"> 
 									<label for="services_icon">Service Icon</label>
-									{{ Form::text('services_icon', @$fetchedData->services_icon, array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Enter Service Icon' )) }}
+									{!! Form::text('services_icon', @$fetchedData->services_icon, array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Enter Service Icon' ))  !!}
 									@if ($errors->has('services_icon'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('services_icon') }}</strong>
@@ -83,13 +83,13 @@
 									@endif
 								</div>
 								<div class="form-group float-right">
-									{{ Form::submit('Update Service', ['class'=>'btn btn-primary' ]) }}
+									{!! Form::submit('Update Service', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>
 						</div>
 					</div>	
 				</div>	
-			{{ Form::close() }}
+			{!! Form::close()  !!}
 		</div>
 	</section>
 </div>

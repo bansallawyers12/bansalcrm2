@@ -215,7 +215,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('expect_start_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('expect_start_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error expect_start_error" role="alert">
@@ -232,7 +232,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('expect_win_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('expect_win_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div> 
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error expect_win_error" role="alert">
@@ -294,7 +294,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="client_name">Client Name <span class="span_req">*</span></label>
-								{{ Form::text('client_name', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Client Name','readonly'=>'readonly' )) }} 
+								{!! Form::text('client_name', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Client Name','readonly'=>'readonly' ))  !!} 
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
@@ -321,7 +321,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error appoint_date_error" role="alert">
@@ -338,7 +338,7 @@
 											<i class="fas fa-clock"></i>
 										</div>
 									</div>
-									{{ Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off',  'placeholder'=>'Select Time', 'readonly')) }}
+									{!! Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off',  'placeholder'=>'Select Time', 'readonly'))  !!}
 								</div>
 								<span class="custom-error appoint_time_error" role="alert">
 									<strong></strong>
@@ -348,7 +348,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="title">Title <span class="span_req">*</span></label>
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' )) }} 
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!} 
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -548,7 +548,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="title">Title <span class="span_req">*</span></label>
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' )) }}
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!}
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -615,7 +615,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>	
-									{{ Form::text('due_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('due_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error due_date_error" role="alert">
@@ -632,7 +632,7 @@
 											<i class="fas fa-clock"></i>
 										</div> 
 									</div>	
-									{{ Form::text('due_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'', 'autocomplete'=>'off', 'placeholder'=>'Select Time', 'readonly' )) }} 
+									{!! Form::text('due_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'', 'autocomplete'=>'off', 'placeholder'=>'Select Time', 'readonly' ))  !!} 
 								</div> 
 								<span class="custom-error due_time_error" role="alert">
 									<strong></strong>
@@ -794,7 +794,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="degree_title">Degree Title <span class="span_req">*</span></label>
-								{{ Form::text('degree_title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Degree Title' )) }}
+								{!! Form::text('degree_title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Degree Title' ))  !!}
 								<span class="custom-error degree_title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -819,7 +819,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="institution">Institution <span class="span_req">*</span></label>
-								{{ Form::text('institution', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Institution' )) }}
+								{!! Form::text('institution', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Institution' ))  !!}
 								<span class="custom-error institution_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -834,7 +834,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('course_start', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('course_start', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									@if ($errors->has('course_start'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('course_start') }}</strong>
@@ -852,7 +852,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('course_end', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('course_end', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									@if ($errors->has('course_end'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('course_end') }}</strong>
@@ -901,7 +901,7 @@
 									<input class="form-check-input" type="radio" id="GPA" value="GPA" name="academic_score_type">
 									<label class="form-check-label" for="GPA">GPA</label>
 								</div>
-								{{ Form::number('academic_score', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','step'=>'0.01' )) }}
+								{!! Form::number('academic_score', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','step'=>'0.01' ))  !!}
 								<span class="custom-error academic_score_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -957,7 +957,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="client">Client <span class="span_req">*</span></label>
-								{{ Form::text('client', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+								{!! Form::text('client', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1028,7 +1028,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="client">Client <span class="span_req">*</span></label>
-								{{ Form::text('client', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+								{!! Form::text('client', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1064,7 +1064,7 @@
 
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{{ Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform")) }}
+	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="true" name="is_ajax" id="">
 	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="">
@@ -1154,7 +1154,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="title">Title <span class="span_req">*</span></label>
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' )) }}
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!}
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1227,7 +1227,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="client_name">Client Name <span class="span_req">*</span></label>
-								{{ Form::text('client_name', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Client Name','readonly'=>'readonly' )) }} 
+								{!! Form::text('client_name', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Client Name','readonly'=>'readonly' ))  !!} 
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
@@ -1254,7 +1254,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error appoint_date_error" role="alert">
@@ -1271,7 +1271,7 @@
 											<i class="fas fa-clock"></i>
 										</div>
 									</div>
-									{{ Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' )) }}
+									{!! Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' ))  !!}
 								</div>
 								<span class="custom-error appoint_time_error" role="alert">
 									<strong></strong>
@@ -1281,7 +1281,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="title">Title <span class="span_req">*</span></label>
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' )) }} 
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!} 
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1388,7 +1388,7 @@
 													<i class="fas fa-calendar-alt"></i>
 												</div>
 											</div>
-											{{ Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+											{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 										</div>
 										<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 										<span class="custom-error appoint_date_error" role="alert">
@@ -1405,7 +1405,7 @@
 													<i class="fas fa-clock"></i>
 												</div>
 											</div>
-											{{ Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' )) }}
+											{!! Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' ))  !!}
 										</div>
 										<span class="custom-error appoint_time_error" role="alert">
 											<strong></strong>
@@ -1448,7 +1448,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="client_name">Client Name</label>
-								{{ Form::text('client_name', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'', 'placeholder'=>'Enter Client Name' )) }} 
+								{!! Form::text('client_name', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'', 'placeholder'=>'Enter Client Name' ))  !!} 
 								<span class="custom-error client_name_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1457,7 +1457,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="application">Application</label>
-								{{ Form::text('application', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'', 'placeholder'=>'Enter Application' )) }} 
+								{!! Form::text('application', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'', 'placeholder'=>'Enter Application' ))  !!} 
 								<span class="custom-error application_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1466,7 +1466,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="installment_name">Installment Name <span class="span_req">*</span></label>
-								{{ Form::text('installment_name', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'required', 'placeholder'=>'Enter Installment Name' )) }} 
+								{!! Form::text('installment_name', '', array('class' => 'form-control', 'autocomplete'=>'off', 'data-valid'=>'required', 'placeholder'=>'Enter Installment Name' ))  !!} 
 								<span class="custom-error installment_name_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -1481,7 +1481,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error installment_date_error" role="alert">
@@ -1531,12 +1531,12 @@
 										</div>
 										<div class="feeamount_field">
 											<div class="form-group">
-												{{ Form::text('fee_amount', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'0.00' )) }}
+												{!! Form::text('fee_amount', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'0.00' ))  !!}
 											</div>
 										</div>
 										<div class="commission_field">
 											<div class="form-group">
-												{{ Form::text('commission_percent', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' )) }}
+												{!! Form::text('commission_percent', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' ))  !!}
 											</div>
 										</div>
 										<div class="remove_field">	
@@ -1554,12 +1554,12 @@
 										</div>
 										<div class="feeamount_field">
 											<div class="form-group">
-												{{ Form::text('discount_amount', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' )) }}
+												{!! Form::text('discount_amount', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' ))  !!}
 											</div>
 										</div>
 										<div class="commission_field">
 											<div class="form-group">
-												{{ Form::text('dispcunt_commission_percent', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' )) }}
+												{!! Form::text('dispcunt_commission_percent', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'0.00' ))  !!}
 											</div> 
 										</div>
 										<div class="remove_field">
@@ -1605,7 +1605,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error installment_date_error" role="alert">
@@ -1721,7 +1721,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{{ Form::text('subject', '', array('class' => 'form-control selectedappsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control selectedappsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>
@@ -1777,7 +1777,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error installment_date_error" role="alert">
@@ -1792,7 +1792,7 @@
 								</div>
 								<div class="col-md-4">
 									<div class="form-group">
-										{{ Form::text('installment_no', 1, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+										{!! Form::text('installment_no', 1, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 									</div>
 								</div>
 								<div class="col-md-8">
@@ -1827,7 +1827,7 @@
 											<i class="fas fa-calendar-alt"></i>
 										</div>
 									</div>
-									{{ Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 								<span class="custom-error installment_date_error" role="alert">

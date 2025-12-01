@@ -19,8 +19,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/quotations/template/edit', 'name'=>"add-quotations", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-			{{ Form::hidden('id', @$fetchedData->id) }} 
+			{!! Form::open(array('url' => 'admin/quotations/template/edit', 'name'=>"add-quotations", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::hidden('id', @$fetchedData->id)  !!} 
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -39,7 +39,7 @@
 									<div class="col-12 col-md-4 col-lg-4">
 										<div class="form-group"> 
 											<label for="template_name">Template Name <span class="span_req">*</span></label>
-											{{ Form::text('template_name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Template Name' )) }}
+											{!! Form::text('template_name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Template Name' ))  !!}
 											@if ($errors->has('template_name'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('template_name') }}</strong>

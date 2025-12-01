@@ -48,17 +48,17 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {{ Form::open(array('url' => 'admin/email_templates/store', 'name'=>"add-template", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+					  {!! Form::open(array('url' => 'admin/email_templates/store', 'name'=>"add-template", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 					   
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">
 								<a style="margin-right:5px;" href="{{route('admin.email.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>  
-								{{ Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ]) }}
+								{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 							</div>
 							<div class="form-group row"> 
 								<label for="title" class="col-sm-2 col-form-label">Name <span style="color:#ff0000;">*</span></label>
 								<div class="col-sm-10">
-								{{ Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 								@if ($errors->has('title'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('title') }}</strong>
@@ -69,7 +69,7 @@
 						  <div class="form-group row"> 
 								<label for="subject" class="col-sm-2 col-form-label">Subject <span style="color:#ff0000;">*</span></label>
 								<div class="col-sm-10">
-								{{ Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>
@@ -91,10 +91,10 @@
 						  </div>
 						  
 						  <div class="form-group float-right">
-							{{ Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ]) }}
+							{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 						  </div> 
 						</div> 
-					  {{ Form::close() }}
+					  {!! Form::close()  !!}
 					</div>	   
 				</div>	
 			</div>

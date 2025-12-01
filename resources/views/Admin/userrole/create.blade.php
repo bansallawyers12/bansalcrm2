@@ -10,7 +10,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/userrole/store', 'name'=>"add-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+			{!! Form::open(array('url' => 'admin/userrole/store', 'name'=>"add-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -29,7 +29,7 @@
 									<div class="col-12 col-md-6 col-lg-6">
 										<div class="form-group">
 											<label for="name">Name </label>
-											{{ Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Name' )) }}
+											{!! Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Name' ))  !!}
 										</div>	
 									</div>	
 									<div class="col-12 col-md-6 col-lg-6">
@@ -330,13 +330,13 @@
 								
 								</div>
 								<div class="form-group float-right">
-									{{ Form::submit('Save', ['class'=>'btn btn-primary' ]) }}
+									{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			{{ Form::close() }}
+			{!! Form::close()  !!}
 		</div>
 	</section>
 </div>

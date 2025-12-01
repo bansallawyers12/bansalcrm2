@@ -94,31 +94,31 @@
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="company_name" class="col-form-label">Company Name</label>
-								{{ Form::text('company_name', Request::get('company_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Company Name', 'id' => 'company_name' )) }}
+								{!! Form::text('company_name', Request::get('company_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Company Name', 'id' => 'company_name' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="email" class="col-form-label">Email</label>
-								{{ Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'name' )) }}
+								{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'name' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="first_name" class="col-form-label">First Name</label>
-								{{ Form::text('first_name', Request::get('first_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'First Name', 'id' => 'first_name' )) }}
+								{!! Form::text('first_name', Request::get('first_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'First Name', 'id' => 'first_name' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="last_name" class="col-form-label">Last Name</label>
-								{{ Form::text('last_name', Request::get('last_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Last Name', 'id' => 'last_name' )) }}
+								{!! Form::text('last_name', Request::get('last_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Last Name', 'id' => 'last_name' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="phone" class="col-form-label">Phone</label>
-								{{ Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' )) }}
+								{!! Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' ))  !!}
 							</div>
 						</div>
 					</div>

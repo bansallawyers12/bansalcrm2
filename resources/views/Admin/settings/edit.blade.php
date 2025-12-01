@@ -56,14 +56,14 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {{ Form::open(array('url' => 'admin/settings/taxes/taxrates/edit', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-					  {{ Form::hidden('id', @$fetchedData->id) }}
+					  {!! Form::open(array('url' => 'admin/settings/taxes/taxrates/edit', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::hidden('id', @$fetchedData->id)  !!}
 						<div class="card-body">
 							<div class="row">
 								<div class="col-sm-12 is_gst_yes">
 									<div class="form-group"> 
 										<label for="name" class="col-form-label">Tax Name <span style="color:#ff0000;">*</span></label>
-										{{ Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+										{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 						
 										@if ($errors->has('name'))
 											<span class="custom-error" role="alert">
@@ -86,12 +86,12 @@
 								</div>
 								<div class="col-sm-12" >
 									<div class="form-group float-right">
-										{{ Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-city")' ]) }}
+										{!! Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-city")' ])  !!}
 									</div> 
 								</div> 
 							</div> 
 						</div> 
-					  {{ Form::close() }}
+					  {!! Form::close()  !!}
 					</div>	
 				</div>	
 			</div>

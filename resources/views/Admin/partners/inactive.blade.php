@@ -48,25 +48,25 @@ a.dropdown-item {padding-top: 5px !important;}
 										<div class="col-md-3">
 											<div class="form-group">
 												<label for="ass_id" class="col-form-label">Name</label>
-												{{ Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' )) }}
+												{!! Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-3">
 											<div class="form-group">
 												<label for="" class="col-form-label">Email</label>
-												{{ Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' )) }}
+												{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-3">
 											<div class="form-group">
 												<label for="" class="col-form-label">Reginal code</label>
-												{{ Form::text('reginal_code', Request::get('reginal_code'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Reginal code', 'id' => 'reginal_code' )) }}
+												{!! Form::text('reginal_code', Request::get('reginal_code'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Reginal code', 'id' => 'reginal_code' ))  !!}
 											</div>
 										</div>
 										<div class="col-md-3">
 											<div class="form-group">
 												<label for="level" class="col-form-label">Level</label>
-												{{ Form::text('level', Request::get('level'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Level', 'id' => 'level' )) }}
+												{!! Form::text('level', Request::get('level'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Level', 'id' => 'level' ))  !!}
 											</div>
 										</div>
 
@@ -74,7 +74,7 @@ a.dropdown-item {padding-top: 5px !important;}
 									<div class="row">
 										<div class="col-md-12 text-center">
 
-											{{ Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ]) }}
+											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
 											<a class="btn btn-info" href="{{URL::to('/admin/clients')}}">Reset</a>
 										</div>
 									</div>
@@ -353,7 +353,7 @@ a.dropdown-item {padding-top: 5px !important;}
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{{ Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>

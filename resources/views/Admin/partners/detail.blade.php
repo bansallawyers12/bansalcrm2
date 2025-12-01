@@ -576,7 +576,7 @@ use App\Http\Controllers\Controller;
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('contract_start','', array('id' => 'contract_start','class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+														{!! Form::text('contract_start','', array('id' => 'contract_start','class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 														@if ($errors->has('contract_start'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('contract_start') }}</strong>
@@ -595,7 +595,7 @@ use App\Http\Controllers\Controller;
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('contract_expiry', @$fetchedData->contract_expiry, array('id' => 'contract_expiry', 'class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+														{!! Form::text('contract_expiry', @$fetchedData->contract_expiry, array('id' => 'contract_expiry', 'class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 														@if ($errors->has('contract_expiry'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('contract_expiry') }}</strong>
@@ -628,7 +628,7 @@ use App\Http\Controllers\Controller;
 											<div class="col-md-3">
 												<div class="form-group">
 													<label for="commission_percentage">Commission Percentage</label>
-													{{ Form::number('commission_percentage', @$fetchedData->commission_percentage, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Commission Percentage', 'step'=>'0.01' )) }}
+													{!! Form::number('commission_percentage', @$fetchedData->commission_percentage, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Commission Percentage', 'step'=>'0.01' ))  !!}
 													@if ($errors->has('commission_percentage'))
 														<span class="custom-error" role="alert">
 															<strong>{{ @$errors->first('commission_percentage') }}</strong>
@@ -2526,7 +2526,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{{ Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>
@@ -2571,7 +2571,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="branch_name">Name <span class="span_req">*</span></label>
-								{{ Form::text('branch_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+								{!! Form::text('branch_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 								<span class="custom-error branch_name_error" role="alert">
 									<strong></strong>
 								</span> 
@@ -2580,7 +2580,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="branch_email">Email <span class="span_req">*</span></label>
-								{{ Form::text('branch_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Email' )) }}
+								{!! Form::text('branch_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Email' ))  !!}
 									<span class="custom-error branch_email_error" role="alert">
 										<strong></strong>
 									</span> 
@@ -2604,7 +2604,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="branch_city">City</label>
-								{{ Form::text('branch_city', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter City' )) }}
+								{!! Form::text('branch_city', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter City' ))  !!}
 								@if ($errors->has('branch_city'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('branch_city') }}</strong>
@@ -2615,7 +2615,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
 								<label for="branch_state">State</label>
-								{{ Form::text('branch_state', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter State' )) }}
+								{!! Form::text('branch_state', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter State' ))  !!}
 								@if ($errors->has('branch_state'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('branch_state') }}</strong>
@@ -2626,7 +2626,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
 								<label for="branch_address">Street</label>
-								{{ Form::text('branch_address', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Street' )) }}
+								{!! Form::text('branch_address', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Street' ))  !!}
 								@if ($errors->has('branch_address'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('branch_address') }}</strong>
@@ -2637,7 +2637,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
 								<label for="branch_zip">Zip Code</label>
-								{{ Form::text('branch_zip', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Zip / Post Code' )) }}
+								{!! Form::text('branch_zip', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Zip / Post Code' ))  !!}
 								@if ($errors->has('branch_zip'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('branch_zip') }}</strong>
@@ -2652,7 +2652,7 @@ use App\Http\Controllers\Controller;
 									<div class="country_code"> 
 										<input class="telephone" id="telephone" type="tel" value="+61" name="brnch_country_code" readonly >
 									</div>	
-									{{ Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' )) }}
+									{!! Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('branch_phone'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('branch_phone') }}</strong>

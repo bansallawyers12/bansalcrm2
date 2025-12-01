@@ -7,7 +7,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/crm_email_template/store', 'name'=>"add-crmemailtemplate", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }} 
+			{!! Form::open(array('url' => 'admin/crm_email_template/store', 'name'=>"add-crmemailtemplate", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -32,7 +32,7 @@
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="name">Name <span class="span_req">*</span></label>
-														{{ Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('name'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('name') }}</strong>
@@ -43,7 +43,7 @@
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="subject">Subject</label>
-														{{ Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('subject'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('subject') }}</strong>
@@ -62,13 +62,13 @@
 									</div>
 								</div>
 								<div class="form-group float-right">
-									{{ Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-crmemailtemplate")' ]) }}
+									{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-crmemailtemplate")' ])  !!}
 								</div> 
 							</div>
 						</div>	
 					</div>
 				</div>
-			 {{ Form::close() }}	
+			 {!! Form::close()  !!}	
 		</div>
 	</section>
 </div>

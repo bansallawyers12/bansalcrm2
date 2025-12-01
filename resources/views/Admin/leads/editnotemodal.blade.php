@@ -1,4 +1,4 @@
-{{ Form::open(array('url' => 'admin/followup/update', 'name'=>"edit-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"editnoteform")) }}
+{!! Form::open(array('url' => 'admin/followup/update', 'name'=>"edit-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"editnoteform"))  !!}
 
 	<div class="customerror"></div> 
 	<div class="form-group row">
@@ -24,7 +24,7 @@
 	</div>
 
 
- {{ Form::close() }}
+ {!! Form::close()  !!}
  <div class="modal-footer">
-	{{ Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-note")' ]) }}
+	{!! Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-note")' ])  !!}
 </div>

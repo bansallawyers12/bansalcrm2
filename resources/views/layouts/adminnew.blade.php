@@ -175,7 +175,7 @@
 								<div class="form-group row">
 									<label for="lead_id" class="col-sm-2 col-form-label">Lead ID</label>
 									<div class="col-sm-10">
-										{{ Form::text('lead_id', Request::get('lead_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Lead ID', 'id' => 'lead_id' )) }}	 						
+										{!! Form::text('lead_id', Request::get('lead_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Lead ID', 'id' => 'lead_id' ))  !!}	 						
 										@if ($errors->has('lead_id'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('lead_id') }}</strong>
@@ -188,7 +188,7 @@
 								<div class="form-group row">
 									<label for="name" class="col-sm-2 col-form-label">Name</label>
 									<div class="col-sm-10">
-										{{ Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' )) }}	 						
+										{!! Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}	 						
 										@if ($errors->has('name'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('name') }}</strong>
@@ -201,7 +201,7 @@
 								<div class="form-group row">
 									<label for="email" class="col-sm-2 col-form-label">Email</label>
 									<div class="col-sm-10">
-										{{ Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' )) }}	 						
+										{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}	 						
 										@if ($errors->has('email'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('email') }}</strong>
@@ -214,7 +214,7 @@
 								<div class="form-group row">
 									<label for="phone" class="col-sm-2 col-form-label">Phone</label>
 									<div class="col-sm-10">
-										{{ Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' )) }}	 						
+										{!! Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' ))  !!}	 						
 										@if ($errors->has('phone'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('phone') }}</strong>
@@ -227,7 +227,7 @@
 								<div class="form-group row">
 									<label for="followupdate" class="col-sm-2 col-form-label">Followup Date</label>
 									<div class="col-sm-10">
-										{{ Form::text('followupdate', Request::get('followupdate'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Followup Date', 'id' => 'followupdate' )) }}	 						
+										{!! Form::text('followupdate', Request::get('followupdate'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Followup Date', 'id' => 'followupdate' ))  !!}	 						
 										@if ($errors->has('followupdate'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('followupdate') }}</strong>
@@ -271,7 +271,7 @@
 							<div class="col-md-12">
 								<div class="form-group">
 									<label for="subject" class="col-form-label">Subject</label>
-									{{ Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Subject', 'id' => 'subject' )) }}	 						
+									{!! Form::text('subject', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Subject', 'id' => 'subject' ))  !!}	 						
 									@if ($errors->has('subject'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('subject') }}</strong>
@@ -280,7 +280,7 @@
 								</div>
 								<div class="form-group">
 									<label for="how_help_you" class="col-form-label">How can we help you today?</label>
-									{{ Form::text('how_help_you', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'How can we help you today?', 'id' => 'how_help_you' )) }}	 						
+									{!! Form::text('how_help_you', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'How can we help you today?', 'id' => 'how_help_you' ))  !!}	 						
 									@if ($errors->has('how_help_you'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('how_help_you') }}</strong>
@@ -298,7 +298,7 @@
 								</div>
 								<div class="form-group">
 									<label for="contact_no" class="col-form-label">Contact Number</label>
-									{{ Form::text('contact_no', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Contact Number', 'id' => 'contact_no' )) }}	 						
+									{!! Form::text('contact_no', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Contact Number', 'id' => 'contact_no' ))  !!}	 						
 									@if ($errors->has('contact_no'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('contact_no') }}</strong>

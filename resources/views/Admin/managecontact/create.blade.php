@@ -7,7 +7,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/managecontact/store', 'name'=>"add-contacts", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+			{!! Form::open(array('url' => 'admin/managecontact/store', 'name'=>"add-contacts", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -35,7 +35,7 @@
 											</select>
 										</div>
 										<div class="col-sm-4">
-										{{ Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'First Name *' )) }}
+										{!! Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'First Name *' ))  !!}
 										@if ($errors->has('first_name'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('first_name') }}</strong>
@@ -43,7 +43,7 @@
 										@endif
 										</div>									
 										<div class="col-sm-3">
-										{{ Form::text('middle_name', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Middle Name' )) }}
+										{!! Form::text('middle_name', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Middle Name' ))  !!}
 										@if ($errors->has('middle_name'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('middle_name') }}</strong>
@@ -51,7 +51,7 @@
 										@endif
 										</div>
 										<div class="col-sm-3">
-										{{ Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Last Name *' )) }}
+										{!! Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Last Name *' ))  !!}
 										@if ($errors->has('last_name'))
 											<span class="custom-error" role="alert">
 												<strong>{{ @$errors->first('last_name') }}</strong>
@@ -61,13 +61,13 @@
 									</div>
 								</div>	
 								<div class="form-group float-right">
-									{{ Form::submit('Save', ['class'=>'btn btn-primary' ]) }}
+									{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			{{ Form::close() }}
+			{!! Form::close()  !!}
 		</div>
 	</section>
 </div>

@@ -10,8 +10,8 @@
 		    <div class="server-error">
 				@include('../Elements/flash-message')
 			</div>
-			{{ Form::open(array('url' => 'admin/leads/edit', 'name'=>"edit-leads", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }} 
-			 {{ Form::hidden('id', @$fetchedData->id) }}
+			{!! Form::open(array('url' => 'admin/leads/edit', 'name'=>"edit-leads", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			 {!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -55,7 +55,7 @@
 											<div class="col-4 col-md-4 col-lg-4">
 												<div class="form-group"> 
 													<label for="first_name">First Name <span class="span_req">*</span></label>
-													{{ Form::text('first_name', @$fetchedData->first_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+													{!! Form::text('first_name', @$fetchedData->first_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 													@if ($errors->has('first_name'))
 														<span class="custom-error" role="alert">
 															<strong>{{ @$errors->first('first_name') }}</strong>
@@ -66,7 +66,7 @@
 											<div class="col-4 col-md-4 col-lg-4">
 												<div class="form-group"> 
 													<label for="last_name">Last Name <span class="span_req">*</span></label>
-													{{ Form::text('last_name', @$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+													{!! Form::text('last_name', @$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 													@if ($errors->has('last_name'))
 														<span class="custom-error" role="alert">
 															<strong>{{ @$errors->first('last_name') }}</strong>
@@ -111,7 +111,7 @@
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('dob', @$dob, array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }} 
+														{!! Form::text('dob', @$dob, array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!} 
 														@if ($errors->has('dob'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('dob') }}</strong>
@@ -129,7 +129,7 @@
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('age', $fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('age', $fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('age'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('age') }}</strong>
@@ -184,7 +184,7 @@
 												<div class="country_code"> 
 													<input class="telephone" id="telephone" type="tel" name="country_code" readonly >
 												</div>	
-												{{ Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('phone') }}</strong>
@@ -211,7 +211,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="email">Email <span style="color:#ff0000;">*</span></label>
-											{{ Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('email') }}</strong>
@@ -222,7 +222,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="att_email">Email </label>
-											{{ Form::text('att_email', @$fetchedData->att_email, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('att_email', @$fetchedData->att_email, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('att_email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('att_email') }}</strong>
@@ -237,7 +237,7 @@
 												<div class="country_code"> 
 													<input class="telephone" id="telephone" type="tel" name="att_country_code"  readonly >
 												</div>	
-												{{ Form::text('att_phone', @$fetchedData->att_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('att_phone', @$fetchedData->att_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('att_phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('att_phone') }}</strong>
@@ -278,7 +278,7 @@
 														<i class="fas fa-calendar-alt"></i>
 													</div>
 												</div>
-												{{ Form::text('visa_expiry_date', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+												{!! Form::text('visa_expiry_date', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 												@if ($errors->has('visa_expiry_date'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('visa_expiry_date') }}</strong>
@@ -296,7 +296,7 @@
 														<i class="fas fa-calendar-alt"></i>
 													</div>
 												</div>
-												{{ Form::text('preferredIntake', @$fetchedData->preferredIntake, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('preferredIntake', @$fetchedData->preferredIntake, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('preferredIntake'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('preferredIntake') }}</strong>
@@ -327,7 +327,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="passport_no">Passport Number</label>
-											{{ Form::text('passport_no', @$fetchedData->passport_no, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('passport_no', @$fetchedData->passport_no, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('passport_no'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('passport_no') }}</strong>
@@ -340,7 +340,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="address">Address</label>
-											{{ Form::text('address', $fetchedData->address, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('address', $fetchedData->address, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('address'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('address') }}</strong>
@@ -351,7 +351,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="city">City</label>
-											{{ Form::text('city', $fetchedData->city, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('city', $fetchedData->city, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('city'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('city') }}</strong>
@@ -383,7 +383,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="zip">Post Code</label>
-											{{ Form::text('zip', $fetchedData->zip, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('zip', $fetchedData->zip, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('zip'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('zip') }}</strong>
@@ -430,7 +430,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="nomi_occupation">Nominated Occupation</label>
-											{{ Form::text('nomi_occupation', $fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('nomi_occupation', $fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											
 											@if ($errors->has('nomi_occupation'))
 												<span class="custom-error" role="alert">
@@ -457,7 +457,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="high_quali_aus">Highest Qualification in Australia</label>
-											{{ Form::text('high_quali_aus', $fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('high_quali_aus', $fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											
 											@if ($errors->has('high_quali_aus'))
 												<span class="custom-error" role="alert">
@@ -469,7 +469,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="high_quali_overseas">Highest Qualification Overseas</label>
-											{{ Form::text('high_quali_overseas', $fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('high_quali_overseas', $fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											
 											@if ($errors->has('high_quali_overseas'))
 												<span class="custom-error" role="alert">
@@ -481,7 +481,7 @@
 									<div class="col-sm-4">
 										<div class="form-group"> 
 											<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
-											{{ Form::text('relevant_work_exp_aus', $fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('relevant_work_exp_aus', $fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											
 											@if ($errors->has('relevant_work_exp_aus'))
 												<span class="custom-error" role="alert">
@@ -493,7 +493,7 @@
 									<div class="col-sm-4">
 										<div class="form-group"> 
 											<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
-											{{ Form::text('relevant_work_exp_over', $fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('relevant_work_exp_over', $fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												
 											@if ($errors->has('relevant_work_exp_over'))
 												<span class="custom-error" role="alert">
@@ -505,7 +505,7 @@
 									<div class="col-sm-4">
 										<div class="form-group"> 
 											<label for="married_partner">If married, English score of partner</label>
-											{{ Form::text('married_partner', $fetchedData->married_partner, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('married_partner', $fetchedData->married_partner, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												
 											@if ($errors->has('married_partner'))
 												<span class="custom-error" role="alert">
@@ -532,7 +532,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="total_points">Total Points</label>
-											{{ Form::text('total_points', $fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('total_points', $fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												
 											@if ($errors->has('total_points'))
 												<span class="custom-error" role="alert">
@@ -651,7 +651,7 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="tags_label">Tags/Label </label>
-											{{ Form::text('tags_label', @$fetchedData->tags_label, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('tags_label', @$fetchedData->tags_label, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('tags_label'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('tags_label') }}</strong>
@@ -672,7 +672,7 @@
 									</div> 
 									<div class="col-sm-12">
 										<div class="form-group float-right">
-											{{ Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-leads")' ]) }}
+											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-leads")' ])  !!}
 										</div>
 									</div>
 								</div> 
@@ -680,7 +680,7 @@
 						</div>	
 					</div>
 				</div>  
-			 {{ Form::close() }}	
+			 {!! Form::close()  !!}	
 		</div>
 	</section>
 </div>

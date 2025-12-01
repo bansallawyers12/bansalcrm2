@@ -24,9 +24,9 @@
 						</div>
 					</div>
 					<div class="form-bottom  col-lg-12 col-sm-12 col-md-12 col-xs-12">
-						{{ Form::open(array('url' => '/reset_link', 'name'=>"reset_link", 'autocomplete'=>'off', 'class'=>'reset-link-form')) }}
-							{{ Form::hidden('id', @$data->id) }}
-							{{ Form::hidden('email', @$data->email) }}
+						{!! Form::open(array('url' => '/reset_link', 'name'=>"reset_link", 'autocomplete'=>'off', 'class'=>'reset-link-form'))  !!}
+							{!! Form::hidden('id', @$data->id)  !!}
+							{!! Form::hidden('email', @$data->email)  !!}
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
 								<input type="password" placeholder="New Password*" class="form-mobile form-control" name="password" autocomplete="new-password" data-valid="required" />
 
@@ -47,9 +47,9 @@
 							</div>
 
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::button('Reset', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("reset_link")']) }}
+								{!! Form::button('Reset', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("reset_link")'])  !!}
 							</div>
-						{{ Form::close() }}	
+						{!! Form::close()  !!}	
 					</div>
 				</div>
 			</div>

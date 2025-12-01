@@ -7,8 +7,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/emails/edit', 'name'=>"add-emails", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }} 
-			{{ Form::hidden('id', @$fetchedData->id) }}
+			{!! Form::open(array('url' => 'admin/emails/edit', 'name'=>"add-emails", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -36,7 +36,7 @@
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="email">Email Id <span class="span_req">*</span></label>
-														{{ Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('email'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('email') }}</strong>
@@ -53,7 +53,7 @@
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="display_name">Display Name</label>
-														{{ Form::text('display_name', @$fetchedData->display_name, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('display_name', @$fetchedData->display_name, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('display_name'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('display_name') }}</strong>
@@ -66,7 +66,7 @@
                                                  <div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group">
 														<label for="password">Password</label>
-														{{ Form::text('password', @$fetchedData->password, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('password', @$fetchedData->password, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('password'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('password') }}</strong>
@@ -106,13 +106,13 @@
 									</div>
 								</div>
 								<div class="form-group float-right">
-									{{ Form::button('Update', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-emails")' ]) }}
+									{!! Form::button('Update', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-emails")' ])  !!}
 								</div> 
 							</div>
 						</div>	
 					</div>
 				</div>
-			 {{ Form::close() }}	
+			 {!! Form::close()  !!}	
 		</div>
 	</section>
 </div>

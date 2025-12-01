@@ -660,3 +660,65 @@ text-overflow: ellipsis;white-space: nowrap;}
 
         
 
+/* Fix for Laravel 12: Disable browser HTML5 validation styling on forms - AGGRESSIVE */
+/* Global fix for ALL inputs to prevent red underlines */
+input,
+textarea,
+select {
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+	text-decoration-style: none !important;
+	text-decoration-color: transparent !important;
+}
+
+/* Remove validation styling from invalid inputs */
+input:invalid,
+textarea:invalid,
+select:invalid {
+	box-shadow: none !important;
+	border-color: inherit !important;
+	outline: none !important;
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+}
+
+/* Fix for forms with novalidate */
+form[novalidate] input:invalid,
+form[novalidate] textarea:invalid,
+form[novalidate] select:invalid {
+	box-shadow: none !important;
+	border-color: inherit !important;
+	outline: none !important;
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+	text-decoration-style: none !important;
+	text-decoration-color: transparent !important;
+}
+
+/* Disable spell-check visual indicators */
+form[novalidate] input[spellcheck="false"],
+form[novalidate] textarea[spellcheck="false"],
+input[spellcheck="false"],
+textarea[spellcheck="false"] {
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+}
+
+/* Specific fix for add-leads form */
+form[name="add-leads"] input,
+form[name="add-leads"] textarea,
+form[name="add-leads"] select {
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+}
+
+form[name="add-leads"] input:invalid,
+form[name="add-leads"] textarea:invalid,
+form[name="add-leads"] select:invalid {
+	box-shadow: none !important;
+	border-color: inherit !important;
+	outline: none !important;
+	text-decoration: none !important;
+	text-decoration-line: none !important;
+}
+

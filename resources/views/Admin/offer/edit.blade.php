@@ -48,12 +48,12 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {{ Form::open(array('url' => 'admin/offer/edit', 'name'=>"add-flights", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-					     {{ Form::hidden('id', @$fetchedData->id) }}
+					  {!! Form::open(array('url' => 'admin/offer/edit', 'name'=>"add-flights", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					     {!! Form::hidden('id', @$fetchedData->id)  !!}
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">
 								<a style="margin-right:5px;" href="{{route('admin.offer.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>  
-								{{ Form::button('<i class="fa fa-save"></i> Edit Offer', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-flights")' ]) }}
+								{!! Form::button('<i class="fa fa-save"></i> Edit Offer', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-flights")' ])  !!}
 							</div>
 							<div class="form-group row">
 								<label for="name" class="col-sm-2 col-form-label">Offer Type</label>
@@ -66,7 +66,7 @@
 							<div class="form-group row"> 
 								<label for="name" class="col-sm-2 col-form-label">Name</label>
 								<div class="col-sm-10">
-								{{ Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+								{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 								@if ($errors->has('name'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('name') }}</strong>
@@ -78,7 +78,7 @@
 								<label for="subtitle" class="col-sm-2 col-form-label">Subtitle</label>
 								<div class="col-sm-10">
 								
-								{{ Form::text('subtitle', @$fetchedData->subtitle, array('class' => 'form-control ', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Subtitle', 'id' =>'' )) }}
+								{!! Form::text('subtitle', @$fetchedData->subtitle, array('class' => 'form-control ', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Subtitle', 'id' =>'' ))  !!}
 								
 								@if ($errors->has('subtitle'))
 									<span class="custom-error" role="alert">
@@ -105,7 +105,7 @@
 							<div class="form-group row"> 
 								<label for="arival_time" class="col-sm-2 col-form-label">Expire Date</label>
 								<div class="col-sm-10">
-								{{ Form::text('expire_date', @$fetchedData->expiry_date, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Expire Date', 'id'=>'ardate' )) }}
+								{!! Form::text('expire_date', @$fetchedData->expiry_date, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Expire Date', 'id'=>'ardate' ))  !!}
 								@if ($errors->has('expire_date'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('expire_date') }}</strong>
@@ -126,10 +126,10 @@
 								</div>  
 							</div>
 							<div class="form-group float-right">
-								{{ Form::button('<i class="fa fa-save"></i> Save Offer', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-flights")' ]) }}
+								{!! Form::button('<i class="fa fa-save"></i> Save Offer', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-flights")' ])  !!}
 							</div> 
 						</div>  
-					  {{ Form::close() }}
+					  {!! Form::close()  !!}
 					</div>	   
 				</div>	
 			</div>

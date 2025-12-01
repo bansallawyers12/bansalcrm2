@@ -48,11 +48,11 @@
 					  </div>
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {{ Form::open(array('url' => 'admin/customer/store', 'name'=>"add-staff", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+					  {!! Form::open(array('url' => 'admin/customer/store', 'name'=>"add-staff", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 						<div class="card-body">	
 						  <div class="form-group"> 
 							<label for="name">Name</label>
-							{{ Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter First Name' )) }}
+							{!! Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter First Name' ))  !!}
 							@if ($errors->has('name'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('name') }}</strong>
@@ -62,7 +62,7 @@
 						   
 						  <div class="form-group">
 							<label for="name">Email</label>
-							{{ Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter User Email' )) }}
+							{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter User Email' ))  !!}
 							@if ($errors->has('email'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('email') }}</strong>
@@ -80,7 +80,7 @@
 						  </div>
 						  <div class="form-group">
 							<label for="name">Phone</label>
-							{{ Form::text('phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter User Phone' )) }}
+							{!! Form::text('phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter User Phone' ))  !!}
 							@if ($errors->has('phone'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('phone') }}</strong>
@@ -89,7 +89,7 @@
 						  </div>
 						   <div class="form-group">
 							<label for="city">City</label>
-							{{ Form::text('city', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter City' )) }}
+							{!! Form::text('city', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter City' ))  !!}
 							@if ($errors->has('city'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('city') }}</strong>
@@ -98,7 +98,7 @@
 						  </div>
 						  <div class="form-group">
 							<label for="location">Location</label>
-							{{ Form::text('location', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Location' )) }}
+							{!! Form::text('location', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Location' ))  !!}
 							@if ($errors->has('location'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('location') }}</strong>
@@ -107,7 +107,7 @@
 						  </div>
 						  <div class="form-group">
 							<label for="dob">Date of Birth</label>
-							{{ Form::text('dob', '', array('class' => 'form-control commondate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Date of Birth' )) }}
+							{!! Form::text('dob', '', array('class' => 'form-control commondate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Date of Birth' ))  !!}
 							@if ($errors->has('dob'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('dob') }}</strong>
@@ -116,7 +116,7 @@
 						  </div>
 						   <div class="form-group">
 							<label for="wedding_anniversary">Wedding Anniversary</label>
-							{{ Form::text('wedding_anniversary', '', array('class' => 'form-control commondate', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Wedding Anniversary' )) }}
+							{!! Form::text('wedding_anniversary', '', array('class' => 'form-control commondate', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Wedding Anniversary' ))  !!}
 							@if ($errors->has('wedding_anniversary'))
 								<span class="custom-error" role="alert">
 									<strong>{{ @$errors->first('wedding_anniversary') }}</strong>
@@ -124,10 +124,10 @@
 							@endif
 						  </div>
 						  <div class="form-group">
-							{{ Form::submit('Save', ['class'=>'btn btn-primary' ]) }}
+							{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 						  </div> 
 						</div> 
-					  {{ Form::close() }}
+					  {!! Form::close()  !!}
 					</div>	
 				</div>	
 			</div>

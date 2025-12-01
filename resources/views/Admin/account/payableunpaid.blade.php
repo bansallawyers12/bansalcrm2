@@ -140,7 +140,7 @@
 </div>
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{{ Form::open(array('url' => 'admin/income-payment-store', 'name'=>"incomepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"incomepaymentform")) }}
+	{!! Form::open(array('url' => 'admin/income-payment-store', 'name'=>"incomepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"incomepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="false" name="is_ajax" id="">
 	<input data-valid="required" type="hidden" name="payment_amount" placeholder="" class="paymentAmount" />

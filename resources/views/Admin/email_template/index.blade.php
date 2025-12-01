@@ -127,7 +127,7 @@
 							<div class="form-group row">
 								<label for="type" class="col-sm-2 col-form-label">ID</label>
 								<div class="col-sm-10">
-									{{ Form::text('type', Request::get('type'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'ID', 'id' => 'type' )) }}
+									{!! Form::text('type', Request::get('type'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'ID', 'id' => 'type' ))  !!}
 								</div>
 							</div>
 						</div>
@@ -135,7 +135,7 @@
 							<div class="form-group row">
 								<label for="name" class="col-sm-2 col-form-label">Name</label>
 								<div class="col-sm-10">
-									{{ Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Destination Name', 'id' => 'name' )) }}
+									{!! Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Destination Name', 'id' => 'name' ))  !!}
 								</div>
 							</div>
 						</div>

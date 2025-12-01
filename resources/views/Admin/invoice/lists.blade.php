@@ -559,7 +559,7 @@
 				<span aria-hidden="true">&times;</span>
 			  </button>
 			</div>
-			{{ Form::open(array('url' => 'admin/invoice/paymentsave', 'name'=>"add-paymentsave", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'updatepaymentsave')) }}
+			{!! Form::open(array('url' => 'admin/invoice/paymentsave', 'name'=>"add-paymentsave", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'updatepaymentsave'))  !!}
 			<div class="modal-body">
 				<input type="hidden" value="" name="invoice_id" id="invoice_id">
 				<div class="customerror"></div>
@@ -574,20 +574,20 @@
 					<div class="form-group row">
 						<label for="amount_rec" class="col-form-label col-sm-2">Amount Received (INR)</label>
 						<div class="col-sm-10">
-						{{ Form::text('amount_rec', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'amount_rec' )) }}
+						{!! Form::text('amount_rec', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'amount_rec' ))  !!}
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="bank_charges" class="col-form-label col-sm-2">Bank Charges (if any)</label>
 						<div class="col-sm-10">
-						{{ Form::text('bank_charges', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'bank_charges' )) }}
+						{!! Form::text('bank_charges', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'bank_charges' ))  !!}
 						</div>
 					</div>
 					<div class="form-group row">
 						<div class="col-md-6">
 						<label for="payment_date" class="col-form-label col-sm-2">Payment Date</label>
 						<div class="col-sm-10">
-						{{ Form::text('payment_date', date('Y-m-d'), array('class' => 'form-control commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'payment_date' )) }}
+						{!! Form::text('payment_date', date('Y-m-d'), array('class' => 'form-control commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'payment_date' ))  !!}
 						</div>
 						</div>
 						<div class="col-md-6">
@@ -607,7 +607,7 @@
 						<div class="form-group row">
 							<label for="reference" class="col-form-label col-sm-2">Reference#</label>
 							<div class="col-sm-10">
-							{{ Form::text('reference', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'reference' )) }}
+							{!! Form::text('reference', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'reference' ))  !!}
 							</div>
 						</div>
 				
@@ -628,7 +628,7 @@
 				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				  <button type="button" id="payment_save" class="btn btn-primary">Save Payment</button>
 				</div>
-				{{ Form::close() }}
+				{!! Form::close()  !!}
 		</div>
 	</div>
 </div>
@@ -641,7 +641,7 @@
 				<span aria-hidden="true">&times;</span>
 			  </button>
 			</div>
-			{{ Form::open(array('url' => 'admin/invoice/editpaymentsave', 'name'=>"add-paymentsave", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'editpaymentsave')) }}
+			{!! Form::open(array('url' => 'admin/invoice/editpaymentsave', 'name'=>"add-paymentsave", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'editpaymentsave'))  !!}
 			<div class="modal-body">
 				<input type="hidden" value="" name="payment_id" id="payment_id">
 				<div class="customerror"></div>
@@ -656,20 +656,20 @@
 					<div class="form-group row">
 						<label for="amount_rec" class="col-form-label col-sm-2">Amount Received (INR)</label>
 						<div class="col-sm-10">
-						{{ Form::text('amount_rec', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'amount_rec' )) }}
+						{!! Form::text('amount_rec', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'amount_rec' ))  !!}
 						</div>
 					</div>
 					<div class="form-group row">
 						<label for="bank_charges" class="col-form-label col-sm-2">Bank Charges (if any)</label>
 						<div class="col-sm-10">
-						{{ Form::text('bank_charges', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'bank_charges' )) }}
+						{!! Form::text('bank_charges', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'bank_charges' ))  !!}
 						</div>
 					</div>
 					<div class="form-group row">
 						<div class="col-md-6">
 						<label for="payment_date" class="col-form-label col-sm-2">Payment Date</label>
 						<div class="col-sm-10">
-						{{ Form::text('payment_date', date('Y-m-d'), array('class' => 'form-control commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'payment_date' )) }}
+						{!! Form::text('payment_date', date('Y-m-d'), array('class' => 'form-control commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'payment_date' ))  !!}
 						</div>
 						</div>
 						<div class="col-md-6">
@@ -689,7 +689,7 @@
 						<div class="form-group row">
 							<label for="reference" class="col-form-label col-sm-2">Reference#</label>
 							<div class="col-sm-10">
-							{{ Form::text('reference', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'reference' )) }}
+							{!! Form::text('reference', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'','id'=>'reference' ))  !!}
 							</div>
 						</div>
 				
@@ -705,7 +705,7 @@
 				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				  <button type="button" id="edit_payment_save" class="btn btn-primary">Save Payment</button>
 				</div>
-				{{ Form::close() }}
+				{!! Form::close()  !!}
 		</div>
 	</div>
 </div>
@@ -810,14 +810,14 @@
 				<input type="hidden" id="invoiceid" name="invoiceid">
 					<label for="expire_date" class="col-form-label col-sm-2">Link Expiration Date <span style="color:#ff0000;">*</span></label>
 					<div class="col-sm-10">
-					{{ Form::text('expire_date', date('Y-m-d', strtotime('+30 days')), array('class' => 'form-control disableifgenreate commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'expire_date' )) }}
+					{!! Form::text('expire_date', date('Y-m-d', strtotime('+30 days')), array('class' => 'form-control disableifgenreate commodate', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'expire_date' ))  !!}
 					<p><i class="fa fa-info-circle"></i> By default, the link is set to expire 30 days from the invoice due date.</p>
 					</div>
 				</div>
 				<div class="form-group row showifgenrate" style="display:none;">
 					<label for="expire_date" class="col-form-label col-sm-2">Link Expiration Date <span style="color:#ff0000;">*</span></label>
 					<div class="col-sm-10">
-					{{ Form::text('sharelink', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'sharelink' )) }}
+					{!! Form::text('sharelink', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'sharelink' ))  !!}
 					</div>
 				</div>
 			</div>

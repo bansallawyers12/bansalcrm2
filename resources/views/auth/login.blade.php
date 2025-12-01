@@ -26,7 +26,7 @@
 						</div>
 					</div>
 					<div class="form-bottom  col-lg-12 col-sm-12 col-md-12 col-xs-12">
-						{{ Form::open(array('url' => '/login', 'name'=>"login", 'autocomplete'=>'off', 'class'=>'login-form')) }}
+						{!! Form::open(array('url' => '/login', 'name'=>"login", 'autocomplete'=>'off', 'class'=>'login-form'))  !!}
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
 								<input type="text" placeholder="Email / Mobile*" class="form-mobile form-control" name="email" value="{{ (Cookie::get('email') !='' && !old('email')) ? Cookie::get('email') : old('email')  }}" autocomplete="new-password" data-valid="required" />
 
@@ -55,7 +55,7 @@
 							
 							
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::button('Sign in!', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("login")']) }}
+								{!! Form::button('Sign in!', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("login")'])  !!}
 							</div>
 							
 							<!--<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
@@ -66,7 +66,7 @@
 									<i class="fa fa-google-plus"></i> Sign Up with Google Plus
 								</a>
 							</div>-->
-						{{ Form::close() }}	
+						{!! Form::close()  !!}	
 					</div>
 				</div>
 			</div>
@@ -88,9 +88,9 @@
 						</div>
 					</div>
 					<div class="form-bottom  col-lg-12 col-sm-12 col-md-12 col-xs-12">
-						{{ Form::open(array('url' => '/register', 'name'=>"register", 'autocomplete'=>'off', 'class'=>'registration-form')) }}
+						{!! Form::open(array('url' => '/register', 'name'=>"register", 'autocomplete'=>'off', 'class'=>'registration-form'))  !!}
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::text('first_name', '', array('class' => 'form-name form-control', 'data-valid'=>'required', 'placeholder'=>'First Name*', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('first_name', '', array('class' => 'form-name form-control', 'data-valid'=>'required', 'placeholder'=>'First Name*', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('first_name'))
 									<span class="custom-error" role="alert">
@@ -99,7 +99,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::text('last_name', '', array('class' => 'form-name form-control', 'data-valid'=>'required', 'placeholder'=>'Last Name*', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('last_name', '', array('class' => 'form-name form-control', 'data-valid'=>'required', 'placeholder'=>'Last Name*', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('last_name'))
 									<span class="custom-error" role="alert">
@@ -108,7 +108,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::text('email_register', '', array('class' => 'form-name form-control', 'data-valid'=>'required email', 'placeholder'=>'Email*', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('email_register', '', array('class' => 'form-name form-control', 'data-valid'=>'required email', 'placeholder'=>'Email*', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('email_register'))
 									<span class="custom-error" role="alert">
@@ -117,7 +117,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::password('password_register', array('class' => 'form-name form-control', 'data-valid'=>'required min-6 max-12', 'placeholder'=>'Password*', 'autocomplete'=>'new-password')) }}
+								{!! Form::password('password_register', array('class' => 'form-name form-control', 'data-valid'=>'required min-6 max-12', 'placeholder'=>'Password*', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('password_register'))
 									<span class="custom-error" role="alert">
@@ -126,7 +126,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
-								{{ Form::text('phone_register', '', array('class' => 'form-name form-control mask', 'data-valid'=>'required equal-10', 'placeholder'=>'Mobile*', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('phone_register', '', array('class' => 'form-name form-control mask', 'data-valid'=>'required equal-10', 'placeholder'=>'Mobile*', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('phone_register'))
 									<span class="custom-error" role="alert">
@@ -135,7 +135,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-6 col-sm-6 col-md-6 col-xs-12">
-								{{ Form::text('course_level', '', array('class' => 'form-name form-control', 'placeholder'=>'Course Level', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('course_level', '', array('class' => 'form-name form-control', 'placeholder'=>'Course Level', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('course_level'))
 									<span class="custom-error" role="alert">
@@ -171,7 +171,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::text('city', '', array('class' => 'form-name form-control', 'placeholder'=>'City', 'data-valid'=>'required', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('city', '', array('class' => 'form-name form-control', 'placeholder'=>'City', 'data-valid'=>'required', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('city'))
 									<span class="custom-error" role="alert">
@@ -180,7 +180,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12">
-								{{ Form::textarea('address', '', array('class' => 'form-control textarea', 'placeholder'=>'Please write Your Address...', 'data-valid'=>'required', 'autocomplete'=>'new-password')) }}
+								{!! Form::textarea('address', '', array('class' => 'form-control textarea', 'placeholder'=>'Please write Your Address...', 'data-valid'=>'required', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('address'))
 									<span class="custom-error" role="alert">
@@ -189,7 +189,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::text('zip', '', array('class' => 'form-name form-control', 'placeholder'=>'Zip Code', 'data-valid'=>'required', 'autocomplete'=>'new-password')) }}
+								{!! Form::text('zip', '', array('class' => 'form-name form-control', 'placeholder'=>'Zip Code', 'data-valid'=>'required', 'autocomplete'=>'new-password'))  !!}
 							
 								@if ($errors->has('zip'))
 									<span class="custom-error" role="alert">
@@ -198,7 +198,7 @@
 								@endif
 							</div>
 							<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
-								{{ Form::button('Sign me up!', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("register")']) }}
+								{!! Form::button('Sign me up!', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("register")'])  !!}
 							</div>
 							<!--<div class="form-group col-lg-12 col-sm-12 col-md-12 col-xs-12 text-center">
 								<a class="common-btn btn-facebook" href="{{url('/auth/facebook')}}">
@@ -208,7 +208,7 @@
 									<i class="fa fa-google-plus"></i> Sign Up with Google Plus
 								</a>
 							</div>-->
-						{{ Form::close() }}	
+						{!! Form::close()  !!}	
 					</div>
 				</div>
 			</div>

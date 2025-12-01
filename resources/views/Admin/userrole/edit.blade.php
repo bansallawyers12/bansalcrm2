@@ -10,8 +10,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body"> 
-			{{ Form::open(array('url' => 'admin/userrole/edit', 'name'=>"edit-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-			  {{ Form::hidden('id', @$fetchedData->id) }}
+			{!! Form::open(array('url' => 'admin/userrole/edit', 'name'=>"edit-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			  {!! Form::hidden('id', @$fetchedData->id)  !!}
 				
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -31,7 +31,7 @@
 									<div class="col-12 col-md-6 col-lg-6">
 										<div class="form-group">
 											<label for="name">Name </label>
-											{{ Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Name' )) }}
+											{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Name' ))  !!}
 										</div>	
 									</div>	
 									<div class="col-12 col-md-6 col-lg-6">
@@ -350,13 +350,13 @@
 									</div>
 								</div>
 								<div class="form-group float-right">
-									{{ Form::submit('Update', ['class'=>'btn btn-primary' ]) }}
+									{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			{{ Form::close() }}
+			{!! Form::close()  !!}
 		</div>
 	</section>
 </div>

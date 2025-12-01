@@ -329,7 +329,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 		<div class="cus_sidebar">
 			<div class="form-group">
 				<label for="applied_intake">Applied Intake:</label>
-				{{ Form::text('applied_intake', $fetchData->intakedate, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','readonly'=>true )) }}
+				{!! Form::text('applied_intake', $fetchData->intakedate, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','readonly'=>true ))  !!}
 				<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 				@if ($errors->has('applied_intake'))
 					<span class="custom-error" role="alert">
@@ -450,7 +450,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</p>
 			<div class="form-group">
 				<label for="expect_win_date">Expected Win Date:</label>
-				{{ Form::text('expect_win_date', $fetchData->expect_win_date, array('class' => 'form-control ', 'data-valid'=>'', 'autocomplete'=>'off','readonly'=>true )) }}
+				{!! Form::text('expect_win_date', $fetchData->expect_win_date, array('class' => 'form-control ', 'data-valid'=>'', 'autocomplete'=>'off','readonly'=>true ))  !!}
 				<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 				@if ($errors->has('expect_win_date'))
 					<span class="custom-error" role="alert">

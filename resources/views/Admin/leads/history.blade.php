@@ -275,7 +275,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				
 			</div>
-			{{ Form::open(array('url' => 'admin/followup/store', 'name'=>"add-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform")) }}
+			{!! Form::open(array('url' => 'admin/followup/store', 'name'=>"add-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
 			<div class="modal-body">
 				<div class="customerror"></div> 
 				<div class="form-group row">
@@ -287,9 +287,9 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				{{ Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-note")' ]) }}
+				{!! Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-note")' ])  !!}
 			</div>
-			 {{ Form::close() }}
+			 {!! Form::close()  !!}
 		</div>
 	</div>
 </div>
@@ -319,14 +319,14 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				{{ Form::open(array('url' => 'admin/followup/compose', 'name'=>"add-compose", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform")) }}
+				{!! Form::open(array('url' => 'admin/followup/compose', 'name'=>"add-compose", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
 				<input id="" name="lead_id" type="hidden" value="{{base64_encode(convert_uuencode(@$fetchedData->id))}}">
 					<div class="row">
 						
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="email_to">To <span class="span_req">*</span></label>
-								{{ Form::text('email_to', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'email_to' )) }}
+								{!! Form::text('email_to', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'','id'=>'email_to' ))  !!}
 								
 								@if ($errors->has('email_to'))
 									<span class="custom-error" role="alert">
@@ -351,7 +351,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{{ Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )) }}
+								{!! Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>

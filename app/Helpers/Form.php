@@ -25,12 +25,18 @@ class Form
             unset($options['method']);
         }
         
+        // Handle novalidate attribute properly (boolean attribute)
+        if (isset($options['novalidate']) && $options['novalidate']) {
+            $form = Html::form()->novalidate();
+            unset($options['novalidate']);
+        } else {
+            $form = Html::form();
+        }
+        
         // Convert array attributes to string format
         foreach ($options as $key => $value) {
             $attributes[$key] = $value;
         }
-        
-        $form = Html::form();
         
         if ($url) {
             $form->action($url);
@@ -60,13 +66,36 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('text', $name, $value);
-        
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        // Remove HTML5 'required' attribute if present
+        if (isset($attributes['required'])) {
+            unset($attributes['required']);
         }
         
-        return $input->toHtml();
+        // Ensure spellcheck is disabled
+        if (!isset($attributes['spellcheck'])) {
+            $attributes['spellcheck'] = 'false';
+        }
+        
+        // Build HTML manually to avoid Spatie HTML rendering issues in Laravel 12
+        $html = '<input type="text" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
+        
+        if ($value !== null && $value !== '') {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+        }
+        
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -148,13 +177,38 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $textarea = Html::textarea($value ?? '')->name($name);
-        
-        if (!empty($attributes)) {
-            $textarea->attributes($attributes);
+        // Remove HTML5 'required' attribute if present
+        if (isset($attributes['required'])) {
+            unset($attributes['required']);
         }
         
-        return $textarea->toHtml();
+        // Ensure spellcheck is disabled
+        if (!isset($attributes['spellcheck'])) {
+            $attributes['spellcheck'] = 'false';
+        }
+        
+        // Build HTML manually to avoid Spatie HTML rendering issues in Laravel 12
+        $html = '<textarea name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
+        
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        if ($value !== null) {
+            $html .= htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        }
+        
+        $html .= '</textarea>';
+        
+        return $html;
     }
     
     /**

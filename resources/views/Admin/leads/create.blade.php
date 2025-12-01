@@ -10,7 +10,7 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/clients/store', 'name'=>"add-leads", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
+			{!! Form::open(array('url' => 'admin/clients/store', 'name'=>"add-leads", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'novalidate'=>true))  !!}
 			<input type="hidden" name="type" value="lead">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -52,7 +52,7 @@
 											<div class="col-4 col-md-4 col-lg-4">
 												<div class="form-group">
 													<label for="first_name">First Name <span class="span_req">*</span></label>
-													{{ Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+													{!! Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 													@if ($errors->has('first_name'))
 														<span class="custom-error" role="alert">
 															<strong>{{ @$errors->first('first_name') }}</strong>
@@ -63,7 +63,7 @@
 											<div class="col-4 col-md-4 col-lg-4">
 												<div class="form-group">
 													<label for="last_name">Last Name <span class="span_req">*</span></label>
-													{{ Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+													{!! Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 													@if ($errors->has('last_name'))
 														<span class="custom-error" role="alert">
 															<strong>{{ @$errors->first('last_name') }}</strong>
@@ -104,7 +104,7 @@
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('dob', '', array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('dob', '', array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('dob'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('dob') }}</strong>
@@ -123,7 +123,7 @@
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{{ Form::text('age', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+														{!! Form::text('age', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('age'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('age') }}</strong>
@@ -136,7 +136,7 @@
                                             <div class="col-3 col-md-3 col-lg-3">
                                                 <div class="form-group">
                                                     <label for="client_id">Client ID</label>
-                                                    {{ Form::text('client_id', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Client ID' )) }}
+                                                    {!! Form::text('client_id', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Client ID' ))  !!}
                                                     @if ($errors->has('client_id'))
                                                         <span class="custom-error" role="alert">
                                                             <strong>{{ @$errors->first('client_id') }}</strong>
@@ -192,7 +192,7 @@
 												<div class="country_code">
 													<input style="width:50px;padding-left:2px;" class="telephone" id="telephone" type="tel" name="country_code" readonly >
 												</div>
-												{{ Form::text('phone', '', array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('phone', '', array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('phone') }}</strong>
@@ -220,7 +220,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="email">Email <span style="color:#ff0000;">*</span></label>
-											{{ Form::text('email', '', array('class' => 'form-control email_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('email', '', array('class' => 'form-control email_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('email') }}</strong>
@@ -240,7 +240,7 @@
 									<div class="col-sm-3 other_email_div" style="display:none;">
 										<div class="form-group">
 											<label for="att_email">Email </label>
-											{{ Form::text('att_email', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('att_email', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('att_email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('att_email') }}</strong>
@@ -255,7 +255,7 @@
 												<div class="country_code">
 													<input style="width:50px;padding-left:2px;" class="telephone" id="telephone" type="tel" name="att_country_code" readonly >
 												</div>
-												{{ Form::text('att_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('att_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('att_phone'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('att_phone') }}</strong>
@@ -279,7 +279,7 @@
 												</span>
 											@endif
 											<div style="margin-top:10px;">
-    								{{ Form::text('visa_opt', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Visa' )) }}
+    								{!! Form::text('visa_opt', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Visa' ))  !!}
     								</div>
 										</div>
 									</div>
@@ -292,7 +292,7 @@
 														<i class="fas fa-calendar-alt"></i>
 													</div>
 												</div>
-												{{ Form::text('visaExpiry', '', array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('visaExpiry', '', array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('visaExpiry'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('visaExpiry') }}</strong>
@@ -310,7 +310,7 @@
 														<i class="fas fa-calendar-alt"></i>
 													</div>
 												</div>
-												{{ Form::text('preferredIntake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+												{!! Form::text('preferredIntake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('preferredIntake'))
 													<span class="custom-error" role="alert">
 														<strong>{{ @$errors->first('preferredIntake') }}</strong>
@@ -342,7 +342,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="passport_number">Passport Number</label>
-											{{ Form::text('passport_number', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('passport_number', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('passport_number'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('passport_number') }}</strong>
@@ -356,7 +356,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="address">Address</label>
-											{{ Form::text('address', '', array('placeholder'=>"Search Box" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('address', '', array('placeholder'=>"Search Box" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('address'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('address') }}</strong>
@@ -365,12 +365,12 @@
 										</div>
 									</div>
 									
-									<div id="map"></div>
+									<div id="map" style="height: 300px; width: 100%; margin: 10px 0; display: none;"></div>
 									
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="city">City</label>
-											{{ Form::text('city', '', array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('city', '', array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('city'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('city') }}</strong>
@@ -402,7 +402,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="zip">Zip / Post Code</label>
-											{{ Form::text('zip', '', array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('zip', '', array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											@if ($errors->has('zip'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('zip') }}</strong>
@@ -445,7 +445,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="nomi_occupation">Nominated Occupation</label>
-											{{ Form::text('nomi_occupation', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('nomi_occupation', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('nomi_occupation'))
 												<span class="custom-error" role="alert">
@@ -474,7 +474,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="high_quali_aus">Highest Qualification in Australia</label>
-											{{ Form::text('high_quali_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('high_quali_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('high_quali_aus'))
 												<span class="custom-error" role="alert">
@@ -486,7 +486,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="high_quali_overseas">Highest Qualification Overseas</label>
-											{{ Form::text('high_quali_overseas', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('high_quali_overseas', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('high_quali_overseas'))
 												<span class="custom-error" role="alert">
@@ -498,7 +498,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
-											{{ Form::text('relevant_work_exp_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('relevant_work_exp_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('relevant_work_exp_aus'))
 												<span class="custom-error" role="alert">
@@ -510,7 +510,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
-											{{ Form::text('relevant_work_exp_over', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('relevant_work_exp_over', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('relevant_work_exp_over'))
 												<span class="custom-error" role="alert">
@@ -522,7 +522,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<label for="married_partner">Overall English score</label>
-											{{ Form::text('married_partner', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('married_partner', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('married_partner'))
 												<span class="custom-error" role="alert">
@@ -552,7 +552,7 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="total_points">Total Points</label>
-											{{ Form::text('total_points', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' )) }}
+											{!! Form::text('total_points', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 
 											@if ($errors->has('total_points'))
 												<span class="custom-error" role="alert">
@@ -713,7 +713,7 @@
 									</div>
 									<div class="col-sm-12">
 										<div class="form-group float-right">
-											{{ Form::button('Save', ['class'=>'btn btn-primary btn_submit', 'onClick'=>'customValidate("add-leads")' ]) }}
+											{!! Form::button('Save', ['class'=>'btn btn-primary btn_submit', 'onClick'=>'customValidate("add-leads")' ])  !!}
 										</div>
 									</div>
 								</div>
@@ -721,7 +721,7 @@
 						</div>
 					</div>
 				</div>
-			 {{ Form::close() }}
+			 {!! Form::close()  !!}
 		</div>
 	</section>
 </div>
@@ -731,13 +731,27 @@
 @section('scripts')
 
  <!--
-The `defer` attribute causes the callback to execute after the full HTML
-document has been parsed. For non-blocking uses, avoiding race conditions,
-and consistent behavior across browsers, consider loading using Promises.
+Using async loading strategy as recommended by Google Maps API.
 See https://developers.google.com/maps/documentation/javascript/load-maps-js-api
 for more information.
 -->
-<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY');?>&callback=initAutocomplete&libraries=places&v=weekly" defer></script>
+<script>
+(function() {
+  function loadGoogleMaps() {
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY');?>&callback=initAutocomplete&libraries=places&v=weekly&loading=async';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadGoogleMaps);
+  } else {
+    loadGoogleMaps();
+  }
+})();
+</script>
 
 <script>
 /**
@@ -754,47 +768,70 @@ for more information.
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
 function initAutocomplete() {
-  const map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: -33.8688, lng: 151.2195 },
-    zoom: 13,
-    mapTypeId: "roadmap",
-  });
-  // Create the search box and link it to the UI element.
+  // Check if required elements exist before initializing
+  const mapElement = document.getElementById("map");
   const input = document.getElementById("pac-input");
-  const searchBox = new google.maps.places.SearchBox(input);
-
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-  // Bias the SearchBox results towards current map's viewport.
-  map.addListener("bounds_changed", () => {
-    searchBox.setBounds(map.getBounds());
-  });
-
-  let markers = [];
-
-  // Listen for the event fired when the user selects a prediction and retrieve
-  // more details for that place.
-  searchBox.addListener("places_changed", () => {
-    const places = searchBox.getPlaces();
-
-    if (places.length == 0) {
-      return;
-    }
-
-    // Clear out the old markers.
-    markers.forEach((marker) => {
-      marker.setMap(null);
+  
+  if (!mapElement || !input) {
+    console.warn("Google Maps: Required elements (map or pac-input) not found. Maps functionality disabled.");
+    return;
+  }
+  
+  // Check if Google Maps API is loaded
+  if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+    console.error("Google Maps API not loaded properly.");
+    return;
+  }
+  
+  try {
+    const map = new google.maps.Map(mapElement, {
+      center: { lat: -33.8688, lng: 151.2195 },
+      zoom: 13,
+      mapTypeId: "roadmap",
     });
-    markers = [];
+    
+    // Show the map once initialized
+    mapElement.style.display = 'block';
+    
+    // Create the search box and link it to the UI element.
+    // Note: SearchBox is deprecated but still functional until March 2025
+    // Consider migrating to Autocomplete in the future
+    const searchBox = new google.maps.places.SearchBox(input);
 
-    // For each place, get the icon, name and location.
-    const bounds = new google.maps.LatLngBounds();
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+    // Bias the SearchBox results towards current map's viewport.
+    map.addListener("bounds_changed", () => {
+      if (map.getBounds()) {
+        searchBox.setBounds(map.getBounds());
+      }
+    });
 
-    places.forEach((place) => {
-      if (!place.geometry || !place.geometry.location) {
-        console.log("Returned place contains no geometry");
+    let markers = [];
+
+    // Listen for the event fired when the user selects a prediction and retrieve
+    // more details for that place.
+    searchBox.addListener("places_changed", () => {
+      const places = searchBox.getPlaces();
+
+      if (places.length == 0) {
         return;
       }
-      
+
+      // Clear out the old markers.
+      markers.forEach((marker) => {
+        marker.setMap(null);
+      });
+      markers = [];
+
+      // For each place, get the icon, name and location.
+      const bounds = new google.maps.LatLngBounds();
+
+      places.forEach((place) => {
+        if (!place.geometry || !place.geometry.location) {
+          console.log("Returned place contains no geometry");
+          return;
+        }
+        
         if(place.formatted_address != "") {
             var address = place.formatted_address;
             $.ajax({
@@ -815,39 +852,268 @@ function initAutocomplete() {
             });
         }
 
-      const icon = {
-        url: place.icon,
-        size: new google.maps.Size(71, 71),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        scaledSize: new google.maps.Size(25, 25),
-      };
+        const icon = {
+          url: place.icon,
+          size: new google.maps.Size(71, 71),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(17, 34),
+          scaledSize: new google.maps.Size(25, 25),
+        };
 
-      // Create a marker for each place.
-      markers.push(
-        new google.maps.Marker({
-          map,
-          icon,
-          title: place.name,
-          position: place.geometry.location,
-        }),
-      );
-      if (place.geometry.viewport) {
-        // Only geocodes have viewport.
-        bounds.union(place.geometry.viewport);
-      } else {
-        bounds.extend(place.geometry.location);
+        // Create a marker for each place.
+        markers.push(
+          new google.maps.Marker({
+            map,
+            icon,
+            title: place.name,
+            position: place.geometry.location,
+          }),
+        );
+        if (place.geometry.viewport) {
+          // Only geocodes have viewport.
+          bounds.union(place.geometry.viewport);
+        } else {
+          bounds.extend(place.geometry.location);
+        }
+      });
+      
+      if (bounds.isEmpty() === false) {
+        map.fitBounds(bounds);
       }
     });
-    map.fitBounds(bounds);
-  });
+  } catch (error) {
+    console.error("Error initializing Google Maps:", error);
+  }
 }
 
 window.initAutocomplete = initAutocomplete;
 </script>
 
 <script>
+// AGGRESSIVE FIX: Run immediately and continuously
+(function() {
+	'use strict';
+	
+	let fixApplied = false;
+	let retryCount = 0;
+	const maxRetries = 10;
+	
+	function applyFix() {
+		// Find form by name attribute
+		let form = document.querySelector('form[name="add-leads"]');
+		
+		// If not found, try finding by action URL
+		if (!form) {
+			const forms = document.querySelectorAll('form');
+			forms.forEach(function(f) {
+				if (f.action && f.action.includes('admin/clients/store')) {
+					form = f;
+				}
+			});
+		}
+		
+		if (!form) {
+			retryCount++;
+			// Only log warning if we've tried many times
+			if (retryCount > maxRetries) {
+				console.warn('Form not found after multiple attempts');
+			}
+			return false;
+		}
+		
+		// Only apply fix once to avoid console spam
+		if (fixApplied) {
+			return true;
+		}
+		
+		// Set novalidate multiple ways
+		form.setAttribute('novalidate', 'novalidate');
+		form.noValidate = true;
+		
+		// Get all inputs
+		const inputs = form.querySelectorAll('input, textarea, select');
+		let fixedCount = 0;
+		
+		inputs.forEach(function(input) {
+			// Remove ALL validation attributes
+			input.removeAttribute('required');
+			input.removeAttribute('pattern');
+			input.removeAttribute('min');
+			input.removeAttribute('max');
+			input.removeAttribute('minlength');
+			input.removeAttribute('maxlength');
+			input.removeAttribute('step');
+			
+			// Disable spell-check and autocomplete
+			input.setAttribute('spellcheck', 'false');
+			input.setAttribute('autocomplete', 'off');
+			
+			// Clear validation state
+			if (input.setCustomValidity) {
+				input.setCustomValidity('');
+			}
+			
+			// Remove validation classes
+			input.classList.remove('is-invalid', 'was-validated', 'invalid');
+			
+			// Force remove any inline styles that might add underlines
+			if (input.style.textDecoration) {
+				input.style.textDecoration = 'none';
+			}
+			if (input.style.textDecorationLine) {
+				input.style.textDecorationLine = 'none';
+			}
+			
+			fixedCount++;
+		});
+		
+		fixApplied = true;
+		console.log('✓ Form validation fix applied to ' + fixedCount + ' inputs');
+		return true;
+	}
+	
+	// Inject CSS immediately (before DOM ready)
+	if (!document.getElementById('aggressive-validation-fix')) {
+		const style = document.createElement('style');
+		style.id = 'aggressive-validation-fix';
+		style.textContent = `
+			/* Global fix for all forms and inputs */
+			form[novalidate] input,
+			form[novalidate] textarea,
+			form[novalidate] select {
+				text-decoration: none !important;
+				text-decoration-line: none !important;
+				text-decoration-style: none !important;
+				text-decoration-color: transparent !important;
+			}
+			
+			form[novalidate] input:invalid,
+			form[novalidate] textarea:invalid,
+			form[novalidate] select:invalid {
+				box-shadow: none !important;
+				border-color: inherit !important;
+				outline: none !important;
+				text-decoration: none !important;
+				text-decoration-line: none !important;
+			}
+			
+			/* Specific fix for add-leads form */
+			form[name="add-leads"] input,
+			form[name="add-leads"] textarea,
+			form[name="add-leads"] select {
+				text-decoration: none !important;
+				text-decoration-line: none !important;
+			}
+			
+			/* Override any browser default validation styling */
+			input:invalid,
+			textarea:invalid,
+			select:invalid {
+				box-shadow: none !important;
+			}
+			
+			/* Disable spell-check visual indicators globally */
+			[spellcheck="false"] {
+				text-decoration: none !important;
+			}
+		`;
+		document.head.appendChild(style);
+	}
+	
+	// Try immediately
+	if (document.readyState === 'loading') {
+		// DOM not ready, wait for it
+		document.addEventListener('DOMContentLoaded', function() {
+			applyFix();
+			// Also apply after a short delay to catch any late-loading elements
+			setTimeout(applyFix, 100);
+			setTimeout(applyFix, 500);
+		});
+	} else {
+		// DOM already ready
+		applyFix();
+		setTimeout(applyFix, 100);
+		setTimeout(applyFix, 500);
+	}
+	
+	// Use MutationObserver to catch dynamically added inputs
+	if (window.MutationObserver) {
+		const observer = new MutationObserver(function(mutations) {
+			mutations.forEach(function(mutation) {
+				if (mutation.addedNodes.length) {
+					mutation.addedNodes.forEach(function(node) {
+						if (node.nodeType === 1) { // Element node
+							if (node.tagName === 'FORM' || node.querySelector('form')) {
+								setTimeout(applyFix, 50);
+							}
+						}
+					});
+				}
+			});
+		});
+		
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+	}
+})();
+
 jQuery(document).ready(function($){
+	// Apply fix again with jQuery (in case form loads after)
+	function applyJQueryFix() {
+		const form = $('form[name="add-leads"]');
+		
+		if (form.length === 0) {
+			// Try alternative selector
+			const altForm = $('form[action*="admin/clients/store"]');
+			if (altForm.length > 0) {
+				altForm.attr('name', 'add-leads');
+			}
+		}
+		
+		// Ensure novalidate
+		$('form[name="add-leads"]').attr('novalidate', 'novalidate').each(function() {
+			this.noValidate = true;
+		});
+		
+		// Remove all validation attributes from all inputs
+		$('form[name="add-leads"] input, form[name="add-leads"] textarea, form[name="add-leads"] select').each(function() {
+			const $input = $(this);
+			const input = this;
+			
+			// Remove validation attributes
+			$input.removeAttr('required pattern min max minlength maxlength step');
+			
+			// Set attributes
+			$input.attr({
+				'spellcheck': 'false',
+				'autocomplete': 'off'
+			});
+			
+			// Clear validation
+			if (input.setCustomValidity) {
+				input.setCustomValidity('');
+			}
+			
+			// Remove classes
+			$input.removeClass('is-invalid was-validated invalid');
+			
+			// Force remove text decoration
+			$input.css({
+				'text-decoration': 'none',
+				'text-decoration-line': 'none'
+			});
+		});
+	}
+	
+	// Apply immediately
+	applyJQueryFix();
+	
+	// Apply again after short delays
+	setTimeout(applyJQueryFix, 100);
+	setTimeout(applyJQueryFix, 300);
+	setTimeout(applyJQueryFix, 1000);
 
 	$("#country_select").select2({ width: '200px' });
 

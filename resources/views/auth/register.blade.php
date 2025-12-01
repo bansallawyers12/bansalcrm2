@@ -102,7 +102,7 @@
                                 <a class="btn btn-warning" href="{{URL::to('/admin')}}"><b>back to Login</b></a>
                             </div>
                         </div>
-			{{ Form::close() }}
+			{!! Form::close()  !!}
 			<div class="locking_img">
 				<img src="{!! asset('img/Frontend/img/lock_img.jpg') !!}" alt=""/>
 			</div>

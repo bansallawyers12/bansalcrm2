@@ -19,8 +19,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/quotations/edit', 'name'=>"add-quotations", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }}
-			{{ Form::hidden('id', @$fetchedData->id) }} 
+			{!! Form::open(array('url' => 'admin/quotations/edit', 'name'=>"add-quotations", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::hidden('id', @$fetchedData->id)  !!} 
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -51,7 +51,7 @@
 							<div class="card-body">
 								<div class="form-group"> 
 									<label for="due_date">Due Date <span class="span_req">*</span></label>
-									{{ Form::text('due_date', @$fetchedData->due_date, array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )) }}
+									{!! Form::text('due_date', @$fetchedData->due_date, array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 									@if ($errors->has('due_date'))
 										<span class="custom-error" role="alert">

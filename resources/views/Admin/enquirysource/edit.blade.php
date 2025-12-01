@@ -7,8 +7,8 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{{ Form::open(array('url' => 'admin/enquirysource/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")) }} 
-			{{ Form::hidden('id', @$fetchedData->id) }}
+			{!! Form::open(array('url' => 'admin/enquirysource/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -36,7 +36,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="name">Name <span class="span_req">*</span></label>
-														{{ Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )) }}
+														{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 														@if ($errors->has('name'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('name') }}</strong>
@@ -50,13 +50,13 @@
 									</div>
 								</div>
 								<div class="form-group float-right">
-									{{ Form::submit('Update', ['class'=>'btn btn-primary' ]) }}
+									{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
 								</div> 
 							</div>
 						</div>	
 					</div>
 				</div>
-			 {{ Form::close() }}	
+			 {!! Form::close()  !!}	
 		</div>
 	</section>
 </div>
