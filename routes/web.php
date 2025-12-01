@@ -232,17 +232,18 @@ Route::prefix('admin')->group(function() {
 		Route::get('/leads/pin/{id}', 'Admin\LeadController@leadPin'); 	
 		//Invoices Start    
 		
-		Route::get('/invoice/lists/{id}', 'Admin\InvoiceController@lists')->name('admin.invoice.lists');  
+		// Removed routes for deleted views: lists, email, invoicebyid, history, reminder
+		// Route::get('/invoice/lists/{id}', 'Admin\InvoiceController@lists')->name('admin.invoice.lists');  
 		Route::get('/invoice/edit/{id}', 'Admin\InvoiceController@edit')->name('admin.invoice.edit');  
 		Route::post('/invoice/edit', 'Admin\InvoiceController@edit');  
 		Route::get('/invoice/create', 'Admin\InvoiceController@create')->name('admin.invoice.create');   
 		Route::post('/invoice/store', 'Admin\InvoiceController@store')->name('admin.invoice.store'); 
 		Route::get('/invoice/detail', 'Admin\InvoiceController@detail')->name('admin.invoice.detail'); 
-		Route::get('/invoice/email/{id}', 'Admin\InvoiceController@email')->name('admin.invoice.email'); 
-		Route::post('/invoice/email', 'Admin\InvoiceController@email'); 
+		// Route::get('/invoice/email/{id}', 'Admin\InvoiceController@email')->name('admin.invoice.email'); 
+		// Route::post('/invoice/email', 'Admin\InvoiceController@email'); 
 		Route::get('/invoice/editpayment', 'Admin\InvoiceController@editpayment')->name('admin.invoice.editpayment'); 
-		Route::get('/invoice/invoicebyid', 'Admin\InvoiceController@invoicebyid')->name('admin.invoice.invoicebyid'); 
-		Route::get('/invoice/history', 'Admin\InvoiceController@history')->name('admin.invoice.history'); 
+		// Route::get('/invoice/invoicebyid', 'Admin\InvoiceController@invoicebyid')->name('admin.invoice.invoicebyid'); 
+		// Route::get('/invoice/history', 'Admin\InvoiceController@history')->name('admin.invoice.history'); 
 		Route::post('/invoice/paymentsave', 'Admin\InvoiceController@paymentsave')->name('admin.invoice.paymentsave'); 
 		Route::post('/invoice/editpaymentsave', 'Admin\InvoiceController@editpaymentsave')->name('admin.invoice.editpaymentsave'); 
 		Route::post('/invoice/addcomment', 'Admin\InvoiceController@addcomment')->name('admin.invoice.addcomment'); 
@@ -252,8 +253,8 @@ Route::prefix('admin')->group(function() {
 		Route::get('/invoice/exportall', 'Admin\InvoiceController@exportall')->name('admin.invoice.exportall'); 
 		Route::get('/invoice/printall', 'Admin\InvoiceController@customer_invoice_printall')->name('admin.invoice.customer_invoice_printall'); 
 		Route::get('/invoice/print/{id}', 'Admin\InvoiceController@customer_invoice_print')->name('admin.invoice.customer_invoice_print'); 
-		Route::get('/invoice/reminder/{id}', 'Admin\InvoiceController@reminder')->name('admin.invoice.reminder'); 
-		Route::post('/invoice/reminder', 'Admin\InvoiceController@reminder'); 
+		// Route::get('/invoice/reminder/{id}', 'Admin\InvoiceController@reminder')->name('admin.invoice.reminder'); 
+		// Route::post('/invoice/reminder', 'Admin\InvoiceController@reminder'); 
 		Route::post('/invoice/attachfile', 'Admin\InvoiceController@attachfile')->name('admin.invoice.attachfile'); 
 		Route::get('/invoice/getattachfile', 'Admin\InvoiceController@getattachfile')->name('admin.invoice.getattachfile'); 
 		Route::get('/invoice/removeattachfile', 'Admin\InvoiceController@removeattachfile')->name('admin.invoice.removeattachfile'); 

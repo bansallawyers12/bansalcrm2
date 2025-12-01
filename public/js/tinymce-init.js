@@ -24,6 +24,7 @@
         // Used with class: "summernote-simple" or "tinymce-simple"
         tinymce.init({
             selector: '.summernote-simple, .tinymce-simple',
+            license_key: 'gpl',
             apiKey: 'hb79upb7jkaf2aid0a2roy4l51kl8kae9k5rn2wxwtl0jry9',
             height: 150,
             menubar: false,
@@ -55,6 +56,7 @@
         // Used with class: "summernote" or "tinymce-full"
         tinymce.init({
             selector: '.summernote, .tinymce-full',
+            license_key: 'gpl',
             apiKey: 'hb79upb7jkaf2aid0a2roy4l51kl8kae9k5rn2wxwtl0jry9',
             height: 250,
             menubar: true,
@@ -77,6 +79,7 @@
         // CKEditor replacement - for editor1 (used in custom-popover.js)
         tinymce.init({
             selector: '#editor1',
+            license_key: 'gpl',
             apiKey: 'hb79upb7jkaf2aid0a2roy4l51kl8kae9k5rn2wxwtl0jry9',
             height: 400,
             menubar: true,
