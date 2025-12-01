@@ -1175,6 +1175,9 @@ class ClientsController extends Controller
 	}
 	
 	public function addAppointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
 		$requestData = $request->all();
 		
 		$obj = new \App\Models\Appointment;
@@ -1231,9 +1234,13 @@ class ClientsController extends Controller
 			$response['message']	=	'Please try again';
 		}
 		echo json_encode($response);
+		*/
 	}
 	
 	public function editappointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
 		$requestData = $request->all();
 		
 		$obj = \App\Models\Appointment::find($requestData['id']);
@@ -1273,9 +1280,13 @@ class ClientsController extends Controller
 			$response['message']	=	'Please try again';
 		}
 		echo json_encode($response);
+		*/
 	}
-	
+
 	public function getAppointments(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response('Appointment functionality has been removed', 404);
+		/* Original code commented out - Appointment model deleted
 		ob_start();
 		?>
 		<div class="row">
@@ -1502,9 +1513,13 @@ class ClientsController extends Controller
 			Record Not Found
 			<?php
 		}
+		*/
 	}
 	
 	public function deleteappointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
 		$note_id = $request->note_id;
 		if(\App\Models\Appointment::where('id',$note_id)->exists()){
 			$data = \App\Models\Appointment::where('id',$note_id)->first();
@@ -1542,8 +1557,9 @@ class ClientsController extends Controller
 			$response['message']	=	'Please try again';
 		}
 		echo json_encode($response);
+		*/
 	}
-	
+
 	public function editinterestedService(Request $request){
 		if(Admin::where('role', '=', '7')->where('id', $request->client_id)->exists()){
 			

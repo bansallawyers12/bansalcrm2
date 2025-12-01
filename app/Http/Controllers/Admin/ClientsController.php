@@ -2283,6 +2283,10 @@ class ClientsController extends Controller
 	}
 
 	public function addAppointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
+		$obj = new \App\Models\Appointment;
 		$obj->user_id = @Auth::user()->id;
 		$obj->client_id = @$request->client_id;
 		$obj->timezone = @$request->timezone;
@@ -2488,10 +2492,14 @@ class ClientsController extends Controller
             $response['message']	=	'Appointment is not booked.Pls try again';
 		}
         echo json_encode($response);
+		*/
     }
 
 
 	public function editappointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
 		$requestData = $request->all();
 
 		$obj = \App\Models\Appointment::find($requestData['id']);
@@ -2504,6 +2512,7 @@ class ClientsController extends Controller
 		$obj->invites = @$request->invites;
 		$obj->status = 0;
 		$saved = $obj->save();
+		*/
 		if($saved){
 			$subject = 'rescheduled an appointment';
 			$objs = new ActivitiesLog;
@@ -2598,10 +2607,15 @@ class ClientsController extends Controller
 		}else{
 			return redirect()->back()->with('error', 'Record Not Found');
 		}
+		*/
 	}
 	
   
     public function updatefollowupschedule(Request $request)
+    {
+        // Appointment functionality removed - Appointment model deleted
+        return redirect()->back()->with('error', 'Appointment functionality has been removed');
+        /* Original code commented out - Appointment model deleted
     {
         $requestData = $request->all(); //dd($requestData);
 
@@ -2893,9 +2907,13 @@ class ClientsController extends Controller
 		<?php
 		echo ob_get_clean();
 		die;
+		*/
 	}
 
 	public function getAppointmentdetail(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response('Appointment functionality has been removed', 404);
+		/* Original code commented out - Appointment model deleted
 		$obj = \App\Models\Appointment::find($request->id);
 		if($obj){
 			?>
@@ -3032,9 +3050,13 @@ class ClientsController extends Controller
 			Record Not Found
 			<?php
 		}
+		*/
 	}
 
 	public function deleteappointment(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+		/* Original code commented out - Appointment model deleted
 		$note_id = $request->note_id;
 		if(\App\Models\Appointment::where('id',$note_id)->exists()){
 			$data = \App\Models\Appointment::where('id',$note_id)->first();
@@ -3072,6 +3094,7 @@ class ClientsController extends Controller
 			$response['message']	=	'Please try again';
 		}
 		echo json_encode($response);
+		*/
 	}
 
 	public function editinterestedService(Request $request){

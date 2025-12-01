@@ -6,7 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
-use App\Models\Appointment;
+// use App\Models\Appointment; // Appointment model deleted
 use App\Models\Note;
 use App\Models\AppointmentLog;
 use App\Models\Notification;
@@ -745,8 +745,12 @@ class AssigneeController extends Controller
      */
     public function show(Appointment $appointment)
     {
+        // Appointment functionality removed - Appointment model deleted
+        return response('Appointment functionality has been removed', 404);
+        /* Original code commented out - Appointment model deleted
         $appointment=Appointment::with(['user','clients','service','natureOfEnquiry'])->where('id',$appointment->id)->first();
         return view('Admin.appointments.show',compact('appointment'));
+        */
     }
 
     /**
@@ -757,8 +761,12 @@ class AssigneeController extends Controller
      */
     public function edit(Request $request, Appointment $appointment)
     {
+        // Appointment functionality removed - Appointment model deleted
+        return response('Appointment functionality has been removed', 404);
+        /* Original code commented out - Appointment model deleted
         $appointment=Appointment::with(['user','clients','service','natureOfEnquiry'])->where('id',$appointment->id)->first();
         return view('Admin.appointments.edit',compact('appointment'));
+        */
     }
 
     /**
@@ -918,6 +926,9 @@ class AssigneeController extends Controller
 
 
     public function assignedetail(Request $request){
+        // Appointment functionality removed - Appointment model deleted
+        return response('Appointment functionality has been removed', 404);
+        /* Original code commented out - Appointment model deleted
         $appointmentdetail = Appointment::with(['user','clients','service','assignee_user','natureOfEnquiry'])->where('id',$request->id)->first();
         // dd($appointmentdetail->assignee_user->id);
     // $admin = \App\Models\Admin::where('id', $notedetail->assignee)->first();
@@ -1091,6 +1102,7 @@ class AssigneeController extends Controller
                             </div>
                         </div>
                     <?php } ?>
+                    */
                     </div>
                 </div>
         </div>
@@ -1145,9 +1157,13 @@ public function update_appointment_status(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
 public function update_appointment_priority(Request $request){
+    // Appointment functionality removed - Appointment model deleted
+    return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    /* Original code commented out - Appointment model deleted
     $objs = Appointment::findOrFail($request->id);
     $status = $objs->priority;
     if($request->status == 'Low'){
@@ -1176,6 +1192,7 @@ public function update_appointment_priority(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
 public function change_assignee(Request $request){
@@ -1200,6 +1217,7 @@ public function change_assignee(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
 public function update_apppointment_comment(Request $request){
@@ -1217,9 +1235,13 @@ public function update_apppointment_comment(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
 public function update_apppointment_description(Request $request){
+    // Appointment functionality removed - Appointment model deleted
+    return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    /* Original code commented out - Appointment model deleted
     $objs = Appointment::find($request->id);
     $objs->description = $request->visit_purpose;
     $saved = $objs->save();
@@ -1237,6 +1259,7 @@ public function update_apppointment_description(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
     //Get All assignee list dropdown

@@ -1070,6 +1070,9 @@ class PartnersController extends Controller
 	}
 	
 	public function addtask(Request $request){
+		// Appointment functionality removed - Appointment model deleted
+		return response('Appointment functionality has been removed', 404);
+		/* Original code commented out - Appointment model deleted
 		$obj = \App\Models\Appointment::find($request->id);
 		if($obj){
 			?>
@@ -1201,6 +1204,7 @@ class PartnersController extends Controller
 			Record Not Found
 			<?php
 		}
+		*/
 	}
 	
 	public function addtask(Request $request){
