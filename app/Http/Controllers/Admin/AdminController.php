@@ -16,7 +16,7 @@ use App\Models\SeoPage;
 use App\Models\City;
 use App\Models\Contact;
 use App\Models\TaxRate;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\InvoicePayment;
 use App\Models\Setting;
 use Auth;

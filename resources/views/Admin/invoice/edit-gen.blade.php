@@ -19,12 +19,13 @@
 <div class="main-content">
 	
 	<section class="section">
-		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/invoice/general-edit', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-			<input type="hidden" name="id" value="{{$invoicedetail->id}}">
-			<input type="hidden" name="client_id" value="{{$invoicedetail->client_id}}">
-			<input type="hidden" name="applicationid" value="{{$invoicedetail->application_id}}">
-			<input type="hidden" name="type" value="{{$invoicedetail->type}}">
+	<div class="section-body">
+	<form method="POST" action="{{ url('admin/invoice/general-edit') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
+	@csrf
+	<input type="hidden" name="id" value="{{$invoicedetail->id}}">
+	<input type="hidden" name="client_id" value="{{$invoicedetail->client_id}}">
+	<input type="hidden" name="applicationid" value="{{$invoicedetail->application_id}}">
+	<input type="hidden" name="type" value="{{$invoicedetail->type}}">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -413,6 +414,7 @@
 								<div class="row">
 									<div class="col-md-12">
 										<div class="invoice_btns text-right">
+										<input type="hidden" name="btn" value="save">
 											<button class="btn btn-success" onclick="customValidate('invoiceform','savepreview')" type="button">Save & Preview</button>
 											<button class="btn btn-primary" onclick="customValidate('invoiceform','save')" type="button">Update</button>
 											<!--<button class="btn btn-primary">Save & Send</button>

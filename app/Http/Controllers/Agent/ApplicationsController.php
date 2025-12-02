@@ -11,7 +11,7 @@ use App\Models\Admin;
 use App\Models\Application;
 use App\Models\ApplicationFeeOptionType;
 use App\Models\ApplicationFeeOption;
-   use PDF; 
+   use Barryvdh\DomPDF\Facade\Pdf as PDF; 
 use Auth;
 use Config;
 

@@ -109,7 +109,7 @@ var calendar = $("#myEvent").fullCalendar({
                  details.find('#phone').text( atob(scheds[id].phone));
                  details.find('#email').text( atob(scheds[id].email));
                  details.find('#start').text(scheds[id].followup_date);
-                details.find('#client_id').val(scheds[id].clientid);
+                details.find('#followup_client_id').val(scheds[id].clientid);
                 details.find('#lead_id').val(scheds[id].id);
                 if (scheds[id].url) {client_id
                 details.find('#url').html('<a target="_blank" href="'+scheds[id].url+'">View Client '+scheds[id].id+'</a>');

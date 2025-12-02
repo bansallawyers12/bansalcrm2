@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Admin;
 use App\Models\InvoicePayment;
 use App\Models\IncomeSharing;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth;
 use Config;
  

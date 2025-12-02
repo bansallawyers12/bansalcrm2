@@ -12,7 +12,7 @@ use App\Models\Quotation;
 use App\Models\Template;
 use App\Models\TemplateInfo;
  
-use PDF; 
+use Barryvdh\DomPDF\Facade\Pdf as PDF; 
 use Auth; 
 use Config;
 

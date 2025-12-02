@@ -1274,7 +1274,7 @@
 	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="true" name="is_ajax" id="invoice_is_ajax">
-	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="invoice_client_id">
+	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="payment_invoice_client_id">
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>

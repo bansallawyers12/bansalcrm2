@@ -25,11 +25,12 @@
 <div class="main-content">
 	
 	<section class="section">
-		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/invoice/general-store', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-			<input type="hidden" name="client_id" value="{{$clientid}}">
-			<input type="hidden" name="applicationid" value="{{$applicationid}}">
-			<input type="hidden" name="type" value="{{$type}}">
+	<div class="section-body">
+	<form method="POST" action="{{ url('admin/invoice/general-store') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
+	@csrf
+	<input type="hidden" name="client_id" value="{{$clientid}}">
+	<input type="hidden" name="applicationid" value="{{$applicationid}}">
+	<input type="hidden" name="type" value="{{$type}}">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -82,15 +83,25 @@
 										</span> 
 									@endif
 								</div>
-								<div class="form-group"> 
-									<label for="currency">Currency <span class="span_req">*</span></label>
-									<div class="bfh-selectbox bfh-currencies" data-currency="AUD" data-flags="true" data-name="currency"></div>
-									@if ($errors->has('currency'))
-										<span class="custom-error" role="alert">
-											<strong>{{ @$errors->first('currency') }}</strong>
-										</span> 
-									@endif
-								</div>
+							<div class="form-group"> 
+								<label for="currency">Currency <span class="span_req">*</span></label>
+								<select class="form-control" name="currency" id="currency">
+									<option value="AUD" selected>Australian dollar (AUD)</option>
+									<option value="USD">US dollar (USD)</option>
+									<option value="GBP">British pound (GBP)</option>
+									<option value="EUR">Euro (EUR)</option>
+									<option value="CAD">Canadian dollar (CAD)</option>
+									<option value="NZD">New Zealand dollar (NZD)</option>
+									<option value="INR">Indian rupee (INR)</option>
+									<option value="JPY">Japanese yen (JPY)</option>
+									<option value="CNY">Chinese yuan (CNY)</option>
+								</select>
+								@if ($errors->has('currency'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('currency') }}</strong>
+									</span> 
+								@endif
+							</div>
 								<div class="form-group"> 
 									<label for="invoice_due_date">Select Profile:</label>
 									<select class="form-control" name="profile">
@@ -357,6 +368,7 @@
 								<div class="row">
 									<div class="col-md-12">
 										<div class="invoice_btns text-right">
+										<input type="hidden" name="btn" value="save">
 											<button type="button" class="btn btn-success" onclick="customValidate('invoiceform','savepreview')">Save & Preview</button>
 											<button class="btn btn-primary" onclick="customValidate('invoiceform','save')" type="button">Save</button>
 											<!--<button class="btn btn-primary">Save & Send</button>
@@ -556,6 +568,13 @@ if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn ==
 	alert("Pls select only images");
 }
     });
+	
+}); // End document.ready
+
+// Force hide loaders after DOM is fully loaded
+$(document).ready(function() {
+	$(".loader").fadeOut("slow");
+	$(".popuploader").fadeOut("slow");
 });
 </script>
 @endsection

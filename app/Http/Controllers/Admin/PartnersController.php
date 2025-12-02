@@ -19,7 +19,7 @@ use App\Models\TaskLog;
 use Auth; 
 use Config;
 use Illuminate\Support\Facades\Storage;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 use Hfig\MAPI;
 use Hfig\MAPI\OLE\Pear;

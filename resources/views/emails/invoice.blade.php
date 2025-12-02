@@ -109,7 +109,9 @@
 															<span style="font-size:16px;line-height:21px;color:#000;display:block;"><b>Name:{{$clientdata->first_name}} {{$clientdata->last_name}}</b></span>
 															<span style="font-size:16px;line-height:21px;color:#000;display:block;"><b>Client ID:</b> {{$clientdata->client_id}}</span>
 															<span style="font-size:16px;line-height:21px;color:#000;display:block;"><b>DOB:</b> {{date('d-m-Y', strtotime($clientdata->dob))}}</span>
+															@if($productdata)
 															<span style="font-size:16px;line-height:21px;color:#000;display:block;"><b>Product:</b> {{$productdata->name}}</span>
+															@endif
 															<p style="font-size:14px;line-height:21px;color:#000;margin:0px;">id: #{{$clientdata->id}}<br/>{{$clientdata->address}}<br/>{{@$partnerdata->partner_name}}<br/>{{@$branchdata->name}}</p>
 														</td>
 													</tr>

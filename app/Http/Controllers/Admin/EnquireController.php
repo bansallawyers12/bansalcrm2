@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\Enquiry;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth;
 use Config;
  

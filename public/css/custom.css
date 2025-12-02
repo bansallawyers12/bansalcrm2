@@ -722,3 +722,36 @@ form[name="add-leads"] select:invalid {
 	text-decoration-line: none !important;
 }
 
+/* =============================================================================
+   FIX: Remove Currency Flags (Prevents 404 errors for missing flag images)
+   ============================================================================= */
+/* Hide all bootstrap-formhelpers currency and country flags to prevent 404 errors */
+.bfh-flag-AUD, .bfh-flag-CHF, .bfh-flag-DKK, .bfh-flag-EUR, 
+.bfh-flag-XAF, .bfh-flag-XCD, .bfh-flag-XOF, .bfh-flag-XPF, 
+.bfh-flag-ZAR, .bfh-flag-AD, .bfh-flag-AE, .bfh-flag-AF, 
+.bfh-flag-AG, .bfh-flag-AI, .bfh-flag-AL, .bfh-flag-AM,
+[class*="bfh-flag-"] {
+	background-image: none !important;
+	background: transparent !important;
+	width: 0px !important;
+	height: 0px !important;
+	display: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* Hide flag containers if they exist */
+.bfh-selectbox-option .bfh-flag,
+.bootstrap-select .bfh-flag {
+	display: none !important;
+}
+
+/* =============================================================================
+   FIX: Loader - Ensure loaders are hidden by default
+   ============================================================================= */
+.loader,
+.popuploader {
+	display: none !important;
+	opacity: 0;
+}
+

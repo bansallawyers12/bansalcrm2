@@ -22,7 +22,7 @@ use App\Models\TaxRate;
 use App\Models\Currency;
 use App\Models\Contact;
 use App\Models\AttachFile;
- use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth; 
 use Config;
 
@@ -686,18 +686,18 @@ class InvoiceController extends Controller
 			$pdetail = json_encode($ps);
 		}
 		$obj						= 	new Invoice; 
-		$obj->user_id				=	Auth::user()->id;  
-		$obj->client_id				=	@$requestData['client_id'];  
-		$obj->application_id		=	@$requestData['applicationid'];  
-		$obj->type					=	@$requestData['type'];  
-		$obj->invoice_date			=	@$requestData['invoice_date'];  
-		$obj->due_date				=	@$requestData['invoice_due_date'];  
-		$obj->currency			=	@$requestData['currency']; 
-		$obj->net_fee_rec			=	@$requestData['invoice_net_amount'];
-		$obj->net_incone			=	@$requestData['invoice_net_income'];  
-		$obj->notes					=	@$requestData['notes'];  
-		$obj->payment_option		=	@$requestData['paymentoption'];  
-		$obj->attachments			=	implode(",",$attachfile);
+	$obj->user_id				=	Auth::user()->id;  
+	$obj->client_id				=	@$requestData['client_id'];  
+	$obj->application_id		=	@$requestData['applicationid'];  
+	$obj->type					=	@$requestData['type'];  
+	$obj->invoice_date			=	@$requestData['invoice_date'];  
+	$obj->due_date				=	@$requestData['invoice_due_date'];  
+	$obj->currency			=	@$requestData['currency']; 
+	$obj->net_fee_rec			=	@$requestData['invoice_net_amount'];
+	$obj->net_incone			=	@$requestData['invoice_net_income'];  
+	$obj->notes					=	@$requestData['notes'];  
+	$obj->payment_option		=	@$requestData['paymentoption'];  
+	$obj->attachments			=	$attachfile ? implode(",",$attachfile) : null;
 		$obj->status				=	0;  
 		$obj->profile				=	@$pdetail;  
 		$saved				=	$obj->save();  
@@ -838,10 +838,10 @@ class InvoiceController extends Controller
 			$invoicedetail = Invoice::where('id', '=', $id)->first();
 			if($invoicedetail->type == 3){
 				$workflowdaa = \App\Models\Workflow::where('id', $invoicedetail->application_id)->first();
-				$applicationdata = array();
-				$partnerdata = array();
-				$productdata = array();
-				$branchdata = array();
+				$applicationdata = null;
+				$partnerdata = null;
+				$productdata = null;
+				$branchdata = null;
 			}else{
 				$applicationdata = \App\Models\Application::where('id', $invoicedetail->application_id)->first();
 				$partnerdata = \App\Models\Partner::where('id', @$applicationdata->partner_id)->first();

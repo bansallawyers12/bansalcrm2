@@ -8087,7 +8087,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	$(document).delegate('.opentagspopup', 'click', function(){
 		var appid = $(this).attr('data-id');
 		$('#tags_clients').modal('show');
-		$('#tags_clients #client_id').val(appid);
+		$('#tags_clients #tags_client_id').val(appid);
 		$(".tagsselec").select2({
 		    tags: true,
 					dropdownParent: $("#tags_clients .modal-content")

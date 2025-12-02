@@ -14,7 +14,7 @@ use App\Models\ServiceFeeOptionType;
 use App\Models\OnlineForm;
 use Auth;
 use Config;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\CheckinLog;
 use App\Models\Note;
 use App\Models\clientServiceTaken;

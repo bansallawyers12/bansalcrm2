@@ -1,7 +1,26 @@
 "use strict";
 
+// Hide loader on window load OR after 3 seconds (fallback)
 $(window).on("load", function () {
   $(".loader").fadeOut("slow");
+});
+
+// Fallback: Force hide loader after 3 seconds if window.load doesn't fire
+$(document).ready(function() {
+  setTimeout(function() {
+    if ($(".loader").is(":visible")) {
+      console.warn("Loader fallback triggered - window.load event didn't fire");
+      $(".loader").fadeOut("slow");
+    }
+  }, 3000);
+  
+  // Also hide popuploader if it's stuck
+  setTimeout(function() {
+    if ($(".popuploader").is(":visible")) {
+      console.warn("Popup loader cleanup triggered");
+      $(".popuploader").fadeOut("slow");
+    }
+  }, 3000);
 });
 
 feather.replace();
