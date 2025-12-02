@@ -730,6 +730,11 @@ class InvoiceController extends Controller
 				$followupsaved				=	$objf->save(); 
 			}
 		
+			// Generate invoice number
+			$objsss = \App\Models\Invoice::find($obj->id);
+			$objsss->invoice_no = date('Y').'/'.date('m').'/'.$obj->id;
+			$objsss->save();
+		
 			if(@$requestData['btn'] == 'savepreview'){
 				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}

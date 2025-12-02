@@ -7,10 +7,28 @@
 <div class="main-content">
 	<section class="section">
 	     <div class="server-error">
-				@include('../Elements/flash-message')
+			@include('../Elements/flash-message')
+		</div>
+		
+		@if ($errors->any())
+		<div class="alert alert-danger alert-dismissible show fade">
+			<div class="alert-body">
+				<button class="close" data-dismiss="alert">
+					<span>&times;</span>
+				</button>
+				<strong>Please check the form below for errors:</strong>
+				<ul class="mb-0 mt-2">
+					@foreach ($errors->all() as $error)
+						<li>{{ $error }}</li>
+					@endforeach
+				</ul>
 			</div>
-		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/clients/store', 'name'=>"add-leads", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'novalidate'=>true))  !!}
+		</div>
+		@endif
+		
+	<div class="section-body">
+		<form action="{{ route('admin.leads.store') }}" method="POST" name="add-leads" autocomplete="off" enctype="multipart/form-data" novalidate>
+			@csrf
 			<input type="hidden" name="type" value="lead">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -50,26 +68,26 @@
 									<div class="col-12 col-md-12 col-lg-12">
 										<div class="row">
 											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group">
-													<label for="first_name">First Name <span class="span_req">*</span></label>
-													{!! Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('first_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('first_name') }}</strong>
-														</span>
-													@endif
-												</div>
+											<div class="form-group">
+												<label for="first_name">First Name <span class="span_req">*</span></label>
+												<input type="text" name="first_name" value="{{ old('first_name') }}" class="form-control {{ $errors->has('first_name') ? 'is-invalid' : '' }}" data-valid="required" autocomplete="off" placeholder="">
+												@if ($errors->has('first_name'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('first_name') }}</strong>
+													</span>
+												@endif
+											</div>
 											</div>
 											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group">
-													<label for="last_name">Last Name <span class="span_req">*</span></label>
-													{!! Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('last_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('last_name') }}</strong>
-														</span>
-													@endif
-												</div>
+											<div class="form-group">
+												<label for="last_name">Last Name <span class="span_req">*</span></label>
+												<input type="text" name="last_name" value="{{ old('last_name') }}" class="form-control {{ $errors->has('last_name') ? 'is-invalid' : '' }}" data-valid="required" autocomplete="off" placeholder="">
+												@if ($errors->has('last_name'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('last_name') }}</strong>
+													</span>
+												@endif
+											</div>
 											</div>
 											<div class="col-4 col-md-4 col-lg-4">
 												<?php $oldgender = old('gender');?>
@@ -192,12 +210,12 @@
 												<div class="country_code">
 													<input style="width:50px;padding-left:2px;" class="telephone" id="telephone" type="tel" name="country_code" readonly >
 												</div>
-												{!! Form::text('phone', '', array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('phone') }}</strong>
-													</span>
-												@endif
+											<input type="text" name="phone" value="{{ old('phone') }}" class="form-control tel_input contactno_unique {{ $errors->has('phone') ? 'is-invalid' : '' }}" data-valid="required" autocomplete="off" placeholder="">
+											@if ($errors->has('phone'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('phone') }}</strong>
+												</span>
+											@endif
 											</div>
 										</div>
 									</div>
@@ -219,13 +237,13 @@
 
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="email">Email <span style="color:#ff0000;">*</span></label>
-											{!! Form::text('email', '', array('class' => 'form-control email_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('email') }}</strong>
-												</span>
-											@endif
+										<label for="email">Email <span style="color:#ff0000;">*</span></label>
+										<input type="email" name="email" value="{{ old('email') }}" class="form-control email_unique {{ $errors->has('email') ? 'is-invalid' : '' }}" data-valid="required email" autocomplete="off" placeholder="">
+										@if ($errors->has('email'))
+											<span class="custom-error" role="alert">
+												<strong>{{ @$errors->first('email') }}</strong>
+											</span>
+										@endif
 										</div>
                                     </div>
 
@@ -585,8 +603,8 @@
 								<div class="row" id="internal">
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="service">Service <span style="color:#ff0000;">*</span></label>
-											<select class="form-control select2" name="service" data-valid="required">
+										<label for="service">Service <span style="color:#ff0000;">*</span></label>
+										<select class="form-control select2 {{ $errors->has('service') ? 'is-invalid' : '' }}" name="service" data-valid="required">
 											<option value="">- Select Lead Service -</option>
 											@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
 												<option <?php if(old('service') == $leadservlist->name){ echo 'selected'; } ?> value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
@@ -601,8 +619,8 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="assign_to" id="assign_to" class="form-control select2" data-valid="required">
+										<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
+										<select style="padding: 0px 5px;" name="assign_to" id="assign_to" class="form-control select2 {{ $errors->has('assign_to') ? 'is-invalid' : '' }}" data-valid="required">
 											<?php
 												$admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
 												foreach($admins as $admin){
@@ -637,8 +655,8 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="lead_quality">Lead Quality <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control" data-valid="required">
+										<label for="lead_quality">Lead Quality <span style="color:#ff0000;">*</span></label>
+										<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control {{ $errors->has('lead_quality') ? 'is-invalid' : '' }}" data-valid="required">
 												<option <?php if(old('lead_quality') == '1'){ echo 'selected'; } ?> value="1">1</option>
 												<option <?php if(old('lead_quality') == '2'){ echo 'selected'; } ?> value="2">2</option>
 												<option <?php if(old('lead_quality') == '3'){ echo 'selected'; } ?> value="3">3</option>
@@ -654,19 +672,19 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="lead_source">Lead Source <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="required">
-												<option value="">Lead Source</option>
-												<option value="Sub Agent" >Sub Agent</option>
-											@foreach(\App\Models\Source::all() as $sources)
-											<option <?php if(old('lead_source') == $sources->name){ echo 'selected'; } ?> value="{{$sources->name}}">{{$sources->name}}</option>
-							@endforeach
-											</select>
-											@if ($errors->has('lead_source'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('lead_source') }}</strong>
-												</span>
-											@endif
+										<label for="lead_source">Lead Source <span style="color:#ff0000;">*</span></label>
+										<select style="padding: 0px 5px;" name="lead_source" id="lead_source" class="form-control select2 {{ $errors->has('lead_source') ? 'is-invalid' : '' }}" data-valid="required">
+											<option value="">Lead Source</option>
+											<option value="Sub Agent" >Sub Agent</option>
+										@foreach(\App\Models\Source::all() as $sources)
+										<option <?php if(old('lead_source') == $sources->name){ echo 'selected'; } ?> value="{{$sources->name}}">{{$sources->name}}</option>
+		@endforeach
+										</select>
+										@if ($errors->has('lead_source'))
+											<span class="custom-error" role="alert">
+												<strong>{{ @$errors->first('lead_source') }}</strong>
+											</span>
+										@endif
 										</div>
 									</div>
 									<div class="col-sm-3 is_subagent" style="display:none;">
@@ -718,10 +736,10 @@
 									</div>
 								</div>
 							</div>
-						</div>
 					</div>
 				</div>
-			 {!! Form::close()  !!}
+			</div>
+		</form>
 		</div>
 	</section>
 </div>
@@ -832,24 +850,54 @@ function initAutocomplete() {
           return;
         }
         
-        if(place.formatted_address != "") {
-            var address = place.formatted_address;
-            $.ajax({
-                type:'post',
-                url:"{{URL::to('/')}}/admin/address_auto_populate",
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {address:address},
-                success: function(response){
-                    var obj = $.parseJSON(response);
-                    if(obj.status == 1){
-                        $('#postal_code').val(obj.postal_code);
-                        $('#locality').val(obj.locality);
-                    } else {
-                        $('#postal_code').val("");
-                        $('#locality').val("");
-                    }
+        // Parse address components directly from Google Places API response
+        if (place.address_components) {
+            let postalCode = '';
+            let locality = '';
+            let state = '';
+            
+            // Extract postal code, locality, and state from address components
+            place.address_components.forEach((component) => {
+                if (component.types.includes('postal_code')) {
+                    postalCode = component.long_name;
+                }
+                if (component.types.includes('locality')) {
+                    locality = component.long_name;
+                }
+                // Also check for postal_town if locality is not found
+                if (!locality && component.types.includes('postal_town')) {
+                    locality = component.long_name;
+                }
+                // Extract state/administrative area
+                if (component.types.includes('administrative_area_level_1')) {
+                    state = component.long_name;
                 }
             });
+            
+            // State abbreviation to full name mapping for Australian states
+            const stateMapping = {
+                'NSW': 'New South Wales',
+                'VIC': 'Victoria',
+                'QLD': 'Queensland',
+                'SA': 'South Australia',
+                'WA': 'Western Australia',
+                'TAS': 'Tasmania',
+                'NT': 'Northern Territory',
+                'ACT': 'Australian Capital Territory'
+            };
+            
+            // Populate the form fields
+            if (postalCode) {
+                $('#postal_code').val(postalCode);
+            }
+            if (locality) {
+                $('#locality').val(locality);
+            }
+            if (state) {
+                // Check if state is an abbreviation and convert to full name
+                const fullStateName = stateMapping[state] || state;
+                $('select[name="state"]').val(fullStateName);
+            }
         }
 
         const icon = {

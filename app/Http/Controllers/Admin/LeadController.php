@@ -274,12 +274,12 @@ class LeadController extends Controller
 	            
 	        }
 			  $dob = '';
-	        if($requestData['dob'] != ''){
+	        if(isset($requestData['dob']) && $requestData['dob'] != ''){
 	           $dobs = explode('/', $requestData['dob']);
 	          $dob = $dobs[2].'-'.$dobs[1].'-'. $dobs[0]; 
 	        }
 	         $visa_expiry_date = '';
-	        if($requestData['visa_expiry_date'] != ''){
+	        if(isset($requestData['visa_expiry_date']) && $requestData['visa_expiry_date'] != ''){
 	           $visa_expiry_dates = explode('/', $requestData['visa_expiry_date']);
 	          $visa_expiry_date = $visa_expiry_dates[2].'-'.$visa_expiry_dates[1].'-'. $visa_expiry_dates[0]; 
 	        }
@@ -383,12 +383,12 @@ class LeadController extends Controller
 	            
 	        }	
 	        	  $dob = '';
-	        if($requestData['dob'] != ''){
+	        if(isset($requestData['dob']) && $requestData['dob'] != ''){
 	           $dobs = explode('/', $requestData['dob']);
 	          $dob = $dobs[2].'-'.$dobs[1].'-'. $dobs[0]; 
 	        }
 	          $visa_expiry_date = '';
-	        if($requestData['visa_expiry_date'] != ''){
+	        if(isset($requestData['visa_expiry_date']) && $requestData['visa_expiry_date'] != ''){
 	           $visa_expiry_dates = explode('/', $requestData['visa_expiry_date']);
 	          $visa_expiry_date = $visa_expiry_dates[2].'-'.$visa_expiry_dates[1].'-'. $visa_expiry_dates[0]; 
 	        }
@@ -422,14 +422,14 @@ class LeadController extends Controller
 			
 		//	$obj->advertisements_name		=	@$requestData['advertisements_name'];
 			$obj->comments_note		=	@$requestData['comments_note'];				/* Profile Image Upload Function Start */						  
-			if($request->hasfile('profile_img')) 
-			{	
-				/* Unlink File Function Start */ 
-					if($requestData['profile_img'] != '')
-						{
-							$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-						}
-				/* Unlink File Function End */
+		if($request->hasfile('profile_img')) 
+		{	
+			/* Unlink File Function Start */ 
+				if(isset($requestData['old_profile_img']) && $requestData['old_profile_img'] != '')
+					{
+						$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
+					}
+			/* Unlink File Function End */
 				
 				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
 			}

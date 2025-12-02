@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\LeadController;
+use App\Http\Controllers\Admin\FollowupController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -220,20 +223,19 @@ Route::prefix('admin')->group(function() {
 		Route::post('/contact/edit', 'Admin\ContactController@edit');
 		Route::post('/contact/storeaddress', 'Admin\ContactController@storeaddress');
 		 
-		//Leads Start    
-		Route::get('/leads', 'Admin\LeadController@index')->name('admin.leads.index');  
-		Route::get('/leads/history/{id}', 'Admin\LeadController@history')->name('admin.leads.history'); 
-		Route::get('/leads/create', 'Admin\LeadController@create')->name('admin.leads.create');   
-		Route::post('/leads/assign', 'Admin\LeadController@assign')->name('admin.leads.assign');    
-		Route::get('/leads/edit/{id}', 'Admin\LeadController@edit')->name('admin.leads.edit');
-		Route::post('/leads/edit', 'Admin\LeadController@edit');
-	    Route::get('/leads/notes/delete/{id}', 'Admin\LeadController@leaddeleteNotes');
-	    Route::get('/get-notedetail', 'Admin\LeadController@getnotedetail');
-	    Route::post('/followup/update', 'Admin\FollowupController@followupupdate');
-	   
-		Route::post('/leads/store', 'Admin\LeadController@store')->name('admin.leads.store');
-		Route::get('/leads/convert', 'Admin\LeadController@convertoClient'); 	
-		Route::get('/leads/pin/{id}', 'Admin\LeadController@leadPin'); 	
+	//Leads Start - Updated to modern syntax
+	Route::get('/leads', [LeadController::class, 'index'])->name('admin.leads.index');  
+	Route::get('/leads/history/{id}', [LeadController::class, 'history'])->name('admin.leads.history'); 
+	Route::get('/leads/create', [LeadController::class, 'create'])->name('admin.leads.create');
+	Route::post('/leads/store', [LeadController::class, 'store'])->name('admin.leads.store');   
+	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('admin.leads.assign');    
+	Route::get('/leads/edit/{id}', [LeadController::class, 'edit'])->name('admin.leads.edit');
+	Route::post('/leads/edit', [LeadController::class, 'edit']);
+	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
+	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
+	Route::post('/followup/update', [FollowupController::class, 'followupupdate']);
+	Route::get('/leads/convert', [LeadController::class, 'convertoClient']);
+	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
 		//Invoices Start    
 		
 		// Removed routes for deleted views: lists, email, invoicebyid, history, reminder

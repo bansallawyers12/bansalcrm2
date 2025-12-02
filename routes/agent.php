@@ -18,8 +18,8 @@
         Route::get('/clients/detail/{id}', 'Agent\ClientsController@detail')->name('agent.clients.detail');	
         Route::get('/clients/get-recipients', 'Agent\ClientsController@getrecipients')->name('agent.clients.getrecipients');
         Route::get('/clients/get-allclients', 'Agent\ClientsController@getallclients')->name('agent.clients.getallclients');
-        Route::get('/get-templates', 'Agent\AdminController@gettemplates')->name('agent.clients.gettemplates');
-        Route::post('/sendmail', 'Agent\AdminController@sendmail')->name('agent.clients.sendmail');
+        Route::get('/get-templates', 'Admin\AdminController@gettemplates')->name('agent.clients.gettemplates');
+        Route::post('/sendmail', 'Admin\AdminController@sendmail')->name('agent.clients.sendmail');
         Route::post('/create-note', 'Agent\ClientsController@createnote')->name('agent.clients.createnote');
         Route::get('/getnotedetail', 'Agent\ClientsController@getnotedetail')->name('agent.clients.getnotedetail');
         Route::get('/deletenote', 'Agent\ClientsController@deletenote')->name('agent.clients.deletenote');

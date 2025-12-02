@@ -1287,24 +1287,54 @@ function initAutocomplete() {
           return;
         }
         
-        if(place.formatted_address != "") {
-            var address = place.formatted_address;
-            $.ajax({
-                type:'post',
-                url:"{{URL::to('/')}}/admin/address_auto_populate",
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {address:address},
-                success: function(response){
-                    var obj = $.parseJSON(response);
-                    if(obj.status == 1){
-                        $('#postal_code').val(obj.postal_code);
-                        $('#locality').val(obj.locality);
-                    } else {
-                        $('#postal_code').val("");
-                        $('#locality').val("");
-                    }
+        // Parse address components directly from Google Places API response
+        if (place.address_components) {
+            let postalCode = '';
+            let locality = '';
+            let state = '';
+            
+            // Extract postal code, locality, and state from address components
+            place.address_components.forEach((component) => {
+                if (component.types.includes('postal_code')) {
+                    postalCode = component.long_name;
+                }
+                if (component.types.includes('locality')) {
+                    locality = component.long_name;
+                }
+                // Also check for postal_town if locality is not found
+                if (!locality && component.types.includes('postal_town')) {
+                    locality = component.long_name;
+                }
+                // Extract state/administrative area
+                if (component.types.includes('administrative_area_level_1')) {
+                    state = component.long_name;
                 }
             });
+            
+            // State abbreviation to full name mapping for Australian states
+            const stateMapping = {
+                'NSW': 'New South Wales',
+                'VIC': 'Victoria',
+                'QLD': 'Queensland',
+                'SA': 'South Australia',
+                'WA': 'Western Australia',
+                'TAS': 'Tasmania',
+                'NT': 'Northern Territory',
+                'ACT': 'Australian Capital Territory'
+            };
+            
+            // Populate the form fields
+            if (postalCode) {
+                $('#postal_code').val(postalCode);
+            }
+            if (locality) {
+                $('#locality').val(locality);
+            }
+            if (state) {
+                // Check if state is an abbreviation and convert to full name
+                const fullStateName = stateMapping[state] || state;
+                $('select[name="state"]').val(fullStateName);
+            }
         }
 
         const icon = {
