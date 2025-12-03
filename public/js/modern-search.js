@@ -166,10 +166,9 @@
 
         switch (type) {
             case 'Client':
-                url = siteUrl + '/admin/clients/detail/' + id;
-                break;
             case 'Lead':
-                url = siteUrl + '/admin/leads/history/' + id;
+                // Both clients and leads route to client detail page (old system behavior)
+                url = siteUrl + '/admin/clients/detail/' + id;
                 break;
             case 'Partner':
                 url = siteUrl + '/admin/partners/detail/' + id;
