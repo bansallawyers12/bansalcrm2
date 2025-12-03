@@ -45,11 +45,12 @@
 					<div class="card card-primary">
 					  <div class="card-header">
 						<h3 class="card-title">Edit Staff</h3>
-					  </div>
-					  <!-- /.card-header -->
-					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/staff/edit', 'name'=>"edit-staff", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-					  {!! Form::hidden('id', @$fetchedData->id)  !!}
+				  </div>
+				  <!-- /.card-header -->
+				  <!-- form start -->
+				  <form action="{{ url('admin/staff/edit') }}" method="POST" name="edit-staff" autocomplete="off" enctype="multipart/form-data">
+					@csrf
+					<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 						<div class="card-body">	
 						  <div class="form-group"> 
 							<label for="first_name">User First Name</label>
@@ -126,10 +127,10 @@
 							@endif
 						  </div>
 						  <div class="form-group">
-							{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
-						  </div> 
-						</div> 
-					  {!! Form::close()  !!}
+						<button type="submit" class="btn btn-primary">Update</button>
+					  </div> 
+					</div> 
+				  </form>
 					</div>	
 				</div>	
 			</div>

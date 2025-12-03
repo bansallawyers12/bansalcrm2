@@ -6,8 +6,9 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/products/edit', 'name'=>"edit-products", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-			{!! Form::hidden('id', @$fetchedData->id)  !!} 
+			<form action="{{ url('admin/products/edit') }}" method="POST" name="edit-products" autocomplete="off" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="id" value="{{ @$fetchedData->id }}"> 
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">  
 						<div class="card">
@@ -186,10 +187,10 @@
 									{!! Form::button('Update Product', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-products")'])  !!}	
 								</div>
 							</div>
-						</div>
-					</div>	
+					</div>
 				</div>	
-			{!! Form::close()  !!}
+			</div>	
+			</form>
 		</div>
 	</section>
 </div>

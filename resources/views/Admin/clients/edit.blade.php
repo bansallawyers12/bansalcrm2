@@ -10,9 +10,10 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/clients/edit', 'name'=>"edit-clients", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-			{!! Form::hidden('id', @$fetchedData->id)  !!}  
-				{!! Form::hidden('type', @$fetchedData->type)  !!} 
+			<form action="{{ url('admin/clients/edit') }}" method="POST" name="edit-clients" autocomplete="off" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
+				<input type="hidden" name="type" value="{{ @$fetchedData->type }}"> 
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -960,10 +961,10 @@
 									</div>
 								</div> 
 							</div>
-						</div>	
-					</div>
-				</div>  
-			 {!! Form::close()  !!}	
+					</div>	
+				</div>
+			</div>  
+			</form>
 		</div>
 	</section>
 </div>

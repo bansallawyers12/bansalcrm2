@@ -8,6 +8,9 @@ class Form
 {
     /**
      * Open a form tag
+     * 
+     * Manually builds the HTML form tag to ensure proper rendering of method and action attributes.
+     * Supports both 'url' and 'route' parameters for Laravel compatibility.
      */
     public static function open($options = [])
     {
@@ -15,40 +18,63 @@ class Form
         $url = null;
         $method = 'POST';
         
+        // Handle URL or route
         if (isset($options['url'])) {
-            $url = $options['url'];
+            $url = url($options['url']);
             unset($options['url']);
+        } elseif (isset($options['route'])) {
+            $url = route($options['route']);
+            unset($options['route']);
         }
         
+        // Handle method
         if (isset($options['method'])) {
             $method = strtoupper($options['method']);
             unset($options['method']);
         }
         
-        // Handle novalidate attribute properly (boolean attribute)
-        if (isset($options['novalidate']) && $options['novalidate']) {
-            $form = Html::form()->novalidate();
-            unset($options['novalidate']);
-        } else {
-            $form = Html::form();
-        }
-        
-        // Convert array attributes to string format
+        // Store remaining options as attributes
         foreach ($options as $key => $value) {
             $attributes[$key] = $value;
         }
         
+        // Manually build the form tag HTML
+        $html = '<form';
+        
+        // Add action attribute
         if ($url) {
-            $form->action($url);
+            $html .= ' action="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        $form->method($method);
+        // Add method attribute (critical - this is what Spatie HTML fails to render)
+        $html .= ' method="' . htmlspecialchars($method, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $form->attributes($attributes);
+        // Add other attributes
+        foreach ($attributes as $key => $value) {
+            if ($value !== null && $value !== false) {
+                if (is_bool($value) && $value === true) {
+                    // Boolean attributes (e.g., novalidate)
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    // Regular attributes
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $form->open();
+        $html .= '>';
+        
+        // Add CSRF token for POST/PUT/PATCH/DELETE requests
+        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+            $html .= csrf_field();
+        }
+        
+        // Add method spoofing for PUT/PATCH/DELETE
+        if (in_array($method, ['PUT', 'PATCH', 'DELETE'])) {
+            $html .= method_field($method);
+        }
+        
+        return $html;
     }
     
     /**
@@ -56,7 +82,7 @@ class Form
      */
     public static function close()
     {
-        return Html::form()->close();
+        return '</form>';
     }
     
     /**

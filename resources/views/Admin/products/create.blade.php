@@ -7,9 +7,10 @@
 </style>
 <!-- Main Content -->
 <div class="main-content">
-	<section class="section"> 
+	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/products/store', 'name'=>"add-products", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			<form action="{{ url('admin/products/store') }}" method="POST" name="add-products" autocomplete="off" enctype="multipart/form-data">
+				@csrf
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -182,10 +183,10 @@
 									{!! Form::button('Save Product', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-products")'])  !!}
 								</div>
 							</div>
-						</div>
 					</div>
 				</div>
-			 {!! Form::close()  !!}	
+			</div>
+			</form>
 		</div>
 	</section>
 </div>

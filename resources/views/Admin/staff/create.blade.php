@@ -45,10 +45,11 @@
 					<div class="card card-primary">
 					  <div class="card-header">
 						<h3 class="card-title">Add Staff</h3>
-					  </div>
-					  <!-- /.card-header -->
-					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/staff/store', 'name'=>"add-staff", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+				  </div>
+				  <!-- /.card-header -->
+				  <!-- form start -->
+				  <form action="{{ url('admin/staff/store') }}" method="POST" name="add-staff" autocomplete="off" enctype="multipart/form-data">
+					@csrf
 						<div class="card-body">	
 						  <div class="form-group"> 
 							<label for="first_name">User First Name</label>
@@ -115,10 +116,10 @@
 							@endif
 						  </div>
 						  <div class="form-group">
-							{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
-						  </div> 
-						</div> 
-					  {!! Form::close()  !!}
+						<button type="submit" class="btn btn-primary">Save</button>
+					  </div> 
+					</div> 
+				  </form>
 					</div>	
 				</div>	
 			</div>
