@@ -1,7 +1,6 @@
-@extends('layouts.admin')
-@section('title', 'Create General Invoice')
+<?php $__env->startSection('title', 'Create General Invoice'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 .addbranch .error label{
 	color: #9f3a38;
@@ -25,10 +24,11 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/invoice/store', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-			<input type="hidden" name="client_id" value="{{$clientid}}">
-			<input type="hidden" name="applicationid" value="{{$applicationid}}">
-			<input type="hidden" name="type" value="{{$type}}">
+			<?php echo Form::open(array('url' => 'admin/invoice/store', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")); ?>
+
+			<input type="hidden" name="client_id" value="<?php echo e($clientid); ?>">
+			<input type="hidden" name="applicationid" value="<?php echo e($applicationid); ?>">
+			<input type="hidden" name="type" value="<?php echo e($type); ?>">
 			
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -46,7 +46,7 @@
 							}
 							?>
 								<div class="card-header-action">
-									<a href="{{URL::to('admin/invoice/unpaid')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="<?php echo e(URL::to('admin/invoice/unpaid')); ?>" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -62,10 +62,10 @@
 								
 								?>
 									<ul>
-										<li><span>Name:</span> {{$partnerdata->partner_name ?? 'N/A'}}</li>
-										<li><span>Address:</span> {{$partnerdata->address ?? 'N/A'}}</li>
-										<li><span>Contact:</span> {{$partnerdata->phone ?? 'N/A'}}</li>
-										<li><span>Service:</span> {{$workflowdaa->name ?? 'N/A'}}</li>
+										<li><span>Name:</span> <?php echo e($partnerdata->partner_name ?? 'N/A'); ?></li>
+										<li><span>Address:</span> <?php echo e($partnerdata->address ?? 'N/A'); ?></li>
+										<li><span>Contact:</span> <?php echo e($partnerdata->phone ?? 'N/A'); ?></li>
+										<li><span>Service:</span> <?php echo e($workflowdaa->name ?? 'N/A'); ?></li>
 									</ul>
 								</div>
 							</div>
@@ -79,13 +79,13 @@
 							<div class="card-body">
 								<div class="invoice_info">
 									<ul>
-										<li><span>Name:</span> <input style="width: 85px;" type="text" name="first_name" value="{{$clientdata->first_name ?? 'N/A'}}"> <input style="width: 85px;" type="text" name="last_name" value="{{$clientdata->last_name ?? 'N/A'}}"></li>
-										<li style="margin-top: 5px;"><span>DOB:</span> <input style="width: 173px;display: inline-block;" class="form-control dobdatepickers" data-valid="" autocomplete="off" placeholder="" name="dob" type="text" value="{{date('d/m/Y', strtotime($clientdata->dob)) ?? 'N/A' }}"></li>
-										<li><span>Client ID:</span> {{$clientdata->client_id}}</li>
-										<li><span>Partner:</span> {{$partnerdata->partner_name ?? 'N/A'}}</li>
-										<li><span>Product:</span> {{$productdata->name ?? 'N/A'}}</li>
-										<li><span>Branch:</span> {{$branchdata->name ?? 'N/A'}}</li>
-										<li><span>Workflow:</span> {{$workflowdaa->name ?? 'N/A'}}</li>
+										<li><span>Name:</span> <input style="width: 85px;" type="text" name="first_name" value="<?php echo e($clientdata->first_name ?? 'N/A'); ?>"> <input style="width: 85px;" type="text" name="last_name" value="<?php echo e($clientdata->last_name ?? 'N/A'); ?>"></li>
+										<li style="margin-top: 5px;"><span>DOB:</span> <input style="width: 173px;display: inline-block;" class="form-control dobdatepickers" data-valid="" autocomplete="off" placeholder="" name="dob" type="text" value="<?php echo e(date('d/m/Y', strtotime($clientdata->dob)) ?? 'N/A'); ?>"></li>
+										<li><span>Client ID:</span> <?php echo e($clientdata->client_id); ?></li>
+										<li><span>Partner:</span> <?php echo e($partnerdata->partner_name ?? 'N/A'); ?></li>
+										<li><span>Product:</span> <?php echo e($productdata->name ?? 'N/A'); ?></li>
+										<li><span>Branch:</span> <?php echo e($branchdata->name ?? 'N/A'); ?></li>
+										<li><span>Workflow:</span> <?php echo e($workflowdaa->name ?? 'N/A'); ?></li>
 									</ul>
 								</div>
 							</div>
@@ -96,30 +96,32 @@
 							<div class="card-body">
 								<div class="form-group"> 
 									<label for="invoice_date">Invoice Date:</label>
-									{!! Form::date('invoice_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
+									<?php echo Form::date('invoice_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )); ?>
+
 									<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
-									@if ($errors->has('invoice_date'))
+									<?php if($errors->has('invoice_date')): ?>
 										<span class="custom-error" role="alert">
-											<strong>{{ @$errors->first('invoice_date') }}</strong>
+											<strong><?php echo e(@$errors->first('invoice_date')); ?></strong>
 										</span> 
-									@endif
+									<?php endif; ?>
 								</div>
 								<div class="form-group"> 
 									<label for="invoice_due_date">Invoice Due Date:</label>
-									{!! Form::date('invoice_due_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
+									<?php echo Form::date('invoice_due_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' )); ?>
+
 									<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
-									@if ($errors->has('invoice_due_date'))
+									<?php if($errors->has('invoice_due_date')): ?>
 										<span class="custom-error" role="alert">
-											<strong>{{ @$errors->first('invoice_due_date') }}</strong>
+											<strong><?php echo e(@$errors->first('invoice_due_date')); ?></strong>
 										</span> 
-									@endif
+									<?php endif; ?>
 								</div>
 								<div class="form-group"> 
 									<label for="invoice_due_date">Select Profile:</label>
 									<select class="form-control" name="profile">
-										@foreach(\App\Models\Profile::all() as $profiles)
-											<option value="{{$profiles->id}}">{{$profiles->company_name}}</option>
-										@endforeach
+										<?php $__currentLoopData = \App\Models\Profile::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $profiles): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+											<option value="<?php echo e($profiles->id); ?>"><?php echo e($profiles->company_name); ?></option>
+										<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 									</select>
 								</div>
 							</div>
@@ -164,7 +166,7 @@
 												</td>
 												<td>
 													<span class="percentageinput">
-														<input class="form-control comm_per" type="number" name="comm_per[]" value="{{$partnerdata->commission_percentage ?? '0'}}" />%
+														<input class="form-control comm_per" type="number" name="comm_per[]" value="<?php echo e($partnerdata->commission_percentage ?? '0'); ?>" />%
 													</span>
 												</td>
 												<td>
@@ -180,9 +182,9 @@
 												<td>
 													<select name="tax[]" class="form-control tax_amt">
 														<option value="0">Select A Tax Code</option>
-														@foreach(\App\Models\Tax::all() as $taxlist)
-															<option value="{{$taxlist->amount}}" @if ($taxlist->amount == '10') Selected @endif>{{$taxlist->name}}</option>
-														@endforeach
+														<?php $__currentLoopData = \App\Models\Tax::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxlist): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+															<option value="<?php echo e($taxlist->amount); ?>" <?php if($taxlist->amount == '10'): ?> Selected <?php endif; ?>><?php echo e($taxlist->name); ?></option>
+														<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 													</select>
 												</td>
 												<td>
@@ -426,7 +428,7 @@
 																		<i class="fas fa-clock"></i>
 																	</div>
 																</div>	
-																<input type="date" name="payment_date[]" placeholder="Date" class=" form-control" value="{{date('Y-m-d')}}"/>
+																<input type="date" name="payment_date[]" placeholder="Date" class=" form-control" value="<?php echo e(date('Y-m-d')); ?>"/>
 															</div>
 															<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
 														</div>
@@ -482,7 +484,7 @@
 													$branches = \App\Models\Agent::where('id','!=', '')->get();
 													foreach($branches as $branch){
 													?>
-														<option data-v="{{$branch->income_sharing}}"  value="{{$branch->id}}">{{$branch->full_name}}</option>
+														<option data-v="<?php echo e($branch->income_sharing); ?>"  value="<?php echo e($branch->id); ?>"><?php echo e($branch->full_name); ?></option>
 													<?php } ?>
 													
 													</select>
@@ -503,9 +505,9 @@
 												<div class="input_field ifcheckedtax" style="display:none;">
 														<select id="taxget" class="form-control">
 														    <option value="">Select Tax</option>
-														 	@foreach(\App\Models\Tax::all() as $taxlist)
-															<option value="{{$taxlist->amount}}">{{$taxlist->name}}</option>
-														@endforeach   
+														 	<?php $__currentLoopData = \App\Models\Tax::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $taxlist): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+															<option value="<?php echo e($taxlist->amount); ?>"><?php echo e($taxlist->name); ?></option>
+														<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>   
 														</select>
 													</div>
 												</div>
@@ -549,8 +551,8 @@
 	</div>
 </div>
 
-@endsection
-@section('scripts')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
 <script>
 jQuery(document).ready(function($){
     	$(document).delegate('#taxval','change', function(){
@@ -1061,4 +1063,5 @@ if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn ==
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm\resources\views/Admin/invoice/commission-invoice.blade.php ENDPATH**/ ?>

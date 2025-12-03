@@ -103,11 +103,14 @@ class SearchService
         if (preg_match('/^[\d\s\-\+\(\)]+$/', $this->query)) {
             $digitsOnly = preg_replace('/[^\d]/', '', $this->query);
             
+            // Normalize Australian mobile numbers
+            $normalizedPhone = $this->normalizeAustralianPhone($digitsOnly);
+            
             // Treat as phone if:
-            // - Starts with 04 (Australian mobile) or 4 (partial Australian mobile)
+            // - Starts with 4 (Australian mobile after normalization)
             // - Or has 7+ digits (standard phone length)
-            if (preg_match('/^0?4/', $digitsOnly) || strlen($digitsOnly) >= 7) {
-                return ['type' => 'phone', 'value' => $digitsOnly];
+            if (preg_match('/^4/', $normalizedPhone) || strlen($digitsOnly) >= 7) {
+                return ['type' => 'phone', 'value' => $normalizedPhone];
             } else {
                 // Short numbers (1-6 digits) not starting with 4 are client IDs
                 return ['type' => 'client_id', 'value' => $digitsOnly];
@@ -325,10 +328,22 @@ class SearchService
 
     /**
      * Search by phone
+     * Handles Australian mobile variations: 04xx, 614xx, 4xx
      */
     protected function searchByPhone($phone)
     {
         $results = [];
+        
+        // Normalize the search phone (e.g., 0412345678 or 61412345678 → 412345678)
+        $corePhone = $this->normalizeAustralianPhone($phone);
+        
+        // Build search patterns to match all possible formats
+        // For 412345678, we want to match: 0412345678, 61412345678, 412345678, +61412345678
+        $searchPatterns = [
+            '%' . $corePhone . '%',        // Matches: 412345678, 61412345678, etc.
+            '%0' . $corePhone . '%',       // Explicitly match with leading 0
+            '%61' . $corePhone . '%'       // Explicitly match with country code
+        ];
 
         $phoneSubquery = DB::table('client_phones')
             ->select('client_id', DB::raw('GROUP_CONCAT(client_phone) as phones'))
@@ -345,12 +360,15 @@ class SearchService
                   ->orWhere('admins.lead_id', '');
             })
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
-            ->where(function ($q) use ($phone) {
-                $q->where('admins.phone', 'LIKE', '%' . $phone . '%')
-                  ->orWhere('admins.att_phone', 'LIKE', '%' . $phone . '%')
-                  ->orWhere('phone_data.phones', 'LIKE', '%' . $phone . '%');
+            ->where(function ($q) use ($searchPatterns) {
+                foreach ($searchPatterns as $pattern) {
+                    $q->orWhere('admins.phone', 'LIKE', $pattern)
+                      ->orWhere('admins.att_phone', 'LIKE', $pattern)
+                      ->orWhere('phone_data.phones', 'LIKE', $pattern);
+                }
             })
             ->select('admins.*')
+            ->distinct()
             ->limit(10)
             ->get();
 
@@ -372,10 +390,13 @@ class SearchService
 
         // Search leads
         $leads = Lead::where('converted', '=', 0)
-            ->where(function ($q) use ($phone) {
-                $q->where('phone', 'LIKE', '%' . $phone . '%')
-                  ->orWhere('att_phone', 'LIKE', '%' . $phone . '%');
+            ->where(function ($q) use ($searchPatterns) {
+                foreach ($searchPatterns as $pattern) {
+                    $q->orWhere('phone', 'LIKE', $pattern)
+                      ->orWhere('att_phone', 'LIKE', $pattern);
+                }
             })
+            ->distinct()
             ->limit(10)
             ->get();
 
@@ -393,6 +414,40 @@ class SearchService
         }
 
         return $results;
+    }
+
+    /**
+     * Normalize Australian phone number to core digits
+     * Removes country code (61), leading zero, and formatting
+     * 
+     * Examples:
+     * - 0412345678 → 412345678
+     * - 61412345678 → 412345678
+     * - +61412345678 → 412345678
+     * - 412345678 → 412345678
+     */
+    protected function normalizeAustralianPhone($phone)
+    {
+        // Strip all non-digits
+        $digitsOnly = preg_replace('/[^\d]/', '', $phone);
+        
+        // Remove country code (61) if it's at the start and followed by 4
+        if (preg_match('/^61(4\d+)$/', $digitsOnly, $matches)) {
+            return $matches[1]; // Returns 412345678
+        }
+        
+        // Remove leading 0 if followed by 4
+        if (preg_match('/^0(4\d+)$/', $digitsOnly, $matches)) {
+            return $matches[1]; // Returns 412345678
+        }
+        
+        // Already in correct format (starts with 4)
+        if (preg_match('/^4\d+$/', $digitsOnly)) {
+            return $digitsOnly; // Returns 412345678
+        }
+        
+        // Not an Australian mobile, return as-is for other phone types
+        return $digitsOnly;
     }
 
     /**
