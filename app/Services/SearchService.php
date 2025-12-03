@@ -156,6 +156,7 @@ class SearchService
             return [
                 'name' => $this->highlightMatch($client->first_name . ' ' . $client->last_name),
                 'email' => $this->highlightMatch($client->email ?? ''),
+                'phone' => $this->highlightMatch($client->phone ?? ''),
                 'client_id' => $client->client_id,
                 'status' => $client->is_archived == 1 ? 'Archived' : $displayType,
                 'type' => 'Client', // Always route to client detail page
@@ -194,6 +195,8 @@ class SearchService
             return [
                 'name' => $this->highlightMatch($lead->first_name . ' ' . $lead->last_name),
                 'email' => $this->highlightMatch($lead->email ?? ''),
+                'phone' => $this->highlightMatch($lead->phone ?? ''),
+                'client_id' => null,
                 'status' => 'Lead',
                 'type' => 'Lead',
                 'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
@@ -233,6 +236,7 @@ class SearchService
             return [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
                 'client_id' => $client->client_id,
                 'status' => $client->is_archived == 1 ? 'Archived' : $displayType,
                 'type' => 'Client',

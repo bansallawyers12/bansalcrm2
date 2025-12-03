@@ -173,15 +173,15 @@
 											<!--<td>{{ @$list->created_at == "" ? config('constants.empty') : str_limit(@$list->created_at , '50', '...') }}</td>-->
 											<td  style="white-space: initial;">{{ @$list->created_at == "" ? config('constants.empty') : date('d/m/Y', strtotime($list->created_at))  }}</td>
 
-											<td>
-												<div class="dropdown d-inline">
-													<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-													<div class="dropdown-menu">
-														
-														
-													</div>
-												</div>								  
-											</td>
+										<td>
+											<div class="dropdown d-inline">
+												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+												<div class="dropdown-menu">
+													<a class="dropdown-item has-icon" href="{{URL::to('/admin/applications/detail/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-eye"></i> View Detail</a>
+													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'applications')"><i class="fas fa-trash"></i> Delete</a>
+												</div>
+											</div>								  
+										</td>
 										</tr>	
 									@endforeach	
 									</tbody>
