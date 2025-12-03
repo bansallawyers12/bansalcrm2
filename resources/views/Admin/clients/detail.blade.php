@@ -460,7 +460,26 @@ use App\Http\Controllers\Controller;
 								<span class="float-right text-muted">
                                     {{--$fetchedData->phone--}} {{--@if($fetchedData->att_phone != '') / {{$fetchedData->att_phone}} @endif--}}
                                     <?php
-                                    if( \App\Models\ClientPhone::where('client_id', $fetchedData->id)->exists()) {
+                                    // For leads (type='lead'), use the phone from $fetchedData which comes from leads table
+                                    // For clients, check ClientPhone table first, then admins table
+                                    if( isset($fetchedData->type) && $fetchedData->type == 'lead' ) {
+                                        // Lead: use phone data passed from controller (already from leads table)
+                                        $clientContacts = collect([
+                                            (object)[
+                                                'client_phone' => $fetchedData->phone,
+                                                'client_country_code' => $fetchedData->country_code ?? '',
+                                                'contact_type' => $fetchedData->contact_type ?? 'Personal'
+                                            ]
+                                        ]);
+                                        // Add alternate phone if exists
+                                        if($fetchedData->att_phone) {
+                                            $clientContacts->push((object)[
+                                                'client_phone' => $fetchedData->att_phone,
+                                                'client_country_code' => $fetchedData->att_country_code ?? '',
+                                                'contact_type' => 'Alternate'
+                                            ]);
+                                        }
+                                    } elseif( \App\Models\ClientPhone::where('client_id', $fetchedData->id)->exists()) {
                                         $clientContacts = \App\Models\ClientPhone::select('client_phone','client_country_code','contact_type')->where('client_id', $fetchedData->id)->where('contact_type', '!=', 'Not In Use')->get();
                                     } else {
                                         if( \App\Models\Admin::where('id', $fetchedData->id)->exists()){
@@ -6112,19 +6131,37 @@ function formatRepo (repo) {
 
 //Function is used for complete the session
 $(document).delegate('.complete_session', 'click', function(){
-    var client_id = $(this).attr('data-clientid'); //alert(client_id);
+    var client_id = $(this).attr('data-clientid');
+    console.log('Complete Session clicked for client_id:', client_id);
+    
     if(client_id !=""){
         $.ajax({
-            type:'post',
+            type:'POST',
             url:"{{URL::to('/')}}/admin/clients/update-session-completed",
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data: {client_id:client_id },
             success: function(response){
-                //console.log(response);
-                var obj = $.parseJSON(response);
-                location.reload();
+                console.log('Response:', response);
+                try {
+                    var obj = $.parseJSON(response);
+                    if(obj.status){
+                        alert(obj.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + obj.message);
+                    }
+                } catch(e) {
+                    console.error('Error parsing response:', e);
+                    alert('Error processing response');
+                }
+            },
+            error: function(xhr, status, error){
+                console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
+                alert('Failed to complete session. Error: ' + error + '\nStatus: ' + xhr.status);
             }
         });
+    } else {
+        alert('Client ID is missing');
     }
 });
 

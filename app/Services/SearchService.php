@@ -89,8 +89,8 @@ class SearchService
      */
     protected function detectSearchType()
     {
-        // Check for client ID pattern (e.g., #123, CLI-123)
-        if (preg_match('/^#?(\d+)$/', $this->query, $matches)) {
+        // Check for client ID pattern with # prefix (e.g., #123)
+        if (preg_match('/^#(\d+)$/', $this->query, $matches)) {
             return ['type' => 'client_id', 'value' => $matches[1]];
         }
 
@@ -101,7 +101,17 @@ class SearchService
 
         // Check for phone pattern (contains only digits and common separators)
         if (preg_match('/^[\d\s\-\+\(\)]+$/', $this->query)) {
-            return ['type' => 'phone', 'value' => preg_replace('/[^\d]/', '', $this->query)];
+            $digitsOnly = preg_replace('/[^\d]/', '', $this->query);
+            
+            // Treat as phone if:
+            // - Starts with 04 (Australian mobile) or 4 (partial Australian mobile)
+            // - Or has 7+ digits (standard phone length)
+            if (preg_match('/^0?4/', $digitsOnly) || strlen($digitsOnly) >= 7) {
+                return ['type' => 'phone', 'value' => $digitsOnly];
+            } else {
+                // Short numbers (1-6 digits) not starting with 4 are client IDs
+                return ['type' => 'client_id', 'value' => $digitsOnly];
+            }
         }
 
         return ['type' => 'general', 'value' => $this->query];
@@ -279,11 +289,34 @@ class SearchService
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
                 'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'category' => 'clients',
                 'badge_color' => $badgeColor
+            ];
+        }
+
+        // Search leads
+        $leads = Lead::where('converted', '=', 0)
+            ->where(function ($q) use ($email) {
+                $q->where('email', 'LIKE', '%' . $email . '%')
+                  ->orWhere('att_email', 'LIKE', '%' . $email . '%');
+            })
+            ->limit(10)
+            ->get();
+
+        foreach ($leads as $lead) {
+            $results[] = [
+                'name' => $lead->first_name . ' ' . $lead->last_name,
+                'email' => $lead->email ?? '',
+                'phone' => $lead->phone ?? '',
+                'status' => 'Lead',
+                'type' => 'Lead',
+                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
+                'category' => 'leads',
+                'badge_color' => 'blue'
             ];
         }
 
@@ -328,11 +361,34 @@ class SearchService
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
                 'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'category' => 'clients',
                 'badge_color' => $badgeColor
+            ];
+        }
+
+        // Search leads
+        $leads = Lead::where('converted', '=', 0)
+            ->where(function ($q) use ($phone) {
+                $q->where('phone', 'LIKE', '%' . $phone . '%')
+                  ->orWhere('att_phone', 'LIKE', '%' . $phone . '%');
+            })
+            ->limit(10)
+            ->get();
+
+        foreach ($leads as $lead) {
+            $results[] = [
+                'name' => $lead->first_name . ' ' . $lead->last_name,
+                'email' => $lead->email ?? '',
+                'phone' => $lead->phone ?? '',
+                'status' => 'Lead',
+                'type' => 'Lead',
+                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
+                'category' => 'leads',
+                'badge_color' => 'blue'
             ];
         }
 
