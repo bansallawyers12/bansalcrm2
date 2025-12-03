@@ -228,6 +228,7 @@ $(document).delegate('.opencheckin', 'click', function(){
 		$.ajax({
 			url: site_url+'/admin/attend_session',
 			type:'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			data:{id: appliid,waitcountdata: $('#waitcountdata').val()},
 			success: function(response){
 				

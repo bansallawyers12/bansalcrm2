@@ -23,7 +23,6 @@ class VerifyCsrfToken extends Middleware
 		'api/*',
 		'admin/update_visit_purpose',
 		'admin/update_visit_comment',
-		'admin/attend_session',
 		'admin/complete_session',
 		'admin/update_task_comment',
 		'admin/update_task_description',
