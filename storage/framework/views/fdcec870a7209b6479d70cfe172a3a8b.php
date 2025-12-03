@@ -1,7 +1,6 @@
-@extends('layouts.admin')
-@section('title', 'Followup')
+<?php $__env->startSection('title', 'Followup'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 .fc-event-container .fc-h-event{cursor:pointer;}
 .fc-more-popover {
@@ -15,7 +14,7 @@
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				<?php echo $__env->make('../Elements/flash-message', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -83,11 +82,11 @@ foreach($followups as $followup){
     }
 }
 ?>
-@endsection
-@section('scripts')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
 <script>
 var events = [];
- var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+ var scheds = <?php echo json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
  if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
@@ -174,8 +173,8 @@ var calendar = $("#myEvent").fullCalendar({
                                     <dd id="description" class="fw-bold fs-4"></dd>
                                 </div>
                                  </div>
-                        <form method="post" name="retagmodalsave" id="retagmodalsave" action="{{URL::to('/admin/clients/followup/retagfollowup')}}" autocomplete="off" enctype="multipart/form-data">
-		            	@csrf   
+                        <form method="post" name="retagmodalsave" id="retagmodalsave" action="<?php echo e(URL::to('/admin/clients/followup/retagfollowup')); ?>" autocomplete="off" enctype="multipart/form-data">
+		            	<?php echo csrf_field(); ?>   
 		            	<input type="hidden" name="client_id" id="followup_client_id">
 		            	<input type="hidden" name="lead_id" id="lead_id">
 			            	 <div class="row">
@@ -224,4 +223,5 @@ var calendar = $("#myEvent").fullCalendar({
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm\resources\views/Admin/reports/followup.blade.php ENDPATH**/ ?>

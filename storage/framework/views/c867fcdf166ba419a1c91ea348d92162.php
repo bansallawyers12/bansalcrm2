@@ -1,7 +1,7 @@
-@extends('layouts.admin')
-@section('title', 'Agreement Expire Report')
 
-@section('content')
+<?php $__env->startSection('title', 'Agreement Expire Report'); ?>
+
+<?php $__env->startSection('content'); ?>
 <style>
 .fc-event-container .fc-h-event{cursor:pointer;}
 .fc-more-popover {
@@ -15,7 +15,7 @@
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				<?php echo $__env->make('../Elements/flash-message', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -59,11 +59,11 @@ foreach($partners as $partner){
     $sched_res[$partner->id] = $row;
 }
 ?>
-@endsection
-@section('scripts')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
 <script>
 var events = [];
- var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+ var scheds = <?php echo json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
  if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
@@ -193,4 +193,5 @@ var calendar = $("#myEvent").fullCalendar({
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm\resources\views/Admin/reports/agreementexpires.blade.php ENDPATH**/ ?>
