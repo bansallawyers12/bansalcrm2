@@ -33,8 +33,18 @@
 				$leadstype = 'active'; 
 			}
 			?>
-			<li class="dropdown <?php echo e(@$leadstype); ?>">
-				<a href="<?php echo e(route('admin.leads.create')); ?>" class="nav-link"><i data-feather="user"></i><span>Add Lead</span></a>
+		<!-- LEAD & PROSPECT MANAGEMENT -->
+		<li class="dropdown <?php echo e(@$leadstype); ?>">
+			<a href="<?php echo e(route('admin.leads.index')); ?>" class="nav-link"><i data-feather="user"></i><span>Lead Manager</span></a>
+		</li>
+
+			<?php
+			if(Route::currentRouteName() == 'admin.enquiries.index' || Route::currentRouteName() == 'admin.enquiries.archived'){
+				$cheenquiriestype = 'active';
+			}
+			?>
+			<li class="dropdown <?php echo e(@$cheenquiriestype); ?>">
+				<a href="<?php echo e(route('admin.enquiries.index')); ?>" class="nav-link"><i data-feather="user-check"></i><span>Queries</span></a>
 			</li>
 
 			<?php
@@ -101,15 +111,8 @@
 				<a href="<?php echo e(route('admin.officevisits.waiting')); ?>" class="nav-link"><i data-feather="check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #1f1655;
                     padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;"><?php echo e($InPersonwaitingCount); ?></span></span></a>
 			</li>
-			<?php
-			if(Route::currentRouteName() == 'admin.enquiries.index' || Route::currentRouteName() == 'admin.enquiries.archived'){
-				$cheenquiriestype = 'active';
-			}
-			?>
-			<li class="dropdown <?php echo e(@$cheenquiriestype); ?>">
-				<a href="<?php echo e(route('admin.enquiries.index')); ?>" class="nav-link"><i data-feather="user-check"></i><span>Queries</span></a>
-			</li>
 
+			<!-- PEOPLE MANAGEMENT -->
 			<?php
 			
 			if(Route::currentRouteName() == 'admin.clients.index' || Route::currentRouteName() == 'admin.clients.create' || Route::currentRouteName() == 'admin.clients.edit' || Route::currentRouteName() == 'admin.clients.detail'){
@@ -148,8 +151,47 @@
                 <?php
                // }
 
+			if(Route::currentRouteName() == 'admin.partners.index' || Route::currentRouteName() == 'admin.partners.create' || Route::currentRouteName() == 'admin.partners.edit' || Route::currentRouteName() == 'admin.partners.detail'){
+				$partnerclasstype = 'active';
+			}
+			?> 
+			<?php
+				if(array_key_exists('7',  $module_access)) {
+			?>
+			<li class="dropdown <?php echo e(@$partnerclasstype); ?>">
+				<a href="<?php echo e(route('admin.partners.index')); ?>" class="nav-link"><i data-feather="users"></i><span>Partners Manager</span></a>  
+			</li>
+			<?php
+				}
+			if(Route::currentRouteName() == 'admin.agents.active' || Route::currentRouteName() == 'admin.agents.inactive' || Route::currentRouteName() == 'admin.agents.create' || Route::currentRouteName() == 'admin.agents.edit' || Route::currentRouteName() == 'admin.agents.detail'){
+				$agentclasstype = 'active';
+			}
+			?> 
+			<?php
+				if(array_key_exists('15',  $module_access)) {
+			?>
+			<li class="dropdown <?php echo e(@$agentclasstype); ?>">
+				<a href="<?php echo e(route('admin.agents.active')); ?>" class="nav-link"><i data-feather="users"></i><span>Agents Manager</span></a>  
+			</li>
+			<?php
+				}
+			?>
 
-
+			<!-- BUSINESS OPERATIONS -->
+			<?php
+			if(Route::currentRouteName() == 'admin.applications.index'){
+				$applicationclasstype = 'active';
+			} 
+			?> 
+			<?php
+				if(array_key_exists('34',  $module_access)) {
+			?>
+			<li class="dropdown <?php echo e(@$applicationclasstype); ?>">
+				<a href="<?php echo e(route('admin.applications.index')); ?>" class="nav-link"><i data-feather="server"></i><span>Applications Manager</span></a>  
+			</li>
+			<?php
+			}  
+			
 			if(Route::currentRouteName() == 'admin.services.index'){
 				$serviceclasstype = 'active';
 			}
@@ -176,18 +218,6 @@
 			</li>
 			<?php
 				}
-			if(Route::currentRouteName() == 'admin.partners.index' || Route::currentRouteName() == 'admin.partners.create' || Route::currentRouteName() == 'admin.partners.edit' || Route::currentRouteName() == 'admin.partners.detail'){
-				$partnerclasstype = 'active';
-			}
-			?> 
-			<?php
-				if(array_key_exists('7',  $module_access)) {
-			?>
-			<li class="dropdown <?php echo e(@$partnerclasstype); ?>">
-				<a href="<?php echo e(route('admin.partners.index')); ?>" class="nav-link"><i data-feather="users"></i><span>Partners Manager</span></a>  
-			</li>
-			<?php
-				}
 			if(Route::currentRouteName() == 'admin.products.index' || Route::currentRouteName() == 'admin.products.create' || Route::currentRouteName() == 'admin.products.edit' || Route::currentRouteName() == 'admin.products.detail'){
 				$productclasstype = 'active';
 			}
@@ -201,21 +231,6 @@
 			</li>
 			<?php
 				}
-			if(Route::currentRouteName() == 'admin.applications.index'){
-				$applicationclasstype = 'active';
-			} 
-			?> 
-			<?php
-				if(array_key_exists('34',  $module_access)) {
-			?>
-			<li class="dropdown <?php echo e(@$applicationclasstype); ?>">
-				<a href="<?php echo e(route('admin.applications.index')); ?>" class="nav-link"><i data-feather="server"></i><span>Applications Manager</span></a>  
-			</li>
-			<?php
-			}  
-			?> 
-			
-			<?php
 			if(Route::currentRouteName() == 'admin.quotations.index'){
 				$quotationclasstype = 'active';
 			}
@@ -228,6 +243,11 @@
 			</li>
 			<?php
 					}
+			?>
+			
+			<!-- FINANCIAL MANAGEMENT -->
+			
+			<?php
 			if(Route::currentRouteName() == 'admin.invoice.unpaid' || Route::currentRouteName() == 'admin.invoice.paid' || Route::currentRouteName() == 'admin.account.payment' || Route::currentRouteName() == 'admin.invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'admin.invoice.paidgroupinvoice' || Route::currentRouteName() == 'admin.invoice.invoiceschedules' || Route::currentRouteName() == 'admin.account.payableunpaid' || Route::currentRouteName() == 'admin.account.payablepaid' || Route::currentRouteName() == 'admin.account.receivableunpaid' || Route::currentRouteName() == 'admin.account.receivablepaid'){
 				$accountclasstype = 'active';
 			}
@@ -253,18 +273,6 @@
 				</ul>
 			</li> 
 			<?php
-			if(Route::currentRouteName() == 'admin.agents.active' || Route::currentRouteName() == 'admin.agents.inactive' || Route::currentRouteName() == 'admin.agents.create' || Route::currentRouteName() == 'admin.agents.edit' || Route::currentRouteName() == 'admin.agents.detail'){
-				$agentclasstype = 'active';
-			}
-			?> 
-			<?php
-				if(array_key_exists('15',  $module_access)) {
-			?>
-			<li class="dropdown <?php echo e(@$agentclasstype); ?>">
-				<a href="<?php echo e(route('admin.agents.active')); ?>" class="nav-link"><i data-feather="users"></i><span>Agents Manager</span></a>  
-			</li>
-			<?php
-				}
 			/*if(Route::currentRouteName() == 'admin.tasks.index'){
 				$taskclasstype = 'active';
 			}*/
@@ -273,6 +281,7 @@
 				<a href="" class="nav-link"><i data-feather="list"></i><span>To Do Lists</span></a>
 			</li>-->
 			
+			<!-- REPORTS & ANALYTICS -->
 			<?php
             if( Auth::user()->role == 1 || Auth::user()->role == 12 ){ //super admin or admin
             ?>

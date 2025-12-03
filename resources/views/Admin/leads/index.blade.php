@@ -29,13 +29,13 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 			<div class="row">
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
-						<div class="card-header">
-							<h4>Leads</h4>
-							<div class="card-header-action">
-								<a href="{{route('admin.leads.create')}}" class="btn btn-primary">Create Leads</a>
-								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
-							</div>
+					<div class="card-header">
+						<h4>Leads</h4>
+						<div class="card-header-action">
+							<a href="{{route('admin.leads.create')}}" class="btn btn-primary">Add Lead</a>
+							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 						</div>
+					</div>
 						<div class="card-body">
 						    <div class="filter_panel">
 								<h4>Search By Details</h4>								
