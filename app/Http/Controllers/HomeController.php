@@ -197,6 +197,9 @@ class HomeController extends Controller
             //$obj->country_code	=	@$requestData['country_code'];
 			//$obj->phone	=	@$requestData['phone'];
             $obj->address	=	@$requestData['address'];
+            
+            // Geocoding disabled - GPS coordinates not needed
+            /*
             if( isset($requestData['address']) && $requestData['address'] != ""){
                 //$address = "16-18, Argyle Street, Camden, London, WC1H 8EG, United Kingdom";
                 $address = @$requestData['address'];
@@ -213,6 +216,7 @@ class HomeController extends Controller
                 $obj->latitude	=	$lat;
                 $obj->longitude	=	$long;
             }
+            */
             $obj->city	=	@$requestData['city'];
 			$obj->state	=	@$requestData['state'];
 			$obj->zip	=	@$requestData['zip'];

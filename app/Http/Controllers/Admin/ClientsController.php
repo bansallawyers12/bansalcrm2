@@ -724,27 +724,30 @@ class ClientsController extends Controller
             //$obj->country_code	=	@$requestData['country_code'];
 			//$obj->phone	=	@$requestData['phone'];
           
-			$obj->address	=	@$requestData['address'];
-			
-			if( isset($requestData['address']) && $requestData['address'] != ""){
-                //$address = "16-18, Argyle Street, Camden, London, WC1H 8EG, United Kingdom";
-                $address = @$requestData['address'];
-                $result = app('geocoder')->geocode($address)->get(); //dd($result);
-              
-                if(isset($result[0]) && $result[0] != "" ){
-                    $coordinates = $result[0]->getCoordinates();
-                    $lat = $coordinates->getLatitude();
-                    $long = $coordinates->getLongitude();
-                } else {
-                    $lat = "";
-                    $long = "";
-                }
-              
-                //echo "lat==".$lat;
-                //echo "long==".$long; die();
-				$obj->latitude	=	$lat;
-                $obj->longitude	=	$long;
+		$obj->address	=	@$requestData['address'];
+		
+		// Geocoding disabled - GPS coordinates not needed
+		/*
+		if( isset($requestData['address']) && $requestData['address'] != ""){
+            //$address = "16-18, Argyle Street, Camden, London, WC1H 8EG, United Kingdom";
+            $address = @$requestData['address'];
+            $result = app('geocoder')->geocode($address)->get(); //dd($result);
+          
+            if(isset($result[0]) && $result[0] != "" ){
+                $coordinates = $result[0]->getCoordinates();
+                $lat = $coordinates->getLatitude();
+                $long = $coordinates->getLongitude();
+            } else {
+                $lat = "";
+                $long = "";
             }
+          
+            //echo "lat==".$lat;
+            //echo "long==".$long; die();
+			$obj->latitude	=	$lat;
+            $obj->longitude	=	$long;
+        }
+		*/
 
 			$obj->city	=	@$requestData['city'];
 			$obj->state	=	@$requestData['state'];
@@ -5075,6 +5078,15 @@ class ClientsController extends Controller
     //address_auto_populate
     public function address_auto_populate(Request $request){
         $address = $request->address;
+        
+        // Geocoding disabled - returning empty response
+        $response['status'] 	= 	0;
+        $response['postal_code'] = 	"";
+        $response['locality']    = 	"";
+        $response['message']	=	"Geocoding feature disabled.";
+        echo json_encode($response);
+        
+        /*
         if( isset($address) && $address != ""){
             $result = app('geocoder')->geocode($address)->get(); //dd($result[0]);
             $postalCode = $result[0]->getPostalCode();
@@ -5092,6 +5104,7 @@ class ClientsController extends Controller
             }
             echo json_encode($response);
         }
+        */
     }
   
   
