@@ -113,7 +113,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 
 										?> 
 										<tr id="id_{{@$list->id}}">
-											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{URL::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$list->id)))}}">Lead - {{str_pad($list->id, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
+											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{URL::to('/admin/leads/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">Lead - {{str_pad($list->id, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
 										
 											{{@$list->created_at}}
 											<?php
@@ -148,7 +148,6 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 													<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="more-vertical"></i></a>
 													<div class="dropdown-menu">
 														<a class="dropdown-item has-icon" href="{{URL::to('/admin/leads/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
-														<a class="dropdown-item has-icon" href="{{URL::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-history"></i> History</a>
 														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-edit"></i> Assign To</a>
 										@if($list->converted == 0)
 											<a class="dropdown-item has-icon" href="{{URL::to('/admin/leads/convert/'.@$list->id)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	

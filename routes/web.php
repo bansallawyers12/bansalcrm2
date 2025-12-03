@@ -230,11 +230,6 @@ Route::prefix('admin')->group(function() {
 		 
 	//Leads Start - Updated to modern syntax
 	Route::get('/leads', [LeadController::class, 'index'])->name('admin.leads.index');  
-	Route::get('/leads/history/{id}', [LeadController::class, 'history'])->name('admin.leads.history');
-	// Redirect POST to GET for history route (prevents form submission errors)
-	Route::post('/leads/history/{id}', function($id) {
-		return redirect()->route('admin.leads.history', ['id' => $id]);
-	});
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('admin.leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('admin.leads.store');   
 	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('admin.leads.assign');    

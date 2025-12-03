@@ -113,7 +113,7 @@
 													if($list->contact_type == 'Lead'){
 												$client = \App\Models\Lead::where('id', '=', $list->client_id)->first();
 												 ?>
-										    <a href="{{URL::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+										    <a href="{{URL::to('/admin/leads/edit/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
 										    <?php
 										}else{
 										    $client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();

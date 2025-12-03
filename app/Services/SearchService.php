@@ -73,8 +73,11 @@ class SearchService
                 $results = array_merge($results, $this->searchByPhone($searchType['value']));
                 break;
             default:
-                // Search only clients (including those with type='lead')
-                $results = $this->searchClients();
+                // Search clients (including those with type='lead') and separate leads table
+                $results = array_merge(
+                    $this->searchClients(),
+                    $this->searchLeads()
+                );
                 break;
         }
 

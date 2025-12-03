@@ -1144,6 +1144,7 @@ class ClientsController extends Controller
 					return Redirect::to('/admin/clients')->with('error', 'Invalid Client ID');
 				}
 				
+				// First check if it's in admins table (old clients/leads)
 				if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
 				{
 					$fetchedData = Admin::find($id);
@@ -1172,9 +1173,56 @@ class ClientsController extends Controller
                   
 					return view('Admin.clients.detail', compact(['fetchedData','encodeId','showAlert']));
 				}
+				// If not in admins table, check if it's a new lead in the leads table
+				elseif(\App\Models\Lead::where('id', '=', $id)->exists())
+				{
+					$lead = \App\Models\Lead::with('staffuser')->find($id);
+					
+					// Create a temporary Admin object with lead data for the view
+					$fetchedData = new Admin();
+					$fetchedData->id = $lead->id;
+					$fetchedData->first_name = $lead->first_name;
+					$fetchedData->last_name = $lead->last_name;
+					$fetchedData->email = $lead->email;
+					$fetchedData->phone = $lead->phone;
+					$fetchedData->country_code = $lead->country_code;
+					$fetchedData->gender = $lead->gender;
+					$fetchedData->dob = $lead->dob;
+					$fetchedData->visa_type = $lead->visa_type ?? null;
+					$fetchedData->visa_expiry_date = $lead->visa_expiry_date;
+					$fetchedData->type = 'lead'; // Mark as lead type
+					$fetchedData->profile_img = $lead->profile_img;
+					$fetchedData->created_at = $lead->created_at;
+					$fetchedData->updated_at = $lead->updated_at;
+					$fetchedData->client_id = 'LEAD-' . str_pad($lead->id, 4, '0', STR_PAD_LEFT);
+					$fetchedData->role = 7; // Set role to 7 like other clients
+					$fetchedData->is_archived = 0;
+					$fetchedData->office_id = $lead->staffuser->office_id ?? null;
+					$fetchedData->att_email = $lead->att_email ?? null;
+					$fetchedData->att_phone = $lead->att_phone ?? null;
+					$fetchedData->martial_status = $lead->martial_status ?? null;
+					$fetchedData->passport_no = $lead->passport_no ?? null;
+					$fetchedData->address = $lead->address ?? null;
+					$fetchedData->city = $lead->city ?? null;
+					$fetchedData->state = $lead->state ?? null;
+					$fetchedData->zip = $lead->zip ?? null;
+					$fetchedData->country = $lead->country ?? null;
+					
+					// Add relationship for assigned user
+					if($lead->assign_to) {
+						$fetchedData->setRelation('staffuser', $lead->staffuser);
+					}
+					
+					// Calculate age if DOB exists
+					if(!empty($fetchedData->dob)){
+						$fetchedData->age = $this->calculateAge($fetchedData->dob);
+					}
+					
+					return view('Admin.clients.detail', compact(['fetchedData','encodeId','showAlert']));
+				}
 				else
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Clients Not Exist');
+					return Redirect::to('/admin/clients')->with('error', 'Client or Lead Not Found');
 				}
 			}
 			else

@@ -72,9 +72,9 @@ class FollowupController extends Controller
 			    		$array = array();
 			    			
 			
-				$issuccess = $this->send_compose_template($requestData['email_to'],$subject,'noreply@bansalcrm.com', $message, 'bansalcrm', $array,@$ccarray);
-		
-			return Redirect::to('/admin/leads/history/'.@$requestData['lead_id'])->with('success', 'Mail sent successpully Successfully');
+		$issuccess = $this->send_compose_template($requestData['email_to'],$subject,'noreply@bansalcrm.com', $message, 'bansalcrm', $array,@$ccarray);
+	
+		return Redirect::to('/admin/leads')->with('success', 'Mail sent successpully Successfully');
 		}
 	}
 	public function store(Request $request)

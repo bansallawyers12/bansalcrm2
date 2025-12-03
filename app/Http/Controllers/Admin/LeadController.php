@@ -214,29 +214,6 @@ class LeadController extends Controller
 			return redirect()->back()->with('error', 'Not Found');
 		}
 	}
-	public function history(Request $request, $id = NULL) 
-	{
-		//check authorization start	
-			  
-		//check authorization end
-		if(isset($id) && !empty($id)) 
-			{
-				$id = $this->decodeString($id);	 
-				if(Lead::where('id', '=', $id)->exists()) 
-				{
-					$fetchedData = Lead::where('id', '=', $id)->with(['staffuser'])->first();
-					return view('Admin.leads.history', compact(['fetchedData']));
-				}
-				else
-				{
-					return Redirect::to('/admin/leads')->with('error', 'Lead Not Exist');
-				}	
-			}
-			else
-			{
-				return Redirect::to('/admin/leads')->with('error', Config::get('constants.unauthorized'));
-			}
-	}
 	
 	 public function store(Request $request)
 	{
@@ -506,9 +483,9 @@ class LeadController extends Controller
 	        }
 	        $save = $a->save();
 	        if($save){
-	            return Redirect::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$a->lead_id)))->with('success', 'Record Updated successfully');
+	            return Redirect::to('/admin/leads')->with('success', 'Record Updated successfully');
 	        }else{
-	            return Redirect::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$a->lead_id)))->with('error', 'Please try again');
+	            return Redirect::to('/admin/leads')->with('error', 'Please try again');
 	        }
 	    }
 	}
@@ -637,13 +614,13 @@ class LeadController extends Controller
 		 
 				if(Followup::where('id', '=', $id)->exists()) 
 				{
-				    $leadid = Followup::where('id', '=', $id)->first()->lead_id;
-				    $res = Followup::where('id', '=', $id)->delete();
-					if($res){
-					    return Redirect::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$leadid)))->with('success', 'Record deleted successfully');
-					}else{
-					    return Redirect::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$leadid)))->with('error', 'Lead Not Exist');
-					}
+			    $leadid = Followup::where('id', '=', $id)->first()->lead_id;
+			    $res = Followup::where('id', '=', $id)->delete();
+				if($res){
+				    return Redirect::to('/admin/leads')->with('success', 'Record deleted successfully');
+				}else{
+				    return Redirect::to('/admin/leads')->with('error', 'Lead Not Exist');
+				}
 				}
 				else
 				{

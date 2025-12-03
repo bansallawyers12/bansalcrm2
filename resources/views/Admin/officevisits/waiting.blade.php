@@ -115,7 +115,7 @@
 													if($list->contact_type == 'Lead'){
 												$client = \App\Models\Lead::where('id', '=', $list->client_id)->first();
 												 ?>
-										    <a target="_blank" href="{{URL::to('/admin/leads/history/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+										    <a target="_blank" href="{{URL::to('/admin/leads/edit/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
 										    <?php
 										}else{
 										    $client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
@@ -252,7 +252,6 @@ jQuery(document).ready(function($){
 		$.ajax({
 			url: site_url+'/admin/attend_session',
 			type:'POST',
-			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			data:{id: appliid,waitcountdata: $('#waitcountdata').val()},
 			success: function(response){
 

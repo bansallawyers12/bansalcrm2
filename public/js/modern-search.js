@@ -167,7 +167,7 @@
         switch (type) {
             case 'Client':
             case 'Lead':
-                // Both clients and leads route to client detail page (old system behavior)
+                // Both clients and leads (old and new) route to client detail page
                 url = siteUrl + '/admin/clients/detail/' + id;
                 break;
             case 'Partner':

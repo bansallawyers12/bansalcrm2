@@ -300,7 +300,7 @@ The search is fully responsive:
 8. **Navigation**
    - Click result → Should navigate to detail page
    - Clients → /admin/clients/detail/{id}
-   - Leads → /admin/leads/history/{id}
+   - Leads → /admin/leads/edit/{id}
    - Partners → /admin/partners/detail/{id}
    - Products → /admin/products/detail/{id}
    - Applications → /admin/applications/detail/{id}
