@@ -1579,50 +1579,6 @@ class ApplicationsController extends Controller
 		}
 		return ob_get_clean();
 	}
-	
-	public function migrationindex(Request $request)
-	{
-		//check authorization start	
-			
-			/* if($check)
-			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
-			} */	
-		//check authorization end
-	    $allstages = Application::select('stage')->where('workflow', '=', 5)->groupBy('stage')->get();
-		$query 		= Application::where('id', '!=', '')->where('workflow', 5)->with(['application_assignee']); 
-		  
-		$totalData 	= $query->count();	//for all data
-        if ($request->has('partner')) 
-		{
-			$partner 		= 	$request->input('partner'); 
-			if(trim($partner) != '')
-			{
-				$query->where('partner_id', '=', $partner);
-			}
-		}
-		if ($request->has('assignee')) 
-		{
-			$assignee 		= 	$request->input('assignee'); 
-			if(trim($assignee) != '')
-			{
-				$query->where('user_id', '=', $assignee);
-			}
-		}
-		 if ($request->has('stage')) 
-		{
-			$stage 		= 	$request->input('stage'); 
-			if(trim($stage) != '')
-			{
-				$query->where('stage', '=', $stage);
-			}
-		}
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(10);
-				
-		return view('Admin.applications.migrationindex', compact(['lists', 'totalData','allstages'])); 	
-				
-		//return view('Admin.applications.index');	 
-	}
 
 	public function import(Request $request){
 		$the_file = $request->file('uploaded_file');

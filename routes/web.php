@@ -678,7 +678,6 @@ Route::prefix('admin')->group(function() {
 		//Route::post('/product-type/store', 'Admin\ProductTypeController@store')->name('admin.feature.producttype.store');   
 		//Route::get('/product-type/edit/{id}', 'Admin\ProductTypeController@edit')->name('admin.feature.producttype.edit');
 		//Route::post('/product-type/edit', 'Admin\ProductTypeController@edit')->name('admin.feature.producttype.edit');
-		Route::get('/migration', 'Admin\ApplicationsController@migrationindex')->name('admin.migration.index');
 		Route::get('/office-visits', 'Admin\OfficeVisitController@index')->name('admin.officevisits.index');  
 		Route::get('/office-visits/waiting', 'Admin\OfficeVisitController@waiting')->name('admin.officevisits.waiting');  
 		Route::get('/office-visits/attending', 'Admin\OfficeVisitController@attending')->name('admin.officevisits.attending');  
