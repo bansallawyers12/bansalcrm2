@@ -73,11 +73,8 @@ class SearchService
                 $results = array_merge($results, $this->searchByPhone($searchType['value']));
                 break;
             default:
-                // Search only clients and leads
-                $results = array_merge(
-                    $this->searchClients(),
-                    $this->searchLeads()
-                );
+                // Search only clients (including those with type='lead')
+                $results = $this->searchClients();
                 break;
         }
 
@@ -124,6 +121,11 @@ class SearchService
                 $q->whereNull('admins.is_deleted')
                   ->orWhere('admins.is_deleted', 0);
             })
+            ->where(function ($q) {
+                $q->whereNull('admins.lead_id')
+                  ->orWhere('admins.lead_id', 0)
+                  ->orWhere('admins.lead_id', '');
+            })
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($query, $dob) {
                 $q->where('admins.email', 'LIKE', '%' . $query . '%')
@@ -145,17 +147,20 @@ class SearchService
             ->get();
 
         return $clients->map(function ($client) {
+            $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
+            $badgeColor = $client->is_archived == 1 ? 'gray' : ($client->type == 'lead' ? 'blue' : 'yellow');
+            
             return [
                 'name' => $this->highlightMatch($client->first_name . ' ' . $client->last_name),
                 'email' => $this->highlightMatch($client->email ?? ''),
                 'phone' => $this->highlightMatch($client->phone ?? ''),
                 'client_id' => $client->client_id,
-                'status' => $client->is_archived == 1 ? 'Archived' : ($client->type ?? 'Client'),
-                'type' => 'Client',
+                'status' => $client->is_archived == 1 ? 'Archived' : $displayType,
+                'type' => 'Client', // Always route to client detail page
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'raw_id' => $client->id,
                 'category' => 'clients',
-                'badge_color' => $client->is_archived == 1 ? 'gray' : 'yellow'
+                'badge_color' => $badgeColor
             ];
         })->toArray();
     }
@@ -209,6 +214,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
+            ->where(function ($q) {
+                $q->whereNull('lead_id')
+                  ->orWhere('lead_id', 0)
+                  ->orWhere('lead_id', '');
+            })
             ->where(function ($q) use ($clientId) {
                 $q->where('client_id', 'LIKE', '%' . $clientId . '%')
                   ->orWhere('id', '=', $clientId);
@@ -217,17 +227,20 @@ class SearchService
             ->get();
 
         return $clients->map(function ($client) {
+            $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
+            $badgeColor = $client->is_archived == 1 ? 'gray' : ($client->type == 'lead' ? 'blue' : 'yellow');
+            
             return [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
                 'phone' => $client->phone ?? '',
                 'client_id' => $client->client_id,
-                'status' => $client->is_archived == 1 ? 'Archived' : ($client->type ?? 'Client'),
+                'status' => $client->is_archived == 1 ? 'Archived' : $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'raw_id' => $client->id,
                 'category' => 'clients',
-                'badge_color' => 'yellow'
+                'badge_color' => $badgeColor
             ];
         })->toArray();
     }
@@ -244,6 +257,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
+            ->where(function ($q) {
+                $q->whereNull('lead_id')
+                  ->orWhere('lead_id', 0)
+                  ->orWhere('lead_id', '');
+            })
             ->where(function ($q) use ($email) {
                 $q->where('email', 'LIKE', '%' . $email . '%')
                   ->orWhere('att_email', 'LIKE', '%' . $email . '%');
@@ -252,36 +270,17 @@ class SearchService
             ->get();
 
         foreach ($clients as $client) {
+            $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
+            $badgeColor = $client->type == 'lead' ? 'blue' : 'yellow';
+            
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
-                'phone' => $client->phone ?? '',
-                'client_id' => $client->client_id,
-                'status' => $client->type ?? 'Client',
+                'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'category' => 'clients',
-                'badge_color' => 'yellow'
-            ];
-        }
-
-        // Search leads
-        $leads = Lead::where('converted', 0)
-            ->where('email', 'LIKE', '%' . $email . '%')
-            ->limit(10)
-            ->get();
-
-        foreach ($leads as $lead) {
-            $results[] = [
-                'name' => $lead->first_name . ' ' . $lead->last_name,
-                'email' => $lead->email ?? '',
-                'phone' => $lead->phone ?? '',
-                'client_id' => null,
-                'status' => 'Lead',
-                'type' => 'Lead',
-                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
-                'category' => 'leads',
-                'badge_color' => 'blue'
+                'badge_color' => $badgeColor
             ];
         }
 
@@ -304,6 +303,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')->orWhere('admins.is_deleted', 0);
             })
+            ->where(function ($q) {
+                $q->whereNull('admins.lead_id')
+                  ->orWhere('admins.lead_id', 0)
+                  ->orWhere('admins.lead_id', '');
+            })
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($phone) {
                 $q->where('admins.phone', 'LIKE', '%' . $phone . '%')
@@ -315,36 +319,17 @@ class SearchService
             ->get();
 
         foreach ($clients as $client) {
+            $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
+            $badgeColor = $client->type == 'lead' ? 'blue' : 'yellow';
+            
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
-                'phone' => $client->phone ?? '',
-                'client_id' => $client->client_id,
-                'status' => $client->type ?? 'Client',
+                'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'category' => 'clients',
-                'badge_color' => 'yellow'
-            ];
-        }
-
-        // Search leads
-        $leads = Lead::where('converted', 0)
-            ->where('phone', 'LIKE', '%' . $phone . '%')
-            ->limit(10)
-            ->get();
-
-        foreach ($leads as $lead) {
-            $results[] = [
-                'name' => $lead->first_name . ' ' . $lead->last_name,
-                'email' => $lead->email ?? '',
-                'phone' => $lead->phone ?? '',
-                'client_id' => null,
-                'status' => 'Lead',
-                'type' => 'Lead',
-                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
-                'category' => 'leads',
-                'badge_color' => 'blue'
+                'badge_color' => $badgeColor
             ];
         }
 
