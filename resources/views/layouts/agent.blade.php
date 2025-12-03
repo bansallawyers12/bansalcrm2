@@ -203,6 +203,7 @@ $(document).delegate('.opencheckin', 'click', function(){
 		$.ajax({
 			url: site_url+'/admin/complete_session',
 			type:'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			data:{id: appliid,attendcountdata: $('#attendcountdata').val()},
 			success: function(response){
 		
