@@ -10,7 +10,7 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/clients/edit', 'name'=>"edit-clients", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'admin/clients/edit', 'method' => 'post', 'name'=>"edit-clients", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			{!! Form::hidden('id', @$fetchedData->id)  !!}  
 				{!! Form::hidden('type', @$fetchedData->type)  !!} 
 				<div class="row">   

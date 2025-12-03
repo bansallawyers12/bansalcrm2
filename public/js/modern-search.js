@@ -130,29 +130,30 @@
             return $('<strong class="select2-category-header">' + repo.text + '</strong>');
         }
 
-        const badgeColors = {
-            yellow: '#fbbd08',
-            blue: '#2185d0',
-            purple: '#a333c8',
-            green: '#21ba45',
-            indigo: '#6574cd',
-            gray: '#767676',
-            red: '#db2828'
-        };
-
-        const badgeColor = badgeColors[repo.badge_color] || badgeColors.yellow;
+        // Build additional details array
+        const details = [];
+        
+        if (repo.client_id) {
+            details.push(`ID: ${repo.client_id}`);
+        }
+        
+        if (repo.phone) {
+            details.push(`Phone: ${repo.phone}`);
+        }
+        
+        if (repo.email) {
+            details.push(repo.email);
+        }
+        
+        // Join details with separator
+        const detailsText = details.join(' • ');
 
         const $container = $(`
             <div class="select2-result-repository modern-search-result">
                 <div class="modern-search-result-content">
                     <div class="modern-search-result-main">
                         <div class="modern-search-result-title">${repo.name || repo.text}</div>
-                        <div class="modern-search-result-subtitle">${repo.email || ''}</div>
-                    </div>
-                    <div class="modern-search-result-meta">
-                        <span class="modern-search-badge" style="background-color: ${badgeColor}">
-                            ${repo.status || repo.type}
-                        </span>
+                        <div class="modern-search-result-subtitle">${detailsText}</div>
                     </div>
                 </div>
             </div>

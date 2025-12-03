@@ -63,9 +63,7 @@ mark.search-highlight {
 .modern-search-result-subtitle {
     font-size: 12px;
     color: #6c757d;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.4;
 }
 
 .modern-search-result-meta {

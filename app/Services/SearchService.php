@@ -148,6 +148,7 @@ class SearchService
             return [
                 'name' => $this->highlightMatch($client->first_name . ' ' . $client->last_name),
                 'email' => $this->highlightMatch($client->email ?? ''),
+                'phone' => $this->highlightMatch($client->phone ?? ''),
                 'client_id' => $client->client_id,
                 'status' => $client->is_archived == 1 ? 'Archived' : ($client->type ?? 'Client'),
                 'type' => 'Client',
@@ -186,6 +187,8 @@ class SearchService
             return [
                 'name' => $this->highlightMatch($lead->first_name . ' ' . $lead->last_name),
                 'email' => $this->highlightMatch($lead->email ?? ''),
+                'phone' => $this->highlightMatch($lead->phone ?? ''),
+                'client_id' => null,
                 'status' => 'Lead',
                 'type' => 'Lead',
                 'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
@@ -217,6 +220,7 @@ class SearchService
             return [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
                 'client_id' => $client->client_id,
                 'status' => $client->is_archived == 1 ? 'Archived' : ($client->type ?? 'Client'),
                 'type' => 'Client',
@@ -251,6 +255,8 @@ class SearchService
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
+                'client_id' => $client->client_id,
                 'status' => $client->type ?? 'Client',
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
@@ -269,6 +275,8 @@ class SearchService
             $results[] = [
                 'name' => $lead->first_name . ' ' . $lead->last_name,
                 'email' => $lead->email ?? '',
+                'phone' => $lead->phone ?? '',
+                'client_id' => null,
                 'status' => 'Lead',
                 'type' => 'Lead',
                 'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
@@ -310,6 +318,8 @@ class SearchService
             $results[] = [
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
+                'phone' => $client->phone ?? '',
+                'client_id' => $client->client_id,
                 'status' => $client->type ?? 'Client',
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
@@ -328,6 +338,8 @@ class SearchService
             $results[] = [
                 'name' => $lead->first_name . ' ' . $lead->last_name,
                 'email' => $lead->email ?? '',
+                'phone' => $lead->phone ?? '',
+                'client_id' => null,
                 'status' => 'Lead',
                 'type' => 'Lead',
                 'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',

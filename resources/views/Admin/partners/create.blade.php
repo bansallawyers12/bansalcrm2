@@ -18,7 +18,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/partners/store', 'name'=>"add-partner", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('route' => 'admin.partners.store', 'method' => 'post', 'name'=>"add-partner", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">

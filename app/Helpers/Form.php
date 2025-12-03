@@ -11,12 +11,19 @@ class Form
      */
     public static function open($options = [])
     {
-        $attributes = [];
         $url = null;
         $method = 'POST';
+        $attributes = [];
         
+        // Handle 'route' parameter - convert route name to URL
+        if (isset($options['route'])) {
+            $url = route($options['route']);
+            unset($options['route']);
+        }
+        
+        // Handle 'url' parameter
         if (isset($options['url'])) {
-            $url = $options['url'];
+            $url = url($options['url']);
             unset($options['url']);
         }
         
@@ -25,30 +32,47 @@ class Form
             unset($options['method']);
         }
         
-        // Handle novalidate attribute properly (boolean attribute)
-        if (isset($options['novalidate']) && $options['novalidate']) {
-            $form = Html::form()->novalidate();
-            unset($options['novalidate']);
-        } else {
-            $form = Html::form();
-        }
-        
-        // Convert array attributes to string format
+        // Collect remaining options as attributes
         foreach ($options as $key => $value) {
             $attributes[$key] = $value;
         }
         
+        // Manually build the form tag to ensure it's correct
+        $html = '<form';
+        
+        // Add action attribute
         if ($url) {
-            $form->action($url);
+            $html .= ' action="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        $form->method($method);
+        // Add method attribute - use POST for display, Laravel will handle method spoofing
+        $html .= ' method="' . ($method === 'GET' ? 'GET' : 'POST') . '"';
         
-        if (!empty($attributes)) {
-            $form->attributes($attributes);
+        // Add other attributes
+        foreach ($attributes as $key => $value) {
+            if ($value !== null && $value !== false) {
+                if (is_bool($value) && $value === true) {
+                    // Boolean attribute (like novalidate)
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $form->open();
+        $html .= '>';
+        
+        // Add CSRF token for non-GET requests
+        if ($method !== 'GET') {
+            $html .= "\n" . csrf_field();
+        }
+        
+        // Add method spoofing for PUT, PATCH, DELETE
+        if (!in_array($method, ['GET', 'POST'])) {
+            $html .= "\n" . method_field($method);
+        }
+        
+        return $html;
     }
     
     /**
@@ -56,7 +80,7 @@ class Form
      */
     public static function close()
     {
-        return Html::form()->close();
+        return '</form>';
     }
     
     /**

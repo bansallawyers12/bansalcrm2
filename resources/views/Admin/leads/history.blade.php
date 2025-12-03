@@ -275,7 +275,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				
 			</div>
-			{!! Form::open(array('url' => 'admin/followup/store', 'name'=>"add-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
+			{!! Form::open(array('url' => 'admin/followup/store', 'method' => 'post', 'name'=>"add-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
 			<div class="modal-body">
 				<div class="customerror"></div> 
 				<div class="form-group row">
@@ -319,7 +319,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				{!! Form::open(array('url' => 'admin/followup/compose', 'name'=>"add-compose", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
+				{!! Form::open(array('url' => 'admin/followup/compose', 'method' => 'post', 'name'=>"add-compose", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
 				<input id="" name="lead_id" type="hidden" value="{{base64_encode(convert_uuencode(@$fetchedData->id))}}">
 					<div class="row">
 						
