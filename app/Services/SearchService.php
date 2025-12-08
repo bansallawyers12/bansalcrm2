@@ -60,7 +60,7 @@ class SearchService
         $results = [];
 
         // Parse query for special searches
-        $searchType = $this->detectSearchType();
+        $searchType = $this->detectSearchType(); //dd($searchType['type']);
 
         switch ($searchType['type']) {
             case 'client_id':
@@ -77,7 +77,7 @@ class SearchService
                 $results = array_merge(
                     $this->searchClients(),
                     $this->searchLeads()
-                );
+                );  //dd($results);
                 break;
         }
 
@@ -137,11 +137,11 @@ class SearchService
                 $q->whereNull('admins.is_deleted')
                   ->orWhere('admins.is_deleted', 0);
             })
-            ->where(function ($q) {
+            /*->where(function ($q) {
                 $q->whereNull('admins.lead_id')
                   ->orWhere('admins.lead_id', 0)
                   ->orWhere('admins.lead_id', '');
-            })
+            })*/
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($query, $dob) {
                 $q->where('admins.email', 'LIKE', '%' . $query . '%')
@@ -158,7 +158,7 @@ class SearchService
                     $q->orWhere('admins.dob', '=', $dob);
                 }
             })
-            ->select('admins.*', 'phone_data.phones')
+            ->select('admins.*', '.phones')
             ->limit($this->limit)
             ->get();
 
@@ -230,11 +230,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
-            ->where(function ($q) {
+            /*->where(function ($q) {
                 $q->whereNull('lead_id')
                   ->orWhere('lead_id', 0)
                   ->orWhere('lead_id', '');
-            })
+            })*/
             ->where(function ($q) use ($clientId) {
                 $q->where('client_id', 'LIKE', '%' . $clientId . '%')
                   ->orWhere('id', '=', $clientId);
@@ -273,11 +273,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
-            ->where(function ($q) {
+            /*->where(function ($q) {
                 $q->whereNull('lead_id')
                   ->orWhere('lead_id', 0)
                   ->orWhere('lead_id', '');
-            })
+            })*/
             ->where(function ($q) use ($email) {
                 $q->where('email', 'LIKE', '%' . $email . '%')
                   ->orWhere('att_email', 'LIKE', '%' . $email . '%');
@@ -354,11 +354,11 @@ class SearchService
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')->orWhere('admins.is_deleted', 0);
             })
-            ->where(function ($q) {
+            /*->where(function ($q) {
                 $q->whereNull('admins.lead_id')
                   ->orWhere('admins.lead_id', 0)
                   ->orWhere('admins.lead_id', '');
-            })
+            })*/
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($searchPatterns) {
                 foreach ($searchPatterns as $pattern) {

@@ -221,7 +221,7 @@ Route::prefix('admin')->group(function() {
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('admin.leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('admin.leads.store');   
 	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('admin.leads.assign');    
-	Route::get('/leads/detail/{id}', [ClientsController::class, 'detail'])->name('admin.leads.detail');  // Lead detail page (uses client detail view)
+	Route::get('/leads/detail/{id}', [ClientsController::class, 'leaddetail'])->name('admin.leads.detail');  // Lead detail page (uses client detail view)
 	// Removed broken edit routes - leads now use detail page for viewing/editing
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
@@ -289,7 +289,7 @@ Route::prefix('admin')->group(function() {
 		Route::get('/clients/changetype/{id}/{type}', [ClientsController::class, 'changetype']);
 		Route::get('/document/download/pdf/{id}', [ClientsController::class, 'downloadpdf']);
 		Route::get('/clients/removetag', [ClientsController::class, 'removetag']);
-		Route::get('/clients/detail/{id}', [ClientsController::class, 'detail'])->name('admin.clients.detail');	
+		Route::get('/clients/detail/{id}', [ClientsController::class, 'clientdetail'])->name('admin.clients.detail');	
 		Route::get('/clients/get-recipients', [ClientsController::class, 'getrecipients'])->name('admin.clients.getrecipients');
 		Route::get('/clients/get-onlyclientrecipients', [ClientsController::class, 'getonlyclientrecipients'])->name('admin.clients.getonlyclientrecipients');
 		// Global search endpoint with rate limiting (60 requests per minute)

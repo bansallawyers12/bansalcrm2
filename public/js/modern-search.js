@@ -174,16 +174,19 @@
 
         const siteUrl = (typeof site_url !== 'undefined' ? site_url : '');
         const parts = data.id.split('/');
-        const type = parts[1];
-        const id = parts[0];
+        const type = parts[1];  //alert('type='+type);
+        const id = parts[0];  //alert('id='+id);
 
         let url = '';
 
         switch (type) {
             case 'Client':
+                 // Both clients and leads (old and new) route to client detail page
+                 url = siteUrl + '/admin/clients/detail/' + id;
+                 break;
             case 'Lead':
                 // Both clients and leads (old and new) route to client detail page
-                url = siteUrl + '/admin/clients/detail/' + id;
+                url = siteUrl + '/admin/leads/detail/' + id;
                 break;
             case 'Partner':
                 url = siteUrl + '/admin/partners/detail/' + id;
