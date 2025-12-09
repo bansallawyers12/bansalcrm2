@@ -49,7 +49,29 @@ display: inline-block;}
 }
 .card .card-body ul.nav-pills li.nav-item {margin: 0px 0px 0px 0px;}
 
-  
+/* Commission Invoice Modal Select2 Dropdown Styles */
+#opencommissionmodal .select2-results__options {
+	max-height: 300px !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+}
+#opencommissionmodal .select2-search--dropdown {
+	position: relative !important;
+	z-index: 1 !important;
+	display: block !important;
+}
+#opencommissionmodal .select2-search--dropdown .select2-search__field {
+	width: 100% !important;
+	padding: 6px !important;
+	border: 1px solid #aaa !important;
+	border-radius: 4px !important;
+}
+#opencommissionmodal .select2-container {
+	z-index: 9999 !important;
+}
+#opencommissionmodal .select2-dropdown {
+	z-index: 9999 !important;
+}
 
  .file-preview-container {
     border: 1px solid #ddd;
@@ -7366,6 +7388,17 @@ $(document).delegate('.opencreate_task', 'click', function () {
 
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');
+	});
+	
+	// Initialize select2 for application dropdown when commission invoice modal is shown
+	$('#opencommissionmodal').on('shown.bs.modal', function() {
+		// Destroy existing select2 instance if any
+		$('#opencommissionmodal select.select2').select2('destroy');
+		// Initialize select2 with proper settings for modal
+		$('#opencommissionmodal select.select2').select2({
+			dropdownParent: $('#opencommissionmodal'),
+			width: '100%'
+		});
 	});
 
 	$(document).delegate('.opengeneralinvoice', 'click', function(){
