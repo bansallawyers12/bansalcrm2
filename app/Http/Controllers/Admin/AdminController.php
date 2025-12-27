@@ -477,7 +477,8 @@ class AdminController extends Controller
 		}
 		else
 		{
-			$fetchedData = WebsiteSetting::where('id', '!=', '')->first();
+			// PostgreSQL: Cannot compare integer column to empty string. Use whereNotNull or just get first record.
+			$fetchedData = WebsiteSetting::whereNotNull('id')->first();
 
 			return view('Admin.website_setting', compact(['fetchedData']));
 		}

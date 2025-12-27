@@ -32,7 +32,8 @@ class Controller extends BaseController
 	
 	public function __construct()
     {
-		$siteData = WebsiteSetting::where('id', '!=', '')->first();
+		// PostgreSQL: Cannot compare integer column to empty string. Use whereNotNull or just get first record.
+		$siteData = WebsiteSetting::whereNotNull('id')->first();
 		\View::share('siteData', $siteData);
         //$this->middleware('guest:admin')->except('logout');
 	//	exec('php public_html/development/artisan view:clear');

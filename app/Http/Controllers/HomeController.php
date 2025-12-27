@@ -16,7 +16,8 @@ class HomeController extends Controller
 {
 	public function __construct(Request $request)
     {	
-		$siteData = WebsiteSetting::where('id', '!=', '')->first();
+		// PostgreSQL: Cannot compare integer column to empty string. Use whereNotNull or just get first record.
+		$siteData = WebsiteSetting::whereNotNull('id')->first();
 		\View::share('siteData', $siteData);
 	}
 	

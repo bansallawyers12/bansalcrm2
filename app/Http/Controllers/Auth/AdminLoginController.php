@@ -123,9 +123,10 @@ class AdminLoginController extends Controller
 
             $obj = new \App\Models\UserLog;
             $obj->level = 'info';
-            $obj->user_id = @$user->id;
+            // PostgreSQL NOT NULL constraint - user_id must be set
+            $obj->user_id = $user->id;
             $obj->ip_address = $request->getClientIp();
-            $obj->user_agent = $_SERVER['HTTP_USER_AGENT'];
+            $obj->user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
             $obj->message = 'Logged in successfully';
             $obj->save();
             return redirect()->intended($this->redirectPath());
@@ -140,8 +141,8 @@ class AdminLoginController extends Controller
     {
         $errors = [$this->username() => trans('auth.failed')];
   
-        // Load user from database
-        $user = \App\Models\User::where($this->username(), $request->{$this->username()})->first();
+        // Load admin user from database (use Admin model, not User model)
+        $user = \App\Models\Admin::where($this->username(), $request->{$this->username()})->first();
     
         if ($user && !\Hash::check($request->password, $user->password)) {
             $errors = ['password' => 'Wrong password'];
@@ -151,7 +152,8 @@ class AdminLoginController extends Controller
             return response()->json($errors, 422);
         }
        
-         if(! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
+         // Only send email if user exists (email found in database)
+         if($user && ! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
          {
            $message  = '<html><body>';
            $message .= '<p>Dear Admin,</p>';
@@ -165,15 +167,27 @@ class AdminLoginController extends Controller
            $subject = 'CRM Traced new IP Address- '.$request->getClientIp().' from Email- '.$user->email;
            $this->send_compose_template('info@bansaleducation.au', $subject, 'info@bansaleducation.au', $message,'Bansal Immigration');
          }
-
        
-		$obj = new \App\Models\UserLog;
-		$obj->level = 'critical';
-		$obj->user_id = @$user;
-		$obj->ip_address = $request->getClientIp();
-		$obj->user_agent = $_SERVER['HTTP_USER_AGENT'];
-		$obj->message = 'Invalid Email or Password !';
-		$obj->save();
+
+		// Log failed login attempt
+		// PostgreSQL NOT NULL constraint - user_id must be set
+		// If user exists, use their ID; if not, use null (column should be nullable for failed logins)
+		try {
+			$obj = new \App\Models\UserLog;
+			$obj->level = 'critical';
+			$obj->user_id = $user ? $user->id : null; // null for unknown/non-existent users
+			$obj->ip_address = $request->getClientIp();
+			$obj->user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+			$obj->message = 'Invalid Email or Password !';
+			$obj->save();
+		} catch (\Exception $e) {
+			// Log error but don't break the login flow
+			// If user_id is NOT NULL, this will fail - consider making user_id nullable in migration
+			\Log::error('Failed to log failed login attempt: ' . $e->getMessage(), [
+				'user_exists' => $user ? true : false,
+				'email' => $request->{$this->username()}
+			]);
+		}
         return redirect()->back()
             ->withInput($request->only($this->username(), 'remember'))
             ->withErrors($errors);
@@ -181,11 +195,13 @@ class AdminLoginController extends Controller
 	
 	public function logout(Request $request)
     {
-		  $user = $request->id;
+		// Get authenticated user ID before logout
+		$userId = Auth::guard('admin')->id();
 	
 		$obj = new \App\Models\UserLog;
 		$obj->level = 'info';
-		$obj->user_id = @$user;
+		// PostgreSQL NOT NULL constraint - user_id must be set. Use authenticated user ID
+		$obj->user_id = $userId;
 		$obj->ip_address = $request->getClientIp();
 		$obj->user_agent = $_SERVER['HTTP_USER_AGENT'];
 		$obj->message = 'Logged out successfully';

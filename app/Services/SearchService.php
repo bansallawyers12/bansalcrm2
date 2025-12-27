@@ -129,7 +129,7 @@ class SearchService
         $dob = $this->parseDOB($query);
 
         $phoneSubquery = DB::table('client_phones')
-            ->select('client_id', DB::raw('GROUP_CONCAT(client_phone) as phones'))
+            ->select('client_id', DB::raw("STRING_AGG(client_phone, ', ') as phones"))
             ->groupBy('client_id');
 
         $clients = Admin::where('admins.role', '=', 7)
@@ -443,7 +443,7 @@ class SearchService
         ];
 
         $phoneSubquery = DB::table('client_phones')
-            ->select('client_id', DB::raw('GROUP_CONCAT(client_phone) as phones'))
+            ->select('client_id', DB::raw("STRING_AGG(client_phone, ', ') as phones"))
             ->groupBy('client_id');
 
         // Search clients
