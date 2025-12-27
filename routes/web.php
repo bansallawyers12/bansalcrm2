@@ -608,13 +608,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/checklist/edit/{id}', 'Admin\ChecklistController@edit')->name('admin.checklist.edit');
 		Route::post('/checklist/edit', 'Admin\ChecklistController@edit')->name('admin.checklist.update');
 		
-		//Enquiry Source Start
-		Route::get('/enquirysource', 'Admin\EnquirySourceController@index')->name('admin.enquirysource.index');  
-		Route::get('/enquirysource/create', 'Admin\EnquirySourceController@create')->name('admin.enquirysource.create');  
-		Route::post('enquirysource/store', 'Admin\EnquirySourceController@store')->name('admin.enquirysource.store');     
-		Route::get('/enquirysource/edit/{id}', 'Admin\EnquirySourceController@edit')->name('admin.enquirysource.edit');
-		Route::post('/enquirysource/edit', 'Admin\EnquirySourceController@edit')->name('admin.enquirysource.update');
-		
 		//FeeType Start
 		Route::get('/feetype', 'Admin\FeeTypeController@index')->name('admin.feetype.index');  
 		Route::get('/feetype/create', 'Admin\FeeTypeController@create')->name('admin.feetype.create');  
@@ -715,9 +708,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/followup-dates', 'Admin\ReportController@followupdates'); 
 		Route::get('/reports/agreementexpires', 'Admin\ReportController@agreementexpires');
 		Route::get('/report/noofpersonofficevisit', 'Admin\ReportController@noofpersonofficevisit')->name('admin.reports.noofpersonofficevisit');
-		Route::get('/report/clientrandomlyselectmonthly', 'Admin\ReportController@clientrandomlyselectmonthly')->name('admin.reports.clientrandomlyselectmonthly');
-		
-        Route::post('/report/save_random_client_selection', 'Admin\ReportController@saveclientrandomlyselectmonthly');
 
 
 		Route::post('/save_tag', [ClientsController::class, 'save_tag']); 	 
@@ -799,14 +789,6 @@ Route::prefix('admin')->group(function() {
         //update email verified at client detail page
         Route::post('/clients/update-email-verified', [ClientsController::class, 'updateemailverified']);
         
-		
-		 //Promo code
-		Route::get('/promo-code', 'Admin\PromoCodeController@index')->name('admin.feature.promocode.index');
-		Route::get('/promo-code/create', 'Admin\PromoCodeController@create')->name('admin.feature.promocode.create');
-		Route::post('/promo-code/store', 'Admin\PromoCodeController@store')->name('admin.feature.promocode.store');
-		Route::get('/promo-code/edit/{id}', 'Admin\PromoCodeController@edit')->name('admin.feature.promocode.edit');
-		Route::post('/promo-code/edit', 'Admin\PromoCodeController@edit');
-        Route::post('/promo-code/checkpromocode', 'Admin\PromoCodeController@checkpromocode');
         
         Route::post('/address_auto_populate', [ClientsController::class, 'address_auto_populate']);
   

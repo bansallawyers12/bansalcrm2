@@ -23,6 +23,8 @@ class Kernel extends ConsoleKernel
       //'\App\Console\Commands\WpAppointmentToCrm',
       
        '\App\Console\Commands\MonthlyPartnerRecurringNotes',
+       '\App\Console\Commands\CompareDatabases',
+       '\App\Console\Commands\TransferDataToPostgres',
     ];
 
     /**

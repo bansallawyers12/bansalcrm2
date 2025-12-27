@@ -322,11 +322,6 @@
                     <li class=""><a class="nav-link" href="{{route('admin.reports.noofpersonofficevisit')}}">Office Visit Report Date wise</a></li>
                     @endif
                     
-                    
-                    @if(Auth::user()->role ===1)
-                    <li class=""><a class="nav-link" href="{{route('admin.reports.clientrandomlyselectmonthly')}}">Client Select Monthly Report</a></li>
-                    @endif
-                    
 				</ul> 
 			</li>
 			<?php

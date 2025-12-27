@@ -8,7 +8,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 
 // use App\Models\Appointment; // Appointment model deleted
 use App\Models\Note;
-use App\Models\AppointmentLog;
+// use App\Models\AppointmentLog; // AppointmentLog model deleted - appointments table removed
 use App\Models\Notification;
 use Carbon\Carbon;
 use App\Models\Admin;
@@ -714,9 +714,10 @@ class AssigneeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // Appointment functionality removed - tables dropped in migration
     public function create()
     {
-        return view('appointment.create');
+        return response('Appointment functionality has been removed', 404);
     }
 
     /**
@@ -740,30 +741,22 @@ class AssigneeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function show(Appointment $appointment)
+    public function show()
     {
-        // Appointment functionality removed - Appointment model deleted
         return response('Appointment functionality has been removed', 404);
-        /* Original code commented out - Appointment model deleted
-        $appointment=Appointment::with(['user','clients','service','natureOfEnquiry'])->where('id',$appointment->id)->first();
-        return view('Admin.appointments.show',compact('appointment'));
-        */
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Appointment $appointment)
+    public function edit(Request $request)
     {
-        // Appointment functionality removed - Appointment model deleted
         return response('Appointment functionality has been removed', 404);
-        /* Original code commented out - Appointment model deleted
+    }
         $appointment=Appointment::with(['user','clients','service','natureOfEnquiry'])->where('id',$appointment->id)->first();
         return view('Admin.appointments.edit',compact('appointment'));
         */
@@ -1079,8 +1072,10 @@ class AssigneeController extends Controller
             <div class="col-md-12">
                     <h4>Application Logs</h4>
                     <div class="logsdata">
-
-  <?php
+                    <!-- AppointmentLog functionality removed - appointments table deleted -->
+                    <p class="text-muted">Appointment logs are no longer available.</p>
+                    <?php
+                    /*
                     $logslist = AppointmentLog::where('appointment_id',$appointmentdetail->id)->orderby('created_at', 'DESC')->get();
                     foreach($logslist as $llist){
                        $admin = \App\Models\Admin::where('id', $llist->created_by)->first();
@@ -1102,6 +1097,8 @@ class AssigneeController extends Controller
                             </div>
                         </div>
                     <?php } ?>
+                    */
+                    ?>
                     </div>
                 </div>
         </div>
@@ -1110,7 +1107,9 @@ class AssigneeController extends Controller
 }
 
 public function update_appointment_status(Request $request){
-
+    // Appointment functionality removed - Appointment model deleted
+    return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    /* Original code commented out - Appointment model deleted
     $objs = Appointment::find($request->id);
 
     if($objs->status == 0){
@@ -1195,6 +1194,9 @@ public function update_appointment_priority(Request $request){
 }
 
 public function change_assignee(Request $request){
+    // Appointment functionality removed - Appointment model deleted
+    return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    /* Original code commented out - Appointment model deleted
     $objs = Appointment::find($request->id);
 
     $objs->assignee = $request->assinee;
@@ -1216,9 +1218,13 @@ public function change_assignee(Request $request){
         $response['message']	=	'Please try again';
     }
     echo json_encode($response);
+    */
 }
 
 public function update_apppointment_comment(Request $request){
+    // Appointment functionality removed - AppointmentLog model deleted
+    return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    /* Original code commented out - AppointmentLog model deleted
     $objs = new AppointmentLog;
     $objs->title = 'has commented';
     $objs->created_by = \Auth::user()->id;

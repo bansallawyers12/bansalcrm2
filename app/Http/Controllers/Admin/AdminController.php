@@ -1191,32 +1191,17 @@ class AdminController extends Controller
             $role = Auth::user()->role;
             if(isset($requestData['id']) && !empty($requestData['id']) && isset($requestData['table']) && !empty($requestData['table']))
 			{
-				$tableExist = Schema::hasTable(trim($requestData['table']));
-                if($tableExist) {
-                    if($requestData['table'] == 'book_service_disable_slots'){
-                        $disableslotsexist	= DB::table('book_service_disable_slots')->where('book_service_slot_per_person_id', $requestData['id'])->exists();
-                        if($disableslotsexist){
-                            if($requestData['id'] == 1 || $requestData['id'] == 2){ //Ajay Slot
-                                $idsToDelete = [1,2];
-                                $response = DB::table('book_service_disable_slots')->whereIn('book_service_slot_per_person_id', $idsToDelete)->delete();
-                            } else if($requestData['id'] == 6 || $requestData['id'] == 8){ //Adelaide
-                                $idsToDelete = [6,8];
-                                $response = DB::table('book_service_disable_slots')->whereIn('book_service_slot_per_person_id', $idsToDelete)->delete();
-                            } else { //other user slot
-                                $response = DB::table('book_service_disable_slots')->where('book_service_slot_per_person_id', @$requestData['id'])->delete();
-                            }
-                            if($response) {
-                                $status = 1;
-                                $message = 'Record has been deleted successfully.';
-                            } else {
-                                $message = Config::get('constants.server_error');
-                            }
-                        } else {
-                            $message = 'Slot does not exist, please check it once again.';
-                        }
-                    }
+				// Appointment/book_service functionality removed - table deleted
+                if($requestData['table'] == 'book_service_disable_slots'){
+                    $message = 'This functionality has been removed. The book_service_disable_slots table no longer exists.';
+                    $status = 0;
                 } else {
-                    $message = 'Table does not exist, please check it once again.';
+                    $tableExist = Schema::hasTable(trim($requestData['table']));
+                    if($tableExist) {
+                        // Handle other tables if needed
+                    } else {
+                        $message = 'Table does not exist, please check it once again.';
+                    }
                 }
             } else {
                 $message = 'Id OR Table does not exist, please check it once again.';

@@ -53,8 +53,6 @@
 			<li class="{{(Route::currentRouteName() == 'admin.upload_checklists.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.upload_checklists.index')}}">Upload Checklists</a></li>
             
             <!--<li class="{{--(Route::currentRouteName() == 'admin.feature.appointmentdisabledate.index' ) ? 'active' : ''--}}"><a class="nav-link" href="{{--route('admin.feature.appointmentdisabledate.index')--}}">Block Slot</a></li>-->
-            
-            <li class="{{(Route::currentRouteName() == 'admin.feature.promocode.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.feature.promocode.index')}}">Promo Code</a></li>
       
            <li class="{{(Route::currentRouteName() == 'admin.feature.documentchecklist.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.feature.documentchecklist.index')}}">Document Checklist</a></li>
 

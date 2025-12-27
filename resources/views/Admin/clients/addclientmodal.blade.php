@@ -321,20 +321,6 @@
 
                         <input type="hidden" name="timezone" value="Australia/Melbourne">
 
-                        <div class="col-12 col-md-12 col-lg-12 nature_of_enquiry_row" id="nature_of_enquiry">
-							<div class="form-group row align-items-center">
-								<label for="noe_id" class="col-sm-3 col-form-label">Nature of Enquiry<span class="span_req">*</span></label>
-                                <div class="col-sm-9">
-                                    <select class="form-control enquiry_item" name="noe_id" data-valid="required">
-                                        <option value="">Select</option>
-                                        @foreach(\App\Models\NatureOfEnquiry::where('status',1)->get() as $enquiry)
-                                            <option value="{{$enquiry->id}}">{{$enquiry->title}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-						</div>
-
                         <div class="col-12 col-md-12 col-lg-12 services_row" id="services" style="display: none;">
 							<div class="form-group">
 								<label for="service_id">Services <span class="span_req">*</span></label>
@@ -502,17 +488,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-12 col-md-12 col-lg-12" id="promo_code_used" style="display: none;">
-							<div class="form-group row align-items-center">
-								<label for="promo_code" class="col-sm-3 col-form-label">Promo Code</label>
-                                <div class="col-sm-9">
-								    <input type="text" class="form-control" id="promo_code" placeholder="Enter Promo Code" name="promocode_used" />
-                                    <input type="hidden" name="promocode_id" id="promocode_id" value="">
-                                </div>
-                            </div>
-                            <span id="promo_msg" style="display: none;"></span>
-						</div>
 
 						<!--<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">

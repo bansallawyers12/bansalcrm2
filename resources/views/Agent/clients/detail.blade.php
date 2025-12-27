@@ -793,15 +793,16 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 					}else if(delhref == 'subagent'){
 						$('.subagent_data').html('');
 					}else if(delhref == 'deleteappointment'){
-						$.ajax({
-						url: site_url+'/agent/get-appointments',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.appointmentlist').html(responses);
-						}
-					});
+						// Appointment functionality removed - tables dropped in migration
+						alert('Appointment functionality has been removed');
+						// $.ajax({
+						// url: site_url+'/agent/get-appointments',
+						// type:'GET',
+						// data:{clientid:'{{$fetchedData->id}}'},
+						// success: function(responses){
+						// 	$('.appointmentlist').html(responses);
+						// }
+						// });
 					}else if(delhref == 'deletepaymentschedule'){
 						$.ajax({
 						url: site_url+'/agent/get-all-paymentschedules',
