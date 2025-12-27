@@ -102,10 +102,10 @@ class TasksController extends Controller
 		
 		/*completed*/
 		 if(Auth::user()->role == 1){
-	        $querycom 		= Task::where('id', '!=', ''); 
+	        $querycom 		= Task::query(); 
 	    }else{
 	       
-	        $querycom 		= Task::where('id', '!=', '')
+	        $querycom 		= Task::query()
 	        ->where(function($query){
                             $query->where('assignee', Auth::user()->id)
                                   ->orWhere('followers', Auth::user()->id);

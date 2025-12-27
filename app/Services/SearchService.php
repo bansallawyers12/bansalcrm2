@@ -151,7 +151,7 @@ class SearchService
                   ->orWhere('admins.att_email', 'LIKE', '%' . $query . '%')
                   ->orWhere('admins.att_phone', 'LIKE', '%' . $query . '%')
                   ->orWhere('admins.phone', 'LIKE', '%' . $query . '%')
-                  ->orWhere(DB::raw("CONCAT(admins.first_name, ' ', admins.last_name)"), 'LIKE', '%' . $query . '%')
+                  ->orWhere(DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"), 'LIKE', '%' . $query . '%')
                   ->orWhere('phone_data.phones', 'LIKE', '%' . $query . '%');
                 
                 if ($dob) {
@@ -197,8 +197,7 @@ class SearchService
                     ->from('admins')
                     ->where('role', 7)
                     ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0)
-                    ->where('lead_id', '!=', '');
+                    ->where('lead_id', '!=', 0);
             })
             // Also exclude by email match - if email exists in admins, don't show in leads
             ->whereNotExists(function($subquery) {
@@ -243,7 +242,7 @@ class SearchService
                   ->orWhere('first_name', 'LIKE', '%' . $query . '%')
                   ->orWhere('last_name', 'LIKE', '%' . $query . '%')
                   ->orWhere('phone', 'LIKE', '%' . $query . '%')
-                  ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'LIKE', '%' . $query . '%');
+                  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', '%' . $query . '%');
                 
                 if ($dob) {
                     $q->orWhere('dob', '=', $dob);
@@ -359,8 +358,7 @@ class SearchService
                     ->from('admins')
                     ->where('role', 7)
                     ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0)
-                    ->where('lead_id', '!=', '');
+                    ->where('lead_id', '!=', 0);
             })
             // Also exclude by email match - if email exists in admins, don't show in leads
             ->whereNotExists(function($subquery) {
@@ -493,8 +491,7 @@ class SearchService
                     ->from('admins')
                     ->where('role', 7)
                     ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0)
-                    ->where('lead_id', '!=', '');
+                    ->where('lead_id', '!=', 0);
             })
             // Also exclude by email match - if email exists in admins, don't show in leads
             ->whereNotExists(function($subquery) {

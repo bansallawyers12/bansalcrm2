@@ -63,7 +63,7 @@ class VisaExpireReminderEmail extends Command
         ->where('role', 7)
         //->where('is_visa_expire_mail_sent', 2)
         ->whereNull('is_visa_expire_mail_sent')
-        ->where('visaExpiry','!=','')
+        ->whereNotNull('visaExpiry')
         ->where('visaExpiry', '=', Carbon::now()->addDays(15)->toDateString() ) ;
         $totalLogs = $query->count(); //dd($totalLogs);
 		$logs = $query->get(); //dd($logs);

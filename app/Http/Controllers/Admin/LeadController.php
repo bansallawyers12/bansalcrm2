@@ -51,7 +51,7 @@ class LeadController extends Controller
 			$todaycall = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 15)->whereHas('followupload', function ($q) {
 					$q->whereDate('followup_date',Carbon::today());
 						})->count();
-		$query 		= Lead::where('user_id','!=','' )->where('converted', '=', 0)->with(['user','agentdetail','staffuser']); 
+		$query 		= Lead::whereNotNull('user_id')->where('converted', '=', 0)->with(['user','agentdetail','staffuser']); 
 		
 		  
 		$totalData 	= $query->count();	//for all data
@@ -95,7 +95,7 @@ class LeadController extends Controller
 			$name 		= 	$request->input('name'); 
 			if(trim($name) != '')
 			{
-			$query	->Where(DB::raw("concat(first_name, ' ', last_name)"), 'LIKE', "%".$name."%");
+			$query	->Where(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$name."%");
 			}
 		}if ($request->has('phone')) 
 		{
@@ -136,7 +136,7 @@ class LeadController extends Controller
 			{
 			   
 				$query->whereHas('likes', function ($q) use($followupdate){
-					$q->whereDate('followup_date',$followupdate)->where('followup_date','!=','');
+					$q->whereDate('followup_date',$followupdate)->whereNotNull('followup_date');
 				});
 			}
 		}

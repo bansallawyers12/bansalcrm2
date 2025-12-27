@@ -728,14 +728,8 @@ class AssigneeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'detail' => 'required',
-        ]);
-
-        Product::create($request->all());
-        return redirect()->route('appointment.index')
-                        ->with('success','Product created successfully.');
+        // Appointment functionality removed - tables dropped in migration
+        return response('Appointment functionality has been removed', 404);
     }
 
     /**
@@ -757,37 +751,17 @@ class AssigneeController extends Controller
     {
         return response('Appointment functionality has been removed', 404);
     }
-        $appointment=Appointment::with(['user','clients','service','natureOfEnquiry'])->where('id',$appointment->id)->first();
-        return view('Admin.appointments.edit',compact('appointment'));
-        */
-    }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Appointment $appointment)
+    public function update(Request $request)
     {
-        $request->validate([
-            // 'user_id' => 'required|exists:admins,id',
-            'client_id' => 'required|exists:admins,id',
-            'date' => 'required',
-            'time' => 'required',
-            'title' => 'required',
-            'description' => 'required',
-            'invites' => 'required',
-            'status' => 'required',
-        ]);
-
-        $data=$request->all();
-        $data['time']= Carbon::parse($request->time)->format('H:i:s');
-        $appointment->update($data);
-
-        return redirect()->route('appointments.index')
-                        ->with('success','Appointment updated successfully');
+        // Appointment functionality removed - Appointment model deleted
+        return response('Appointment functionality has been removed', 404);
     }
 
     /**
