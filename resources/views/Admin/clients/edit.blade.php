@@ -982,10 +982,6 @@
         }
      }
  } ?>
- <?php
-     }
- }
- ?>
 
 <?php
 if($fetchedData->tagname != ''){

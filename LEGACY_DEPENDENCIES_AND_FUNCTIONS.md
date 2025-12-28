@@ -333,3 +333,4 @@ This document lists all legacy dependencies, deprecated functions, and outdated 
 **Last Updated:** Current Date  
 **Files Scanned:** All PHP files in `app/`, `resources/views/`, `routes/`
 
+

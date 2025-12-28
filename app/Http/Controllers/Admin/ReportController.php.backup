@@ -97,6 +97,7 @@ class ReportController extends Controller
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
+		return view('Admin.reports.personal-task-report', compact(['lists', 'totalData']));
 		//return view('Admin.reports.tasks');
 	}
 	public function office_task(Request $request)  
