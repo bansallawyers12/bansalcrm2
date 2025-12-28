@@ -11,15 +11,17 @@ This document serves as a quick reference for syntax changes made during the MyS
 4. [Date Formatting](#date-formatting)
 5. [Null Handling in ORDER BY](#null-handling-in-order-by)
 6. [String Concatenation](#string-concatenation)
-7. [NOT NULL Constraints](#not-null-constraints)
-8. [Pending Migrations and Schema Mismatches](#pending-migrations-and-schema-mismatches)
-9. [Handling Missing Form Fields](#handling-missing-form-fields)
-10. [Notes Table - Missing Default Values](#notes-table---missing-default-values)
-11. [Documents Table - Missing signer_count Field](#documents-table---missing-signer_count-field)
-12. [Search Patterns](#search-patterns)
-13. [Quick Reference Table](#quick-reference-table)
-14. [Migration Checklist](#migration-checklist)
-15. [Prioritized Implementation Plan (Safest to Hardest)](#prioritized-implementation-plan-safest-to-hardest)
+7. [FIND_IN_SET Function](#find_in_set-function)
+8. [GROUP BY Strictness](#group-by-strictness)
+9. [NOT NULL Constraints](#not-null-constraints)
+9. [Pending Migrations and Schema Mismatches](#pending-migrations-and-schema-mismatches)
+10. [Handling Missing Form Fields](#handling-missing-form-fields)
+11. [Notes Table - Missing Default Values](#notes-table---missing-default-values)
+12. [Documents Table - Missing signer_count Field](#documents-table---missing-signer_count-field)
+13. [Search Patterns](#search-patterns)
+14. [Quick Reference Table](#quick-reference-table)
+15. [Migration Checklist](#migration-checklist)
+16. [Prioritized Implementation Plan (Safest to Hardest)](#prioritized-implementation-plan-safest-to-hardest)
 
 ---
 
@@ -355,6 +357,198 @@ SELECT COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') as full_name
 - CONCAT() in PostgreSQL handles NULLs by converting them to empty strings (MySQL behavior)
 - Using `||` with COALESCE() gives you explicit control over NULL handling
 - For simple concatenation, both work, but `||` is more performant
+
+---
+
+## FIND_IN_SET Function
+
+### Issue: FIND_IN_SET() Not Available
+
+**Problem:** MySQL's `FIND_IN_SET()` function is not available in PostgreSQL. This function searches for a value in a comma-separated string.
+
+**MySQL Approach:**
+```php
+// ❌ MySQL - FIND_IN_SET() doesn't exist in PostgreSQL
+DB::table('mail_reports')
+    ->whereRaw("FIND_IN_SET(?, to_mail)", [$clientId])
+    ->where('type', 'client')
+    ->get();
+```
+
+**PostgreSQL Solutions:**
+
+**Option 1: Using string_to_array() with ANY (Recommended)**
+```php
+// ✅ PostgreSQL - Convert CSV to array and check membership
+DB::table('mail_reports')
+    ->whereRaw("? = ANY(string_to_array(to_mail, ','))", [$clientId])
+    ->where('type', 'client')
+    ->get();
+```
+
+**Option 2: Using position() function**
+```php
+// ✅ PostgreSQL - Check if substring exists
+// Note: Less accurate if values can be substrings of each other (e.g., '1' matches '10')
+DB::table('mail_reports')
+    ->whereRaw("position(? IN to_mail) > 0", [$clientId])
+    ->where('type', 'client')
+    ->get();
+```
+
+**Option 3: Using LIKE pattern**
+```php
+// ✅ PostgreSQL - Pattern matching
+// Note: Less accurate, similar substring issue as position()
+DB::table('mail_reports')
+    ->where('to_mail', 'LIKE', "%{$clientId}%")
+    ->where('type', 'client')
+    ->get();
+```
+
+**Option 4: Using regex (Most Accurate)**
+```php
+// ✅ PostgreSQL - Regex to match exact value in CSV
+// Matches: start of string OR comma, then value, then comma OR end of string
+DB::table('mail_reports')
+    ->whereRaw("to_mail ~ ?", ["(^|,){$clientId}(,|$)"])
+    ->where('type', 'client')
+    ->get();
+```
+
+**Example from Codebase:**
+- **File:** `resources/views/Admin/clients/detail.blade.php`
+- **Line:** 2213
+- **Issue:** Query fails with "Undefined column" error
+- **Original:**
+  ```php
+  // ❌ MySQL
+  WHERE FIND_IN_SET("36746", to_mail)
+  ```
+- **Fixed:**
+  ```php
+  // ✅ PostgreSQL
+  WHERE '36746' = ANY(string_to_array(to_mail, ','))
+  ```
+
+**Which Option to Use:**
+
+| Option | Pros | Cons | Use When |
+|--------|------|------|----------|
+| `string_to_array()` + `ANY` | Exact match, handles edge cases well | Slightly verbose | **Recommended for most cases** |
+| `position()` | Simple, readable | Can match substrings (e.g., '1' matches '10') | Values are guaranteed unique and non-overlapping |
+| `LIKE` | Very simple | Can match substrings, SQL injection risk if not escaped | Quick fixes, trusted data only |
+| Regex `~` | Most accurate, handles edge cases | More complex syntax | Need exact matching with complex data |
+
+**Safety:** 🔴 **CRITICAL** - Queries using FIND_IN_SET() will **fail immediately** in PostgreSQL. Must be converted before execution.
+
+**Notes:**
+- `string_to_array(column, ',')` splits a CSV string into a PostgreSQL array
+- `ANY()` checks if a value exists in an array
+- If the CSV has spaces (e.g., `'1, 2, 3'`), you may need to trim: `string_to_array(REPLACE(to_mail, ' ', ''), ',')`
+- Consider refactoring: storing comma-separated values is an anti-pattern; use proper relational tables or PostgreSQL arrays instead
+
+---
+
+## GROUP BY Strictness
+
+### Issue: PostgreSQL Requires All Selected Columns in GROUP BY
+
+**Problem:** MySQL allows `SELECT *` with `GROUP BY` on a single column (returns arbitrary values from non-grouped columns), but PostgreSQL strictly requires all selected columns to either be in the GROUP BY clause or be used in an aggregate function.
+
+**MySQL Approach:**
+```php
+// ❌ MySQL - Allows SELECT * with GROUP BY single column
+\App\Models\Application::where('client_id', $id)
+    ->groupBy('workflow')
+    ->get();
+// MySQL returns all columns with arbitrary values for non-grouped columns
+```
+
+**PostgreSQL Solution:**
+
+**Option 1: Use DISTINCT (Recommended for unique values)**
+```php
+// ✅ PostgreSQL - Use DISTINCT when you only need unique values
+\App\Models\Application::where('client_id', $id)
+    ->select('workflow')
+    ->distinct()
+    ->get();
+```
+
+**Option 2: Select Only Needed Columns with GROUP BY**
+```php
+// ✅ PostgreSQL - Explicitly select only columns you need
+\App\Models\Application::where('client_id', $id)
+    ->select('workflow')
+    ->groupBy('workflow')
+    ->get();
+```
+
+**Option 3: Use Aggregate Functions**
+```php
+// ✅ PostgreSQL - If you need other columns, use aggregates
+\App\Models\Application::where('client_id', $id)
+    ->select('workflow', DB::raw('MAX(id) as id'), DB::raw('COUNT(*) as count'))
+    ->groupBy('workflow')
+    ->get();
+```
+
+**Option 4: Use DISTINCT ON (PostgreSQL-specific)**
+```php
+// ✅ PostgreSQL - DISTINCT ON gets first row per group
+\App\Models\Application::where('client_id', $id)
+    ->select('*')
+    ->distinct('workflow')
+    ->orderBy('workflow')
+    ->orderBy('id') // Secondary sort for which row to pick
+    ->get();
+```
+
+**Example from Codebase:**
+- **File:** `resources/views/Admin/clients/addclientmodal.blade.php`
+- **Line:** 1224
+- **Issue:** Query fails with "column must appear in GROUP BY clause" error
+- **Original:**
+  ```php
+  // ❌ MySQL - SELECT * with GROUP BY workflow
+  \App\Models\Application::where('client_id', $id)
+      ->groupBy('workflow')
+      ->get();
+  ```
+- **Fixed:**
+  ```php
+  // ✅ PostgreSQL - Use DISTINCT for unique workflows
+  \App\Models\Application::where('client_id', $id)
+      ->select('workflow')
+      ->distinct()
+      ->get();
+  ```
+
+**Error Message:**
+```
+SQLSTATE[42803]: Grouping error: 7 ERROR: column "applications.id" must appear 
+in the GROUP BY clause or be used in an aggregate function
+LINE 1: select * from "applications" where "client_id" = $1 group by...
+```
+
+**Which Option to Use:**
+
+| Option | Use When | Pros | Cons |
+|--------|----------|------|------|
+| `select()->distinct()` | Need unique values only | Simple, clear intent | Can't get other columns |
+| `select()->groupBy()` | Need specific columns | Explicit control | Must list all needed columns |
+| Aggregate functions | Need summary data | Can get counts, max, min, etc. | More complex |
+| `DISTINCT ON` | Need first row per group | PostgreSQL-specific, powerful | Requires ORDER BY, more complex |
+
+**Safety:** 🔴 **CRITICAL** - Queries using `SELECT *` with `GROUP BY` will **fail immediately** in PostgreSQL. Must be converted before execution.
+
+**Notes:**
+- PostgreSQL follows SQL standard strictly for GROUP BY
+- MySQL's lenient GROUP BY is non-standard and can return unpredictable results
+- Always specify which columns you need when grouping
+- If you need a specific row from each group, use `DISTINCT ON` with appropriate `ORDER BY`
+- Consider if you really need GROUP BY or if DISTINCT would work better
 
 ---
 
@@ -1068,6 +1262,12 @@ grep -r "STR_TO_DATE" app/
 # String aggregation
 grep -r "GROUP_CONCAT" app/
 
+# String search functions
+grep -r "FIND_IN_SET" app/
+
+# GROUP BY issues
+grep -r "groupBy\|groupby\|GROUP BY" app/ | grep -v "groupByRaw"
+
 # Invalid date comparisons
 grep -r "0000-00-00" app/
 grep -r "'0000-00-00'" app/
@@ -1145,6 +1345,8 @@ grep -r "whereRaw.*TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
 | `STR_TO_DATE(str, '%d/%m/%Y')` | `TO_DATE(str, 'DD/MM/YYYY')` | 🔴 Critical | Different format syntax |
 | `whereBetween('trans_date', ['Y-m-d', 'Y-m-d'])` on VARCHAR dd/mm/yyyy | `whereNotNull('trans_date')->whereRaw("TO_DATE(trans_date, 'DD/MM/YYYY') BETWEEN TO_DATE(?, 'DD/MM/YYYY') AND TO_DATE(?, 'DD/MM/YYYY')", ['d/m/Y', 'd/m/Y'])` | 🔴 Critical | VARCHAR dates stored as dd/mm/yyyy must use TO_DATE() with correct format. **CRITICAL:** Must filter NULL values first with `whereNotNull()` |
 | `GROUP_CONCAT(col)` | `STRING_AGG(col, ', ')` | 🔴 Critical | Requires delimiter |
+| `FIND_IN_SET(val, col)` | `val = ANY(string_to_array(col, ','))` | 🔴 Critical | PostgreSQL uses array functions |
+| `SELECT * ... GROUP BY col` | `SELECT col ... GROUP BY col` or `SELECT col ... DISTINCT` | 🔴 Critical | PostgreSQL requires all selected columns in GROUP BY |
 | `column != '0000-00-00'` | `column IS NOT NULL` | 🔴 Critical | PostgreSQL rejects invalid dates |
 | `column = '0000-00-00'` | `column IS NULL` | 🔴 Critical | Same as above |
 | `ORDER BY col DESC` | `ORDER BY col DESC NULLS LAST` | 🟡 Medium | For consistency with NULL dates |
@@ -1181,6 +1383,8 @@ When pulling new code from MySQL, check for:
 - [ ] Any date comparisons with `'0000-00-00'` → Change to NULL checks
 - [ ] `DATE_FORMAT()` → Change to `TO_CHAR()` with updated format codes
 - [ ] `GROUP_CONCAT()` → Change to `STRING_AGG()` with delimiter
+- [ ] `FIND_IN_SET()` → Change to `ANY(string_to_array())` or appropriate alternative
+- [ ] `SELECT * ... GROUP BY` → Change to `SELECT specific_columns ... GROUP BY` or use `DISTINCT`
 - [ ] VARCHAR date comparisons → Use `TO_DATE()` for proper comparison
 - [ ] **NULL handling for TO_DATE():** Always add `->whereNotNull('trans_date')` before `whereRaw()` with `TO_DATE()` - PostgreSQL throws error if TO_DATE() receives NULL
 - [ ] **VARCHAR date field filtering:** Check for `whereBetween('trans_date', [...])` or similar with `Y-m-d` format → Must use `whereRaw("TO_DATE(trans_date, 'DD/MM/YYYY') BETWEEN TO_DATE(?, 'DD/MM/YYYY') AND TO_DATE(?, 'DD/MM/YYYY')", ['d/m/Y', 'd/m/Y'])` for VARCHAR fields stored as dd/mm/yyyy
@@ -1451,6 +1655,47 @@ These are critical issues that will fail, but have well-documented patterns to f
   ```
 - **Priority:** High - Will fail immediately if not fixed
 
+#### 3.4. FIND_IN_SET to string_to_array
+- **Risk Level:** Medium (will fail if not fixed)
+- **Effort:** Low-Medium
+- **Change:** Convert MySQL FIND_IN_SET to PostgreSQL array functions
+- **Pattern:**
+  ```php
+  // Before
+  ->whereRaw("FIND_IN_SET(?, to_mail)", [$clientId])
+  
+  // After
+  ->whereRaw("? = ANY(string_to_array(to_mail, ','))", [$clientId])
+  ```
+- **Why Safe:** Well-defined conversion, multiple solution options
+- **Search Pattern:**
+  ```bash
+  grep -r "FIND_IN_SET" app/
+  ```
+- **Priority:** High - Will fail immediately if not fixed
+
+#### 3.5. GROUP BY Strictness
+- **Risk Level:** Medium (will fail if not fixed)
+- **Effort:** Low-Medium
+- **Change:** Fix SELECT * with GROUP BY to select only needed columns
+- **Pattern:**
+  ```php
+  // Before
+  ->groupBy('workflow')->get()
+  
+  // After (if only need unique values)
+  ->select('workflow')->distinct()->get()
+  
+  // OR (if need specific columns)
+  ->select('workflow', 'id')->groupBy('workflow', 'id')->get()
+  ```
+- **Why Safe:** Clear pattern, usually just need to add select() or use distinct()
+- **Search Pattern:**
+  ```bash
+  grep -r "groupBy\|groupby" app/ | grep -v "groupByRaw"
+  ```
+- **Priority:** High - Will fail immediately if not fixed
+
 ---
 
 ### 🔴 TIER 4: HIGH RISK - Complex Critical Fixes
@@ -1689,7 +1934,19 @@ These provide immediate value with minimal risk. Run these searches on ANY new c
    ```
    Fix: Convert to `TO_CHAR()` with format codes (see conversion table)
 
-5. ✅ **Search for new ActivitiesLog without task_status**
+5. ✅ **Search for FIND_IN_SET** (easy to find and convert)
+   ```bash
+   grep -r "FIND_IN_SET" app/ --include="*.php"
+   ```
+   Fix: Convert to `val = ANY(string_to_array(column, ','))`
+
+6. ✅ **Search for GROUP BY issues** (check for SELECT * with GROUP BY)
+   ```bash
+   grep -r "groupBy\|groupby" app/ --include="*.php" | grep -v "groupByRaw"
+   ```
+   Fix: Add `->select('column')` or use `->distinct()` instead of `->groupBy()`
+
+7. ✅ **Search for new ActivitiesLog without task_status**
    ```bash
    grep -r "new ActivitiesLog" app/Http/Controllers/ --include="*.php" | grep -v "task_status"
    ```
@@ -1714,7 +1971,11 @@ Before deploying ANY new code from MySQL, run this quick audit:
 ```bash
 # Critical Issues (Will cause immediate failures)
 echo "=== Checking for Critical MySQL Syntax ==="
-grep -r "GROUP_CONCAT\|DATE_FORMAT\|0000-00-00" app/ --include="*.php" | wc -l
+grep -r "GROUP_CONCAT\|DATE_FORMAT\|FIND_IN_SET\|0000-00-00" app/ --include="*.php" | wc -l
+
+# GROUP BY issues
+echo "=== Checking for GROUP BY issues ==="
+grep -r "groupBy\|groupby" app/ --include="*.php" | grep -v "groupByRaw" | wc -l
 
 # NOT NULL Constraint Issues
 echo "=== Checking for potential NOT NULL violations ==="
@@ -1741,6 +2002,8 @@ Quick reference for troubleshooting production errors:
 |--------------|------|------------|---------------|
 | `function group_concat(...) does not exist` | 3 | MySQL function not in PostgreSQL | Replace with `STRING_AGG(col, ', ')` |
 | `function date_format(...) does not exist` | 3 | MySQL function not in PostgreSQL | Replace with `TO_CHAR(col, 'format')` |
+| `function find_in_set(...) does not exist` OR `Undefined column` with FIND_IN_SET | 3 | MySQL function not in PostgreSQL | Replace with `val = ANY(string_to_array(col, ','))` |
+| `Grouping error: column "..." must appear in GROUP BY clause` | 3 | PostgreSQL strict GROUP BY | Add `->select('column')` or use `->distinct()` instead of `->groupBy()` |
 | `invalid input syntax for type date: "0000-00-00"` | 3 | Invalid date value | Replace `where('col', '!=', '0000-00-00')` with `whereNotNull('col')` |
 | `null value in column "task_status" violates not-null constraint` | 5 | Missing NOT NULL field | Add `$obj->task_status = 0; $obj->pin = 0;` before save |
 | `null value in column "signer_count" violates not-null constraint` | 5 | Missing NOT NULL field | Add `$obj->signer_count = 1;` before save |

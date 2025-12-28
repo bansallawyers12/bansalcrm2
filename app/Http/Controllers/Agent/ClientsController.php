@@ -456,6 +456,8 @@ class ClientsController extends Controller
 				$objs->client_id = $request->id;
 				$objs->created_by = Auth::user()->id;
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -503,6 +505,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$productdetail->name.'</span><p>'.$partnerdetail->partner_name.' ('.$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -591,6 +595,8 @@ class ClientsController extends Controller
 					$objs->created_by = Auth::user()->id;
 					$objs->description = '<span class="text-semi-bold">'.$request->title.'</span><p>'.$request->description.'</p>';
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 					$objs->save();
 				}
 				$response['status'] 	= 	true;
@@ -714,6 +720,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$data->title.'</span><p>'.$data->description.'</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				}
 			$response['status'] 	= 	true;
@@ -756,6 +764,8 @@ class ClientsController extends Controller
 					$objs->created_by = Auth::user()->id;
 					$objs->description = '<span class="text-semi-bold">'.$PartnerBranch->name.'</span><p>'.$partnerdetail->name.'</p>';
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 					$objs->save();
 					$response['status'] 	= 	true;
 					$response['message']	=	'You’ve successfully added interested service';
@@ -916,6 +926,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				
 				}
@@ -1060,6 +1072,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$productdetail->name.'</span><p>'.$partnerdetail->partner_name.' ('.$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -1090,6 +1104,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$productdetail->name.'</span><p>'.$partnerdetail->partner_name.' ('.$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
@@ -1161,6 +1177,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['data']	=	'Document removed successfully';
@@ -1224,6 +1242,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$PartnerBranch->name.'</span><p>'.$partnerdetail->name.'</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated interested service';
@@ -1592,6 +1612,8 @@ class ClientsController extends Controller
 					$objs->created_by = Auth::user()->id;
 					$objs->description = '<span class="text-semi-bold">'.$productdetail->name.'</span><p>'.$partnerdetail->partner_name.' ('.$PartnerBranch->name.')</p>';
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 					$objs->save();
 					$response['status'] 	= 	true;
 					$response['message']	=	'You’ve successfully updated your client’s information.';

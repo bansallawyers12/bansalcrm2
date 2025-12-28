@@ -3098,6 +3098,8 @@ class PartnersController extends Controller
             }
             $objs->followup_date = $popoverdateFormated;
             $objs->task_group = 'partner'; //$requestData['task_group'];
+            $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
             $objs->save();
 
             echo json_encode(array('success' => true, 'message' => 'Partner successfully assigned action', 'clientID' => $partner_decode_id,'partner_id'=>$requestData['partner_id']));
@@ -3255,6 +3257,8 @@ class PartnersController extends Controller
                     $objs->description = '<span class="text-semi-bold">'.$request->title.'</span><p>'.$request->description.'</p>';
                 }
                 $objs->subject = $subject;
+                $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                 $objs->save();
             }
             $response['status'] 	= 	true;
@@ -3582,6 +3586,8 @@ class PartnersController extends Controller
                     $objs->created_by = Auth::user()->id;
                     $objs->description = '';
                     $objs->subject = $subject;
+                    $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                     $objs->save();
                 }
 				$response['status'] 	= 	true;

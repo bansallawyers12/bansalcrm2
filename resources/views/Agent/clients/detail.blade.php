@@ -224,7 +224,7 @@ use App\Http\Controllers\Controller;
 								<div class="client_info">
 								    <ul>
 								    <?php   
-								        $relatedclientss = \App\Models\Admin::whereRaw("FIND_IN_SET($fetchedData->id,related_files)")->get();	
+								        $relatedclientss = \App\Models\Admin::whereRaw('? = ANY(string_to_array(related_files, \',\'))', [$fetchedData->id])->get();	
 								        foreach($relatedclientss AS $res){ 
 									?>
 									    <li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))}}">{{$res->first_name}} {{$res->last_name}}</a></li>
@@ -2855,7 +2855,7 @@ $(document).ready(function() {
 								<label for="super_agent">Super Agent <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control super_agent" id="super_agent" name="super_agent">
 									<option value="">Please Select</option>
-									<?php $sagents = \App\Models\Agent::whereRaw('FIND_IN_SET("Super Agent", agent_type)')->get(); ?>
+									<?php $sagents = \App\Models\Agent::whereRaw('? = ANY(string_to_array(agent_type, \',\'))', ['Super Agent'])->get(); ?>
 									@foreach($sagents as $sa)
 										<option value="{{$sa->id}}">{{$sa->full_name}} {{$sa->email}}</option>
 									@endforeach
@@ -2896,7 +2896,7 @@ $(document).ready(function() {
 								<label for="sub_agent">Sub Agent <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control sub_agent" id="sub_agent" name="sub_agent">
 									<option value="">Please Select</option>
-									<?php $sagents = \App\Models\Agent::whereRaw('FIND_IN_SET("Sub Agent", agent_type)')->where('is_acrchived',0)->get(); ?>
+									<?php $sagents = \App\Models\Agent::whereRaw('? = ANY(string_to_array(agent_type, \',\'))', ['Sub Agent'])->where('is_acrchived',0)->get(); ?>
 									@foreach($sagents as $sa)
 										<option value="{{$sa->id}}">{{$sa->full_name}} {{$sa->email}}</option>
 									@endforeach

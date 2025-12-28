@@ -478,7 +478,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
 									<div class="promotionlists"> 
 									<?php
-									$promotionslist = \App\Models\Promotion::where('apply_to', 'All Products') ->orwhereRaw('FIND_IN_SET("'.$fetchedData->id.'", selectproduct)')->orderby('created_at','DESC')->get();
+									$promotionslist = \App\Models\Promotion::where('apply_to', 'All Products') ->orwhereRaw('? = ANY(string_to_array(selectproduct, \',\'))', [$fetchedData->id])->orderby('created_at','DESC')->get();
 									foreach($promotionslist as $promotion){
 										$countproducts = 0;
 										$countbranches = 0;

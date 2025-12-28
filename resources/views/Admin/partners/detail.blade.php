@@ -2215,7 +2215,7 @@ use App\Http\Controllers\Controller;
                                                         <tbody class="productitemList">
                                                             <?php
                                                             $receipts_lists = DB::table('partner_student_invoices')
-                                                            ->select('*', DB::raw('COUNT(student_id) as student_count'), DB::raw('SUM(amount_aud) as total_amount_aud'))
+                                                            ->select('invoice_id', DB::raw('COUNT(student_id) as student_count'), DB::raw('SUM(amount_aud) as total_amount_aud'))
                                                             ->where('partner_id',$fetchedData->id)->where('invoice_type',1)->groupBy('invoice_id')->get();
                                                             //dd($receipts_lists);
                                                             if(!empty($receipts_lists) && count($receipts_lists)>0 )

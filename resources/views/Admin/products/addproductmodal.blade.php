@@ -906,7 +906,7 @@
 								<label for="description">Service <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control select2" name="application">
 									<option value="">Select</option>
-									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->groupby('workflow')->get() as $aplist)
+									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->select('workflow')->distinct()->get() as $aplist)
 									<?php
 									
 				$workflow = \App\Models\Workflow::where('id', $aplist->workflow)->first();

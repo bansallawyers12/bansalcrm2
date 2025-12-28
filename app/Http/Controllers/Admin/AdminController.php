@@ -1138,6 +1138,8 @@ class AdminController extends Controller
                                         $objs->created_by = Auth::user()->id;
                                         $objs->description = '<p>'.$description.' '.$description_other.'</p>';
                                         $objs->subject = $subject;
+                                        $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                                        $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                                         $objs->save();
                                     }
                                 }
@@ -1404,7 +1406,7 @@ class AdminController extends Controller
 
 	public function getbranchproduct(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\Models\Product::whereRaw('FIND_IN_SET("'.$catid.'", branches)')->orderby('name','ASC')->get();
+		$lists = \App\Models\Product::whereRaw('? = ANY(string_to_array(branches, \',\'))', [$catid])->orderby('name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select Product</option>
@@ -2101,6 +2103,7 @@ class AdminController extends Controller
                  $objs->followup_date = @$note_data['updated_at'];
                  $objs->task_group = 'partner';
                  $objs->task_status = 1; //maked completed
+                 $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                  $objs->save();
              }
              $response['status'] 	= 	true;
@@ -2172,6 +2175,8 @@ class AdminController extends Controller
                          }
                          $objs->followup_date = $note_info['followup_date'];
                          $objs->task_group = 'partner';
+                         $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                         $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                          $objs->save();
                      }
                  }
