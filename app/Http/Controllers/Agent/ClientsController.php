@@ -904,6 +904,7 @@ class ClientsController extends Controller
         			$obj->client_id = $id;
         			$obj->type = $request->type;
         			$obj->file_size = $size;
+        			$obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
         			$saved = $obj->save();
 		      }
 			

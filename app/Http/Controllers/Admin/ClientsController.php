@@ -509,6 +509,8 @@ class ClientsController extends Controller
 				$objs->client_id = $request->id;
 				$objs->created_by = \Auth::user()->id;
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
 				return redirect()->route('assignee.index')->with('success','Assignee updated successfully');
@@ -943,6 +945,8 @@ class ClientsController extends Controller
 				$objs->client_id = $request->id;
 				$objs->created_by = \Auth::user()->id;
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
 				return redirect()->route('assignee.index')->with('success','Assignee updated successfully');
@@ -1655,6 +1659,8 @@ class ClientsController extends Controller
 				$objs->client_id = $request->id;
 				$objs->created_by = Auth::user()->id;
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -1702,6 +1708,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -1822,6 +1830,8 @@ class ClientsController extends Controller
                     }
                   
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 					$objs->save();
 				}
 				$response['status'] 	= 	true;
@@ -1951,6 +1961,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$data->title.'</span><p>'.$data->description.'</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				}
 			$response['status'] 	= 	true;
@@ -1993,6 +2005,8 @@ class ClientsController extends Controller
 					$objs->created_by = Auth::user()->id;
 					$objs->description = '<span class="text-semi-bold">'.$PartnerBranch->name.'</span><p>'.$partnerdetail->name.'</p>';
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 					$objs->save();
 					$response['status'] 	= 	true;
 					$response['message']	=	'You’ve successfully added interested service';
@@ -2154,6 +2168,7 @@ class ClientsController extends Controller
         			$obj->type = $request->type;
         			$obj->file_size = $size;
         			$obj->doc_type = $doctype;
+        			$obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
         			$saved = $obj->save();
 
 		      }
@@ -2166,6 +2181,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
 				}
@@ -2326,6 +2343,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -2356,6 +2375,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
@@ -2449,6 +2470,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['data']	=	'Document removed successfully';
@@ -2524,6 +2547,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '<span class="text-semi-bold">'.$PartnerBranch->name.'</span><p>'.$partnerdetail->name.'</p>';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You’ve successfully updated interested service';
@@ -3295,6 +3320,8 @@ class ClientsController extends Controller
             //$objs->subject = 'Followup set for '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
             $objs->subject = 'set action for '.@$requestData['assignee_name'];
             $objs->description = '<span class="text-semi-bold">'.@$requestData['remindersubject'].'</span><p>'.@$requestData['description'].'</p>';
+            $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
@@ -3361,6 +3388,8 @@ class ClientsController extends Controller
             //$objs->subject = 'Followup set for '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
             $objs->subject = 'set action for '.@$requestData['assignee_name'];
             $objs->description = '<span class="text-semi-bold">'.@$requestData['remindersubject'].'</span><p>'.@$requestData['description'].'</p>';
+            $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
@@ -3438,6 +3467,8 @@ class ClientsController extends Controller
             //$objs->subject = 'Followup set for '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
             $objs->subject = 'Update task for '.@$requestData['assignee_name'];
             $objs->description = '<span class="text-semi-bold">'.@$requestData['remindersubject'].'</span><p>'.@$requestData['description'].'</p>';
+            $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
@@ -3564,6 +3595,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->subject = Auth::user()->first_name.' '.Auth::user()->last_name.' tags work to '.$newassignee->first_name.' '.$newassignee->last_name;
 				$objs->description = @$requestData['message'];
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 		return Redirect::to('/admin/followup-dates')->with('success', 'Record Updated successfully');
 		}
@@ -4038,224 +4071,6 @@ class ClientsController extends Controller
                 }
             }
             */
-
-
-            //quotations
-            $quotations = DB::table('quotations')->where('client_id', $request->merge_from)->get(); //dd($quotations);
-            if(!empty($quotations)){
-                foreach($quotations as $quotekey=>$quoteval){
-                    DB::table('quotations')->insert(
-                        [
-                            'client_id' => $request->merge_into,
-                            'user_id'=> $quoteval->user_id,
-                            'total_fee' => $quoteval->total_fee,
-                            'status' => $quoteval->status,
-                            'due_date' => $quoteval->due_date,
-                            'created_by' => $quoteval->created_by,
-                            'created_at' => $quoteval->created_at,
-                            'updated_at' => $quoteval->updated_at,
-                            'currency' => $quoteval->currency,
-                            'is_archive' => $quoteval->is_archive
-                        ]
-                    );
-                }
-            }
-
-            //accounts
-            $accounts = DB::table('invoices')->where('client_id', $request->merge_from)->get(); //dd($accounts);
-            if(!empty($accounts)){
-                foreach($accounts as $acckey=>$accval){
-                    DB::table('invoices')->insert(
-                        [
-                            'invoice_no'=> $accval->invoice_no,
-                            'user_id' => $accval->user_id,
-                            'client_id' => $request->merge_into,
-                            'application_id' => $accval->application_id,
-                            'type' => $accval->type,
-                            'invoice_date' => $accval->invoice_date,
-                            'due_date' => $accval->due_date,
-                            'discount' => $accval->discount,
-                            'discount_date' => $accval->discount_date,
-                            'net_fee_rec' => $accval->net_fee_rec,
-                            'notes' => $accval->notes,
-                            'payment_option' => $accval->payment_option,
-                            'attachments' => $accval->attachments,
-                            'status' => $accval->status,
-                            'currency' => $accval->currency,
-                            'created_at' => $accval->created_at,
-                            'updated_at' => $accval->updated_at,
-                            'profile' => $accval->profile
-                        ]
-                    );
-                }
-            }
-
-            //Conversations
-            $conversations = DB::table('mail_reports')->where('client_id', $request->merge_from)->get(); //dd($conversations);
-            if(!empty($conversations)){
-                foreach($conversations as $mailkey=>$mailval){
-                    DB::table('mail_reports')->insert(
-                        [
-                            'user_id' => $mailval->user_id,
-                            'from_mail' => $mailval->from_mail,
-                            'to_mail' => $mailval->to_mail,
-                            'cc' => $mailval->cc,
-                            'template_id' => $mailval->template_id,
-                            'subject' => $mailval->subject,
-                            'message' => $mailval->message,
-                            'created_at' => $mailval->created_at,
-                            'updated_at' => $mailval->updated_at,
-                            'type' => $mailval->type,
-                            'reciept_id' => $mailval->reciept_id,
-                            'attachments' => $mailval->attachments,
-                            'mail_type' => $mailval->mail_type,
-                            'client_id' => $request->merge_into
-                        ]
-                    );
-                }
-            }
-
-            //Tasks
-            $tasks = DB::table('tasks')->where('client_id', $request->merge_from)->get(); //dd($tasks);
-            if(!empty($tasks)){
-                foreach($tasks as $taskkey=>$taskval){
-                    DB::table('tasks')->insert(
-                        [
-                            'title' => $taskval->user_id,
-                            'category' => $taskval->from_mail,
-                            'assignee' => $taskval->to_mail,
-                            'priority' => $taskval->cc,
-                            'due_date' => $taskval->template_id,
-                            'due_time' => $taskval->subject,
-                            'description' => $taskval->message,
-                            'related_to' => $taskval->created_at,
-                            'contact_name' => $taskval->updated_at,
-                            'partner_name' => $taskval->type,
-                            'client_name' => $taskval->reciept_id,
-                            'application' => $taskval->attachments,
-                            'stage' => $taskval->mail_type,
-                            'followers' => $taskval->mail_type,
-                            'attachments' => $taskval->mail_type,
-                            'created_at' => $taskval->mail_type,
-                            'updated_at' => $taskval->mail_type,
-                            'mailid' => $taskval->mail_type,
-                            'user_id' => $taskval->mail_type,
-                            'client_id' => $request->merge_into,
-                            'status' => $taskval->mail_type,
-                            'type' => $taskval->mail_type,
-                            'priority_no' => $taskval->mail_type,
-                            'is_archived' => $taskval->mail_type,
-                            'group_id' => $taskval->mail_type
-                        ]
-                    );
-                }
-            }
-
-            //Education
-            $educations = DB::table('education')->where('client_id', $request->merge_from)->get(); //dd($educations);
-            if(!empty($educations)){
-                foreach($educations as $edukey=>$eduval){
-                    DB::table('education')->insert(
-                        [
-                             'user_id' => $eduval->user_id,
-                             'client_id' => $request->merge_into,
-                             'degree_title' => $eduval->degree_title,
-                             'degree_level' => $eduval->degree_level,
-                             'institution' => $eduval->institution,
-                             'course_start' => $eduval->course_start,
-                             'course_end' => $eduval->course_end,
-                             'subject_area' => $eduval->subject_area,
-                             'subject' => $eduval->subject,
-                             'ac_score' => $eduval->ac_score,
-                             'score' => $eduval->score,
-                             'created_at' => $eduval->created_at,
-                             'updated_at' => $eduval->updated_at
-                        ]
-                    );
-                }
-            }
-
-            //CheckinLogs
-            $checkinLogs = DB::table('checkin_logs')->where('client_id', $request->merge_from)->get(); //dd($checkinLogs);
-            if(!empty($checkinLogs)){
-                foreach($checkinLogs as $checkkey=>$checkval){
-                    DB::table('checkin_logs')->insert(
-                        [
-                             'client_id' => $request->merge_into,
-                             'contact_type' => $checkval->contact_type,
-                             'user_id' => $checkval->user_id,
-                             'visit_purpose' => $checkval->visit_purpose,
-                             'status' => $checkval->status,
-                             'date' => $checkval->date,
-                             'sesion_start' => $checkval->sesion_start,
-                             'sesion_end' => $checkval->sesion_end,
-                             'created_at' => $checkval->created_at,
-                             'updated_at' => $checkval->updated_at,
-                             'wait_time' => $checkval->wait_time,
-                             'attend_time' => $checkval->attend_time,
-                             'is_archived' => $checkval->is_archived,
-                             'office' => $checkval->office,
-                             'wait_type' => $checkval->wait_type
-                        ]
-                    );
-                }
-            }
-
-
-            //Previous History
-            $prevHis = DB::table('admins')->where('id', $request->merge_from)->select('id','prev_visa')->get(); //dd($prevHis);
-            if(!empty($prevHis)){
-               DB::table('admins')->where('id',$request->merge_into)->update( array('prev_visa'=>$prevHis[0]->prev_visa) );
-            }
-
-            //Client Info Form
-            $clientInfo = DB::table('online_forms')->where('client_id', $request->merge_from)->get(); //dd($clientInfo);
-            if(!empty($clientInfo)){
-                foreach($clientInfo as $clientkey=>$clientval){
-                    DB::table('online_forms')->insert(
-                        [
-                             'client_id' => $request->merge_into,
-                             'type' => $clientval->type,
-                             'info_name' => $clientval->info_name,
-                             'main_lang' => $clientval->main_lang,
-                             'marital_status' => $clientval->marital_status,
-                             'mobile' => $clientval->mobile,
-                             'curr_address' => $clientval->curr_address,
-                             'email' => $clientval->email,
-                             'parent_name' => $clientval->parent_name,
-                             'parent_dob' => $clientval->parent_dob,
-                             'parent_occ' => $clientval->parent_occ,
-                             'parent_country' => $clientval->parent_country,
-                             'parent_name_2' => $clientval->parent_name_2,
-                             'parent_dob_2' => $clientval->parent_dob_2,
-                             'parent_occ_2' => $clientval->parent_occ_2,
-                             'parent_country_2' => $clientval->parent_country_2,
-                             'sibling_name' => $clientval->sibling_name,
-                             'sibling_dob' => $clientval->sibling_dob,
-                             'sibling_occ' => $clientval->sibling_occ,
-                             'sibling_gender' => $clientval->sibling_gender,
-                             'sibling_country' => $clientval->sibling_country,
-                             'sibling_marital' => $clientval->sibling_marital,
-                             'sibling_name_2' => $clientval->sibling_name_2,
-                             'sibling_dob_2' => $clientval->sibling_dob_2,
-                             'sibling_occ_2' => $clientval->sibling_occ_2,
-                             'sibling_gender_2' => $clientval->sibling_gender_2,
-                             'sibling_country_2' => $clientval->sibling_country_2,
-                             'sibling_marital_2' => $clientval->sibling_marital_2,
-                             'held_visa' => $clientval->held_visa,
-                             'visa_refused' => $clientval->visa_refused,
-                             'traveled' => $clientval->traveled,
-                             'created_at' => $clientval->created_at,
-                             'updated_at' => $clientval->updated_at
-                        ]
-                    );
-                }
-            }
-        }
-        $response['status'] 	= 	true;
-        $response['message']	=	'You have successfully merged records.';
-        echo json_encode($response);
-    }*/
   
     public function merge_records(Request $request){
         $response = array();
@@ -4526,6 +4341,8 @@ class ClientsController extends Controller
                 $objs->created_by = Auth::user()->id;
                 $objs->description = '<span class="text-semi-bold">Call not picked.SMS sent successfully!</span>';
                 //$objs->subject = "Call not picked";
+                $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                 $objs->save();
 
                 $response['status'] 	= 	true;
@@ -4759,6 +4576,7 @@ class ClientsController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
+                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved = $obj->save();
 
                     $insertedDocId = $obj->id;
@@ -4848,6 +4666,8 @@ class ClientsController extends Controller
                     $objs->created_by = Auth::user()->id;
                     $objs->description = '';
                     $objs->subject = $subject;
+                    $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                     $objs->save();
                 }
             } else {
@@ -4906,6 +4726,7 @@ class ClientsController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
+                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_savedL = $obj->save();
 
                     $insertedDocIdL = $obj->id;
@@ -5001,6 +4822,8 @@ class ClientsController extends Controller
                     $objs->created_by = Auth::user()->id;
                     $objs->description = '';
                     $objs->subject = $subject;
+                    $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                     $objs->save();
                 }
             } else {
@@ -5126,6 +4949,8 @@ class ClientsController extends Controller
                     $objs->created_by = Auth::user()->id;
                     $objs->description = '';
                     $objs->subject = $subject;
+                    $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                     $objs->save();
                 }
 
@@ -5428,6 +5253,7 @@ class ClientsController extends Controller
                     $obj->type = $request->type;
                     $obj->doc_type = $doctype;
                     $obj->checklist = $item;
+                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $saved = $obj->save();
                 } //end foreach
 
@@ -5440,13 +5266,15 @@ class ClientsController extends Controller
                         $objs->created_by = Auth::user()->id;
                         $objs->description = '';
                         $objs->subject = $subject;
+                        $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+                        $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
                         $objs->save();
                     }
 
                     $response['status'] 	= 	true;
                     $response['message']	=	'You have successfully added your document checklist';
 
-                    $fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderby('updated_at', 'DESC')->get();
+                    $fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
                     ob_start();
                     foreach($fetchd as $docKey=>$fetch)
                     {
@@ -5679,7 +5507,7 @@ class ClientsController extends Controller
                 }
 				$response['status'] 	= 	true;
 				$response['message']	=	'You have successfully uploaded your document';
-				$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderby('updated_at', 'DESC')->get();
+				$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
 				ob_start();
 				foreach($fetchd as  $docKey=>$fetch){
 					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
@@ -5860,6 +5688,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
                 //Get verified at and verified by
                 $admin_info = DB::table('admins')->select('first_name')->where('id', '=',Auth::user()->id)->first();
@@ -5904,6 +5734,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
                 if($docInfo){
@@ -6020,6 +5852,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['data']	=	'Document removed successfully';
@@ -6073,6 +5907,8 @@ class ClientsController extends Controller
 				$objs->created_by = Auth::user()->id;
 				$objs->description = '';
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
                 if($docInfo){
