@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Tags')
+@section('title', 'Checklists')
  
 @section('content')
 
@@ -19,9 +19,9 @@
 				<div class="col-9 col-md-9 col-lg-9">
 					<div class="card">
 						<div class="card-header">
-							<h4>Tags</h4>
+							<h4>Checklists</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.feature.tags.create')}}" class="btn btn-primary">Create Tag</a>
+								<a href="{{route('adminconsole.checklist.create')}}" class="btn btn-primary">Create Checklists</a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -29,11 +29,7 @@
 								<table class="table text_wrap">
 								<thead>
 									<tr>
-										
 										<th>Name</th>
-										<th>Created By</th>
-										<th>Last Updated By</th>
-										<th>Last Updated On</th>
 										<th></th>
 									</tr> 
 								</thead>
@@ -41,20 +37,17 @@
 								<?php $i=0; ?>
 								<tbody class="tdata">	
 								@foreach (@$lists as $list)
+								
 									<tr id="id_{{@$list->id}}">
 										
 										<td>{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '50', '...') }}</td> 	
-										<td>{{@$list->createddetail->first_name}}</td> 	
-										<td>{{@$list->updateddetail->first_name}}</td> 	
-										<td>@if($list->created_at != '') {{date('Y-m-d', strtotime($list->created_at))}} @else - @endif</td> 	
 										
 										<td>
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
-													<a class="dropdown-item has-icon" href="{{URL::to('/admin/tags/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'tags')"><i class="fas fa-trash"></i> Delete</a>
-													
+													<a class="dropdown-item has-icon" href="{{URL::to('/adminconsole/checklist/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'checklists')"><i class="fas fa-trash"></i> Delete</a>
 												</div>
 											</div>								  
 										</td>

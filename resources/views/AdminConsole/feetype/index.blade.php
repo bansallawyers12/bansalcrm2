@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Checklists')
+@section('title', 'Fee Type')
  
 @section('content')
 
@@ -19,9 +19,9 @@
 				<div class="col-9 col-md-9 col-lg-9">
 					<div class="card">
 						<div class="card-header">
-							<h4>Checklists</h4>
+							<h4>Fee Type</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.checklist.create')}}" class="btn btn-primary">Create Checklists</a>
+								<a href="{{route('adminconsole.feetype.create')}}" class="btn btn-primary">Create Fee Type</a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -46,8 +46,8 @@
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
-													<a class="dropdown-item has-icon" href="{{URL::to('/admin/checklist/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'checklists')"><i class="fas fa-trash"></i> Delete</a>
+													<a class="dropdown-item has-icon" href="{{URL::to('/adminconsole/feetype/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'fee_types')"><i class="fas fa-trash"></i> Delete</a>
 												</div>
 											</div>								  
 										</td>

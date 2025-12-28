@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Tags')
+@section('title', 'Fee Type')
 
 @section('content')
 
@@ -7,14 +7,14 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/tags/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'admin/feetype/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-header">
-								<h4>Tags</h4>
+								<h4>Fee Type</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.feature.tags.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.feetype.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

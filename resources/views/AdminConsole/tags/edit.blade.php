@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Fee Type')
+@section('title', 'Tags')
 
 @section('content')
 
@@ -7,15 +7,15 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/feetype/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'admin/tags/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-header">
-								<h4>Fee Type</h4>
+								<h4>Tags</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.feetype.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.tags.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -50,7 +50,7 @@
 									</div>
 								</div>
 								<div class="form-group float-right">
-									{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
+									{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
 								</div> 
 							</div>
 						</div>	

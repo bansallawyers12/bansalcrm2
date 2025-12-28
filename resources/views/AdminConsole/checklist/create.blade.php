@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Tags')
+@section('title', 'Checklists')
 
 @section('content')
 
@@ -7,15 +7,14 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/tags/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
-			{!! Form::hidden('id', @$fetchedData->id)  !!}
+			{!! Form::open(array('url' => 'admin/checklist/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-header">
-								<h4>Tags</h4>
+								<h4>Checklists</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.feature.tags.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.checklist.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -36,7 +35,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="name">Name <span class="span_req">*</span></label>
-														{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
+														{!! Form::text('name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
 														@if ($errors->has('name'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('name') }}</strong>
@@ -44,6 +43,7 @@
 														@endif
 													</div>
 												</div>
+												
 												
 											</div>
 										</div>
