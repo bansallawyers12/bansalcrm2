@@ -1,0 +1,1 @@
+<?php echo $content; ?><?php /**PATH C:\xampp\htdocs\bansalcrm2\resources\views\emails\common.blade.php ENDPATH**/ ?>

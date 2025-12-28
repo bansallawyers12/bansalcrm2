@@ -313,7 +313,8 @@
 					<?php
 					if(array_key_exists('68',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.personal-task-report')}}">Tasks</a></li>
+					<!-- Task system removed - December 2025 -->
+					<!-- <li class=""><a class="nav-link" href="{{route('admin.reports.personal-task-report')}}">Tasks</a></li> -->
 					<?php } ?>
 					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/visaexpires')}}">Visa Expires</a></li>
 					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/agreementexpires')}}">Agreement Expires</a></li>

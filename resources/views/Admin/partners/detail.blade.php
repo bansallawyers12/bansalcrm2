@@ -1247,30 +1247,30 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="taskdata ">
 											<?php
-											foreach(\App\Models\Task::where('client_id', $fetchedData->id)->where('type','partner')->orderby('created_at','Desc')->get() as $alist){
-												$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
-												?>
-												<tr class="opentaskview" style="cursor:pointer;" id="{{$alist->id}}">
-													<td></td> 
-													<td><b>{{$alist->category}}</b>: {{$alist->title}}</td>
-													<td><span class="author-avtar" style="font-size: .8rem;height: 24px;line-height: 24px;width: 24px;min-width: 24px;background: rgb(3, 169, 244);"><?php echo substr($admin->first_name, 0, 1); ?></span></td>
-													<td>{{$alist->priority}}</td> 
-													<td><i class="fa fa-clock"></i> {{$alist->due_date}} {{$alist->due_time}}</td>
-													<td><?php
-													if($alist->status == 3){
-														echo '<span style="color: rgb(113, 204, 83); width: 84px;">Completed</span>';
-													}else if($alist->status == 1){
-														echo '<span style="color: rgb(3, 169, 244); width: 84px;">In Progress</span>';
-													}else if($alist->status == 2){
-														echo '<span style="color: rgb(156, 156, 156); width: 84px;">On Review</span>';
-													}else{
-														echo '<span style="color: rgb(255, 173, 0); width: 84px;">Todo</span>';
-													}
-													?></td> 
-													
-												</tr>
-												<?php
-											}
+											// Task system removed - December 2025 (database tables preserved)
+											// foreach(\App\Models\Task::where('client_id', $fetchedData->id)->where('type','partner')->orderby('created_at','Desc')->get() as $alist){
+											// 	$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
+											// 	?>
+											// 	<tr class="opentaskview" style="cursor:pointer;" id="{{$alist->id}}">
+											// 		<td></td> 
+											// 		<td><b>{{$alist->category}}</b>: {{$alist->title}}</td>
+											// 		<td><span class="author-avtar" style="font-size: .8rem;height: 24px;line-height: 24px;width: 24px;min-width: 24px;background: rgb(3, 169, 244);"><?php echo substr($admin->first_name, 0, 1); ?></span></td>
+											// 		<td>{{$alist->priority}}</td> 
+											// 		<td><i class="fa fa-clock"></i> {{$alist->due_date}} {{$alist->due_time}}</td>
+											// 		<td><?php
+											// 		if($alist->status == 3){
+											// 			echo '<span style="color: rgb(113, 204, 83); width: 84px;">Completed</span>';
+											// 		}else if($alist->status == 1){
+											// 			echo '<span style="color: rgb(3, 169, 244); width: 84px;">In Progress</span>';
+											// 		}else if($alist->status == 2){
+											// 			echo '<span style="color: rgb(156, 156, 156); width: 84px;">On Review</span>';
+											// 		}else{
+											// 			echo '<span style="color: rgb(255, 173, 0); width: 84px;">Todo</span>';
+											// 		}
+											// 		?></td> 
+											// 	</tr>
+											// 	<?php
+											// }
 											?>											
 												
 											</tbody>
@@ -5230,26 +5230,24 @@ $(document).delegate('#notes-tab', 'click', function(){
 				if(obj.status){
 					$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 					$('.tasklogs').html(obj.data);
-					$.ajax({
-							url: site_url+'/admin/partner/get-tasks',
-							type:'GET',
-							data:{clientid:'{{$fetchedData->id}}'},
-							success: function(responses){
-								 $('#my-datatable').DataTable().destroy();
-								$('.taskdata').html(responses);
-								$('#my-datatable').DataTable({
-									"searching": false,
-									"lengthChange": false,
-								  "columnDefs": [
-									{ "sortable": false, "targets": [0, 2, 3] }
-								  ],
-								  order: [[1, "desc"]] //column indexes is zero based
-
-									
-								}).draw();
-								
-							}
-						});
+					// Task system removed - December 2025
+					// $.ajax({
+					// 		url: site_url+'/admin/partner/get-tasks',
+					// 		type:'GET',
+					// 		data:{clientid:'{{$fetchedData->id}}'},
+					// 		success: function(responses){
+					// 			 $('#my-datatable').DataTable().destroy();
+					// 			$('.taskdata').html(responses);
+					// 			$('#my-datatable').DataTable({
+					// 				"searching": false,
+					// 				"lengthChange": false,
+					// 			  "columnDefs": [
+					// 				{ "sortable": false, "targets": [0, 2, 3] }
+					// 			  ],
+					// 			  order: [[1, "desc"]] //column indexes is zero based
+					// 			}).draw();
+					// 		}
+					// 	});
 				}else{
 					$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 					
@@ -5274,26 +5272,24 @@ $(document).delegate('#notes-tab', 'click', function(){
 				if(obj.status){
 					$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 					$('.tasklogs').html(obj.data);
-					$.ajax({
-							url: site_url+'/admin/partner/get-tasks',
-							type:'GET',
-							data:{clientid:'{{$fetchedData->id}}'},
-							success: function(responses){
-								 $('#my-datatable').DataTable().destroy();
-								$('.taskdata').html(responses);
-								$('#my-datatable').DataTable({
-									"searching": false,
-									"lengthChange": false,
-								  "columnDefs": [
-									{ "sortable": false, "targets": [0, 2, 3] }
-								  ],
-								  order: [[1, "desc"]] //column indexes is zero based
-
-									
-								}).draw();
-								
-							}
-						});
+					// Task system removed - December 2025
+					// $.ajax({
+					// 		url: site_url+'/admin/partner/get-tasks',
+					// 		type:'GET',
+					// 		data:{clientid:'{{$fetchedData->id}}'},
+					// 		success: function(responses){
+					// 			 $('#my-datatable').DataTable().destroy();
+					// 			$('.taskdata').html(responses);
+					// 			$('#my-datatable').DataTable({
+					// 				"searching": false,
+					// 				"lengthChange": false,
+					// 			  "columnDefs": [
+					// 				{ "sortable": false, "targets": [0, 2, 3] }
+					// 			  ],
+					// 			  order: [[1, "desc"]] //column indexes is zero based
+					// 			}).draw();
+					// 		}
+					// 	});
 				}else{
 					$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 					

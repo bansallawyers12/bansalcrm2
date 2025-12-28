@@ -1,0 +1,155 @@
+
+<?php $__env->startSection('title', 'Edit Profile'); ?>
+
+<?php $__env->startSection('content'); ?>
+
+<!-- Main Content -->
+<div class="main-content">
+<section class="section">
+<div class="section-body">
+	<?php echo Form::open(array('url' => 'admin/profiles/edit', 'name'=>"add-profiles", 'autocomplete'=>'off', "enctype"=>"multipart/form-data")); ?> 
+	<?php echo Form::hidden('id', @$fetchedData->id); ?>
+
+		<div class="row">   
+			<div class="col-12 col-md-12 col-lg-12">
+				<div class="card">
+					<div class="card-header">
+						<h4>Edit Profile</h4>
+						<div class="card-header-action">
+							<a href="<?php echo e(route('admin.feature.profiles.index')); ?>" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			 <div class="col-3 col-md-3 col-lg-3">
+				<?php echo $__env->make('../Elements/Admin/setting', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+			</div>       
+			<div class="col-9 col-md-9 col-lg-9">
+				<div class="card">
+					<div class="card-body">
+						<div id="accordion"> 
+							<div class="accordion">
+								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#primary_info" aria-expanded="true">
+									<h4>Primary Information</h4>
+								</div>
+								<div class="accordion-body collapse show" id="primary_info" data-parent="#accordion">
+									<div class="row"> 						
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="company_name">Company Name <span class="span_req">*</span></label>
+												<?php echo Form::text('company_name', @$fetchedData->company_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												<?php if($errors->has('company_name')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('company_name')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="abn">ABN NO <span class="span_req">*</span></label>
+												<?php echo Form::text('abn', @$fetchedData->abn, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' )); ?>
+
+												<?php if($errors->has('abn')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('abn')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="address">Address <span class="span_req">*</span></label>
+												<?php echo Form::text('address', @$fetchedData->address, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												<?php if($errors->has('address')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('address')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="phone">Phone <span class="span_req">*</span></label>
+												<?php echo Form::text('phone', @$fetchedData->phone, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												<?php if($errors->has('phone')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('phone')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="other_phone">Other Phone <span class="span_req">*</span></label>
+												<?php echo Form::text('other_phone', @$fetchedData->other_phone, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												<?php if($errors->has('other_phone')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('other_phone')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="email">Email <span class="span_req">*</span></label>
+												<?php echo Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												<?php if($errors->has('email')): ?>
+													<span class="custom-error" role="alert">
+														<strong><?php echo e(@$errors->first('email')); ?></strong>
+													</span> 
+												<?php endif; ?>
+											</div>
+										</div>
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="website">Website <span class="span_req">*</span></label>
+												<?php echo Form::text('website', @$fetchedData->website, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' )); ?>
+
+												
+											</div>
+										</div>
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="test_pdf">Company Logo</label>
+												<input type="hidden" id="old_profile_img" name="old_profile_img" value="<?php echo e(@$fetchedData->logo); ?>" />
+												<input type="file" id="profile_img" name="profile_img" value="" />
+												<?php if($fetchedData->logo != ''): ?>
+													<img src="<?php echo e(asset('img/profile_imgs')); ?>/<?php echo e(@$fetchedData->logo); ?>">
+												<?php endif; ?>
+											</div> 
+										</div>
+										<div class="col-12 col-md-12 col-lg-12">
+											<div class="form-group"> 
+												<label for="note">Note</label>
+												<textarea class="form-control" name="note"><?php echo e($fetchedData->note); ?></textarea>
+												
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group float-right">
+							<?php echo Form::submit('Save', ['class'=>'btn btn-primary' ]); ?>
+
+						</div> 
+					</div>
+				</div>	
+			</div>
+		</div>
+	 <?php echo Form::close(); ?>	
+</div>
+</section>
+</div>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm2\resources\views\Admin\feature\profile\edit.blade.php ENDPATH**/ ?>

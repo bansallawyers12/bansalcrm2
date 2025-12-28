@@ -397,7 +397,8 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/tasks/store/')}}" name="taskform" autocomplete="off" id="tasktermform" enctype="multipart/form-data">
+				<!-- Task system removed - December 2025 -->
+				<form method="post" action="#" name="taskform" autocomplete="off" id="tasktermform" enctype="multipart/form-data" onsubmit="alert('Task system has been removed'); return false;">
 				@csrf 
 				<input type="hidden" name="mailid" value="">
 				

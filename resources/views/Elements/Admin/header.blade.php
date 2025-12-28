@@ -43,9 +43,10 @@
     					<a href="{{URL::to('/admin/clients')}}" class="dropdown-item">
     						Client
     					</a>
-    					<a href="{{URL::to('/admin/tasks')}}" class="dropdown-item">
+    					<!-- Task system removed - December 2025 -->
+    					<!-- <a href="{{URL::to('/admin/tasks')}}" class="dropdown-item">
     						Task
-    					</a>
+    					</a> -->
     					<a href="#" class="dropdown-item">
     						Appointment
     					</a>

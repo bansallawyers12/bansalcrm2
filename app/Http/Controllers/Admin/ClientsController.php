@@ -6121,7 +6121,7 @@ class ClientsController extends Controller
                 $objs->save();
             }
             $response['status'] 	= 	true;
-            $response['message']	=	'You've successfully sent message';
+            $response['message']	=	'You have successfully sent message';
         }else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';

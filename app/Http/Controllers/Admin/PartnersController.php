@@ -12,8 +12,8 @@ use App\Models\Admin;
 use App\Models\Partner;
 use App\Models\Contact;
 use App\Models\PartnerBranch;
-use App\Models\Task;
-use App\Models\TaskLog;
+// use App\Models\Task; // Task system removed - December 2025
+// use App\Models\TaskLog; // Task system removed - December 2025
 //use App\Models\ActivitiesLog;
  
 use Auth; 
@@ -1075,7 +1075,11 @@ class PartnersController extends Controller
 		echo json_encode($response);
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function addtask(Request $request){
+		// Task system removed - December 2025
+		return response()->json(['status' => false, 'message' => 'Task system has been removed']);
+		/*
 		$requestData 		= 	$request->all();
 			 if($request->hasfile('attachments')) 
 			{	
@@ -1124,11 +1128,16 @@ class PartnersController extends Controller
 				
 				$response['status'] 	= 	true;
 				$response['message']	=	'Task Created Successfully';
-			}	
+			}
 			echo json_encode($response);
+		*/
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function gettasks(Request $request){
+		// Task system removed - December 2025
+		return ''; // Return empty to prevent errors
+		/*
 		$client_id = $request->clientid;
 		
 		$notelist = \App\Models\Task::where('client_id',$client_id)->where('type','partner')->orderby('created_at', 'DESC')->get();
@@ -1158,9 +1167,14 @@ class PartnersController extends Controller
 			<?php
 		}
 		return ob_get_clean();
+		*/
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function taskdetail(Request $request){
+		// Task system removed - December 2025
+		return ''; // Return empty to prevent errors
+		/*
 		$notedetail = \App\Models\Task::where('id',$request->task_id)->where('type','partner')->first();
 		?>
 		<div class="modal-header">
@@ -1405,9 +1419,14 @@ class PartnersController extends Controller
 			</div>
 		</div>
 		<?php
+		*/
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function savecomment(Request $request){
+		// Task system removed - December 2025
+		return response()->json(['status' => false, 'message' => 'Task system has been removed']);
+		/*
 		$obj = new TaskLog;
 		$obj->title = 'commented';
 		$obj->message = $request->comment;
@@ -1450,9 +1469,14 @@ class PartnersController extends Controller
 			$dat = ob_get_clean();
 			$response['data']	=	$dat;
 			echo json_encode($response);
+		*/
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function changetaskstatus(Request $request){
+		// Task system removed - December 2025
+		return response()->json(['status' => false, 'message' => 'Task system has been removed']);
+		/*
 		if(Task::where('id', $request->id)->exists()){
 			
 			$obj = Task::find($request->id);
@@ -1523,10 +1547,15 @@ class PartnersController extends Controller
 			}
 			$dat = ob_get_clean();
 			$response['data']	=	$dat;
-		echo json_encode($response);	
+		echo json_encode($response);
+		*/
 	}
 	
+	// Task system removed - December 2025 (database tables preserved)
 	public function changetaskpriority(Request $request){
+		// Task system removed - December 2025
+		return response()->json(['status' => false, 'message' => 'Task system has been removed']);
+		/*
 		if(Task::where('id', $request->id)->exists()){
 			
 			$obj = Task::find($request->id);
@@ -1581,7 +1610,8 @@ class PartnersController extends Controller
 			}
 			$dat = ob_get_clean();
 			$response['data']	=	$dat;
-		echo json_encode($response);	
+		echo json_encode($response);
+		*/
 	}
 
 	public function import(Request $request){

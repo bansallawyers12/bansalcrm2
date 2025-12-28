@@ -417,23 +417,8 @@ Route::prefix('admin')->group(function() {
 		 Route::post('/agents/edit', 'Admin\AgentController@edit');
 		 Route::get('/agents/import/business', 'Admin\AgentController@businessimport');
 		 Route::get('/agents/import/individual', 'Admin\AgentController@individualimport');
-		//Task Start 
-		Route::get('/tasks', 'Admin\TasksController@index')->name('admin.tasks.index');
-		Route::get('/tasks/archive/{id}', 'Admin\TasksController@taskArchive')->name('admin.tasks.archive');
-		Route::get('/tasks/create', 'Admin\TasksController@create')->name('admin.tasks.create'); 
-		Route::post('/tasks/store', 'Admin\TasksController@store')->name('admin.tasks.store');
-			Route::post('/tasks/groupstore', 'Admin\TasksController@groupstore')->name('admin.tasks.groupstore');
-			Route::post('/tasks/deletegroup', 'Admin\TasksController@deletegroup')->name('admin.tasks.deletegroup');
-		Route::get('/get-tasks', 'Admin\TasksController@gettasks')->name('admin.tasks.gettasks');
-		Route::get('/get-task-detail', 'Admin\TasksController@taskdetail')->name('admin.tasks.gettaskdetail');
-		Route::post('/update_task_comment', 'Admin\TasksController@update_task_comment');
-		Route::post('/update_task_description', 'Admin\TasksController@update_task_description');
-		Route::post('/update_task_status', 'Admin\TasksController@update_task_status');
-		Route::post('/update_task_priority', 'Admin\TasksController@update_task_priority');
-		Route::post('/updateduedate', 'Admin\TasksController@updateduedate');
-		Route::get('/task/change_assignee', 'Admin\TasksController@change_assignee');  
-		//Route::get('/tasks/edit/{id}', 'Admin\TasksController@edit')->name('admin.tasks.edit');
-		//Route::post('/tasks/edit', 'Admin\TasksController@edit')->name('admin.tasks.edit');
+		//Task System Removed - Database tables preserved (tasks, task_logs, to_do_groups)
+		// Removed on: December 2025 - System was inactive for 16+ months
 		
 		//General Invoice Start 
 		Route::get('/invoice/general-invoice', 'Admin\InvoiceController@general_invoice')->name('admin.invoice.general-invoice'); 
@@ -652,12 +637,14 @@ Route::prefix('admin')->group(function() {
 		Route::get('/deletefee', [ProductsController::class, 'deletefee']);
 		
 		
-		Route::post('/partner/addtask', [PartnersController::class, 'addtask']);
-		Route::get('/partner/get-tasks', [PartnersController::class, 'gettasks']);
-		Route::get('/partner/get-task-detail', [PartnersController::class, 'taskdetail']);
-		Route::post('/partner/savecomment', [PartnersController::class, 'savecomment']);
-		Route::get('/change-task-status', [PartnersController::class, 'changetaskstatus']);
-		Route::get('/change-task-priority', [PartnersController::class, 'changetaskpriority']);
+		// Task system removed - December 2025
+		// Route::post('/partner/addtask', [PartnersController::class, 'addtask']);
+		// Route::get('/partner/get-tasks', [PartnersController::class, 'gettasks']);
+		// Route::get('/partner/get-task-detail', [PartnersController::class, 'taskdetail']);
+		// Route::post('/partner/savecomment', [PartnersController::class, 'savecomment']);
+		// Task system removed - December 2025
+		// Route::get('/change-task-status', [PartnersController::class, 'changetaskstatus']);
+		// Route::get('/change-task-priority', [PartnersController::class, 'changetaskpriority']);
 		
 		Route::post('/promotion/store', 'Admin\PromotionController@store');
 		Route::post('/promotion/edit', 'Admin\PromotionController@edit');
@@ -706,8 +693,9 @@ Route::prefix('admin')->group(function() {
 		Route::get('/report/office-visit', 'Admin\ReportController@office_visit')->name('admin.reports.office-visit');
 		Route::get('/report/sale-forecast/application', 'Admin\ReportController@saleforecast_application')->name('admin.reports.saleforecast-application');  
 		Route::get('/report/sale-forecast/interested-service', 'Admin\ReportController@interested_service')->name('admin.reports.interested-service');
-		Route::get('/report/task/personal-task-report', 'Admin\ReportController@personal_task')->name('admin.reports.personal-task-report');
-		Route::get('/report/task/office-task-report', 'Admin\ReportController@office_task')->name('admin.reports.office-task-report'); 
+		// Task system reports removed - December 2025
+		// Route::get('/report/task/personal-task-report', 'Admin\ReportController@personal_task')->name('admin.reports.personal-task-report');
+		// Route::get('/report/task/office-task-report', 'Admin\ReportController@office_task')->name('admin.reports.office-task-report'); 
 		Route::get('/reports/visaexpires', 'Admin\ReportController@visaexpires'); 
 		Route::get('/followup-dates', 'Admin\ReportController@followupdates'); 
 		Route::get('/reports/agreementexpires', 'Admin\ReportController@agreementexpires');

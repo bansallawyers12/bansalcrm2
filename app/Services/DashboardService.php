@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Note;
-use App\Models\Task;
+// use App\Models\Task; // Task system removed - December 2025
 use App\Models\CheckinLog;
 use App\Models\Contact;
 use App\Models\Partner;
@@ -45,8 +45,12 @@ class DashboardService
      * @param string $dateFilter Optional date filter (today, week, month)
      * @return \Illuminate\Database\Eloquent\Collection
      */
+    // Task system removed - December 2025 (database tables preserved)
     public function getTodayTasks($dateFilter = 'today')
     {
+        // Task system removed - returning empty collection
+        return collect([]);
+        /*
         try {
             $query = Task::query();
             
@@ -109,6 +113,7 @@ class DashboardService
             \Log::error('Error getting today tasks: ' . $e->getMessage());
             return collect([]);
         }
+        */
     }
 
     /**

@@ -12,7 +12,7 @@ use App\Models\Report;
 use App\Models\Application;
 use App\Models\CheckinLog;
 use App\Models\Invoice;
-use App\Models\Task;
+// use App\Models\Task; // Task system removed - December 2025
  
 use Auth; 
 use Config;
@@ -88,6 +88,9 @@ class ReportController extends Controller
 		return view('Admin.reports.interested-service', compact(['lists', 'totalData']));
 		//return view('Admin.reports.sale-forecast');
 	}
+	// Task system removed - December 2025 (inactive for 16+ months)
+	// Database tables preserved: tasks, task_logs, to_do_groups
+	/*
 	public function personal_task(Request $request)  
 	{	
 		$query 		= Task::query();  	  
@@ -106,6 +109,7 @@ class ReportController extends Controller
 		return view('Admin.reports.office-task-report', compact(['lists', 'totalData']));
 		//return view('Admin.reports.tasks');
 	}
+	*/
 	
 	public function visaexpires(Request $request)  
 	{	
