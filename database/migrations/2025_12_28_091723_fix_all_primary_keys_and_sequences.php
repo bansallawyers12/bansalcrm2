@@ -46,7 +46,7 @@ return new class extends Migration
         'education',
         'email_templates',
         'emails',
-        'enquiries',
+        // 'enquiries', // Removed - table dropped (enquiries feature removed)
         'fee_option_types',
         'fee_options',
         'fee_types',

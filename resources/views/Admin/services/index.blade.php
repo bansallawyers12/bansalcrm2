@@ -38,14 +38,25 @@
 												<label>Choose Service Category</label>
 												<select data-valid="required" id="getpartnertype" class="form-control servselect2" name="cat">
 												<?php
-												$servicecat = \App\Models\Partner::select('master_category')->distinct()->get()->toArray();
-												$catid = array();
+												try {
+													$servicecat = \App\Models\Partner::select('master_category')->distinct()->get()->pluck('master_category')->filter()->values()->toArray();
+													$catid = array();
+													if(!empty($servicecat)){
+														$categories = \App\Models\Category::whereIn('id', $servicecat)->get();
+													} else {
+														$categories = collect([]);
+													}
+												} catch (\Exception $e) {
+													$categories = collect([]);
+													$catid = array();
+												}
 												?>
-													@foreach(\App\Models\Category::whereIn('id', $servicecat)->get() as $clist)
+													@foreach($categories as $clist)
 														<?php
 														$catid[] = $clist->id;
+														$categoryName = isset($clist->category_name) ? $clist->category_name : (isset($clist->name) ? $clist->name : 'Category #' . $clist->id);
 														?>
-														<option <?php if(isset($_GET['cat']) && $_GET['cat'] == $clist->id){ echo 'selected'; } ?> value="{{$clist->id}}">{{$clist->category_name}}</option>
+														<option <?php if(isset($_GET['cat']) && $_GET['cat'] == $clist->id){ echo 'selected'; } ?> value="{{$clist->id}}">{{$categoryName}}</option>
 													@endforeach
 												</select>
 											</div>

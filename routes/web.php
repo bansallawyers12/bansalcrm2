@@ -678,10 +678,11 @@ Route::prefix('admin')->group(function() {
 		//Route::post('/agents/store', 'Admin\AgentController@store')->name('admin.agents.store'); 
 		//Route::get('/agent/detail/{id}', 'Admin\AgentController@detail')->name('admin.agents.detail'); 
 		
-		Route::get('/enquiries', 'Admin\EnquireController@index')->name('admin.enquiries.index'); 
-		Route::get('/enquiries/archived-enquiries', 'Admin\EnquireController@Archived')->name('admin.enquiries.archived'); 
-		Route::get('/enquiries/covertenquiry/{id}', 'Admin\EnquireController@covertenquiry'); 
-		Route::get('/enquiries/archived/{id}', 'Admin\EnquireController@archivedenquiry'); 
+		// Enquiries/Queries routes removed - feature not in use
+		//Route::get('/enquiries', 'Admin\EnquireController@index')->name('admin.enquiries.index'); 
+		//Route::get('/enquiries/archived-enquiries', 'Admin\EnquireController@Archived')->name('admin.enquiries.archived'); 
+		//Route::get('/enquiries/covertenquiry/{id}', 'Admin\EnquireController@covertenquiry'); 
+		//Route::get('/enquiries/archived/{id}', 'Admin\EnquireController@archivedenquiry'); 
 	
 		//Audit Logs Start   
 		Route::get('/audit-logs', 'Admin\AuditLogController@index')->name('admin.auditlogs.index');

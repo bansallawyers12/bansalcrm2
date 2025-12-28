@@ -146,9 +146,10 @@
 												<li><label><input type="checkbox" name="module_access[24]" class="clients">  Can delete client.</label></li>
 												<li><label><input type="checkbox" name="module_access[25]" class="clients">  Can delete client's comments.</label></li>
 												<li><label><input type="checkbox" name="module_access[26]" class="clients">  Can delete client's interested services.</label></li>
-												<li><label><input type="checkbox" name="module_access[27]" class="clients">  Can view, edit and archive enquiries.</label></li>
-												<li><label><input type="checkbox" name="module_access[28]" class="clients">  Can view archived enquiries.</label></li>
-												<li><label><input type="checkbox" name="module_access[29]" class="clients">  Can restore archived enquiries.</label></li>
+												<!-- Enquiries/Queries permissions removed - feature not in use -->
+												<!--<li><label><input type="checkbox" name="module_access[27]" class="clients">  Can view, edit and archive enquiries.</label></li>-->
+												<!--<li><label><input type="checkbox" name="module_access[28]" class="clients">  Can view archived enquiries.</label></li>-->
+												<!--<li><label><input type="checkbox" name="module_access[29]" class="clients">  Can restore archived enquiries.</label></li>-->
 											</ul>
 										</div>
 									</div>

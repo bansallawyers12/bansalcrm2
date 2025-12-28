@@ -39,15 +39,6 @@
 		</li>
 
 			<?php
-			if(Route::currentRouteName() == 'admin.enquiries.index' || Route::currentRouteName() == 'admin.enquiries.archived'){
-				$cheenquiriestype = 'active';
-			}
-			?>
-			<li class="dropdown {{@$cheenquiriestype}}">
-				<a href="{{route('admin.enquiries.index')}}" class="nav-link"><i data-feather="user-check"></i><span>Queries</span></a>
-			</li>
-
-			<?php
 			if( Route::currentRouteName() == 'action.index' || Route::currentRouteName() == 'action.completed' ){
 				$assigneetype = 'active';
 			}

@@ -152,9 +152,10 @@
 												<li><label><input type="checkbox" name="module_access[24]" <?php if(array_key_exists('24',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client.</label></li>
 												<li><label><input type="checkbox" name="module_access[25]" <?php if(array_key_exists('25',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client's comments.</label></li>
 												<li><label><input type="checkbox" name="module_access[26]" <?php if(array_key_exists('26',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client's interested services.</label></li>
-												<li><label><input type="checkbox" name="module_access[27]" <?php if(array_key_exists('27',  $module_access)) { echo "checked"; } ?> class="clients">  Can view, edit and archive enquiries.</label></li>
-												<li><label><input type="checkbox" name="module_access[28]" <?php if(array_key_exists('28',  $module_access)) { echo "checked"; } ?> class="clients">  Can view archived enquiries.</label></li>
-												<li><label><input type="checkbox" name="module_access[29]" <?php if(array_key_exists('29',  $module_access)) { echo "checked"; } ?> class="clients">  Can restore archived enquiries.</label></li>
+												<!-- Enquiries/Queries permissions removed - feature not in use -->
+												<!--<li><label><input type="checkbox" name="module_access[27]" <?php if(array_key_exists('27',  $module_access)) { echo "checked"; } ?> class="clients">  Can view, edit and archive enquiries.</label></li>-->
+												<!--<li><label><input type="checkbox" name="module_access[28]" <?php if(array_key_exists('28',  $module_access)) { echo "checked"; } ?> class="clients">  Can view archived enquiries.</label></li>-->
+												<!--<li><label><input type="checkbox" name="module_access[29]" <?php if(array_key_exists('29',  $module_access)) { echo "checked"; } ?> class="clients">  Can restore archived enquiries.</label></li>-->
 											</ul>
 										</div>
 									</div>
