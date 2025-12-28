@@ -4,6 +4,7 @@
 /public/img/invoice
 /public/storage
 /storage/*.key
+/storage/framework/views/
 /vendor
 /.idea
 /.vscode
