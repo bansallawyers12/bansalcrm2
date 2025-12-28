@@ -503,7 +503,7 @@ class ClientsController extends Controller
 			{
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-             else  if($route==url('/admin/assignee')){
+             else  if($route==url('/admin/action')){
 				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. \Auth::user()->first_name;
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
@@ -513,7 +513,7 @@ class ClientsController extends Controller
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
-				return redirect()->route('assignee.index')->with('success','Assignee updated successfully');
+				return redirect()->route('action.index')->with('success','Action updated successfully');
 			}
 
 			else
@@ -939,7 +939,7 @@ class ClientsController extends Controller
 			{
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-             else  if($route==url('/admin/assignee')){
+             else  if($route==url('/admin/action')){
 				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. \Auth::user()->first_name;
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
@@ -949,7 +949,7 @@ class ClientsController extends Controller
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
 
-				return redirect()->route('assignee.index')->with('success','Assignee updated successfully');
+				return redirect()->route('action.index')->with('success','Action updated successfully');
 			}
 
 			else

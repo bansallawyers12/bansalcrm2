@@ -734,24 +734,22 @@ Route::prefix('admin')->group(function() {
 		Route::post('/notifications/mark-read', 'Admin\AdminController@markNotificationAsRead')->name('admin.notifications.mark-read');
 		Route::post('/notifications/mark-all-read', 'Admin\AdminController@markAllNotificationsAsRead')->name('admin.notifications.mark-all-read');	
 		
-		// Assignee modulle
-		Route::resource('/assignee', Admin\AssigneeController::class);
-        Route::get('/assignee-completed', 'Admin\AssigneeController@completed'); //completed list only
+		// Action module
+		Route::get('/action', 'Admin\ActionController@index')->name('action.index'); // Main Action page
+        Route::get('/action/list','Admin\ActionController@getList')->name('action.list'); // DataTable data
+        Route::get('/action/completed', 'Admin\ActionController@completed')->name('action.completed'); //completed actions
+        Route::get('/action/assigned-by-me', 'Admin\ActionController@assignedByMe')->name('action.assigned_by_me'); //assigned by me
+        Route::get('/action/assigned-to-me', 'Admin\ActionController@assignedToMe')->name('action.assigned_to_me'); //assigned to me
 
-        Route::post('/update-task-completed', 'Admin\AssigneeController@updatetaskcompleted'); //update task to be completed
-        Route::post('/update-task-not-completed', 'Admin\AssigneeController@updatetasknotcompleted'); //update task to be not completed
+        Route::post('/action/task-complete', 'Admin\ActionController@markComplete'); //update task to be completed
+        Route::post('/action/task-incomplete', 'Admin\ActionController@markIncomplete'); //update task to be not completed
 
-        Route::get('/assigned_by_me', 'Admin\AssigneeController@assigned_by_me')->name('assignee.assigned_by_me'); //assigned by me
-        Route::get('/assigned_to_me', 'Admin\AssigneeController@assigned_to_me')->name('assignee.assigned_to_me'); //assigned to me
-
-        Route::delete('/destroy_by_me/{note_id}', 'Admin\AssigneeController@destroy_by_me')->name('assignee.destroy_by_me'); //assigned by me
-        Route::delete('/destroy_to_me/{note_id}', 'Admin\AssigneeController@destroy_to_me')->name('assignee.destroy_to_me'); //assigned to me
-
-        Route::get('/activities_completed', 'Admin\AssigneeController@activities_completed')->name('assignee.activities_completed'); //activities completed
-
-
-        Route::delete('/destroy_activity/{note_id}', 'Admin\AssigneeController@destroy_activity')->name('assignee.destroy_activity'); //delete activity
-        Route::delete('/destroy_complete_activity/{note_id}', 'Admin\AssigneeController@destroy_complete_activity')->name('assignee.destroy_complete_activity'); //delete completed activity
+        Route::delete('/action/destroy-by-me/{note_id}', 'Admin\ActionController@destroyByMe')->name('action.destroy_by_me'); //delete assigned by me
+        Route::delete('/action/destroy-to-me/{note_id}', 'Admin\ActionController@destroyToMe')->name('action.destroy_to_me'); //delete assigned to me
+        Route::delete('/action/destroy/{note_id}', 'Admin\ActionController@destroy')->name('action.destroy'); //delete action
+        Route::delete('/action/destroy-completed/{note_id}', 'Admin\ActionController@destroyCompleted')->name('action.destroy_completed'); //delete completed action
+        
+        Route::post('/action/assignee-list', 'Admin\ActionController@getAssigneeList'); //get assignee list
 
         //Save Personal Task
         Route::post('/clients/personalfollowup/store', [ClientsController::class, 'personalfollowup']);
@@ -764,13 +762,6 @@ Route::prefix('admin')->group(function() {
         //Total person waiting and total activity counter
         Route::get('/fetch-InPersonWaitingCount', 'Admin\AdminController@fetchInPersonWaitingCount');
         Route::get('/fetch-TotalActivityCount', 'Admin\AdminController@fetchTotalActivityCount');
-        
-         
-        //for datatble
-        Route::get('/activities', 'Admin\AssigneeController@activities')->name('assignee.activities');
-        Route::get('/activities/list','Admin\AssigneeController@getActivities')->name('activities.list');
-        
-        Route::post('/get_assignee_list', 'Admin\AssigneeController@get_assignee_list');
         //For email and contact number uniqueness
         Route::post('/is_email_unique', 'Admin\LeadController@is_email_unique');
         Route::post('/is_contactno_unique', 'Admin\LeadController@is_contactno_unique');

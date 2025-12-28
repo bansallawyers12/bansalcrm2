@@ -1,1 +1,0 @@
-<?php /**PATH C:\xampp\htdocs\bansalcrm2\resources\views\emails\test.blade.php ENDPATH**/ ?>

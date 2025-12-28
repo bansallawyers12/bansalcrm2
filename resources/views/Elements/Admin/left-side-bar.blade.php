@@ -48,7 +48,7 @@
 			</li>
 
 			<?php
-			if( Route::currentRouteName() == 'assignee.activities' || Route::currentRouteName() == 'assignee.activities_completed' ){
+			if( Route::currentRouteName() == 'action.index' || Route::currentRouteName() == 'action.completed' ){
 				$assigneetype = 'active';
 			}
 			
@@ -66,7 +66,7 @@
             }
 			?>
             <li class="dropdown {{@$assigneetype}}">
-				<a href="{{route('assignee.activities')}}" class="nav-link">
+				<a href="{{route('action.index')}}" class="nav-link">
                   <i data-feather="check"></i>
                   <span>Action
                     <span class="countTotalActivityAction" style="background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $assigneesCount }}</span>
