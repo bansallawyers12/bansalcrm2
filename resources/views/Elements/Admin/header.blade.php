@@ -172,7 +172,7 @@
 					<i class="far fa-user"></i> Profile
 				</a>
 				@if(@Auth::user()->role == 1)
-			    <a href="{{route('admin.feature.producttype.index')}}" class="dropdown-item has-icon">
+			    <a href="{{route('adminconsole.producttype.index')}}" class="dropdown-item has-icon">
 					<i class="fas fa-cogs"></i> Admin Console
 				</a>
 				@endif
