@@ -2097,7 +2097,7 @@ class AdminController extends Controller
                  if(Auth::user()->id != @$note_data['assigned_to']){
                      $objs->use_for = @$note_data['assigned_to'];
                  } else {
-                     $objs->use_for = "";
+                     $objs->use_for = null; // Use null instead of empty string for PostgreSQL
                  }
 
                  $objs->followup_date = @$note_data['updated_at'];
@@ -2171,7 +2171,7 @@ class AdminController extends Controller
                          if (Auth::user()->id != $note_info['user_id']) {
                              $objs->use_for = $note_info['user_id'];
                          } else {
-                             $objs->use_for = "";
+                             $objs->use_for = null; // Use null instead of empty string for PostgreSQL
                          }
                          $objs->followup_date = $note_info['followup_date'];
                          $objs->task_group = 'partner';

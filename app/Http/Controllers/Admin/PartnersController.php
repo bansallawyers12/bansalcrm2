@@ -3094,7 +3094,7 @@ class PartnersController extends Controller
             if(Auth::user()->id != @$requestData['rem_cat123']){
                 $objs->use_for = @$requestData['rem_cat123'];
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = $popoverdateFormated;
             $objs->task_group = 'partner'; //$requestData['task_group'];

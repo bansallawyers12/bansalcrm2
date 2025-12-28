@@ -81,12 +81,13 @@ class AssigneeController extends Controller
                 if(Auth::user()->id != @$note_data['assigned_to']){
                     $objs->use_for = @$note_data['assigned_to'];
                 } else {
-                    $objs->use_for = "";
+                    $objs->use_for = null; // Use null instead of empty string for PostgreSQL
                 }
 
                 $objs->followup_date = @$note_data['updated_at'];
                 $objs->task_group = @$note_data['task_group'];
                 $objs->task_status = 1; //maked completed
+                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                 $objs->save();
             }
 
@@ -785,10 +786,12 @@ class AssigneeController extends Controller
             if(Auth::user()->id != @$appointment->assigned_to){
                 $objs->use_for = @$appointment->assigned_to;
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$appointment->followup_datetime;
             $objs->task_group = @$appointment->task_group;
+            $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
             $objs->save();
             //echo json_encode(array('success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id));
             //exit;
@@ -830,10 +833,12 @@ class AssigneeController extends Controller
             if(Auth::user()->id != @$appointment->assigned_to){
                 $objs->use_for = @$appointment->assigned_to;
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$appointment->followup_datetime;
             $objs->task_group = @$appointment->task_group;
+            $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
             $objs->save();
             //echo json_encode(array('success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id));
             //exit;
@@ -863,10 +868,12 @@ class AssigneeController extends Controller
             if(Auth::user()->id != @$appointment->assigned_to){
                 $objs->use_for = @$appointment->assigned_to;
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$appointment->followup_datetime;
             $objs->task_group = @$appointment->task_group;
+            $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
             $objs->save();
             //echo json_encode(array('success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id));
             //exit;

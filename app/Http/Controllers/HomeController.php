@@ -268,6 +268,8 @@ class HomeController extends Controller
 				$objs->client_id = $request->id;
 				$objs->created_by = $request->id;
 				$objs->subject = $subject;
+				$objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+				$objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
 				$objs->save();
                 return Redirect::to('/editclient/'.base64_encode(convert_uuencode(@$requestData['id'])))->with('success', 'Client updated successfully');
 			}

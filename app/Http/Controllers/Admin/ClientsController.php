@@ -2917,6 +2917,8 @@ class ClientsController extends Controller
 					$objs->created_by = Auth::user()->id;
 					$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
 					$objs->subject = $subject;
+					$objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+					$objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
 					$objs->save();
 					$response['status'] 	= 	true;
 					$response['message']	=	'You’ve successfully updated your client’s information.';
@@ -3325,7 +3327,7 @@ class ClientsController extends Controller
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$requestData['followup_datetime'];
             $objs->task_group = @$requestData['task_group'];
@@ -3393,7 +3395,7 @@ class ClientsController extends Controller
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$requestData['followup_datetime'];
             $objs->task_group = @$requestData['task_group'];
@@ -3472,7 +3474,7 @@ class ClientsController extends Controller
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
 
             $objs->followup_date = @$requestData['followup_datetime'];
@@ -3542,10 +3544,12 @@ class ClientsController extends Controller
             if(Auth::user()->id != @$requestData['rem_cat']){
                 $objs->use_for = @$requestData['rem_cat'];
             } else {
-                $objs->use_for = "";
+                $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
             $objs->followup_date = @$requestData['followup_datetime'];
             $objs->task_group = @$requestData['task_group'];
+            $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+            $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
             $objs->save();
 			echo json_encode(array('success' => true, 'message' => 'successfully saved', 'clientID' => $client_id)); //$requestData['client_id']
 			exit;
@@ -5503,6 +5507,8 @@ class ClientsController extends Controller
                     $objs->created_by = Auth::user()->id;
                     $objs->description = '';
                     $objs->subject = $subject;
+                    $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                     $objs->save();
                 }
 				$response['status'] 	= 	true;
@@ -6110,10 +6116,12 @@ class ClientsController extends Controller
                 $objs->created_by = Auth::user()->id;
                 $objs->description = '<span class="text-semi-bold">'.$subject.'</span><p>'.$request->message.'</p>';
                 $objs->subject = $subject;
+                $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                 $objs->save();
             }
             $response['status'] 	= 	true;
-            $response['message']	=	'You’ve successfully sent message';
+            $response['message']	=	'You've successfully sent message';
         }else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';
@@ -6145,6 +6153,8 @@ class ClientsController extends Controller
                         $objs->created_by = Auth::user()->id;
                         $objs->description = '<span class="text-semi-bold">Google review inviatation sent successfully</span>';
                         $objs->subject = "Google review inviatation";
+                        $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                        $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                         $objs->save();
 
                         $response['status'] 	= 	true;
