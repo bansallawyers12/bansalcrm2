@@ -41,10 +41,10 @@ class TasksController extends Controller
     	    }
 	    }
 	    if(Auth::user()->role == 1){
-	        $query 		= Task::where('id', '!=', ''); 
+	        $query 		= Task::query(); 
 	    }else{
 	       
-	        $query 		= Task::where('id', '!=', '')
+	        $query 		= Task::query()
 	        ->where(function($query){
                             $query->where('assignee', Auth::user()->id)
                                   ->orWhere('followers', Auth::user()->id);
@@ -67,7 +67,7 @@ class TasksController extends Controller
 					$query->where('status', 1);
 				}else if($status == 'following'){
 					
-					$query->where('followers', '!=', '');
+					$query->whereNotNull('followers');
 				}else if($status == 'archived'){
 					
 					$query->where('is_archived', 1);
@@ -128,7 +128,7 @@ class TasksController extends Controller
 					$querycom->where('status', 1);
 				}else if($status == 'following'){
 					
-					$querycom->where('followers', '!=', '');
+					$querycom->whereNotNull('followers');
 				}else if($status == 'archived'){
 					
 					$querycom->where('is_archived', 1);

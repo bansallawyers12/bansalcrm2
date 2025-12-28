@@ -58,7 +58,7 @@ class PartnersController extends Controller
 			} */	
 		//check authorization end 
 	
-		 $query 		= Partner::where('id', '!=', '')->where('status',0); 
+		 $query 		= Partner::where('status',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if ($request->has('name')) 
@@ -120,7 +120,7 @@ class PartnersController extends Controller
   
     public function inactivePartnerList(Request $request)
 	{
-		$query 	= Partner::where('id', '!=', '')->where('status',1);
+		$query 	= Partner::where('status',1);
         $totalData 	= $query->count();	//for all data
 		if ($request->has('name'))
 		{
@@ -778,7 +778,7 @@ class PartnersController extends Controller
 		$squery = $request->q;
 		if($squery != ''){
 			
-			 $partners = \App\Models\Partner::where('id', '!=', '')
+			 $partners = \App\Models\Partner::query()
       
        ->where(
            function($query) use ($squery) {
@@ -802,7 +802,7 @@ class PartnersController extends Controller
 		$squery = $request->q;
 		if($squery != ''){
 			
-			 $partners = \App\Models\Partner::where('id', '!=', '')
+			 $partners = \App\Models\Partner::query()
        
        ->where( 
            function($query) use ($squery) {
@@ -2077,7 +2077,7 @@ class PartnersController extends Controller
             ->orWhere('applications.stage', 'Enrolled')
             ->orWhere('applications.stage', 'Coe Cancelled');
         })
-        ->groupBy('admins.client_id') // Grouping by client_id and other selected columns
+        ->groupBy(['admins.client_id', 'admins.first_name', 'admins.last_name', 'admins.id']) // PostgreSQL requires all selected columns in GROUP BY
         ->orderBy('admins.first_name', 'ASC')
         ->get();
         //dd($record_get);
@@ -2614,7 +2614,7 @@ class PartnersController extends Controller
             ->orWhere('applications.stage', 'Enrolled')
             ->orWhere('applications.stage', 'Coe Cancelled');
         })
-        ->groupBy('admins.client_id') // Grouping by client_id and other selected columns
+        ->groupBy(['admins.client_id', 'admins.first_name', 'admins.last_name', 'admins.id']) // PostgreSQL requires all selected columns in GROUP BY
         ->orderBy('admins.first_name', 'ASC')
         ->get(); //dd($record_get);
 
@@ -3467,7 +3467,7 @@ class PartnersController extends Controller
 		$client_id = $request->clientid;
 		$type = $request->type;
 
-		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
+		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
 		ob_start();
 		foreach($notelist as $list){
 			$admin = \App\Models\Admin::where('id', $list->user_id)->first();

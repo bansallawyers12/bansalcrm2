@@ -26,7 +26,7 @@
 						<div class="card-body">
                             <?php
                             //if(\Auth::user()->role == 1){
-                                $InPersonCount_All_type = \App\Models\CheckinLog::where('id', '!=', '')->orderBy('created_at', 'desc')->count();
+                                $InPersonCount_All_type = \App\Models\CheckinLog::orderBy('created_at', 'desc')->count();
 
                                 $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->orderBy('created_at', 'desc')->count();
 

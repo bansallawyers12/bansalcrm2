@@ -35,10 +35,10 @@ class AssigneeController extends Controller
     {
         if(\Auth::user()->role == 1){
             $assignees = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status','<>','1')->orderBy('created_at', 'desc')->latest()->paginate(20);//where('status','not like','Closed')
+            ->with(['noteUser','noteClient','assigned_user'])->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status','<>','1')->orderByRaw('created_at DESC NULLS LAST')->paginate(20);//where('status','not like','Closed')
         }else{
             $assignees = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->where('status','<>','1')->orderBy('created_at', 'desc')->latest()->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->where('status','<>','1')->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         } //dd($assignees);
         return view('Admin.assignee.index',compact('assignees'))
          ->with('i', (request()->input('page', 1) - 1) * 20);
@@ -49,10 +49,10 @@ class AssigneeController extends Controller
     {
         if(\Auth::user()->role == 1){
             $assignees = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status','1')->orderBy('created_at', 'desc')->latest()->paginate(20); //where('status','like','Closed')
+            ->with(['noteUser','noteClient','assigned_user'])->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status','1')->orderByRaw('created_at DESC NULLS LAST')->paginate(20); //where('status','like','Closed')
         }else{
             $assignees = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->where('status','1')->orderBy('created_at', 'desc')->latest()->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->where('status','1')->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }  //dd( $assignees);
         return view('Admin.assignee.completed',compact('assignees'))
          ->with('i', (request()->input('page', 1) - 1) * 20);
@@ -127,8 +127,7 @@ class AssigneeController extends Controller
              ->where('type','client')
              ->whereNotNull('client_id')
              ->where('folloup',1)
-             ->orderBy('created_at', 'desc')
-             ->latest()
+             ->orderByRaw('created_at DESC NULLS LAST')
              ->paginate(20);
          } else {
              $assignees_notCompleted = \App\Models\Note::sortable()
@@ -137,8 +136,7 @@ class AssigneeController extends Controller
              ->where('user_id',\Auth::user()->id)
              ->where('type','client')
              ->where('folloup',1)
-             ->orderBy('created_at', 'desc')
-             ->latest()->paginate(20);
+             ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
          }
          #dd($assignees_notCompleted);
          return view('Admin.assignee.assign_by_me',compact('assignees_notCompleted'))
@@ -151,16 +149,16 @@ class AssigneeController extends Controller
     {
         if(\Auth::user()->role == 1){
             $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderBy('created_at', 'desc')->latest()->paginate(20);//where('status','not like','Closed')
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);//where('status','not like','Closed')
 
             $assignees_completed = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderBy('created_at', 'desc')->latest()->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }else{
             $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderBy('created_at', 'desc')->latest()->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
 
             $assignees_completed = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderBy('created_at', 'desc')->latest()->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }
         //dd($assignees_notCompleted);
         //dd($assignees_completed);
@@ -213,8 +211,7 @@ class AssigneeController extends Controller
                         ->orWhereHas('noteClient', function ( $query ) use ($search_by)  {
                              $query->where('client_id', 'LIKE', '%'.$search_by.'%');
                         });
-                    })->orderBy('created_at', 'desc')
-                    ->latest()
+                    })->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 } else { //if no searching
                     $assignees_notCompleted = \App\Models\Note::sortable()
@@ -223,8 +220,7 @@ class AssigneeController extends Controller
                     ->where('type','client')
                     ->whereNotNull('client_id')
                     ->where('folloup',1)
-                    ->orderBy('created_at', 'desc')
-                    ->latest()->paginate(20);
+                    ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
                 }
                 //dd($assignees_notCompleted);
             }
@@ -254,8 +250,7 @@ class AssigneeController extends Controller
                         ->orWhereHas('noteClient', function ( $query ) use ($search_by)  {
                              $query->where('client_id', 'LIKE', '%'.$search_by.'%');
                         });
-                    })->orderBy('created_at', 'desc')
-                    ->latest()
+                    })->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 } else { //if no searching
                 //dd('elsee');
@@ -265,8 +260,7 @@ class AssigneeController extends Controller
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
                     ->where('folloup',1)
-                    ->orderBy('created_at', 'desc')
-                    ->latest()
+                    ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
                 //dd($assignees_notCompleted);
@@ -300,8 +294,7 @@ class AssigneeController extends Controller
                         ->orWhereHas('noteClient', function ( $query ) use ($search_by)  {
                              $query->where('client_id', 'LIKE', '%'.$search_by.'%');
                         });
-                    })->orderBy('created_at', 'desc')
-                    ->latest()
+                    })->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 } else { //if no searching
                     $assignees_notCompleted = \App\Models\Note::sortable()
@@ -311,8 +304,7 @@ class AssigneeController extends Controller
                     ->where('type','client')
                     ->whereNotNull('client_id')
                     ->where('folloup',1)
-                    ->orderBy('created_at', 'desc')
-                    ->latest()
+                    ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
                 //dd($assignees_notCompleted);
@@ -343,8 +335,7 @@ class AssigneeController extends Controller
                         ->orWhereHas('noteClient', function ( $query ) use ($search_by)  {
                              $query->where('client_id', 'LIKE', '%'.$search_by.'%');
                         });
-                    })->orderBy('created_at', 'desc')
-                    ->latest()
+                    })->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 } else { //if no searching
                     $assignees_notCompleted = \App\Models\Note::sortable()
@@ -354,8 +345,7 @@ class AssigneeController extends Controller
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
                     ->where('folloup',1)
-                    ->orderBy('created_at', 'desc')
-                    ->latest()
+                    ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
                 //dd($assignees_notCompleted);
@@ -384,8 +374,7 @@ class AssigneeController extends Controller
                 ->where('type','client')
                 ->whereNotNull('client_id')
                 ->where('folloup',1)
-                ->orderBy('created_at', 'desc')
-                ->latest()->paginate(20);
+                ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
                 ->with(['noteUser','noteClient','assigned_user'])
@@ -393,8 +382,7 @@ class AssigneeController extends Controller
                 ->where('assigned_to',\Auth::user()->id)
                 ->where('type','client')
                 ->where('folloup',1)
-                ->orderBy('created_at', 'desc')
-                ->latest()->paginate(20);
+                ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
         } else {
             if(\Auth::user()->role == 1){
@@ -405,8 +393,7 @@ class AssigneeController extends Controller
                 ->where('type','client')
                 ->whereNotNull('client_id')
                 ->where('folloup',1)
-                ->orderBy('created_at', 'desc')
-                ->latest()->paginate(20);
+                ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
                 ->with(['noteUser','noteClient','assigned_user'])
@@ -415,8 +402,7 @@ class AssigneeController extends Controller
                 ->where('assigned_to',\Auth::user()->id)
                 ->where('type','client')
                 ->where('folloup',1)
-                ->orderBy('created_at', 'desc')
-                ->latest()->paginate(20);
+                ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
         }
         #dd($assignees_completed);
@@ -439,8 +425,7 @@ class AssigneeController extends Controller
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
             	->where('folloup',1)
-            	->orderBy('created_at', 'desc')
-            	->latest()->get();
+            	->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             else
             { //role is not admin
@@ -450,8 +435,7 @@ class AssigneeController extends Controller
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
             	->where('folloup',1)
-            	->orderBy('created_at', 'desc')
-            	->latest()->get();
+            	->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             //dd($data);
             return Datatables::of($data)

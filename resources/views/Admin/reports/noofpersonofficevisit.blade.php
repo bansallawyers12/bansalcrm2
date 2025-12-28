@@ -40,7 +40,7 @@
                                                     <td>{{ ++$i }}</td>
 													<td>{{ @$list->date == "" ? config('constants.empty') : date('d/m/Y',strtotime($list->date))  }}</td>
                                                     <td>{{ @$list->office_name == "" ? config('constants.empty') : $list->office_name }}</td>
-													<td>{{ @$list->personCount == "" ? config('constants.empty') : $list->personCount }}</td>
+													<td>{{ @$list->person_count ?? 0 }}</td>
                                                 </tr>
 												@endforeach
 												@endif

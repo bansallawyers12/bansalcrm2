@@ -209,31 +209,23 @@ class SearchService
                         $q->where(function($q1) {
                             $q1->whereColumn('admins.email', 'leads.email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         ->orWhere(function($q2) {
                             $q2->whereColumn('admins.att_email', 'leads.email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         // Match leads.att_email with admins.email or admins.att_email
                         ->orWhere(function($q3) {
                             $q3->whereColumn('admins.email', 'leads.att_email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         })
                         ->orWhere(function($q4) {
                             $q4->whereColumn('admins.att_email', 'leads.att_email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         });
                     });
             })
@@ -370,31 +362,23 @@ class SearchService
                         $q->where(function($q1) {
                             $q1->whereColumn('admins.email', 'leads.email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         ->orWhere(function($q2) {
                             $q2->whereColumn('admins.att_email', 'leads.email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         // Match leads.att_email with admins.email or admins.att_email
                         ->orWhere(function($q3) {
                             $q3->whereColumn('admins.email', 'leads.att_email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         })
                         ->orWhere(function($q4) {
                             $q4->whereColumn('admins.att_email', 'leads.att_email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         });
                     });
             })
@@ -503,31 +487,23 @@ class SearchService
                         $q->where(function($q1) {
                             $q1->whereColumn('admins.email', 'leads.email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         ->orWhere(function($q2) {
                             $q2->whereColumn('admins.att_email', 'leads.email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.email')
-                               ->where('leads.email', '!=', '');
+                               ->whereNotNull('leads.email');
                         })
                         // Match leads.att_email with admins.email or admins.att_email
                         ->orWhere(function($q3) {
                             $q3->whereColumn('admins.email', 'leads.att_email')
                                ->whereNotNull('admins.email')
-                               ->where('admins.email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         })
                         ->orWhere(function($q4) {
                             $q4->whereColumn('admins.att_email', 'leads.att_email')
                                ->whereNotNull('admins.att_email')
-                               ->where('admins.att_email', '!=', '')
-                               ->whereNotNull('leads.att_email')
-                               ->where('leads.att_email', '!=', '');
+                               ->whereNotNull('leads.att_email');
                         });
                     });
             })

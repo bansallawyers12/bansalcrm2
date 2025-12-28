@@ -1897,7 +1897,7 @@ class ClientsController extends Controller
 		$client_id = $request->clientid;
 		$type = $request->type;
 
-		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
+		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
 		ob_start();
 		foreach($notelist as $list){
 			$admin = \App\Models\Admin::where('id', $list->user_id)->first();
@@ -3839,10 +3839,10 @@ class ClientsController extends Controller
                 ->where('id', $merge_record_ids_arr[1])
                 ->update(['att_phone' => $first_phone,'att_email' => $first_email]);
 
-                $notelist1 = Note::where('client_id', $merge_record_ids_arr[0])->whereNull('assigned_to')->where('type', 'client')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
+                $notelist1 = Note::where('client_id', $merge_record_ids_arr[0])->whereNull('assigned_to')->where('type', 'client')->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
                 //dd($notelist1);
 
-                $notelist2 = Note::where('client_id', $merge_record_ids_arr[1])->whereNull('assigned_to')->where('type', 'client')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
+                $notelist2 = Note::where('client_id', $merge_record_ids_arr[1])->whereNull('assigned_to')->where('type', 'client')->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
                 //dd($notelist2);
 
                 if(!empty($notelist2)){

@@ -362,7 +362,7 @@ class LeadController extends Controller
 	public function convertoClient(Request $request)
 	{ 
 		$requestData 		= 	$request->all();
-		$enqdatas = Lead::where('id', '!=','')->paginate(500);
+		$enqdatas = Lead::query()->paginate(500);
 	//	if(Lead::where('id', $id)->exists()){
 		foreach($enqdatas as $lead){
 		    $id = $lead->id;

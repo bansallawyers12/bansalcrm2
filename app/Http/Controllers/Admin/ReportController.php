@@ -126,8 +126,8 @@ class ReportController extends Controller
 		//SELECT date, count(id) as personCount FROM `checkin_logs` group by date order by date desc;
          $lists = DB::table('checkin_logs')
         ->join('branches', 'branches.id', '=', 'checkin_logs.office')
-        ->select(DB::raw('checkin_logs.date,branches.office_name,count(checkin_logs.id) as personCount'))
-        ->groupBy(['checkin_logs.date', 'checkin_logs.office'])
+        ->select(DB::raw('checkin_logs.date,branches.office_name,count(checkin_logs.id) as person_count'))
+        ->groupBy(['checkin_logs.date', 'checkin_logs.office', 'branches.office_name'])
         ->orderByRaw('checkin_logs.date DESC NULLS LAST')
         ->paginate(5);
 
