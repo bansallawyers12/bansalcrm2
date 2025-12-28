@@ -56,6 +56,7 @@ class OfficeVisitController extends Controller
 	    	$o->url = \URL::to('/admin/office-visits/waiting');
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 			$objs = new CheckinHistory;
 			$objs->subject = 'has created check-in';
@@ -364,6 +365,7 @@ class OfficeVisitController extends Controller
 	    	$o->url = \URL::to('/admin/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 			$response['status'] 	= 	true;
 			$response['message']	=	'Updated successfully';
@@ -422,6 +424,7 @@ class OfficeVisitController extends Controller
 	    	$o->url = \URL::to('/admin/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 			//$response['status'] 	= 	true;
 			//$response['message']	=	'Updated successfully';

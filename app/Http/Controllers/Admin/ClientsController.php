@@ -3314,6 +3314,7 @@ class ClientsController extends Controller
 	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -3350,6 +3351,12 @@ class ClientsController extends Controller
         }*/
 
         $followup = \App\Models\Note::where('id', '=', $requestData['note_id'])->first();
+        
+        if(!$followup) {
+            echo json_encode(array('success' => false, 'message' => 'Note not found', 'clientID' => $requestData['client_id']));
+            exit;
+        }
+        
         $followup->id               = $followup ->id;
 		$followup->client_id		= $this->decodeString(@$requestData['client_id']);
 		$followup->user_id			= Auth::user()->id;
@@ -3369,10 +3376,13 @@ class ClientsController extends Controller
 		}
 		else
 		{
+			$Lead = null;
 			if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
                 $Lead = Admin::find($this->decodeString($requestData['client_id']));
-                $Lead->followup_date = @$requestData['followup_datetime'];
-                $Lead->save();
+                if($Lead){
+                    $Lead->followup_date = @$requestData['followup_datetime'];
+                    $Lead->save();
+                }
 			}
 
 			$o = new \App\Models\Notification;
@@ -3381,7 +3391,9 @@ class ClientsController extends Controller
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
 	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
-	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
+	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
+	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -3461,6 +3473,7 @@ class ClientsController extends Controller
 	    	$o->notification_type = 'client';
 	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -3534,6 +3547,7 @@ class ClientsController extends Controller
 	    	$o->url = '';//\URL::to('/admin/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Personal Task Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($requestData['followup_datetime']));
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -3592,6 +3606,7 @@ class ClientsController extends Controller
 	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
@@ -3620,6 +3635,7 @@ class ClientsController extends Controller
     	    	$o->url = \URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$request->id)));
     	    	$o->notification_type = 'client';
     	    	$o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+    	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
     	    	$o->save();
     			$response['status'] 	= 	true;
     			$response['message']	=	'Updated successfully';
@@ -3656,6 +3672,7 @@ class ClientsController extends Controller
                         $o->url = \URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$request->id)));
                         $o->notification_type = 'client';
                         $o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+                        $o->seen = 0; // Set seen to 0 (unseen) for new notifications
                         $o->save();
                     }
                 }
@@ -6020,6 +6037,7 @@ class ClientsController extends Controller
 	    	$o->url = \URL::to('/admin/clients/detail/'.$client_decode_id);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A');
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			/*$objs = new ActivitiesLog;

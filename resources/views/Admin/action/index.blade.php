@@ -814,6 +814,17 @@ jQuery(document).ready(function($){
             }
 		});
 	});
+
+	// Stub functions to prevent errors - these functions are called but not needed on this page
+	function getallactivities(){
+		// Function stub - activities are not displayed on the action index page
+		// This function is defined in detail pages but called here after task operations
+	}
+
+	function getallnotes(){
+		// Function stub - notes are not displayed on the action index page
+		// This function is defined in detail pages but called here after task operations
+	}
 });
 </script>
 @endsection

@@ -2149,6 +2149,7 @@ class AdminController extends Controller
                          $o->url = \URL::to('/admin/partners/detail/' . @$note_info['client_id']);
                          $o->notification_type = 'client';
                          $o->message = 'Followup Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name . ' on ' . date('d/M/Y h:i A', strtotime(@$note_info['followup_date']));
+                         $o->seen = 0; // Set seen to 0 (unseen) for new notifications
                          $o->save();
 
                          $objs = new ActivitiesLog;

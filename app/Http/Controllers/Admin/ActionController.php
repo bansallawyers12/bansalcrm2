@@ -1137,6 +1137,7 @@ public function change_assignee(Request $request){
         $o->url = \URL::to('/admin/appointments');
         $o->notification_type = 'appointment';
         $o->message = $objs->title.' Appointments Assigned by '.\Auth::user()->first_name.' '.\Auth::user()->last_name;
+        $o->seen = 0; // Set seen to 0 (unseen) for new notifications
         $o->save();
         $response['status'] 	= 	true;
         $response['message']	=	'Updated successfully';
