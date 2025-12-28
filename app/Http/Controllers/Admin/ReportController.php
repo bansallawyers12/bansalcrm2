@@ -44,7 +44,7 @@ class ReportController extends Controller
 	}
 	public function application(Request $request)  
 	{		
-		$query 		= Application::where('id', '!=', ''); 		  
+		$query 		= Application::query(); 		  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -53,7 +53,7 @@ class ReportController extends Controller
 	}
 	public function invoice(Request $request)  
 	{	
-		$query 		= Invoice::where('id', '!=', ''); 		  
+		$query 		= Invoice::query(); 		  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -62,7 +62,7 @@ class ReportController extends Controller
 	}
 	public function office_visit(Request $request)  
 	{		
-		$query 		= CheckinLog::where('id', '!=', '');  	  
+		$query 		= CheckinLog::query();  	  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -72,7 +72,7 @@ class ReportController extends Controller
 	}
 	public function saleforecast_application(Request $request)  
 	{	
-		$query 		= Application::where('id', '!=', ''); 		  
+		$query 		= Application::query(); 		  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -81,7 +81,7 @@ class ReportController extends Controller
 	}
 	public function interested_service(Request $request)  
 	{		
-		$query 		= Application::where('id', '!=', ''); 		  
+		$query 		= Application::query(); 		  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -90,7 +90,7 @@ class ReportController extends Controller
 	}
 	public function personal_task(Request $request)  
 	{	
-		$query 		= Task::where('id', '!=', '');  	  
+		$query 		= Task::query();  	  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -99,7 +99,7 @@ class ReportController extends Controller
 	}
 	public function office_task(Request $request)  
 	{	
-		$query 		= Task::where('id', '!=', '');  	  
+		$query 		= Task::query();  	  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		

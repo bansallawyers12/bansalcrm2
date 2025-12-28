@@ -49,7 +49,7 @@ This document serves as a quick reference for syntax changes made during the MyS
 ->whereRaw("TO_DATE(trans_date, 'DD/MM/YYYY') BETWEEN TO_DATE(?, 'DD/MM/YYYY') AND TO_DATE(?, 'DD/MM/YYYY')", [$startDate, $endDate])
 ```
 
-**CRITICAL: NULL Value Handling**
+### CRITICAL: NULL Value Handling
 
 PostgreSQL's `TO_DATE()` function will throw an error if the input value is NULL. This causes a 500 Internal Server Error when querying tables that contain NULL date values. **Always filter out NULL values before using TO_DATE()**.
 
@@ -1596,11 +1596,6 @@ grep -r "format('Y-m-d')" app/Http/Controllers/ | grep -i "date"
 grep -r "TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
 grep -r "whereRaw.*TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
 # Should have ->whereNotNull('trans_date') before whereRaw() with TO_DATE()
-
-# Check for TO_DATE() usage without whereNotNull (NULL handling issue)
-grep -r "TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
-grep -r "whereRaw.*TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
-# Should have ->whereNotNull('trans_date') before whereRaw() with TO_DATE()
 ```
 
 ---
@@ -1730,11 +1725,11 @@ This section organizes changes by safety level and implementation difficulty, fr
 
 | Tier | Risk Level | Effort | Status | Examples |
 |------|-----------|--------|---------|----------|
-| 🟢 **Tier 1** | Very Low | Low | Optional | Pending migrations check, CONCAT→\|\|, IFNULL→COALESCE |
-| 🟡 **Tier 2** | Low-Medium | Medium | Recommended | ORDER BY NULLS LAST, null coalescing, isset checks |
-| 🟠 **Tier 3** | Medium | Medium | **Required** | '0000-00-00'→NULL, GROUP_CONCAT→STRING_AGG, DATE_FORMAT→TO_CHAR |
-| 🔴 **Tier 4** | High | High | **Critical** | VARCHAR date filtering, TO_DATE NULL handling |
-| 🔴🔴 **Tier 5** | Very High | Very High | **Critical** | NOT NULL constraints (ActivitiesLog, Document, Note, etc.) |
+| 🟢 **Tier 1** | Very Low | Low | ✅ **COMPLETE** | Pending migrations check (ongoing), CONCAT→\|\| ✅, IFNULL→COALESCE ✅ |
+| 🟡 **Tier 2** | Low-Medium | Medium | ⚠️ **MOSTLY COMPLETE** | ORDER BY NULLS LAST (partial), null coalescing (recommended), isset checks (recommended) |
+| 🟠 **Tier 3** | Medium | Medium | ✅ **COMPLETE** | '0000-00-00'→NULL ✅, GROUP_CONCAT→STRING_AGG ✅, DATE_FORMAT→TO_CHAR ✅, FIND_IN_SET→string_to_array ✅, GROUP BY strictness ✅ |
+| 🔴 **Tier 4** | High | High | ⚠️ **IN PROGRESS** | VARCHAR date filtering, TO_DATE NULL handling |
+| 🔴🔴 **Tier 5** | Very High | Very High | ⚠️ **IN PROGRESS** | NOT NULL constraints (ActivitiesLog, Document, Note, etc.) |
 
 **Legend:**
 - **Optional:** Performance/quality improvements, won't break if skipped
@@ -1761,49 +1756,56 @@ This section organizes changes by safety level and implementation difficulty, fr
 
 ---
 
-### 🟢 TIER 1: SAFEST - Low Risk, High Confidence Changes
+### 🟢 TIER 1: SAFEST - Low Risk, High Confidence Changes ✅ **COMPLETE**
 
 These changes are straightforward, easy to verify, and have minimal risk of breaking functionality.
 
-#### 1.1. Check for Pending Migrations
+**Status:** ✅ **COMPLETE** - All Tier 1 items have been implemented or are ongoing maintenance tasks.
+
+#### 1.1. Check for Pending Migrations ✅
 - **Risk Level:** Very Low
 - **Effort:** 5 minutes
 - **Action:** Run `php artisan migrate:status` to identify pending migrations
 - **Why Safe:** Just checking status, no code changes
+- **Status:** ✅ **COMPLETE** (Ongoing maintenance task - run before deploying new code)
 - **Search Pattern:** 
   ```bash
   php artisan migrate:status | grep Pending
   ```
 
-#### 1.2. String Concatenation Optimization (CONCAT to ||)
+#### 1.2. String Concatenation Optimization (CONCAT to ||) ✅
 - **Risk Level:** Very Low
 - **Effort:** Low (can be done incrementally)
 - **Change:** Replace `CONCAT(a, b)` with `a || b` in PostgreSQL
 - **Why Safe:** Both work, but `||` is preferred. Low risk since CONCAT works in both.
+- **Status:** ✅ **COMPLETE** - Codebase uses `||` operator (verified: no CONCAT() found in app/)
 - **Search Pattern:**
   ```bash
   grep -r "CONCAT(" app/ | grep -i "DB::raw\|whereRaw"
   ```
-- **Notes:** This is a performance optimization, not a requirement. Can be skipped if time-constrained.
+- **Notes:** ✅ Completed - Codebase uses `COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')` pattern
 
-#### 1.3. IFNULL to COALESCE (Standardization)
+#### 1.3. IFNULL to COALESCE (Standardization) ✅
 - **Risk Level:** Very Low
 - **Effort:** Low
 - **Change:** Replace `IFNULL(expr, default)` with `COALESCE(expr, default)`
 - **Why Safe:** COALESCE works in both databases, but is standard SQL
+- **Status:** ✅ **COMPLETE** - Codebase uses COALESCE (verified: no IFNULL found in app/)
 - **Search Pattern:**
   ```bash
   grep -r "IFNULL" app/
   ```
-- **Notes:** Both work, but COALESCE is standard SQL. Low priority optimization.
+- **Notes:** ✅ Completed - Codebase uses COALESCE throughout
 
 ---
 
-### 🟡 TIER 2: SAFE - Medium Risk, Well-Defined Patterns
+### 🟡 TIER 2: SAFE - Medium Risk, Well-Defined Patterns ⚠️ **MOSTLY COMPLETE**
 
 These changes have clear patterns and are safe when following the documented examples.
 
-#### 2.1. ORDER BY with NULLS LAST (Code Quality)
+**Status:** ⚠️ **MOSTLY COMPLETE** - Core patterns implemented, some recommendations remain for code quality improvements.
+
+#### 2.1. ORDER BY with NULLS LAST (Code Quality) ⚠️
 - **Risk Level:** Low-Medium
 - **Effort:** Low-Medium
 - **Change:** Add `NULLS LAST` to ORDER BY clauses for date columns
@@ -1816,6 +1818,7 @@ These changes have clear patterns and are safe when following the documented exa
   ->orderByRaw('finish_date DESC NULLS LAST')
   ```
 - **Why Safe:** Only affects sort order, doesn't break functionality. Improves UX consistency.
+- **Status:** ⚠️ **PARTIALLY COMPLETE** - NULLS LAST is used in some places (e.g., DocumentsController, ReportController), but not all date orderBy clauses have been updated. Remaining cases are non-critical (recommended improvement).
 - **Search Pattern:**
   ```bash
   grep -r "orderBy.*date.*desc" app/Http/Controllers/
@@ -1823,7 +1826,7 @@ These changes have clear patterns and are safe when following the documented exa
   ```
 - **Priority:** Medium - Recommended for user-facing lists
 
-#### 2.2. Missing Form Field Handling (Null Coalescing)
+#### 2.2. Missing Form Field Handling (Null Coalescing) ⚠️
 - **Risk Level:** Low-Medium
 - **Effort:** Medium (requires reviewing each case)
 - **Change:** Add null coalescing operator (`??`) for optional form fields
@@ -1836,13 +1839,14 @@ These changes have clear patterns and are safe when following the documented exa
   $obj->title = $request->title ?? '';
   ```
 - **Why Safe:** Prevents undefined index warnings and NULL constraint violations
+- **Status:** ⚠️ **PARTIALLY COMPLETE** - Some controllers use null coalescing (e.g., ClientNotesController), but not all. Remaining cases appear to be safe (fields always present in those contexts). Recommended improvement.
 - **Search Pattern:**
   ```bash
   grep -r "->[a-zA-Z_]* = \$request->" app/Http/Controllers/ | grep -v "??"
   ```
 - **Priority:** Medium-High - Prevents runtime errors
 
-#### 2.3. Update Logic with isset Checks
+#### 2.3. Update Logic with isset Checks ⚠️
 - **Risk Level:** Low-Medium
 - **Effort:** Medium (requires reviewing each case)
 - **Change:** Add `isset()` checks before comparing request values
@@ -1855,6 +1859,7 @@ These changes have clear patterns and are safe when following the documented exa
   if(isset($request->field) && $oldValue !== $request->field) { ... }
   ```
 - **Why Safe:** Prevents undefined index warnings in change tracking
+- **Status:** ⚠️ **PARTIALLY COMPLETE** - Some controllers use isset checks (e.g., ClientNotesController), but not all. Recommended improvement for code quality.
 - **Search Pattern:**
   ```bash
   grep -r "!== \$request->" app/Http/Controllers/ | grep -v "isset"

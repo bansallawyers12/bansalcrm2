@@ -41,8 +41,6 @@
  $sched_res = [];
 $partners = \App\Models\Partner::select('id', 'partner_name', 'contract_expiry')
     ->whereNotNull('contract_expiry')
-    ->where('contract_expiry', '!=', '')
-    ->where('contract_expiry', '!=', '0000-00-00')
     ->get();
 
 foreach($partners as $partner){

@@ -1,5 +1,5 @@
 
-<?php $__env->startSection('title', 'Application Reports'); ?>
+<?php $__env->startSection('title', 'Agreement Expire Report'); ?>
 
 <?php $__env->startSection('content'); ?>
 <style>
@@ -23,7 +23,7 @@
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
 						<div class="card-header">
-							<h4>Visa Expires Reports</h4>
+							<h4>Agreement Expire Report</h4>
 							
 						</div>
 						<div class="card-body">
@@ -39,25 +39,23 @@
 </div>
 <?php
  $sched_res = [];
-$visaexpires = \App\Models\Admin::select('id','visaExpiry','first_name','last_name')
-    ->where('role',7)
-    ->where('visaExpiry','!=','')
-    ->whereNotNull('visaExpiry')
-    ->where('visaExpiry','!=','0000-00-00')
+$partners = \App\Models\Partner::select('id', 'partner_name', 'contract_expiry')
+    ->whereNotNull('contract_expiry')
     ->get();
 
-foreach($visaexpires as $visaexpire){
-    $visaexpireArray = [
-        'id' => $visaexpire->id,
-        'stitle' => htmlspecialchars($visaexpire->first_name, ENT_QUOTES, 'UTF-8'),
-        'startdate' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
-        'end' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
-        'displayDate' => date("F d, Y",strtotime($visaexpire->visaExpiry)),
-        'url' => URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode($visaexpire->id)))
+foreach($partners as $partner){
+    $row = [
+        'id' => $partner->id,
+        'title' => htmlspecialchars($partner->partner_name, ENT_QUOTES, 'UTF-8'),
+        'startdate' => date("F d, Y", strtotime($partner->contract_expiry)),
+        'start' => date("Y-m-d", strtotime($partner->contract_expiry)),
+        'end' => date("Y-m-d", strtotime($partner->contract_expiry)),
+        'displayDate' => date("F d, Y", strtotime($partner->contract_expiry)),
+        'url' => URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode($partner->id))),
+        'backgroundColor' => "#00bcd4"
     ];
-    $sched_res[$visaexpire->id] = $visaexpireArray;
+    $sched_res[$partner->id] = $row;
 }
-
 ?>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('scripts'); ?>
@@ -67,7 +65,7 @@ var events = [];
  if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
-            events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end });
+            events.push({ id: row.id, title: row.title, start: row.start, end: row.end });
         });
     }
 var today = new Date();
@@ -79,8 +77,8 @@ var calendar = $("#myEvent").fullCalendar({
   defaultView: "month",
   editable: false,
   selectable: true,
-  eventLimit: true, // If you set a number it will hide the itens
-    eventLimitText: "More",
+  eventLimit: true,
+  eventLimitText: "More",
   displayEventTime: false,
   header: {
     left: "prev,next today",
@@ -94,10 +92,10 @@ var calendar = $("#myEvent").fullCalendar({
             var id = info.id;
 
             if (!!scheds[id]) {
-                details.find('#title').text(scheds[id].stitle);
-              //  details.find('#description').text(scheds[id].description);
+                details.find('#title').text(scheds[id].title);
+                details.find('#description').text(scheds[id].description || '');
                 details.find('#start').text(scheds[id].displayDate || scheds[id].startdate);
-                if (scheds[id].url) {
+               if (scheds[id].url) {
 					window.open(scheds[id].url, "_blank");
 					return false;
 				}
@@ -194,4 +192,4 @@ var calendar = $("#myEvent").fullCalendar({
         </div>
     </div>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm\resources\views/Admin/reports/visaexpires.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm2\resources\views/Admin/reports/agreementexpires.blade.php ENDPATH**/ ?>

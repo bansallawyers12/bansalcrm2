@@ -45,8 +45,6 @@
          ->where('folloup',1)
          ->where('status',0)
          ->whereNotNull('followup_date')
-         ->where('followup_date', '!=', '')
-         ->where('followup_date', '!=', '0000-00-00')
          ->get();
  }else{
      $followups = \App\Models\Note::select('client_id','id', 'followup_date', 'description')
@@ -55,8 +53,6 @@
          ->where('folloup',1)
          ->where('status',0)
          ->whereNotNull('followup_date')
-         ->where('followup_date', '!=', '')
-         ->where('followup_date', '!=', '0000-00-00')
          ->get();
  }
 

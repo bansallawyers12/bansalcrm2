@@ -39,11 +39,9 @@
 </div>
 <?php
  $sched_res = [];
-$visaexpires = \App\Models\Admin::select('id','visaExpiry','first_name','last_name')
+$visaexpires = \App\Models\Admin::select('id','visaexpiry','first_name','last_name')
     ->where('role',7)
-    ->where('visaExpiry','!=','')
-    ->whereNotNull('visaExpiry')
-    ->where('visaExpiry','!=','0000-00-00')
+    ->whereNotNull('visaexpiry')
     ->get();
 
 foreach($visaexpires as $visaexpire){
