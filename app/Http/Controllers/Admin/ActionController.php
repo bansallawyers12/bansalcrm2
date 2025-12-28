@@ -727,9 +727,9 @@ class ActionController extends Controller
      * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function destroyByMe( $id,Note $Note)
+    public function destroyByMe($note_id)
     {
-        $appointment =Note::find($id);
+        $appointment =Note::find($note_id);
         $appointment->folloup = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
@@ -762,9 +762,9 @@ class ActionController extends Controller
     }
 
 
-    public function destroyToMe( $id,Note $Note)
+    public function destroyToMe($note_id)
     {
-        $appointment =Note::find($id);
+        $appointment =Note::find($note_id);
         $appointment->folloup = 0;
         $appointment->save();
 
@@ -774,9 +774,14 @@ class ActionController extends Controller
 
 
    //incomplete activity remove
-    public function destroy( $id,Note $Note)
+    public function destroy($note_id)
     {
-        $appointment = Note::find($id);//dd($appointment);
+        $appointment = Note::find($note_id);
+        
+        if(!$appointment) {
+            return response()->json(['success' => false, 'message' => 'Note not found'], 404);
+        }
+        
         $appointment->folloup = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
@@ -802,16 +807,17 @@ class ActionController extends Controller
             $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
             $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
             $objs->save();
-            //echo json_encode(array('success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id));
-            //exit;
-            return redirect()->route('action.index')->with('success','Activity deleted successfully');
+            
+            return response()->json(['success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id]);
         }
+        
+        return response()->json(['success' => false, 'message' => 'Failed to delete activity'], 500);
     }
 
     //complete activity remove
-    public function destroyCompleted( $id,Note $Note)
+    public function destroyCompleted($note_id)
     {
-        $appointment = Note::find($id);
+        $appointment = Note::find($note_id);
         $appointment->folloup = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
