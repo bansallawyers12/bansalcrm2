@@ -35,9 +35,9 @@ class EmailTemplateController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
-		//check authorization end
+	//check authorization end
 		
-		$query 		= EmailTemplate::where('id', '!=', '');
+	$query 		= EmailTemplate::query();
 		
 		$totalData 	= $query->count();	//for all data
 		

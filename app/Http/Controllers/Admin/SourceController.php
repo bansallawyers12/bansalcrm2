@@ -38,9 +38,9 @@ class SourceController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Source::where('id', '!=', ''); 
+	$query 		= Source::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

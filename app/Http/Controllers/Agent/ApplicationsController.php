@@ -39,9 +39,9 @@ class ApplicationsController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end
-	    $allstages = Application::select('stage')->groupBy('stage')->get();
-		$query 		= Application::where('id', '!=', '')->with(['application_assignee']); 
+	//check authorization end
+    $allstages = Application::select('stage')->groupBy('stage')->get();
+	$query 		= Application::query()->with(['application_assignee']);
 		  
 		$totalData 	= $query->count();	//for all data
         if ($request->has('partner')) 

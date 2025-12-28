@@ -69,7 +69,7 @@ class OfficeVisitController extends Controller
 	
 	public function index(Request $request)
 	{
-		$query 		= CheckinLog::where('id', '!=', '');  
+		$query 		= CheckinLog::query();  
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){

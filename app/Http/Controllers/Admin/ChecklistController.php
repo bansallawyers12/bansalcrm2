@@ -38,9 +38,9 @@ class ChecklistController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Checklist::where('id', '!=', ''); 
+	$query 		= Checklist::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

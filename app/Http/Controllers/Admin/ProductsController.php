@@ -42,9 +42,9 @@ class ProductsController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end
+	//check authorization end
 	
-		$query 		= Product::where('id', '!=', ''); 
+	$query 		= Product::query();
 		  
 		$totalData 	= $query->count();	//for all data
 		if ($request->has('name')) 

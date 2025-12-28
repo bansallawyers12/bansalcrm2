@@ -39,7 +39,7 @@ class BranchesController extends Controller
 			} */	
 		//check authorization end
 	
-		 $query 		= Branch::where('id', '!=', ''); 
+		 $query 		= Branch::query(); 
 		 
 		$totalData 	= $query->count();	//for all data
 		

@@ -32,7 +32,7 @@ class AccountController extends Controller
      */
 	public function payment(Request $request)
 	{ 
-		$query 		= InvoicePayment::where('id', '!=', '')->with(['invoice']); 
+		$query 		= InvoicePayment::query()->with(['invoice']); 
 		  
 		$totalData 	= $query->count();	//for all data
 

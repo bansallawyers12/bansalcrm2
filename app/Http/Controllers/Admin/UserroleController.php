@@ -38,8 +38,8 @@ class UserroleController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
-		//check authorization end
-		$query 		= UserRole::where('id', '!=', '')->with(['usertypedata']);
+	//check authorization end
+	$query 		= UserRole::query()->with(['usertypedata']);
 		 
 		$totalData 	= $query->count();	//for all data
 

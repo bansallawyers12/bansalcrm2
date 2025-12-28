@@ -38,9 +38,9 @@ class LeadServiceController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= LeadService::where('id', '!=', ''); 
+	$query 		= LeadService::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

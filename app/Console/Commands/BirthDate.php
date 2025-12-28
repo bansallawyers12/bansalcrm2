@@ -46,7 +46,7 @@ class BirthDate extends Command
      */
     public function handle()
     {
-		$query 		= Contact::where('id', '!=', '')->with(['company']);
+		$query 		= Contact::query()->with(['company']);
 		$totalco = $query->count();
 		
 		$lists = $query->get();

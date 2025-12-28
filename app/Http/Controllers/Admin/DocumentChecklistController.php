@@ -28,7 +28,7 @@ class DocumentChecklistController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DocumentChecklist::where('id', '!=', '')->where('status',1);
+        $query = DocumentChecklist::query()->where('status',1);
         $totalData = $query->count(); // for all data
         $lists = $query->sortable(['id' => 'desc'])->paginate(100);
         return view('Admin.feature.documentchecklist.index', compact(['lists', 'totalData']));

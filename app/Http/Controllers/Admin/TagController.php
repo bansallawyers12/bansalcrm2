@@ -38,9 +38,9 @@ class TagController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Tag::where('id', '!=', '')->with(['createddetail', 'updateddetail']); 
+	$query 		= Tag::query()->with(['createddetail', 'updateddetail']);
 		 
 		$totalData 	= $query->count();	//for all data
 		

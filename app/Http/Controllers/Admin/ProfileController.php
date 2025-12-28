@@ -37,9 +37,9 @@ class ProfileController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Profile::where('id', '!=', ''); 
+	$query 		= Profile::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

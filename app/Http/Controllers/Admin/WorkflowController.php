@@ -39,9 +39,9 @@ class WorkflowController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Workflow::where('id', '!=', ''); 
+	$query 		= Workflow::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

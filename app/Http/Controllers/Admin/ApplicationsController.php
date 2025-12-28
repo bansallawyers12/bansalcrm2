@@ -49,7 +49,7 @@ class ApplicationsController extends Controller
         $allstages = Application::select('stage')->where('status', '!=', 2)->groupBy('stage')->get();
         $allpartners = Partner::select('partner_name','id')->where('status', '=', 0)->get();
 
-		$query 		= Application::where('id', '!=', '')->where('status', '!=', 2)->with(['application_assignee']);
+		$query 		= Application::query()->where('status', '!=', 2)->with(['application_assignee']);
 
 		$totalData 	= $query->count();	//for all data
         if ($request->has('partner'))
@@ -2210,7 +2210,7 @@ class ApplicationsController extends Controller
         $allstages = Application::select('stage')->where('status', '!=', 2)->groupBy('stage')->get();
         $allpartners = Partner::select('partner_name','id')->where('status', '=', 0)->get();
 
-		$query 	   = Application::where('id', '!=', '')->where('stage', '=', 'Coe processing')->where('updated_at', '<=', Carbon::now()->subDays(15)->toDateTimeString() )->where('status', '!=', 2)->with(['application_assignee']);
+		$query 	   = Application::query()->where('stage', '=', 'Coe processing')->where('updated_at', '<=', Carbon::now()->subDays(15)->toDateTimeString() )->where('status', '!=', 2)->with(['application_assignee']);
         $totalData 	= $query->count();	//for all data
         if ($request->has('partner'))
 		{
@@ -2255,7 +2255,7 @@ class ApplicationsController extends Controller
         $allpartners = Partner::select('partner_name','id')->where('status', '=', 0)->get();
 
         //status = discountined and status = coe issued, refund  coe cancelled in finalized  tab
-		$query = Application::where('id', '!=', '')
+		$query = Application::query()
         ->whereIn('stage', ['Coe processing', 'Coe issued', 'Refund', 'Coe Cancelled'])
         ->where('status', '=', 2)
         ->with(['application_assignee']);

@@ -76,7 +76,7 @@ class ServicesController extends Controller
 		//check authorization end
 		//return view('Admin.users.create',compact(['usertype']));	
 		
-		$services = Service::where('id','!=','')->orderby('title','ASC')->get();
+		$services = Service::query()->orderby('title','ASC')->get();
 		$service = array();
 		foreach($services as $ser){
 			$service[] = array(
@@ -187,7 +187,7 @@ class ServicesController extends Controller
 
 		else
 		{		
-			$services = Service::where('id','!=','')->orderby('title','ASC')->get();
+			$services = Service::query()->orderby('title','ASC')->get();
 			$service = array();
 			foreach($services as $ser){
 				$service[] = array(

@@ -39,7 +39,7 @@ class ProductTypeController extends Controller
 			} */	
 		//check authorization end 
 	
-		$query 		= ProductType::where('id', '!=', ''); 
+		$query 		= ProductType::query(); 
 		 
 		$totalData 	= $query->count();	//for all data
 		

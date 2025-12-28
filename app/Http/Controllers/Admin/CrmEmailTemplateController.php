@@ -37,9 +37,9 @@ class CrmEmailTemplateController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= CrmEmailTemplate::where('id', '!=', ''); 
+	$query 		= CrmEmailTemplate::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

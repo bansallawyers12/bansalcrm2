@@ -38,9 +38,9 @@ class SubjectController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Subject::where('id', '!=', ''); 
+	$query 		= Subject::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

@@ -38,9 +38,9 @@ class MasterCategoryController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= Category::where('id', '!=', ''); 
+	$query 		= Category::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

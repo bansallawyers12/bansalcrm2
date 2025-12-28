@@ -37,9 +37,9 @@ class PartnerTypeController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= PartnerType::where('id', '!=', '')->with(['categorydata']); 
+	$query 		= PartnerType::query()->with(['categorydata']);
 		 
 		$totalData 	= $query->count();	//for all data
 		

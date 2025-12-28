@@ -37,8 +37,8 @@ class UsertypeController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
-		//check authorization end
-		$query 		= UserType::where('id', '!=', '');
+	//check authorization end
+	$query 		= UserType::query();
 		
 		$totalData 	= $query->count();	//for all data
 

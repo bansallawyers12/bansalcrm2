@@ -974,7 +974,7 @@ class InvoiceController extends Controller
 		return view('Admin.invoice.creategroupinvoice');  
 	} 
 	public function invoiceschedules(){
-		$query 		= InvoiceSchedule::where('id', '!=', '');
+		$query 		= InvoiceSchedule::query();
 		$lists		= $query->orderby('id','desc')->paginate(20);
 		return view('Admin.invoice.invoiceschedules',compact(['lists']));  
 	}

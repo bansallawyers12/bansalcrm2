@@ -38,9 +38,9 @@ class VisaTypeController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= VisaType::where('id', '!=', ''); 
+	$query 		= VisaType::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		

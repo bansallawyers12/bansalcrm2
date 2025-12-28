@@ -40,7 +40,7 @@ class ContactController extends Controller
 		//check authorization end
 		
 		  if(Auth::user()->role == 1){
-			$query 		= Contact::where('id','!=','' ); 
+			$query 		= Contact::query(); 
 		 }else{	
 			$query 		= Contact::where('user_id', '=', Auth::user()->id);
 		 }	

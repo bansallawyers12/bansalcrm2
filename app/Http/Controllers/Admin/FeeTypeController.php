@@ -38,9 +38,9 @@ class FeeTypeController extends Controller
 			{
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			} */	
-		//check authorization end 
+	//check authorization end 
 	
-		$query 		= FeeType::where('id', '!=', ''); 
+	$query 		= FeeType::query();
 		 
 		$totalData 	= $query->count();	//for all data
 		
