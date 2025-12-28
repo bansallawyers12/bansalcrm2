@@ -129,7 +129,7 @@
 
 
                                             <button type="button" class="btn btn-primary btn-block add_my_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content11&quot;>
-                                                <h4 class=&quot;text-center&quot;>Add My Task</h4>
+                                                <h4 class=&quot;text-center&quot;>Add Action</h4>
                                                 <div class=&quot;clearfix&quot;></div>
                                             <div class=&quot;box-header with-border&quot;>
                                                 <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
@@ -186,10 +186,10 @@
                                             </div>
                                             <div class=&quot;row text-center&quot;>
                                                 <div class=&quot;col-md-12 text-center&quot;>
-                                                <button  class=&quot;btn btn-info&quot; id=&quot;add_my_task&quot;>Add My Task</button>
+                                                <button  class=&quot;btn btn-info&quot; id=&quot;add_my_task&quot;>Add Action</button>
                                                 </div>
                                             </div>
-                                    </div>" data-original-title="" title="" style="width: 105px;display: inline;margin-left: 10px;margin-top:5px;">Add My Task</button>
+                                    </div>" data-original-title="" title="" style="width: 105px;display: inline;margin-left: 10px;margin-top:5px;">Add Action</button>
 
 
                                         </div>
@@ -289,12 +289,16 @@ $(function () {
 
         "fnDrawCallback": function() {
             // Only initialize popovers that aren't already initialized
-            $('[data-toggle="popover"]').each(function() {
+            $('[data-role="popover"], [data-toggle="popover"]').each(function() {
                 if (!$(this).data('bs.popover')) {
-                    $(this).popover({
-                        html: true,
-                        sanitize: false
-                    });
+                    try {
+                        $(this).popover({
+                            html: true,
+                            sanitize: false
+                        });
+                    } catch(e) {
+                        console.warn('Popover initialization error:', e);
+                    }
                 }
             });
            // $('[data-toggle="tooltip"]').tooltip();

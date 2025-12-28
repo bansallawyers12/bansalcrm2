@@ -727,16 +727,6 @@ class ActionController extends Controller
      * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function destroy( $id,Note $Note)
-    {   // dd($id);
-        $appointment =Note::find($id);
-        $appointment->folloup = 0;
-        $appointment->save();
-
-        return redirect()->route('action.index')
-        ->with('success','Action deleted successfully');
-    }
-
     public function destroyByMe( $id,Note $Note)
     {
         $appointment =Note::find($id);

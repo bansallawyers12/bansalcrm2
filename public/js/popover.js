@@ -88,7 +88,6 @@ function isNumberKey1(evt)
         var datetitle = "";
 
         datetitle= getDateforpopover(id)
-		alert(datetitle);
         var datearray = datetitle.split("-");
   
         var dateinput = datearray[2]+"-"+datearray[1]+"-"+datearray[0];
@@ -488,15 +487,18 @@ console.log(e);
                 }
             } 
  
-		$("[data-role=popover]").popover({
-				 sanitize: false,
-                html: true,
-                showCallback: function(){
-     
-					
-                    
-                }
-            });
+		// Only initialize popovers that aren't already initialized
+		$("[data-role=popover]").each(function() {
+			if (!$(this).data('bs.popover')) {
+				$(this).popover({
+					sanitize: false,
+					html: true,
+					showCallback: function(){
+						
+					}
+				});
+			}
+		});
 		
 	});		
 	

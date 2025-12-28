@@ -267,7 +267,6 @@
 					<li class="{{(Route::currentRouteName() == 'admin.account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.account.payment')}}">Payment</a></li>
 					<?php } ?>
 					
-					<!-- <li class="{{(Route::currentRouteName() == 'admin.invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'admin.invoice.paidgroupinvoice') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.invoice.unpaidgroupinvoice')}}">Group Invoice</a></li> -->
 					<li class="{{(Route::currentRouteName() == 'admin.invoice.invoiceschedules') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.invoice.invoiceschedules')}}">Invoice Schedule</a></li> 
 					<li class="{{(Route::currentRouteName() == 'admin.account.payableunpaid' || Route::currentRouteName() == 'admin.account.payablepaid' || Route::currentRouteName() == 'admin.account.receivableunpaid' || Route::currentRouteName() == 'admin.account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.account.payableunpaid')}}">Income Sharing</a></li> 
 				</ul>
@@ -313,7 +312,7 @@
 					<?php
 					if(array_key_exists('68',  $module_access)) {
 					?>
-					<!-- Task system removed - December 2025 -->
+					{{-- Task system removed - December 2025 --}}
 					<?php } ?>
 					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/visaexpires')}}">Visa Expires</a></li>
 					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/agreementexpires')}}">Agreement Expires</a></li>
