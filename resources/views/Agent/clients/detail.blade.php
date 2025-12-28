@@ -79,7 +79,11 @@ use App\Http\Controllers\Controller;
 							
 							</div>
 							<?php
-	$agent = \App\Models\Agent::where('id',@$fetchedData->agent_id)->first();
+	// PostgreSQL doesn't accept empty strings for integer columns - check before querying
+	$agent = null;
+	if(!empty(@$fetchedData->agent_id) && @$fetchedData->agent_id !== '') {
+		$agent = \App\Models\Agent::where('id', @$fetchedData->agent_id)->first();
+	}
 	if($agent){
 		?>
 		<div class="client_assign client_info_tags"> 
@@ -184,7 +188,11 @@ use App\Http\Controllers\Controller;
 								<span class="float-right text-muted">{{$fetchedData->visa_type}}</span>
 							</p> 
 							<?php
-								$addedby = \App\Models\Admin::where('id',@$fetchedData->user_id)->first();
+								// PostgreSQL doesn't accept empty strings for integer columns - check before querying
+								$addedby = null;
+								if(!empty(@$fetchedData->user_id) && @$fetchedData->user_id !== '') {
+									$addedby = \App\Models\Admin::where('id', @$fetchedData->user_id)->first();
+								}
 							?>
 							<div class="client_added client_info_tags"> 
 								<span class="">Added By:</span>
@@ -201,7 +209,11 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 							<?php
-								$assignee = \App\Models\Admin::where('id',@$fetchedData->assignee)->first();
+								// PostgreSQL doesn't accept empty strings for integer columns - check before querying
+								$assignee = null;
+								if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
+									$assignee = \App\Models\Admin::where('id', @$fetchedData->assignee)->first();
+								}
 							?>
 							<div class="client_assign client_info_tags"> 
 								<span class="">Assignee:</span>
@@ -235,11 +247,21 @@ use App\Http\Controllers\Controller;
 								 
 							
 							?>
-									<?php   foreach($exploder AS $EXP){ 
-								        $relatedclients = \App\Models\Admin::where('id', $EXP)->first();	
+									<?php   
+									if(!empty($exploder)) {
+										foreach($exploder AS $EXP){ 
+											// PostgreSQL doesn't accept empty strings for integer columns - filter empty values
+											if(!empty(trim($EXP)) && trim($EXP) !== '') {
+												$relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();	
+												if($relatedclients) {
 									?>
-									    <li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
-									<?php } ?>
+													<li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
+									<?php 
+												}
+											}
+										} 
+									}
+									?>
 									<?php } ?>	
 									</ul>
 								</div>

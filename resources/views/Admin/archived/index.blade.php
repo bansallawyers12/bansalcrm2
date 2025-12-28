@@ -87,7 +87,11 @@
 													<td style="white-space: initial;">-</td>
 													<td style="white-space: initial;">{{@$list->city}}</td>
 													<?php
-													$assignee = \App\Models\Admin::where('id',@$list->assignee)->first();
+													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
+													$assignee = null;
+													if(!empty(@$list->assignee) && @$list->assignee !== '') {
+														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
+													}
 													?>
 													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
 													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->archived_on))}}</td>

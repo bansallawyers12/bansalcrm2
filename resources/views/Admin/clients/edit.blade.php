@@ -971,9 +971,17 @@
  <?php if($fetchedData->related_files != ''){
      $exploderel = explode(',', $fetchedData->related_files);
      foreach($exploderel AS $EXP){ 
-         $relatedclients = \App\Models\Admin::where('id', $EXP)->first();	
+         // PostgreSQL doesn't accept empty strings for integer columns - filter empty values
+         if(!empty(trim($EXP)) && trim($EXP) !== '') {
+             $relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();	
+             if($relatedclients) {
     ?>
  <input type="hidden" class="relatedfile" data-email="<?php echo $relatedclients->email; ?>" data-name="<?php echo $relatedclients->first_name.' '.$relatedclients->last_name; ?>" data-id="<?php echo $relatedclients->id; ?>">
+    <?php
+            }
+        }
+     }
+ } ?>
  <?php
      }
  }

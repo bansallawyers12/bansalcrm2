@@ -48,5 +48,111 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo('App\Models\UserRole', 'role', 'id');
     }
+	
+	/**
+     * Get the preferredIntake attribute (maps to preferredintake column)
+     *
+     * @param  mixed  $value
+     * @return mixed
+     */
+	public function getPreferredIntakeAttribute($value)
+    {
+        // Map preferredIntake to preferredintake column
+        return $this->attributes['preferredintake'] ?? null;
+    }
+	
+	/**
+     * Set the preferredIntake attribute (maps to preferredintake column)
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setPreferredIntakeAttribute($value)
+    {
+        // Map preferredIntake to preferredintake column
+        // PostgreSQL doesn't accept empty strings for date columns - convert to NULL
+        $this->attributes['preferredintake'] = ($value === '' || $value === null) ? null : $value;
+    }
+	
+	/**
+     * Get the visaExpiry attribute (maps to visaexpiry column)
+     *
+     * @param  mixed  $value
+     * @return mixed
+     */
+	public function getVisaExpiryAttribute($value)
+    {
+        // Map visaExpiry to visaexpiry column
+        return $this->attributes['visaexpiry'] ?? null;
+    }
+	
+	/**
+     * Set the visaExpiry attribute (maps to visaexpiry column)
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setVisaExpiryAttribute($value)
+    {
+        // Map visaExpiry to visaexpiry column
+        // PostgreSQL doesn't accept empty strings for date columns - convert to NULL
+        $this->attributes['visaexpiry'] = ($value === '' || $value === null) ? null : $value;
+    }
+	
+	/**
+     * Set the agent_id attribute
+     * PostgreSQL doesn't accept empty strings for integer columns - convert to NULL
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setAgentIdAttribute($value)
+    {
+        // PostgreSQL doesn't accept empty strings for integer columns - convert to NULL
+        if ($value === '' || $value === null) {
+            $this->attributes['agent_id'] = null;
+        } else {
+            $this->attributes['agent_id'] = (int)$value;
+        }
+    }
+	
+	/**
+     * Set the followers attribute
+     * Convert empty strings to NULL for consistency
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setFollowersAttribute($value)
+    {
+        // Convert empty strings to NULL for consistency
+        $this->attributes['followers'] = ($value === '') ? null : $value;
+    }
+	
+	/**
+     * Set the naati_py attribute
+     * Convert empty strings to NULL for consistency
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setNaatiPyAttribute($value)
+    {
+        // Convert empty strings to NULL for consistency
+        $this->attributes['naati_py'] = ($value === '') ? null : $value;
+    }
+	
+	/**
+     * Set the related_files attribute
+     * Convert empty strings to NULL for consistency
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+	public function setRelatedFilesAttribute($value)
+    {
+        // Convert empty strings to NULL for consistency
+        $this->attributes['related_files'] = ($value === '') ? null : $value;
+    }
 }
 

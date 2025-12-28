@@ -1,7 +1,7 @@
-@extends('layouts.admin')
-@section('title', 'Clients')
 
-@section('content')
+<?php $__env->startSection('title', 'Clients'); ?>
+
+<?php $__env->startSection('content'); ?>
 <style>
 .ag-space-between {
     justify-content: space-between;
@@ -57,7 +57,7 @@
 	<section class="section">
 		<div class="section-body">
 			<div class="server-error">
-				@include('../Elements/flash-message')
+				<?php echo $__env->make('../Elements/flash-message', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 			</div>
 			<div class="custom-error-msg">
 			</div>
@@ -88,7 +88,7 @@
 										
 									</div>
 								</div>
-								<a href="{{route('admin.clients.create')}}" class="btn btn-primary">Create Client</a>
+								<a href="<?php echo e(route('admin.clients.create')); ?>" class="btn btn-primary">Create Client</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
@@ -107,39 +107,43 @@
 								</li>
 								
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/admin/clients')}}" >Clients</a>
+									<a class="nav-link active" id="clients-tab"  href="<?php echo e(URL::to('/admin/clients')); ?>" >Clients</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="archived-tab"  href="{{URL::to('/admin/archived')}}" >Archived</a>
+									<a class="nav-link" id="archived-tab"  href="<?php echo e(URL::to('/admin/archived')); ?>" >Archived</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent">	
 							<div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/admin/clients')}}" method="get">
+								<form action="<?php echo e(URL::to('/admin/clients')); ?>" method="get">
 									<div class="row">
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="pnr" class="col-form-label">Client ID</label>
-												{!! Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' ))  !!}
+												<?php echo Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' )); ?>
+
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="company_name" class="col-form-label">Name</label>
-												{!! Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
+												<?php echo Form::text('name', Request::get('name'), array('class' => 'form-control agent_company_name', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' )); ?>
+
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="email" class="col-form-label">Email</label>
-												{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}
+												<?php echo Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' )); ?>
+
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
 												<label for="phone" class="col-form-label">Phone</label>
-												{!! Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' ))  !!}
+												<?php echo Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' )); ?>
+
 											</div>
 										</div>
 										<div class="col-md-4">
@@ -157,8 +161,9 @@
 									<div class="row">
 										<div class="col-md-12 text-center">
 									
-											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/admin/clients')}}">Reset</a>
+											<?php echo Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ]); ?>
+
+											<a class="btn btn-info" href="<?php echo e(URL::to('/admin/clients')); ?>">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -193,21 +198,21 @@
 											</thead>
 											
 											<tbody class="tdata">	
-												@if(@$totalData !== 0)
+												<?php if(@$totalData !== 0): ?>
 													<?php $i=0; ?>
-												@foreach (@$lists as $list)
-												<tr id="id_{{@$list->id}}"> 
+												<?php $__currentLoopData = @$lists; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $list): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+												<tr id="id_<?php echo e(@$list->id); ?>"> 
 													<td style="white-space: initial;" class="text-center">
 														<div class="custom-checkbox custom-control">
-															<input data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" data-clientid="{{@$list->client_id}}" type="checkbox" data-checkboxes="mygroup" class="cb-element custom-control-input your-checkbox" id="checkbox-{{$i}}">
-															<label for="checkbox-{{$i}}" class="custom-control-label">&nbsp;</label>
+															<input data-id="<?php echo e(@$list->id); ?>" data-email="<?php echo e(@$list->email); ?>" data-name="<?php echo e(@$list->first_name); ?> <?php echo e(@$list->last_name); ?>" data-clientid="<?php echo e(@$list->client_id); ?>" type="checkbox" data-checkboxes="mygroup" class="cb-element custom-control-input your-checkbox" id="checkbox-<?php echo e($i); ?>">
+															<label for="checkbox-<?php echo e($i); ?>" class="custom-control-label">&nbsp;</label>
 														</div>
 													</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }} </a><span class="badge btn-warning"><?php echo $list->type; ?></span><br/>{{--<a data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" class="clientemail">{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</a>--}}</td> 
+													<td style="white-space: initial;"><a href="<?php echo e(URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))); ?>"><?php echo e(@$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...')); ?> <?php echo e(@$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...')); ?> </a><span class="badge btn-warning"><?php echo $list->type; ?></span><br/></td> 
 													<?php
 													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
 													?>
-													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
+													<td style="white-space: initial;"><?php if($agent): ?> <a target="_blank" href="<?php echo e(URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))); ?>"><?php echo e(@$agent->full_name); ?><a/><?php else: ?> - <?php endif; ?></td>
 													<td style="white-space: initial;">
 													<?php if($list->tagname != ''){ 
 													$rs = explode(',', $list->tagname);
@@ -222,15 +227,15 @@
 														?>
 														
 														<div tabindex="0" data-html="true" data-toggle="popover" data-trigger="hover focus" title="Tags" data-content="<ul><?php echo @$tag; ?></ul>" class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd->name}}</span> 
-															<span class="ui label counter">+ {{@$counttag - 1}}</span>
+															<span  title="ff" class="col-hr-1 truncate"><?php echo e(@$stagd->name); ?></span> 
+															<span class="ui label counter">+ <?php echo e(@$counttag - 1); ?></span>
 														</div>
 														<?php
 													}else{
 														$stagd = \App\Models\Tag::where('id','=',$rs)->first();
 														?>
 														<div class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd->name}}</span> 
+															<span  title="ff" class="col-hr-1 truncate"><?php echo e(@$stagd->name); ?></span> 
 															
 														</div>
 														<?php
@@ -241,10 +246,10 @@
 													</td>
 													<td style="white-space: initial;"><?php echo @$list->rating; ?></td>
 													
-													<td style="white-space: initial;">{{ @$list->client_id == "" ? config('constants.empty') : str_limit(@$list->client_id, '50', '...') }}</td> 
-													{{--<td>{{ @$list->phone == "" ? config('constants.empty') : str_limit(@$list->phone, '50', '...') }}</td> --}}
+													<td style="white-space: initial;"><?php echo e(@$list->client_id == "" ? config('constants.empty') : str_limit(@$list->client_id, '50', '...')); ?></td> 
 													
-													<td style="white-space: initial;">{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}</td>
+													
+													<td style="white-space: initial;"><?php echo e(@$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...')); ?></td>
 													<?php
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
@@ -266,30 +271,30 @@
 														}
 													}
 													?>
-													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
-													<td style="white-space: initial;">{{ rtrim(@$followerss,', ') }}</td> 
+													<td style="white-space: initial;"><?php echo e(@$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...')); ?></td> 
+													<td style="white-space: initial;"><?php echo e(rtrim(@$followerss,', ')); ?></td> 
 													<td ><span class="ag-label--circular" style="color: #6777ef" >
 														In Progress
 													</span></td>
 													<td style="white-space: initial;"> - </td>
-													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->created_at))}}</td>
-                                                    <td style="white-space: initial;">{{date('d/m/Y', strtotime($list->updated_at))}}</td>
-													<td style="white-space: initial;">{{ @$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...') }}</td>  	
+													<td style="white-space: initial;"><?php echo e(date('d/m/Y', strtotime($list->created_at))); ?></td>
+                                                    <td style="white-space: initial;"><?php echo e(date('d/m/Y', strtotime($list->updated_at))); ?></td>
+													<td style="white-space: initial;"><?php echo e(@$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...')); ?></td>  	
 													<td style="white-space: initial;">
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'admins')"><i class="fas fa-trash"></i> Archived</a>
+																<a class="dropdown-item has-icon clientemail" data-id="<?php echo e(@$list->id); ?>" data-email="<?php echo e(@$list->email); ?>" data-name="<?php echo e(@$list->first_name); ?> <?php echo e(@$list->last_name); ?>" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
+																<a class="dropdown-item has-icon" href="<?php echo e(URL::to('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))); ?>"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction(<?php echo e($list->id); ?>, 'admins')"><i class="fas fa-trash"></i> Archived</a>
 															</div>
 														</div>								  
 													</td>
 												</tr>	
 												<?php $i++; ?>
-												@endforeach	
+												<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>	
 											</tbody>
-											@else
+											<?php else: ?>
 											<tbody>
 												<tr>
 													<td style="text-align:center;" colspan="17">
@@ -297,7 +302,7 @@
 													</td>
 												</tr>
 											</tbody>
-											@endif
+											<?php endif; ?>
 										</table>
 									</div>
 								</div>
@@ -305,7 +310,8 @@
 							</div> 
 						</div>
 						<div class="card-footer">
-							{!! $lists->appends(\Request::except('page'))->render() !!}
+							<?php echo $lists->appends(\Request::except('page'))->render(); ?>
+
 						</div>
 					</div>
 				</div>
@@ -324,8 +330,8 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
-				@csrf
+				<form method="post" name="sendmail" action="<?php echo e(URL::to('/admin/sendmail')); ?>" autocomplete="off" enctype="multipart/form-data">
+				<?php echo csrf_field(); ?>
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
@@ -341,11 +347,11 @@
 									
 									?>
 								</select>
-								@if ($errors->has('email_from'))
+								<?php if($errors->has('email_from')): ?>
 									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('email_from') }}</strong>
+										<strong><?php echo e(@$errors->first('email_from')); ?></strong>
 									</span> 
-								@endif
+								<?php endif; ?>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
@@ -353,11 +359,11 @@
 								<label for="email_to">To <span class="span_req">*</span></label>
 								<select data-valid="required" class="js-data-example-ajax" name="email_to[]"></select>
 								
-								@if ($errors->has('email_to'))
+								<?php if($errors->has('email_to')): ?>
 									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('email_to') }}</strong>
+										<strong><?php echo e(@$errors->first('email_to')); ?></strong>
 									</span> 
-								@endif
+								<?php endif; ?>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
@@ -365,11 +371,11 @@
 								<label for="email_cc">CC </label>
 								<select data-valid="" class="js-data-example-ajaxcc" name="email_cc[]"></select>
 								
-								@if ($errors->has('email_cc'))
+								<?php if($errors->has('email_cc')): ?>
 									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('email_cc') }}</strong>
+										<strong><?php echo e(@$errors->first('email_cc')); ?></strong>
 									</span> 
-								@endif
+								<?php endif; ?>
 							</div>
 						</div>
 						
@@ -378,9 +384,9 @@
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selecttemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
-										<option value="{{$list->id}}">{{$list->name}}</option>
-									@endforeach
+									<?php $__currentLoopData = \App\Models\CrmEmailTemplate::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $list): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+										<option value="<?php echo e($list->id); ?>"><?php echo e($list->name); ?></option>
+									<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 								</select>
 								
 							</div>
@@ -388,23 +394,24 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								{!! Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
-								@if ($errors->has('subject'))
+								<?php echo Form::text('subject', '', array('class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' )); ?>
+
+								<?php if($errors->has('subject')): ?>
 									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('subject') }}</strong>
+										<strong><?php echo e(@$errors->first('subject')); ?></strong>
 									</span> 
-								@endif
+								<?php endif; ?>
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
 								<textarea class="summernote-simple selectedmessage" name="message"></textarea>
-								@if ($errors->has('message'))
+								<?php if($errors->has('message')): ?>
 									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('message') }}</strong>
+										<strong><?php echo e(@$errors->first('message')); ?></strong>
 									</span>  
-								@endif
+								<?php endif; ?>
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
@@ -417,8 +424,8 @@
 		</div>
 	</div>
 </div>
-@endsection
-@section('scripts')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
 <script>
 jQuery(document).ready(function($){
 	$('.filter_btn').on('click', function(){
@@ -480,7 +487,7 @@ jQuery(document).ready(function($){
             var merge_record_ids = array.join(",");
             $.ajax({
                 type:'post',
-                url:"{{URL::to('/')}}/admin/merge_records",
+                url:"<?php echo e(URL::to('/')); ?>/admin/merge_records",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {merge_record_ids:merge_record_ids},
                 success: function(response){
@@ -523,7 +530,7 @@ jQuery(document).ready(function($){
             if (confirm(mergeStr)) {
                 $.ajax({
                     type:'post',
-                    url:"{{URL::to('/')}}/admin/merge_records",
+                    url:"<?php echo e(URL::to('/')); ?>/admin/merge_records",
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: {merge_from:clickedIds[0],merge_into:clickedIds[1]},
                     success: function(response){
@@ -661,7 +668,7 @@ $(document).delegate('.clientemail', 'click', function(){
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '<?php echo e(URL::to('/admin/get-templates')); ?>',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -680,7 +687,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '<?php echo e(URL::to('/admin/clients/get-recipients')); ?>',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -701,7 +708,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '<?php echo e(URL::to('/admin/clients/get-recipients')); ?>',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -751,4 +758,5 @@ function formatRepoSelection (repo) {
 }
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bansalcrm2\resources\views/Admin/clients/index.blade.php ENDPATH**/ ?>

@@ -281,6 +281,10 @@ Route::prefix('admin')->group(function() {
 		Route::post('/clients/store', [ClientsController::class, 'store'])->name('admin.clients.store');
 		Route::get('/clients/edit/{id}', [ClientsController::class, 'edit'])->name('admin.clients.edit');
 		Route::post('/clients/edit', [ClientsController::class, 'edit']);
+		// Fallback route: redirect GET requests to edit without ID back to clients list
+		Route::get('/clients/edit', function() {
+			return redirect()->route('admin.clients.index')->with('error', 'Please select a client to edit');
+		});
   
 		Route::post('/clients/followup/store', [ClientsController::class, 'followupstore']);
         Route::post('/clients/followup_application/store_application', [ClientsController::class, 'followupstore_application']);

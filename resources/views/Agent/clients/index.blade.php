@@ -213,12 +213,24 @@
 													
 													<td>{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}</td>
 													<?php
-													$assignee = \App\Models\Admin::where('id',@$list->assignee)->first();
-													$explode = explode(',', $list->followers);
+													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
+													$assignee = null;
+													if(!empty(@$list->assignee) && @$list->assignee !== '') {
+														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
+													}
+													
 													$followerss = '';
-													foreach($explode as $exp){
-														$followers = \App\Models\Admin::where('id',@$exp)->first();
-														$followerss .= @$followers->first_name.', ';
+													if(!empty($list->followers) && $list->followers !== '') {
+														$explode = explode(',', $list->followers);
+														foreach($explode as $exp){
+															// PostgreSQL doesn't accept empty strings for integer columns - filter empty values
+															if(!empty(trim($exp)) && trim($exp) !== '') {
+																$followers = \App\Models\Admin::where('id', trim($exp))->first();
+																if($followers) {
+																	$followerss .= @$followers->first_name.', ';
+																}
+															}
+														}
 													}
 													?>
 													<td>{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
