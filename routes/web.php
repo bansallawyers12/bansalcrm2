@@ -316,9 +316,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/viewnotedetail', [ClientsController::class, 'viewnotedetail']);
 		Route::get('/viewapplicationnote', [ClientsController::class, 'viewapplicationnote']);
 		Route::post('/saveprevvisa', [ClientsController::class, 'saveprevvisa']);	
-		Route::post('/saveonlineprimaryform', [ClientsController::class, 'saveonlineform']);	
-		Route::post('/saveonlinesecform', [ClientsController::class, 'saveonlineform']);	
-		Route::post('/saveonlinechildform', [ClientsController::class, 'saveonlineform']);	
 		//archived Start  
 		Route::get('/archived', [ClientsController::class, 'archived'])->name('admin.clients.archived');
 		Route::get('/change-client-status', [ClientsController::class, 'updateclientstatus'])->name('admin.clients.updateclientstatus');
