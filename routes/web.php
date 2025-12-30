@@ -101,8 +101,8 @@ Route::post('/reset_link', 'HomeController@resetLink')->name('reset_link');	 */
 // Route::get('/invoice/download/{id}', 'InvoiceController@customer_invoice_download')->name('invoice.customer_invoice_download'); 
 // Route::get('/invoice/print/{id}', 'InvoiceController@customer_invoice_print')->name('invoice.customer_invoice_print');
 
-//Thank you page after email verification (KEEP - used by client self-update feature)
-Route::get('thankyou', 'HomeController@thankyou')->name('thankyou');
+//Thank you page after email verification - REMOVED (HomeController deleted, will be recreated in future)
+//Route::get('thankyou', 'HomeController@thankyou')->name('thankyou');
 
 //Root login routes - same as admin login
 Route::get('/', 'Auth\AdminLoginController@showLoginForm')->name('login');
@@ -953,16 +953,16 @@ Route::prefix('admin')->group(function() {
         Route::post('/download-document', [ClientsController::class, 'download_document']);
 });     
 
-	//Email verfiy link in send email (KEEP - Client Self-Update Feature)
-    Route::post('email-verify', 'HomeController@emailVerify')->name('emailVerify');
-    Route::get('email-verify-token/{token}', 'HomeController@emailVerifyToken')->name('emailVerifyToken');
+	//Email verify and client self-update routes - REMOVED (HomeController deleted, will be recreated in future)
+    //Route::post('email-verify', 'HomeController@emailVerify')->name('emailVerify');
+    //Route::get('email-verify-token/{token}', 'HomeController@emailVerifyToken')->name('emailVerifyToken');
 
-    //Client edit form link in send email (KEEP - Client Self-Update Feature)
-    Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');
-    Route::post('/verify-dob', 'HomeController@verifyDob');
+    //Client edit form link in send email - REMOVED (HomeController deleted, will be recreated in future)
+    //Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');
+    //Route::post('/verify-dob', 'HomeController@verifyDob');
     //Route::get('/editclient/{id}', 'HomeController@editclient')->name('editclient');
-    Route::get('/editclient/{encoded_id}', 'HomeController@editClient')->middleware('checkDobSession');
-	Route::post('/editclient', 'HomeController@editclient')->name('editclient');
+    //Route::get('/editclient/{encoded_id}', 'HomeController@editClient')->middleware('checkDobSession');
+	//Route::post('/editclient', 'HomeController@editclient')->name('editclient');
 
 
 	//Route::get('/pr-points', 'PRPointsController@index')->name('pr-points.index');
@@ -972,4 +972,5 @@ Route::prefix('admin')->group(function() {
 // Route::get('/{slug}', 'HomeController@Page')->name('page.slug');
 // Auth::routes(); // Removed - already defined above
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//Home route - REMOVED (HomeController deleted, will be recreated in future)
+//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
