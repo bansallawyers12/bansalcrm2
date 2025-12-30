@@ -222,19 +222,6 @@
 			</li>
 			<?php
 				}
-			if(Route::currentRouteName() == 'admin.quotations.index'){
-				$quotationclasstype = 'active';
-			}
-			?> 	
-			<?php
-					if(array_key_exists('54',  $module_access)) {
-					?>
-			<li class="dropdown {{@$quotationclasstype}}">
-				<a href="{{route('admin.quotations.index')}}" class="nav-link"><i data-feather="file-text"></i><span>Quotations</span></a>  
-			</li>
-			<?php
-					}
-			?>
 			
 			<!-- FINANCIAL MANAGEMENT -->
 			

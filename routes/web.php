@@ -365,34 +365,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/branch/view/client/{id}', 'Admin\BranchesController@viewclient')->name('admin.branch.clientview'); 
 		Route::post('/branch/edit', 'Admin\BranchesController@edit');
 		 
-		//Quotations Start
-		Route::get('/quotations', 'Admin\QuotationsController@index')->name('admin.quotations.index'); 
-		
-		Route::get('/quotations/client', 'Admin\QuotationsController@client')->name('admin.quotations.client');  
-		Route::get('/quotations/client/create/{id}', 'Admin\QuotationsController@create')->name('admin.quotations.create');  
-		Route::post('/quotations/store', 'Admin\QuotationsController@store')->name('admin.quotations.store');
-		Route::get('/quotations/edit/{id}', 'Admin\QuotationsController@edit')->name('admin.quotations.edit');
-		Route::post('/quotations/edit', 'Admin\QuotationsController@edit');
-		 
-		Route::get('/quotations/template', 'Admin\QuotationsController@template')->name('admin.quotations.template.index');   
-		Route::get('/quotations/template/create', 'Admin\QuotationsController@template_create')->name('admin.quotations.template.create');  
-		Route::post('/quotations/template/store', 'Admin\QuotationsController@template_store')->name('admin.quotations.template.store');  
-		Route::get('/quotations/template/edit/{id}', 'Admin\QuotationsController@template_edit')->name('admin.quotations.template.edit');  
-		Route::post('/quotations/template/edit', 'Admin\QuotationsController@template_edit');  
-		Route::get('/quotation/detail/{id}', 'Admin\QuotationsController@quotationDetail');
-		Route::get('/quotation/preview/{id}', 'Admin\QuotationsController@quotationpreview');
-		//archived Start  
-		Route::get('quotations/archived', 'Admin\QuotationsController@archived')->name('admin.quotations.archived');
-		Route::get('quotations/changestatus', 'Admin\QuotationsController@changestatus')->name('admin.quotations.changestatus');
-		Route::post('quotations/sendmail', 'Admin\QuotationsController@sendmail')->name('admin.quotations.sendmail');
-		
-		Route::get('getpartner', 'Admin\AdminController@getpartner')->name('admin.quotations.getpartner');
-		Route::get('getpartnerbranch', 'Admin\AdminController@getpartnerbranch')->name('admin.quotations.getpartnerbranch');
-		Route::get('getsubjects', 'Admin\AdminController@getsubjects');
-		Route::get('getbranchproduct', 'Admin\AdminController@getbranchproduct')->name('admin.quotations.getbranchproduct');
-		Route::get('getproduct', 'Admin\AdminController@getproduct')->name('admin.quotations.getproduct');
-		Route::get('getbranch', 'Admin\AdminController@getbranch')->name('admin.quotations.getbranch');
-		Route::get('getnewPartnerbranch', 'Admin\AdminController@getnewPartnerbranch')->name('admin.quotations.getnewPartnerbranch');
 		 
 		
 		//Agent Start   

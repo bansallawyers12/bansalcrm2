@@ -183,9 +183,6 @@
 									<a class="nav-link" data-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="quotations-tab" href="#quotations" role="tab" aria-controls="quotations" aria-selected="false">Quotations</a>
-								</li>
-								<li class="nav-item">
 									<a class="nav-link" data-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
 								</li>
 								<li class="nav-item">
@@ -1107,48 +1104,6 @@
 												</div>
 											</div>
 										</div>
-									</div>
-								</div>
-								<div class="tab-pane fade" id="quotations" role="tabpanel" aria-labelledby="quotations-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="{{URL::to('/admin/quotations/client/create/104')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="table-responsive"> 
-										<table class="table text_wrap">
-											<thead>
-												<tr>
-													<th>No</th>
-													<th>Status</th>
-													<th>Products</th>
-													<th>Total Fee</th>
-													<th>Due Date</th>
-													<th>Created On</th>
-													<th>Created By</th>
-													<th></th>
-												</tr> 
-											</thead>
-											<tbody class="tdata">	
-												<tr id="id_1">
-													<td>1</td>
-													<td><span title="draft" class="ui label uppercase">draft</span></td>
-													<td>1</td>
-													<td>99.00 AUD</td>	
-													<td>2022-05-31</td>
-													<td>2022-05-31</td>
-													<td>Arun</td>
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="#">Send Email</a>
-																<a class="dropdown-item has-icon" href="#"><i class="far fa-mail"></i> Decline</a>
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction(1, 'quotations')">Archive</a>
-															</div>
-														</div>								  
-													</td>
-												</tr>
-											</tbody>
-										</table>
 									</div>
 								</div>
 								<div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">

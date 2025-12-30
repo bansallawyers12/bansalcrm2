@@ -978,53 +978,11 @@ class AdminController extends Controller
 							{
 								$message = Config::get('constants.server_error');
 							}
-							}else if($requestData['table'] == 'quotations'){
-								/* if($requestData['current_status'] == 0)
-								{
-									$updated_status = 1;
-									$message = 'Record has been enabled successfully.';
-								}
-								else
-								{
-									$updated_status = 0;
-									$message = 'Record has been disabled successfully.';
-								}	 */
-
-							$response 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->update(['is_archive' => 1]);
-							if($response)
-							{
-								$status = 1;
-								$message = 'Record has been enabled successfully.';
-							}
-							else
-							{
-								$message = Config::get('constants.server_error');
-							}
-							}
-							else
+							}else
 							if($requestData['table'] == 'currencies'){
 								$isexist	=	$recordExist = DB::table($requestData['table'])->where('id', $requestData['id'])->exists();
 								if($isexist){
 									$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->delete();
-
-									if($response)
-									{
-										$status = 1;
-										$message = 'Record has been deleted successfully.';
-									}
-									else
-									{
-										$message = Config::get('constants.server_error');
-									}
-								}else{
-									$message = 'ID does not exist, please check it once again.';
-								}
-							}else
-							if($requestData['table'] == 'templates'){
-								$isexist	=	$recordExist = DB::table($requestData['table'])->where('id', $requestData['id'])->exists();
-								if($isexist){
-									$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->delete();
-									DB::table('template_infos')->where('quotation_id', @$requestData['id'])->delete();
 
 									if($response)
 									{

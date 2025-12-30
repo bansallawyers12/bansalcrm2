@@ -24,10 +24,6 @@
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
 .accordion .accordion-header.app_blue{background-color: rgba(3,169,244,.1);color: #03a9f4;}
-.card .card-body table tbody.taskdata tr td span.check{background: #71cc53;color: #fff; border-radius: 50%;font-size: 10px;line-height: 14px;padding: 3px 4px;width: 18px;height: 18px;
-display: inline-block;}
-.card .card-body table tbody.taskdata tr td span.round{background: #fff;border:1px solid #000; border-radius: 50%;font-size: 10px;line-height: 14px;padding: 2px 5px;width: 16px;height: 16px; display: inline-block;}
-#opentaskview .modal-body ul.navbar-nav li .dropdown-menu{transform: none!important; top:40px!important;}
 .badge-outline {
     display: inline-block;
     padding: 5px 8px;
@@ -841,16 +837,10 @@ use App\Http\Controllers\Controller;
 								</li>-->
 
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="quotations-tab" href="#quotations" role="tab" aria-controls="quotations" aria-selected="false">Quotations</a>
-								</li>
-								<li class="nav-item">
 									<a class="nav-link" data-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link" data-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link" data-toggle="tab" id="education-tab" href="#education" role="tab" aria-controls="education" aria-selected="false">Education</a>
@@ -1856,84 +1846,6 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="quotations" role="tabpanel" aria-labelledby="quotations-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="{{URL::to('/admin/quotations/client/create/'.$fetchedData->id)}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="table-responsive">
-										<table class="table-2 table text_wrap">
-											<thead>
-												<tr>
-													<th>No</th>
-													<th>Status</th>
-													<th>Products</th>
-													<th>Total Fee</th>
-													<th>Due Date</th>
-													<th>Created On</th>
-													<th>Created By</th>
-													<th></th>
-												</tr>
-											</thead>
-											<tbody class="tdata">
-												<?php
-												$qlists = \App\Models\Quotation::where('client_id', $fetchedData->id)->orderby('created_at','DESC')->get();
-												foreach($qlists as $qlist){
-													$client = \App\Models\Admin::select('id', 'first_name','email')->where('id',$qlist->client_id)->where('role', 7)->first();
-									$createdby = \App\Models\Admin::select('id', 'first_name','email')->where('id',$qlist->user_id)->first();
-									$countqou = \App\Models\QuotationInfo::where('quotation_id',$qlist->id)->count();
-									$getq = \App\Models\QuotationInfo::where('quotation_id',$qlist->id)->get();
-									$totfare = 0;
-									foreach($getq as $q){
-										$servicefee = $q->service_fee;
-										$discount = $q->discount;
-										$exg_rate = $q->exg_rate;
-
-										$netfare = $servicefee - $discount;
-										$exgrw = $netfare * $exg_rate;
-										$totfare += $exgrw;
-									}
-												?>
-												<tr id="quid_<?php echo $qlist->id ?>">
-													<td>{{@$qlist->id}}</td>
-													<td class="statusupdate"><?php if($qlist->status == 0){ ?>
-												<span title="draft" class="ui label uppercase">Draft</span>
-												<?php }else if($qlist->status == 1){
-													?>
-													<span title="draft" class="ui label uppercase text-success">Sent</span>
-													<?php
-												}else if($qlist->status == 2){
-													?>
-													<span title="draft" class="ui label uppercase text-danger">Declined</span>
-													<?php
-												}?>
-												<?php if($qlist->is_archive == 1){ ?>
-													<span>(Archived)</span>
-												<?php } ?>
-												</td>
-													<td>{{$countqou}}</td>
-													<td>{{number_format($totfare,2,'.','')}} {{$qlist->currency}}</td>
-													<td>{{$qlist->due_date}}</td>
-													<td>{{date('Y-m-d', strtotime($qlist->created_at))}}</td>
-													<td>{{$createdby->first_name}}</td>
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-														<div class="dropdown-menu">
-															<a class="dropdown-item has-icon clientemail" href="javascript:;" data-q-id="{{@$qlist->id}}" data-id="{{@$client->id}}" data-email="{{@$client->email}}" data-name="{{@$client->first_name}} {{@$client->last_name}}">Send Email</a>
-															<?php if($qlist->status == 0){?>
-															<a class="dropdown-item has-icon ifdeclined" onClick="approveAction({{@$qlist->id}}, 'quotations')" href="javascript:;"><i class="far fa-mail"></i> Approve</a>
-															<a class="dropdown-item has-icon ifdeclined" onClick="declineAction({{@$qlist->id}}, 'quotations')" href="javascript:;"><i class="far fa-mail"></i> Decline</a>
-															<?php } ?>
-															<a class="dropdown-item has-icon" href="javascript:;" onClick="archiveAction({{@$qlist->id}}, 'quotations')">Archive</a>
-														</div>
-														</div>
-													</td>
-												</tr>
-												<?php } ?>
-											</tbody>
-										</table>
-									</div>
-								</div>
 								<div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
 									<div class="row">
 										<div class="col-md-12 text-right">
@@ -2262,7 +2174,6 @@ use App\Http\Controllers\Controller;
 																</div>
 																<div class="conver_link">
 																	<a datamailid="{{$mailreport->id}}" datasubject="{{$subject}}" class="create_note" datatype="mailnote" href="javascript:;" ><i class="fas fa-file-alt"></i></a>
-																	<a datamailid="{{$mailreport->id}}" datasubject="{{$subject}}" href="javascript:;" class="opentaskmodal"><i class="fas fa-shopping-bag"></i></a>
 																</div>
 															</div>
 														</div>
@@ -2326,37 +2237,6 @@ use App\Http\Controllers\Controller;
 												<span>sms</span>
 											</div>
 										</div>
-									</div>
-								</div>
-								<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="javascript:;"  class="btn btn-primary opencreate_task"><i class="fa fa-plus"></i> Add</a>
-
-									</div>
-									<div class="table-responsive">
-										<table id="my-datatable" class="table-2 table text_wrap">
-											<!--<thead>
-												<tr>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-												</tr>
-											</thead>-->
-											<tbody class="taskdata ">
-											{{-- Task system removed - December 2025 (database tables preserved) --}}
-
-											</tbody>
-											<!--<tbody>
-												<tr>
-													<td style="text-align:center;" colspan="10">
-														No Record found
-													</td>
-												</tr>
-											</tbody>-->
-										</table>
 									</div>
 								</div>
 								<div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
@@ -4820,19 +4700,6 @@ Bansal Immigration`;
 			$("#loader").hide();
 		}
 	});
-	$(document).delegate('.opentaskview', 'click', function(){
-		$('#opentaskview').modal('show');
-		var v = $(this).attr('id');
-		$.ajax({
-			url: site_url+'/admin/get-task-detail',
-			type:'GET',
-			data:{task_id:v},
-			success: function(responses){
-
-				$('.taskview').html(responses);
-			}
-		});
-	});
 
 function getallnotes(){
 	$.ajax({
@@ -5352,20 +5219,6 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 		}
 	});
 
-	$(document).delegate('.opentaskmodal', 'click', function(){
-		$('#opentaskmodal').modal('show');
-		$('#opentaskmodal input[name="mailid"]').val(0);
-		$('#opentaskmodal input[name="title"]').val('');
-		$('#opentaskmodal #taskModalLabel').html('Create Note');
-		$('#opentaskmodal input[name="attachments"]').val('');
-		$('#opentaskmodal input[name="title"]').val('');
-		$('#opentaskmodal .showattachment').val('Choose file');
-
-		var datasubject = $(this).attr('datasubject');
-		var datamailid = $(this).attr('datamailid');
-			$('#opentaskmodal input[name="title"]').val(datasubject);
-			$('#opentaskmodal input[name="mailid"]').val(datamailid);
-	});
 	$('.js-data-example-ajaxcc').select2({
 		 multiple: true,
 		 closeOnSelect: false,
@@ -5391,26 +5244,6 @@ $('.js-data-example-ajaxccapp').select2({
 		 multiple: true,
 		 closeOnSelect: false,
 		dropdownParent: $('#applicationemailmodal'),
-		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
-			dataType: 'json',
-			processResults: function (data) {
-			  // Transforms the top-level key of the response object from 'items' to 'results'
-			  return {
-				results: data.items
-			  };
-
-			},
-			 cache: true
-
-		  },
-	templateResult: formatRepo,
-	templateSelection: formatRepoSelection
-});
-$('.js-data-example-ajaxcontact').select2({
-		 multiple: true,
-		 closeOnSelect: false,
-		dropdownParent: $('#opentaskmodal'),
 		  ajax: {
 			url: '{{URL::to('/admin/clients/get-recipients')}}',
 			dataType: 'json',
@@ -6514,14 +6347,6 @@ $(document).on('click', '#application-tab', function () {
 ?>
 {{-- Appointment JavaScript removed - Appointment model deleted --}}
 
-$(document).delegate('.opencreate_task', 'click', function () {
-	$('#tasktermform')[0].reset();
-	$('#tasktermform select').val('').trigger('change');
-	$('.create_task').modal('show');
-	$('.ifselecttask').hide();
-	$('.ifselecttask select').attr('data-valid', '');
-
-});
 	 var eduid = '';
     $(document).delegate('.deleteeducation', 'click', function(){
 		eduid = $(this).attr('data-id');
@@ -7434,11 +7259,8 @@ $(document).delegate('#notes-tab', 'click', function(){
 	 $(".timezoneselects2").select2({
     dropdownParent: $("#create_appoint")
   });
-  	 $(".Inviteesselects2").select2({
+  $(".Inviteesselects2").select2({
     dropdownParent: $("#create_appoint")
-  });
-  $(".assignee").select2({
-    dropdownParent: $("#opentaskmodal")
   });
   $(".timezoneselect2").select2({
     dropdownParent: $("#create_applicationappoint")
