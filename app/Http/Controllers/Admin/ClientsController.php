@@ -211,7 +211,7 @@ class ClientsController extends Controller
 			$obj->contact_type	=	@$requestData['contact_type'];
 			$obj->email_type	=	@$requestData['email_type'];
 			$obj->service	=	@$requestData['service'];
-			$obj->dob	=	@$dob;
+			$obj->dob	=	($dob != '') ? $dob : null;
 			$obj->related_files	=	rtrim($related_files,',');
 			$obj->email	=	@$requestData['email'];
 			$obj->phone	=	@$requestData['phone'];
@@ -240,7 +240,7 @@ class ClientsController extends Controller
 			$obj->country_passport			=	@$requestData['country_passport'];
 			$obj->passport_number			=	@$requestData['passport_number'];
 			$obj->visa_type			=		@$requestData['visa_type'];
-			$obj->visaExpiry			=	@$visaExpiry;
+			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
 			$obj->applications	=	@$requestData['applications'];
 			$obj->assignee	=	@$requestData['assign_to'];
 			$obj->status	=	$requestData['status'] ?? 1;
@@ -374,7 +374,7 @@ class ClientsController extends Controller
 			$obj->contact_type	=	@$requestData['contact_type'];
 			$obj->email_type	=	@$requestData['email_type'];
 			$obj->service	=	@$requestData['service'];
-			$obj->dob	=	@$dob;
+			$obj->dob	=	($dob != '') ? $dob : null;
 			$obj->related_files	=	rtrim($related_files,',');
 			$obj->email	=	@$requestData['email'];
 			$obj->phone	=	@$requestData['phone'];
@@ -403,7 +403,7 @@ class ClientsController extends Controller
 			$obj->country_passport			=	@$requestData['country_passport'];
 			$obj->passport_number			=	@$requestData['passport_number'];
 			$obj->visa_type			=		@$requestData['visa_type'];
-			$obj->visaExpiry			=	@$visaExpiry;
+			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
 			$obj->applications	=	@$requestData['applications'];
           
 			//$obj->assignee	=	@$requestData['assign_to'];
@@ -713,7 +713,7 @@ class ClientsController extends Controller
 			$obj->email_type	=	@$requestData['email_type'];
 			$obj->service	=	@$requestData['service'];
           
-			$obj->dob	=	@$dob;
+			$obj->dob	=	($dob != '') ? $dob : null;
             if(isset($dob) && $dob != ""){
                 $calculate_age  = $this->calculateAge($dob); //dd($age);
                 $obj->age	=	$calculate_age;
@@ -760,7 +760,7 @@ class ClientsController extends Controller
 			$obj->country_passport			=	@$requestData['country_passport'];
 			$obj->passport_number			=	@$requestData['passport_number'];
 			$obj->visa_type			=		@$requestData['visa_type'];
-			$obj->visaExpiry			=	@$visaExpiry;
+			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
 			$obj->applications	=	@$requestData['applications'];
           
 			//$obj->assignee	=	@$requestData['assign_to'];
@@ -3771,21 +3771,21 @@ class ClientsController extends Controller
                 $obj->curr_address = $requestData['curr_address'];
                 $obj->email = $requestData['email'];
                 $obj->parent_name = $requestData['parent_name'];
-                $obj->parent_dob = $parent_dob;
+                $obj->parent_dob = ($parent_dob != '') ? $parent_dob : null;
                 $obj->parent_occ = $requestData['parent_occ'];
                 $obj->parent_country = $requestData['parent_country'];
                 $obj->parent_name_2 = $requestData['parent_name_2'];
-                $obj->parent_dob_2 = $parent_dob_2;
+                $obj->parent_dob_2 = ($parent_dob_2 != '') ? $parent_dob_2 : null;
                 $obj->parent_occ_2 = $requestData['parent_occ_2'];
                 $obj->parent_country_2 = $requestData['parent_country_2'];
                 $obj->sibling_name = $requestData['sibling_name'];
-                $obj->sibling_dob = $sibling_dob;
+                $obj->sibling_dob = ($sibling_dob != '') ? $sibling_dob : null;
                 $obj->sibling_occ = $requestData['sibling_occ'];
                 $obj->sibling_gender = $requestData['sibling_gender'];
                 $obj->sibling_country = $requestData['sibling_country'];
                 $obj->sibling_marital = $requestData['sibling_marital'];
                 $obj->sibling_name_2 = $requestData['sibling_name_2'];
-                $obj->sibling_dob_2 = $sibling_dob_2;
+                $obj->sibling_dob_2 = ($sibling_dob_2 != '') ? $sibling_dob_2 : null;
                 $obj->sibling_occ_2 = $requestData['sibling_occ_2'];
                 $obj->sibling_gender_2 = $requestData['sibling_gender_2'];
                 $obj->sibling_country_2 = $requestData['sibling_country_2'];

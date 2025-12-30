@@ -265,12 +265,12 @@ class LeadController extends Controller
 			$obj->first_name		=	@$requestData['first_name'];
 			$obj->last_name		=	@$requestData['last_name'];
 			$obj->gender		=	@$requestData['gender'];
-			$obj->dob		=	@$dob;
+			$obj->dob		=	($dob != '') ? $dob : null;
 			$obj->age		=	@$requestData['$age'];
 			$obj->martial_status		=	@$requestData['martial_status'];
 			$obj->passport_no		=	@$requestData['passport_no'];
 			$obj->visa_type			=	@$requestData['visa_type'];
-			$obj->visa_expiry_date		=	@$visa_expiry_date;
+			$obj->visa_expiry_date		=	($visa_expiry_date != '') ? $visa_expiry_date : null;
 			$obj->tags_label		=	@$requestData['tags_label'];
 			$obj->contact_type		=	@$requestData['contact_type'];
 			$obj->country_code		=	@$requestData['country_code'];
