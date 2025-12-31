@@ -158,7 +158,7 @@ class SearchService
                     $q->orWhere('admins.dob', '=', $dob);
                 }
             })
-            ->select('admins.*', '.phones')
+            ->select('admins.*', 'phone_data.phones')
             ->limit($this->limit)
             ->get();
 

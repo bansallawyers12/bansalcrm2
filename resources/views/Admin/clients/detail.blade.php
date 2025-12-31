@@ -2620,9 +2620,24 @@ use App\Http\Controllers\Controller;
 								<label for="template">Templates </label>
                                  <?php
                                 // PostgreSQL doesn't accept empty strings for integer columns - check before querying
+                                // Handle comma-separated assignee values (same pattern as lines 647-653)
                                 $assignee = null;
                                 if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
-                                    $assignee = \App\Models\Admin::select('first_name')->where('id', @$fetchedData->assignee)->first();
+                                    // Check if assignee contains multiple IDs (comma-separated)
+                                    if(Str::contains($fetchedData->assignee, ',')){
+                                        // Get the first assignee ID from comma-separated list
+                                        $assigneeUArr = explode(",", $fetchedData->assignee);
+                                        $firstAssigneeId = trim($assigneeUArr[0]);
+                                        if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
+                                            $assignee = \App\Models\Admin::select('first_name')->where('id', $firstAssigneeId)->first();
+                                        }
+                                    } else {
+                                        // Single assignee ID
+                                        $assigneeId = trim($fetchedData->assignee);
+                                        if(!empty($assigneeId) && is_numeric($assigneeId)) {
+                                            $assignee = \App\Models\Admin::select('first_name')->where('id', $assigneeId)->first();
+                                        }
+                                    }
                                 }
                                 if($assignee){
                                     $clientAssigneeName = $assignee->first_name;
