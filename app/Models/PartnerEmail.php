@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class PartnerEmail extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class PartnerEmail extends Model
+{	use Sortable;
 
     /**
      * The attributes that are mass assignable.

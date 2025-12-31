@@ -1,14 +1,11 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Email extends Authenticatable
-{
-    use Notifiable;
-	use Sortable; 
+class Email extends Model
+{	use Sortable; 
 	
     /** 
      * The attributes that are mass assignable.

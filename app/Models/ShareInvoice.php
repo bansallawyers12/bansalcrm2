@@ -1,12 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class ShareInvoice extends Authenticatable
+class ShareInvoice extends Model
 {
-    use Notifiable;
 	
 	protected $fillable = [
 		'id', 'created_at', 'updated_at'

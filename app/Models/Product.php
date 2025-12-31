@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Product extends Authenticatable
+class Product extends Model
 {
-    use Notifiable;
 	use Sortable;
 	
     /**
@@ -21,15 +18,8 @@ class Product extends Authenticatable
 	protected $fillable = [
         'id', 'name', 'partner', 'branches', 'product_type', 'revenue_type', 'duration', 'intakemonth', 'descripton', 'note', 'created_at', 'updated_at'
     ];
-
-    /** 
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */ 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];	
+	
+	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
 	
 	public function branchdetail()
     {

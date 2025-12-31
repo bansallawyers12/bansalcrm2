@@ -1,14 +1,11 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class UserRole extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class UserRole extends Model
+{	use Sortable;
 
 	protected $fillable = [
         'id', 'usertype', 'module_access', 'created_at', 'updated_at'

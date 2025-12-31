@@ -1,11 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Profile extends Authenticatable
+class Profile extends Model
 {
     use Notifiable; 
 	use Sortable;
@@ -15,9 +14,8 @@ class Profile extends Authenticatable
      *
      * @var array
      */
-	
-	 
-	protected $fillable = [
+
+protected $fillable = [
         'id', 'company_name', 'address', 'phone', 'other_phone', 'email', 'website', 'abn', 'note', 'logo', 'created_at', 'updated_at'
     ];
    

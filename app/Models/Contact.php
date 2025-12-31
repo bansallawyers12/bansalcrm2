@@ -1,23 +1,19 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Contact extends Authenticatable
-{
-    use Notifiable;
-	use Sortable; 
+class Contact extends Model
+{	use Sortable; 
 	
     /** 
      * The attributes that are mass assignable.
      *
      * @var array
      */
-	
-	 
-	protected $fillable = [
+
+protected $fillable = [
         'id', 'srname', 'first_name', 'middle_name', 'last_name', 'company_name', 'contact_display_name', 'contact_email', 'contact_phone', 'work_phone', 'website', 'designation', 'department', 'skype_name', 'facebook_name', 'twitter_name', 'linkedin_name', 'instagram_name', 'youtube_name', 'country', 'address', 'city', 'zipcode', 'phone', 'created_at', 'updated_at'
     ]; 
   

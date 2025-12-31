@@ -432,11 +432,14 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							</thead>
 							<tbody class="tdata showpaymentscheduledata">	
 							<?php
-							$invoiceschedules = \App\Models\InvoiceSchedule::where('application_id', $fetchData->id)->get();
+							// Use eager loading to prevent N+1 queries
+							$invoiceschedules = \App\Models\InvoiceSchedule::with('scheduleItems')
+								->where('application_id', $fetchData->id)
+								->get();
+							
 							foreach($invoiceschedules as $invoiceschedule){
-								$scheduleitem = \App\Models\ScheduleItem::where('schedule_id', $invoiceschedule->id)->get();
-								
-								
+								// Use the eager-loaded relationship
+								$scheduleitem = $invoiceschedule->scheduleItems;
 							?>
 								<tr id="{{@$invoiceschedule->id}}">
 									<td>{{@$invoiceschedule->id}}</td> 
@@ -461,9 +464,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 									<td >
 									<div style="flex-direction: column;display: flex;">
 									<?php
-									$totlfee = 0;
+									$totlfee = $scheduleitem->sum('fee_amount');
 									foreach($scheduleitem as $scheduleite){
-										$totlfee += $scheduleite->fee_amount;
 										?>
 										<span style="line-height: 23px;" class="">{{@$scheduleite->fee_amount}}</span>
 										<?php
@@ -565,6 +567,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				$discount = @$appfeeoption->total_discount;
 			}
 			$net = $totl -  $discount;
+			// Check if invoice schedule exists (already loaded above with eager loading)
 			$invoiceschedule = \App\Models\InvoiceSchedule::where('application_id', $fetchData->id)->first();
 			?>
 				<a style="<?php if($invoiceschedule){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}"  class="btn btn-outline-primary openpaymentschedule"><i class="fa fa-plus"></i> Setup Payment Schedule</a>

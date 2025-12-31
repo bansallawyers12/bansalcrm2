@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class PartnerBranch extends Authenticatable
+class PartnerBranch extends Model
 {
-    use Notifiable;
 	use Sortable;
 	
     /**
@@ -17,6 +14,15 @@ class PartnerBranch extends Authenticatable
      *
      * @var array
      */
-
 	
+	protected $fillable = [
+        'id', 'partner_id', 'name', 'created_at', 'updated_at'
+    ];
+	
+	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
+	
+	public function partner()
+    {
+        return $this->belongsTo('App\Models\Partner', 'partner_id', 'id');
+    }
 }
