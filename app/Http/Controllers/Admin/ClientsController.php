@@ -1514,7 +1514,7 @@ class ClientsController extends Controller
     }
 
 	public function getrecipients(Request $request){
-		$squery = $request->q; //dd($squery);
+		$squery = $request->q ?? ''; //dd($squery);
 		if($squery != ''){
 				$d = '';
 			 $clients = \App\Models\Admin::where('is_archived', '=', 0)
@@ -1548,7 +1548,9 @@ class ClientsController extends Controller
 				$litems[] = array('name' => $lead->first_name.' '.$lead->last_name,'email'=>$lead->email,'status'=>'Lead','id'=>$lead->id,'cid'=>base64_encode(convert_uuencode(@$lead->id)));
 			}*/
 				$m = array_merge($items, $litems);
-			echo json_encode(array('items'=>$m));
+			return response()->json(array('items'=>$m));
+		} else {
+			return response()->json(array('items'=>array()));
 		}
 	}
 

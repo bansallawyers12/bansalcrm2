@@ -20,8 +20,37 @@ if ([string]::IsNullOrEmpty($DbPassword)) { $DbPassword = "" }
 # Set PGPASSWORD environment variable for pg_dump
 $env:PGPASSWORD = $DbPassword
 
+# Find PostgreSQL installation
+$postgresBinPaths = @(
+    "C:\Program Files\PostgreSQL\18\bin",
+    "C:\Program Files\PostgreSQL\17\bin",
+    "C:\Program Files\PostgreSQL\16\bin",
+    "C:\Program Files\PostgreSQL\15\bin",
+    "C:\Program Files\PostgreSQL\14\bin",
+    "C:\Program Files\PostgreSQL\13\bin"
+)
+
+$pgDumpPath = $null
+foreach ($path in $postgresBinPaths) {
+    $fullPath = Join-Path $path "pg_dump.exe"
+    if (Test-Path $fullPath) {
+        $pgDumpPath = $fullPath
+        break
+    }
+}
+
+# If not found in common locations, try to find it in PATH
+if ($null -eq $pgDumpPath) {
+    $pgDumpPath = Get-Command pg_dump -ErrorAction SilentlyContinue
+    if ($pgDumpPath) {
+        $pgDumpPath = $pgDumpPath.Source
+    } else {
+        $pgDumpPath = "pg_dump"
+    }
+}
+
 # Build pg_dump command
-$pgDumpCmd = "pg_dump"
+$pgDumpCmd = $pgDumpPath
 $pgDumpArgs = @(
     "-h", $DbHost,
     "-p", $DbPort,

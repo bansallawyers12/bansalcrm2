@@ -32,5 +32,25 @@ class Application extends Authenticatable
         return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
     }
 	
+	public function product()
+	{
+		return $this->belongsTo('App\Models\Product', 'product_id', 'id');
+	}
+	
+	public function partner()
+	{
+		return $this->belongsTo('App\Models\Partner', 'partner_id', 'id');
+	}
+	
+	public function branch()
+	{
+		return $this->belongsTo('App\Models\PartnerBranch', 'branch', 'id');
+	}
+	
+	public function workflow()
+	{
+		return $this->belongsTo('App\Models\Workflow', 'workflow', 'id');
+	}
+	
 }
 

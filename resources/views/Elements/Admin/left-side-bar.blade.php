@@ -222,6 +222,7 @@
 			</li>
 			<?php
 				}
+			?>
 			
 			<!-- FINANCIAL MANAGEMENT -->
 			

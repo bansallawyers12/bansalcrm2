@@ -1,15 +1,18 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class ScheduleItem extends Authenticatable
+class ScheduleItem extends Model
 {
-    use Notifiable;
-	
 	protected $fillable = [
-		'id', 'created_at', 'updated_at'
+		'id', 'schedule_id', 'fee_amount', 'fee_type', 'commission',
+		'created_at', 'updated_at'
     ];
-
+	
+	// Relationship
+	public function invoiceSchedule()
+	{
+		return $this->belongsTo(InvoiceSchedule::class, 'schedule_id', 'id');
+	}
 }

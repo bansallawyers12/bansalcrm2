@@ -53,37 +53,32 @@
 											<tbody class="tdata">	
 											@foreach($lists as $list)
 												@php
-													$clientdetail = \App\Models\Admin::where('id', $list->client_id)->first();
-													$application = \App\Models\Application::where('id', @$list->application_id)->first();
-													$productdetail = \App\Models\Product::where('id', @$application->product_id)->first();
-													$partnerdetail = \App\Models\Partner::where('id', @$application->partner_id)->first();		
-	
-													$PartnerBranch = \App\Models\PartnerBranch::where('id', @$application->branch)->first();
-													$Workflow = \App\Models\Workflow::where('id', @$application->workflow)->first();
+													// Use eager-loaded relationships instead of queries
+													$clientdetail = $list->client;
+													$application = $list->application;
+													$productdetail = $application->product ?? null;
+													$partnerdetail = $application->partner ?? null;
+													$PartnerBranch = $application->branch ?? null;
+													$Workflow = $application->workflow ?? null;
 													
-													$ScheduleItems = \App\Models\ScheduleItem::where('schedule_id',$list->id)->get();
-													$amt = 0;
-													foreach($ScheduleItems as $ScheduleItem){
-														$amt += $ScheduleItem->fee_amount;
-													}
+													// Calculate total from eager-loaded schedule items
+													$amt = $list->scheduleItems->sum('fee_amount');
 												@endphp
 												<tr id="id_{{@$list->id}}">
 													<td>{{$list->id}}</td>
 													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><br>{{@$clientdetail->email}}</td>
-													<td style="white-space: initial;"><?php echo @$productdetail->name.'<br>'.@$partnerdetail->partner_name.'<br>'; ?> <?php echo @$PartnerBranch->name; ?></td>
+													<td style="white-space: initial;">{{@$productdetail->name}}<br>{{@$partnerdetail->partner_name}}<br>{{@$PartnerBranch->name}}</td>
 													<td style="white-space: initial;">{{@$application->stage}} <br/>({{@$Workflow->name}})</td>
 													<td style="white-space: initial;">{{$list->installment_name}}</td>
 													<td style="white-space: initial;">USD	{{number_format($amt,2,'.','')}}</td>
 													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->invoice_sc_date))}}</td>
 													<td></td>
 													<td style="white-space: initial;">
-													<?php
-													if(strtotime(date('Y-m-d')) <  strtotime($list->invoice_sc_date) ){
-														echo '<span class="text-success">Scheduled</span>';
-													}else{
-														echo '<span class="">Expired</span>';
-													}
-													?>
+													@if(strtotime(date('Y-m-d')) < strtotime($list->invoice_sc_date))
+														<span class="text-success">Scheduled</span>
+													@else
+														<span class="">Expired</span>
+													@endif
 													</td>
 													<td style="text-align:right;">
 														<div class="dropdown d-inline">
@@ -91,7 +86,7 @@
 															<div class="dropdown-menu">
 																<a class="dropdown-item openeditform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
 																<a onClick="deleteAction({{@$list->id}}, 'invoice_schedules')" class="dropdown-item" href="javascript:;">Delete</a>
-																<a data-cid="{{$clientdetail->id}}" data-app-id="{{@$list->application_id}}" data-id="{{@$list->id}}" class="dropdown-item createinvoice" href="javascript:;">Create Invoice</a>
+																<a data-cid="{{@$clientdetail->id}}" data-app-id="{{@$list->application_id}}" data-id="{{@$list->id}}" class="dropdown-item createinvoice" href="javascript:;">Create Invoice</a>
 															</div>
 														</div>	
 													</td>
