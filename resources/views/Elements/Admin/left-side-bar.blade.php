@@ -203,25 +203,27 @@
 			</li>-->
 			<?php
 				if(array_key_exists('5',  $module_access)) {
-			?>			
+			?>
 			<li class="dropdown {{@$serviceclasstype}}">
-				<a href="{{route('admin.services.index')}}" class="nav-link"><i class="fa fa-cogs"></i><span>Services</span></a>  
+				<a href="{{route('admin.services.index')}}" class="nav-link"><i class="fa fa-cogs"></i><span>Services</span></a>
 			</li>
 			<?php
 				}
+			?>
+			<?php
 			if(Route::currentRouteName() == 'admin.products.index' || Route::currentRouteName() == 'admin.products.create' || Route::currentRouteName() == 'admin.products.edit' || Route::currentRouteName() == 'admin.products.detail'){
 				$productclasstype = 'active';
 			}
-			
-			?> 
+			?>
 			<?php
 				if(array_key_exists('12',  $module_access)) {
 			?>
 			<li class="dropdown {{@$productclasstype}}">
-				<a href="{{route('admin.products.index')}}" class="nav-link"><i data-feather="shopping-cart"></i><span>Products Manager</span></a>  
+				<a href="{{route('admin.products.index')}}" class="nav-link"><i data-feather="shopping-cart"></i><span>Products Manager</span></a>
 			</li>
 			<?php
 				}
+			?>
 			
 			<!-- FINANCIAL MANAGEMENT -->
 			
