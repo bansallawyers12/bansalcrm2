@@ -8281,4 +8281,9 @@ function arcivedAction( id, table ) {
 	}
 
 </script>
+
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
+
 @endsection

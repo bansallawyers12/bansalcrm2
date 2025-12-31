@@ -827,4 +827,9 @@ jQuery(document).ready(function($){
 	}
 });
 </script>
+
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
+
 @endsection

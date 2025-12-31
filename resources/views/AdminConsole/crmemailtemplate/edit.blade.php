@@ -77,4 +77,8 @@
 	</section>
 </div>
 
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
+
 @endsection
