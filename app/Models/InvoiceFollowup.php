@@ -1,13 +1,11 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class InvoiceFollowup extends Authenticatable
+class InvoiceFollowup extends Model
 {
-    use Notifiable;
 	use Sortable;
 	
     /**

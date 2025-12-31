@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Service extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class Service extends Model
+{	use Sortable;
 	
     /**
      * The attributes that are mass assignable.
@@ -31,10 +27,7 @@ class Service extends Authenticatable
      *
      * @var array
      */ 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-	
+    	
 	/* public function countryData()
     {
         return $this->belongsTo('App\Models\Country','country');
@@ -44,9 +37,8 @@ class Service extends Authenticatable
     {
         return $this->belongsTo('App\Models\State','state');
     } */
-	
-	
-	public function buildTree(Array $data, $parent = 0) {
+
+public function buildTree(Array $data, $parent = 0) {
 		$tree = array();
 		foreach ($data as $d) {
 			if ($d['parent'] == $parent) {

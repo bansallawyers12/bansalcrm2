@@ -2,16 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Education extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
-	
- 
-	
+class Education extends Model
+{	use Sortable;
+
 }

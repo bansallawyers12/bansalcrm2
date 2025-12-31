@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Partner extends Authenticatable
+class Partner extends Model
 {
-    use Notifiable;
 	use Sortable;
 	
     /**
@@ -17,25 +14,18 @@ class Partner extends Authenticatable
      *
      * @var array
      */
-
-    /** 
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */ 
-    protected $hidden = [
-        'password', 'remember_token',
+	
+	protected $fillable = [
+        'id', 'partner_name', 'service_workflow', 'created_at', 'updated_at'
     ];
 	
-	//public $sortable = ['partner_name'];
+	public $sortable = ['id', 'partner_name', 'created_at', 'updated_at'];
 	
 	public function workflow()
     {
         return $this->belongsTo('App\Models\Workflow','service_workflow','id');
     }
   
-  
-    // In App\Models\Partner.php
     public function applications()
     {
         return $this->hasMany(Application::class, 'partner_id');

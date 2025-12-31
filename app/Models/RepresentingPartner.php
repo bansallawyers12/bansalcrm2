@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Database\Eloquent\Model; 
 
-class RepresentingPartner extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class RepresentingPartner extends Model
+{	use Sortable;
 	
     /**
      * The attributes that are mass assignable.
@@ -23,10 +19,7 @@ class RepresentingPartner extends Authenticatable
      *
      * @var array
      */ 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-	public function partners()
+    	public function partners()
     {
         return $this->belongsTo('App\Models\Partner','partner_id','id');
     }

@@ -93,9 +93,8 @@
 	<!--<script src="{{asset('js/apexcharts.min.js')}}"></script>--> 
 	<!-- Page Specific JS File -->	
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
-	<script src="{{asset('assets/tinymce/js/tinymce/tinymce.min.js')}}"></script>
-	<script src="{{asset('js/tinymce-init.js')}}"></script>
-	<script src="{{asset('js/tinymce-summernote-compat.js')}}"></script> 
+	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
+	@stack('tinymce-scripts')
 	<script src="{{asset('js/daterangepicker.js')}}"></script> 
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}"></script> 
 	

@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Document extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class Document extends Model
+{	use Sortable;
 	
     /**
      * The attributes that are mass assignable.
@@ -23,8 +19,5 @@ class Document extends Authenticatable
      *
      * @var array
      */ 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-	
+    	
 }

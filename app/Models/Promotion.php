@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Promotion extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class Promotion extends Model
+{	use Sortable;
 	
     /**
      * The attributes that are mass assignable.
@@ -18,5 +14,4 @@ class Promotion extends Authenticatable
      * @var array
      */
 
-	
 }

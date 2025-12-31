@@ -750,10 +750,17 @@ jQuery(document).ready(function($){
 $('.js-data-example-ajaxcc').select2({
 		 multiple: true,
 		 closeOnSelect: false,
-	
+		 minimumInputLength: 1,
 		  ajax: {
 			url: '{{URL::to('/admin/clients/get-recipients')}}',
 			dataType: 'json',
+			delay: 250,
+			data: function (params) {
+				return {
+					q: params.term, // search term
+					page: params.page || 1
+				};
+			},
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
 			  return {

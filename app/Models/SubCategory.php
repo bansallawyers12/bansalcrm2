@@ -1,13 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class SubCategory extends Authenticatable
+class SubCategory extends Model
 {
-    use Notifiable;
-
 	protected $fillable = [
         'id', 'name', 'created_at', 'updated_at'
     ];

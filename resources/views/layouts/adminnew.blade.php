@@ -347,10 +347,8 @@
 		<script src="{{URL::asset('js/select2.min.js')}}"></script>			
 		<!-- daterangepicker -->
 		
-		<!-- TinyMCE -->
-		<script src="{{URL::asset('assets/tinymce/js/tinymce/tinymce.min.js')}}"></script>
-		<script src="{{URL::asset('js/tinymce-init.js')}}"></script>
-		<script src="{{URL::asset('js/tinymce-summernote-compat.js')}}"></script>
+		<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
+		@stack('tinymce-scripts')
 		
 		<!-- Admin Theme App -->
 		<script src="{{URL::asset('js/admintheme.min.js')}}"></script>

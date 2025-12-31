@@ -1,13 +1,11 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Workflow extends Authenticatable
+class Workflow extends Model
 {
-    use Notifiable;
 	use Sortable;
 	
     /**
@@ -16,11 +14,10 @@ class Workflow extends Authenticatable
      * @var array
      */
 	
-	
 	protected $fillable = [
         'id', 'name', 'created_at', 'updated_at'
     ];
   
-	public $sortable = ['id', 'created_at', 'updated_at'];
+	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
  
 }

@@ -1,30 +1,25 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class IncomeSharing extends Authenticatable
-{
-    use Notifiable;
-	use Sortable;
+class IncomeSharing extends Model
+{	use Sortable;
 	
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-	
-	
-	protected $fillable = [
+
+protected $fillable = [
         'id', 'created_at', 'updated_at'
     ];
   
 	public $sortable = ['id', 'created_at', 'updated_at'];
- 
- 
-	public function branch()
+
+public function branch()
     {
         return $this->belongsTo('App\Models\Branch','rec_id','id');
     }

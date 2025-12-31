@@ -1,13 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class WebsiteSetting extends Authenticatable
+class WebsiteSetting extends Model
 {
-    use Notifiable;
-
 	protected $fillable = [
         'id', 'phone', 'ofc_timing', 'email', 'logo', 'created_at', 'updated_at'
     ];

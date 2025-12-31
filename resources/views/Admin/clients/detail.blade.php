@@ -857,7 +857,8 @@ use App\Http\Controllers\Controller;
 							</ul>
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
 								<div class="tab-pane fade <?php if(!isset($_GET['tab']) ){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
-									<div class="activities">
+
+								<div class="activities">
 										<?php
 										//$activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)->orderby('created_at', 'DESC')->get();
 										//->where('subject', '<>','added a note')
@@ -8280,4 +8281,9 @@ function arcivedAction( id, table ) {
 	}
 
 </script>
+
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
+
 @endsection
