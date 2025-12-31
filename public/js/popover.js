@@ -479,13 +479,18 @@ console.log(e);
 	
 	
 	$(document).ready(function(){ 
-		 var showPopover = $.fn.popover.Constructor.prototype.show;
-            $.fn.popover.Constructor.prototype.show = function () {
-                showPopover.call(this);
-                if (this.options && this.options.showCallback) {
-                    this.options.showCallback.call(this); 
-                }
-            } 
+		// Check if Bootstrap popover is available (Bootstrap 5 with jQuery compatibility or Bootstrap 4)
+		if (typeof $ !== 'undefined' && $.fn.popover && $.fn.popover.Constructor) {
+			var showPopover = $.fn.popover.Constructor.prototype.show;
+			$.fn.popover.Constructor.prototype.show = function () {
+				showPopover.call(this);
+				if (this.options && this.options.showCallback) {
+					this.options.showCallback.call(this); 
+				}
+			}
+		} else {
+			console.warn('Bootstrap Popover jQuery plugin not available. Ensure Bootstrap bundle is loaded before popover.js');
+		} 
  
 		// Only initialize popovers that aren't already initialized
 		$("[data-role=popover]").each(function() {

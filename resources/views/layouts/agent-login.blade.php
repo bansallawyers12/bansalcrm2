@@ -14,6 +14,8 @@
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 			 
 	 <!-- BASE CSS -->
+	<!-- Load jQuery FIRST before Vite to ensure it's available for all legacy scripts -->
+	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
 	@vite(['resources/js/app.js'])
 	<link href="{{asset('css/bootstrap-social.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/style.css')}}" rel="stylesheet">	
@@ -22,7 +24,7 @@
 </head>
 <style>
 	.bg{
-		background-image: url('/img/bansal_crm_background_image.jpg');
+		background-color: #f8f9fa; /* Fallback background color */
 		height: 100%;
 		margin: 0;
 		background-position: center;
@@ -38,6 +40,14 @@
 	<!-- COMMON SCRIPTS -->
 	<script type="text/javascript">
 		var site_url = "<?php echo URL::to('/'); ?>";
+		// Try to load background image, but don't fail if it doesn't exist
+		(function() {
+			var img = new Image();
+			img.onload = function() {
+				document.body.style.backgroundImage = "url('{{ asset('img/bansal_crm_background_image.jpg') }}')";
+			};
+			img.src = '{{ asset('img/bansal_crm_background_image.jpg') }}';
+		})();
 	</script>
 	<script src="{{asset('js/scripts.js')}}"></script>
 	<script src="{{asset('js/custom.js')}}"></script>

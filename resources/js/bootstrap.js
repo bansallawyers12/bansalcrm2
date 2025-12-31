@@ -1,21 +1,19 @@
+/**
+ * jQuery is loaded from public/js in the HTML head before Vite for compatibility
+ * with legacy scripts. We just need to ensure it's available in the module context.
+ */
+import jQuery from 'jquery';
+
+// Use the global jQuery if it exists, otherwise use the imported one
+window.$ = window.jQuery = window.jQuery || jQuery;
+
 import _ from 'lodash';
 import * as Popper from '@popperjs/core';
-import jQuery from 'jquery';
 import * as bootstrap from 'bootstrap';
 
 window._ = _;
 window.Popper = Popper;
 window.bootstrap = bootstrap;
-
-/**
- * We'll load jQuery and the Bootstrap jQuery plugin which provides support
- * for JavaScript based Bootstrap features such as modals and tabs. This
- * code may be modified to fit the specific needs of your application.
- */
-
-try {
-    window.$ = window.jQuery = jQuery;
-} catch (e) {}
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

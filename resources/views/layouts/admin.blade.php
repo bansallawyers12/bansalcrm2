@@ -8,9 +8,11 @@
 	<meta name="author" content="">
 	<meta name="keyword" content="Bansal CRM">
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; script-src-attr 'unsafe-inline' 'unsafe-hashes'; style-src 'self' 'unsafe-inline' https:;">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173;">
 	<title>Bansal CRM | @yield('title')</title>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
+	<!-- Load jQuery FIRST before Vite to ensure it's available for all legacy scripts -->
+	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
 	@vite(['resources/js/app.js'])
 	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
 	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
@@ -40,7 +42,7 @@
 
 <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> -->
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>-->
-<script src="{{asset('js/jquery_min_latest.js')}}"></script>   
+<!-- jQuery now loaded in <head> before Vite for compatibility with legacy scripts -->   
 
 <style>
 .dropbtn {
@@ -120,7 +122,42 @@
 				     var dataformat = '{{$dataformat}}';
 				    </script>	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
-	<script src="{{asset('js/fullcalendar.min.js')}}"></script>
+	<!-- Bootstrap Bundle (required for popover and other Bootstrap components) -->
+	<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+	<!-- Feather Icons (required before scripts.js) -->
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<!-- jQuery NiceScroll (required for sidebar scrolling) -->
+	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js"></script>
+	<!-- FullCalendar (requires jQuery to be loaded first) -->
+	<script>
+		// Ensure jQuery is available before loading FullCalendar
+		// jQuery should already be loaded in <head>, but we verify it's ready
+		(function() {
+			function loadFullCalendarScript() {
+				// Check if jQuery is available (either global jQuery or $)
+				if (typeof window.jQuery !== 'undefined' || typeof window.$ !== 'undefined') {
+					var fcScript = document.createElement('script');
+					fcScript.src = '{{ asset('js/fullcalendar.min.js') }}';
+					fcScript.async = false;
+					document.body.appendChild(fcScript);
+				} else {
+					// jQuery not available yet, wait and retry (max 10 attempts = 1 second)
+					var attempts = arguments[0] || 0;
+					if (attempts < 10) {
+						setTimeout(function() { loadFullCalendarScript(attempts + 1); }, 100);
+					} else {
+						console.error('FullCalendar: jQuery could not be loaded after 1 second');
+					}
+				}
+			}
+			// Start loading after a brief delay to ensure jQuery from <head> is ready
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', loadFullCalendarScript);
+			} else {
+				setTimeout(loadFullCalendarScript, 50);
+			}
+		})();
+	</script>
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
   
