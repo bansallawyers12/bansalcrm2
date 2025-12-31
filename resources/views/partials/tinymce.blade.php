@@ -3,3 +3,4 @@
 <script src="{{asset('js/tinymce-init.js')}}"></script>
 <script src="{{asset('js/tinymce-summernote-compat.js')}}"></script>
 
+
