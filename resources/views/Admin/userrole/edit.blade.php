@@ -43,8 +43,8 @@
 								</div>
 								<div id="accordion" class="role_accordion">
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse"
-										  data-target="#panel-body-1" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse"
+										  data-bs-target="#panel-body-1" aria-expanded="true">
 											<h4>OFFICE & TEAMS</h4>
 										</div>
 										<div class="accordion-body collapse show" id="panel-body-1" data-parent="#accordion">
@@ -67,7 +67,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-2">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-2">
 											<h4>WORKFLOWS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-2" data-parent="#accordion">
@@ -81,7 +81,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-3">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-3">
 											<h4>PARTNERS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-3" data-parent="#accordion">
@@ -100,7 +100,7 @@
 									</div>
 
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-4">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-4">
 											<h4>PRODUCTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-4" data-parent="#accordion">
@@ -117,7 +117,7 @@
 									</div>
 
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-5">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-5">
 											<h4>AGENTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-5" data-parent="#accordion">
@@ -136,7 +136,7 @@
 									</div>
 
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-6">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-6">
 											<h4>CLIENTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-6" data-parent="#accordion">
@@ -161,7 +161,7 @@
 									</div>
 
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-7">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-7">
 											<h4>INTERESTED SERVICES</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-7" data-parent="#accordion">
@@ -179,7 +179,7 @@
 									</div>
 
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-8">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-8">
 											<h4>APPLICATIONS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-8" data-parent="#accordion">
@@ -205,7 +205,7 @@
 									</div>
 									
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-9">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-9">
 											<h4>ACCOUNTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-9" data-parent="#accordion">
@@ -226,7 +226,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-10">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-10">
 											<h4>QUOTATIONS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-10" data-parent="#accordion">
@@ -248,7 +248,7 @@
 									</div>
 									
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-11">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-11">
 											<h4>REPORTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-11" data-parent="#accordion">
@@ -270,7 +270,7 @@
 									</div>
 									
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-12">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-12">
 											<h4>APPOINTMENTS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-12" data-parent="#accordion">
@@ -285,7 +285,7 @@
 									</div>
 									
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-13">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-13">
 											<h4>TASKS</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-13" data-parent="#accordion">
@@ -299,7 +299,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-14">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-14">
 											<h4>OFFICE CHECK-IN</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-14" data-parent="#accordion">
@@ -318,7 +318,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-15">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-15">
 											<h4>DOCUMENT CHECKLIST</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-15" data-parent="#accordion">
@@ -335,7 +335,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#panel-body-16">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-16">
 											<h4>View On Dashboard</h4>
 										</div>
 										<div class="accordion-body collapse" id="panel-body-16" data-parent="#accordion">
@@ -350,7 +350,7 @@
 										</div> 
 									</div>
 								</div>
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>

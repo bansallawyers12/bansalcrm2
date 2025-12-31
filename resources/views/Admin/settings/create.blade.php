@@ -84,7 +84,7 @@
 									</div>
 								</div>
 								<div class="col-sm-12" >
-									<div class="form-group float-right">
+									<div class="form-group float-end">
 										{!! Form::button('<i class="fa fa-save"></i> Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-city")' ])  !!}
 									</div> 
 								</div> 

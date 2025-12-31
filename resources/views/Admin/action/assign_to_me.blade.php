@@ -61,7 +61,7 @@
 									{{-- <div class="col-md-3">
 									</div>
 									<div class="col-md-4">
-										<input type="text" class="form-control mb-3 ml-4" placeholder="Searching...." name="q">
+										<input type="text" class="form-control mb-3 ms-4" placeholder="Searching...." name="q">
 									</div>
 									<div class="col-md-2">
 										<input type="submit" class="form-control mb-3 btn btn-primary" value="Search">

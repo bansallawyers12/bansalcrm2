@@ -95,7 +95,7 @@
 																	   </td>
 																	<td style="text-align:right;">
 																		<div class="dropdown d-inline">
-																			<a class="dropdown-toggle" href="javascript:;" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																			<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 																			<div class="dropdown-menu">
 																			<?php
 																			if(isset($list->invoice) && $list->invoice->status == 1){
@@ -147,7 +147,7 @@
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
 			

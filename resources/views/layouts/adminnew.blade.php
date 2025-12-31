@@ -163,7 +163,7 @@
 			  <div class="modal-content">
 				<div class="modal-header">
 				  <h4 class="modal-title">Lead Search</h4>
-				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 				</div>
@@ -253,7 +253,7 @@
 		</div>
 		<!-- /.modal -->	
 		<div class="customer_support">
-			<a href="javascript:;" data-toggle="modal" data-target="#contactsupport_modal" class="btn btn-primary"><i class="fa fa-envelope"></i> Contact Support</a>
+			<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#contactsupport_modal" class="btn btn-primary"><i class="fa fa-envelope"></i> Contact Support</a>
 		</div>
 		<div class="modal fade" id="contactsupport_modal">
 			<div class="modal-dialog modal-lg">
@@ -261,7 +261,7 @@
 				<div class="modal-header">
 				  <h4 class="modal-title">At Your Service</h4>
 				  <p>Responses to this email will be sent to info@eweblink.net</p>
-				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 				</div>
@@ -324,7 +324,7 @@
 					</form>
 				</div>
 				<div class="modal-footer justify-content-between">
-				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				  <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
 				  <button type="button" id="support_save" class="btn btn-primary">Save</button>
 				</div>
 			  </div>

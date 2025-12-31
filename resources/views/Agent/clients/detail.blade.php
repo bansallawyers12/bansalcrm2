@@ -112,8 +112,8 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="card-body">
 							<p class="clearfix"> 
-								<span class="float-left">Tag(s):</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Tag(s):</span>
+								<span class="float-end text-muted">
 								
 									
 									
@@ -140,52 +140,52 @@ use App\Http\Controllers\Controller;
 							
 						
 							<p class="clearfix"> 
-								<span class="float-left">Client Id:</span>
-								<span class="float-right text-muted">{{$fetchedData->client_id}}</span>
+								<span class="float-start">Client Id:</span>
+								<span class="float-end text-muted">{{$fetchedData->client_id}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Internal Id:</span>
-								<span class="float-right text-muted">{{$fetchedData->id}}</span>
+								<span class="float-start">Internal Id:</span>
+								<span class="float-end text-muted">{{$fetchedData->id}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Date Of Birth:</span>
-								<span class="float-right text-muted">{{$fetchedData->dob}}</span>
+								<span class="float-start">Date Of Birth:</span>
+								<span class="float-end text-muted">{{$fetchedData->dob}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Phone No:</span>
-								<span class="float-right text-muted">{{$fetchedData->phone}}</span>
+								<span class="float-start">Phone No:</span>
+								<span class="float-end text-muted">{{$fetchedData->phone}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Email:</span>
-								<span class="float-right text-muted">{{$fetchedData->email}}</span>
+								<span class="float-start">Email:</span>
+								<span class="float-end text-muted">{{$fetchedData->email}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Secondary Email:</span>
-								<span class="float-right text-muted">-</span>
+								<span class="float-start">Secondary Email:</span>
+								<span class="float-end text-muted">-</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Address:</span>
-								<span class="float-right text-muted">{{$fetchedData->address}}</span>
+								<span class="float-start">Address:</span>
+								<span class="float-end text-muted">{{$fetchedData->address}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Country of Passport:</span>
-								<span class="float-right text-muted">{{$fetchedData->country_passport}}</span>
+								<span class="float-start">Country of Passport:</span>
+								<span class="float-end text-muted">{{$fetchedData->country_passport}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Passport Number:</span>
-								<span class="float-right text-muted">{{$fetchedData->passport_number}}</span>
+								<span class="float-start">Passport Number:</span>
+								<span class="float-end text-muted">{{$fetchedData->passport_number}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Preferred Intake:</span>
-								<span class="float-right text-muted"><?php if($fetchedData->preferredIntake != ''){ ?>{{date('M Y', strtotime($fetchedData->preferredIntake))}}<?php } ?></span>
+								<span class="float-start">Preferred Intake:</span>
+								<span class="float-end text-muted"><?php if($fetchedData->preferredIntake != ''){ ?>{{date('M Y', strtotime($fetchedData->preferredIntake))}}<?php } ?></span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Visa Expiry Date:</span>
-								<span class="float-right text-muted">{{$fetchedData->visaExpiry}}</span>
+								<span class="float-start">Visa Expiry Date:</span>
+								<span class="float-end text-muted">{{$fetchedData->visaExpiry}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Visa type:</span>
-								<span class="float-right text-muted">{{$fetchedData->visa_type}}</span>
+								<span class="float-start">Visa type:</span>
+								<span class="float-end text-muted">{{$fetchedData->visa_type}}</span>
 							</p> 
 							<?php
 								// PostgreSQL doesn't accept empty strings for integer columns - check before querying
@@ -276,19 +276,19 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'application'){ echo 'active'; }else{ echo 'active'; } ?>" data-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'application'){ echo 'active'; }else{ echo 'active'; } ?>" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="false">Interested Services</a>
+									<a class="nav-link" data-bs-toggle="tab" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="false">Interested Services</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
 								</li>
 								<li class="nav-item">
-									{{-- <a class="nav-link" data-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
+									{{-- <a class="nav-link" data-bs-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
+									<a class="nav-link" data-bs-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
 								</li>
 								
 							
@@ -297,7 +297,7 @@ use App\Http\Controllers\Controller;
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
 								
 								<div class="tab-pane fade <?php if(isset($_GET['tab']) && $_GET['tab'] == 'application'){ echo 'show active'; }else{ echo 'show active'; } ?>" id="application" role="tabpanel" aria-labelledby="application-tab">
-									<div class="card-header-action text-right if_applicationdetail" style="padding-bottom:15px;">
+									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">
 									
 									</div>									
 									<div class="table-responsive if_applicationdetail"> 
@@ -340,7 +340,7 @@ use App\Http\Controllers\Controller;
 													<td>{{date('Y-m-d', strtotime(@$alist->updated_at))}}</td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																
 															</div>
@@ -366,8 +366,8 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
 								<div class="tab-pane fade" id="interested_service" role="tabpanel" aria-labelledby="interested_service-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="javascript:;" data-toggle="modal" data-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="interest_serv_list">
 								
@@ -467,7 +467,7 @@ use App\Http\Controllers\Controller;
 												<div class="serv_user_action">
 													<a href="javascript:;" data-id="{{$inteservice->id}}" class="btn btn-primary interest_service_view">View</a>
 													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														<?php if($inteservice->status == 0){ ?>
 															<a class="dropdown-item converttoapplication" data-id="{{$inteservice->id}}" href="javascript:;">Create Appliation</a>
@@ -484,7 +484,7 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>	
 								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
@@ -529,7 +529,7 @@ use App\Http\Controllers\Controller;
 													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -558,7 +558,7 @@ use App\Http\Controllers\Controller;
 												<div class="grid_content">
 													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -575,7 +575,7 @@ use App\Http\Controllers\Controller;
 								</div>
 								{{-- Appointments tab removed - Appointment model deleted --}}
 								<div class="tab-pane fade" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="note_term_list"> 									
@@ -602,7 +602,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$list->id}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -651,10 +651,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -664,10 +664,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -676,10 +676,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to complete the Application?</h4> 
 				<button  data-id="" type="submit" style="margin-top: 40px;" class="button btn btn-danger acceptapplication">Complete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -690,11 +690,11 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Publish Document?</h4> 
 				<h5 class="">Publishing documents will allow client to access from client portal , Are you sure you want to continue ?</h5> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger acceptpublishdoc">Publish Anyway</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -2778,7 +2778,7 @@ $(document).ready(function() {
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Sales Forecast</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2816,7 +2816,7 @@ $(document).ready(function() {
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('saleforcast')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -2829,7 +2829,7 @@ $(document).ready(function() {
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Application Ownership Ratio</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2850,7 +2850,7 @@ $(document).ready(function() {
 						
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('xapplication_ownership')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -2863,7 +2863,7 @@ $(document).ready(function() {
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Select Super Agent</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2890,7 +2890,7 @@ $(document).ready(function() {
 						
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('spagent_application')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -2904,7 +2904,7 @@ $(document).ready(function() {
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Select Sub Agent</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2931,7 +2931,7 @@ $(document).ready(function() {
 						
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sbagent_application')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -2945,7 +2945,7 @@ $(document).ready(function() {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Tags</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2975,7 +2975,7 @@ $(document).ready(function() {
 						
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('stags_application')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -2988,7 +2988,7 @@ $(document).ready(function() {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="feeoptionModalLabel">Fee Option</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -3005,7 +3005,7 @@ $(document).ready(function() {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="feeoptionModalLabel">Fee Option</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -3021,7 +3021,7 @@ $(document).ready(function() {
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Sales Forecast</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -3059,7 +3059,7 @@ $(document).ready(function() {
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('saleforcast')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -3112,7 +3112,7 @@ $(document).ready(function() {
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('saleforcastservice')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 

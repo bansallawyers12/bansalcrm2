@@ -183,7 +183,7 @@
 									</div>
 								</div>  
 								
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::button('Update Product', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-products")'])  !!}	
 								</div>
 							</div>

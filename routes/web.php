@@ -3,6 +3,9 @@
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\FollowupController;
 use App\Http\Controllers\Admin\UserController;
+
+// Test route for debugging memory issues  
+require __DIR__.'/test.php';
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\ServicesController;
 use App\Http\Controllers\Admin\ContactController;

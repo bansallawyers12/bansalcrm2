@@ -89,8 +89,8 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="card-body">
 							<p class="clearfix"> 
-								<span class="float-left">Phone No:</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Phone No:</span>
+								<span class="float-end text-muted">
                                     {{--$fetchedData->phone--}}
                                     <?php
                                     if( \App\Models\PartnerPhone::where('partner_id', $fetchedData->id)->exists()) {
@@ -127,12 +127,12 @@ use App\Http\Controllers\Controller;
                                 </span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Fax:</span>
-								<span class="float-right text-muted">{{$fetchedData->fax}}</span>
+								<span class="float-start">Fax:</span>
+								<span class="float-end text-muted">{{$fetchedData->fax}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Email:</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Email:</span>
+								<span class="float-end text-muted">
                                     {{--$fetchedData->email--}}
                                     <?php
                                     if( \App\Models\PartnerEmail::where('partner_id', $fetchedData->id)->exists()) {
@@ -162,12 +162,12 @@ use App\Http\Controllers\Controller;
                                 </span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Address:</span>
-								<span class="float-right text-muted">{{$fetchedData->address}}</span>
+								<span class="float-start">Address:</span>
+								<span class="float-end text-muted">{{$fetchedData->address}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Website:</span>
-								<span class="float-right text-muted">{{$fetchedData->website}}</span>
+								<span class="float-start">Website:</span>
+								<span class="float-end text-muted">{{$fetchedData->website}}</span>
 							</p>
 							<?php
 						
@@ -175,21 +175,21 @@ use App\Http\Controllers\Controller;
 							?>
 							
 							<p class="clearfix"> 
-								<span class="float-left">Services:</span>
-								<span class="float-right text-muted">{{@$workflows->name}}</span>
+								<span class="float-start">Services:</span>
+								<span class="float-end text-muted">{{@$workflows->name}}</span>
 							</p>
 							
 							<p class="clearfix"> 
-								<span class="float-left">Added On:</span>
-								<span class="float-right text-muted">{{date('d/m/Y', strtotime($fetchedData->created_at))}}</span>
+								<span class="float-start">Added On:</span>
+								<span class="float-end text-muted">{{date('d/m/Y', strtotime($fetchedData->created_at))}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Business Registration Number:</span>
-								<span class="float-right text-muted">{{$fetchedData->business_reg_no}}</span>
+								<span class="float-start">Business Registration Number:</span>
+								<span class="float-end text-muted">{{$fetchedData->business_reg_no}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Currency code:</span>
-								<span class="float-right text-muted">{{$fetchedData->currency}}</span>
+								<span class="float-start">Currency code:</span>
+								<span class="float-end text-muted">{{$fetchedData->currency}}</span>
 							</p>
 							
 						</div>
@@ -200,56 +200,56 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link <?php if(!isset($_GET['tab'])){ echo 'active'; } ?>" data-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link <?php if(!isset($_GET['tab'])){ echo 'active'; } ?>" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="partner-activities-tab" href="#partner-activities" role="tab" aria-controls="partner-activities" aria-selected="true">Activities</a>
+									<a class="nav-link" data-bs-toggle="tab" id="partner-activities-tab" href="#partner-activities" role="tab" aria-controls="partner-activities" aria-selected="true">Activities</a>
                                 </li>
                               
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'active'; } ?>" data-toggle="tab" id="products-tab" href="#products" role="tab" aria-controls="products" aria-selected="false">Products</a>
+									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'active'; } ?>" data-bs-toggle="tab" id="products-tab" href="#products" role="tab" aria-controls="products" aria-selected="false">Products</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="branches-tab" href="#branches" role="tab" aria-controls="branches" aria-selected="false">Branches</a>
+									<a class="nav-link" data-bs-toggle="tab" id="branches-tab" href="#branches" role="tab" aria-controls="branches" aria-selected="false">Branches</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="agreements-tab" href="#agreements" role="tab" aria-controls="agreements" aria-selected="false">Agreements</a>
+									<a class="nav-link" data-bs-toggle="tab" id="agreements-tab" href="#agreements" role="tab" aria-controls="agreements" aria-selected="false">Agreements</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="contacts-tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="false">Contacts</a>
+									<a class="nav-link" data-bs-toggle="tab" id="contacts-tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="false">Contacts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
+									<a class="nav-link" data-bs-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
 								</li>
 								<li class="nav-item">
-									{{-- <a class="nav-link" data-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
+									{{-- <a class="nav-link" data-bs-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
+									<a class="nav-link" data-bs-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
+									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
+									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
+									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
+									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="student-tab" href="#student" role="tab" aria-controls="student" aria-selected="false">Student</a>
+									<a class="nav-link" data-bs-toggle="tab" id="student-tab" href="#student" role="tab" aria-controls="student" aria-selected="false">Student</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="invoice-tab" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Invoice</a>
+									<a class="nav-link" data-bs-toggle="tab" id="invoice-tab" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Invoice</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="partnerContent" style="padding-top:15px;">
@@ -427,7 +427,7 @@ use App\Http\Controllers\Controller;
                                                         <?php //} ?>
 
                                                         <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                            <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                            <a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
                                                             <div class="dropdown-menu">
                                                                 <a data-id="{{--$activit->id--}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
                                                                 <?php //if($activit->pin == 1){ ?>
@@ -460,7 +460,7 @@ use App\Http\Controllers\Controller;
                                 </div>
                               
 								<div class="tab-pane fade <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'show active'; } ?>" id="products" role="tabpanel" aria-labelledby="products-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="{{route('admin.products.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="table-responsive"> 
@@ -499,7 +499,7 @@ use App\Http\Controllers\Controller;
 													<td>{{$countapplication}}</td>
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu"> 
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-eye"></i> View</a>
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/edit/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-edit"></i> Edit</a>
@@ -515,7 +515,7 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>
 								<div class="tab-pane fade" id="branches" role="tabpanel" aria-labelledby="branches-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" class="btn btn-primary openbranchnew"><i class="fa fa-plus"></i> Add</a> 
 									</div>
 									<div class="branch_term_list">
@@ -540,7 +540,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openbranchform" data-id="{{$branch->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$branch->id}}" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -663,7 +663,7 @@ use App\Http\Controllers\Controller;
 											</div>
                                           
 											<div class="col-12 col-md-12 col-lg-12">
-												<div class="form-group float-right">
+												<div class="form-group float-end">
 													<button onclick="customValidate('saveagreement')" type="button" class="btn btn-primary">Save Changes</button>
 												</div>
                                               
@@ -683,7 +683,7 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>
 								<div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">  
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary add_clientcontact"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="contact_term_list">
@@ -713,7 +713,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opencontactform" data-id="{{$clist->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$clist->id}}" data-href="deletecontact" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -730,7 +730,7 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>
 								<div class="tab-pane fade" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="note_term_list"> 
@@ -763,7 +763,7 @@ use App\Http\Controllers\Controller;
 
                                                 <div class="right" style="float: right;width: 15px;">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
                                                             @if(Auth::user()->role == 1)
@@ -806,7 +806,7 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>
 								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
@@ -856,7 +856,7 @@ use App\Http\Controllers\Controller;
 													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
 																
@@ -908,7 +908,7 @@ use App\Http\Controllers\Controller;
 												<div class="grid_content">
 													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -1002,7 +1002,7 @@ use App\Http\Controllers\Controller;
 													@endif
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/view/')}}/{{$invoicelist->id}}">View</a>
@@ -1028,15 +1028,15 @@ use App\Http\Controllers\Controller;
 									<div class="conversation_tabs">
 										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
 										    <li class="nav-item">
-                                                <a class="nav-link active" data-toggle="tab" id="inbox-tab" href="#inbox" role="tab" aria-controls="inbox" aria-selected="true">Inbox</a>
+                                                <a class="nav-link active" data-bs-toggle="tab" id="inbox-tab" href="#inbox" role="tab" aria-controls="inbox" aria-selected="true">Inbox</a>
                                             </li>
 
                                             <li class="nav-item">
-                                                <a class="nav-link" data-toggle="tab" id="sent-tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false">Sent</a>
+                                                <a class="nav-link" data-bs-toggle="tab" id="sent-tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false">Sent</a>
                                             </li>
 
                                             <li class="nav-item">
-                                                <a class="nav-link" data-toggle="tab" id="sms-tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">SMS</a>
+                                                <a class="nav-link" data-bs-toggle="tab" id="sms-tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">SMS</a>
                                             </li>
 										</ul>
 										<div class="tab-content" id="conversationContent">
@@ -1075,7 +1075,7 @@ use App\Http\Controllers\Controller;
                                                                         </div>
 
                                                                         <div class="dropdown d-inline">
-                                                                            <button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                            <button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                             <div class="dropdown-menu">
                                                                                 <?php
                                                                                 if($DocInfo)
@@ -1172,7 +1172,7 @@ use App\Http\Controllers\Controller;
                                                                 }?>
 
                                                                 <div class="dropdown d-inline">
-																	<button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																	<button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																	<div class="dropdown-menu">
                                                                         <!--<a target="_blank" class="dropdown-item"  href="{{--url('/admin/clients/preview-msg/'.$DocInfo->myfile)--}}"><i class="fas fa-eye"></i></a>-->
 																		<?php
@@ -1230,7 +1230,7 @@ use App\Http\Controllers\Controller;
                       
                       
 								<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary opencreate_task"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="table-responsive"> 
@@ -1288,7 +1288,7 @@ use App\Http\Controllers\Controller;
 									<span>other_info</span>
 								</div>
 								<div class="tab-pane fade" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary add_promotion"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="promotionlists"> 
@@ -1353,7 +1353,7 @@ use App\Http\Controllers\Controller;
 											<div class="extra_content">
 												<div class="left">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openpromotonform" data-id="{{$promotion->id}}" href="javascript:;">Edit</a>
 														</div>
@@ -1379,11 +1379,11 @@ use App\Http\Controllers\Controller;
                                     <div class="student_tabs">
                                         <ul class="nav nav-pills round_tabs" id="student_tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" data-toggle="tab" id="stdactive-tab" href="#stdactive" role="tab" aria-controls="stdactive" aria-selected="true">Active</a>
+                                                <a class="nav-link active" data-bs-toggle="tab" id="stdactive-tab" href="#stdactive" role="tab" aria-controls="stdactive" aria-selected="true">Active</a>
                                             </li>
 
                                             <li class="nav-item">
-                                                <a class="nav-link" data-toggle="tab" id="stdinactive-tab" href="#stdinactive" role="tab" aria-controls="stdinactive" aria-selected="false">Inactive</a>
+                                                <a class="nav-link" data-bs-toggle="tab" id="stdinactive-tab" href="#stdinactive" role="tab" aria-controls="stdinactive" aria-selected="false">Inactive</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content" id="studentContent">
@@ -1739,12 +1739,12 @@ use App\Http\Controllers\Controller;
 
                                                                         <td style="white-space: initial;">
                                                                             <div class="dropdown d-inline">
-                                                                                <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                                <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                                 <div class="dropdown-menu">
-                                                                                    <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data->id; ?>" data-current-status="<?php echo $data->status; ?>" data-toggle="modal" data-target="#changeStatusModal">Change Status</button>
+                                                                                    <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data->id; ?>" data-current-status="<?php echo $data->status; ?>" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
                                                                                     <!--<a href="javascript:;" datatype="note" class="btn btn-sm btn-primary dropdown-item create_student_note" data-studentid="<?php echo $data->client_id; ?>" data-studentrefno="<?php //echo $data->client_reference; ?>"  data-collegename="<?php //echo $data->partner_name; ?>">Add Student Note</a>-->
                                                                                     
-                                                                                    <button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="<?php echo $data->id; ?>" data-application-overall-status="<?php echo $data->overall_status; ?>" data-toggle="modal" data-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>
+                                                                                    <button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="<?php echo $data->id; ?>" data-application-overall-status="<?php echo $data->overall_status; ?>" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
@@ -2100,11 +2100,11 @@ use App\Http\Controllers\Controller;
                                                                     
                                                                     <td style="white-space: initial;">
                                                                         <div class="dropdown d-inline">
-                                                                            <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                            <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                             <div class="dropdown-menu">
-                                                                                <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data1->id; ?>" data-current-status="<?php echo $data1->status; ?>" data-toggle="modal" data-target="#changeStatusModal">Change Status</button>
+                                                                                <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data1->id; ?>" data-current-status="<?php echo $data1->status; ?>" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
                                                                                 
-                                                                                <button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="<?php echo $data1->id; ?>" data-application-overall-status="<?php echo $data1->overall_status; ?>" data-toggle="modal" data-target="#changeApplicationOverallStatusModal">Change Application To Active</button>
+                                                                                <button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="<?php echo $data1->id; ?>" data-application-overall-status="<?php echo $data1->overall_status; ?>" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Active</button>
                                                                             </div>
                                                                         </div>
                                                                     </td>
@@ -2181,13 +2181,13 @@ use App\Http\Controllers\Controller;
                                     <div class="invoices_tabs">
                                         <ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" data-toggle="tab" id="create_invoice-tab" href="#create_invoice" role="tab" aria-controls="create_invoice" aria-selected="true">Create Invoice</a>
+                                                <a class="nav-link active" data-bs-toggle="tab" id="create_invoice-tab" href="#create_invoice" role="tab" aria-controls="create_invoice" aria-selected="true">Create Invoice</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" data-toggle="tab" id="record_invoice-tab" href="#record_invoice" role="tab" aria-controls="record_invoice" aria-selected="false">Record Invoice</a>
+                                                <a class="nav-link" data-bs-toggle="tab" id="record_invoice-tab" href="#record_invoice" role="tab" aria-controls="record_invoice" aria-selected="false">Record Invoice</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" data-toggle="tab" id="record_payment-tab" href="#record_payment" role="tab" aria-controls="record_payment" aria-selected="false">Record Payment</a>
+                                                <a class="nav-link" data-bs-toggle="tab" id="record_payment-tab" href="#record_payment" role="tab" aria-controls="record_payment" aria-selected="false">Record Payment</a>
                                             </li>
                                         </ul>
 
@@ -2195,7 +2195,7 @@ use App\Http\Controllers\Controller;
                                           
 											 <div class="tab-pane fade show active" id="create_invoice" role="tabpanel" aria-labelledby="create_invoice-tab">
                                                 <div class="row">
-                                                    <div class="col-md-12 text-right">
+                                                    <div class="col-md-12 text-end">
                                                         <a class="btn btn-primary createpartnerstudentinvoice" href="javascript:;" data-partnerid="{{ $fetchedData->id }}" role="button"  style="margin-right:5px !important;">Create Invoice</a>
                                                     </div>
                                                     <div class="clearfix"></div>
@@ -2282,7 +2282,7 @@ use App\Http\Controllers\Controller;
 
                                             <div class="tab-pane fade" id="record_invoice" role="tabpanel" aria-labelledby="record_invoice-tab">
                                                 <div class="row">
-                                                    <div class="col-md-12 text-right">
+                                                    <div class="col-md-12 text-end">
                                                         <a class="btn btn-primary createrecordinvoice" href="javascript:;" data-partnerid="{{ $fetchedData->id }}" role="button"  style="margin-right:5px !important;">Create Record Invoice</a>
                                                     </div>
                                                     <div class="clearfix"></div>
@@ -2356,7 +2356,7 @@ use App\Http\Controllers\Controller;
 
                                             <div class="tab-pane fade" id="record_payment" role="tabpanel" aria-labelledby="record_payment-tab">
                                                 <div class="row">
-                                                    <div class="col-md-12 text-right">
+                                                    <div class="col-md-12 text-end">
                                                         <a class="btn btn-primary createrecordpayment" href="javascript:;" data-partnerid="{{ $fetchedData->id }}" role="button"  style="margin-right:5px !important;">Create Record Payment</a>
                                                     </div>
                                                     <div class="clearfix"></div>
@@ -2455,7 +2455,7 @@ use App\Http\Controllers\Controller;
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2546,7 +2546,7 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -2560,7 +2560,7 @@ use App\Http\Controllers\Controller;
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Add New Branch</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -2663,7 +2663,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<button type="button" class="btn btn-primary savebranch">Save</button>
 							<button type="button" id="update_branch" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -2684,10 +2684,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -2697,10 +2697,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -2712,7 +2712,7 @@ use App\Http\Controllers\Controller;
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="changeStatusModalLabel">Change Student Status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
             </div>
@@ -2746,7 +2746,7 @@ use App\Http\Controllers\Controller;
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="changeApplicationOverallStatusModalLabel">Application Overall Status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
             </div>
@@ -4422,7 +4422,7 @@ function formatRepoSelection (repo) {
 
 //For student active list
 var table33 = $(".table-3").DataTable({
-    dom: '<"row"<"col-md-4 text-left"l><"col-md-4 text-center"B><"col-md-4 text-right"f>>rtip',
+    dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
     buttons: [
         {
             extend: 'excelHtml5',
@@ -4552,7 +4552,7 @@ $(document).on('change', '.note-field', function () {
 
 //For student inactive list
 var table331 = $(".table-31").dataTable({
-    dom: '<"row"<"col-md-4 text-left"l><"col-md-4 text-center"B><"col-md-4 text-right"f>>rtip',
+    dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
     buttons: [
         {
             extend: 'excelHtml5',

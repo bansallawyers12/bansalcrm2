@@ -86,7 +86,7 @@
 																<td>{{@$admindata->first_name}} {{@$admindata->last_name}}</td>
 																<td style="text-align:right;">
 																	<div class="dropdown d-inline">
-																		<a class="dropdown-toggle" href="javascript:;" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																		<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 																		<div class="dropdown-menu">
 																			<a  data-id="{{$list->id}}" class="dropdown-item revertinvoice" href="javascript:;">Revert Payment</a>
 																			
@@ -125,10 +125,10 @@
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Are you sure you want revert payment?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Accept</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>

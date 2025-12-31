@@ -194,7 +194,7 @@
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
 			
@@ -262,7 +262,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -358,7 +358,7 @@
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -370,10 +370,10 @@
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Are you sure you want to delete ?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>

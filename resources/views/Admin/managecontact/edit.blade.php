@@ -369,7 +369,7 @@
 					<div class="col-md-12">
 						<div class="card card-primary">
 							<div class="card-body">   
-								<div style="margin-bottom:0px;" class="float-right form-group">
+								<div style="margin-bottom:0px;" class="float-end form-group">
 									{!! Form::button('<i class="fa fa-edit"></i> Update Contact', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-contacts")' ])  !!}
 								</div>
 							</div>  

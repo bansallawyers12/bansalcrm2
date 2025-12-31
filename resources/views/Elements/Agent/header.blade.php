@@ -27,12 +27,12 @@
 }
 </style>
 <nav class="navbar navbar-expand-lg main-navbar sticky">
-	<div class="form-inline mr-auto">
-		<ul class="navbar-nav mr-3">
-			<li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i data-feather="align-justify"></i></a></li>
+	<div class="form-inline me-auto">
+		<ul class="navbar-nav me-3">
+			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i data-feather="align-justify"></i></a></li>
 			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn"><i data-feather="maximize"></i></a></li>
 			<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="plus"></i></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="plus"></i></a>
             <div style="width: 50px;" class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				
 				<div class="">
@@ -45,7 +45,7 @@
 			</div>
 		</li>
 			<li>
-				<form class="form-inline mr-auto">
+				<form class="form-inline me-auto">
 					<div class="search-element">
 						<select class="form-control js-data-example-ajaxccsearch" type="search" placeholder="Search" aria-label="Search" data-width="200"></select>
 						<button class="btn" type="submit"><i class="fas fa-search"></i></button>
@@ -58,10 +58,10 @@
 
 		
 	<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg"><i data-feather="bell" class="bell"></i></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg"><i data-feather="bell" class="bell"></i></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Notifications
-					<div class="float-right">
+					<div class="float-end">
 					<a href="#">Mark All As Read</a>
 					</div>
 				</div>
@@ -86,7 +86,7 @@
 			</div>
 		</li>
 		<li class="dropdown">
-			<a href="#" data-toggle="dropdown"class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+			<a href="#" data-bs-toggle="dropdown"class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 				@if(@Auth::user()->profile_img == '')
 				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">
 				@else

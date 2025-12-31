@@ -139,9 +139,9 @@ $(function () {
             '<li class="dropdown-title pt-3">' + me.find("> a").text() + "</li>"
           );
         } else {
-          me.find("> a").attr("data-toggle", "tooltip");
+          me.find("> a").attr("data-bs-toggle", "tooltip");
           me.find("> a").attr("data-original-title", me.find("> a").text());
-          $("[data-toggle='tooltip']").tooltip({
+          $("[data-bs-toggle='tooltip']").tooltip({
             placement: "right"
           });
         }
@@ -171,7 +171,7 @@ $(function () {
     $activeAnchors.next().show();
   });
 
-  $("[data-toggle='sidebar']").click(function () {
+  $("[data-bs-toggle='sidebar']").click(function () {
     var body = $("body"),
       w = $(window);
 
@@ -316,7 +316,7 @@ $(function () {
   toggleLayout();
   $(window).resize(toggleLayout);
 
-  $("[data-toggle='search']").click(function () {
+  $("[data-bs-toggle='search']").click(function () {
     var body = $("body");
 
     if (body.hasClass("search-gone")) {
@@ -329,10 +329,10 @@ $(function () {
   });
 
   // tooltip
-  $("[data-toggle='tooltip']").tooltip();
+  $("[data-bs-toggle='tooltip']").tooltip();
 
   // popover
-  $('[data-toggle="popover"]').popover({
+  $('[data-bs-toggle="popover"]').popover({
     container: "body"
   });
 
@@ -475,7 +475,7 @@ $(function () {
   });
 
   // Dismiss modal
-  $("[data-dismiss=modal]").click(function () {
+  $("[data-bs-dismiss=modal]").click(function () {
     $(this)
       .closest(".modal")
       .modal("hide");

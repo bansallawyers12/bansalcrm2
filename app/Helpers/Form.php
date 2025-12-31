@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use Spatie\Html\Facades\Html;
-
 class Form
 {
     /**
@@ -131,13 +129,26 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('number', $name, $value);
+        // Build HTML manually
+        $html = '<input type="number" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        if ($value !== null && $value !== '') {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        return $input->toHtml();
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -147,13 +158,26 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('hidden', $name, $value);
+        // Build HTML manually
+        $html = '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        if ($value !== null) {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        return $input->toHtml();
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -167,13 +191,22 @@ class Form
             $value = 'Submit';
         }
         
-        $button = Html::button($value)->type('submit');
+        // Build HTML manually
+        $html = '<button type="submit"';
         
-        if (!empty($attributes)) {
-            $button->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $button->toHtml();
+        $html .= '>' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</button>';
+        
+        return $html;
     }
     
     /**
@@ -187,13 +220,22 @@ class Form
             $value = 'Button';
         }
         
-        $button = Html::button($value);
+        // Build HTML manually
+        $html = '<button';
         
-        if (!empty($attributes)) {
-            $button->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $button->toHtml();
+        $html .= '>' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</button>';
+        
+        return $html;
     }
     
     /**
@@ -244,21 +286,32 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $select = Html::select()->name($name);
+        // Build HTML manually
+        $html = '<select name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $select->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
+        
+        $html .= '>';
         
         foreach ($list as $key => $label) {
-            $option = Html::option($label)->value($key);
+            $html .= '<option value="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '"';
             if ($selected !== null && (string)$key === (string)$selected) {
-                $option->selected();
+                $html .= ' selected';
             }
-            $select->addChild($option);
+            $html .= '>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
         }
         
-        return $select->toHtml();
+        $html .= '</select>';
+        
+        return $html;
     }
     
     /**
@@ -268,17 +321,26 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('checkbox', $name, $value);
+        // Build HTML manually
+        $html = '<input type="checkbox" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
         
         if ($checked) {
-            $input->checked();
+            $html .= ' checked';
         }
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $input->toHtml();
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -288,17 +350,30 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('radio', $name, $value);
+        // Build HTML manually
+        $html = '<input type="radio" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
+        
+        if ($value !== null) {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+        }
         
         if ($checked) {
-            $input->checked();
+            $html .= ' checked';
         }
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $input->toHtml();
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -308,13 +383,22 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('file', $name);
+        // Build HTML manually
+        $html = '<input type="file" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $input->toHtml();
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -328,18 +412,27 @@ class Form
             $value = ucfirst(str_replace('_', ' ', $name));
         }
         
-        $label = Html::label($value);
+        // Build HTML manually
+        $html = '<label';
         
         if (isset($attributes['for'])) {
-            $label->for($attributes['for']);
+            $html .= ' for="' . htmlspecialchars($attributes['for'], ENT_QUOTES, 'UTF-8') . '"';
             unset($attributes['for']);
         }
         
-        if (!empty($attributes)) {
-            $label->attributes($attributes);
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
         }
         
-        return $label->toHtml();
+        $html .= '>' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</label>';
+        
+        return $html;
     }
     
     /**
@@ -349,13 +442,26 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('time', $name, $value);
+        // Build HTML manually
+        $html = '<input type="time" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        if ($value !== null && $value !== '') {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        return $input->toHtml();
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        return $html;
     }
     
     /**
@@ -365,13 +471,26 @@ class Form
     {
         $attributes = is_array($options) ? $options : [];
         
-        $input = Html::input('date', $name, $value);
+        // Build HTML manually
+        $html = '<input type="date" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
         
-        if (!empty($attributes)) {
-            $input->attributes($attributes);
+        if ($value !== null && $value !== '') {
+            $html .= ' value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
         }
         
-        return $input->toHtml();
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false) {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+        
+        $html .= '>';
+        
+        return $html;
     }
 }
 

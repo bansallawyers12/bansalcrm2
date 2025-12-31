@@ -7,7 +7,7 @@
     <title>Bansal CRM</title>
 	<!-- Bootstrap CSS -->
     <link href="{{asset('css/font-awesome.min.css')}}" rel="stylesheet">
-    <link href="{{asset('css/app.min.css')}}" rel="stylesheet">
+    @vite(['resources/js/app.js'])
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
@@ -24,7 +24,6 @@
 		 
 	<!-- Option 1: Bootstrap Bundle with Popper -->
 	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
-	<script src="{{asset('js/app.min.js')}}"></script>
 	<script src="{{asset('js/moment.min.js')}}"></script>
 	<script src="{{asset('js/daterangepicker.js')}}"></script> 
 

@@ -289,7 +289,7 @@ $(function () {
 
         "fnDrawCallback": function() {
             // Only initialize popovers that aren't already initialized
-            $('[data-role="popover"], [data-toggle="popover"]').each(function() {
+            $('[data-role="popover"], [data-bs-toggle="popover"]').each(function() {
                 if (!$(this).data('bs.popover')) {
                     try {
                         $(this).popover({
@@ -301,7 +301,7 @@ $(function () {
                     }
                 }
             });
-           // $('[data-toggle="tooltip"]').tooltip();
+           // $('[data-bs-toggle="tooltip"]').tooltip();
         },
         "bAutoWidth": false
     });
@@ -362,7 +362,7 @@ $(function () {
 <script>
 jQuery(document).ready(function($){
 
-    //$('[data-toggle="tooltip"]').tooltip();
+    //$('[data-bs-toggle="tooltip"]').tooltip();
 
     $(document).delegate('.openassignee', 'click', function(){
         $('.assignee').show();

@@ -11,7 +11,7 @@
 	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	 
-	<link rel="stylesheet" href="{{asset('css/app.min.css')}}">
+	@vite(['resources/js/app.js'])
 	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
@@ -84,11 +84,10 @@
 	</div>
 	<script>var site_url = '{{URL::to('/')}}';</script>	 
 	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  
-	<script src="{{asset('js/app.min.js')}}"></script>   
 	<script src="{{asset('js/fullcalendar.min.js')}}"></script>   
 	<script src="{{asset('js/chart.min.js')}}"></script>   
 	<script src="{{asset('js/datatables.min.js')}}"></script>   
-	<script src="{{asset('js/dataTables.bootstrap4.js')}}"></script>   
+	<script src="{{asset('js/dataTables.bootstrap5.js')}}"></script>   
 	 <!-- JS Libraies -->
 	<!--<script src="{{asset('js/apexcharts.min.js')}}"></script>--> 
 	<!-- Page Specific JS File -->	
@@ -708,7 +707,7 @@ function formatRepoSelectioncheck (repo) {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Create In Person Client</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -773,7 +772,7 @@ function formatRepoSelectioncheck (repo) {
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('checkinmodalsave')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -788,7 +787,7 @@ function formatRepoSelectioncheck (repo) {
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">In Person Details</h5>
 				<a style="margin-left:10px;" href="javascript:;"><i class="fa fa-trash"></i> Archive</a>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

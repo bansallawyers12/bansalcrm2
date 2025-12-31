@@ -71,8 +71,8 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="card-body">
 							<p class="clearfix"> 
-								<span class="float-left">Offices:</span>
-								<span class="float-right text-muted"></span>
+								<span class="float-start">Offices:</span>
+								<span class="float-end text-muted"></span>
 								<?php
 								$branches = \App\Models\Branch::where('id', '!=', '')->get();
 								?>
@@ -81,24 +81,24 @@ use App\Http\Controllers\Controller;
 								@endforeach
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Email:</span>
-								<span class="float-right text-muted">{{$fetchedData->email}}</span>
+								<span class="float-start">Email:</span>
+								<span class="float-end text-muted">{{$fetchedData->email}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Phone:</span>
-								<span class="float-right text-muted">{{$fetchedData->phone}}</span>
+								<span class="float-start">Phone:</span>
+								<span class="float-end text-muted">{{$fetchedData->phone}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">User Role:</span>
-								<span class="float-right text-muted">{{$fetchedData->usertype->name}}</span>
+								<span class="float-start">User Role:</span>
+								<span class="float-end text-muted">{{$fetchedData->usertype->name}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Position:</span>
-								<span class="float-right text-muted">{{$fetchedData->position}}</span>
+								<span class="float-start">Position:</span>
+								<span class="float-end text-muted">{{$fetchedData->position}}</span>
 							</p>
 							
 							<p class="clearfix">
-								<span class="float-left">Department:</span>
+								<span class="float-start">Department:</span>
 								<?php
 								if($fetchedData->team != ""){
 								    $teamData = \App\Models\Team::select('name')->where('id', '=', $fetchedData->team)->first(); //dd($teamData);
@@ -106,13 +106,13 @@ use App\Http\Controllers\Controller;
 								} else {
 								    $teamname = "";
 								} ?>
-								<span class="float-right text-muted">{{$teamname}}</span>
+								<span class="float-end text-muted">{{$teamname}}</span>
 							</p>
 							
 							
 							<p class="clearfix">
-								<span class="float-left">Permission:</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Permission:</span>
+								<span class="float-end text-muted">
 
                                     <?php
                                     if( isset($fetchedData->permission) && $fetchedData->permission !="")
@@ -160,13 +160,13 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'progress'){}else{ echo 'active'; } ?>" data-toggle="tab" id="clients-tab" href="#clients" role="tab" aria-controls="clients" aria-selected="false">Clients</a>
+									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'progress'){}else{ echo 'active'; } ?>" data-bs-toggle="tab" id="clients-tab" href="#clients" role="tab" aria-controls="clients" aria-selected="false">Clients</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="date-tab" href="#date" role="tab" aria-controls="date" aria-selected="false">Date & Time</a>
+									<a class="nav-link" data-bs-toggle="tab" id="date-tab" href="#date" role="tab" aria-controls="date" aria-selected="false">Date & Time</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'progress'){ echo 'active'; } ?>" data-toggle="tab" id="progress-tab" href="#progress" role="tab" aria-controls="progress" aria-selected="false">Progress Report</a>
+									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'progress'){ echo 'active'; } ?>" data-bs-toggle="tab" id="progress-tab" href="#progress" role="tab" aria-controls="progress" aria-selected="false">Progress Report</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
@@ -404,7 +404,7 @@ use App\Http\Controllers\Controller;
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -484,7 +484,7 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -499,7 +499,7 @@ use App\Http\Controllers\Controller;
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Select Office & Transfer Responsibilities</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -532,13 +532,13 @@ use App\Http\Controllers\Controller;
 									<div class="card-statistic-4">
 										<div class="align-items-center justify-content-between">
 											<div class="row">
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
 													<div class="card-content">
 													  <h2 class="mb-3 font-18">2</h2>
 													  <p class="mb-0">Task</p>
 													</div>
 												</div>
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
 														<i class="fas fa-suitcase"></i>
 													</div>
@@ -553,13 +553,13 @@ use App\Http\Controllers\Controller;
 									<div class="card-statistic-4">
 										<div class="align-items-center justify-content-between">
 											<div class="row">
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
 													<div class="card-content">
 													  <h2 class="mb-3 font-18">7</h2>
 													  <p class="mb-0">Contact</p>
 													</div>
 												</div>
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
 														<i class="fas fa-user"></i>
 													</div>
@@ -574,13 +574,13 @@ use App\Http\Controllers\Controller;
 									<div class="card-statistic-4">
 										<div class="align-items-center justify-content-between">
 											<div class="row">
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
 													<div class="card-content">
 													  <h2 class="mb-3 font-18">0</h2>
 													  <p class="mb-0">Appointments</p>
 													</div>
 												</div>
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
 														<i class="fas fa-file-alt"></i>
 													</div>
@@ -595,13 +595,13 @@ use App\Http\Controllers\Controller;
 									<div class="card-statistic-4">
 										<div class="align-items-center justify-content-between">
 											<div class="row">
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
 													<div class="card-content">
 													  <h2 class="mb-3 font-18">19</h2>
 													  <p class="mb-0">Applications</p>
 													</div>
 												</div>
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
 													<div class="respons_icon">
 														<i class="fas fa-file-contract"></i>
 													</div>
@@ -638,7 +638,7 @@ use App\Http\Controllers\Controller;
 					<div class="row">
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('applicationform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -659,10 +659,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -672,10 +672,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>

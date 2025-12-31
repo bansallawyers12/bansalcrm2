@@ -145,7 +145,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											@endif --}}
 											<td>
 												<div class="dropdown action_toggle">
-													<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="more-vertical"></i></a>
+													<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="more-vertical"></i></a>
 													<div class="dropdown-menu">
 														<a class="dropdown-item has-icon" href="{{route('admin.leads.detail', base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-eye"></i> View Details</a>
 														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-edit"></i> Assign To</a>
@@ -184,7 +184,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 		<div class="modal-content">
 			<div class="modal-header">
 				  <h4 class="modal-title">Assign Lead</h4>
-				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>

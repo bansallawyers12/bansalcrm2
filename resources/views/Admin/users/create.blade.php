@@ -171,7 +171,7 @@
 								<div class="form-group">
 							    	<label><input value="1" type="checkbox" name="show_dashboard_per" class="show_dashboard_per"> Can view on dasboard</label>
 								</div>
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::submit('Save User', ['class'=>'btn btn-primary' ])  !!}
 								</div> 
 							</div>

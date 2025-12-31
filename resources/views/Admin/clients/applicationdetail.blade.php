@@ -12,7 +12,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 .checklist span.check, .mychecklistdocdata span.check{background: #71cc53;color: #fff;border-radius: 50%;font-size: 10px;line-height: 14px;padding: 2px 3px;width: 18px;height: 18px;display: inline-block;}
 </style>
 <div class="card-header-action" style="padding-bottom:15px;">
-	<div class="float-left">
+	<div class="float-start">
 		<h5 class="applicationstatus">
             <?php
             if($fetchData->status == 0){ ?>In Progress<?php }
@@ -27,7 +27,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
             ?>
         </h5>
 	</div>
-	<div class="float-right">
+	<div class="float-end">
 		<div class="application_btns">
 			<a target="_blank" href="{{URL::to('/admin/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fa fa-print"></i></a>
           
@@ -135,19 +135,19 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 		<div class="application_other_info">
 			<ul class="nav nav-pills" id="applicat_detail_tabs" role="tablist">
 				<li class="nav-item">
-					<a class="nav-link active" id="applicate_activities-tab" data-toggle="tab" href="#applicate_activities">Activities</a>
+					<a class="nav-link active" id="applicate_activities-tab" data-bs-toggle="tab" href="#applicate_activities">Activities</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents">Documents</a>
+					<a class="nav-link" id="documents-tab" data-bs-toggle="tab" href="#documents">Documents</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" id="notes-tab" data-id="{{$fetchData->id}}" data-toggle="tab"  href="#notes">Notes</a>
+					<a class="nav-link" id="notes-tab" data-id="{{$fetchData->id}}" data-bs-toggle="tab"  href="#notes">Notes</a>
 				</li>
 				<!--<li class="nav-item">
-					<a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks">Tasks</a>
+					<a class="nav-link" id="tasks-tab" data-bs-toggle="tab" href="#tasks">Tasks</a>
 				</li> -->
 				<li class="nav-item">
-					<a class="nav-link" id="paymentschedule-tab" data-toggle="tab" href="#paymentschedule">Payment Schedule</a>
+					<a class="nav-link" id="paymentschedule-tab" data-bs-toggle="tab" href="#paymentschedule">Payment Schedule</a>
 				</li>
 			</ul> 
 			<div class="tab-content" id="applicationContent">
@@ -187,7 +187,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							?>
 						<div class="accordion cus_accrodian">
 							
-							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-toggle="collapse" data-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
+							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
 									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-file-alt"></i></a>
@@ -322,7 +322,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 											<?php
 										} ?>
 										<div class="dropdown d-inline">
-											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 											<div class="dropdown-menu">
 												
 												<!--<a target="_blank" class="dropdown-item" href="{{--URL::to('/public/img/documents')--}}/<?php //echo $doclist->file_name; ?>">Preview</a>
@@ -371,7 +371,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 						$stagname = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $stages->name)));
 					?>
 						<div class="accordion cus_accrodian">
-							<div class="accordion-header collapsed active" role="button" data-toggle="collapse" data-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
+							<div class="accordion-header collapsed active" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
 									<a title="Add Task" class="opentaskmodal" href="javascript:;"><i class="fa fa-suitcase"></i></a>
@@ -406,7 +406,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							<div class="schedule_btns">
 								<a class="openpaymentschedule btn btn-primary" data-id="{{$fetchData->id}}" href="javascript:;" ><i class="fa fa-plus"></i> Add Schedule</a>
 								<div class="dropdown d-inline">
-									<button class="btn btn-outline-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
+									<button class="btn btn-outline-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
 									<div class="dropdown-menu">
 										<a class="dropdown-item" href="javascript:;">Email Schedule</a>
 										<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/applications/preview-schedules/')}}/{{$fetchData->id}}">Preview Schedule</a>
@@ -479,7 +479,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 									<td><span title="Non Claimable" class="ui alignMiddle ag-label--circular truncate text-info">Non Claimable</span></td>
 									<td>
 										<div class="dropdown d-inline">
-											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 											<div class="dropdown-menu">
 												<a class="dropdown-item editpaymentschedule" data-id="{{$invoiceschedule->id}}" href="javascript:;">Edit</a>
 												<a class="dropdown-item deletenote" data-id="{{$invoiceschedule->id}}" data-href="deletepaymentschedule" href="javascript:;" >Delete</a>
@@ -584,25 +584,25 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				<div class="clearfix"></div>
 			</div>
 			<!--<p class="clearfix"> 
-				<span class="float-left">Total Fee</span>
-				<span class="float-right text-muted product_totalfee">{{--$totl--}}</span>
+				<span class="float-start">Total Fee</span>
+				<span class="float-end text-muted product_totalfee">{{--$totl--}}</span>
 			</p>
             <p class="clearfix">
-				<span class="float-left">Commission</span>
-				<span class="float-right text-muted product_totalcommission">{{--$commission_tot--}}</span>
+				<span class="float-start">Commission</span>
+				<span class="float-end text-muted product_totalcommission">{{--$commission_tot--}}</span>
 			</p>
 			<p class="clearfix" style="color:#ff0000;"> 
-				<span class="float-left">Discount</span>
-				<span class="float-right text-muted product_discount">{{--$discount--}}</span>
+				<span class="float-start">Discount</span>
+				<span class="float-end text-muted product_discount">{{--$discount--}}</span>
 			</p>
 			<p class="clearfix" style="color:#6777ef;"> 
-				<span class="float-left">Net Fee</span>
-				<span class="float-right text-muted product_net_fee">{{--$net--}}</span>
+				<span class="float-start">Net Fee</span>
+				<span class="float-end text-muted product_net_fee">{{--$net--}}</span>
 			</p>-->
           
             <p class="clearfix">
-				<span class="float-left">Total Course Fee</span>
-				<span class="float-right text-muted total_course_fee_amount"> 
+				<span class="float-start">Total Course Fee</span>
+				<span class="float-end text-muted total_course_fee_amount"> 
                   <?php 
 				if( isset($appfeeoption['total_course_fee_amount']) &&  $appfeeoption['total_course_fee_amount'] != ''){
 				echo $appfeeoption['total_course_fee_amount'];
@@ -610,8 +610,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</p>
           
              <p class="clearfix">
-				<span class="float-left">Scholarship Fee</span>
-				<span class="float-right text-muted scholarship_fee_amount">
+				<span class="float-start">Scholarship Fee</span>
+				<span class="float-end text-muted scholarship_fee_amount">
                  <?php
 				if( isset($appfeeoption['scholarship_fee_amount']) &&  $appfeeoption['scholarship_fee_amount'] != ''){
 					echo $appfeeoption['scholarship_fee_amount'];
@@ -619,8 +619,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</p>
 
             <p class="clearfix">
-				<span class="float-left">Enrolment Fee</span>
-				<span class="float-right text-muted enrolment_fee_amount"> 
+				<span class="float-start">Enrolment Fee</span>
+				<span class="float-end text-muted enrolment_fee_amount"> 
                  <?php 
 				if( isset($appfeeoption['enrolment_fee_amount']) &&  $appfeeoption['enrolment_fee_amount'] != ''){
 					echo $appfeeoption['enrolment_fee_amount'];
@@ -628,16 +628,16 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</p>
 
             <p class="clearfix">
-				<span class="float-left">Material fees</span>
-				<span class="float-right text-muted material_fees"><?php 
+				<span class="float-start">Material fees</span>
+				<span class="float-end text-muted material_fees"><?php 
 				if( isset($appfeeoption['material_fees']) &&  $appfeeoption['material_fees'] != ''){
 					echo $appfeeoption['material_fees'];
 				} else { echo "0.00";} ?></span>
 			</p>
 
             <p class="clearfix">
-				<span class="float-left">Tution Fee</span>
-				<span class="float-right text-muted tution_fees"><?php 
+				<span class="float-start">Tution Fee</span>
+				<span class="float-end text-muted tution_fees"><?php 
 				if( isset($appfeeoption['tution_fees']) &&  $appfeeoption['tution_fees'] != ''){
 					echo $appfeeoption['tution_fees'];
 				} else { echo "0.00";} ?></span>
@@ -672,28 +672,28 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
           
           
             <p class="clearfix appsaleforcast">
-				<span class="float-left">Total Fee Paid</span>
-				<span class="float-right text-muted fee_reported_by_college"><?php 
+				<span class="float-start">Total Fee Paid</span>
+				<span class="float-end text-muted fee_reported_by_college"><?php 
 				if( isset($appfeeoption['fee_reported_by_college']) &&  $appfeeoption['fee_reported_by_college'] != ''){
 					echo $appfeeoption['fee_reported_by_college'];
 				} else { echo "0.00";} ?></span>
 			</p>
 
 			<!--<p class="clearfix appsaleforcast"> 
-				<span class="float-left">Partner Revenue</span>
-				<span class="float-right text-muted partner_revenue">{{--$partner_revenue--}}</span>
+				<span class="float-start">Partner Revenue</span>
+				<span class="float-end text-muted partner_revenue">{{--$partner_revenue--}}</span>
 			</p>
 			<p class="clearfix appsaleforcast"> 
-				<span class="float-left">Client Revenue</span>
-				<span class="float-right text-muted client_revenue">{{--$client_revenue--}}</span>
+				<span class="float-start">Client Revenue</span>
+				<span class="float-end text-muted client_revenue">{{--$client_revenue--}}</span>
 			</p>
 			<p class="clearfix appsaleforcast" style="color:#ff0000;"> 
-				<span class="float-left">Discount</span>
-				<span class="float-right text-muted discounts">{{--$discounts--}}</span>
+				<span class="float-start">Discount</span>
+				<span class="float-end text-muted discounts">{{--$discounts--}}</span>
 			</p>
 			<p class="clearfix appsaleforcast" style="color:#6777ef;"> 
-				<span class="float-left">Net Revenue</span>
-				<span class="float-right text-muted netrevenue">{{--number_format($nettotal,2,'.','')--}}</span>
+				<span class="float-start">Net Revenue</span>
+				<span class="float-end text-muted netrevenue">{{--number_format($nettotal,2,'.','')--}}</span>
 			</p>-->
           
 			<div class="form-group">
@@ -743,8 +743,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</div>
 			<div class="divider"></div> 
 			<p class="clearfix"> 
-				<span class="float-left">Super Agent:</span>
-				<span class="float-right text-muted">
+				<span class="float-start">Super Agent:</span>
+				<span class="float-end text-muted">
 					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensuperagent"><i class="fa fa-plus"></i> Add</a>
 					<?php
 					$agent = \App\Models\Agent::where('id',$fetchData->super_agent)->first();
@@ -768,8 +768,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				</span>
 			</p>
 			<p class="clearfix"> 
-				<span class="float-left">Sub Agent:</span>
-				<span class="float-right text-muted">
+				<span class="float-start">Sub Agent:</span>
+				<span class="float-end text-muted">
 					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensubagent"><i class="fa fa-plus"></i> Add</a>
 					<div class="subagent_data">
 						<?php

@@ -14,7 +14,7 @@
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 			 
 	 <!-- BASE CSS -->
-	<link href="{{asset('css/app.min.css')}}" rel="stylesheet">	
+	@vite(['resources/js/app.js'])
 	<link href="{{asset('css/bootstrap-social.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/style.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/components.css')}}" rel="stylesheet">	
@@ -39,7 +39,6 @@
 	<script type="text/javascript">
 		var site_url = "<?php echo URL::to('/'); ?>";
 	</script>
-	<script src="{{asset('js/app.min.js')}}"></script>
 	<script src="{{asset('js/scripts.js')}}"></script>
 	<script src="{{asset('js/custom.js')}}"></script>
 </body>

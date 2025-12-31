@@ -122,7 +122,7 @@
                                                 {!! Form::text('deposit_amount', Request::get('deposit_amount'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Amount', 'id' => 'amount' ))  !!}
                                             </div>
                                         </div>
-                                        <div class="col-md-4 text-left" style="margin-top: 38px;">
+                                        <div class="col-md-4 text-start" style="margin-top: 38px;">
                                             <div class="form-group">
                                                 {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
                                                 <a class="btn btn-info" href="{{URL::to('/admin/clients/clientreceiptlist')}}">Reset</a>

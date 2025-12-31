@@ -362,7 +362,7 @@
 
             var button = $('<button/>')
                 .attr('type', 'button')
-                .attr('data-toggle', 'dropdown')
+                .attr('data-bs-toggle', 'dropdown')
                 .attr('id', 'flagstrap-drop-down-' + uniqueId)
                 .addClass('btn ' + plugin.settings.buttonType + ' ' + plugin.settings.buttonSize + ' dropdown-toggle')
                 .html(buttonLabel);

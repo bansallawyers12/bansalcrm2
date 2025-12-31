@@ -49,12 +49,12 @@
 									<a href="javascript:;" onclick="" title="Archive"><i class="fas fa-archive"></i></a>
 								</div>
 								<p class="clearfix" style="text-align:left;">
-									<span class="float-left">Application Sales Forecast</span>
-									<span class="float-right text-muted"> 0.00  USD</span>
+									<span class="float-start">Application Sales Forecast</span>
+									<span class="float-end text-muted"> 0.00  USD</span>
 								</p>
 								<p class="clearfix" style="text-align:left;">
-									<span class="float-left">Interested Services Sales Forecast</span>
-									<span class="float-right text-muted"> 0.00  USD</span>
+									<span class="float-start">Interested Services Sales Forecast</span>
+									<span class="float-end text-muted"> 0.00  USD</span>
 								</p>
 							</div>
 						</div>
@@ -65,14 +65,14 @@
 						</div>
 						<div class="card-body">
 							<p class="clearfix"> 
-								<span class="float-left">Tag(s):</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Tag(s):</span>
+								<span class="float-end text-muted">
 									<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 								</span>
 							</p>
 							<div class="clearfix">
-								<span class="float-left">Client Portal:</span>
-								<div class="custom-switches float-right">
+								<span class="float-start">Client Portal:</span>
+								<div class="custom-switches float-end">
 									<label class="custom-switch">
 										<input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" checked>
 										<span class="custom-switch-indicator"></span>
@@ -80,56 +80,56 @@
 								</div>
 							</div>
 							<p class="clearfix"> 
-								<span class="float-left">Added From:</span>
-								<span class="float-right text-muted">system</span>
+								<span class="float-start">Added From:</span>
+								<span class="float-end text-muted">system</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Client Id:</span>
-								<span class="float-right text-muted">-</span>
+								<span class="float-start">Client Id:</span>
+								<span class="float-end text-muted">-</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Internal Id:</span>
-								<span class="float-right text-muted">13</span>
+								<span class="float-start">Internal Id:</span>
+								<span class="float-end text-muted">13</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Date Of Birth:</span>
-								<span class="float-right text-muted">-</span>
+								<span class="float-start">Date Of Birth:</span>
+								<span class="float-end text-muted">-</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Phone No:</span>
-								<span class="float-right text-muted">+61455455455</span>
+								<span class="float-start">Phone No:</span>
+								<span class="float-end text-muted">+61455455455</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Email:</span>
-								<span class="float-right text-muted">santu537@gmail.com</span>
+								<span class="float-start">Email:</span>
+								<span class="float-end text-muted">santu537@gmail.com</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Secondary Email:</span>
-								<span class="float-right text-muted">-</span>
+								<span class="float-start">Secondary Email:</span>
+								<span class="float-end text-muted">-</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Address:</span>
-								<span class="float-right text-muted">37 Mossigle, Pakenham, Victoria, 3810, Australia</span>
+								<span class="float-start">Address:</span>
+								<span class="float-end text-muted">37 Mossigle, Pakenham, Victoria, 3810, Australia</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Country of Passport:</span>
-								<span class="float-right text-muted">India</span>
+								<span class="float-start">Country of Passport:</span>
+								<span class="float-end text-muted">India</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Passport Number:</span>
-								<span class="float-right text-muted">E3434345</span>
+								<span class="float-start">Passport Number:</span>
+								<span class="float-end text-muted">E3434345</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Preferred Intake:</span>
-								<span class="float-right text-muted">May 2022</span>
+								<span class="float-start">Preferred Intake:</span>
+								<span class="float-end text-muted">May 2022</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Visa Expiry Date:</span>
-								<span class="float-right text-muted">2022-05-30</span>
+								<span class="float-start">Visa Expiry Date:</span>
+								<span class="float-end text-muted">2022-05-30</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Visa type:</span>
-								<span class="float-right text-muted">Student</span>
+								<span class="float-start">Visa type:</span>
+								<span class="float-end text-muted">Student</span>
 							</p> 
 							<div class="client_added client_info_tags"> 
 								<span class="">Added By:</span>
@@ -152,8 +152,8 @@
 								</div>
 							</div>
 							<p class="clearfix"> 
-								<span class="float-left">Followers</span>
-								<span class="float-right text-muted">
+								<span class="float-start">Followers</span>
+								<span class="float-end text-muted">
 									<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 								</span>
 							</p>	
@@ -165,40 +165,40 @@
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="true">Activities</a>
+									<a class="nav-link" data-bs-toggle="tab" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="true">Activities</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link active" data-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a> 
+									<a class="nav-link active" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a> 
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="false">Interested Services</a>
+									<a class="nav-link" data-bs-toggle="tab" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="false">Interested Services</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a>
+									<a class="nav-link" data-bs-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
+									<a class="nav-link" data-bs-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
+									<a class="nav-link" data-bs-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
+									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
+									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="education-tab" href="#education" role="tab" aria-controls="education" aria-selected="false">Education</a>
+									<a class="nav-link" data-bs-toggle="tab" id="education-tab" href="#education" role="tab" aria-controls="education" aria-selected="false">Education</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
+									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="checkinlogs-tab" href="#checkinlogs" role="tab" aria-controls="checkinlogs" aria-selected="false">Check-In Logs</a>
+									<a class="nav-link" data-bs-toggle="tab" id="checkinlogs-tab" href="#checkinlogs" role="tab" aria-controls="checkinlogs" aria-selected="false">Check-In Logs</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
@@ -209,10 +209,10 @@
 								</div>	
 								<div class="tab-pane fade show active" id="application" role="tabpanel" aria-labelledby="application-tab">
 									<div class="card-header-action" style="padding-bottom:15px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>In Progress</h5> 
 										</div>
-										<div class="float-right">
+										<div class="float-end">
 											<div class="application_btns">
 												<a href="javascript:;" class="btn btn-primary"><i class="fa fa-print"></i></a>
 												<a href="javascript:;" class="btn btn-outline-danger"><i class="fa fa-times"></i> Discontinue</a>
@@ -277,26 +277,26 @@
 											<div class="application_other_info">
 												<ul class="nav nav-pills" id="applicat_detail_tabs" role="tablist">
 													<li class="nav-item">
-														<a class="nav-link active" id="applicate_activities-tab" data-toggle="tab" href="#applicate_activities">Activities</a>
+														<a class="nav-link active" id="applicate_activities-tab" data-bs-toggle="tab" href="#applicate_activities">Activities</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents">Documents</a>
+														<a class="nav-link" id="documents-tab" data-bs-toggle="tab" href="#documents">Documents</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link" id="notes-tab" data-toggle="tab"  href="#notes">Notes</a>
+														<a class="nav-link" id="notes-tab" data-bs-toggle="tab"  href="#notes">Notes</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks">Tasks</a>
+														<a class="nav-link" id="tasks-tab" data-bs-toggle="tab" href="#tasks">Tasks</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link" id="paymentschedule-tab" data-toggle="tab" href="#paymentschedule">Payment Schedule</a>
+														<a class="nav-link" id="paymentschedule-tab" data-bs-toggle="tab" href="#paymentschedule">Payment Schedule</a>
 													</li>
 												</ul> 
 												<div class="tab-content" id="applicationContent">
 													<div class="tab-pane fade show active" id="applicate_activities" role="tabpanel" aria-labelledby="applicate_activities-tab">
 														<div id="accordion">
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed active" role="button" data-toggle="collapse" data-target="#application_accor" aria-expanded="false">
+																<div class="accordion-header collapsed active" role="button" data-bs-toggle="collapse" data-bs-target="#application_accor" aria-expanded="false">
 																	<h4>Application</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -323,7 +323,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#acceptance">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#acceptance">
 																	<h4>Acceptance</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -350,7 +350,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#payment">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#payment">
 																	<h4>Payment</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -377,7 +377,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#formi20">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#formi20">
 																	<h4>Form I 20</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -404,7 +404,7 @@
 																</div>
 															</div> 
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#visa_application">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#visa_application">
 																	<h4>Visa Application</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -431,7 +431,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#interview">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#interview">
 																	<h4>Interview</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -454,7 +454,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#enrolment">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#enrolment">
 																	<h4>Enrolment</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -477,7 +477,7 @@
 																</div>
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#course_ongoing">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#course_ongoing">
 																	<h4>Course Ongoing</h4>
 																	<div class="accord_hover">
 																		<a title="Add Note" href="#"><i class="fa fa-file-alt"></i></a>
@@ -547,7 +547,7 @@
 													<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
 														<div id="taskaccordion">
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed active" role="button" data-toggle="collapse" data-target="#application_accor" aria-expanded="false">
+																<div class="accordion-header collapsed active" role="button" data-bs-toggle="collapse" data-bs-target="#application_accor" aria-expanded="false">
 																	<h4>Application</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -557,7 +557,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#acceptance">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#acceptance">
 																	<h4>Acceptance</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -567,7 +567,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#payment">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#payment">
 																	<h4>Payment</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -577,7 +577,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#formi20">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#formi20">
 																	<h4>Form I 20</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -587,7 +587,7 @@
 																</div>-->
 															</div> 
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#visa_application">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#visa_application">
 																	<h4>Visa Application</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -597,7 +597,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#interview">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#interview">
 																	<h4>Interview</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -607,7 +607,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#enrolment">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#enrolment">
 																	<h4>Enrolment</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -617,7 +617,7 @@
 																</div>-->
 															</div>
 															<div class="accordion cus_accrodian">
-																<div class="accordion-header collapsed" role="button" data-toggle="collapse" data-target="#course_ongoing">
+																<div class="accordion-header collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#course_ongoing">
 																	<h4>Course Ongoing</h4>
 																	<div class="accord_hover">
 																		<a title="Add Task" href="#"><i class="fa fa-suitcase"></i></a>
@@ -650,7 +650,7 @@
 																<div class="schedule_btns">
 																	<a href="#" class="btn btn-primary"><i class="fa fa-plus"></i> Add Schedule</a>
 																	<div class="dropdown d-inline">
-																		<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
+																		<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
 																		<div class="dropdown-menu">
 																			<a class="dropdown-item" href="javascript:;">Email Schedule</a>
 																			<a class="dropdown-item" href="javascript:;">Preview Schedule</a>
@@ -686,7 +686,7 @@
 																		<td>Pending</td>
 																		<td>
 																			<div class="dropdown d-inline">
-																				<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																				<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																				<div class="dropdown-menu">
 																					<a class="dropdown-item" href="javascript:;">Edit</a>
 																					<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -762,16 +762,16 @@
 													<div class="clearfix"></div>
 												</div>
 												<p class="clearfix"> 
-													<span class="float-left">Total Fee</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Total Fee</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<p class="clearfix" style="color:#ff0000;"> 
-													<span class="float-left">Discount</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Discount</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<p class="clearfix" style="color:#6777ef;"> 
-													<span class="float-left">Net Fee</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Net Fee</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<div class="divider"></div>
 												<div class="cus_prod_fees">
@@ -780,20 +780,20 @@
 													<div class="clearfix"></div>
 												</div>
 												<p class="clearfix"> 
-													<span class="float-left">Partner Revenue</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Partner Revenue</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<p class="clearfix"> 
-													<span class="float-left">Client Revenue</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Client Revenue</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<p class="clearfix" style="color:#ff0000;"> 
-													<span class="float-left">Discount</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Discount</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<p class="clearfix" style="color:#6777ef;"> 
-													<span class="float-left">Net Revenue</span>
-													<span class="float-right text-muted">0.00</span>
+													<span class="float-start">Net Revenue</span>
+													<span class="float-end text-muted">0.00</span>
 												</p>
 												<div class="form-group">
 													<label for="expect_win_date">Expected Win Date:</label>
@@ -832,14 +832,14 @@
 												</div>
 												<div class="divider"></div> 
 												<p class="clearfix"> 
-													<span class="float-left">Super Agent:</span>
-													<span class="float-right text-muted">
+													<span class="float-start">Super Agent:</span>
+													<span class="float-end text-muted">
 														<a href="javascript:;" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add</a>
 													</span>
 												</p>
 												<p class="clearfix"> 
-													<span class="float-left">Sub Agent:</span>
-													<span class="float-right text-muted">
+													<span class="float-start">Sub Agent:</span>
+													<span class="float-end text-muted">
 														<a href="javascript:;" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add</a>
 													</span>
 												</p>
@@ -848,8 +848,8 @@
 									</div>
 								</div>	
 								<div class="tab-pane fade" id="interested_service" role="tabpanel" aria-labelledby="interested_service-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="javascript:;" data-toggle="modal" data-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="interest_serv_list">
 										<div class="interest_column">
@@ -891,9 +891,9 @@
 													</div> 
 												</div>
 												<div class="serv_user_action">
-													<a href="javascript:;" data-toggle="modal" data-target=".interest_service_view" class="btn btn-primary">View</a>
+													<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".interest_service_view" class="btn btn-primary">View</a>
 													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Create Appliation</a>
 															<a class="dropdown-item" href="javascript:;">Delete</a>
@@ -941,9 +941,9 @@
 													</div> 
 												</div>
 												<div class="serv_user_action">
-													<a href="javascript:;" data-toggle="modal" data-target=".interest_service_view" class="btn btn-primary">View</a>
+													<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".interest_service_view" class="btn btn-primary">View</a>
 													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Delete</a>
 														</div>
@@ -955,7 +955,7 @@
 									<div class="clearfix"></div>
 								</div>	
 								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
@@ -985,7 +985,7 @@
 														<td>2022-05-29</td> 
 														<td>
 															<div class="dropdown d-inline">
-																<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																<div class="dropdown-menu">
 																	<a class="dropdown-item" href="javascript:;">Rename</a>
 																	<a class="dropdown-item" href="javascript:;">Preview</a>
@@ -1015,7 +1015,7 @@
 												<div class="grid_content">
 													<span>1643474600_MYF_33 .jpg</span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Preview</a>
 															<a class="dropdown-item" href="javascript:;">Download</a>
@@ -1029,8 +1029,8 @@
 									</div>
 								</div>
 								<div class="tab-pane fade" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="javascript:;" data-toggle="modal" data-target=".add_appointment" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appointment" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="appointment_info row"> 
 										<div class="appointment_list col-md-5">
@@ -1050,7 +1050,7 @@
 													<div class="appoint_created">
 														<span class="span_label">Created By: <span>A</span></span>
 														<div class="dropdown d-inline dropdown_ellipsis_icon">
-															<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item" href="javascript:;">Edit</a>
 																<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -1070,7 +1070,7 @@
 													<div class="appoint_created">
 														<span class="span_label">Created By: <span>A</span></span>
 														<div class="dropdown d-inline dropdown_ellipsis_icon">
-															<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item" href="javascript:;">Edit</a>
 																<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -1132,7 +1132,7 @@
 													<td><span class="ag-label--circular" style="color: #6777ef" >Paid</span></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a class="dropdown-item has-icon" href="#"><i class="far fa-mail"></i> View</a>
@@ -1148,10 +1148,10 @@
 									<div class="conversation_tabs"> 
 										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
 											<li class="nav-item">
-												<a class="nav-link active" data-toggle="tab" id="email-tab" href="#email" role="tab" aria-controls="email" aria-selected="true">Email</a>
+												<a class="nav-link active" data-bs-toggle="tab" id="email-tab" href="#email" role="tab" aria-controls="email" aria-selected="true">Email</a>
 											</li>
 											<li class="nav-item">
-												<a class="nav-link" data-toggle="tab" id="sms-tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">SMS</a>
+												<a class="nav-link" data-bs-toggle="tab" id="sms-tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">SMS</a>
 											</li>
 										</ul>
 										<div class="tab-content" id="conversationContent">
@@ -1168,7 +1168,7 @@
 																</div>
 																<div class="conver_link">
 																	<a href="javascript:;" ><i class="fas fa-file-alt"></i></a>
-																	<a href="javascript:;" data-toggle="modal" data-target=".create_task"><i class="fas fa-shopping-bag"></i></a>
+																	<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".create_task"><i class="fas fa-shopping-bag"></i></a>
 																</div> 
 															</div>
 														</div>
@@ -1213,17 +1213,17 @@
 									</div>
 								</div> 
 								<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
-										<a href="javascript:;" data-toggle="modal" data-target=".create_task" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".create_task" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 								</div>
 								<div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
 									<div class="card-header-action" style="padding-bottom:15px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>Education Background</h5> 
 										</div>
-										<div class="float-right">
-											<a href="javascript:;" data-toggle="modal" data-target=".create_education" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<div class="float-end">
+											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".create_education" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -1260,11 +1260,11 @@
 									</div>
 									<div class="divider"></div>
 									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>English Test Scores</h5> 
 										</div>
-										<div class="float-right">
-											<a href="javascript:;" data-toggle="modal" data-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
+										<div class="float-end">
+											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -1306,11 +1306,11 @@
 									</div>
 									<div class="divider"></div>
 									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>Other Test Scores</h5> 
 										</div>
-										<div class="float-right">
-											<a href="javascript:;" data-toggle="modal" data-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
+										<div class="float-end">
+											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -1363,7 +1363,7 @@
 													<td></td>
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a class="dropdown-item has-icon" href="#"><i class="far fa-mail"></i> Decline</a>
@@ -1396,10 +1396,10 @@
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>

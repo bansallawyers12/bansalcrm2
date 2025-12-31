@@ -71,42 +71,42 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="card-body">
 							<p class="clearfix"> 
-								<span class="float-left">Partner:</span>
-								<span class="float-right text-muted"><?php
+								<span class="float-start">Partner:</span>
+								<span class="float-end text-muted"><?php
 								$partnerdetail = \App\Models\Partner::where('id', $fetchedData->partner)->first();
 								echo $partnerdetail->partner_name;
 								?></span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Branches:</span>
-								<span class="float-right text-muted"><?php
+								<span class="float-start">Branches:</span>
+								<span class="float-end text-muted"><?php
 								$branchesdetail = \App\Models\PartnerBranch::where('id', $fetchedData->branches)->first();
 								echo @$branchesdetail->name.' ('.@$branchesdetail->city.')';
 								?></span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Services:</span>
-								<span class="float-right text-muted"></span>
+								<span class="float-start">Services:</span>
+								<span class="float-end text-muted"></span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Duration:</span>
-								<span class="float-right text-muted">{{$fetchedData->duration}}</span>
+								<span class="float-start">Duration:</span>
+								<span class="float-end text-muted">{{$fetchedData->duration}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Intake Month:</span>
-								<span class="float-right text-muted"><?php if($fetchedData->preferredIntake != '-- Select Intake Month --' || $fetchedData->preferredIntake != ''){ ?>{{$fetchedData->intake_month}}<?php } ?></span>
+								<span class="float-start">Intake Month:</span>
+								<span class="float-end text-muted"><?php if($fetchedData->preferredIntake != '-- Select Intake Month --' || $fetchedData->preferredIntake != ''){ ?>{{$fetchedData->intake_month}}<?php } ?></span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Revenue Type: </span>
-								<span class="float-right text-muted">{{$fetchedData->revenue_type}}</span>
+								<span class="float-start">Revenue Type: </span>
+								<span class="float-end text-muted">{{$fetchedData->revenue_type}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Notes: </span>
-								<span class="float-right text-muted">{{$fetchedData->note}}</span>
+								<span class="float-start">Notes: </span>
+								<span class="float-end text-muted">{{$fetchedData->note}}</span>
 							</p>
 							<p class="clearfix"> 
-								<span class="float-left">Description: </span>
-								<span class="float-right text-muted">{!!$fetchedData->description!!}</span>
+								<span class="float-start">Description: </span>
+								<span class="float-end text-muted">{!!$fetchedData->description!!}</span>
 							</p> 
 						</div>
 					</div>
@@ -116,22 +116,22 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link active" data-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link active" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="fees-tab" href="#fees" role="tab" aria-controls="fees" aria-selected="false">Fees</a>
+									<a class="nav-link" data-bs-toggle="tab" id="fees-tab" href="#fees" role="tab" aria-controls="fees" aria-selected="false">Fees</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="requirements-tab" href="#requirements" role="tab" aria-controls="requirements" aria-selected="false">Requirements</a>
+									<a class="nav-link" data-bs-toggle="tab" id="requirements-tab" href="#requirements" role="tab" aria-controls="requirements" aria-selected="false">Requirements</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
+									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
+									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
@@ -197,7 +197,7 @@ use App\Http\Controllers\Controller;
 									
 								</div>
 								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
@@ -242,7 +242,7 @@ use App\Http\Controllers\Controller;
 													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -271,7 +271,7 @@ use App\Http\Controllers\Controller;
 												<div class="grid_content">
 													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -287,7 +287,7 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
 								<div class="tab-pane fade" id="fees" role="tabpanel" aria-labelledby="fees-tab">
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary new_fee_option"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="feeslist">
@@ -351,13 +351,13 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade" id="requirements" role="tabpanel" aria-labelledby="requirements-tab">
 									<div class="card-header-action" style="padding-bottom:15px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>Academic Requirements</h5> 
 										</div>
 										<?php
 										$acreq = \App\Models\AcademicRequirement::where('product_id', $fetchedData->id)->first();
 										?>
-										<div class="float-right">
+										<div class="float-end">
 											<a href="javascript:;" <?php if($acreq){ ?>style="display:none;"<?php }else{ ?><?php } ?> class="btn btn-primary add_academic_requirement"><i class="fa fa-plus"></i> Add</a>
 											<a data-academic_score_per="<?php echo @$acreq->academic_score_per; ?>" data-academic_score_type="<?php echo @$acreq->academic_score_type; ?>" data-degree="<?php echo @$acreq->degree; ?>" <?php if($acreq){ ?><?php }else{ ?>style="display:none;"<?php } ?> href="javascript:;" class="btn btn-primary editacademic"><i class="fa fa-plus"></i> Edit</a>
 										</div>
@@ -378,11 +378,11 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="divider"></div>
 									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>English Test Scores</h5> 
 										</div>
-										<div class="float-right">
-											<a href="javascript:;" data-toggle="modal" data-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
+										<div class="float-end">
+											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -431,11 +431,11 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="divider"></div>
 									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-left">
+										<div class="float-start">
 											<h5>Other Test Scores</h5> 
 										</div>
-										<div class="float-right">
-											<a href="javascript:;" data-toggle="modal" data-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
+										<div class="float-end">
+											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -461,7 +461,7 @@ use App\Http\Controllers\Controller;
 								<?php
 								$subjectareadata = \App\Models\ProductAreaLevel::where('product_id', $fetchedData->id)->first();
 								?>
-									<div class="card-header-action text-right" style="padding-bottom:15px;">
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" <?php if($subjectareadata){ ?>style="display:none;"<?php }else{ ?><?php } ?> class="btn btn-primary other_info_add"><i class="fa fa-plus"></i> Add</a>
 										<a href="javascript:;" <?php if($subjectareadata){ ?><?php }else{ ?>style="display:none;"<?php } ?> class="btn btn-primary other_info_edit"><i class="fa fa-plus"></i> Edit</a>
 									</div>
@@ -536,7 +536,7 @@ use App\Http\Controllers\Controller;
 												</div>
 											</div>
 											<div class="extra_content">
-												<div class="view_btn text-right">
+												<div class="view_btn text-end">
 													<a href="#" class="btn btn-outline-primary">View</a>
 												</div>  
 											</div>
@@ -561,7 +561,7 @@ use App\Http\Controllers\Controller;
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -641,7 +641,7 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -663,10 +663,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>
@@ -676,10 +676,10 @@ use App\Http\Controllers\Controller;
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
 		</div>
 	</div>

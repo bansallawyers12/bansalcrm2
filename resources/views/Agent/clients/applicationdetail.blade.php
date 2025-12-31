@@ -12,10 +12,10 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 .checklist span.check, .mychecklistdocdata span.check{background: #71cc53;color: #fff;border-radius: 50%;font-size: 10px;line-height: 14px;padding: 2px 3px;width: 18px;height: 18px;display: inline-block;}
 </style>
 <div class="card-header-action" style="padding-bottom:15px;">
-	<div class="float-left">
+	<div class="float-start">
 		<h5 class="applicationstatus"><?php if($fetchData->status == 0){ ?>In Progress<?php }else if($fetchData->status == 1){ echo 'Completed'; } else if($fetchData->status == 2){ echo 'Discontinued'; } ?></h5> 
 	</div>
-	<div class="float-right">
+	<div class="float-end">
 		<div class="application_btns">
 			<a target="_blank" href="{{URL::to('/agent/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fa fa-print"></i></a>
 			
@@ -106,13 +106,13 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 		<div class="application_other_info">
 			<ul class="nav nav-pills" id="applicat_detail_tabs" role="tablist">
 				<li class="nav-item">
-					<a class="nav-link active" id="applicate_activities-tab" data-toggle="tab" href="#applicate_activities">Activities</a>
+					<a class="nav-link active" id="applicate_activities-tab" data-bs-toggle="tab" href="#applicate_activities">Activities</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents">Documents</a>
+					<a class="nav-link" id="documents-tab" data-bs-toggle="tab" href="#documents">Documents</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" id="notes-tab" data-id="{{$fetchData->id}}" data-toggle="tab"  href="#notes">Notes</a>
+					<a class="nav-link" id="notes-tab" data-id="{{$fetchData->id}}" data-bs-toggle="tab"  href="#notes">Notes</a>
 				</li>
 			
 			</ul> 
@@ -153,7 +153,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							?>
 						<div class="accordion cus_accrodian">
 							
-							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-toggle="collapse" data-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
+							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								
 							</div>
@@ -308,7 +308,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 						$stagname = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $stages->name)));
 					?>
 						<div class="accordion cus_accrodian">
-							<div class="accordion-header collapsed active" role="button" data-toggle="collapse" data-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
+							<div class="accordion-header collapsed active" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
 									<a title="Add Task" class="opentaskmodal" href="javascript:;"><i class="fa fa-suitcase"></i></a>
@@ -399,16 +399,16 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				<div class="clearfix"></div>
 			</div>
 			<p class="clearfix"> 
-				<span class="float-left">Total Fee</span>
-				<span class="float-right text-muted product_totalfee">{{$totl}}</span>
+				<span class="float-start">Total Fee</span>
+				<span class="float-end text-muted product_totalfee">{{$totl}}</span>
 			</p>
 			<p class="clearfix" style="color:#ff0000;"> 
-				<span class="float-left">Discount</span>
-				<span class="float-right text-muted product_discount">{{$discount}}</span>
+				<span class="float-start">Discount</span>
+				<span class="float-end text-muted product_discount">{{$discount}}</span>
 			</p>
 			<p class="clearfix" style="color:#6777ef;"> 
-				<span class="float-left">Net Fee</span>
-				<span class="float-right text-muted product_net_fee">{{$net}}</span>
+				<span class="float-start">Net Fee</span>
+				<span class="float-end text-muted product_net_fee">{{$net}}</span>
 			</p>
 			<div class="divider"></div>
 			<div class="cus_prod_fees ">
@@ -433,20 +433,20 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</div>
 			
 			<p class="clearfix appsaleforcast"> 
-				<span class="float-left">Partner Revenue</span>
-				<span class="float-right text-muted partner_revenue">{{$partner_revenue}}</span>
+				<span class="float-start">Partner Revenue</span>
+				<span class="float-end text-muted partner_revenue">{{$partner_revenue}}</span>
 			</p>
 			<p class="clearfix appsaleforcast"> 
-				<span class="float-left">Client Revenue</span>
-				<span class="float-right text-muted client_revenue">{{$client_revenue}}</span>
+				<span class="float-start">Client Revenue</span>
+				<span class="float-end text-muted client_revenue">{{$client_revenue}}</span>
 			</p>
 			<p class="clearfix appsaleforcast" style="color:#ff0000;"> 
-				<span class="float-left">Discount</span>
-				<span class="float-right text-muted discounts">{{$discounts}}</span>
+				<span class="float-start">Discount</span>
+				<span class="float-end text-muted discounts">{{$discounts}}</span>
 			</p>
 			<p class="clearfix appsaleforcast" style="color:#6777ef;"> 
-				<span class="float-left">Net Revenue</span>
-				<span class="float-right text-muted netrevenue">{{number_format($nettotal,2,'.','')}}</span>
+				<span class="float-start">Net Revenue</span>
+				<span class="float-end text-muted netrevenue">{{number_format($nettotal,2,'.','')}}</span>
 			</p>
 			<div class="form-group">
 				<label for="expect_win_date">Expected Win Date:</label>

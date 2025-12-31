@@ -179,7 +179,7 @@
 									</div>
 								</div> 
 								  
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::button('Save Product', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-products")'])  !!}
 								</div>
 							</div>

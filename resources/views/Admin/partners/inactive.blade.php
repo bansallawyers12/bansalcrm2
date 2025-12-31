@@ -172,7 +172,7 @@ a.dropdown-item {padding-top: 5px !important;}
                                                             </div>
                                                             <div class="right">
                                                                 <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                                    <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                                    <a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
                                                                     <div class="dropdown-menu">
                                                                         <a class="dropdown-item opennoteform" data-id="{{--$latestnote->id--}}" href="javascript:;">Edit</a>
                                                                         <a data-id="{{--$latestnote->id--}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -212,7 +212,7 @@ a.dropdown-item {padding-top: 5px !important;}
 											<!--<td><span class="ag-label--circular" style="color: #6777ef" >In Progress</span></td>-->
 											<td>
 												<div class="dropdown d-inline">
-													<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+													<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 													<div class="dropdown-menu">
 														<a class="dropdown-item has-icon partneremail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->partner_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
 														<a class="dropdown-item has-icon" href="{{URL::to('/admin/partners/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
@@ -251,7 +251,7 @@ a.dropdown-item {padding-top: 5px !important;}
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="importmodalLabel">Import CSV</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -269,7 +269,7 @@ a.dropdown-item {padding-top: 5px !important;}
 
 						<div class="col-12 col-md-12 col-lg-12">
 							<button  type="submit" class="btn btn-primary">Import</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -283,7 +283,7 @@ a.dropdown-item {padding-top: 5px !important;}
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="partnerModalLabel">Compose Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -374,7 +374,7 @@ a.dropdown-item {padding-top: 5px !important;}
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>

@@ -25,7 +25,7 @@
 							<div class="card-body">
 								<div id="accordion">
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#personal_details" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#personal_details" aria-expanded="true">
 											<h4>Personal Details</h4>
 										</div>
 										<div class="accordion-body collapse show" id="personal_details" data-parent="#accordion">
@@ -107,7 +107,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div aria-expanded="true" class="accordion-header " role="button" data-toggle="collapse" data-target="#contact_details">
+										<div aria-expanded="true" class="accordion-header " role="button" data-bs-toggle="collapse" data-bs-target="#contact_details">
 											<h4>Contact Details</h4>
 										</div>
 										<div class="accordion-body collapse show" id="contact_details" data-parent="#accordion">
@@ -172,7 +172,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" aria-expanded="true" data-target="#address">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#address">
 											<h4>Address</h4>
 										</div>
 										<div class="accordion-body collapse show" id="address" data-parent="#accordion">
@@ -244,7 +244,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" aria-expanded="true" data-target="#current_visa_info">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#current_visa_info">
 											<h4>Current Visa Information</h4>
 										</div>
 										<div class="accordion-body collapse show" id="current_visa_info" data-parent="#accordion">
@@ -337,7 +337,7 @@
 									</div>
 									
 									<div class="accordion">
-										<div class="accordion-header" aria-expanded="true" role="button" data-toggle="collapse" data-target="#internal">
+										<div class="accordion-header" aria-expanded="true" role="button" data-bs-toggle="collapse" data-bs-target="#internal">
 											<h4>Internal</h4>
 										</div>
 										<div class="accordion-body collapse show" id="internal" data-parent="#accordion">
@@ -423,7 +423,7 @@
 									</div>
 								</div> 
 								
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::button('Save Clients', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-clients")'])  !!}
 								</div>
 							</div>

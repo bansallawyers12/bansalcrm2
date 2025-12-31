@@ -246,7 +246,7 @@
 									<div class="col-lg-6">
 										<div class="payment_check">
 											<h4>Payments Received 
-											<span class="float-right">
+											<span class="float-end">
 												<span class="pay_checkbox">
 													<input type="checkbox" id="payment_done" name="payment_done" tabindex="0" class="hidden">
 													<label>Mark this invoice as paid</label>
@@ -367,7 +367,7 @@
 								<div class="divider"></div>
 								<div class="row">
 									<div class="col-md-12">
-										<div class="invoice_btns text-right">
+										<div class="invoice_btns text-end">
 										<input type="hidden" name="btn" value="save">
 											<button type="button" class="btn btn-success" onclick="customValidate('invoiceform','savepreview')">Save & Preview</button>
 											<button class="btn btn-primary" onclick="customValidate('invoiceform','save')" type="button">Save</button>

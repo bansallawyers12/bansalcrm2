@@ -698,7 +698,7 @@
 										</div>
 									</div>  
 									<div class="col-sm-12">
-										<div class="form-group float-right">
+										<div class="form-group float-end">
 											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-clients")' ])  !!}
 										</div>
 									</div>

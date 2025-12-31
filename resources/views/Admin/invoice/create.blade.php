@@ -294,7 +294,7 @@
 										<div class="sub_total">
 											<div class="form-group row">
 												<label for="" class="col-sm-3 col-form-label">Sub Total</label>
-												<div class="col-sm-9 text-right">
+												<div class="col-sm-9 text-end">
 													<span class="subtotal">0.00</span>
 												</div> 
 											</div>
@@ -304,7 +304,7 @@
 												<div class="col-sm-4">
 													<div class="discount_field">
 														<input type="text" class="discount" name="discount" value="0"/>
-														<button class="btn btn-default dropdown-toggle currecysign showdiscounttype" data-toggle="dropdown" aria-expanded="false">₹ <span class="caret"></span></button>
+														<button class="btn btn-default dropdown-toggle currecysign showdiscounttype" data-bs-toggle="dropdown" aria-expanded="false">₹ <span class="caret"></span></button>
 														<div class="dropdown-menu" x-placement="top-start">
 															<a class="dropdown-item selectdiscount" dataid="percentage" tabindex="-1" href="javascript:;">%</a>
 															<a class="dropdown-item currecysign selectdiscount" dataid="fixed" tabindex="-1" href="javascript:;">₹</a>
@@ -312,19 +312,19 @@
 														</div>
 													</div>
 												</div>
-												<div class="col-sm-5 text-right">
+												<div class="col-sm-5 text-end">
 													<span class="discountsho">0</span>
 												</div>
 											</div>
 											<div class="form-group row taxdetail" style="display:none;">
 												<label for="" class="col-sm-3 col-form-label taxname"></label>
-												<div class="col-sm-9 text-right">
+												<div class="col-sm-9 text-end">
 													<span class="taxprice">0.00</span>
 												</div> 
 											</div>
 											<div class="form-group row total_amount">
 												<label for="" class="col-sm-3 col-form-label">Total (<span class="currecysign">₹</span>)</label>
-												<div class="col-sm-9 text-right">
+												<div class="col-sm-9 text-end">
 													<span class="finaltotal">0.00</span>
 												</div> 
 											</div>
@@ -351,7 +351,7 @@
 													<input type="file" name="attach_file"/>
 													<i class="fa fa-upload"></i>
 												</div>
-												<button class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Upload File <span class="caret"></span></button>
+												<button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Upload File <span class="caret"></span></button>
 													<div class="dropdown-menu" x-placement="top-start">
 														<a class="dropdown-item" tabindex="-1" href="#">Attach from Desktop</a>
 														<a class="dropdown-item" tabindex="-1" href="#">Attach from Cloud</a>
@@ -368,9 +368,9 @@
 									</div>
 								</div>				
 								<input id="save_type" name="save_type" type="hidden" value="save_send">
-								<div style="margin-bottom:0px;" class="form-group float-right invoice_save_btn">
+								<div style="margin-bottom:0px;" class="form-group float-end invoice_save_btn">
 									{!! Form::button('<i class="fa fa-save"></i> Save and Send', ['class'=>'btn btn-primary', 'onClick'=>'customInvoiceValidate("add-invoice", "save_send")' ])  !!}
-									<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></a>
+									<a class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></a>
 									<div class="dropdown-menu" x-placement="top-start">
 										<a savetype="save_print" class="dropdown-item" tabindex="-1" href="javascript:;" onClick='customInvoiceValidate("add-invoice", "save_print")'><i class="fa fa-print"></i> Save & Print</a>
 										
@@ -396,7 +396,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">Add New Customer</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>
@@ -461,7 +461,7 @@
 			</div> 
 			</div>
 			<div class="modal-footer justify-content-between">
-			  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
 			  <button type="button" id="customer_save" class="btn btn-primary">Save</button>
 			</div>
 			{!! Form::close()  !!}
@@ -473,7 +473,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">Billing Address</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>
@@ -510,7 +510,7 @@
 				
 			</div>
 			<div class="modal-footer justify-content-between">
-				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				  <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
 				  <button type="button" id="billing_save" class="btn btn-primary">Save</button>
 				</div>
 				{!! Form::close()  !!}

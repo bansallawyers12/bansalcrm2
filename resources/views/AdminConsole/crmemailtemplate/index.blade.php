@@ -45,7 +45,7 @@
 										<td>{{ @$list->subject == "" ? config('constants.empty') : str_limit(@$list->subject, '50', '...') }}</td> 	
 										<td>
 											<div class="dropdown d-inline">
-												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
 													<a class="dropdown-item has-icon" href="{{URL::to('/adminconsole/crm_email_template/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'crm_email_templates')"><i class="fas fa-trash"></i> Delete</a>

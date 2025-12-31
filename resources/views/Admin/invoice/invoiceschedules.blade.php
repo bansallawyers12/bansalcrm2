@@ -22,7 +22,7 @@
 						<div class="card-header"> 
 							<h4>Invoice Schedule</h4> 
 							<div class="card-header-action">
-								<a href="javascript:;" data-toggle="modal" data-target=".add_payment_schedule" class="btn btn-primary"><i class="fa fa-plus"></i> Add Payment Schedule</a>
+								<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_payment_schedule" class="btn btn-primary"><i class="fa fa-plus"></i> Add Payment Schedule</a>
 							</div> 
 						</div> 
 						<div class="card-body">							
@@ -82,7 +82,7 @@
 													</td>
 													<td style="text-align:right;">
 														<div class="dropdown d-inline">
-															<a class="dropdown-toggle" href="javascript:;" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item openeditform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
 																<a onClick="deleteAction({{@$list->id}}, 'invoice_schedules')" class="dropdown-item" href="javascript:;">Delete</a>
@@ -124,7 +124,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="paymentscheModalLabel">Add Payment Schedule</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -273,7 +273,7 @@
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('invpaymentschedule')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -288,7 +288,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="paymentscheModalLabel">Edit Payment Schedule</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -305,7 +305,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="paymentscheModalLabel">Select Invoice Type:</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

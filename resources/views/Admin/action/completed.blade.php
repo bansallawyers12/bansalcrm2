@@ -156,7 +156,7 @@
                                                 }
                                                 ?>
                                                 <td style="text-align: center;">{{ ++$i }}</td>
-                                                <td style="text-align: center;"><input type="radio" class="not_complete_task" data-toggle="tooltip" title="Mark Incomplete!" data-id="{{ $list->id }}"></td>
+                                                <td style="text-align: center;"><input type="radio" class="not_complete_task" data-bs-toggle="tooltip" title="Mark Incomplete!" data-id="{{ $list->id }}"></td>
                                                 <td>{{ $full_name??'N/P' }}</td>
                                                 <td>
                                                     {{ $user_name }}
@@ -175,7 +175,7 @@
                                                     if( isset($list->description) && $list->description != "" ){
                                                         if (strlen($list->description) > 190) {
                                                             $full_description = $list->description;
-                                                            $new_string = substr($list->description, 0, 190) . ' <button type="button" class="btn btn-link" data-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
+                                                            $new_string = substr($list->description, 0, 190) . ' <button type="button" class="btn btn-link" data-bs-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
                                                             echo $new_string;
                                                         } else {
                                                             echo $list->description;
@@ -191,10 +191,10 @@
 
                                                         {{-- <a class="btn btn-info" href="{{ route('assignees.show',$list->id) }}">Show</a> --}}
 
-                                                         <!--<a class="btn btn-primary" data-toggle="tooltip" title="" href="{{ url('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}"> <i class="fa fa-edit" aria-hidden="true"></i> </a>-->
+                                                         <!--<a class="btn btn-primary" data-bs-toggle="tooltip" title="" href="{{ url('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}"> <i class="fa fa-edit" aria-hidden="true"></i> </a>-->
 
                                                          <?php if($list->task_group != 'Personal Task'){?>
-                                                         <button type="button" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid={{ $list->task_group }}  data-followupdate={{ $list->followup_date  }} data-toggle="tooltip" title="" class="btn btn-primary btn-block update_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+                                                         <button type="button" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid={{ $list->task_group }}  data-followupdate={{ $list->followup_date  }} data-bs-toggle="tooltip" title="" class="btn btn-primary btn-block update_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
                                                             <h4 class=&quot;text-center&quot;>Update Task</h4>
                                                             <div class=&quot;clearfix&quot;></div>
                                                         <div class=&quot;box-header with-border&quot;>
@@ -266,11 +266,11 @@
 
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                        <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
 
                                                         <?php if($list->task_group != 'Personal Task'){?>
-                                                        <button type="button" data-noteid="{{ $list->description }}" data-toggle="tooltip" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+                                                        <button type="button" data-noteid="{{ $list->description }}" data-bs-toggle="tooltip" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
                                                             <h4 class=&quot;text-center&quot;>Re-Assign User</h4>
                                                             <div class=&quot;clearfix&quot;></div>
                                                         <div class=&quot;box-header with-border&quot;>
@@ -382,7 +382,7 @@
 <script src="{{asset('js/popover.js')}}"></script>
 <script>
 jQuery(document).ready(function($){
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
     $(document).delegate('.openassignee', 'click', function(){
         $('.assignee').show();

@@ -61,7 +61,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-crmemailtemplate")' ])  !!}
 								</div> 
 							</div>

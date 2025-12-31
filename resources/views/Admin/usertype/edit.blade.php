@@ -32,7 +32,7 @@
 										</span> 
 									@endif
 								</div>	
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::submit('Update', ['class'=>'btn btn-primary' ])  !!}
 								</div>
 							</div>

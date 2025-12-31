@@ -52,14 +52,14 @@
 							</div> 
 							<div class="card-tools card_tools">
 								<!--<div class="input-group input-group-sm" style="width: 150px;">
-									<input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+									<input type="text" name="table_search" class="form-control float-end" placeholder="Search">
 									<div class="input-group-append">
 										<button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
 									</div>
 								</div>-->
 								<div class="row">
 									<div class="col-md-4">
-										<a href="javascript:;" data-toggle="modal" data-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
 									</div>
 								</div>
 							</div>
@@ -87,7 +87,7 @@
 								 
 								  <td>
 									<div class="nav-item dropdown action_dropdown">
-										<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+										<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><span class="caret"></span></a>
 										<div class="dropdown-menu">
 											<a href="{{URL::to('/admin/edit_email_template/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
 											
@@ -116,7 +116,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				  <h4 class="modal-title">Exclusion Search</h4>
-				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>

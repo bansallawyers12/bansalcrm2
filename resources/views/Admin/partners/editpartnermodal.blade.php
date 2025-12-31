@@ -4,7 +4,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Edit Appointment</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button> 
 			</div>
@@ -22,7 +22,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Create Note</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -82,7 +82,7 @@
 						</div>-->
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('editnotetermform')" type="button" class="btn btn-primary">Submit</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -97,7 +97,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="editenglishModalLabel">Edit English Test Scores</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -222,7 +222,7 @@
 					<div class="row">
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('testscoreform')" type="button" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</form> 
@@ -237,7 +237,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="editotherModalLabel">Edit Other Test Scores</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -283,7 +283,7 @@
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('othertestform')" type="button" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</form> 
@@ -299,7 +299,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Edit Education</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -316,7 +316,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Edit Interested Services</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -334,7 +334,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Edit Promotion</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

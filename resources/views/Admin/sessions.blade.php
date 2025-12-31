@@ -62,7 +62,7 @@
 										<div class="modal-dialog modal-md">
 											<div class="modal-content">
 												<div class="modal-body">
-													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 													</button>
 													<div class="device_div on_popup">			
@@ -126,7 +126,7 @@
 										<div class="modal-dialog modal-md">
 											<div class="modal-content">
 												<div class="modal-body">
-													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 													</button>
 													<div class="device_div on_popup">	
@@ -190,7 +190,7 @@
 										<div class="modal-dialog modal-md">
 											<div class="modal-content">
 												<div class="modal-body">
-													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 													</button>
 													<div class="device_div on_popup">			

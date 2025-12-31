@@ -90,7 +90,7 @@
 								</div>
 						  </div>
 						  
-						  <div class="form-group float-right">
+						  <div class="form-group float-end">
 							{!! Form::button('<i class="fa fa-edit"></i> Update Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-holidaytype")' ])  !!}
 						  </div> 
 						</div> 

@@ -35,7 +35,7 @@
 							<div class="card-body">
 								<div id="accordion">
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#primary_info" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#primary_info" aria-expanded="true">
 											<h4>Primary Information</h4>
 										</div>
 										<div class="accordion-body collapse show" id="primary_info" data-parent="#accordion">
@@ -157,7 +157,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#address" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#address" aria-expanded="true">
 											<h4>Address</h4>
 										</div>
 										<div class="accordion-body collapse show" id="address" data-parent="#accordion">
@@ -237,7 +237,7 @@
 										</div>
 									</div>
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#contact_details" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#contact_details" aria-expanded="true">
 											<h4>Contact Details</h4>
 										</div>
 										<div class="accordion-body collapse show" id="contact_details" data-parent="#accordion">
@@ -377,7 +377,7 @@
                                   
                                   
 									<div class="accordion">
-										<div class="accordion-header" role="button" data-toggle="collapse" data-target="#branch" aria-expanded="true">
+										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#branch" aria-expanded="true">
 											<h4>Branch</h4>
 										</div>
 										<div class="accordion-body collapse show" id="branch" data-parent="#accordion">
@@ -393,7 +393,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="form-group float-right">
+								<div class="form-group float-end">
 									{!! Form::button('Save Partner', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-partner")' ])  !!}
 								</div>
 							</div>
@@ -410,7 +410,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Add New Branch</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -523,7 +523,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<button type="button" class="btn btn-primary savebranch">Save</button>
 							<button type="button" id="update_branch" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -539,7 +539,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientEmailModalLabel">Add New Partner Email</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -575,7 +575,7 @@
                         <div class="col-12 col-md-12 col-lg-12">
 							<button type="button" class="btn btn-primary savepartneremail">Save</button>
 							<button type="button" id="update_partneremail" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -590,7 +590,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientPhoneModalLabel">Add New Partner Phone Number</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -634,7 +634,7 @@
                         <div class="col-12 col-md-12 col-lg-12">
 							<button type="button" class="btn btn-primary savepartnerphone">Save</button>
 							<button type="button" id="update_partnerphone" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>

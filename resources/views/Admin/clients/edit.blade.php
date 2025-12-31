@@ -369,9 +369,9 @@
                                                     ||
                                                     ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
                                                 ){ ?>
-                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-minus" aria-hidden="true"></i></a>
+                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-minus" aria-hidden="true"></i></a>
                                                 <?php } else { ?>
-                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-plus" aria-hidden="true"></i></a>
 
                                                 <?php } ?>
                                                 </div>
@@ -954,7 +954,7 @@
 									</div>  
 									@endif
 									<div class="col-sm-12">
-										<div class="form-group float-right">
+										<div class="form-group float-end">
                                              <div class="removesids_contact"></div>
 											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients")' ])  !!}
 										</div>
@@ -1000,7 +1000,7 @@ if($fetchedData->tagname != ''){
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Service Taken</h5>
 
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -1070,7 +1070,7 @@ if($fetchedData->tagname != ''){
 
                         <div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('createservicetaken')" type="button" class="btn btn-primary" id="createservicetaken_btn">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -1085,7 +1085,7 @@ if($fetchedData->tagname != ''){
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientPhoneModalLabel">Add New Phone</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -1139,7 +1139,7 @@ if($fetchedData->tagname != ''){
                         <div class="col-12 col-md-12 col-lg-12">
 							<button type="button" class="btn btn-primary saveclientphone">Save</button>
 							<button type="button" id="update_clientphone" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -1154,7 +1154,7 @@ if($fetchedData->tagname != ''){
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

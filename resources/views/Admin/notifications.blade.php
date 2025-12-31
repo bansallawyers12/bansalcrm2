@@ -109,7 +109,7 @@
 															$iconColor = 'text-success';
 														}
 													@endphp
-													<i class="{{$iconClass}} {{$iconColor}} mr-2"></i>
+													<i class="{{$iconClass}} {{$iconColor}} me-2"></i>
 													@if($list->url)
 														<a href="{{$list->url}}?t={{$list->id}}" 
 														   class="notification-link {{$list->receiver_status == 0 ? 'font-weight-bold' : ''}}">

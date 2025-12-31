@@ -14,7 +14,7 @@
 							<h4>Manage Contacts</h4>
 							<div class="card-header-action">
 								<a href="{{route('admin.managecontact.create')}}" class="btn btn-primary">New Contacts</a>
-								<a href="javascript:;" data-toggle="modal" data-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
+								<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
 							</div>
 						</div>
 						<div class="card-body">
@@ -47,7 +47,7 @@
 										<td></td> 
 										<td>
 											<div class="dropdown d-inline">
-												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
 													<a class="dropdown-item has-icon" href="{{URL::to('/admin/contact/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'contacts')"><i class="fas fa-trash"></i> Delete</a>
@@ -84,7 +84,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="amnetsearchModalLabel">Search</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

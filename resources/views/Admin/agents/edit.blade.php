@@ -25,7 +25,7 @@
 					<div class="card-body">
 						<div id="accordion">
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#agenttype" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#agenttype" aria-expanded="true">
 									<h4>Agent Type</h4>
 								</div>
 								<div class="accordion-body collapse show" id="agenttype" data-parent="#accordion">
@@ -54,7 +54,7 @@
 								</div>
 							</div>
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#agentstructure" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#agentstructure" aria-expanded="true">
 									<h4>Agent Structure</h4>
 								</div>
 								<div class="accordion-body collapse show" id="agentstructure" data-parent="#accordion">
@@ -80,7 +80,7 @@
 								</div>
 							</div>
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#personal_details" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#personal_details" aria-expanded="true">
 									<h4>Personal Details</h4>
 								</div>
 								<div class="accordion-body collapse show" id="personal_details" data-parent="#accordion">
@@ -181,7 +181,7 @@
 								</div>
 							</div>
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#contact_details" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#contact_details" aria-expanded="true">
 									<h4>Contact Details</h4>
 								</div>
 								<div class="accordion-body collapse show" id="contact_details" data-parent="#accordion">
@@ -217,7 +217,7 @@
 								</div>
 							</div>
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#address" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#address" aria-expanded="true">
 									<h4>Address</h4>
 								</div>
 								<div class="accordion-body collapse show" id="address" data-parent="#accordion">
@@ -290,7 +290,7 @@
 								</div>
 							</div>
 							<div class="accordion">
-								<div class="accordion-header" role="button" data-toggle="collapse" data-target="#office_income_share" aria-expanded="true">
+								<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#office_income_share" aria-expanded="true">
 									<h4>Office and Income Sharing Details</h4>
 								</div>
 								<div class="accordion-body collapse show" id="office_income_share" data-parent="#accordion">
@@ -342,7 +342,7 @@
 							</div>
 						</div>
 						
-						<div class="form-group float-right">
+						<div class="form-group float-end">
 							{!! Form::submit('Update Agent', ['class'=>'btn btn-primary' ])  !!}
 						</div>
 					</div>

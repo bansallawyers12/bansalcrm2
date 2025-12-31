@@ -90,7 +90,7 @@
 								</div>
 						  </div>
 						  
-						  <div class="form-group float-right">
+						  <div class="form-group float-end">
 							{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 						  </div> 
 						</div> 

@@ -13,7 +13,7 @@
 		@if ($errors->any())
 		<div class="alert alert-danger alert-dismissible show fade">
 			<div class="alert-body">
-				<button class="close" data-dismiss="alert">
+				<button class="btn-close" data-bs-dismiss="alert">
 					<span>&times;</span>
 				</button>
 				<strong>Please check the form below for errors:</strong>
@@ -250,7 +250,7 @@
                                     <div class="col-sm-2">
                                         <div class="form-group" style="margin-top: 40px;">
 											<label for="Add another email and contact no"> </label>
-										    <a href="javascript:void(0)" class="add_other_email_phone" data-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-plus" aria-hidden="true"></i></a>
+										    <a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no"><i class="fa fa-plus" aria-hidden="true"></i></a>
                                         </div>
                                     </div>
 
@@ -728,7 +728,7 @@
 										</div>
 									</div>
 									<div class="col-sm-12">
-										<div class="form-group float-right">
+										<div class="form-group float-end">
 											{!! Form::button('Save', ['class'=>'btn btn-primary btn_submit', 'onClick'=>'customValidate("add-leads")' ])  !!}
 										</div>
 									</div>

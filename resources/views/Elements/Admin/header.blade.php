@@ -27,16 +27,16 @@
 }
 </style>
 <nav class="navbar navbar-expand-lg main-navbar sticky">
-	<div class="form-inline mr-auto">
-		<ul class="navbar-nav mr-3">
-			<li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i data-feather="align-justify" id="feather-icon"></i></a></li>
+	<div class="form-inline me-auto">
+		<ul class="navbar-nav me-3">
+			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i data-feather="align-justify" id="feather-icon"></i></a></li>
 			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn"><i data-feather="maximize"></i></a></li>
 			
 			<?php
             if( Auth::user()->role == 1 || Auth::user()->role == 12 ){ //super admin or admin
             ?>
 			<li class="dropdown dropdown-list-toggle">
-			    <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="plus"></i></a>
+			    <a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="plus"></i></a>
                 <div style="width: 50px;" class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				
     				<div class="">
@@ -67,7 +67,7 @@
 		    </li>
 		     <?php }?>
 		<li>
-			<form class="form-inline mr-auto" onsubmit="return false;">
+			<form class="form-inline me-auto" onsubmit="return false;">
 				<div class="search-element">
 					<select class="form-control js-data-example-ajaxccsearch" type="search" placeholder="Search" aria-label="Search" data-width="200"></select>
 					<button class="btn" type="button"><i class="fas fa-search"></i></button>
@@ -78,13 +78,13 @@
 	</div>
 	<ul class="navbar-nav navbar-right">
 	<li class="dropdown dropdown-list-toggle">
-	<a href="javascript:;" data-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin"><i data-feather="log-in"></i></a>
+	<a href="javascript:;" data-bs-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin"><i data-feather="log-in"></i></a>
 	</li>
 		<!-- {{--	<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="mail"></i><span class="badge headerBadge1">6</span></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="mail"></i><span class="badge headerBadge1">6</span></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Messages
-					<div class="float-right">
+					<div class="float-end">
 						<a href="#">Mark All As Read</a>
 					</div>
 				</div>
@@ -129,11 +129,11 @@
 		</li>--}} -->
 	<li class="dropdown dropdown-list-toggle">
 		@if(Auth::user())
-			<a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-toggle="tooltip" data-placement="bottom" title="Click To See Notifications"><i data-feather="bell" class="bell"></i><span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-bs-toggle="tooltip" data-placement="bottom" title="Click To See Notifications"><i data-feather="bell" class="bell"></i><span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
         @endif
 			<!--<div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Notifications
-					<div class="float-right">
+					<div class="float-end">
             
 					</div>
 				</div>
@@ -158,7 +158,7 @@
 			</div>-->
 		</li>
 		<li class="dropdown">
-			<a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+			<a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 				@if(@Auth::user()->profile_img == '')
 				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">
 				@else

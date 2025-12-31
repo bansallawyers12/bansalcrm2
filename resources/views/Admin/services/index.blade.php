@@ -207,7 +207,7 @@
 																</div>
 																<div class="course_column">
 																	<span class="label">Requirements</span>
-																	<a href="javascript:;" data-toggle="modal" data-target=".requiment_modal" class="">View Requirements</a>
+																	<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".requiment_modal" class="">View Requirements</a>
 																</div>
 															</div>
 															<div class="course_row">	
@@ -320,7 +320,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="requiment_ModalLabel">Requirements</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -446,7 +446,7 @@
 		<div class="modal-content"> 
 			<div class="modal-header">
 				<h5 class="modal-title" id="appliationModalLabel">Add To Application</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -517,7 +517,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('addtoapplicationform')" type="button" class="btn btn-primary">Add</button>
 							<button onclick="customValidate('addtoapplicationform')" type="button" class="btn btn-primary">Add & Go To Application</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form> 
@@ -532,7 +532,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Add Interested Services</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -548,7 +548,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Add New</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>

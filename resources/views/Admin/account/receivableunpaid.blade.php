@@ -67,7 +67,7 @@
 															<td>$ 15.00</td>
 															<td style="text-align:right;">
 																<div class="dropdown d-inline">
-																	<a class="dropdown-toggle" href="javascript:;" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																	<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 																	<div class="dropdown-menu">
 																		<a class="dropdown-item" href="#">Make Payment</a>
 																		<a class="dropdown-item" href="#">Delete</a>
