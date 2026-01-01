@@ -105,7 +105,7 @@
 				</table>
 			</div>
 			<div style="clear:both;"></div>
-			<?php $currencydata = \App\Models\Currency::where('id',$invoicedetail->currency_id)->first(); ?>
+			<?php $decimal_places = 2; ?>
 			<table style="width: 100%;table-layout:fixed;clear: both;" class="inv-itemtable" id="itemTable" cellspacing="0" cellpadding="0" border="1">
 				<thead>
 					<tr>
@@ -125,9 +125,9 @@
 						<td valign="top" class="inv-item-row" id="tmp_item_name">
 							<div><span style="white-space: pre-wrap;word-wrap: break-word;" class="inv-item-desc" id="tmp_item_description">{{$lst->item_name}}</span><br></div>
 						</td>
-						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_qty">{{number_format($lst->quantity,$currencydata->decimal)}} </td>
-						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_rate">{{number_format($lst->rate,$currencydata->decimal)}}</td>
-						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_amount">{{number_format($ntotal,$currencydata->decimal)}}</td>
+						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_qty">{{number_format($lst->quantity,$decimal_places)}} </td>
+						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_rate">{{number_format($lst->rate,$decimal_places)}}</td>
+						<td valign="top" style="text-align: right;" class="inv-item-row" id="tmp_item_amount">{{number_format($ntotal,$decimal_places)}}</td>
 					</tr>
 					<?php 
 					$subtotal += $ntotal;
@@ -167,11 +167,11 @@
 						<tbody>
 							<tr>
 								<td valign="middle">Sub Total</td>
-								<td id="tmp_subtotal" valign="middle" style="width:110px;">{{number_format($subtotal,$currencydata->decimal)}}</td>
+								<td id="tmp_subtotal" valign="middle" style="width:110px;">{{number_format($subtotal,$decimal_places)}}</td>
 							</tr>  
 						<?php if($invoicedetail->discount != 0){ ?>
 							<tr>
-								<td valign="middle">Discount(<?php if($invoicedetail->discount_type == 'fixed'){ echo $currencydata->currency_symbol; } ?>{{$invoicedetail->discount}} <?php if($invoicedetail->discount_type == 'percentage'){ echo '%'; } ?>)</td>
+								<td valign="middle">Discount({{$invoicedetail->discount}} <?php if($invoicedetail->discount_type == 'percentage'){ echo '%'; } ?>)</td>
 								<td id="tmp_total" valign="middle" style="width:110px;">(-) <?php echo $discoun; ?></td>
 							</tr>
 							<?php } ?>
@@ -183,24 +183,24 @@
 							?>
 							<tr>
 								<td valign="middle"><b>{{@$cure->name}} [{{@$cure->rate}}%]</b></td>
-								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{number_format($taxcal,$currencydata->decimal)}}</b></td>
+								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{number_format($taxcal,$decimal_places)}}</b></td>
 							</tr>
 							<?php } ?>
 						@endif
 							<tr>
 								<td valign="middle"><b>Total</b></td>
-								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{$currencydata->currency_symbol}}{{number_format($finaltotal,$currencydata->decimal)}}</b></td>
+								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{number_format($finaltotal,$decimal_places)}}</b></td>
 							</tr>
 				 
 							@if($ispaymentexist)
 								<?php $baldue = $finaltotal - $amount_rec; ?>
 							<tr style="height:10px;">
 								<td valign="middle">Payment Made</td>
-								<td valign="middle" style="width:110px;color: red;">(-) {{number_format($amount_rec, $currencydata->decimal)}}</td>
+								<td valign="middle" style="width:110px;color: red;">(-) {{number_format($amount_rec, $decimal_places)}}</td>
 							</tr>
 							<tr style="height:10px;" class="inv-balance">
 								<td valign="middle"><b>Balance Due</b></td>
-								<td id="tmp_balance_due" valign="middle" style="width:110px;;"><strong>{{$currencydata->currency_symbol}}{{number_format($baldue, $currencydata->decimal)}}</strong></td>
+								<td id="tmp_balance_due" valign="middle" style="width:110px;;"><strong>{{number_format($baldue, $decimal_places)}}</strong></td>
 							</tr>
 							@endif
 						</tbody>

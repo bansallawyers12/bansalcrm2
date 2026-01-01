@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\API\AuthController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,5 +13,4 @@ use App\Http\Controllers\API\AuthController;
 |
 */
 
-// API routes for admin authentication
-Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('throttle:api');
+// API routes - currently empty (token-based authentication removed as unused)

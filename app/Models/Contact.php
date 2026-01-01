@@ -19,11 +19,6 @@ protected $fillable = [
   
 	public $sortable = ['id', 'created_at', 'updated_at'];
  
-	 public function currencydata() 
-    {
-        return $this->belongsTo('App\Models\Currency','currency','id');
-    }
-	
 	public function company()
     {
         return $this->belongsTo('App\Models\Admin','user_id','id');

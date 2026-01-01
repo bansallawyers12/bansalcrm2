@@ -10,7 +10,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use App\Models\Admin;
 use App\Models\Product;
-use App\Models\AcademicRequirement;
 use App\Models\ProductAreaLevel;
 use App\Models\FeeOption;
 use App\Models\FeeOptionType;
@@ -271,41 +270,6 @@ class ProductsController extends Controller
 			
 			echo json_encode(array('items'=>$items));
 		}
-	}
-	
-	public function saveacademic(Request $request){
-		$requestData 		= 	$request->all();
-			 if(AcademicRequirement::where('product_id', @$requestData['client_id'])->exists()){
-				 $ac = AcademicRequirement::where('product_id', @$requestData['client_id'])->first();
-				 $obj				= 	 AcademicRequirement::find($ac->id); 
-			 }else{
-				$obj				= 	new AcademicRequirement;  
-			 }
-			
-			$obj->degree			=	@$requestData['degree_level'];
-			$obj->academic_score_type	=	@$requestData['academic_score_type'];
-			$obj->academic_score_per	=	@$requestData['academic_score'];
-			$obj->user_id	=	Auth::user()->id;
-			$obj->product_id	=	@$requestData['client_id'];
-			$saved				=	$obj->save();  
-			
-			
-			if(!$saved)
-			{
-				
-				$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		
-			}
-			else
-			{
-				$data = '<div class="row"><div class="col-md-6"><strong>Degree Level</strong><p>'.$obj->degree.'</p></div><div class="col-md-6"><strong>Academic Score</strong><p>'.$obj->academic_score_per.' '.$obj->academic_score_type.'</p></div></div>';
-				$response['status'] 	= 	true;
-				$response['message']	=	'You’ve successfully added a Academic Requirements.';
-					$response['data']	=	$data;
-					$response['requirment']	=	$obj;
-			}	
-			echo json_encode($response);	
 	}
 	
 	public function saveotherinfo(Request $request){

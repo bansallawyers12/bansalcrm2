@@ -350,33 +350,6 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
 								<div class="tab-pane fade" id="requirements" role="tabpanel" aria-labelledby="requirements-tab">
-									<div class="card-header-action" style="padding-bottom:15px;">
-										<div class="float-start">
-											<h5>Academic Requirements</h5> 
-										</div>
-										<?php
-										$acreq = \App\Models\AcademicRequirement::where('product_id', $fetchedData->id)->first();
-										?>
-										<div class="float-end">
-											<a href="javascript:;" <?php if($acreq){ ?>style="display:none;"<?php }else{ ?><?php } ?> class="btn btn-primary add_academic_requirement"><i class="fa fa-plus"></i> Add</a>
-											<a data-academic_score_per="<?php echo @$acreq->academic_score_per; ?>" data-academic_score_type="<?php echo @$acreq->academic_score_type; ?>" data-degree="<?php echo @$acreq->degree; ?>" <?php if($acreq){ ?><?php }else{ ?>style="display:none;"<?php } ?> href="javascript:;" class="btn btn-primary editacademic"><i class="fa fa-plus"></i> Edit</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									
-									<div class="education_list">
-									<?php if($acreq){ 
-										echo '<div class="row"><div class="col-md-6"><strong>Degree Level</strong><p>'.$acreq->degree.'</p></div><div class="col-md-6"><strong>Academic Score</strong><p>'.$acreq->academic_score_per.' '.$acreq->academic_score_type.'</p></div></div>';
-									}else{ ?>
-									<div class="edu_note">
-									
-										<span>* Click add button to fill education background </span>
-									
-									</div>
-									<?php } ?>
-									</div>
-									<div class="divider"></div>
 									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
 										<div class="float-start">
 											<h5>English Test Scores</h5> 
@@ -1745,30 +1718,6 @@ $(document).delegate('.other_info_edit', 'click', function(){
 		});
 });
 
-$(document).delegate('.add_academic_requirement', 'click', function(){
-	$('#add_academic_requirement').modal('show');
-	$('#add_academic_requirement #academiModalLabel').html('Add Academic Requirements');
-	$('#add_academic_requirement select').val('');
-	$('#add_academic_requirement input[name="academic_score"]').val('');
-});
-
-$(document).delegate('.editacademic', 'click', function(){
-	var v1 = $(this).attr('data-academic_score_per');
-	var v2 = $(this).attr('data-academic_score_type');
-	var v3 = $(this).attr('data-degree');
-
-	$('#add_academic_requirement').modal('show');
-	$('#add_academic_requirement #academiModalLabel').html('Edit Academic Requirements');
-		$('#add_academic_requirement select').val(v3);
-		$('#add_academic_requirement select').trigger('change');
-	$('#add_academic_requirement input[name="academic_score"]').val(v1);
-	if(v2 == '%'){
-		$('#percentage').prop('checked', true);
-	}else{
-		$('#GPA').prop('checked', true);
-	}
-	$('#add_academic_requirement input[name="academic_score"]').val(v1);
-});
 $(document).delegate('#notes-tab', 'click', function(){
 		var appliid = $(this).attr('data-id');
 		$('.if_applicationdetail').hide();

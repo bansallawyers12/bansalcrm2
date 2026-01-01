@@ -4,13 +4,11 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 
 class Admin extends Authenticatable
 {
     use Notifiable;
 	use Sortable;
-    use HasApiTokens;
 	
 	// The authentication guard for admin
     protected $guard = 'admin';

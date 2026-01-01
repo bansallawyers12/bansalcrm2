@@ -450,16 +450,6 @@
 					{!! Form::text('contact_phone', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Contact Phone *' ))  !!}
 					</div>
 				</div>
-				<div class="form-group row"> 
-					<label for="currency" class="col-sm-2 col-form-label">Currency</label>
-					<div class="col-sm-10">
-					<select name="currency" data-valid="required" class="form-control">
-							@foreach(\App\Models\Currency::where('is_base','=','1' )->orwhere('user_id',Auth::user()->id)->orderby('currency_code','ASC')->get() as $cclist)
-								<option value="{{$cclist->id}}" @if($cclist->is_base == 1) selected @endif>{{$cclist->currency_code}}-{{$cclist->name}}</option>
-							@endforeach
-					</select>
-					</div>
-			</div> 
 			</div>
 			<div class="modal-footer justify-content-between">
 			  <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>

@@ -633,66 +633,6 @@
 </div>
 
 <!-- Education Modal -->
-<div class="modal fade custom_modal" id="add_academic_requirement" tabindex="-1" role="dialog" aria-labelledby="academiModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="academiModalLabel">Add Academic Requirements</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/saveacademic')}}" name="saveacademic" id="saveacademic" autocomplete="off" enctype="multipart/form-data">
-				@csrf 
-				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
-				
-					<div class="row">
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="form-group">
-								<label for="degree_level">Degree Level <span class="span_req">*</span></label> 	
-								<select data-valid="required" class="form-control degree_level select2" name="degree_level">
-									<option value="">Please Select Degree Level</option>
-									<option value="Bachelor">Bachelor</option>
-									<option value="Certificate">Certificate</option>
-									<option value="Diploma">Diploma</option>
-									<option value="High School">High School</option>
-									<option value="Master">Master</option>
-								</select>
-								<span class="custom-error degree_level_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="form-group"> 
-								<label class="d-block" for="academic_score">Academic Score</label> 
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="percentage" value="%" name="academic_score_type" checked>
-									<label class="form-check-label" for="percentage">Percentage</label>
-								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="GPA" value="GPA" name="academic_score_type">
-									<label class="form-check-label" for="GPA">GPA</label>
-								</div>
-								{!! Form::number('academic_score', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','step'=>'0.01' ))  !!}
-								<span class="custom-error academic_score_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div> 
-						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('saveacademic')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form> 
-			</div>
-		</div>
-	</div>
-</div> 
-
-<!-- Education Modal -->
 <div class="modal fade custom_modal" id="other_info_add" tabindex="-1" role="dialog" aria-labelledby="academiModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-lg">
 	<div class="modal-content">

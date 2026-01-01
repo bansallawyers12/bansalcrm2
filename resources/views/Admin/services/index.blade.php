@@ -184,7 +184,6 @@
 										$partnerdetail = \App\Models\Partner::where('id', $servlist->partner)->first();								
 										$PartnerBranch = \App\Models\PartnerBranch::where('id', $servlist->branches)->first();	
 										$workflow = \App\Models\Workflow::where('id', $partnerdetail->service_workflow)->first();  
-										$acreq = \App\Models\AcademicRequirement::where('id', $servlist->id)->first();  
 								?>
 											<div class="service_column">
 												<div class="service_left">
@@ -199,7 +198,7 @@
 															<div class="course_row">
 																<div class="course_column">
 																	<span class="label">Degree Level</span>
-																	<span class="value"><?php echo @$acreq->degree; ?></span>
+																	<span class="value">-</span>
 																</div>
 																<div class="course_column">
 																	<span class="label">Subject Area</span>

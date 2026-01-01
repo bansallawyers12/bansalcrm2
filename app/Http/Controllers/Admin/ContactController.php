@@ -133,7 +133,6 @@ class ContactController extends Controller
 			$obj->contact_display_name	=	@$requestData['contact_display_name'];
 			$obj->contact_email			=	@$requestData['contact_email'];
 			$obj->contact_phone			=	@$requestData['contact_phone'];
-			$obj->currency			=	@$requestData['currency'];
 			
 			$saved				=	$obj->save();  
 			
@@ -195,7 +194,6 @@ class ContactController extends Controller
 			$obj->city					=	@$requestData['city'];
 			$obj->zipcode				=	@$requestData['zipcode'];
 			$obj->phone					=	@$requestData['phone'];
-			$obj->currency					=	@$requestData['currency'];
 			
 			$saved				=	$obj->save();  
 			
@@ -282,7 +280,6 @@ class ContactController extends Controller
 			$obj->city	=	@$requestData['city'];
 			$obj->zipcode	=	@$requestData['zipcode'];
 			$obj->phone	=	@$requestData['phone'];
-			$obj->currency	=	@$requestData['currency'];
 				
 			//$obj->slug	=	$this->createSlug(Auth::user()->id,'destinations',@$requestData['dest_name'], $requestData['id']);			
 			

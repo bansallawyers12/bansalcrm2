@@ -11,7 +11,6 @@ return new class extends Migration
      * These are tables that have PRIMARY KEY in MySQL but missing in PostgreSQL
      */
     private $tablesToFix = [
-        'academic_requirements',
         'account_client_receipts',
         'activities_logs',
         'admins',
@@ -47,8 +46,8 @@ return new class extends Migration
         'email_templates',
         'emails',
         // 'enquiries', // Removed - table dropped (enquiries feature removed)
-        'fee_option_types',
-        'fee_options',
+        // 'fee_option_types', // Removed - table dropped (no data since 2022)
+        // 'fee_options', // Removed - table dropped (no data since 2022)
         'fee_types',
         'followup_types',
         'followups',

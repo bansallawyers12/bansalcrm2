@@ -595,7 +595,6 @@ Route::prefix('admin')->group(function() {
 		Route::get('/getbranchdetail', [PartnersController::class, 'getbranchdetail']);
 		Route::get('/deletebranch', [PartnersController::class, 'deletebranch']);
 		
-		Route::post('/saveacademic', [ProductsController::class, 'saveacademic']);
 		Route::post('/saveotherinfo', [ProductsController::class, 'saveotherinfo']);
 		Route::get('/product/getotherinfo', [ProductsController::class, 'getotherinfo']);
 		Route::get('/get-all-fees', [ProductsController::class, 'getallfees']);

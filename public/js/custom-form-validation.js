@@ -1396,35 +1396,6 @@ function customValidate(formName, savetype = '')
 								}
 							}
 						});		
-					}else if(formName == 'saveacademic'){
-						var client_id = $('#saveacademic input[name="client_id"]').val();
-						var myform = document.getElementById('saveacademic');
-						var fd = new FormData(myform);	
-						$.ajax({
-							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
-							success: function(response){
-								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
-								
-								if(obj.status){
-									$('#add_academic_requirement').modal('hide');
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									$('.education_list').html(obj.data);
-									$('.editacademic').attr('data-academic_score_per', obj.requirment.academic_score_per);
-									$('.editacademic').attr('data-academic_score_type', obj.requirment.academic_score_type);
-									$('.editacademic').attr('data-degree', obj.requirment.degree);
-									$('.editacademic').show();
-									$('.add_academic_requirement').hide();
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
-							}
-						});		
 					}else if(formName == 'editeducationform'){
 						var client_id = $('#editeducationform input[name="client_id"]').val();
 						var myform = document.getElementById('editeducationform');

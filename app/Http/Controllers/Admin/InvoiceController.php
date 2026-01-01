@@ -20,7 +20,6 @@ use App\Models\EmailTemplate;
 use App\Models\ShareInvoice;
 use App\Models\InvoiceSchedule;
 use App\Models\TaxRate;
-use App\Models\Currency;
 use App\Models\Contact;
 // use App\Models\AttachFile;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
@@ -693,7 +692,6 @@ class InvoiceController extends Controller
 	$obj->type					=	@$requestData['type'];  
 	$obj->invoice_date			=	@$requestData['invoice_date'];  
 	$obj->due_date				=	@$requestData['invoice_due_date'];  
-	$obj->currency			=	@$requestData['currency']; 
 	$obj->net_fee_rec			=	@$requestData['invoice_net_amount'];
 	$obj->net_incone			=	@$requestData['invoice_net_income'];  
 	$obj->notes					=	@$requestData['notes'];  
@@ -787,7 +785,6 @@ class InvoiceController extends Controller
 		$obj->type					=	@$requestData['type'];  
 		$obj->invoice_date			=	@$requestData['invoice_date'];  
 		$obj->due_date				=	@$requestData['invoice_due_date'];  
-		$obj->currency			=	@$requestData['currency']; 
 		$obj->net_fee_rec			=	@$requestData['invoice_net_amount'];
 		$obj->net_incone			=	@$requestData['invoice_net_income'];  
 		$obj->notes					=	@$requestData['notes'];  
