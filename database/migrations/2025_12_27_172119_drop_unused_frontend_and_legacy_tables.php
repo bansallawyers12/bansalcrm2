@@ -73,14 +73,27 @@ return new class extends Migration
             $otherUnusedTables
         );
 
-        // Drop from MySQL
+        // Drop from MySQL (if connection available)
         foreach ($tablesToDrop as $table) {
-            Schema::connection('mysql')->dropIfExists($table);
+            try {
+                Schema::connection('mysql')->dropIfExists($table);
+            } catch (\Exception $e) {
+                // MySQL connection not available, skip
+            }
         }
 
-        // Drop from PostgreSQL
+        // Drop from PostgreSQL (if connection available)
         foreach ($tablesToDrop as $table) {
-            Schema::connection('pgsql')->dropIfExists($table);
+            try {
+                Schema::connection('pgsql')->dropIfExists($table);
+            } catch (\Exception $e) {
+                // PostgreSQL connection not available, skip
+            }
+        }
+
+        // Also try default connection
+        foreach ($tablesToDrop as $table) {
+            Schema::dropIfExists($table);
         }
     }
 

@@ -23,12 +23,6 @@ $(document).ready(function() {
   }, 3000);
 });
 
-// Initialize Feather Icons if available
-if (typeof feather !== 'undefined') {
-  feather.replace();
-} else {
-  console.warn('Feather Icons library not loaded. Please ensure feather-icons is included before scripts.js');
-}
 // Global
 $(function () {
   let sidebar_nicescroll_opts = {

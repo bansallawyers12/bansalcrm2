@@ -28,6 +28,10 @@
 	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
   
+	<!-- Google Font: Nunito (standardized across CRM) -->
+	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+  
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">
   
 	<link rel="stylesheet" href="{{asset('css/components.css')}}">
@@ -131,8 +135,6 @@
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
 	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
-	<!-- Feather Icons (required before scripts.js) -->
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
 	<!-- jQuery NiceScroll (required for sidebar scrolling) -->
 	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js" defer></script>
 	<!-- FullCalendar (requires jQuery to be loaded first) -->

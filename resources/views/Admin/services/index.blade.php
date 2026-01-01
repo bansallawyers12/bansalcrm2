@@ -102,7 +102,7 @@
 										<div class="service_column">
 												<div class="service_left">
 													<div class="service_img">
-														<a href="#"><i data-feather="shopping-cart"></i></a>
+														<a href="#"><i class="fas fa-shopping-cart"></i></a>
 													</div>
 													<div class="service_content"> 
 														<h4><a target="_blank" href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->partner_name; ?></a></h4>
@@ -189,7 +189,7 @@
 											<div class="service_column">
 												<div class="service_left">
 													<div class="service_img">
-														<a href="#"><i data-feather="shopping-cart"></i></a>
+														<a href="#"><i class="fas fa-shopping-cart"></i></a>
 													</div>
 													<div class="service_content"> 
 														<h4><a target="_blank" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->name; ?></a></h4>

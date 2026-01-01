@@ -15,14 +15,14 @@
 			}
 			?> 
 			<li class="dropdown {{@$dashclasstype}}">
-				<a href="{{route('agent.dashboard')}}" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
+				<a href="{{route('agent.dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
 			</li>
 		    	<li class="dropdown {{@$clientclasstype}}">
-				<a href="{{route('agent.clients.index')}}" class="nav-link"><i data-feather="user"></i><span>Clients Manager</span></a>
+				<a href="{{route('agent.clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
 			</li>
 		
 			<li class="dropdown">
-				<a href="{{route('agent.logout')}}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i data-feather="log-out"></i><span>Logout</span></a>
+				<a href="{{route('agent.logout')}}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
 				{!! Form::open(array('url' => 'agent/logout', 'name'=>'admin_login', 'id' => 'logout-form'))  !!}
 				<input type="hidden" name="id" value="{{Auth::user()->id}}">
 				{!! Form::close()  !!}

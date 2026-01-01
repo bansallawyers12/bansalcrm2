@@ -37,8 +37,9 @@
 	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
 	 
 	  <!--<link rel="stylesheet" href="{{URL::asset('css/niceCountryInput.css')}}">-->
-	  <!-- Google Font: Source Sans Pro -->
-	  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+	  <!-- Google Font: Nunito (standardized across CRM) -->
+	  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+	  <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
 	  
 		<script>var billingdata = new Array();</script>	 
 		
@@ -133,6 +134,14 @@
             -moz-osx-font-smoothing: grayscale;
         }
         .qr_btn{padding:2px 10px 3px; border-radius:15px; cursor:pointer}
+        
+        /* Override AdminLTE Source Sans Pro with Nunito for consistency */
+        :root {
+            --font-family-sans-serif: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+        body, .wrapper, html {
+            font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        }
     
     </style>	
 		   

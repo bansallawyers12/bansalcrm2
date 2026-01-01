@@ -29,10 +29,10 @@
 <nav class="navbar navbar-expand-lg main-navbar sticky">
 	<div class="form-inline me-auto">
 		<ul class="navbar-nav me-3">
-			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i data-feather="align-justify"></i></a></li>
-			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn"><i data-feather="maximize"></i></a></li>
+			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i class="fas fa-bars"></i></a></li>
+			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn"><i class="fas fa-expand"></i></a></li>
 			<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i data-feather="plus"></i></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i class="fas fa-plus"></i></a>
             <div style="width: 50px;" class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				
 				<div class="">
@@ -58,7 +58,7 @@
 
 		
 	<li class="dropdown dropdown-list-toggle">
-			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg"><i data-feather="bell" class="bell"></i></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg"><i class="fas fa-bell bell"></i></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Notifications
 					<div class="float-end">
