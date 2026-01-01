@@ -1,0 +1,33 @@
+{
+  "__commonjsHelpers-Cpj98o6Y.js": {
+    "file": "assets/_commonjsHelpers-Cpj98o6Y.js",
+    "name": "_commonjsHelpers"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-COMm8cOl.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ],
+    "css": [
+      "assets/app-6GtKiJRF.css"
+    ]
+  },
+  "resources/js/fullcalendar-init.js": {
+    "file": "assets/fullcalendar-init-BWpASbLx.js",
+    "name": "fullcalendar-init",
+    "src": "resources/js/fullcalendar-init.js",
+    "isEntry": true
+  },
+  "resources/js/jquery-init.js": {
+    "file": "assets/jquery-init-DXZCkLt_.js",
+    "name": "jquery-init",
+    "src": "resources/js/jquery-init.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-Cpj98o6Y.js"
+    ]
+  }
+}

@@ -45,47 +45,78 @@
 .navbar-right .dropdown {
     position: relative !important;
 }
+
+/* Main dropdown positioning - align from RIGHT edge */
 .navbar-right .dropdown .dropdown-menu {
-    right: 0 !important;
-    left: auto !important;
-    margin-right: 15px !important;
-    min-width: 180px !important;
-    max-width: 220px !important;
-    padding: 0.5rem 0 !important;
-    z-index: 1050 !important;
     position: absolute !important;
     top: 100% !important;
-    margin-top: 0.125rem !important;
-}
-.navbar-right .dropdown .dropdown-menu.dropdown-menu-right {
-    right: 0 !important;
     left: auto !important;
-    transform: none !important;
-    margin-right: 15px !important;
+    right: -10px !important;
+    margin-top: 0.125rem !important;
+    min-width: 200px !important;
+    max-width: 250px !important;
+    padding: 0.5rem 0 !important;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 25px 0 rgba(0,0,0,0.1) !important;
+    border: 1px solid #e4e6fc !important;
+    background-color: #fff !important;
 }
+
+/* Force dropdown-menu-right to align properly */
+.navbar-right .dropdown .dropdown-menu.dropdown-menu-right {
+    right: -10px !important;
+    left: auto !important;
+    transform: translate(0, 0) !important;
+}
+
+/* Dropdown items styling */
 .navbar-right .dropdown .dropdown-item {
-    padding: 0.5rem 1rem !important;
+    padding: 0.65rem 1.25rem !important;
     white-space: nowrap !important;
     overflow: visible !important;
+    color: #6c757d !important;
+    display: block !important;
 }
-/* Specific fix for user profile dropdown - ensure it doesn't overflow */
-.navbar-right .dropdown:last-child .dropdown-menu,
-.navbar-right .dropdown .nav-link-user ~ .dropdown-menu {
-    right: 0 !important;
-    margin-right: 10px !important;
+
+.navbar-right .dropdown .dropdown-item:hover {
+    background-color: #f8f9fa !important;
 }
-/* Prevent dropdown from extending beyond viewport */
-.navbar-right .dropdown .dropdown-menu {
-    max-width: min(220px, calc(100vw - 40px)) !important;
-    right: 0 !important;
-    left: auto !important;
+
+/* Dropdown title styling */
+.navbar-right .dropdown .dropdown-title {
+    padding: 0.75rem 1.25rem !important;
+    font-weight: 600 !important;
+    color: #191d21 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
 }
-/* Ensure dropdown stays within viewport - adjust if too close to edge */
-@media (max-width: 1200px) {
-    .navbar-right .dropdown .dropdown-menu {
-        margin-right: 10px !important;
-        max-width: min(200px, calc(100vw - 40px)) !important;
-    }
+
+/* Dropdown divider */
+.navbar-right .dropdown .dropdown-divider {
+    margin: 0.25rem 0 !important;
+}
+
+/* Override pullDown animation that might cause positioning issues */
+.navbar-right .dropdown-menu.pullDown {
+    animation: none !important;
+    -webkit-animation: none !important;
+}
+
+/* Ensure navbar has proper stacking context */
+nav.navbar.main-navbar {
+    position: relative !important;
+    z-index: 999 !important;
+}
+
+/* Fix specifically for user dropdown at the end of navbar */
+.navbar-right > li.dropdown:last-child .dropdown-menu {
+    right: 10px !important;
+}
+
+/* Prevent any transform that might cause issues */
+.navbar-right .dropdown-menu.show {
+    display: block !important;
+    transform: none !important;
+    -webkit-transform: none !important;
 }
 </style>
 <nav class="navbar navbar-expand-lg main-navbar sticky">
