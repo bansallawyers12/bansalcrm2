@@ -19,7 +19,8 @@ use App\Models\InvoiceFollowup;
 use App\Models\EmailTemplate;
 use App\Models\ShareInvoice;
 use App\Models\InvoiceSchedule;
-use App\Models\TaxRate;
+// NOTE: TaxRate model/table has been removed
+// use App\Models\TaxRate;
 use App\Models\Contact;
 // use App\Models\AttachFile;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;

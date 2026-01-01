@@ -57,12 +57,8 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::get('/lead-service/edit/{id}', 'AdminConsole\LeadServiceController@edit')->name('adminconsole.leadservice.edit');
     Route::post('/lead-service/edit', 'AdminConsole\LeadServiceController@edit');
     
-    //Tax Routes
-    Route::get('/tax', 'AdminConsole\TaxController@index')->name('adminconsole.tax.index');  
-    Route::get('/tax/create', 'AdminConsole\TaxController@create')->name('adminconsole.tax.create');  
-    Route::post('/tax/store', 'AdminConsole\TaxController@store')->name('adminconsole.tax.store');  
-    Route::get('/tax/edit/{id}', 'AdminConsole\TaxController@edit')->name('adminconsole.tax.edit');
-    Route::post('/tax/edit', 'AdminConsole\TaxController@edit');
+    // NOTE: Tax routes have been removed
+    // TaxController and taxes table have been dropped
     
     //Subject Area Routes
     Route::get('/subjectarea', 'AdminConsole\SubjectAreaController@index')->name('adminconsole.subjectarea.index');  

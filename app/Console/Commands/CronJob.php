@@ -12,7 +12,8 @@ use App\Models\InvoicePayment;
 use App\Models\InvoiceFollowup;
 use App\Models\EmailTemplate;
 use App\Models\ShareInvoice;
-use App\Models\TaxRate;
+// NOTE: TaxRate model/table has been removed
+// use App\Models\TaxRate;
  use PDF;
  use DateTime;
  use App\Mail\CommonMail;

@@ -144,12 +144,9 @@ Route::prefix('admin')->group(function() {
 		Route::post('/website_setting', 'Admin\AdminController@websiteSetting');
 		Route::post('/get_states', 'Admin\AdminController@getStates');
 		Route::get('/settings/taxes/returnsetting', 'Admin\AdminController@returnsetting')->name('admin.returnsetting');
-		Route::get('/settings/taxes/taxrates', 'Admin\AdminController@taxrates')->name('admin.taxrates');
-		Route::get('/settings/taxes/taxrates/create', 'Admin\AdminController@taxratescreate')->name('admin.taxrates.create');
-		Route::post('/settings/taxes/taxrates/store', 'Admin\AdminController@savetaxrate')->name('admin.taxrates.store');
-		Route::get('/settings/taxes/taxrates/edit/{id}', 'Admin\AdminController@edittaxrates')->name('admin.edittaxrates');
-		Route::post('/settings/taxes/taxrates/edit', 'Admin\AdminController@edittaxrates');
 		Route::post('/settings/taxes/savereturnsetting', 'Admin\AdminController@returnsetting')->name('admin.savereturnsetting');
+		// NOTE: Tax rate routes have been removed (taxrates, taxrates/create, taxrates/store, taxrates/edit)
+		// These routes were related to the tax_rates table which has been dropped
 		Route::get('/getsubcategories', 'Admin\AdminController@getsubcategories');
 		Route::get('/getproductbranch', 'Admin\AdminController@getproductbranch');
 		Route::get('/getservicemodal', [ServicesController::class, 'servicemodal']);

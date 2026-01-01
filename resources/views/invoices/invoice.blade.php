@@ -143,12 +143,14 @@
 			 $discoun = ($subtotal * $invoicedetail->discount) / 100; 
 			 $finaltotal = $subtotal - $discoun;
 			} 
-			 if(@$invoicedetail->tax != 0)
-			{
-				$cure = \App\Models\TaxRate::where('id',@$invoicedetail->tax)->first(); 
-				$taxcal = ($finaltotal * $cure->rate) / 100;
-				$finaltotal = $finaltotal + $taxcal;
-			}
+			// NOTE: Tax calculation has been removed - tax_rates table has been dropped
+			$taxcal = 0;
+			// if(@$invoicedetail->tax != 0)
+			// {
+			// 	$cure = \App\Models\TaxRate::where('id',@$invoicedetail->tax)->first(); 
+			// 	$taxcal = ($finaltotal * $cure->rate) / 100;
+			// 	$finaltotal = $finaltotal + $taxcal;
+			// }
 			$amount_rec = \App\Models\InvoicePayment::where('invoice_id',$invoicedetail->id)->get()->sum("amount_rec");
 			$ispaymentexist = \App\Models\InvoicePayment::where('invoice_id',$invoicedetail->id)->exists();
 			?>
@@ -175,9 +177,9 @@
 								<td id="tmp_total" valign="middle" style="width:110px;">(-) <?php echo $discoun; ?></td>
 							</tr>
 							<?php } ?>
-							@if(@$invoicedetail->tax != 0)
+							{{-- NOTE: Tax row has been removed - tax_rates table has been dropped --}}
+							{{-- @if(@$invoicedetail->tax != 0)
 							<?php
-								
 								$isex = \App\Models\TaxRate::where('id',@$invoicedetail->tax)->exists(); 
 								if($isex){
 							?>
@@ -186,7 +188,7 @@
 								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{number_format($taxcal,$decimal_places)}}</b></td>
 							</tr>
 							<?php } ?>
-						@endif
+						@endif --}}
 							<tr>
 								<td valign="middle"><b>Total</b></td>
 								<td id="tmp_total" valign="middle" style="width:110px;"><b>{{number_format($finaltotal,$decimal_places)}}</b></td>

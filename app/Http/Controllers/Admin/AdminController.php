@@ -15,7 +15,8 @@ use App\Models\WebsiteSetting;
 use App\Models\SeoPage;
 use App\Models\City;
 use App\Models\Contact;
-use App\Models\TaxRate;
+// NOTE: TaxRate model/table has been removed
+// use App\Models\TaxRate;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\InvoicePayment;
 use App\Models\Setting;
@@ -172,96 +173,8 @@ class AdminController extends Controller
 			return view('Admin.settings.returnsetting');
 		}
 	}
-	public function taxrates(Request $request){
-		if ($request->isMethod('post'))
-		{
-
-		}else{
-			$query = TaxRate::where('user_id',Auth::user()->id);
-			$totalData = $query->count();
-			$lists = $query->get();
-			return view('Admin.settings.taxrates', compact(['lists','totalData']));
-		}
-	}
-	public function taxratescreate(Request $request){
-		return view('Admin.settings.create');
-	}
-
-	public function edittaxrates(Request $request, $id = Null){
-		if ($request->isMethod('post'))
-		{
-			$requestData 		= 	$request->all();
-
-			$this->validate($request, [
-										'name' => 'required|max:255'
-									  ]);
-
-
-			$obj				= 	TaxRate::find($requestData['id']);
-
-			$obj->name			=	@$requestData['name'];
-			$obj->rate			=	@$requestData['rate'];
-
-			$saved				=	$obj->save();
-
-			if(!$saved)
-			{
-				return redirect()->back()->with('error', Config::get('constants.server_error'));
-			}
-			else
-			{
-				return Redirect::to('/admin/settings/taxes/taxrates/edit/'.base64_encode(convert_uuencode(@$requestData['id'])))->with('success', 'Tax updated Successfully');
-			}
-		}
-		else
-		{
-			if(isset($id) && !empty($id))
-			{
-				$id = $this->decodeString($id);
-				if(TaxRate::where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->exists())
-				{
-					$fetchedData = TaxRate::find($id);
-
-					return view('Admin.settings.edit', compact(['fetchedData']));
-				}
-				else
-				{
-					return Redirect::to('/admin/settings/taxes/taxrates')->with('error', 'Tax Not Exist');
-				}
-			}
-			else
-			{
-				return Redirect::to('/admin/settings/taxes/taxrates')->with('error', Config::get('constants.unauthorized'));
-			}
-		}
-	}
-
-	public function savetaxrate(Request $request){
-		if ($request->isMethod('post'))
-		{
-			$this->validate($request, [
-										'name' => 'required|max:255'
-									  ]);
-
-			$requestData 		= 	$request->all();
-
-			$obj				= 	new TaxRate;
-			$obj->user_id	=	Auth::user()->id;
-			$obj->name	=	@$requestData['name'];
-			$obj->rate	=	@$requestData['rate'];
-
-			$saved				=	$obj->save();
-
-			if(!$saved)
-			{
-				return redirect()->back()->with('error', Config::get('constants.server_error'));
-			}
-			else
-			{
-				return Redirect::to('/admin/settings/taxes/taxrates/edit/'.base64_encode(convert_uuencode(@$obj->id)))->with('success', 'Tax added Successfully');
-			}
-		}
-	}
+	// NOTE: Tax rate methods have been removed (taxrates, taxratescreate, edittaxrates, savetaxrate)
+	// These methods were related to the tax_rates table which has been dropped
 	public function myProfile(Request $request)
 	{
 		/* Get all Select Data */
