@@ -285,8 +285,8 @@ class AgentController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			
-			 Excel::import(new ImportUser, 
-                      $request->file('uploadfile')->store('files'), $request);
+			 Excel::import(new ImportUser($request), 
+                     $request->file('uploadfile')->store('files'));
 			return redirect()->back()->with('success', 'Agents Imported successfully');
 		}else{
 			return view('Admin.agents.importbusiness');
