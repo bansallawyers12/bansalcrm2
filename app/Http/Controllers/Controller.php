@@ -213,7 +213,7 @@ class Controller extends BaseController
 		
 	}
   
-	protected function send_attachment_email_template($replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null,$invoicearray) 
+	protected function send_attachment_email_template($invoicearray, $replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null) 
 	{
 		$email_template	= 	DB::table('email_templates')->where('alias', $alias)->first();
 		$emailContent 	= 	$email_template->description;
@@ -238,7 +238,7 @@ class Controller extends BaseController
 		
 	}
 	
-	protected function send_multipleattachment_email_template($replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null,$invoicearray) 
+	protected function send_multipleattachment_email_template($invoicearray, $replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null) 
 	{
 		$email_template	= 	DB::table('email_templates')->where('alias', $alias)->first();
 		$emailContent 	= 	$email_template->description;

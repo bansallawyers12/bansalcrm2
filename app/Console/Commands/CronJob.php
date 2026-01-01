@@ -96,7 +96,7 @@ class CronJob extends Command
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
-					$issuccess = $this->send_attachment_email_template($replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com',$array);
+					$issuccess = $this->send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
 					unlink($array['file']);
 					$objf				= 	new InvoiceFollowup;
 				$objf->invoice_id	=	$invoice->id;
@@ -135,7 +135,7 @@ class CronJob extends Command
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
-					$issuccess = self::send_attachment_email_template($replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com',$array);
+					$issuccess = self::send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
 					unlink($array['file']);
 					$objf				= 	new InvoiceFollowup;
 				$objf->invoice_id	=	$invoice->id;
@@ -158,7 +158,7 @@ class CronJob extends Command
         $this->info('Test has fired.');
     }
 	
-	public static function send_attachment_email_template($replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null,$invoicearray) 
+	public static function send_attachment_email_template($invoicearray, $replace = array(), $replace_with = array(), $alias = null, $to = null, $subject = null, $sender = null) 
 	{
 		$email_template	= 	DB::table('email_templates')->where('alias', $alias)->first();
 		$emailContent 	= 	$email_template->description;
