@@ -727,9 +727,11 @@ return ob_get_clean();
 				];
 				$startcount++;
 			}
-			DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
-			DB::table('check_products')->insert($data);
-			DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+			// NOTE: check_products table has been removed
+			// If import functionality is needed, rewrite to insert directly into products table
+			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+			// DB::table('check_products')->insert($data);
+			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 		} catch (Exception $e) {
 			$error_code = $e->errorInfo[1];
 			return back()->withErrors('There was a problem uploading the data!');

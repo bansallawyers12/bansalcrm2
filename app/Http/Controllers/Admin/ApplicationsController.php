@@ -1619,9 +1619,11 @@ class ApplicationsController extends Controller
 				];
 				$startcount++;
 			}
-			DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
-			DB::table('check_applications')->insert($data);
-			DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+			// NOTE: check_applications table has been removed
+			// If import functionality is needed, rewrite to insert directly into applications table
+			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+			// DB::table('check_applications')->insert($data);
+			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 		} catch (Exception $e) {
 			$error_code = $e->errorInfo[1];
 			return back()->withErrors('There was a problem uploading the data!');

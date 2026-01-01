@@ -354,7 +354,9 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="partnerdata">
 												<?php 
-													$representpartnerlists = \App\Models\RepresentingPartner::where('agent_id', $fetchedData->id)->orderby('created_at', 'DESC')->with(['partners'])->get();
+													// NOTE: RepresentingPartner table has been removed
+													// $representpartnerlists = \App\Models\RepresentingPartner::where('agent_id', $fetchedData->id)->orderby('created_at', 'DESC')->with(['partners'])->get();
+													$representpartnerlists = collect([]); // Empty collection
 													foreach($representpartnerlists as $partnertlist){
 													$PartnerBranch = \App\Models\PartnerBranch::select('name')->where('partner_id', $partnertlist->partner_id)->get();
 													$branch = '';
@@ -370,6 +372,7 @@ use App\Http\Controllers\Controller;
 													<td><a onclick="deleteAction({{$partnertlist->id}}, 'representing_partners')" href="javascript:;"><i class="fa fa-link"></i></a></td>
 												</tr>
 												<?php } ?>
+												<tr><td colspan="5" class="text-center">No data available - RepresentingPartner table has been removed</td></tr>
 											</tbody>
 										</table>
 									</div>	

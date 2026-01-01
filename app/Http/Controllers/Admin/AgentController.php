@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Redirect;
 use App\Imports\ImportUser;
 use App\Models\Admin;
 use App\Models\Agent;
-use App\Models\RepresentingPartner;
+// NOTE: RepresentingPartner model and table have been removed
+// use App\Models\RepresentingPartner;
  
 use Auth;
 use Config;
@@ -254,8 +255,11 @@ class AgentController extends Controller
 	
 	public function savepartner(Request $request)
 	{		
+		// NOTE: RepresentingPartner table has been removed - this functionality is disabled
+		return redirect()->back()->with('error', 'This feature has been disabled. RepresentingPartner table has been removed.');
+		
 		//check authorization end
-		if ($request->isMethod('post')) 
+		/*if ($request->isMethod('post')) 
 		{
 			$requestData 		= 	$request->all();
 			 
@@ -273,7 +277,7 @@ class AgentController extends Controller
 			{
 				return Redirect::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$requestData['client_id'])))->with('success', 'Partner Added Successfully');
 			}				
-		}	 
+		}*/	 
 	}
 	
 	

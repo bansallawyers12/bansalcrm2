@@ -1032,7 +1032,7 @@ class AdminController extends Controller
 									$isexist	=	$recordExist = DB::table($requestData['table'])->where('id', $requestData['id'])->exists();
 									if($isexist){
 									$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->delete();
-									DB::table('template_infos')->where('quotation_id', @$requestData['id'])->delete();
+									// NOTE: template_infos table has been removed
 
 									if($response)
 									{
@@ -1061,7 +1061,7 @@ class AdminController extends Controller
 									$isexist	=	$recordExist = DB::table($requestData['table'])->where('id', $requestData['id'])->exists();
 									if($isexist){
 									$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->delete();
-									DB::table('template_infos')->where('quotation_id', @$requestData['id'])->delete();
+									// NOTE: template_infos table has been removed
 
 									if($response)
 									{

@@ -1,6 +1,7 @@
 <?php
 namespace App\Imports;
-use App\Models\User;
+// NOTE: User model/table has been removed - this import class uses Agent model instead
+// use App\Models\User;
 use Maatwebsite\Excel\Concerns\ToModel;
 class ImportUser implements ToModel
 {

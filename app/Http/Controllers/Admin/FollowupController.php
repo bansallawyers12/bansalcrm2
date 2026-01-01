@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Followup;
 use App\Models\FollowupType;
 use App\Models\Lead;
-use App\Models\Attachment;
+// NOTE: Attachment model/table has been removed
+// use App\Models\Attachment;
  
 use Auth;
 use Config;

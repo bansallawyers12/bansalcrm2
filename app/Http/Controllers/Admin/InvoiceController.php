@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\File;
 
 use App\Models\Admin;
 use App\Models\Invoice;
-use App\Models\Item;
+// NOTE: Item and AttachFile models/tables have been removed
+// use App\Models\Item;
 use App\Models\InvoiceDetail;
 use App\Models\InvoicePayment;
 use App\Models\ScheduleItem;
@@ -21,7 +22,7 @@ use App\Models\InvoiceSchedule;
 use App\Models\TaxRate;
 use App\Models\Currency;
 use App\Models\Contact;
-use App\Models\AttachFile;
+// use App\Models\AttachFile;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth; 
 use Config;

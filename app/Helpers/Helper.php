@@ -1,6 +1,7 @@
 <?php
 namespace App\Helpers; // Your helpers namespace 
-use App\Models\User;
+// NOTE: User model/table has been removed
+// use App\Models\User;
 use App\Models\Company;
 use Auth;
 use Exception;

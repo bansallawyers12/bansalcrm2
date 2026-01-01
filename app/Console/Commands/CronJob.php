@@ -5,7 +5,8 @@ use Illuminate\Console\Command;
 use DB;
 use App\Models\Admin;
 use App\Models\Invoice;
-use App\Models\Item;
+// NOTE: Item model/table has been removed
+// use App\Models\Item;
 use App\Models\InvoiceDetail;
 use App\Models\InvoicePayment;
 use App\Models\InvoiceFollowup;
