@@ -5,11 +5,15 @@
 
 import _ from 'lodash';
 import * as Popper from '@popperjs/core';
+// Bootstrap 5 from Vite - NOTE: Legacy bootstrap.bundle.min.js is loaded separately for jQuery plugin compatibility
 import * as bootstrap from 'bootstrap';
 
 window._ = _;
 window.Popper = Popper;
-window.bootstrap = bootstrap;
+// Only expose modern Bootstrap if legacy one isn't already loaded
+if (typeof window.bootstrap === 'undefined') {
+    window.bootstrap = bootstrap;
+}
 
 /**
  * Bootstrap 5 jQuery Bridge for Popovers
