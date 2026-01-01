@@ -51,7 +51,7 @@ class LeadController extends Controller
 			$todaycall = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 15)->whereHas('followupload', function ($q) {
 					$q->whereDate('followup_date',Carbon::today());
 						})->count();
-		$query 		= Lead::whereNotNull('user_id')->where('converted', '=', 0)->with(['user','agentdetail','staffuser']); 
+		$query 		= Lead::whereNotNull('user_id')->where('converted', '=', 0)->with(['staffuser']); 
 		
 		  
 		$totalData 	= $query->count();	//for all data

@@ -25,6 +25,68 @@
     border-color: #db2828!important;
     color: #fff!important;
 }
+/* Fix for dropdown items - ensure text is visible */
+.dropdown-item.has-icon {
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    width: auto !important;
+    min-width: 150px !important;
+}
+.dropdown-item.has-icon i {
+    margin-right: 8px !important;
+    flex-shrink: 0 !important;
+}
+.dropdown-item.has-icon:not(:only-child) {
+    color: inherit !important;
+}
+/* Fix dropdown menu positioning - prevent overflow off right edge */
+.navbar-right .dropdown {
+    position: relative !important;
+}
+.navbar-right .dropdown .dropdown-menu {
+    right: 0 !important;
+    left: auto !important;
+    margin-right: 15px !important;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    padding: 0.5rem 0 !important;
+    z-index: 1050 !important;
+    position: absolute !important;
+    top: 100% !important;
+    margin-top: 0.125rem !important;
+}
+.navbar-right .dropdown .dropdown-menu.dropdown-menu-right {
+    right: 0 !important;
+    left: auto !important;
+    transform: none !important;
+    margin-right: 15px !important;
+}
+.navbar-right .dropdown .dropdown-item {
+    padding: 0.5rem 1rem !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+/* Specific fix for user profile dropdown - ensure it doesn't overflow */
+.navbar-right .dropdown:last-child .dropdown-menu,
+.navbar-right .dropdown .nav-link-user ~ .dropdown-menu {
+    right: 0 !important;
+    margin-right: 10px !important;
+}
+/* Prevent dropdown from extending beyond viewport */
+.navbar-right .dropdown .dropdown-menu {
+    max-width: min(220px, calc(100vw - 40px)) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+/* Ensure dropdown stays within viewport - adjust if too close to edge */
+@media (max-width: 1200px) {
+    .navbar-right .dropdown .dropdown-menu {
+        margin-right: 10px !important;
+        max-width: min(200px, calc(100vw - 40px)) !important;
+    }
+}
 </style>
 <nav class="navbar navbar-expand-lg main-navbar sticky">
 	<div class="form-inline me-auto">

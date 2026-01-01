@@ -56,19 +56,19 @@
 													// Use eager-loaded relationships instead of queries
 													$clientdetail = $list->client;
 													$application = $list->application;
-													$productdetail = $application->product ?? null;
-													$partnerdetail = $application->partner ?? null;
-													$PartnerBranch = $application->branch ?? null;
-													$Workflow = $application->workflow ?? null;
+													$productdetail = $application ? ($application->product ?? null) : null;
+													$partnerdetail = $application ? ($application->partner ?? null) : null;
+													$PartnerBranch = $application ? ($application->branch ?? null) : null;
+													$Workflow = $application ? ($application->workflow ?? null) : null;
 													
 													// Calculate total from eager-loaded schedule items
 													$amt = $list->scheduleItems->sum('fee_amount');
 												@endphp
 												<tr id="id_{{@$list->id}}">
 													<td>{{$list->id}}</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><br>{{@$clientdetail->email}}</td>
-													<td style="white-space: initial;">{{@$productdetail->name}}<br>{{@$partnerdetail->partner_name}}<br>{{@$PartnerBranch->name}}</td>
-													<td style="white-space: initial;">{{@$application->stage}} <br/>({{@$Workflow->name}})</td>
+													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id ?? ''))}}">{{@$clientdetail->first_name ?? ''}} {{@$clientdetail->last_name ?? ''}}</a><br>{{@$clientdetail->email ?? ''}}</td>
+													<td style="white-space: initial;">{{@$productdetail->name ?? 'N/A'}}<br>{{@$partnerdetail->partner_name ?? 'N/A'}}<br>{{@$PartnerBranch->name ?? 'N/A'}}</td>
+													<td style="white-space: initial;">{{@$application->stage ?? 'N/A'}} <br/>({{@$Workflow->name ?? 'N/A'}})</td>
 													<td style="white-space: initial;">{{$list->installment_name}}</td>
 													<td style="white-space: initial;">USD	{{number_format($amt,2,'.','')}}</td>
 													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->invoice_sc_date))}}</td>
