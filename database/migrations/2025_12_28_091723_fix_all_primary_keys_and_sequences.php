@@ -81,10 +81,10 @@ return new class extends Migration
         'promotions',
         'representing_partners',
         'schedule_items',
-        'service_fee_option_types',
-        'service_fee_options',
-        'services',
-        'settings',
+        // 'service_fee_option_types', // Removed - table dropped
+        // 'service_fee_options', // Removed - table dropped
+        // 'services', // Removed - table dropped
+        // 'settings', // Removed - table dropped (only 1 record with invalid date 1970-01-01)
         'share_invoices',
         'sources',
         'states',

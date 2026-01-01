@@ -96,13 +96,14 @@ These tables have very old data and may be unused, but need codebase verificatio
     - ⚠️ Check if used in fee management
 
 24. **service_fee_option_types** (1 record, last: 2022-11-19)
-    - ⚠️ Check if used in service fees
+    - ❌ REMOVED - Table dropped in migration 2025_01_01_000001_drop_service_related_tables.php
 
 25. **service_fee_options** (1 record, last: 2022-11-19)
-    - ⚠️ Check if used in service fees
+    - ❌ REMOVED - Table dropped in migration 2025_01_01_000001_drop_service_related_tables.php
 
 26. **settings** (1 record, last: 1970-01-01 - invalid date)
-    - ⚠️ Check if used (different from website_settings)
+    - ❌ REMOVED - Table dropped in migration 2025_01_01_000001_drop_service_related_tables.php
+    - Different from website_settings (which is still active)
 
 27. **check_partners** (3 records, no timestamp)
     - ⚠️ Check if used in import/check functionality

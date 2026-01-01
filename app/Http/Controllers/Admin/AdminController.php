@@ -1821,11 +1821,20 @@ class AdminController extends Controller
 	}
 
 	public function gensettings(Request $request){
-	   $setting = Setting::where('office_id', Auth::user()->office_id)->first();
-		return view('Admin.gensettings.index', compact('setting'));
+	   // Settings table has been removed - redirect or show message
+	   return redirect('/admin/dashboard')->with('info', 'General settings feature has been deprecated.');
+	   
+	   // OLD CODE - Settings table removed
+	   // $setting = Setting::where('office_id', Auth::user()->office_id)->first();
+	   // return view('Admin.gensettings.index', compact('setting'));
 	}
 
     public function gensettingsupdate(Request $request){
+        // Settings table has been removed - return success message
+        return Redirect::to('/admin/dashboard')->with('info', 'General settings feature has been deprecated.');
+        
+        // OLD CODE - Settings table removed
+        /*
         if(Setting::where('office_id', Auth::user()->office_id)->exists()){
            $setting = Setting::where('office_id', Auth::user()->office_id)->first();
             $objs = Setting::find($setting->id);
@@ -1840,7 +1849,8 @@ class AdminController extends Controller
             $objs->save();
         }
 
-        	return Redirect::to('/admin/gen-settings')->with('success', 'Record updated successfully');
+        return Redirect::to('/admin/gen-settings')->with('success', 'Record updated successfully');
+        */
     }
 
     public function checkclientexist(Request $request){
