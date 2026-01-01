@@ -235,7 +235,8 @@
 														<div class="fee_btn">
 															<select class="form-control change_fee" name="parent">
 															<?php
-															$feeoptions = \App\Models\FeeOption::where('product_id', $servlist->id)->orderby('created_at', 'ASC')->get();
+															// FeeOption table dropped
+															$feeoptions = collect([]);
 															foreach($feeoptions as $fee){
 															?>
 																<option value="{{$fee->id}}">{{$fee->name}}</option>
@@ -243,7 +244,8 @@
 															</select>
 														</div>
 														<?php $i=0; foreach($feeoptions as $fee){ 
-														$feeoptiontype = \App\Models\FeeOptionType::where('fee_id', $fee->id)->get();
+														// FeeOptionType table dropped
+														$feeoptiontype = collect([]);
 														$totlfee = 0; 
 														foreach($feeoptiontype as $feeoptiontyp){
 															$totlfee += $feeoptiontyp->total_fee;

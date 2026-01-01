@@ -292,7 +292,8 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="feeslist">
 									<?php
-									$feeoptions = \App\Models\FeeOption::where('product_id', $fetchedData->id)->orderby('created_at', 'DESC')->get();
+									// FeeOption table dropped
+									$feeoptions = collect([]);
 									
 									foreach($feeoptions as $feeoption){
 									?>
@@ -316,7 +317,8 @@ use App\Http\Controllers\Controller;
 													</div>
 												</div>
 												<?php
-												$feeoptiontype = \App\Models\FeeOptionType::where('fee_id', $feeoption->id)->get();
+												// FeeOptionType table dropped
+												$feeoptiontype = collect([]);
 												
 												?>
 												<div class="col-md-8">
@@ -327,7 +329,7 @@ use App\Http\Controllers\Controller;
 														?>
 														<div class="">
 															<span><b><?php echo $feeoptiontyp->fee_type; ?></b></span><span> <?php echo $feeoptiontyp->installment; ?> Per Month @ AUD <?php echo $feeoptiontyp->inst_amt; ?></span><span style="margin-left: 24px;"><b>AUD <?php echo $feeoptiontyp->total_fee; ?></b></span>
-															
+														
 														</div>
 													<?php } ?>
 													</div>
@@ -432,7 +434,8 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
 								<?php
-								$subjectareadata = \App\Models\ProductAreaLevel::where('product_id', $fetchedData->id)->first();
+								// ProductAreaLevel table dropped
+								$subjectareadata = null;
 								?>
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" <?php if($subjectareadata){ ?>style="display:none;"<?php }else{ ?><?php } ?> class="btn btn-primary other_info_add"><i class="fa fa-plus"></i> Add</a>

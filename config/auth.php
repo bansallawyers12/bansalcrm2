@@ -105,19 +105,21 @@ return [
     */
 
     'passwords' => [
+		// Removed: password_resets and password_reset_links tables dropped
+		// Password reset functionality disabled - implement custom solution if needed
 		'admins' => [
             'provider' => 'admins',
-            'table' => 'password_resets',
+            'table' => 'password_resets', // Table dropped - password reset disabled
             'expire' => 15,
         ],
         'agents' => [
             'provider' => 'agents',
-            'table' => 'password_resets',
+            'table' => 'password_resets', // Table dropped - password reset disabled
             'expire' => 15,
         ],
 		'providers' => [
             'provider' => 'providers',
-            'table' => 'password_resets',
+            'table' => 'password_resets', // Table dropped - password reset disabled
             'expire' => 60,
         ],
     ],

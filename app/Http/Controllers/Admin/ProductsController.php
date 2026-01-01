@@ -10,9 +10,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use App\Models\Admin;
 use App\Models\Product;
-use App\Models\ProductAreaLevel;
-use App\Models\FeeOption;
-use App\Models\FeeOptionType;
+// Removed: ProductAreaLevel, FeeOption, FeeOptionType - tables dropped
  
 use Auth;
 use Config;
@@ -272,45 +270,18 @@ class ProductsController extends Controller
 		}
 	}
 	
+	// Removed: saveotherinfo - product_area_levels table dropped
 	public function saveotherinfo(Request $request){
-		$requestData 		= 	$request->all();
-			 if(ProductAreaLevel::where('product_id', @$requestData['client_id'])->exists()){
-				 $ac = ProductAreaLevel::where('product_id', @$requestData['client_id'])->first();
-				 $obj				= 	 ProductAreaLevel::find($ac->id); 
-			 }else{
-				$obj				= 	new ProductAreaLevel;  
-			 }
-			
-			$obj->subject_area			=	@$requestData['subject_area'];
-			$obj->subject	=	@$requestData['subject'];
-			$obj->degree	=	@$requestData['degree_level'];
-		
-			$obj->product_id	=	@$requestData['client_id'];
-			$saved				=	$obj->save();  
-			
-			
-			if(!$saved)
-			{
-				
-				$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		
-			}
-			else
-			{
-				$subjectarea = \App\Models\SubjectArea::where('id', $obj->subject_area)->first();
-				$subject = \App\Models\Subject::where('id', $obj->subject)->first();
-				$data = '<div class="row"><div class="col-md-4"><strong>Subject Area</strong><p>'.$subjectarea->name.'</p></div><div class="col-md-4"><strong>Subject</strong><p>'.$subject->name.'</p></div><div class="col-md-4"><strong>Degree Level</strong><p>'.$obj->degree.'</p></div></div>';
-				$response['status'] 	= 	true;
-				$response['message']	=	'You’ve successfully added a Subject Area.';
-					$response['data']	=	$data;
-			}	
-			echo json_encode($response);	
+		$response['status'] = false;
+		$response['message'] = 'Feature removed - product_area_levels table no longer exists';
+		echo json_encode($response);
 	}
 	
 	
+	// Removed: getotherinfo - product_area_levels table dropped
 	public function getotherinfo(Request $request){
-		$ac = ProductAreaLevel::where('product_id', @$request->id)->first();
+		// ProductAreaLevel table dropped - return empty form
+		$ac = null;
 		ob_start();
 		?>
 		<div class="col-12 col-md-6 col-lg-6">
@@ -375,41 +346,17 @@ class ProductsController extends Controller
 	}
 	
 	
+	// Removed: savefee - fee_options and fee_option_types tables dropped
 	public function savefee(Request $request){
-		$requestData = $request->all();
-		$obj = new FeeOption;
-		$obj->user_id = Auth::user()->id;
-		$obj->product_id = $requestData['product_id'];
-		$obj->name = $requestData['fee_option_name'];
-		$obj->country = $requestData['country_residency'];
-		$obj->installment_type = $requestData['degree_level'];
-		$saved = $obj->save();
-		if($saved){
-			$course_fee_type = $requestData['course_fee_type'];
-			for($i = 0; $i< count($course_fee_type); $i++){
-				$objs = new FeeOptionType;
-				$objs->fee_id = $obj->id;
-				$objs->fee_type = $requestData['course_fee_type'][$i];
-				$objs->inst_amt = $requestData['installment_amount'][$i];
-				$objs->installment = $requestData['installment'][$i];
-				$objs->total_fee = $requestData['total_fee'][$i];
-				$objs->claim_term = $requestData['claimable_terms'][$i];
-				$objs->commission = $requestData['commission'][$i];
-				$objs->quotation = @$requestData['add_quotation'][$i];
-				$saved = $objs->save();
-				$response['status'] 	= 	true;
-				$response['message']	=	'Fee Option added successfully';
-			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Record not found';
-		}
-		
-		echo json_encode($response);	
+		$response['status'] = false;
+		$response['message'] = 'Feature removed - fee_options table no longer exists';
+		echo json_encode($response);
 	}
 	
+	// Removed: getallfees - fee_options table dropped
 	public function getallfees(Request $request){
-		$feeoptions = FeeOption::where('product_id', $request->clientid)->orderby('created_at', 'DESC')->get();
+		// FeeOption table dropped - return empty
+		$feeoptions = collect([]);
 		ob_start();
 		foreach($feeoptions as $feeoption){
 			
@@ -434,7 +381,8 @@ class ProductsController extends Controller
 					</div>
 				</div>
 				<?php
-				$feeoptiontype = \App\Models\FeeOptionType::where('fee_id', $feeoption->id)->get();
+				// FeeOptionType table dropped
+				$feeoptiontype = collect([]);
 				
 				?>
 				<div class="col-md-8">
@@ -468,8 +416,10 @@ class ProductsController extends Controller
 return ob_get_clean();	
 	}
 	
+	// Removed: editfee - fee_options table dropped
 	public function editfee(Request $request){
-		$fetchedData = FeeOption::where('id', $request->id)->first();
+		// FeeOption table dropped
+		$fetchedData = null;
 		if($fetchedData){
 			ob_start();
 			?>
@@ -543,7 +493,8 @@ return ob_get_clean();
 									<?php
 									$total_fee = 0;
 									$i = 0;
-											$feeoptiontypes = \App\Models\FeeOptionType::where('fee_id', $fetchedData->id)->get();
+											// FeeOptionType table dropped
+											$feeoptiontypes = collect([]);
 												foreach($feeoptiontypes as $feeoptiontype){
 													$total_fee += $feeoptiontype->total_fee;
 									?>
@@ -610,56 +561,17 @@ return ob_get_clean();
 	}
 	
 	
+	// Removed: editfeeform - fee_options and fee_option_types tables dropped
 	public function editfeeform(Request $request){
-		$requestData = $request->all();
-		$obj = FeeOption::find($request->id);
-		$obj->name = $requestData['fee_option_name'];
-		$obj->country = $requestData['country_residency'];
-		$obj->installment_type = $requestData['degree_level'];
-		$saved = $obj->save();
-		if($saved){
-			FeeOptionType::where('fee_id',$request->id)->delete();
-			$course_fee_type = $requestData['course_fee_type'];
-			for($i = 0; $i< count($course_fee_type); $i++){
-				$objs = new FeeOptionType;
-				$objs->fee_id = $obj->id;
-				$objs->fee_type = $requestData['course_fee_type'][$i];
-				$objs->inst_amt = $requestData['installment_amount'][$i];
-				$objs->installment = $requestData['installment'][$i];
-				$objs->total_fee = $requestData['total_fee'][$i];
-				$objs->claim_term = $requestData['claimable_terms'][$i];
-				$objs->commission = $requestData['commission'][$i];
-				$objs->quotation = @$requestData['add_quotation'][$i];
-				$saved = $objs->save();
-				$response['status'] 	= 	true;
-				$response['message']	=	'Fee Option updated successfully';
-			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Record not found';
-		}
-		
-		echo json_encode($response);	
+		$response['status'] = false;
+		$response['message'] = 'Feature removed - fee_options table no longer exists';
+		echo json_encode($response);
 	}
 	
+	// Removed: deletefee - fee_options and fee_option_types tables dropped
 	public function deletefee(Request $request){
-		$note_id = $request->note_id;
-		if(FeeOption::where('id',$note_id)->exists()){
-
-			$res = DB::table('fee_options')->where('id', @$note_id)->delete();
-			
-			if($res){
-				DB::table('fee_option_types')->where('fee_id', @$note_id)->delete();
-				$response['status'] 	= 	true;
-				$response['data']	=	'Fee removed successfully';
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-		}
-		}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-		}
+		$response['status'] = false;
+		$response['message'] = 'Feature removed - fee_options table no longer exists';
 		echo json_encode($response);
 	}
 
