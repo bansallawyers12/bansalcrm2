@@ -1,29 +1,20 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     plugins: [
         laravel({
             input: [
                 'resources/js/jquery-init.js',  // Load jQuery first
+                'resources/js/fullcalendar-init.js',  // Load FullCalendar v6
                 'resources/js/app.js',
             ],
             refresh: true,
-        }),
-        vue({
-            template: {
-                transformAssetUrls: {
-                    base: null,
-                    includeAbsolute: false,
-                },
-            },
         }),
     ],
     resolve: {
         alias: {
             '@': '/resources/js',
-            'vue': 'vue/dist/vue.esm-bundler.js',
         },
     },
     server: {

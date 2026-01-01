@@ -16,7 +16,7 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
 	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
-	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
+	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
@@ -31,6 +31,8 @@
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="{{asset('icons/font-awesome/css/all.min.css')}}">
   
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">
   
@@ -130,43 +132,19 @@
 	<!-- Load jQuery FIRST as separate entry -->
 	@vite(['resources/js/jquery-init.js'])
 	
-	<!-- Then load main app with Vue, Bootstrap, etc -->
+	<!-- Load FullCalendar v6 -->
+	@vite(['resources/js/fullcalendar-init.js'])
+	
+	<!-- Then load main app with Bootstrap, etc -->
 	@vite(['resources/js/app.js'])
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
 	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
+	<!-- Feather Icons (required before scripts.js) -->
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
 	<!-- jQuery NiceScroll (required for sidebar scrolling) -->
 	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js" defer></script>
-	<!-- FullCalendar (requires jQuery to be loaded first) -->
-	<script defer>
-		// Ensure jQuery is available before loading FullCalendar
-		// jQuery should already be loaded in <head>, but we verify it's ready
-		(function() {
-			function loadFullCalendarScript() {
-				// Check if jQuery is available (either global jQuery or $)
-				if (typeof window.jQuery !== 'undefined' || typeof window.$ !== 'undefined') {
-					var fcScript = document.createElement('script');
-					fcScript.src = '{{ asset('js/fullcalendar.min.js') }}';
-					fcScript.async = false;
-					document.body.appendChild(fcScript);
-				} else {
-					// jQuery not available yet, wait and retry (max 10 attempts = 1 second)
-					var attempts = arguments[0] || 0;
-					if (attempts < 10) {
-						setTimeout(function() { loadFullCalendarScript(attempts + 1); }, 100);
-					} else {
-						console.error('FullCalendar: jQuery could not be loaded after 1 second');
-					}
-				}
-			}
-			// Start loading after a brief delay to ensure jQuery from <head> is ready
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', loadFullCalendarScript);
-			} else {
-				setTimeout(loadFullCalendarScript, 50);
-			}
-		})();
-	</script>
+	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
   

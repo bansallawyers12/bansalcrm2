@@ -41,7 +41,7 @@
  $sched_res = [];
 $visaexpires = \App\Models\Admin::select('id','visaexpiry','first_name','last_name')
     ->where('role',7)
-    ->whereNotNull('visaexpiry')
+    ->whereRaw("CAST(visaexpiry AS TEXT) != ''")  // Filter out empty date strings
     ->get();
 
 foreach($visaexpires as $visaexpire){
@@ -60,50 +60,84 @@ foreach($visaexpires as $visaexpire){
 @endsection
 @section('scripts')
 <script>
-var events = [];
- var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
- if (!!scheds && typeof scheds === 'object') {
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for FullCalendar to be loaded
+    if (typeof window.FullCalendar === 'undefined') {
+        console.error('FullCalendar v6 not loaded');
+        return;
+    }
+
+    var events = [];
+    var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+    
+    // Debug logging
+    console.log('FullCalendar v6 Debug:');
+    console.log('scheds data:', scheds);
+    console.log('scheds type:', typeof scheds);
+    console.log('scheds keys:', Object.keys(scheds));
+    
+    if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
             events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end });
         });
     }
-var today = new Date();
-year = today.getFullYear();
-month = today.getMonth();
-day = today.getDate();
-var calendar = $("#myEvent").fullCalendar({
-  height: "auto",
-  defaultView: "month",
-  editable: false,
-  selectable: true,
-  eventLimit: true, // If you set a number it will hide the itens
-    eventLimitText: "More",
-  displayEventTime: false,
-  header: {
-    left: "prev,next today",
-    center: "title",
-    right: "month,agendaWeek,agendaDay,listMonth",
-  },
-   events: events,
-    eventClick: function(info) {
-		console.log(info);
-            var details = $('#event-details-modal');
-            var id = info.id;
+    
+    console.log('Events array:', events);
+    console.log('Events count:', events.length);
+
+    var calendarEl = document.getElementById('myEvent');
+    if (!calendarEl) {
+        console.error('Calendar element #myEvent not found');
+        return;
+    }
+
+    var calendar = new window.FullCalendar.Calendar(calendarEl, {
+        height: "auto",
+        initialView: "dayGridMonth",
+        editable: false,
+        selectable: true,
+        dayMaxEvents: true, // Shows "more" link when too many events
+        moreLinkText: "More",
+        plugins: [
+            window.FullCalendar.dayGridPlugin,
+            window.FullCalendar.timeGridPlugin,
+            window.FullCalendar.listPlugin,
+            window.FullCalendar.interactionPlugin
+        ],
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+        },
+        events: events,
+        eventClick: function(info) {
+            console.log(info);
+            var details = document.getElementById('event-details-modal');
+            if (!details) return;
+            
+            var id = info.event.id;
 
             if (!!scheds[id]) {
-                details.find('#title').text(scheds[id].stitle);
-              //  details.find('#description').text(scheds[id].description);
-                details.find('#start').text(scheds[id].displayDate || scheds[id].startdate);
+                var titleEl = details.querySelector('#title');
+                var startEl = details.querySelector('#start');
+                if (titleEl) titleEl.textContent = scheds[id].stitle;
+                if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
                 if (scheds[id].url) {
-					window.open(scheds[id].url, "_blank");
-					return false;
-				}
-                //details.modal('show');
+                    window.open(scheds[id].url, "_blank");
+                    return false;
+                }
             } else {
                 alert("Event is undefined");
             }
-        },
+        }
+    });
+
+    calendar.render();
+});
+</script>
+@endsection
+@section('extra')
   /* events: [
     {
       title: "Palak Jani",
@@ -166,7 +200,6 @@ var calendar = $("#myEvent").fullCalendar({
       backgroundColor: "#F3565D",
     },
   ], */
-});
 </script>
 <div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-details-modal">
         <div class="modal-dialog modal-dialog-centered">

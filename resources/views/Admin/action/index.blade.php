@@ -289,12 +289,21 @@ $(function () {
 
         "fnDrawCallback": function() {
             // Only initialize popovers that aren't already initialized
-            $('[data-role="popover"], [data-bs-toggle="popover"]').each(function() {
-                if (!$(this).data('bs.popover')) {
+            // Support both data-toggle (legacy) and data-bs-toggle (Bootstrap 5)
+            $('[data-role="popover"], [data-toggle="popover"], [data-bs-toggle="popover"]').each(function() {
+                var $el = $(this);
+                // Check if Bootstrap 5 instance exists or jQuery data exists
+                var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
+                var jqData = $el.data('bs.popover');
+                
+                if (!bsInstance && !jqData) {
                     try {
-                        $(this).popover({
+                        // Initialize with jQuery bridge (which creates Bootstrap 5 instance)
+                        $el.popover({
                             html: true,
-                            sanitize: false
+                            sanitize: false,
+                            placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
+                            container: $el.attr('data-container') || $el.attr('data-bs-container') || false
                         });
                     } catch(e) {
                         console.warn('Popover initialization error:', e);
@@ -373,74 +382,179 @@ jQuery(document).ready(function($){
     });
 
     //reassign task
-    $(document).delegate('.reassign_task', 'click', function(){ 
-        var assignedto = $(this).attr('data-assignedto'); //alert(assignedto);
-        $.ajax({
-			type:'post',
-            url:"{{URL::to('/')}}/admin/action/assignee-list",
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            data: {assignedto:assignedto},
-            success: function(response){
-                var obj = $.parseJSON(response);
-                //console.log(obj.message);
-                $('#rem_cat').html(obj.message); 
-            }
-		});
-		
-        var note_id = $(this).attr('data-noteid');
-        $('#assignnote').val(note_id);
-
-        var task_id = $(this).attr('data-taskid');
-        $('#assign_note_id').val(task_id);
-
-        //get current date
-        /*var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear();
-        today =  yyyy + '-' + mm + '-' + dd;
-        $('#popoverdatetime').attr('value', today);*/
+    $(document).delegate('.reassign_task', 'click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
         
-        var taskgroup_id = $(this).attr('data-taskgroupid');
-        $('#task_group').val(taskgroup_id);
-
-        //set current date
-        var followupdate_id = $(this).attr('data-followupdate');
+        var $btn = $(this);
+        var assignedto = $btn.attr('data-assignedto');
+        var note_id = $btn.attr('data-noteid');
+        var task_id = $btn.attr('data-taskid');
+        var taskgroup_id = $btn.attr('data-taskgroupid');
+        var followupdate_id = $btn.attr('data-followupdate');
         var folowDateArr = followupdate_id.split(" ");
         var finalDate = folowDateArr[0];
-        $('#popoverdatetime').val(finalDate);
+        
+        // Check if popover is already initialized (Bootstrap 5 or jQuery bridge)
+        var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
+        var jqData = $btn.data('bs.popover');
+        
+        if (!bsInstance && !jqData) {
+            // Initialize popover with jQuery bridge
+            $btn.popover({
+                html: true,
+                sanitize: false,
+                placement: $btn.attr('data-placement') || $btn.attr('data-bs-placement') || 'auto',
+                container: $btn.attr('data-container') || $btn.attr('data-bs-container') || 'body'
+            });
+        }
+        
+        // Show the popover using jQuery bridge method
+        $btn.popover('show');
+        
+        // Wait for popover to be shown, then set form values
+        var popoverShown = false;
+        var setFormValues = function() {
+            if (popoverShown) return;
+            popoverShown = true;
+            
+            // Find the visible popover element (Bootstrap 5 creates .popover elements)
+            var $popover = $('.popover:visible').last();
+            if ($popover.length) {
+                // Load assignee list via AJAX and set in popover
+                $.ajax({
+                    type:'post',
+                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: {assignedto:assignedto},
+                    success: function(response){
+                        var obj = $.parseJSON(response);
+                        $popover.find('#rem_cat').html(obj.message);
+                    }
+                });
+                
+                // Set form values within the visible popover
+                $popover.find('#assignnote').val(note_id);
+                $popover.find('#assign_note_id').val(task_id);
+                $popover.find('#task_group').val(taskgroup_id);
+                $popover.find('#popoverdatetime').val(finalDate);
+            } else {
+                // Fallback: set values globally (for compatibility)
+                $('#assignnote').val(note_id);
+                $('#assign_note_id').val(task_id);
+                $('#task_group').val(taskgroup_id);
+                $('#popoverdatetime').val(finalDate);
+                
+                // Load assignee list
+                $.ajax({
+                    type:'post',
+                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: {assignedto:assignedto},
+                    success: function(response){
+                        var obj = $.parseJSON(response);
+                        $('#rem_cat').html(obj.message);
+                    }
+                });
+            }
+        };
+        
+        // Listen for Bootstrap 5 popover shown event
+        $btn.one('shown.bs.popover', setFormValues);
+        
+        // Fallback timeout in case event doesn't fire
+        setTimeout(setFormValues, 200);
     });
 
 
     //update task
-    $(document).delegate('.update_task', 'click', function(){
-        var assignedto = $(this).attr('data-assignedto'); //alert(assignedto);
-        $.ajax({
-			type:'post',
-            url:"{{URL::to('/')}}/admin/action/assignee-list",
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            data: {assignedto:assignedto},
-            success: function(response){
-                var obj = $.parseJSON(response);
-                //console.log(obj.message);
-                $('#rem_cat').html(obj.message); 
-            }
-		});
-		
-        var note_id = $(this).attr('data-noteid');
-        $('#assignnote').val(note_id);
-
-        var task_id = $(this).attr('data-taskid');
-        $('#assign_note_id').val(task_id);
-
-        var taskgroup_id = $(this).attr('data-taskgroupid');
-        $('#task_group').val(taskgroup_id);
-
-        //set current date
-        var followupdate_id = $(this).attr('data-followupdate');
+    $(document).delegate('.update_task', 'click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $btn = $(this);
+        var assignedto = $btn.attr('data-assignedto');
+        var note_id = $btn.attr('data-noteid');
+        var task_id = $btn.attr('data-taskid');
+        var taskgroup_id = $btn.attr('data-taskgroupid');
+        var followupdate_id = $btn.attr('data-followupdate');
         var folowDateArr = followupdate_id.split(" ");
         var finalDate = folowDateArr[0];
-        $('#popoverdatetime').val(finalDate);
+        
+        // Check if popover is already initialized (Bootstrap 5 or jQuery bridge)
+        var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
+        var jqData = $btn.data('bs.popover');
+        
+        if (!bsInstance && !jqData) {
+            // Initialize popover with jQuery bridge
+            $btn.popover({
+                html: true,
+                sanitize: false,
+                placement: $btn.attr('data-placement') || $btn.attr('data-bs-placement') || 'left',
+                container: $btn.attr('data-container') || $btn.attr('data-bs-container') || 'body'
+            });
+        }
+        
+        // Show the popover using jQuery bridge method
+        $btn.popover('show');
+        
+        // Wait for popover to be shown, then set form values
+        // Use Bootstrap 5 event or jQuery event
+        var popoverShown = false;
+        var setFormValues = function() {
+            if (popoverShown) return;
+            popoverShown = true;
+            
+            // Find the visible popover element (Bootstrap 5 creates .popover elements)
+            var $popover = $('.popover:visible').last();
+            if ($popover.length) {
+                // Set form values within the visible popover
+                $popover.find('#rem_cat').each(function() {
+                    var $select = $(this);
+                    // Load assignee list via AJAX
+                    $.ajax({
+                        type:'post',
+                        url:"{{URL::to('/')}}/admin/action/assignee-list",
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        data: {assignedto:assignedto},
+                        success: function(response){
+                            var obj = $.parseJSON(response);
+                            $select.html(obj.message);
+                        }
+                    });
+                });
+                
+                $popover.find('#assignnote').val(note_id);
+                $popover.find('#assign_note_id').val(task_id);
+                $popover.find('#task_group').val(taskgroup_id);
+                $popover.find('#popoverdatetime').val(finalDate);
+            } else {
+                // Fallback: set values globally (for compatibility)
+                $('#rem_cat').html(''); // Will be set by AJAX
+                $('#assignnote').val(note_id);
+                $('#assign_note_id').val(task_id);
+                $('#task_group').val(taskgroup_id);
+                $('#popoverdatetime').val(finalDate);
+                
+                // Load assignee list
+                $.ajax({
+                    type:'post',
+                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: {assignedto:assignedto},
+                    success: function(response){
+                        var obj = $.parseJSON(response);
+                        $('#rem_cat').html(obj.message);
+                    }
+                });
+            }
+        };
+        
+        // Listen for Bootstrap 5 popover shown event
+        $btn.one('shown.bs.popover', setFormValues);
+        
+        // Fallback timeout in case event doesn't fire
+        setTimeout(setFormValues, 200);
     });
 
 
@@ -488,51 +602,104 @@ jQuery(document).ready(function($){
 		var flag = true;
 		var error = "";
 		$(".custom-error").remove();
-		if($('#rem_cat').val() == ''){
+		
+		// Find the visible popover and get values from within it
+		var $popover = $('.popover:visible').last();
+		var $remCat, $assignNote, $taskGroup, $assignNoteId, $assignClientId, $popoverDateTime;
+		
+		if ($popover.length) {
+			// Get form elements from within the popover
+			$remCat = $popover.find('#rem_cat');
+			$assignNote = $popover.find('#assignnote');
+			$taskGroup = $popover.find('#task_group');
+			$assignNoteId = $popover.find('#assign_note_id');
+			$assignClientId = $popover.find('#assign_client_id');
+			$popoverDateTime = $popover.find('#popoverdatetime');
+		} else {
+			// Fallback to global selectors
+			$remCat = $('#rem_cat');
+			$assignNote = $('#assignnote');
+			$taskGroup = $('#task_group');
+			$assignNoteId = $('#assign_note_id');
+			$assignClientId = $('#assign_client_id');
+			$popoverDateTime = $('#popoverdatetime');
+		}
+		
+		if($remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
-			$('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($('#assignnote').val() == ''){
+		if($assignNote.val() == ''){
 			$('.popuploader').hide();
 			error="Note field is required.";
-			$('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($('#task_group').val() == ''){
+        if($taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
-			$('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
 		if(flag){
+			// Get values from the correct form elements
+			var noteId = $assignNoteId.val();
+			var noteDescription = $assignNote.val();
+			var clientId = $assignClientId.val();
+			var followupDateTime = $popoverDateTime.val();
+			var assigneeName = $remCat.find(':selected').text();
+			var remCat = $remCat.val();
+			var taskGroup = $taskGroup.val();
+			
+			if (!noteId) {
+				$('.popuploader').hide();
+				alert('Note ID is missing. Please try again.');
+				return;
+			}
+			
 			$.ajax({
 				type:'post',
                 url:"{{URL::to('/')}}/admin/clients/reassignfollowup/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_id:$('#assign_note_id').val(),note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
+                data: {
+					note_id: noteId,
+					note_type: 'follow_up',
+					description: noteDescription,
+					client_id: clientId,
+					followup_datetime: followupDateTime,
+					assignee_name: assigneeName,
+					rem_cat: remCat,
+					task_group: taskGroup
+				},
                 success: function(response){
                     console.log(response);
                     $('.popuploader').hide();
                     var obj = $.parseJSON(response);
                     if(obj.success){
-                        $("[data-role=popover]").each(function(){
-                            (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
+                        // Hide all popovers
+                        $("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function(){
+                            $(this).popover('hide');
                         });
                         //location.reload();
                         $('.yajra-datatable').DataTable().draw(false);
-                        getallactivities();
-                        getallnotes();
+                        if(typeof getallactivities === 'function') getallactivities();
+                        if(typeof getallnotes === 'function') getallnotes();
                     } else{
-                        alert(obj.message);
+                        alert(obj.message || 'An error occurred');
                         //location.reload();
                         $('.yajra-datatable').DataTable().draw(false);
                     }
-                }
+                },
+				error: function(xhr, status, error) {
+					$('.popuploader').hide();
+					console.error('AJAX Error:', error);
+					alert('Error: ' + (xhr.responseJSON?.message || error || 'Failed to reassign task'));
+				}
 			});
 		}else{
-			$("#loader").hide();
+			$(".popuploader").hide();
 		}
 	});
 

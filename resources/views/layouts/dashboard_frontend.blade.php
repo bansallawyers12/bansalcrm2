@@ -28,7 +28,7 @@
 	<!-- Load jQuery FIRST as separate entry (synchronous) -->
 	@vite(['resources/js/jquery-init.js'])
 	
-	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
+	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
 	<!-- jQuery should now be available immediately -->

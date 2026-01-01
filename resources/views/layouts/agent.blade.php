@@ -26,6 +26,8 @@
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="{{asset('icons/font-awesome/css/all.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">
 	<link rel="stylesheet" href="{{asset('css/components.css')}}">
 	<!-- Custom style CSS -->
@@ -91,7 +93,7 @@
 	<!-- Load jQuery FIRST as separate entry (synchronous) -->
 	@vite(['resources/js/jquery-init.js'])
 	
-	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
+	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
 	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  

@@ -470,17 +470,24 @@ console.log(e);
 
 
     $("body").on('click', function (e) {
-        $("[data-role=popover]").each(function(){
-            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0 && !$(e.target).hasClass('day') && !$(e.target).hasClass('year') && !$(e.target).hasClass('month')) {
-                (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
+        // Support both legacy and Bootstrap 5 popovers
+        $("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function(){
+            var $el = $(this);
+            if (!$el.is(e.target) && $el.has(e.target).length === 0 && $('.popover').has(e.target).length === 0 && !$(e.target).hasClass('day') && !$(e.target).hasClass('year') && !$(e.target).hasClass('month')) {
+                // Hide popover using jQuery bridge (works with both Bootstrap 4 and 5)
+                $el.popover('hide');
             }
         });
     });
 	
 	
 	$(document).ready(function(){ 
-		// Check if Bootstrap popover is available (Bootstrap 5 with jQuery compatibility or Bootstrap 4)
-		if (typeof $ !== 'undefined' && $.fn.popover && $.fn.popover.Constructor) {
+		// Check if Bootstrap 5 is available
+		if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Popover) {
+			// Bootstrap 5 is loaded - jQuery bridge should be available from bootstrap.js
+			console.log('Bootstrap 5 Popover detected');
+		} else if (typeof $ !== 'undefined' && $.fn.popover && $.fn.popover.Constructor) {
+			// Bootstrap 4 or jQuery bridge available
 			var showPopover = $.fn.popover.Constructor.prototype.show;
 			$.fn.popover.Constructor.prototype.show = function () {
 				showPopover.call(this);
@@ -489,18 +496,23 @@ console.log(e);
 				}
 			}
 		} else {
-			console.warn('Bootstrap Popover jQuery plugin not available. Ensure Bootstrap bundle is loaded before popover.js');
+			console.warn('Bootstrap Popover not available. Ensure Bootstrap bundle is loaded before popover.js');
 		} 
- 
+
 		// Only initialize popovers that aren't already initialized
-		$("[data-role=popover]").each(function() {
-			if (!$(this).data('bs.popover')) {
-				$(this).popover({
+		// Support both data-role (legacy) and data-toggle/data-bs-toggle (Bootstrap 5)
+		$("[data-role=popover], [data-toggle=popover], [data-bs-toggle=popover]").each(function() {
+			var $el = $(this);
+			// Check for Bootstrap 5 instance or jQuery data
+			var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;
+			var jqData = $el.data('bs.popover');
+			
+			if (!bsInstance && !jqData) {
+				$el.popover({
 					sanitize: false,
 					html: true,
-					showCallback: function(){
-						
-					}
+					placement: $el.attr('data-placement') || $el.attr('data-bs-placement') || 'auto',
+					container: $el.attr('data-container') || $el.attr('data-bs-container') || false
 				});
 			}
 		});

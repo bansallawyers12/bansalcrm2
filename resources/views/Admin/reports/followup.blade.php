@@ -82,58 +82,90 @@ foreach($followups as $followup){
 @endsection
 @section('scripts')
 <script>
-var events = [];
- var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
- if (!!scheds && typeof scheds === 'object') {
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for FullCalendar to be loaded
+    if (typeof window.FullCalendar === 'undefined') {
+        console.error('FullCalendar v6 not loaded');
+        return;
+    }
+
+    var events = [];
+    var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+    if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
             events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end });
         });
     }
-var today = new Date();
-year = today.getFullYear();
-month = today.getMonth();
-day = today.getDate();
-var calendar = $("#myEvent").fullCalendar({
-  height: "auto",
-  defaultView: "month",
-  editable: false,
-  selectable: true,
-   eventLimit: true, // If you set a number it will hide the itens
-    eventLimitText: "More",
-  displayEventTime: false,
-  header: {
-    left: "prev,next today",
-    center: "title",
-    right: "month,agendaWeek,agendaDay,listMonth",
-  },
-   events: events,
-    eventClick: function(info) {
-		console.log(info);
-            var details = $('#event-details-modal');
-            var id = info.id;
+
+    var calendarEl = document.getElementById('myEvent');
+    if (!calendarEl) {
+        console.error('Calendar element #myEvent not found');
+        return;
+    }
+
+    var calendar = new window.FullCalendar.Calendar(calendarEl, {
+        height: "auto",
+        initialView: "dayGridMonth",
+        editable: false,
+        selectable: true,
+        dayMaxEvents: true,
+        moreLinkText: "More",
+        plugins: [
+            window.FullCalendar.dayGridPlugin,
+            window.FullCalendar.timeGridPlugin,
+            window.FullCalendar.listPlugin,
+            window.FullCalendar.interactionPlugin
+        ],
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+        },
+        events: events,
+        eventClick: function(info) {
+            console.log(info);
+            var details = document.getElementById('event-details-modal');
+            if (!details) return;
+            
+            var id = info.event.id;
 
             if (!!scheds[id]) {
-                details.find('#title').text(scheds[id].stitle);
-                details.find('#description').html(scheds[id].description);
-                details.find('#clname').text( atob(scheds[id].name));
-                 details.find('#phone').text( atob(scheds[id].phone));
-                 details.find('#email').text( atob(scheds[id].email));
-                 details.find('#start').text(scheds[id].followup_date);
-                details.find('#followup_client_id').val(scheds[id].clientid);
-                details.find('#lead_id').val(scheds[id].id);
-                if (scheds[id].url) {
-                    details.find('#url').html('<a target="_blank" href="'+scheds[id].url+'">View Client</a>');
+                var titleEl = details.querySelector('#title');
+                var descEl = details.querySelector('#description');
+                var clnameEl = details.querySelector('#clname');
+                var phoneEl = details.querySelector('#phone');
+                var emailEl = details.querySelector('#email');
+                var startEl = details.querySelector('#start');
+                var followupClientIdEl = details.querySelector('#followup_client_id');
+                var leadIdEl = details.querySelector('#lead_id');
+                var urlEl = details.querySelector('#url');
+                
+                if (titleEl) titleEl.textContent = scheds[id].stitle;
+                if (descEl) descEl.innerHTML = scheds[id].description;
+                if (clnameEl) clnameEl.textContent = atob(scheds[id].name);
+                if (phoneEl) phoneEl.textContent = atob(scheds[id].phone);
+                if (emailEl) emailEl.textContent = atob(scheds[id].email);
+                if (startEl) startEl.textContent = scheds[id].followup_date;
+                if (followupClientIdEl) followupClientIdEl.value = scheds[id].clientid;
+                if (leadIdEl) leadIdEl.value = scheds[id].id;
+                if (scheds[id].url && urlEl) {
+                    urlEl.innerHTML = '<a target="_blank" href="'+scheds[id].url+'">View Client</a>';
                 }
-                details.modal('show');
+                
+                // Use Bootstrap 5 modal API
+                var modal = bootstrap.Modal.getOrCreateInstance(details);
+                modal.show();
             } else {
                 alert("Event is undefined");
             }
-        },
+        }
+    });
 
+    calendar.render();
 });
 </script>
-<div class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false" id="event-details-modal">
+<div class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" id="event-details-modal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-0">
                 <div class="modal-header rounded-0">

@@ -60,50 +60,73 @@ foreach($partners as $partner){
 @endsection
 @section('scripts')
 <script>
-var events = [];
- var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
- if (!!scheds && typeof scheds === 'object') {
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for FullCalendar to be loaded
+    if (typeof window.FullCalendar === 'undefined') {
+        console.error('FullCalendar v6 not loaded');
+        return;
+    }
+
+    var events = [];
+    var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+    if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
             events.push({ id: row.id, title: row.title, start: row.start, end: row.end });
         });
     }
-var today = new Date();
-year = today.getFullYear();
-month = today.getMonth();
-day = today.getDate();
-var calendar = $("#myEvent").fullCalendar({
-  height: "auto",
-  defaultView: "month",
-  editable: false,
-  selectable: true,
-  eventLimit: true,
-  eventLimitText: "More",
-  displayEventTime: false,
-  header: {
-    left: "prev,next today",
-    center: "title",
-    right: "month,agendaWeek,agendaDay,listMonth",
-  },
-   events: events,
-    eventClick: function(info) {
-		console.log(info);
-            var details = $('#event-details-modal');
-            var id = info.id;
+
+    var calendarEl = document.getElementById('myEvent');
+    if (!calendarEl) {
+        console.error('Calendar element #myEvent not found');
+        return;
+    }
+
+    var calendar = new window.FullCalendar.Calendar(calendarEl, {
+        height: "auto",
+        initialView: "dayGridMonth",
+        editable: false,
+        selectable: true,
+        dayMaxEvents: true,
+        moreLinkText: "More",
+        plugins: [
+            window.FullCalendar.dayGridPlugin,
+            window.FullCalendar.timeGridPlugin,
+            window.FullCalendar.listPlugin,
+            window.FullCalendar.interactionPlugin
+        ],
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+        },
+        events: events,
+        eventClick: function(info) {
+            console.log(info);
+            var details = document.getElementById('event-details-modal');
+            if (!details) return;
+            
+            var id = info.event.id;
 
             if (!!scheds[id]) {
-                details.find('#title').text(scheds[id].title);
-                details.find('#description').text(scheds[id].description || '');
-                details.find('#start').text(scheds[id].displayDate || scheds[id].startdate);
-               if (scheds[id].url) {
-					window.open(scheds[id].url, "_blank");
-					return false;
-				}
-                //details.modal('show');
+                var titleEl = details.querySelector('#title');
+                var descEl = details.querySelector('#description');
+                var startEl = details.querySelector('#start');
+                if (titleEl) titleEl.textContent = scheds[id].title;
+                if (descEl) descEl.textContent = scheds[id].description || '';
+                if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
+                if (scheds[id].url) {
+                    window.open(scheds[id].url, "_blank");
+                    return false;
+                }
             } else {
                 alert("Event is undefined");
             }
-        },
+        }
+    });
+
+    calendar.render();
+});
   /* events: [
     {
       title: "Palak Jani",
@@ -166,8 +189,6 @@ var calendar = $("#myEvent").fullCalendar({
       backgroundColor: "#F3565D",
     },
   ], */
-});
-</script>
 <div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-details-modal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-0">
