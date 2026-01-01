@@ -698,14 +698,15 @@ jQuery(document).ready(function($){
 				$(".contact.select2").select2({
 			dropdownParent: $("#add_interested_service .modal-content")
 		}); 
-				 $(".datepicker").daterangepicker({
-				locale: { format: "YYYY-MM-DD" },
-				singleDatePicker: true,
-				showDropdowns: true,
-				drops : 'up',
-				 container: '#add_interested_service modal-body',
-
-			  });
+				 if (typeof flatpickr !== 'undefined') {
+					$(".datepicker").each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							position: "above"
+						});
+					});
+				}
 			}
 		});
 	});	

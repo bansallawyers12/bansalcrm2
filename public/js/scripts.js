@@ -575,159 +575,163 @@ $(function () {
     });
   }
 
-  // Daterangepicker
-  if (jQuery().daterangepicker) {
+  // Flatpickr Date Pickers
+  if (typeof flatpickr !== 'undefined') {
+    // Age calculation function (used by .dobdatepickers)
+    function getAge(dateString) {
+      var now = new Date();
+      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var yearNow = now.getFullYear();
+      var monthNow = now.getMonth();
+      var dateNow = now.getDate();
+
+      var dob = new Date(dateString.substring(6,10),
+                         dateString.substring(0,2)-1,                   
+                         dateString.substring(3,5)                  
+                         );
+
+      var yearDob = dob.getFullYear();
+      var monthDob = dob.getMonth();
+      var dateDob = dob.getDate();
+      var age = {};
+      var ageString = "";
+      var yearString = "";
+      var monthString = "";
+      var dayString = "";
+
+      var yearAge = yearNow - yearDob;
+
+      if (monthNow >= monthDob)
+        var monthAge = monthNow - monthDob;
+      else {
+        yearAge--;
+        var monthAge = 12 + monthNow - monthDob;
+      }
+
+      if (dateNow >= dateDob)
+        var dateAge = dateNow - dateDob;
+      else {
+        monthAge--;
+        var dateAge = 31 + dateNow - dateDob;
+
+        if (monthAge < 0) {
+          monthAge = 11;
+          yearAge--;
+        }
+      }
+
+      age = {
+          years: yearAge,
+          months: monthAge,
+          days: dateAge
+          };
+
+      if ( age.years > 1 ) yearString = " years";
+      else yearString = " year";
+      if ( age.months > 1 ) monthString = " months";
+      else monthString = " month";
+      if ( age.days > 1 ) dayString = " days";
+      else dayString = " day";
+
+      if ( (age.years > 0) && (age.months > 0) && (age.days > 0) )
+        ageString = age.years + yearString + " " + age.months + monthString;
+      else if ( (age.years == 0) && (age.months == 0) && (age.days > 0) )
+        ageString = age.days;
+      else if ( (age.years > 0) && (age.months == 0) && (age.days == 0) )
+        ageString = age.years + yearString;
+      else if ( (age.years > 0) && (age.months > 0) && (age.days == 0) )
+        ageString = age.years + yearString + " " + age.months + monthString;
+      else if ( (age.years == 0) && (age.months > 0) && (age.days > 0) )
+        ageString = age.months + monthString;
+      else if ( (age.years > 0) && (age.months == 0) && (age.days > 0) )
+        ageString = age.years + yearString;
+      else if ( (age.years == 0) && (age.months > 0) && (age.days == 0) )
+        ageString = age.months + monthString;
+      else ageString = "Oops! Could not calculate age!";
+
+      return ageString;
+    }
+
+    // Single date picker (YYYY-MM-DD format)
     if ($(".datepicker").length) {
-      $(".datepicker").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-		 autoUpdateInput: false,
-        showDropdowns: true
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
-    }if ($(".dobdatepicker").length) {
-      $(".dobdatepicker").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "DD/MM/YYYY" },
-        singleDatePicker: true,
-		autoUpdateInput: false,
-        showDropdowns: true
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
+      $(".datepicker").each(function() {
+        flatpickr(this, {
+          dateFormat: "Y-m-d",
+          allowInput: true
+        });
+      });
     }
+
+    // DOB date picker (DD/MM/YYYY format)
+    if ($(".dobdatepicker").length) {
+      $(".dobdatepicker").each(function() {
+        flatpickr(this, {
+          dateFormat: "d/m/Y",
+          allowInput: true
+        });
+      });
+    }
+
+    // DOB with age calculation
     if ($(".dobdatepickers").length) {
-      $(".dobdatepickers").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "DD/MM/YYYY" },
-        singleDatePicker: true,
-		autoUpdateInput: false,
-        showDropdowns: true
-      }).on("apply.daterangepicker", function (e, picker) {
-         picker.element.val(picker.startDate.format(picker.locale.format));
-        var dob = picker.startDate.format('MM/DD/YYYY');
-        function getAge(dateString) {
-  var now = new Date();
-  var today = new Date(now.getYear(),now.getMonth(),now.getDate());
-
-  var yearNow = now.getYear();
-  var monthNow = now.getMonth();
-  var dateNow = now.getDate();
-
-  var dob = new Date(dateString.substring(6,10),
-                     dateString.substring(0,2)-1,                   
-                     dateString.substring(3,5)                  
-                     );
-
-  var yearDob = dob.getYear();
-  var monthDob = dob.getMonth();
-  var dateDob = dob.getDate();
-  var age = {};
-  var ageString = "";
-  var yearString = "";
-  var monthString = "";
-  var dayString = "";
-
-
-  var yearAge = yearNow - yearDob;
-
-  if (monthNow >= monthDob)
-    var monthAge = monthNow - monthDob;
-  else {
-    yearAge--;
-    var monthAge = 12 + monthNow -monthDob;
-  }
-
-  if (dateNow >= dateDob)
-    var dateAge = dateNow - dateDob;
-  else {
-    monthAge--;
-    var dateAge = 31 + dateNow - dateDob;
-
-    if (monthAge < 0) {
-      monthAge = 11;
-      yearAge--;
+      $(".dobdatepickers").each(function() {
+        flatpickr(this, {
+          dateFormat: "d/m/Y",
+          allowInput: true,
+          onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+              var dob = selectedDates[0];
+              var dobStr = (dob.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                           dob.getDate().toString().padStart(2, '0') + '/' +
+                           dob.getFullYear();
+              $('input[name="age"]').val(getAge(dobStr));
+            }
+          }
+        });
+      });
     }
-  }
 
-  age = {
-      years: yearAge,
-      months: monthAge,
-      days: dateAge
-      };
-
-  if ( age.years > 1 ) yearString = " years";
-  else yearString = " year";
-  if ( age.months> 1 ) monthString = " months";
-  else monthString = " month";
-  if ( age.days > 1 ) dayString = " days";
-  else dayString = " day";
-
-
-  if ( (age.years > 0) && (age.months > 0) && (age.days > 0) )
-    ageString = age.years + yearString + " " + age.months + monthString;
-  else if ( (age.years == 0) && (age.months == 0) && (age.days > 0) )
-    ageString = age.days;
-  else if ( (age.years > 0) && (age.months == 0) && (age.days == 0) )
-    ageString = age.years + yearString;
-  else if ( (age.years > 0) && (age.months > 0) && (age.days == 0) )
-    ageString = age.years + yearString + " " + age.months + monthString;
-  else if ( (age.years == 0) && (age.months > 0) && (age.days > 0) )
-    ageString = age.months + monthString;
-  else if ( (age.years > 0) && (age.months == 0) && (age.days > 0) )
-    ageString = age.years + yearString;
-  else if ( (age.years == 0) && (age.months > 0) && (age.days == 0) )
-    ageString = age.months + monthString;
-  else ageString = "Oops! Could not calculate age!";
-
-  return ageString;
-}
- $('input[name="age"]').val(getAge(dob));
-
-    });
-    }
+    // Filter date picker
     if ($(".filterdatepicker").length) {
-      $(".filterdatepicker").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-		autoUpdateInput: false,
-        showDropdowns: true,
-       
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });;
+      $(".filterdatepicker").each(function() {
+        flatpickr(this, {
+          dateFormat: "Y-m-d",
+          allowInput: true
+        });
+      });
     }
+
+    // Contract expiry
     if ($(".contract_expiry").length) {
-      $(".contract_expiry").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-         autoUpdateInput: false,
-		cancelLabel: 'Clear',
-        showDropdowns: true
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
-	 
+      $(".contract_expiry").each(function() {
+        flatpickr(this, {
+          dateFormat: "Y-m-d",
+          allowInput: true
+        });
+      });
     }
+
+    // DateTime picker
     if ($(".datetimepicker").length) {
-      $(".datetimepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD hh:mm" },
-        singleDatePicker: true,
-        timePicker: true,
-         autoUpdateInput: false,
-        timePicker24Hour: true
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
+      $(".datetimepicker").each(function() {
+        flatpickr(this, {
+          dateFormat: "Y-m-d H:i",
+          enableTime: true,
+          time_24hr: true,
+          allowInput: true
+        });
+      });
     }
+
+    // Date range picker
     if ($(".daterange").length) {
-      $(".daterange").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        drops: "down",
-         autoUpdateInput: false,
-        opens: "right"
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
+      $(".daterange").each(function() {
+        flatpickr(this, {
+          mode: "range",
+          dateFormat: "Y-m-d",
+          allowInput: true
+        });
+      });
     }
   }
 

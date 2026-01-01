@@ -15,7 +15,7 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	 
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+	<link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
 	<!-- Template CSS -->
@@ -106,7 +106,7 @@
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/daterangepicker.js')}}"></script> 
+	<script src="{{asset('js/flatpickr.min.js')}}"></script> 
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}"></script> 
 	
 	<script src="{{asset('js/select2.full.min.js')}}"></script> 

@@ -18,7 +18,7 @@
 	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+	<link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
 	<!-- Template CSS -->
@@ -156,7 +156,7 @@
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/daterangepicker.js')}}" defer></script> 
+	<script src="{{asset('js/flatpickr.min.js')}}" defer></script> 
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}" defer></script> 
 	
 	<script src="{{asset('js/select2.full.min.js')}}" defer></script> 

@@ -13,7 +13,7 @@
     <link href="{{asset('css/font-awesome.min.css')}}" rel="stylesheet">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
-    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+    <link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
 </head>
 <body>
 	<!--Content-->
@@ -34,19 +34,18 @@
 	<!-- jQuery should now be available immediately -->
 		 
 	<!-- Option 1: Bootstrap Bundle with Popper -->
-	<script src="{{asset('js/moment.min.js')}}"></script>
-	<script src="{{asset('js/daterangepicker.js')}}"></script> 
+	<script src="{{asset('js/flatpickr.min.js')}}"></script> 
 
 	<script>
 		$(document).ready(function() {
-			$(".dobdatepicker").daterangepicker({
-        locale: { cancelLabel: 'Clear',format: "DD/MM/YYYY" },
-        singleDatePicker: true,
-		autoUpdateInput: false,
-        showDropdowns: true
-      }).on("apply.daterangepicker", function (e, picker) {
-        picker.element.val(picker.startDate.format(picker.locale.format));
-    });
+			if (typeof flatpickr !== 'undefined' && $(".dobdatepicker").length) {
+				$(".dobdatepicker").each(function() {
+					flatpickr(this, {
+						dateFormat: "d/m/Y",
+						allowInput: true
+					});
+				});
+			}
 		});		
 	</script>
 </body>

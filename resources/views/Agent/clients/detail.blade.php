@@ -1600,15 +1600,17 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			url: '{{URL::to('/agent/getAppointmentdetail')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showappointmentdetail').html(response);
-				 $(".datepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-        showDropdowns: true
-      });
-				$(".timepicker").timepicker({
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showappointmentdetail').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
+			}
+			$(".timepicker").timepicker({
       icons: {
         up: "fas fa-chevron-up",
         down: "fas fa-chevron-down"
@@ -1632,18 +1634,20 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			url: '{{URL::to('/agent/getEducationdetail')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showeducationdetail').html(response);
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showeducationdetail').html(response);
 			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		
+		}
 	});
+});
 	
 	$(document).delegate('.interest_service_view', 'click', function(){
 		var v = $(this).attr('data-id');
@@ -1670,18 +1674,19 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			url: '{{URL::to('/agent/getintrestedserviceedit')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedserviceedit').html(response);
-				
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showinterestedserviceedit').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		}
 	});
+});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');
@@ -1757,96 +1762,115 @@ $(document).delegate('.paymentAmount','keyup', function(){
 			url: '{{URL::to('/agent/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
+		success:function(response){
+			$('.popuploader').hide();
+			$('.ifapplicationdetailnot').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr('.datepicker', {
+					dateFormat: "Y-m-d",
+					allowInput: true,
+					onChange: function(selectedDates, dateStr, instance) {
+						if (selectedDates.length > 0) {
+							$('#popuploader').show();
+							$.ajax({
+								url:"{{URL::to('/agent/application/updateintake')}}",
+								method: "GET",
+								dataType: "json",
+								data: {from: dateStr, appid: appliid},
+								success:function(result) {
+									$('#popuploader').hide();
+									console.log("sent back -> do whatever you want now");
+								}
+							});
 						}
-					});
+					}
 				});
-				
-				$('.expectdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updateexpectwin')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
-						}
-					});
-				});
-				
-				$('.startdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'start'},
-						success:function(result) {
-							$('#popuploader').hide();
-								var obj = result;
-							if(obj.status){
-								$('.app_start_date .month').html(obj.dates.month);
-								$('.app_start_date .day').html(obj.dates.date);
-								$('.app_start_date .year').html(obj.dates.year);
+			}
+			
+				if (typeof flatpickr !== 'undefined') {
+					$('.expectdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updateexpectwin')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
+				}
 				
-				$('.enddatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'end'},
-						success:function(result) {
-							$('#popuploader').hide();
-								var obj =result;
-							if(obj.status){
-								$('.app_end_date .month').html(obj.dates.month);
-								$('.app_end_date .day').html(obj.dates.date);
-								$('.app_end_date .year').html(obj.dates.year);
+				if (typeof flatpickr !== 'undefined') {
+					$('.startdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'start'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_start_date .month').html(obj.dates.month);
+												$('.app_start_date .day').html(obj.dates.date);
+												$('.app_start_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
+				}
+				
+				if (typeof flatpickr !== 'undefined') {
+					$('.enddatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'end'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_end_date .month').html(obj.dates.month);
+												$('.app_end_date .day').html(obj.dates.date);
+												$('.app_end_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+				}
 
 			}
 		});
@@ -1881,92 +1905,107 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 			success:function(response){
 				$('.popuploader').hide();
 				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
-						}
-					});
-				});
-				
-				$('.expectdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updateexpectwin')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							
-						}
-					});
-				});
-				
-				$('.startdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'start'},
-						success:function(result) {
-							$('#popuploader').hide();
-							var obj = result;
-							if(obj.status){
-								$('.app_start_date .month').html(obj.dates.month);
-								$('.app_start_date .day').html(obj.dates.date);
-								$('.app_start_date .year').html(obj.dates.year);
+				if (typeof flatpickr !== 'undefined') {
+					$('.datepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updateintake')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
-				$('.enddatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/agent/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'end'},
-						success:function(result) {
-							$('#popuploader').hide();
-							var obj = result;
-							if(obj.status){
-								$('.app_end_date .month').html(obj.dates.month);
-								$('.app_end_date .day').html(obj.dates.date);
-								$('.app_end_date .year').html(obj.dates.year);
+					
+					$('.expectdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updateexpectwin')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+											
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
+					
+					$('.startdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'start'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_start_date .month').html(obj.dates.month);
+												$('.app_start_date .day').html(obj.dates.date);
+												$('.app_start_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+					
+					$('.enddatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/agent/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'end'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_end_date .month').html(obj.dates.month);
+												$('.app_end_date .day').html(obj.dates.date);
+												$('.app_end_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+				}
 			}
 		});
 	});
@@ -2019,16 +2058,18 @@ $(document).delegate('.openpaymentschedule', 'click', function(){
 			url: '{{URL::to('/agent/addscheduleinvoicedetail')}}',
 			type: 'GET',
 			data: {id: $(this).attr('data-id')},
-			success: function(res){
-				$('.popuploader').hide();
-				$('.showpoppaymentscheduledata').html(res);
-				$(".datepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-        showDropdowns: true
-      });
+		success: function(res){
+			$('.popuploader').hide();
+			$('.showpoppaymentscheduledata').html(res);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		}
+	});
 });
 
 $(document).delegate('.addfee', 'click', function(){ 
@@ -2540,19 +2581,20 @@ $(document).delegate('#notes-tab', 'click', function(){
 			data: {id: $(this).attr('data-id'),t:'application'},
 			success: function(res){
 				$('.popuploader').hide();
-				$('.showeditmodule').html(res);
-				$(".editclientname").select2({
-					dropdownParent: $("#editpaymentschedule .modal-content")
-				}); 
-				
-				$(".datepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-        showDropdowns: true
-      });
+			$('.showeditmodule').html(res);
+			$(".editclientname").select2({
+				dropdownParent: $("#editpaymentschedule .modal-content")
+			}); 
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		}
 	});
+});
 	
 });
 $(document).ready(function() {

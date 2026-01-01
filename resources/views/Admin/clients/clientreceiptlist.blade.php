@@ -2,7 +2,6 @@
 @section('title', 'Clients Receipt List')
 
 @section('content')
-<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <style>
 .ag-space-between {
     justify-content: space-between;
@@ -263,11 +262,18 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 <script>
 jQuery(document).ready(function($){
   
-	$('.trans_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true });
+	if (typeof flatpickr !== 'undefined') {
+		$('.trans_date_fields').each(function() {
+			flatpickr(this, {
+				dateFormat: 'd/m/Y',
+				defaultDate: 'today',
+				allowInput: true
+			});
+		});
+	}
   
     $('.filter_btn').on('click', function(){
 		$('.filter_panel').slideToggle();

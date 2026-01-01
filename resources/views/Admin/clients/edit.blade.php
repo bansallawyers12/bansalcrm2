@@ -2,7 +2,7 @@
 @section('title', 'Edit Client')
 
 @section('content')
-<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
+
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
@@ -1375,7 +1375,6 @@ function initAutocomplete() {
 
 window.initAutocomplete = initAutocomplete;
 </script>
-<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 
 @if($showAlert)
     <script>
@@ -1685,10 +1684,12 @@ jQuery(document).ready(function($){
         $('#serviceTaken').modal('show');
 	});
 
-    $('#edu_service_start_date').datepicker({
-        format: 'dd/mm/yyyy',
-        autoclose: true
-    });
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#edu_service_start_date', {
+            dateFormat: 'd/m/Y',
+            allowInput: true
+        });
+    }
 
     //Service type on change div
     $('.modal-body form#createservicetaken input[name="service_type"]').on('change', function(){

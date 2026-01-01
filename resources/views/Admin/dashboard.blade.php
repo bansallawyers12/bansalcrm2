@@ -339,11 +339,9 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 @endsection
 
 @section('scripts')
-<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 <script src="{{asset('js/popover.js')}}"></script>
 <script>
 $(document).ready(function() {
@@ -353,7 +351,13 @@ $(document).ready(function() {
         window.location.href = '{{URL::to('/admin/dashboard')}}?task_filter=' + filter;
     });
 
-    $('#note_deadline').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    if (typeof flatpickr !== 'undefined') {
+      flatpickr('#note_deadline', {
+        dateFormat: 'd/m/Y',
+        defaultDate: 'today',
+        allowInput: true
+      });
+    }
 
     $(document).on('click', '#extend_deadline', function() {
         $(".popuploader").show();

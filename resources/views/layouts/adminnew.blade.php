@@ -34,7 +34,7 @@
 	  <!-- style --> 
 	  <link rel="stylesheet" href="{{URL::asset('css/style.css')}}">
 	  <link rel="stylesheet" href="{{URL::asset('css/font-awesome.min.css')}}">
-	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+	  <link rel="stylesheet" href="{{URL::asset('css/flatpickr.min.css')}}">
 	 
 	  <!--<link rel="stylesheet" href="{{URL::asset('css/niceCountryInput.css')}}">-->
 	  <!-- Google Font: Nunito (standardized across CRM) -->
@@ -352,10 +352,8 @@
 		
 		<!-- jQuery should now be available immediately -->
 		
-		<!-- jQuery UI 1.11.4 -->
-		<script src="{{URL::asset('js/moment.min.js')}}"></script>
-		   
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script> 
+		<!-- Flatpickr -->
+		<script src="{{URL::asset('js/flatpickr.min.js')}}"></script> 
 		<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->	
 		<!-- Datatable  -->
 		

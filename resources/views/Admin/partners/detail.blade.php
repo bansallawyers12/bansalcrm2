@@ -2,7 +2,6 @@
 @section('title', 'Partner Detail')
 
 @section('content')
-<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -2764,7 +2763,6 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 <!-- jQuery Confirm for custom confirmation box -->
 <script src="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.css">
@@ -2913,7 +2911,13 @@ jQuery(document).ready(function($){
     });
     //End Note deadline checkbox and text box field change
   
-    $('#popoverdatetime,#note_deadline').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#popoverdatetime,#note_deadline', {
+            dateFormat: 'd/m/Y',
+            defaultDate: 'today',
+            allowInput: true
+        });
+    }
 
 
     //application stages assign user
@@ -2959,7 +2963,15 @@ jQuery(document).ready(function($){
     //create student invoice start
     //////////////////////////////
     //////////////////////////////
-    $('.invoice_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    if (typeof flatpickr !== 'undefined') {
+        $('.invoice_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+    }
 
     $(document).delegate('.openproductrinfo', 'click', function(){
 		//var clonedval = $('.clonedrow').html();
@@ -3005,7 +3017,16 @@ jQuery(document).ready(function($){
                 $('.student_no_cls').last().html(obj.record_get);
             }
         });
-        $('.invoice_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+        if (typeof flatpickr !== 'undefined') {
+            var lastField = $('.invoice_date_fields').last()[0];
+            if (lastField) {
+                flatpickr(lastField, {
+                    dateFormat: 'd/m/Y',
+                    defaultDate: 'today',
+                    allowInput: true
+                });
+            }
+        }
     });
 
     $(document).delegate('.removeitems', 'click', function(){
@@ -3258,7 +3279,13 @@ jQuery(document).ready(function($){
                 },
                 onContentReady: function () {
                     // Initialize datepickers after the modal content is loaded
-                    $('#sent-date').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+                    if (typeof flatpickr !== 'undefined') {
+                        flatpickr('#sent-date', {
+                            dateFormat: 'd/m/Y',
+                            defaultDate: 'today',
+                            allowInput: true
+                        });
+                    }
                 }
             });
         }
@@ -3368,14 +3395,44 @@ jQuery(document).ready(function($){
     //////////////////////////////
     //////////////////////////////
 
-    $('.record_invoice_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
-    $('.record_sent_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    if (typeof flatpickr !== 'undefined') {
+        $('.record_invoice_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+        $('.record_sent_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+    }
 
     $(document).delegate('.openproductrinfo_invoice', 'click', function(){
 		var clonedval_invoice = $('.clonedrow_invoice').html();
 		$('.productitem_invoice').append('<tr class="product_field_clone_invoice">'+clonedval_invoice+'</tr>');
-        $('.record_invoice_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
-        $('.record_sent_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+        if (typeof flatpickr !== 'undefined') {
+            var lastInvoiceField = $('.record_invoice_date_fields').last()[0];
+            var lastSentField = $('.record_sent_date_fields').last()[0];
+            if (lastInvoiceField) {
+                flatpickr(lastInvoiceField, {
+                    dateFormat: 'd/m/Y',
+                    defaultDate: 'today',
+                    allowInput: true
+                });
+            }
+            if (lastSentField) {
+                flatpickr(lastSentField, {
+                    dateFormat: 'd/m/Y',
+                    defaultDate: 'today',
+                    allowInput: true
+                });
+            }
+        }
     });
 
     $(document).delegate('.removeitems_invoice', 'click', function(){
@@ -3469,12 +3526,29 @@ jQuery(document).ready(function($){
     //////////////////////////////
     //////////////////////////////
 
-    $('.record_payment_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    if (typeof flatpickr !== 'undefined') {
+        $('.record_payment_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+    }
 
     $(document).delegate('.openproductrinfo_payment', 'click', function(){
 		var clonedval_payment = $('.clonedrow_payment').html();
 		$('.productitem_payment').append('<tr class="product_field_clone_payment">'+clonedval_payment+'</tr>');
-        $('.record_payment_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+        if (typeof flatpickr !== 'undefined') {
+            var lastPaymentField = $('.record_payment_date_fields').last()[0];
+            if (lastPaymentField) {
+                flatpickr(lastPaymentField, {
+                    dateFormat: 'd/m/Y',
+                    defaultDate: 'today',
+                    allowInput: true
+                });
+            }
+        }
     });
 
     $(document).delegate('.removeitems_payment', 'click', function(){
@@ -4890,18 +4964,20 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 			url: '{{URL::to('/admin/getEducationdetail')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showeducationdetail').html(response);
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showeducationdetail').html(response);
 			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		
+		}
 	});
+});
 	
 	$(document).delegate('.interest_service_view', 'click', function(){
 		var v = $(this).attr('data-id');
@@ -4928,18 +5004,19 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 			url: '{{URL::to('/admin/getintrestedserviceedit')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedserviceedit').html(response);
-				
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showinterestedserviceedit').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		}
 	});
+});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');
@@ -5018,30 +5095,34 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 			url: '{{URL::to('/admin/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							console.log("sent back -> do whatever you want now");
+		success:function(response){
+			$('.popuploader').hide();
+			$('.ifapplicationdetailnot').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr('.datepicker', {
+					dateFormat: "Y-m-d",
+					allowInput: true,
+					onChange: function(selectedDates, dateStr, instance) {
+						if (selectedDates.length > 0) {
+							$.ajax({
+								url:"{{URL::to('/admin/application/updateintake')}}",
+								method: "GET",
+								dataType: "json",
+								data: {from: dateStr, appid: appliid},
+								success:function(result) {
+									console.log("sent back -> do whatever you want now");
+								}
+							});
 						}
-					});
+					}
 				});
-				
-
 			}
-		});
+			
+
+		}
 	});
+});
 	
 	$(document).delegate('#application-tab', 'click', function(){
 		

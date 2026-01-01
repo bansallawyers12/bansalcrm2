@@ -1424,11 +1424,14 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			success:function(response){
 				$('.popuploader').hide();
 				$('.showappointmentdetail').html(response);
-				 $(".datepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-        showDropdowns: true
-      });
+				 if (typeof flatpickr !== 'undefined') {
+					$(".datepicker").each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true
+						});
+					});
+				}
 				$(".timepicker").timepicker({
       icons: {
         up: "fas fa-chevron-up",
@@ -1447,18 +1450,20 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			url: '{{URL::to('/admin/getEducationdetail')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showeducationdetail').html(response);
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showeducationdetail').html(response);
 			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		
+		}
 	});
+});
 	
 	$(document).delegate('.interest_service_view', 'click', function(){
 		var v = $(this).attr('data-id');
@@ -1485,18 +1490,19 @@ $(document).delegate('.opencreate_task', 'click', function () {
 			url: '{{URL::to('/admin/getintrestedserviceedit')}}',
 			type:'GET',
 			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedserviceedit').html(response);
-				
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+		success:function(response){
+			$('.popuploader').hide();
+			$('.showinterestedserviceedit').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr(".datepicker", {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
 			}
-		});
+		}
 	});
+});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');
@@ -1571,30 +1577,34 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 			url: '{{URL::to('/admin/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-								
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							console.log("sent back -> do whatever you want now");
+		success:function(response){
+			$('.popuploader').hide();
+			$('.ifapplicationdetailnot').html(response);
+			
+			if (typeof flatpickr !== 'undefined') {
+				flatpickr('.datepicker', {
+					dateFormat: "Y-m-d",
+					allowInput: true,
+					onChange: function(selectedDates, dateStr, instance) {
+						if (selectedDates.length > 0) {
+							$.ajax({
+								url:"{{URL::to('/admin/application/updateintake')}}",
+								method: "GET",
+								dataType: "json",
+								data: {from: dateStr, appid: appliid},
+								success:function(result) {
+									console.log("sent back -> do whatever you want now");
+								}
+							});
 						}
-					});
+					}
 				});
-				
-
 			}
-		});
+			
+
+		}
 	});
+});
 	
 	$(document).delegate('#application-tab', 'click', function(){
 		

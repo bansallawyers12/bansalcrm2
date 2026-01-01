@@ -2,7 +2,6 @@
 @section('title', 'Client Detail')
 
 @section('content')
-<link rel="stylesheet" href="{{asset('css/bootstrap-datepicker.min.css')}}">
 <style>
 .popover {max-width:700px;}
 .ag-space-between {justify-content: space-between;}
@@ -3433,7 +3432,6 @@ if($fetchedData->tagname != ''){
 @endsection
 @section('scripts')
 <script src="{{asset('js/popover.js')}}"></script>
-<script src="{{asset('js/bootstrap-datepicker.js')}}"></script>
 
 @if($showAlert)
     <script>
@@ -3667,17 +3665,47 @@ jQuery(document).ready(function($){
     /////////////////////////////////////////////
 
   	//create client receipt start
-    //$('.report_date_fields').datepicker({ format: 'dd/mm/yyyy',autoclose: true });
-    $('.report_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
-    $('.report_entry_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+    // Flatpickr replacements
+    if (typeof flatpickr !== 'undefined') {
+        $('.report_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+        $('.report_entry_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+    }
 
 
     $(document).delegate('.openproductrinfo', 'click', function(){
 		var clonedval = $('.clonedrow').html();
 		$('.productitem').append('<tr class="product_field_clone">'+clonedval+'</tr>');
-        //$('.report_date_fields').datepicker({ format: 'dd/mm/yyyy', autoclose: true  });
-        $('.report_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
-        $('.report_entry_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+        
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.report_date_fields:not(._flatpickr-initialized)', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.element.classList.add('_flatpickr-initialized');
+                }
+            });
+            flatpickr('.report_entry_date_fields:not(._flatpickr-initialized)', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.element.classList.add('_flatpickr-initialized');
+                }
+            });
+        }
 
     });
 
@@ -3837,10 +3865,12 @@ jQuery(document).ready(function($){
     ////// stag code end ///
     ////////////////////////////////////////////////
 
-    $('#edu_service_start_date').datepicker({
-        format: 'dd/mm/yyyy',
-        autoclose: true
-    });
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#edu_service_start_date', {
+            dateFormat: 'd/m/Y',
+            allowInput: true
+        });
+    }
 
     $('.filter_btn').on('click', function(){
 		$('.filter_panel').slideToggle();
@@ -4075,20 +4105,24 @@ Bansal Immigration`;
                     if(obj.success){
                         duration = obj.duration;
                         daysOfWeek =  obj.weeks;
-                        starttime =  obj.start_time;
-                        endtime =  obj.end_time;
-                        disabledtimeslotes = obj.disabledtimeslotes;
-                        var datesForDisable = obj.disabledatesarray;
+                    starttime =  obj.start_time;
+                    endtime =  obj.end_time;
+                    disabledtimeslotes = obj.disabledtimeslotes;
+                    var datesForDisable = obj.disabledatesarray;
 
-                        $('#datetimepicker').datepicker({
+                    if (typeof flatpickr !== 'undefined') {
+                        flatpickr('#datetimepicker', {
                             inline: true,
-                            startDate: new Date(),
-                            datesDisabled: datesForDisable,
-                            daysOfWeekDisabled: daysOfWeek,
-                            format: 'dd/mm/yyyy'
-                        }).on('changeDate', function(e) {
-                            var date = e.format();
-                            var checked_date=e.date.toLocaleDateString('en-US');
+                            dateFormat: 'd/m/Y',
+                            minDate: 'today',
+                            disable: datesForDisable.concat(function(date) {
+                                return daysOfWeek.includes(date.getDay());
+                            }),
+                            onChange: function(selectedDates, dateStr, instance) {
+                                if (selectedDates.length > 0) {
+                                    var date = dateStr;
+                                    var checked_date = selectedDates[0].toLocaleDateString('en-US');
+
 
                             $('.showselecteddate').html(date);
                             $('input[name="date"]').val(date);
@@ -4183,16 +4217,20 @@ Bansal Immigration`;
                         }
                         $('input[name="service_id"]').val($("input[name='radioGroup']:checked").val());
                     } else {
-                        $('input[name="service_id"]').val('');
-                        var v = 'services';
-                        alert('There is a problem in our system. please try again');
-                        $('#myTab .nav-item #services-tab').removeClass('disabled');
-                        $('#myTab .nav-item #appointment_details-tab').addClass('disabled');
-                    }
+                    $('input[name="service_id"]').val('');
+                    var v = 'services';
+                    alert('There is a problem in our system. please try again');
+                    $('#myTab .nav-item #services-tab').removeClass('disabled');
+                    $('#myTab .nav-item #appointment_details-tab').addClass('disabled');
                 }
-            })
-        }
-	});
+            }
+        })
+                                }
+                            }
+                        });
+                    }
+    }
+});
 
     $(document).delegate('.appointment_item', 'change', function(){
         var id = $(this).val();
@@ -4259,21 +4297,24 @@ Bansal Immigration`;
 				if(obj.success){
                     duration = obj.duration;
 					daysOfWeek =  obj.weeks;
-					starttime =  obj.start_time;
-					endtime =  obj.end_time;
-					disabledtimeslotes = obj.disabledtimeslotes;
+				starttime =  obj.start_time;
+				endtime =  obj.end_time;
+				disabledtimeslotes = obj.disabledtimeslotes;
 
-                    var datesForDisable = obj.disabledatesarray;
+                var datesForDisable = obj.disabledatesarray;
 
-                    $('#datetimepicker').datepicker({
-						inline: true,
-						startDate: new Date(),
-						datesDisabled: datesForDisable,
-						daysOfWeekDisabled: daysOfWeek,
-						format: 'dd/mm/yyyy'
-					}).on('changeDate', function(e) {
-                        var date = e.format();
-                        var checked_date=e.date.toLocaleDateString('en-US');
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr('#datetimepicker', {
+                        inline: true,
+                        dateFormat: 'd/m/Y',
+                        minDate: 'today',
+                        disable: datesForDisable.concat(function(date) {
+                            return daysOfWeek.includes(date.getDay());
+                        }),
+                        onChange: function(selectedDates, dateStr, instance) {
+                            if (selectedDates.length > 0) {
+                                var date = dateStr;
+                                var checked_date = selectedDates[0].toLocaleDateString('en-US');
 
                         $('.showselecteddate').html(date);
                         //$('input[name="date"]').val(date);
@@ -4377,6 +4418,10 @@ Bansal Immigration`;
 				}
 			}
 		})*/
+                            }
+                        }
+                    });
+                }
 	});
 
     $('.slot_overwrite_time_dropdown').change(function() {
@@ -6475,11 +6520,14 @@ $(document).on('click', '#application-tab', function () {
 			success:function(response){
 				$('.popuploader').hide();
 				$('.showeducationdetail').html(response);
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+				if (typeof flatpickr !== 'undefined') {
+					$(".datepicker").each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true
+						});
+					});
+				}
 
 			}
 		});
@@ -6519,17 +6567,19 @@ $(document).on('click', '#application-tab', function () {
   $(".partnerselect2").select2({
     dropdownParent: $("#eidt_interested_service")
   });
-   $(".productselect2").select2({
+  $(".productselect2").select2({
     dropdownParent: $("#eidt_interested_service")
   });
   $(".branchselect2").select2({
     dropdownParent: $("#eidt_interested_service")
   });
-				 $(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				  });
+  
+  if (typeof flatpickr !== 'undefined') {
+    flatpickr(".datepicker", {
+      dateFormat: "Y-m-d",
+      allowInput: true
+    });
+  }
 			}
 		});
 	});
@@ -6606,8 +6656,23 @@ $(document).on('click', '#application-tab', function () {
                             $('.productitem').append(trRows_client);
 
                             $('.productitem tr:last .payment_method_cls').val(subArray.payment_method);
-                            $('.report_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true });
-                            $('.report_entry_date_fields').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true });
+                            
+                            if (typeof flatpickr !== 'undefined') {
+                                flatpickr('.report_date_fields:not(._flatpickr-initialized)', {
+                                    dateFormat: 'd/m/Y',
+                                    allowInput: true,
+                                    onReady: function(selectedDates, dateStr, instance) {
+                                        instance.element.classList.add('_flatpickr-initialized');
+                                    }
+                                });
+                                flatpickr('.report_entry_date_fields:not(._flatpickr-initialized)', {
+                                    dateFormat: 'd/m/Y',
+                                    allowInput: true,
+                                    onReady: function(selectedDates, dateStr, instance) {
+                                        instance.element.classList.add('_flatpickr-initialized');
+                                    }
+                                });
+                            }
 
                             if(index <1 ){
                                 //$('#sel_invoice_agent_id').val(subArray.agent_id).trigger('change');
@@ -6630,7 +6695,14 @@ $(document).on('click', '#application-tab', function () {
         $('#create_client_receipt')[0].reset();
         $('.total_deposit_amount_all_rows').text("");
         $('#sel_client_agent_id').val("").trigger('change');
-        $('.report_entry_date_fields').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true }).datepicker('setDate', new Date());
+        
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.report_entry_date_fields', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        }
     });
 
 
@@ -6703,93 +6775,112 @@ $(document).delegate('.paymentAmount','keyup', function(){
 			success:function(response){
 				$('.popuploader').hide();
 				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
-						}
-					});
-				});
-
-				$('.expectdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateexpectwin')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
-						}
-					});
-				});
-
-				$('.startdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'start'},
-						success:function(result) {
-							$('#popuploader').hide();
-								var obj = result;
-							if(obj.status){
-								$('.app_start_date .month').html(obj.dates.month);
-								$('.app_start_date .day').html(obj.dates.date);
-								$('.app_start_date .year').html(obj.dates.year);
+				
+				if (typeof flatpickr !== 'undefined') {
+					flatpickr('.datepicker', {
+						dateFormat: "Y-m-d",
+						allowInput: true,
+						onChange: function(selectedDates, dateStr, instance) {
+							if (selectedDates.length > 0) {
+								$('#popuploader').show();
+								$.ajax({
+									url:"{{URL::to('/admin/application/updateintake')}}",
+									method: "GET",
+									dataType: "json",
+									data: {from: dateStr, appid: appliid},
+									success:function(result) {
+										$('#popuploader').hide();
+										console.log("sent back -> do whatever you want now");
+									}
+								});
 							}
-							console.log("sent back -> do whatever you want now");
 						}
 					});
-				});
+				}
 
-				$('.enddatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'end'},
-						success:function(result) {
-							$('#popuploader').hide();
-								var obj =result;
-							if(obj.status){
-								$('.app_end_date .month').html(obj.dates.month);
-								$('.app_end_date .day').html(obj.dates.date);
-								$('.app_end_date .year').html(obj.dates.year);
+				if (typeof flatpickr !== 'undefined') {
+					$('.expectdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updateexpectwin')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
+				}
+
+				if (typeof flatpickr !== 'undefined') {
+					$('.startdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'start'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_start_date .month').html(obj.dates.month);
+												$('.app_start_date .day').html(obj.dates.date);
+												$('.app_start_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+				}
+
+				if (typeof flatpickr !== 'undefined') {
+					$('.enddatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'end'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_end_date .month').html(obj.dates.month);
+												$('.app_end_date .day').html(obj.dates.date);
+												$('.app_end_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+				}
 
 			}
 		});
@@ -6830,92 +6921,107 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 			success:function(response){
 				$('.popuploader').hide();
 				$('.ifapplicationdetailnot').html(response);
-				$('.datepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateintake')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-							console.log("sent back -> do whatever you want now");
-						}
-					});
-				});
-
-				$('.expectdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updateexpectwin')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid},
-						success:function(result) {
-							$('#popuploader').hide();
-
-						}
-					});
-				});
-
-				$('.startdatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
-
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'start'},
-						success:function(result) {
-							$('#popuploader').hide();
-							var obj = result;
-							if(obj.status){
-								$('.app_start_date .month').html(obj.dates.month);
-								$('.app_start_date .day').html(obj.dates.date);
-								$('.app_start_date .year').html(obj.dates.year);
+				if (typeof flatpickr !== 'undefined') {
+					$('.datepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updateintake')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
-				$('.enddatepicker').daterangepicker({
-				locale: { format: "YYYY-MM-DD",cancelLabel: 'Clear' },
-								singleDatePicker: true,
 
-								showDropdowns: true,
-				}, function(start, end, label) {
-					$('#popuploader').show();
-					$.ajax({
-						url:"{{URL::to('/admin/application/updatedates')}}",
-						method: "GET", // or POST
-						dataType: "json",
-						data: {from: start.format('YYYY-MM-DD'), appid: appliid, datetype: 'end'},
-						success:function(result) {
-							$('#popuploader').hide();
-							var obj = result;
-							if(obj.status){
-								$('.app_end_date .month').html(obj.dates.month);
-								$('.app_end_date .day').html(obj.dates.date);
-								$('.app_end_date .year').html(obj.dates.year);
+					$('.expectdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updateexpectwin')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid},
+										success:function(result) {
+											$('#popuploader').hide();
+
+										}
+									});
+								}
 							}
-							console.log("sent back -> do whatever you want now");
-						}
+						});
 					});
-				});
+
+					$('.startdatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'start'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_start_date .month').html(obj.dates.month);
+												$('.app_start_date .day').html(obj.dates.date);
+												$('.app_start_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+
+					$('.enddatepicker').each(function() {
+						flatpickr(this, {
+							dateFormat: "Y-m-d",
+							allowInput: true,
+							onChange: function(selectedDates, dateStr, instance) {
+								if (selectedDates.length > 0) {
+									$('#popuploader').show();
+									$.ajax({
+										url:"{{URL::to('/admin/application/updatedates')}}",
+										method: "GET",
+										dataType: "json",
+										data: {from: dateStr, appid: appliid, datetype: 'end'},
+										success:function(result) {
+											$('#popuploader').hide();
+											var obj = result;
+											if(obj.status){
+												$('.app_end_date .month').html(obj.dates.month);
+												$('.app_end_date .day').html(obj.dates.date);
+												$('.app_end_date .year').html(obj.dates.year);
+											}
+											console.log("sent back -> do whatever you want now");
+										}
+									});
+								}
+							}
+						});
+					});
+				}
 			}
 		});
 	});
@@ -7022,11 +7128,13 @@ $(document).delegate('.openpaymentschedule', 'click', function(){
 			success: function(res){
 				$('.popuploader').hide();
 				$('.showpoppaymentscheduledata').html(res);
-				$(".datepicker").daterangepicker({
-					locale: { format: "YYYY-MM-DD" },
-					singleDatePicker: true,
-					showDropdowns: true
-				});
+				
+				if (typeof flatpickr !== 'undefined') {
+					flatpickr(".datepicker", {
+						dateFormat: "Y-m-d",
+						allowInput: true
+					});
+				}
 			}
 		});
 });
@@ -7380,7 +7488,14 @@ $(document).delegate('#notes-tab', 'click', function(){
 			success:function(response){
 				$('.popuploader').hide();
                 $('.showproductfee_latest').html(response);
-                $('.date_paid').datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true });
+                if (typeof flatpickr !== 'undefined') {
+                    $('.date_paid').each(function() {
+                        flatpickr(this, {
+                            dateFormat: 'd/m/Y',
+                            allowInput: true
+                        });
+                    });
+                }
             }
 		});
 	});
@@ -7441,7 +7556,16 @@ $(document).delegate('#notes-tab', 'click', function(){
         var html = '<tr class="add_fee_option cus_fee_option"><td><input type="text" data-valid="required" value="" class="form-control date_paid" name="date_paid[]"><input type="hidden" value="2" name="fee_option_type[]"></td><td><input type="number" data-valid="required" value="" class="form-control total_fee_am_2nd" name="total_fee[]"></td><td><input type="number" data-valid="required" value="" class="form-control commission_percentage" name="commission_percentage[]"></td><td><input type="text" value="" class="form-control commission_cal" readonly><input type="hidden" value="" class="form-control commission_cal_hidden" name="commission[]"></td><td><input type="number" data-valid="required" value="" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]"></td><td><input type="text" value="" class="form-control commission_claimed" readonly><input type="hidden" value="" class="form-control commission_claimed_hidden" name="commission_claimed[]"></td><td><select class="form-control" data-valid="required"  name="claimed_or_not[]" ><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option><option value="Anticipated">Anticipated</option></select></td><td><select class="form-control" data-valid="required"  name="source[]" ><option value="">Select</option><option value="Prededuct">Prededuct</option><option value="Reported by college">Reported by college</option><option value="Calculated by us">Calculated by us</option><option value="Told by student">Told by student</option><option value="Bonus">Bonus</option></select></td></tr>';
         $('#new_fee_option_latest #productitemviewlatest tbody').append(html);
         $('.commission_percentage').last().val( $('#commission_percentage').val());
-        $('.date_paid').last().datepicker({ format: 'dd/mm/yyyy',todayHighlight: true,autoclose: true });
+        
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.date_paid:not(._flatpickr-initialized)', {
+                dateFormat: 'd/m/Y',
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.element.classList.add('_flatpickr-initialized');
+                }
+            });
+        }
     });
 
 	$(document).delegate('#new_fee_option .removefeetype', 'click', function(){
@@ -7602,11 +7726,12 @@ $(document).delegate('#notes-tab', 'click', function(){
 					dropdownParent: $("#editpaymentschedule .modal-content")
 				});
 
-				$(".datepicker").daterangepicker({
-        locale: { format: "YYYY-MM-DD" },
-        singleDatePicker: true,
-        showDropdowns: true
-      });
+				if (typeof flatpickr !== 'undefined') {
+					flatpickr(".datepicker", {
+						dateFormat: "Y-m-d",
+						allowInput: true
+					});
+				}
 			}
 		});
 	});
