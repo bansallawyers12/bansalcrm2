@@ -8,7 +8,7 @@ class UserLog extends Model
 {	use Sortable;
 
 	protected $fillable = [
-        'id', 'created_at', 'updated_at'
+        'level', 'user_id', 'ip_address', 'user_agent', 'message', 'created_at', 'updated_at'
     ];
 	
 	public $sortable = ['id'];

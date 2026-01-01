@@ -11,6 +11,9 @@
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173;">
 	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<title>Bansal CRM | @yield('title')</title>
+	
+	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
 	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
 	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
@@ -127,8 +130,7 @@
 	@vite(['resources/js/app.js'])
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
-	<!-- Bootstrap Bundle (required for popover and other Bootstrap components) -->
-	<script src="{{asset('js/bootstrap.bundle.min.js')}}" defer></script>
+	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
 	<!-- Feather Icons (required before scripts.js) -->
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
 	<!-- jQuery NiceScroll (required for sidebar scrolling) -->

@@ -10,6 +10,10 @@
 	<meta name="author" content="Bansal CRM">
 	<link rel="shortcut icon" type="image/png" href="{{asset('img/favicon.png')}}"/>
 	<title>Bansal CRM | @yield('title')</title>
+	
+	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	
 	<!-- Favicons-->
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 			 

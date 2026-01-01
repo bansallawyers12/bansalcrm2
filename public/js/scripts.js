@@ -144,7 +144,9 @@ $(function () {
     } else {
       body.addClass("sidebar-mini");
       body.removeClass("sidebar-show");
-      sidebar_nicescroll.remove();
+      if (sidebar_nicescroll != null) {
+        sidebar_nicescroll.remove();
+      }
       sidebar_nicescroll = null;
       $(".main-sidebar .sidebar-menu > li").each(function () {
         let me = $(this);
@@ -398,7 +400,13 @@ $(function () {
       }
     });
 
-  $(".message-toggle").dropdown();
+  // Bootstrap 5 Dropdown - Initialize message toggle using Bootstrap 5 API
+  if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+    document.querySelectorAll('.message-toggle').forEach(function(element) {
+      new bootstrap.Dropdown(element);
+    });
+  }
+  
   $(".message-toggle")
     .parent()
     .on("shown.bs.dropdown", function () {
@@ -434,13 +442,22 @@ $(function () {
       target = me.data("collapse");
 
     me.click(function () {
-      $(target).collapse("toggle");
-      $(target).on("shown.bs.collapse", function () {
-        me.html('<i class="fas fa-minus"></i>');
-      });
-      $(target).on("hidden.bs.collapse", function () {
-        me.html('<i class="fas fa-plus"></i>');
-      });
+      if (typeof $.fn.collapse === 'function') {
+        $(target).collapse("toggle");
+        $(target).on("shown.bs.collapse", function () {
+          me.html('<i class="fas fa-minus"></i>');
+        });
+        $(target).on("hidden.bs.collapse", function () {
+          me.html('<i class="fas fa-plus"></i>');
+        });
+      } else if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+        // Use Bootstrap 5 vanilla JS API as fallback
+        var collapseElement = document.querySelector(target);
+        if (collapseElement) {
+          var bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseElement);
+          bsCollapse.toggle();
+        }
+      }
       return false;
     });
   });
@@ -490,7 +507,14 @@ $(function () {
     var me = $(this);
 
     me.find(".close").click(function () {
-      me.alert("close");
+      if (typeof $.fn.alert === 'function') {
+        me.alert("close");
+      } else {
+        // Fallback: just remove the element
+        me.fadeOut(function() {
+          me.remove();
+        });
+      }
     });
   });
 
@@ -516,10 +540,16 @@ $(function () {
 
   // Dismiss modal
   $("[data-bs-dismiss=modal]").click(function () {
-    $(this)
-      .closest(".modal")
-      .modal("hide");
-
+    var modalElement = $(this).closest(".modal");
+    if (typeof $.fn.modal === 'function') {
+      modalElement.modal("hide");
+    } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      // Use Bootstrap 5 vanilla JS API as fallback
+      var modal = bootstrap.Modal.getInstance(modalElement[0]);
+      if (modal) {
+        modal.hide();
+      }
+    }
     return false;
   });
 
@@ -804,7 +834,7 @@ $(function () {
     if (!mouse_is_inside) $(".settingSidebar").removeClass("showSettingPanel");
   });
 
-  $(".settingSidebar-body").niceScroll();
+  // Duplicate call removed - already handled above with safety check
 
   // theme change event
   $(".choose-theme li").on("click", function () {

@@ -9,10 +9,13 @@
 		<meta name="author" content="">
 		<meta name="keyword" content="E-Weblink CRM">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
-		<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
-		<title>CRM Digitrex | @yield('title')</title>
-		  
-		<!-- Font Awesome -->
+	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
+	<title>CRM Digitrex | @yield('title')</title>
+	
+	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	  
+	<!-- Font Awesome -->
 	  <link rel="stylesheet" href="{{URL::asset('icons/font-awesome/css/all.min.css')}}">
 	  <!-- Ionicons -->
 	  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
@@ -332,21 +335,19 @@
 		</div>
 		<!-- /.modal -->
 		
-		<!-- Load jQuery FIRST via Vite -->
+		<!-- Load jQuery FIRST as separate entry (synchronous) -->
+		@vite(['resources/js/jquery-init.js'])
+		
+		<!-- Then load main app with Vue, Bootstrap, etc (async) -->
 		@vite(['resources/js/app.js'])
 		
-		<!-- jQuery safety check -->
-		<script>
-			if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
-				console.error('CRITICAL: jQuery not loaded! Legacy scripts will fail.');
-			}
-		</script>
+		<!-- jQuery should now be available immediately -->
 		
 		<!-- jQuery UI 1.11.4 -->
 		<script src="{{URL::asset('js/moment.min.js')}}"></script>
 		   
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script> 
-		<script src="{{URL::asset('js/bootstrap.bundle.min.js')}}"></script>	
+		<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->	
 		<!-- Datatable  -->
 		
 		<!-- Select2 -->		

@@ -10,8 +10,10 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
 	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
 	<title>Bansal CRM | @yield('title')</title>
+	
+	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	 
-	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
@@ -89,10 +91,7 @@
 	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
-	<!-- jQuery should now be available immediately -->
-	 
 	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  
-	<script src="{{asset('js/fullcalendar.min.js')}}"></script>   
 	<script src="{{asset('js/chart.min.js')}}"></script>   
 	<script src="{{asset('js/datatables.min.js')}}"></script>   
 	<script src="{{asset('js/dataTables.bootstrap5.js')}}"></script>   

@@ -10,6 +10,9 @@
 		<meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<title>Tour Planner | Exception</title>
+		
+		<!-- Load jQuery synchronously before any other scripts to ensure availability -->
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     
 		<!-- Icons-->
 			<!-- Removed broken references: @coreui/icons, flag-icon-css, simple-line-icons (not installed) -->
@@ -61,19 +64,17 @@
 			</div>
 		</div>
 	
-	<!-- Load jQuery FIRST via Vite -->
+	<!-- Load jQuery FIRST as separate entry (synchronous) -->
+	@vite(['resources/js/jquery-init.js'])
+	
+	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
-	<!-- jQuery safety check -->
-	<script>
-		if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
-			console.error('CRITICAL: jQuery not loaded! Legacy scripts will fail.');
-		}
-	</script>
+	<!-- jQuery should now be available immediately -->
+	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
+	<!-- Popper.js is already included in Bootstrap 5 bundle via Vite -->
 	
 	<!-- Apnamentor necessary plugins-->
-		<script src="{{asset('js/popper.js/js/popper.min.js')}}"></script>
-		<script src="{{asset('js/bootstarp/js/bootstrap.min.js')}}"></script>
 		<script src="{{asset('js/pace-progress/js/pace.min.js')}}"></script>
 		<script src="{{asset('js/perfect-scrollbar/js/perfect-scrollbar.min.js')}}"></script>
 		<!-- Removed broken reference: icons/@coreui/coreui-pro/js/coreui.min.js (not installed) -->
