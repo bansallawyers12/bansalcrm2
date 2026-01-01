@@ -1062,19 +1062,16 @@ class InvoiceController extends Controller
 				$appid = \App\Models\Application::where('id', $request->application_id)->first();
 				if($appid){
 					$appfeeid = \App\Models\ApplicationFeeOption::where('app_id', $request->application_id)->first();
-					$getfeetypequery = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeid->id);
-					$totcount = $getfeetypequery->count();
-					$getfeetype = $getfeetypequery->get();
 					
 					$requestData['client_id'] = $appid->client_id;
 					$requestData['application'] = $appid->id;
 					
 					if($appfeeid){
-					$requestData['installment_name'] = $appfeeid->installment_type.' 1';
-						}else{
-							$requestData['installment_name'] = 'Semester 1';
-						}
+						$getfeetypequery = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeid->id);
+						$totcount = $getfeetypequery->count();
+						$getfeetype = $getfeetypequery->get();
 						
+						$requestData['installment_name'] = $appfeeid->installment_type.' 1';
 						$requestData['invoice_sc_date'] = $requestData['invoice_date'];
 						$requestData['discount_amount'] = @$appfeeid->total_discount;
 						if($totcount !== 0){
@@ -1087,9 +1084,17 @@ class InvoiceController extends Controller
 							}
 						}else{
 							$requestData['fee_type'][0] = 'Tuition Fee';
-								$requestData['fee_amount'][0] = 0.00;
-								$requestData['comm_amount'][0] = 0.00;
+							$requestData['fee_amount'][0] = 0.00;
+							$requestData['comm_amount'][0] = 0.00;
 						}
+					}else{
+						$requestData['installment_name'] = 'Semester 1';
+						$requestData['invoice_sc_date'] = $requestData['invoice_date'];
+						$requestData['discount_amount'] = 0;
+						$requestData['fee_type'][0] = 'Tuition Fee';
+						$requestData['fee_amount'][0] = 0.00;
+						$requestData['comm_amount'][0] = 0.00;
+					}
 				}
 				
 			}
@@ -1146,6 +1151,16 @@ class InvoiceController extends Controller
 	public function editpaymentschedule(Request $request){
 		$requestData 				= 	$request->all();
 		$obj						= 	InvoiceSchedule::find(@$requestData['id']); 
+		if(!$obj){
+			if(isset($requestData['is_ajax']) && $requestData['is_ajax']){
+				$response['status'] 	= 	false;
+				$response['message']	=	'Schedule not found';
+				echo json_encode($response);
+				return;
+			}else{
+				return redirect()->back()->with('error', 'Schedule not found');
+			}
+		}
 		$obj->user_id				=	Auth::user()->id;  
 		$obj->client_id				=	@$requestData['client_id'];  
 		$obj->application_id		=	@$requestData['application'];  
@@ -1399,6 +1414,13 @@ class InvoiceController extends Controller
 	}
 	public function scheduleinvoicedetail(Request $request){
 		$fetchedData = InvoiceSchedule::find($request->id);
+		if(!$fetchedData){
+			ob_start();
+			?>
+			<div class="alert alert-danger">Schedule not found.</div>
+			<?php
+			return ob_get_clean();
+		}
 		ob_start();
 		?>
 		<form method="post" action="<?php echo \URL::to('/admin/editpaymentschedule'); ?>" name="editinvpaymentschedule"  id="editinvpaymentschedule" autocomplete="off" enctype="multipart/form-data">
@@ -1410,12 +1432,19 @@ class InvoiceController extends Controller
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="editclientname">Client Name <span class="span_req">*</span></label>
-								<?php if(isset($request->t) && $request->t == 'application'){
-									$cleintname = \App\Models\Admin::where('role',7)->where('id',$fetchedData->client_id)->first();
+							<?php if(isset($request->t) && $request->t == 'application'){
+								$cleintname = \App\Models\Admin::where('role',7)->where('id',$fetchedData->client_id)->first();
+								if(!$cleintname){
 									?>
-									<input type="text" disabled class="form-control" value="<?php echo $cleintname->first_name.' '.$cleintname->last_name; ?>">
+									<input type="text" disabled class="form-control" value="Client not found">
 									<input type="hidden" name="client_id" value="<?php echo $fetchedData->client_id; ?>">
 									<?php
+								}else{
+									?>
+								<input type="text" disabled class="form-control" value="<?php echo $cleintname->first_name.' '.$cleintname->last_name; ?>">
+								<input type="hidden" name="client_id" value="<?php echo $fetchedData->client_id; ?>">
+								<?php
+								}
 								}else{
 									?>
 									<select  data-valid="required" class="form-control editclientname" id="editclientname" name="client_id">
@@ -1437,13 +1466,27 @@ class InvoiceController extends Controller
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="application">Application <span class="span_req">*</span></label> 
-								<?php if(isset($request->t) && $request->t == 'application'){
-									$applications = \App\Models\Application::where('client_id', $fetchedData->client_id)->where('id', $fetchedData->id)->first();
-									$productdetail = \App\Models\Product::where('id', $applications->product_id)->first();
+							<?php if(isset($request->t) && $request->t == 'application'){
+								$applications = \App\Models\Application::where('client_id', $fetchedData->client_id)->where('id', $fetchedData->application_id)->first();
+								if(!$applications){
 									?>
+									<input type="text" disabled class="form-control" value="Application not found">
+									<input type="hidden" name="application" value="<?php echo $fetchedData->application_id; ?>">
+									<?php
+								}else{
+									$productdetail = \App\Models\Product::where('id', $applications->product_id)->first();
+									if(!$productdetail){
+										?>
+										<input type="text" disabled class="form-control" value="Product not found">
+										<input type="hidden" name="application" value="<?php echo $fetchedData->application_id; ?>">
+										<?php
+									}else{
+										?>
 									<input type="text" disabled class="form-control" value="<?php echo $productdetail->name; ?>">
 									<input type="hidden" name="application" value="<?php echo $fetchedData->application_id; ?>">
 									<?php
+									}
+								}
 								}else{
 									?>
 									<select  data-valid="required" class="form-control application select2" id="editapplication" name="application">
@@ -1615,11 +1658,24 @@ class InvoiceController extends Controller
 	
 	public function apppreviewschedules(Request $request, $id){
 		$applications = \App\Models\Application::where('id', $id)->first();
-		$invoiceschedules = \App\Models\InvoiceSchedule::where('application_id', @$id)->get();
+		if(!$applications){
+			return redirect()->back()->with('error', 'Application not found');
+		}
 		
-		$productdetail = \App\Models\Product::where('id', @$applications->product_id)->first();
-		$cleintname = \App\Models\Admin::where('role',7)->where('id',@$applications->client_id)->first();
-		$PartnerBranch = \App\Models\PartnerBranch::where('id', @$applications->branch)->first();
+		$invoiceschedules = \App\Models\InvoiceSchedule::where('application_id', $id)->get();
+		
+		$productdetail = null;
+		if($applications->product_id){
+			$productdetail = \App\Models\Product::where('id', $applications->product_id)->first();
+		}
+		$cleintname = null;
+		if($applications->client_id){
+			$cleintname = \App\Models\Admin::where('role',7)->where('id', $applications->client_id)->first();
+		}
+		$PartnerBranch = null;
+		if($applications->branch){
+			$PartnerBranch = \App\Models\PartnerBranch::where('id', $applications->branch)->first();
+		}
 		
 		$pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,

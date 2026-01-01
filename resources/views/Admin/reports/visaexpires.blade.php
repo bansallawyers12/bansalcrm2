@@ -39,12 +39,19 @@
 </div>
 <?php
  $sched_res = [];
+// Query to get admins with valid visa expiry dates (not NULL and not empty string)
 $visaexpires = \App\Models\Admin::select('id','visaexpiry','first_name','last_name')
     ->where('role',7)
+    ->whereNotNull('visaexpiry')
     ->whereRaw("CAST(visaexpiry AS TEXT) != ''")  // Filter out empty date strings
     ->get();
 
 foreach($visaexpires as $visaexpire){
+    // Skip if visaexpiry is invalid or can't be parsed
+    if(empty($visaexpire->visaExpiry) || !strtotime($visaexpire->visaExpiry)) {
+        continue;
+    }
+    
     $visaexpireArray = [
         'id' => $visaexpire->id,
         'stitle' => htmlspecialchars($visaexpire->first_name, ENT_QUOTES, 'UTF-8'),

@@ -40,7 +40,7 @@
 <?php
  $sched_res = [];
 $partners = \App\Models\Partner::select('id', 'partner_name', 'contract_expiry')
-    ->whereNotNull('contract_expiry')
+    ->whereRaw("CAST(contract_expiry AS TEXT) != ''")  // Filter out empty date strings
     ->get();
 
 foreach($partners as $partner){
@@ -57,6 +57,29 @@ foreach($partners as $partner){
     $sched_res[$partner->id] = $row;
 }
 ?>
+<div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-details-modal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-0">
+                <div class="modal-header rounded-0">
+                    <h5 class="modal-title">Schedule Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body rounded-0">
+                    <div class="container-fluid">
+                        <dl>
+                            <dt class="text-muted">Title</dt>
+                            <dd id="title" class="fw-bold fs-4"></dd>
+                           
+                            <dt class="text-muted">Expire Date</dt>
+                            <dd id="start" class=""></dd>
+                          
+                        </dl>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
 <script>
@@ -69,12 +92,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var events = [];
     var scheds = {!! json_encode($sched_res, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!};
+    
+    // Debug logging
+    console.log('FullCalendar v6 Debug:');
+    console.log('scheds data:', scheds);
+    console.log('scheds type:', typeof scheds);
+    console.log('scheds keys:', Object.keys(scheds));
+    
     if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
             events.push({ id: row.id, title: row.title, start: row.start, end: row.end });
         });
     }
+    
+    console.log('Events array:', events);
+    console.log('Events count:', events.length);
 
     var calendarEl = document.getElementById('myEvent');
     if (!calendarEl) {
@@ -110,10 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!!scheds[id]) {
                 var titleEl = details.querySelector('#title');
-                var descEl = details.querySelector('#description');
                 var startEl = details.querySelector('#start');
                 if (titleEl) titleEl.textContent = scheds[id].title;
-                if (descEl) descEl.textContent = scheds[id].description || '';
                 if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
                 if (scheds[id].url) {
                     window.open(scheds[id].url, "_blank");
@@ -127,89 +158,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calendar.render();
 });
-  /* events: [
-    {
-      title: "Palak Jani",
-      start: new Date(year, month, day, 11, 30),
-      end: new Date(year, month, day, 12, 00),
-      backgroundColor: "#00bcd4",
-    },
-    {
-      title: "Priya Sarma",
-      start: new Date(year, month, day, 13, 30),
-      end: new Date(year, month, day, 14, 00),
-      backgroundColor: "#fe9701",
-    },
-    {
-      title: "John Doe",
-      start: new Date(year, month, day, 17, 30),
-      end: new Date(year, month, day, 18, 00),
-      backgroundColor: "#F3565D",
-    },
-    {
-      title: "Sarah Smith",
-      start: new Date(year, month, day, 19, 00),
-      end: new Date(year, month, day, 19, 30),
-      backgroundColor: "#1bbc9b",
-    },
-    {
-      title: "Airi Satou",
-      start: new Date(year, month, day + 1, 19, 00),
-      end: new Date(year, month, day + 1, 19, 30),
-      backgroundColor: "#DC35A9",
-    },
-    {
-      title: "Angelica Ramos",
-      start: new Date(year, month, day + 1, 21, 00),
-      end: new Date(year, month, day + 1, 21, 30),
-      backgroundColor: "#fe9701",
-    },
-    {
-      title: "Palak Jani",
-      start: new Date(year, month, day + 3, 11, 30),
-      end: new Date(year, month, day + 3, 12, 00),
-      backgroundColor: "#00bcd4",
-    },
-    {
-      title: "Priya Sarma",
-      start: new Date(year, month, day + 5, 2, 30),
-      end: new Date(year, month, day + 5, 3, 00),
-      backgroundColor: "#9b59b6",
-    },
-    {
-      title: "John Doe",
-      start: new Date(year, month, day + 7, 17, 30),
-      end: new Date(year, month, day + 7, 18, 00),
-      backgroundColor: "#F3565D",
-    },
-    {
-      title: "Mark Hay",
-      start: new Date(year, month, day + 5, 9, 30),
-      end: new Date(year, month, day + 5, 10, 00),
-      backgroundColor: "#F3565D",
-    },
-  ], */
-<div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-details-modal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-0">
-                <div class="modal-header rounded-0">
-                    <h5 class="modal-title">Schedule Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
-                </div>
-                <div class="modal-body rounded-0">
-                    <div class="container-fluid">
-                        <dl>
-                            <dt class="text-muted">Title</dt>
-                            <dd id="title" class="fw-bold fs-4"></dd>
-                           
-                            <dt class="text-muted">Expire Date</dt>
-                            <dd id="start" class=""></dd>
-                          
-                        </dl>
-                    </div>
-                </div>
-               
-            </div>
-        </div>
-    </div>
+</script>
 @endsection

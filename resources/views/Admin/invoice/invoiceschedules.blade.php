@@ -350,7 +350,7 @@
 				<option  value="Accommodation Fee">Accommodation Fee</option>
 				<option  value="Administration Fee">Administration Fee</option>
 				<option  value="Airline Ticket">Airline Ticket</option>
-				<option > value="Airport Transfer Fee">Airport Transfer Fee</option>
+				<option  value="Airport Transfer Fee">Airport Transfer Fee</option>
 				<option  value="Application Fee">Application Fee</option>
 				<option  value="Tution Fee">Tution Fee</option>
 			</select>
@@ -375,7 +375,7 @@
 				<option  value="Accommodation Fee">Accommodation Fee</option>
 				<option  value="Administration Fee">Administration Fee</option>
 				<option  value="Airline Ticket">Airline Ticket</option>
-				<option > value="Airport Transfer Fee">Airport Transfer Fee</option>
+				<option  value="Airport Transfer Fee">Airport Transfer Fee</option>
 				<option  value="Application Fee">Application Fee</option>
 				<option  value="Tution Fee">Tution Fee</option>
 			</select>

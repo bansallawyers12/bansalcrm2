@@ -53,6 +53,14 @@
 .filter_panel {background: #f7f7f7;margin-bottom: 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
 .strike-through {text-decoration: line-through;}
+/* Fix for table header visibility - allow wrapping for Payment Method column */
+.client_table_data table thead th {
+    white-space: normal !important;
+}
+.client_table_data table thead th:nth-child(8) {
+    white-space: normal !important;
+    min-width: 120px;
+}
 </style>
 <!-- Main Content -->
 <div class="main-content">
@@ -149,7 +157,7 @@
                                                     <th>Trans. Date</th>
                                                     <th>Entry Date</th>
                                                     <th>Trans. No</th>
-                                                    <th>Payment Method</th>
+                                                    <th style="white-space: normal; min-width: 120px;">Payment Method</th>
                                                     <th>Amount</th>
                                                     <th>Created By</th>
 													<th>Receipt Validate</th>
