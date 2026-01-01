@@ -11,7 +11,6 @@
 	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	 
-	@vite(['resources/js/app.js'])
 	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
@@ -82,7 +81,16 @@
 			@include('../Elements/Agent/footer')
 		</div>
 	</div>
-	<script>var site_url = '{{URL::to('/')}}';</script>	 
+	<script>var site_url = '{{URL::to('/')}}';</script>
+	
+	<!-- Load jQuery FIRST as separate entry (synchronous) -->
+	@vite(['resources/js/jquery-init.js'])
+	
+	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
+	@vite(['resources/js/app.js'])
+	
+	<!-- jQuery should now be available immediately -->
+	 
 	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  
 	<script src="{{asset('js/fullcalendar.min.js')}}"></script>   
 	<script src="{{asset('js/chart.min.js')}}"></script>   

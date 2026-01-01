@@ -15,11 +15,11 @@
 			<!-- Removed broken references: @coreui/icons, flag-icon-css, simple-line-icons (not installed) -->
 			<link rel="stylesheet" type="text/css" href="{{asset('icons/font-awesome/css/all.min.css')}}" />
 		
-		<!-- Main styles for this application-->
-			<link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}" />
-			<link rel="stylesheet" type="text/css" href="{{asset('css/pace.min.css')}}" />
-			<link rel="stylesheet" type="text/css" href="{{asset('css/admin.css')}}" />
-	</head>
+	<!-- Main styles for this application-->
+		<link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}" />
+		<link rel="stylesheet" type="text/css" href="{{asset('css/pace.min.css')}}" />
+		<link rel="stylesheet" type="text/css" href="{{asset('css/admin.css')}}" />
+</head>
 	<body class="app flex-row align-items-center">
 		<div id="loader">
 			<div class="loading_image">
@@ -60,14 +60,23 @@
 				</div>
 			</div>
 		</div>
-		
-		<!-- Apnamentor necessary plugins-->
-			<script src="{{asset('js/jquery/js/jquery.min.js')}}"></script>
-			<script src="{{asset('js/popper.js/js/popper.min.js')}}"></script>
-			<script src="{{asset('js/bootstarp/js/bootstrap.min.js')}}"></script>
-			<script src="{{asset('js/pace-progress/js/pace.min.js')}}"></script>
-			<script src="{{asset('js/perfect-scrollbar/js/perfect-scrollbar.min.js')}}"></script>
-			<!-- Removed broken reference: icons/@coreui/coreui-pro/js/coreui.min.js (not installed) -->
-			<script src="{{asset('js/custom-form-validation.js')}}"></script>
+	
+	<!-- Load jQuery FIRST via Vite -->
+	@vite(['resources/js/app.js'])
+	
+	<!-- jQuery safety check -->
+	<script>
+		if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
+			console.error('CRITICAL: jQuery not loaded! Legacy scripts will fail.');
+		}
+	</script>
+	
+	<!-- Apnamentor necessary plugins-->
+		<script src="{{asset('js/popper.js/js/popper.min.js')}}"></script>
+		<script src="{{asset('js/bootstarp/js/bootstrap.min.js')}}"></script>
+		<script src="{{asset('js/pace-progress/js/pace.min.js')}}"></script>
+		<script src="{{asset('js/perfect-scrollbar/js/perfect-scrollbar.min.js')}}"></script>
+		<!-- Removed broken reference: icons/@coreui/coreui-pro/js/coreui.min.js (not installed) -->
+		<script src="{{asset('js/custom-form-validation.js')}}"></script>
 	</body>
 </html>

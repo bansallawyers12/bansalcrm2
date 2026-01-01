@@ -8,12 +8,10 @@
 	<meta name="author" content="">
 	<meta name="keyword" content="Bansal CRM">
 	<meta name="csrf-token" content="{{ csrf_token() }}"> 
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173;">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173;">
+	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<title>Bansal CRM | @yield('title')</title>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
-	<!-- Load jQuery FIRST before Vite to ensure it's available for all legacy scripts -->
-	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
-	@vite(['resources/js/app.js'])
 	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
 	 <link rel="stylesheet" href="{{asset('css/fullcalendar.min.css')}}">
 	<!-- TinyMCE - No CSS needed -->
@@ -120,16 +118,23 @@
 				<script>
 				    var site_url = '{{URL::to('/')}}';
 				     var dataformat = '{{$dataformat}}';
-				    </script>	 
+				    </script>
+	
+	<!-- Load jQuery FIRST as separate entry -->
+	@vite(['resources/js/jquery-init.js'])
+	
+	<!-- Then load main app with Vue, Bootstrap, etc -->
+	@vite(['resources/js/app.js'])
+	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
 	<!-- Bootstrap Bundle (required for popover and other Bootstrap components) -->
-	<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+	<script src="{{asset('js/bootstrap.bundle.min.js')}}" defer></script>
 	<!-- Feather Icons (required before scripts.js) -->
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
 	<!-- jQuery NiceScroll (required for sidebar scrolling) -->
-	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js" defer></script>
 	<!-- FullCalendar (requires jQuery to be loaded first) -->
-	<script>
+	<script defer>
 		// Ensure jQuery is available before loading FullCalendar
 		// jQuery should already be loaded in <head>, but we verify it's ready
 		(function() {
@@ -161,32 +166,32 @@
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
   
-	<script src="{{asset('js/datatables.min.js')}}"></script>   
-	<script src="{{asset('js/dataTables.bootstrap5.js')}}"></script>   
+	<script src="{{asset('js/datatables.min.js')}}" defer></script>   
+	<script src="{{asset('js/dataTables.bootstrap5.js')}}" defer></script>   
 	 <!-- JS Libraies -->
 	<!--<script src="{{--asset('js/apexcharts.min.js')--}}"></script>--> 
 	<!-- Page Specific JS File -->	
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/daterangepicker.js')}}"></script> 
-	<script src="{{asset('js/bootstrap-timepicker.min.js')}}"></script> 
+	<script src="{{asset('js/daterangepicker.js')}}" defer></script> 
+	<script src="{{asset('js/bootstrap-timepicker.min.js')}}" defer></script> 
 	
-	<script src="{{asset('js/select2.full.min.js')}}"></script> 
+	<script src="{{asset('js/select2.full.min.js')}}" defer></script> 
 	<!--<script src="{{--asset('js/jquery.flagstrap.js')--}}"></script>--> 
-	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}"></script> 
-	<script src="{{asset('js/intlTelInput.js')}}"></script> 
-	<script src="{{asset('js/custom-form-validation.js')}}"></script> 
-	<script src="{{asset('js/scripts.js')}}"></script> 
+	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}" defer></script> 
+	<script src="{{asset('js/intlTelInput.js')}}" defer></script> 
+	<script src="{{asset('js/custom-form-validation.js')}}" defer></script> 
+	<script src="{{asset('js/scripts.js')}}" defer></script> 
 	<!-- Template JS File -->
-	<script src="{{asset('js/iziToast.min.js')}}"></script>   
+	<script src="{{asset('js/iziToast.min.js')}}" defer></script>   
 
 	<!-- Custom JS File -->	
-	<script src="{{asset('js/custom.js')}}">
+	<script src="{{asset('js/custom.js')}}" defer>
 	</script>
 	<!-- Modern Search JS -->
-	<script src="{{asset('js/modern-search.js')}}"></script> 
-	<script>
+	<script src="{{asset('js/modern-search.js')}}" defer></script> 
+	<script defer>
 		$(document).ready(function () {
 		   
 		    $(".tel_input").on("blur", function() {

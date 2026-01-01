@@ -6,6 +6,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
+                'resources/js/jquery-init.js',  // Load jQuery first
                 'resources/js/app.js',
             ],
             refresh: true,
@@ -24,6 +25,10 @@ export default defineConfig({
             '@': '/resources/js',
             'vue': 'vue/dist/vue.esm-bundler.js',
         },
+    },
+    server: {
+        host: '127.0.0.1',  // Force IPv4 to prevent IPv6 binding issues with CSP
+        port: 5173,
     },
 });
 

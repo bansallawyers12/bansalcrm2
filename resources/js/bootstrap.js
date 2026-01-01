@@ -1,11 +1,7 @@
 /**
- * jQuery is loaded from public/js in the HTML head before Vite for compatibility
- * with legacy scripts. We just need to ensure it's available in the module context.
+ * jQuery is now loaded via jquery-init.js as a separate entry point
+ * This ensures it's available before any legacy scripts execute
  */
-import jQuery from 'jquery';
-
-// Use the global jQuery if it exists, otherwise use the imported one
-window.$ = window.jQuery = window.jQuery || jQuery;
 
 import _ from 'lodash';
 import * as Popper from '@popperjs/core';

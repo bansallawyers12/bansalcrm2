@@ -37,8 +37,6 @@
 	  <!-- Google Font: Source Sans Pro -->
 	  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 	  
-		<!-- jQuery -->
-		<script src="{{URL::asset('js/jquery.min.js')}}"></script>	 
 		<script>var billingdata = new Array();</script>	 
 		
 	<style>
@@ -333,6 +331,16 @@
 		<!-- /.modal-dialog -->
 		</div>
 		<!-- /.modal -->
+		
+		<!-- Load jQuery FIRST via Vite -->
+		@vite(['resources/js/app.js'])
+		
+		<!-- jQuery safety check -->
+		<script>
+			if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
+				console.error('CRITICAL: jQuery not loaded! Legacy scripts will fail.');
+			}
+		</script>
 		
 		<!-- jQuery UI 1.11.4 -->
 		<script src="{{URL::asset('js/moment.min.js')}}"></script>

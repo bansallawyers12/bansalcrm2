@@ -14,9 +14,6 @@
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 			 
 	 <!-- BASE CSS -->
-	<!-- Load jQuery FIRST before Vite to ensure it's available for all legacy scripts -->
-	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
-	@vite(['resources/js/app.js'])
 	<link href="{{asset('css/bootstrap-social.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/style.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/components.css')}}" rel="stylesheet">	
@@ -51,6 +48,16 @@
 			img.src = '{{ asset('img/bansal_crm_background_image.jpg') }}';
 		})();
 	</script>
+	
+	<!-- Load jQuery FIRST as separate entry (synchronous) -->
+	@vite(['resources/js/jquery-init.js'])
+	
+	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
+	@vite(['resources/js/app.js'])
+	
+	<!-- jQuery should now be available immediately -->
+	
+	<!-- Load legacy scripts that depend on jQuery -->
 	<script src="{{asset('js/scripts.js')}}"></script>
 	<script src="{{asset('js/custom.js')}}"></script>
 </body>

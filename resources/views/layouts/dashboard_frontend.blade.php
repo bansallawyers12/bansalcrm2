@@ -7,7 +7,6 @@
     <title>Bansal CRM</title>
 	<!-- Bootstrap CSS -->
     <link href="{{asset('css/font-awesome.min.css')}}" rel="stylesheet">
-    @vite(['resources/js/app.js'])
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
@@ -21,9 +20,16 @@
 		var site_url = "<?php echo URL::to('/'); ?>";
 		//var redirecturl = "<?php echo URL::to('/thanks'); ?>";
 	</script>
+	
+	<!-- Load jQuery FIRST as separate entry (synchronous) -->
+	@vite(['resources/js/jquery-init.js'])
+	
+	<!-- Then load main app with Vue, Bootstrap, etc (async) -->
+	@vite(['resources/js/app.js'])
+	
+	<!-- jQuery should now be available immediately -->
 		 
 	<!-- Option 1: Bootstrap Bundle with Popper -->
-	<script src="{{asset('js/jquery_min_latest.js')}}"></script>
 	<script src="{{asset('js/moment.min.js')}}"></script>
 	<script src="{{asset('js/daterangepicker.js')}}"></script> 
 
