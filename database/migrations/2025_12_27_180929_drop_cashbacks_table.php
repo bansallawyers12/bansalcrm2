@@ -32,14 +32,14 @@ return new class extends Migration
             'wallets',
         ];
 
-        // Drop from MySQL
+        // Drop tables from the default database connection
         foreach ($tablesToDrop as $table) {
-            Schema::connection('mysql')->dropIfExists($table);
-        }
-        
-        // Drop from PostgreSQL
-        foreach ($tablesToDrop as $table) {
-            Schema::connection('pgsql')->dropIfExists($table);
+            try {
+                Schema::dropIfExists($table);
+            } catch (\Exception $e) {
+                // Table may not exist or connection issue, skip silently
+                continue;
+            }
         }
     }
 
