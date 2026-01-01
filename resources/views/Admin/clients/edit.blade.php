@@ -14,19 +14,40 @@
 				@csrf
 				<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 				<input type="hidden" name="type" value="{{ @$fetchedData->type }}"> 
+				<!-- Page Header -->
 				<div class="row">   
-					<div class="col-12 col-md-12 col-lg-12">
-						<div class="card">
-							<div class="card-header">
-								<h4>Edit Client</h4>
+					<div class="col-12">
+						<div class="card client-edit-header">
+							<div class="card-header d-flex justify-content-between align-items-center">
+								<div class="header-title-section">
+									<h4 class="mb-1">
+										<i class="fas fa-user-edit text-primary"></i> 
+										Edit Client: {{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}
+									</h4>
+									<small class="text-muted">Client ID: <span class="badge badge-secondary">{{ @$fetchedData->client_id }}</span></small>
+								</div>
 								<div class="card-header-action">
-								    <a href="{{route('admin.clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+								    <a href="{{route('admin.clients.index')}}" class="btn btn-outline-secondary me-2">
+								    	<i class="fa fa-arrow-left"></i> Back
+								    </a>
+								    <button type="submit" class="btn btn-primary" onclick="customValidate('edit-clients')">
+								    	<i class="fas fa-save"></i> Save Changes
+								    </button>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-12 col-md-12 col-lg-12">
-						<div class="card">
+				</div>
+
+				<!-- Section 1: Basic Information -->
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card section-card">
+							<div class="card-header bg-light">
+								<h5 class="mb-0">
+									<i class="fas fa-user text-primary"></i> Basic Information
+								</h5>
+							</div>
 							<div class="card-body">
 								<div class="row">
 									<!--<div class="col-3 col-md-3 col-lg-3">
@@ -51,611 +72,612 @@
 											@endif
 										</div>
 									</div>-->
-									<div class="col-12 col-md-12 col-lg-12">
-										<div class="row">
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label for="first_name">First Name <span class="span_req">*</span></label>
-													{!! Form::text('first_name', @$fetchedData->first_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('first_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('first_name') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<input type="hidden" name="route" value="{{url()->previous()}}">
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label for="last_name">Last Name <span class="span_req">*</span></label>
-													{!! Form::text('last_name', @$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('last_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('last_name') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label style="display:block;" for="gender">Gender <span class="span_req">*</span></label>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" type="radio" id="male" value="Male" name="gender" @if(@$fetchedData->gender == "Male") checked @endif>
-														<label class="form-check-label" for="male">Male</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" type="radio" id="female" value="Female" name="gender" @if(@$fetchedData->gender == "Female") checked @endif>
-														<label class="form-check-label" for="female">Female</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" type="radio" id="other" value="Other" name="gender" @if(@$fetchedData->gender == "Other") checked @endif>
-														<label class="form-check-label" for="other">Other</label>
-													</div>
-													@if ($errors->has('gender'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('gender') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											
-											<div class="col-3 col-md-3 col-lg-3">
-												<div class="form-group" style="width: 90%;">
-													<label for="dob">Date of Birth</label>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
-														<?php
-															if($fetchedData->dob != ''){
-																$dob = date('d/m/Y', strtotime($fetchedData->dob));
-															}
-														?>
-														{!! Form::text('dob', @$dob, array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!} 
-														@if ($errors->has('dob'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('dob') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-											</div>
-											<div class="col-3 col-md-3 col-lg-3">
-												<div class="form-group" style="width: 90%;"> 
-													<label for="age">Age</label>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
-														{!! Form::text('age', @$fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-														@if ($errors->has('age'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('age') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-											</div>
-											<div class="col-3 col-md-3 col-lg-3">
-												<div class="form-group"> 
-													<label for="client_id">Client ID</label>
-													{!! Form::text('client_id', @$fetchedData->client_id, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off', 'id' => 'checkclientid', 'placeholder'=>'' ,'readonly' => 'readonly' ))  !!}
-													@if ($errors->has('client_id'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('client_id') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											
-											<div class="col-3 col-md-3 col-lg-3">
-        										<div class="form-group">
-        											<label for="martial_status">Marital Status</label>
-        											<select style="padding: 0px 5px;width: 165px;" name="martial_status" id="martial_status" class="form-control">
-        												<option value="">Select Marital Status</option>
-        												<option value="Married" @if(@$fetchedData->martial_status == "Married") selected @endif>Married</option>
-        												<option value="Never Married" @if(@$fetchedData->martial_status == "Never Married") selected @endif>Never Married</option>
-        												<option value="Engaged" @if(@$fetchedData->martial_status == "Engaged") selected @endif>Engaged</option>
-        												<option value="Divorced" @if(@$fetchedData->martial_status == "Divorced") selected @endif>Divorced</option>
-        												<option value="Separated" @if(@$fetchedData->martial_status == "Separated") selected @endif>Separated</option>
-        												<option value="De facto" @if(@$fetchedData->martial_status == "De facto") selected @endif>De facto</option>
-        												<option value="Widowed" @if(@$fetchedData->martial_status == "Widowed") selected @endif>Widowed</option>
-        												<option value="Others" @if(@$fetchedData->martial_status == "Others") selected @endif>Others</option>
-        											</select>
-        											@if ($errors->has('martial_status'))
-        												<span class="custom-error" role="alert">
-        													<strong>{{ @$errors->first('martial_status') }}</strong>
-        												</span> 
-        											@endif
-        										</div>
-        									</div>
-											
+									<input type="hidden" name="route" value="{{url()->previous()}}">
+									
+									<!-- Name and Gender Row -->
+									<div class="col-md-4 col-sm-12">
+										<div class="form-group"> 
+											<label for="first_name">First Name <span class="span_req">*</span></label>
+											{!! Form::text('first_name', @$fetchedData->first_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter first name' ))  !!}
+											@if ($errors->has('first_name'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('first_name') }}</strong>
+												</span> 
+											@endif
 										</div>
 									</div>
-                                  
-                                  
-                                    <div class="col-12 col-md-12 col-lg-12">
-                                        <div class="row">
-                                            <div class="col-6 col-md-6 col-lg-6">
-                                               <a href="javascript:;" class="btn btn-outline-primary openclientphonenew" style="margin: 10px 0px 15px 0px;"><i class="fa fa-plus"></i> Add Contact</a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <script>
-                                    var clientphonedata = new Array();
-                                    </script>
-                                    <div class="clientphonedata">
-                                        <?php
-                                        $clientphones = \App\Models\ClientPhone::where('client_id', $fetchedData->id)->get();
-                                        $iii=0;
-                                        $clientphonedata = array();
-
-                                        if(count($clientphones)>0) {
-                                            foreach($clientphones as $clientphone){
-                                            ?>
-                                            <script>
-                                            clientphonedata[<?php echo $iii; ?>] = { "contact_type" :'<?php echo $clientphone->contact_type; ?>',"country_code" :'<?php echo $clientphone->client_country_code; ?>',"phone" :'<?php echo $clientphone->client_phone; ?>'}
-                                            </script>
-                                            <div class="col-12 col-md-12 col-lg-12">
-                                                <div class="row" id="metatag2_{{$iii}}">
-                                                    <div class="col-4 col-md-4 col-lg-4">
-                                                        <div class="form-group">
-                                                            <label for="contact_type">Contact Type <span style="color:#ff0000;">*</span></label>
-                                                            <select name="contact_type[]" id="contact_type" class="form-control">
-                                                                <option value="">Select</option>
-                                                                <option value="Personal" @if(@$clientphone->contact_type == "Personal") selected @endif>Personal</option>
-                                                                <option value="Business" @if(@$clientphone->contact_type == "Business") selected @endif>Business</option>
-                                                                <option value="Secondary" @if(@$clientphone->contact_type == "Secondary") selected @endif>Secondary</option>
-                                                                <option value="Father" @if(@$clientphone->contact_type == "Father") selected @endif>Father</option>
-                                                                <option value="Mother" @if(@$clientphone->contact_type == "Mother") selected @endif>Mother</option>
-                                                                <option value="Brother" @if(@$clientphone->contact_type == "Brother") selected @endif>Brother</option>
-                                                                <option value="Sister" @if(@$clientphone->contact_type == "Sister") selected @endif>Sister</option>
-                                                                <option value="Uncle" @if(@$clientphone->contact_type == "Uncle") selected @endif>Uncle</option>
-                                                                <option value="Aunt" @if(@$clientphone->contact_type == "Aunt") selected @endif>Aunt</option>
-                                                                <option value="Cousin" @if(@$clientphone->contact_type == "Cousin") selected @endif>Cousin</option>
-                                                                <option value="Others" @if(@$clientphone->contact_type == "Others") selected @endif>Others</option>
-                                                                <option value="Partner" @if(@$clientphone->contact_type == "Partner") selected @endif>Partner</option>
-                                                                <option value="Not In Use" @if(@$clientphone->contact_type == "Not In Use") selected @endif>Not In Use</option>
-                                                            </select>
-                                                            @if ($errors->has('contact_type'))
-                                                                <span class="custom-error" role="alert">
-                                                                    <strong>{{ @$errors->first('contact_type') }}</strong>
-                                                                </span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-6 col-md-6 col-lg-6">
-                                                        <div class="form-group">
-                                                            <label for="phone">Phone Number</label>
-                                                            <div class="cus_field_input">
-                                                                <div class="country_code">
-                                                                    <input class="telephone" id="telephone" type="tel" name="client_country_code[]" value="<?php echo $clientphone->client_country_code;?>" >
-                                                                </div>
-                                                                {!! Form::text('client_phone[]', $clientphone->client_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone',  isset($clientphone->contact_type) && $clientphone->contact_type == "Personal" ? 'readonly' : '' ))  !!}
-                                                            </div>
-                                                        </div>
-                                                        <input autocomplete="off" placeholder="" name="clientphoneid[]" type="hidden" value="{{$clientphone->id}}">
-                                                    </div>
-                                                  
-                                                  
-                                                     <?php
-                                                    if( isset($clientphone->contact_type) && $clientphone->contact_type == "Personal" )
-                                                    { ?>
-                                                    <div class="col-2 col-md-2 col-lg-2">
-                                                        <div class="form-group">
-                                                            <label for="phone_verify">Phone Verify</label>
-                                                                <?php
-                                                                //Check phone is verified or not
-											                    $check_verified_phoneno = $clientphone->client_country_code."".$clientphone->client_phone;
-											                    $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
-                                                                if ( $verifiedNumber) {
-                                                                    echo '<i class="fas fa-check-circle verified-icon fa-lg"></i>';
-                                                                } else { ?>
-                                                                    <input type="button" class="phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-phone="<?php echo $check_verified_phoneno;?>" data-clientid="<?php echo $fetchedData->id;?>" value="Verify Phone">
-                                                                <?php
-                                                                } ?>
-                                                        </div>
-                                                    </div>
-                                                    <?php
-                                                    }?>
-                                                  
-                                                  
-                                                    <?php
-                                                    if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" )
-                                                    { ?>
-                                                    <div class="col-2 col-md-2 col-lg-2">
-                                                        <div class="form-group" style="margin-top: 38px;">
-                                                            <a href="javascript:;" dataid="{{$iii}}" contactid="{{$clientphone->id}}" class="deletecontact"><i class="fa fa-times"></i></a>
-                                                        </div>
-                                                    </div>
-                                                    <?php
-                                                    }?>
-                                                  
-                                                </div>
-                                            </div>
-                                            <?php
-                                            $iii++;
-                                            }
-                                        } ?>
-                                    </div>
-                                  
-                                  
 									
-									<!--<div class="col-sm-2">
+									<div class="col-md-4 col-sm-12">
+										<div class="form-group"> 
+											<label for="last_name">Last Name <span class="span_req">*</span></label>
+											{!! Form::text('last_name', @$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter last name' ))  !!}
+											@if ($errors->has('last_name'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('last_name') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<div class="col-md-4 col-sm-12">
+										<div class="form-group"> 
+											<label for="gender">Gender <span class="span_req">*</span></label>
+											<select name="gender" id="gender" class="form-control" data-valid="required">
+												<option value="">Select Gender</option>
+												<option value="Male" @if(@$fetchedData->gender == "Male") selected @endif>Male</option>
+												<option value="Female" @if(@$fetchedData->gender == "Female") selected @endif>Female</option>
+												<option value="Other" @if(@$fetchedData->gender == "Other") selected @endif>Other</option>
+											</select>
+											@if ($errors->has('gender'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('gender') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<!-- DOB, Age, Client ID Row -->
+									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
-											<label for="contact_type">Contact Type <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="contact_type" id="contact_type" class="form-control" data-valid="required">
-												<option value="Personal" @if(@$fetchedData->contact_type == "Personal") selected @endif> Personal</option>
-												<option value="Office" @if(@$fetchedData->contact_type == "Office") selected @endif>Office</option>
-											</select>
-											@if ($errors->has('contact_type'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('contact_type') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="phone">Contact No.<span style="color:#ff0000;">*</span></label>
-											<div class="cus_field_input">
-												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="country_code" readonly >
-												</div>	
-												{!! Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('phone') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>-->
-                                  
-                                   <div class="col-12 col-md-12 col-lg-12">
-                                        <div class="row">
-                                          <div class="col-md-2 col-sm-12">
-                                              <div class="form-group">
-                                                  <label for="email_type">Email Type <span style="color:#ff0000;">*</span></label>
-                                                  <select style="padding: 0px 5px;" name="email_type" id="email_type" class="form-control" data-valid="required">	
-                                                      <option value="Personal" @if(@$fetchedData->email_type == "Personal") selected @endif> Personal</option>
-                                                      <option value="Business" @if(@$fetchedData->email_type == "Business") selected @endif>Business</option>
-                                                  </select>
-                                                  @if ($errors->has('email_type'))
-                                                      <span class="custom-error" role="alert">
-                                                          <strong>{{ @$errors->first('email_type') }}</strong>
-                                                      </span> 
-                                                  @endif
-                                              </div>
-                                          </div>
-                                          <div class="col-md-4 col-sm-12">
-                                              <div class="form-group"> 
-                                                  <label for="email">Email <span style="color:#ff0000;">*</span></label>
-                                                  {!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-                                                  @if ($errors->has('email'))
-                                                      <span class="custom-error" role="alert">
-                                                          <strong>{{ @$errors->first('email') }}</strong>
-                                                      </span> 
-                                                  @endif
-                                              </div>
-                                          </div>	
-									
-                                         <div class="col-md-3 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="manual_email_phone_verified">Email Verification</label>
-                                                    <div class="email-verify-section">
-                                                        <?php
-                                                        if( isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1' )
-                                                        { 
-                                                            echo '<div class="verified-status"><i class="fas fa-check-circle verified-icon fa-lg text-success"></i> <span class="verified-text">Verified</span></div>'; 
-                                                        } else { ?>
-                                                            <button type="button" class="btn btn-outline-primary btn-sm manual_email_phone_verified" name="manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>">
-                                                                <i class="fas fa-envelope"></i> Verify Email
-                                                            </button>
-                                                        <?php }?>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        <div class="col-md-3 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="Add another email and contact no">Additional Contact</label>
-                                                <div class="additional-contact-toggle">
-                                                    <?php
-                                                    //echo $fetchedData->att_email."===".$fetchedData->att_phone;die;
-                                                    if(
-                                                        ( isset($fetchedData->att_email) && $fetchedData->att_email != "")
-                                                        ||
-                                                        ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
-                                                    ){ ?>
-                                                        <a href="javascript:void(0)" class="btn btn-outline-secondary btn-sm add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Hide additional email and contact">
-                                                            <i class="fa fa-minus" aria-hidden="true"></i> Hide
-                                                        </a>
-                                                    <?php } else { ?>
-                                                        <a href="javascript:void(0)" class="btn btn-outline-secondary btn-sm add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show additional email and contact">
-                                                            <i class="fa fa-plus" aria-hidden="true"></i> Add More
-                                                        </a>
-                                                    <?php } ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </div>
-                                  
-                                  
-									<div class="col-sm-3 other_email_div" <?php if(
-											( isset($fetchedData->att_email) && $fetchedData->att_email != "")
-                                            ||
-                                            ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "") ) { ?> style="display:inline-block;" <?php } else { ?> style="display:none;"  <?php }?>>
-										<div class="form-group"> 
-											<label for="att_email">Email </label>
-											{!! Form::text('att_email', @$fetchedData->att_email, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('att_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('att_email') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div> 
-									<div class="col-sm-3 other_phone_div" <?php if(
-											( isset($fetchedData->att_email) && $fetchedData->att_email != "")
-                                            ||
-                                            ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "") ) { ?> style="display:inline-block;" <?php } else { ?> style="display:none;"  <?php }?>>
-										<div class="form-group"> 
-											<label for="att_phone">Phone</label>
-											<div class="cus_field_input">
-												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="att_country_code" readonly >
-												</div>	
-												{!! Form::text('att_phone', @$fetchedData->att_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('att_phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_phone') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
-
-							
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="visa_type">Visa Type</label>
-											<select class="form-control select2" name="visa_type">
-											<option value="">- Select Visa Type -</option>
-											@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
-												<option @if($fetchedData->visa_type == $visalist->name) selected @endif value="{{$visalist->name}}">{{$visalist->name}}</option>
-											@endforeach
-											</select>
-											@if ($errors->has('visa_type'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('visa_type') }}</strong>
-												</span> 
-											@endif
-												<div style="margin-top:10px;">	
-    								{!! Form::text('visa_opt', $fetchedData->visa_opt, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Visa' ))  !!}
-    								</div>
-										</div>
-									</div>
-									<?php
-										$visa_expiry_date = '';
-										if($fetchedData->visaExpiry != '' && $fetchedData->visaExpiry != '0000-00-00'){
-											$visa_expiry_date = date('d/m/Y', strtotime($fetchedData->visaExpiry));
-										}
-									?>	
-								@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="visaExpiry">Visa Expiry Date</label>
+											<label for="dob">Date of Birth</label>
 											<div class="input-group">
 												<div class="input-group-prepend">
 													<div class="input-group-text">
 														<i class="fas fa-calendar-alt"></i>
 													</div>
 												</div>
-												{!! Form::text('visaExpiry', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('visaExpiry'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('visaExpiry') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="preferredIntake">Preferred Intake</label>
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<div class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
-													</div>
-												</div>
-												{!! Form::text('preferredIntake', @$fetchedData->preferredIntake, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('preferredIntake'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('preferredIntake') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div> 
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="country_passport">Country of Passport</label>
-											<select class="form-control  select2" name="country_passport" >
-											<?php
-												foreach(\App\Models\Country::all() as $list){
-													?>
-													<option <?php if(@$fetchedData->country_passport == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
-													<?php
-												}
+												<?php
+													if($fetchedData->dob != ''){
+														$dob = date('d/m/Y', strtotime($fetchedData->dob));
+													}
 												?>
+												{!! Form::text('dob', @$dob, array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!} 
+												@if ($errors->has('dob'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('dob') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group"> 
+											<label for="age">Age</label>
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<div class="input-group-text">
+														<i class="fas fa-calendar-alt"></i>
+													</div>
+												</div>
+												{!! Form::text('age', @$fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Age' ))  !!}
+												@if ($errors->has('age'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('age') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group"> 
+											<label for="client_id">Client ID</label>
+											{!! Form::text('client_id', @$fetchedData->client_id, array('class' => 'form-control bg-light', 'data-valid'=>'', 'autocomplete'=>'off', 'id' => 'checkclientid', 'placeholder'=>'Auto-generated' ,'readonly' => 'readonly' ))  !!}
+											@if ($errors->has('client_id'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('client_id') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group">
+											<label for="martial_status">Marital Status</label>
+											<select name="martial_status" id="martial_status" class="form-control">
+												<option value="">Select Marital Status</option>
+												<option value="Married" @if(@$fetchedData->martial_status == "Married") selected @endif>Married</option>
+												<option value="Never Married" @if(@$fetchedData->martial_status == "Never Married") selected @endif>Never Married</option>
+												<option value="Engaged" @if(@$fetchedData->martial_status == "Engaged") selected @endif>Engaged</option>
+												<option value="Divorced" @if(@$fetchedData->martial_status == "Divorced") selected @endif>Divorced</option>
+												<option value="Separated" @if(@$fetchedData->martial_status == "Separated") selected @endif>Separated</option>
+												<option value="De facto" @if(@$fetchedData->martial_status == "De facto") selected @endif>De facto</option>
+												<option value="Widowed" @if(@$fetchedData->martial_status == "Widowed") selected @endif>Widowed</option>
+												<option value="Others" @if(@$fetchedData->martial_status == "Others") selected @endif>Others</option>
 											</select>
+											@if ($errors->has('martial_status'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('martial_status') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Section 2: Contact Information -->
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card section-card">
+							<div class="card-header bg-light">
+								<h5 class="mb-0">
+									<i class="fas fa-address-book text-primary"></i> Contact Information
+								</h5>
+							</div>
+							<div class="card-body compact-contact-section">
+								<div class="row">
+									<!-- Phone Numbers - Left Side -->
+									<div class="col-md-6 col-sm-12">
+										<div class="contact-subsection">
+											<div class="d-flex justify-content-between align-items-center mb-2">
+												<label class="section-label mb-0"><i class="fas fa-phone-alt"></i> Phone Numbers</label>
+												<a href="javascript:;" class="btn btn-xs btn-primary openclientphonenew">
+													<i class="fa fa-plus"></i> Add
+												</a>
+											</div>
+
+											<script>
+											var clientphonedata = new Array();
+											</script>
 											
-											@if ($errors->has('country_passport'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('country_passport') }}</strong>
-												</span> 
-											@endif 
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="passport_number">Passport Number</label>
-											{!! Form::text('passport_number', @$fetchedData->passport_number, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('passport_number'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('passport_number') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-								@endif
-								</div>
-								<div class="row">
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="address">Address</label>
-											{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search Box" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('address'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('address') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									
-									<div id="map"></div>
-									
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="city">City</label>
-											{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('city'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('city') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="state">State</label>
-											<select class="form-control" name="state">
-												<option value="">- Select State -</option>	
-												<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
-												<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
-												<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
-												<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
-												<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
-												<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
-												<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
-												<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
-											</select>
-											@if ($errors->has('state'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('state') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="zip">Post Code</label>
-											{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('zip'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('zip') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-								</div>
-								<hr style="border-color: #000;"/>
-								<div class="row">
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="country">Country</label>
-											<select class="form-control select2" id="country_select" name="country" >
-											<?php
-												foreach(\App\Models\Country::all() as $list){
+											<div class="clientphonedata compact-contact-list">
+												<?php
+												$clientphones = \App\Models\ClientPhone::where('client_id', $fetchedData->id)->get();
+												$iii=0;
+												$clientphonedata = array();
+
+												if(count($clientphones)>0) {
+													foreach($clientphones as $clientphone){
 													?>
-													<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
+													<script>
+													clientphonedata[<?php echo $iii; ?>] = { "contact_type" :'<?php echo $clientphone->contact_type; ?>',"country_code" :'<?php echo $clientphone->client_country_code; ?>',"phone" :'<?php echo $clientphone->client_phone; ?>'}
+													</script>
+													<div class="compact-contact-item" id="metatag2_{{$iii}}">
+														<span class="contact-type-tag">{{ $clientphone->contact_type }}</span>
+														<span class="contact-phone">{{$clientphone->client_country_code}} {{$clientphone->client_phone}}</span>
+														<div class="contact-actions">
+															<?php if( isset($clientphone->contact_type) && $clientphone->contact_type == "Personal" ) {
+																$check_verified_phoneno = $clientphone->client_country_code."".$clientphone->client_phone;
+																$verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
+																if ($verifiedNumber) {
+																	echo '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>';
+																} else {
+																	echo '<button type="button" class="btn-verify phone_verified" data-fname="'.$fetchedData->first_name.'" data-phone="'.$check_verified_phoneno.'" data-clientid="'.$fetchedData->id.'"><i class="fas fa-check"></i></button>';
+																}
+															} ?>
+															<?php if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" ) { ?>
+																<a href="javascript:;" dataid="{{$iii}}" contactid="{{$clientphone->id}}" class="deletecontact btn-delete">
+																	<i class="fa fa-trash"></i>
+																</a>
+															<?php } ?>
+														</div>
+														<!-- Hidden fields -->
+														<input type="hidden" name="contact_type[]" value="{{$clientphone->contact_type}}">
+														<input type="hidden" name="client_country_code[]" value="{{$clientphone->client_country_code}}">
+														<input type="hidden" name="client_phone[]" value="{{$clientphone->client_phone}}">
+														<input type="hidden" name="clientphoneid[]" value="{{$clientphone->id}}">
+													</div>
 													<?php
-												}
-												?>
-											</select>
-											@if ($errors->has('country'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('country') }}</strong>
-												</span> 
-											@endif
+													$iii++;
+													}
+												} ?>
+											</div>
 										</div>
 									</div>
-                                  
-                                    <div class="col-sm-9">
-										<div class="form-group"> 
-											<label for="related_files">Similar related files</label>
-											<select multiple class="form-control js-data-example-ajaxcc" name="related_files[]">
+
+									<!-- Email Section - Right Side -->
+									<div class="col-md-6 col-sm-12">
+										<div class="contact-subsection">
+											<div class="d-flex justify-content-between align-items-center mb-2">
+												<label class="section-label mb-0"><i class="fas fa-envelope"></i> Email Addresses</label>
+												<a href="javascript:;" class="btn btn-xs btn-primary openclientemailnew">
+													<i class="fa fa-plus"></i> Add
+												</a>
+											</div>
+
+											<script>
+											var clientemaildata = new Array();
+											</script>
+											
+											<div class="clientemaildata compact-contact-list">
+												<?php
+												// Main email
+												if(isset($fetchedData->email) && $fetchedData->email != "") {
+													$email_type = isset($fetchedData->email_type) ? $fetchedData->email_type : 'Personal';
+													$email_verified = (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1');
+												?>
+												<div class="compact-contact-item" id="email_main">
+													<span class="contact-type-tag">{{ $email_type }}</span>
+													<span class="contact-email">{{ $fetchedData->email }}</span>
+													<div class="contact-actions">
+														<?php if($email_verified) { ?>
+															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
+														<?php } else { ?>
+															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>">
+																<i class="fas fa-check"></i>
+															</button>
+														<?php } ?>
+													</div>
+													<!-- Hidden fields -->
+													<input type="hidden" name="email" value="{{ $fetchedData->email }}">
+													<input type="hidden" name="email_type" value="{{ $email_type }}">
+												</div>
+												<?php } ?>
 												
-											</select>
-											@if ($errors->has('related_files'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('related_files') }}</strong>
-												</span> 
-											@endif
+												<?php
+												// Additional email
+												if(isset($fetchedData->att_email) && $fetchedData->att_email != "") {
+												?>
+												<div class="compact-contact-item" id="email_additional">
+													<span class="contact-type-tag">Additional</span>
+													<span class="contact-email">{{ $fetchedData->att_email }}</span>
+													<div class="contact-actions">
+														<a href="javascript:;" class="deleteemail btn-delete" data-email="email_additional">
+															<i class="fa fa-trash"></i>
+														</a>
+													</div>
+													<!-- Hidden field -->
+													<input type="hidden" name="att_email" value="{{ $fetchedData->att_email }}">
+												</div>
+												<?php } ?>
+											</div>
 										</div>
 									</div>
-                                  
-									@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
-									
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="nomi_occupation">Nominated Occupation</label>
-											{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Section 3: Visa & Passport Information -->
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">
+										<i class="fas fa-passport text-primary"></i> Visa & Passport Information
+									</h5>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="visa_type">Visa Type</label>
+												<select class="form-control select2" name="visa_type">
+													<option value="">- Select Visa Type -</option>
+													@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
+														<option @if($fetchedData->visa_type == $visalist->name) selected @endif value="{{$visalist->name}}">{{$visalist->name}}</option>
+													@endforeach
+												</select>
+												@if ($errors->has('visa_type'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('visa_type') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="visa_opt">Visa Details</label>
+												{!! Form::text('visa_opt', $fetchedData->visa_opt, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Additional visa information' ))  !!}
+											</div>
+										</div>
+										
+										<?php
+											$visa_expiry_date = '';
+											if($fetchedData->visaExpiry != '' && $fetchedData->visaExpiry != '0000-00-00'){
+												$visa_expiry_date = date('d/m/Y', strtotime($fetchedData->visaExpiry));
+											}
+										?>	
+										
+										@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group"> 
+													<label for="visaExpiry">Visa Expiry Date</label>
+													<div class="input-group">
+														<div class="input-group-prepend">
+															<div class="input-group-text">
+																<i class="fas fa-calendar-alt"></i>
+															</div>
+														</div>
+														{!! Form::text('visaExpiry', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
+														@if ($errors->has('visaExpiry'))
+															<span class="custom-error" role="alert">
+																<strong>{{ @$errors->first('visaExpiry') }}</strong>
+															</span> 
+														@endif
+													</div>
+												</div>
+											</div>
 											
-											@if ($errors->has('nomi_occupation'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('nomi_occupation') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="skill_assessment">Skill Assessment</label>
-											<select class="form-control" name="skill_assessment">
-												<option value="">Select</option>
-												 <option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
-                                                <option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
-											</select>											
-											@if ($errors->has('skill_assessment'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('skill_assessment') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="high_quali_aus">Highest Qualification in Australia</label>
-											{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group"> 
+													<label for="preferredIntake">Preferred Intake</label>
+													<div class="input-group">
+														<div class="input-group-prepend">
+															<div class="input-group-text">
+																<i class="fas fa-calendar-alt"></i>
+															</div>
+														</div>
+														{!! Form::text('preferredIntake', @$fetchedData->preferredIntake, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select intake date' ))  !!}
+														@if ($errors->has('preferredIntake'))
+															<span class="custom-error" role="alert">
+																<strong>{{ @$errors->first('preferredIntake') }}</strong>
+															</span> 
+														@endif
+													</div>
+												</div> 
+											</div>
 											
-											@if ($errors->has('high_quali_aus'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('high_quali_aus') }}</strong>
-												</span> 
-											@endif
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group"> 
+													<label for="country_passport">Country of Passport</label>
+													<select class="form-control select2" name="country_passport">
+													<?php
+														foreach(\App\Models\Country::all() as $list){
+															?>
+															<option <?php if(@$fetchedData->country_passport == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+															<?php
+														}
+													?>
+													</select>
+													@if ($errors->has('country_passport'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('country_passport') }}</strong>
+														</span> 
+													@endif 
+												</div>
+											</div>
+											
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group"> 
+													<label for="passport_number">Passport Number</label>
+													{!! Form::text('passport_number', @$fetchedData->passport_number, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter passport number' ))  !!}
+													@if ($errors->has('passport_number'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('passport_number') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+										@endif
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Section 4: Address Information -->
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">
+										<i class="fas fa-map-marker-alt text-primary"></i> Address Information
+									</h5>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-6 col-sm-12">
+											<div class="form-group"> 
+												<label for="address">Address</label>
+												{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search address" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
+												@if ($errors->has('address'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('address') }}</strong>
+													</span> 
+												@endif
+												<small class="form-text text-muted">Start typing to search address</small>
+											</div>
+										</div>
+										
+										<div id="map" style="display:none;"></div>
+										
+										<div class="col-md-3 col-sm-12">
+											<div class="form-group"> 
+												<label for="city">City</label>
+												{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
+												@if ($errors->has('city'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('city') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-3 col-sm-12">
+											<div class="form-group"> 
+												<label for="zip">Post Code</label>
+												{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
+												@if ($errors->has('zip'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('zip') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-6 col-sm-12">
+											<div class="form-group"> 
+												<label for="state">State</label>
+												<select class="form-control" name="state">
+													<option value="">- Select State -</option>	
+													<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
+													<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
+													<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
+													<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
+													<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
+													<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
+													<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
+													<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
+												</select>
+												@if ($errors->has('state'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('state') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-6 col-sm-12">
+											<div class="form-group"> 
+												<label for="country">Country</label>
+												<select class="form-control select2" id="country_select" name="country">
+												<?php
+													foreach(\App\Models\Country::all() as $list){
+														?>
+														<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+														<?php
+													}
+												?>
+												</select>
+												@if ($errors->has('country'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('country') }}</strong>
+													</span> 
+												@endif
+											</div>
 										</div>
 									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Additional Contact (Collapsible) -->
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card additional-contact-section" <?php if(
+								( isset($fetchedData->att_email) && $fetchedData->att_email != "")
+								||
+								( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
+							) { ?> style="display:block;" <?php } else { ?> style="display:none;" <?php }?>>
+								<div class="card-header bg-light">
+									<h5 class="mb-0">
+										<i class="fas fa-plus-circle text-primary"></i> Additional Contact
+									</h5>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-6 col-sm-12">
+											<div class="form-group"> 
+												<label for="att_email">Additional Email</label>
+												{!! Form::text('att_email', @$fetchedData->att_email, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional email' ))  !!}
+												@if ($errors->has('att_email'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('att_email') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-6 col-sm-12">
+											<div class="form-group"> 
+												<label for="att_phone">Additional Phone</label>
+												<div class="cus_field_input">
+													<div class="country_code"> 
+														<input class="telephone" id="telephone" type="tel" name="att_country_code" readonly>
+													</div>	
+													{!! Form::text('att_phone', @$fetchedData->att_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
+													@if ($errors->has('att_phone'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('att_phone') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Section 5: Related Files & Country -->
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">
+										<i class="fas fa-link text-primary"></i> Related Files & Country
+									</h5>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-9 col-sm-12">
+											<div class="form-group"> 
+												<label for="related_files">Similar Related Files</label>
+												<select multiple class="form-control js-data-example-ajaxcc" name="related_files[]">
+												</select>
+												@if ($errors->has('related_files'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('related_files') }}</strong>
+													</span> 
+												@endif
+												<small class="form-text text-muted">Search and select related client files</small>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Professional Details Section (for non-Citizen/PR visa types) -->
+					@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">
+										<i class="fas fa-briefcase text-primary"></i> Professional Details
+									</h5>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="nomi_occupation">Nominated Occupation</label>
+												{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
+												@if ($errors->has('nomi_occupation'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('nomi_occupation') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="skill_assessment">Skill Assessment</label>
+												<select class="form-control" name="skill_assessment">
+													<option value="">Select</option>
+													<option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
+													<option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
+												</select>											
+												@if ($errors->has('skill_assessment'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('skill_assessment') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+										
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="high_quali_aus">Highest Qualification (Australia)</label>
+												{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+												@if ($errors->has('high_quali_aus'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('high_quali_aus') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="high_quali_overseas">Highest Qualification Overseas</label>
@@ -919,36 +941,83 @@
 										</div>
 									</div>
                                   
-                                     <div class="col-sm-6">
-										<div class="form-group">
-											<label for="tags_label">Services Taken </label>
-                                            <span class="text-muted">
-                                                <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary serviceTaken btn-sm"><i class="fa fa-plus"></i> Add</a>
-                                            </span>
-                                        </div>
+									<!-- Services Taken Section -->
+									<div class="col-12 mt-4">
+										<div class="services-taken-header d-flex justify-content-between align-items-center mb-3">
+											<h6 class="mb-0"><i class="fas fa-briefcase"></i> Services Taken</h6>
+											<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-sm btn-primary serviceTaken">
+												<i class="fa fa-plus"></i> Add Service
+											</a>
+										</div>
                                        
-                                       <div id="service_taken_complete" style="display:none;">
-                                        </div>
+									   <div id="service_taken_complete" style="display:none;"></div>
 
-                                        <div class="client_info">
-                                            <ul style="margin-left: -40px;">
-                                                <?php
-                                                $serviceTakenArr = \App\Models\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
-                                                //dd($serviceTakenArr);
-                                                if( !empty($serviceTakenArr) && count($serviceTakenArr) >0 ){
-                                                    foreach ($serviceTakenArr as $tokenkey => $tokenval) {
-                                                        //echo "+++".htmlspecialchars($tokenval['mig_ref_no'])."<br/>";
-                                                        if($tokenval['service_type']  == "Migration") {
-                                                            $service_str = $tokenval['service_type']."-".htmlspecialchars($tokenval['mig_ref_no'])."-".htmlspecialchars($tokenval['mig_service'])."-".htmlspecialchars($tokenval['mig_notes']);
-                                                        } else if($tokenval['service_type']  == "Education") {
-                                                            $service_str = $tokenval['service_type']."-".htmlspecialchars($tokenval['edu_course'])."-".htmlspecialchars($tokenval['edu_college'])."-".htmlspecialchars($tokenval['edu_service_start_date'])."-".htmlspecialchars($tokenval['edu_notes']);
-                                                        }
-                                                        echo '<span id="'.$tokenval['id'].'">'.$service_str.' </span><i class="fa fa-edit service_taken_edit" style="cursor: pointer;color: #6777ef;" id="'.$tokenval['id'].'"></i><i class="fa fa-trash service_taken_trash" style="cursor: pointer;color: #6777ef;" id="'.$tokenval['id'].'"></i><br>';
-                                                    
-                                                    }
-                                                } ?>
-                                            </ul>
-                                        </div>
+										<div class="services-taken-grid">
+											<?php
+											$serviceTakenArr = \App\Models\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
+											if( !empty($serviceTakenArr) && count($serviceTakenArr) > 0 ){
+												foreach ($serviceTakenArr as $tokenkey => $tokenval) {
+													$serviceClass = strtolower($tokenval['service_type']);
+													?>
+													<div class="service-card service-card-<?php echo $serviceClass; ?>" id="service-card-<?php echo $tokenval['id']; ?>">
+														<div class="service-card-header">
+															<span class="service-type-badge badge badge-<?php echo $serviceClass == 'migration' ? 'primary' : 'info'; ?>">
+																<?php echo $tokenval['service_type']; ?>
+															</span>
+															<div class="service-actions">
+																<a href="javascript:;" class="service_taken_edit text-primary" id="<?php echo $tokenval['id']; ?>" title="Edit">
+																	<i class="fa fa-edit"></i>
+																</a>
+																<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="<?php echo $tokenval['id']; ?>" title="Delete">
+																	<i class="fa fa-trash"></i>
+																</a>
+															</div>
+														</div>
+														<div class="service-card-body">
+															<?php if($tokenval['service_type'] == "Migration") { ?>
+																<div class="service-detail">
+																	<span class="detail-label">Reference No:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_ref_no']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Service:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_service']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Notes:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_notes']); ?></span>
+																</div>
+															<?php } else if($tokenval['service_type'] == "Education") { ?>
+																<div class="service-detail">
+																	<span class="detail-label">Course:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_course']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">College:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_college']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Start Date:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_service_start_date']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Notes:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_notes']); ?></span>
+																</div>
+															<?php } ?>
+														</div>
+													</div>
+													<?php
+												}
+											} else {
+												echo '<div class="no-services-message">';
+												echo '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
+												echo '<p class="text-muted">No services have been added yet.</p>';
+												echo '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
+												echo '</div>';
+											}
+											?>
+										</div>
 									</div>
                                   
 									<div class="col-sm-12">
@@ -1158,6 +1227,60 @@ if($fetchedData->tagname != ''){
 	</div>
 </div>
 
+
+<!-- Add Client Email Modal -->
+<div class="modal fade addclientemail custom_modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="clientEmailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientEmailModalLabel">Add New Email</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form method="post" id="clientemailform" autocomplete="off" enctype="multipart/form-data">
+					<div class="row">
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="email_type_modal">Email Type <span style="color:#ff0000;">*</span></label>
+								<select name="email_type_modal" id="email_type_modal" class="form-control">
+									<option value="">Select</option>
+									<option value="Personal">Personal</option>
+									<option value="Business">Business</option>
+									<option value="Secondary">Secondary</option>
+									<option value="Additional">Additional</option>
+								</select>
+								@if ($errors->has('email_type_modal'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('email_type_modal') }}</strong>
+									</span>
+								@endif
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="client_email">Email Address <span style="color:#ff0000;">*</span></label>
+								{!! Form::text('client_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address' ))  !!}
+								@if ($errors->has('client_email'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('client_email') }}</strong>
+									</span>
+								@endif
+							</div>
+						</div>
+
+						<div class="col-12 col-md-12 col-lg-12">
+							<button type="button" class="btn btn-primary saveclientemail">Save</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Verify Phone-->
 <div id="verifyphonemodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
@@ -1442,60 +1565,26 @@ jQuery(document).ready(function($){
                 clientphonedata[itag_phone] = {"contact_type":str[0].value, "country_code":str[1].value ,"phone":str[2].value}
                 console.log(clientphonedata);
 
-                var html = '<div class="col-12 col-md-12 col-lg-12">';
-                    html += '<div class="row" id="metatag2_'+itag_phone+'">';
-                    html += '<div class="col-4 col-md-4 col-lg-4">';
-                    html += '<div class="form-group">';
-                    html += '<label for="contact_type">Contact Type <span style="color:#ff0000;">*</span></label>';
-
-                    html += `<select name="contact_type[]" id="contact_type" class="form-control">
-                        <option value="" ${str[0].value === '' ? 'selected' : ''}>Select</option>
-                        <option value="Personal" ${str[0].value === 'Personal' ? 'selected' : ''}>Personal</option>
-                        <option value="Business" ${str[0].value === 'Business' ? 'selected' : ''}>Business</option>
-                        <option value="Secondary" ${str[0].value === 'Secondary' ? 'selected' : ''}>Secondary</option>
-                        <option value="Father" ${str[0].value === 'Father' ? 'selected' : ''}>Father</option>
-                        <option value="Mother" ${str[0].value === 'Mother' ? 'selected' : ''}>Mother</option>
-                        <option value="Brother" ${str[0].value === 'Brother' ? 'selected' : ''}>Brother</option>
-                        <option value="Sister" ${str[0].value === 'Sister' ? 'selected' : ''}>Sister</option>
-                        <option value="Uncle" ${str[0].value === 'Uncle' ? 'selected' : ''}>Uncle</option>
-                        <option value="Aunt" ${str[0].value === 'Aunt' ? 'selected' : ''}>Aunt</option>
-                        <option value="Cousin" ${str[0].value === 'Cousin' ? 'selected' : ''}>Cousin</option>
-                        <option value="Others" ${str[0].value === 'Others' ? 'selected' : ''}>Others</option>
-                        <option value="Partner" ${str[0].value === 'Partner' ? 'selected' : ''}>Partner</option>
-                        <option value="Not In Use" ${str[0].value === 'Not In Use' ? 'selected' : ''}>Not In Use</option>
-                    </select>`;
-
-                    html += '</div>';
-                    html += '</div>';
-
-                    html += '<div class="col-6 col-md-6 col-lg-6">';
-                    html += '<div class="form-group">';
-                    html += '<label for="client_phone">Phone Number</label>';
-                    html += '<div class="cus_field_input">';
-                    html += '<div class="country_code">';
-                    html += '<input class="telephone" id="telephone" type="tel" name="client_country_code[]" value="'+str[1].value+'" >';
-                    html += '</div>';
-                    html += '<input class="form-control tel_input" readonly autocomplete="off" placeholder="Enter Phone" name="client_phone[]" type="text" value="'+str[2].value+'">';
-                    html += '</div>';
-                    html += '</div>';
-                    html += '<input autocomplete="off" placeholder="" name="clientphoneid[]" type="hidden" value="<?php //if(isset($clientphone->id)){echo $client->id;} ?>"></div>';
-              
-                    if( str[0].value != 'Personal' ) {
-                      html += '<div class="col-2 col-md-2 col-lg-2">';
-                      html += '<div class="form-group" style="margin-top: 38px;">';
-                      html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact"><i class="fa fa-times"></i></a>';
-                      html += '</div>';
-                      html += '</div>';
-                    }
-
-                    html += '</div>';
-
-
-                    html += '</div>';
-                    html += '</div>';
+                // New compact design HTML
+                var html = '<div class="compact-contact-item" id="metatag2_'+itag_phone+'">';
+                html += '<span class="contact-type-tag">'+str[0].value+'</span>';
+                html += '<span class="contact-phone">'+str[1].value+' '+str[2].value+'</span>';
+                html += '<div class="contact-actions">';
+                
+                if(str[0].value != 'Personal') {
+                    html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fa fa-trash"></i></a>';
+                }
+                
+                html += '</div>';
+                
+                // Hidden fields
+                html += '<input type="hidden" name="contact_type[]" value="'+str[0].value+'">';
+                html += '<input type="hidden" name="client_country_code[]" value="'+str[1].value+'">';
+                html += '<input type="hidden" name="client_phone[]" value="'+str[2].value+'">';
+                html += '<input type="hidden" name="clientphoneid[]" value="">';
+                html += '</div>';
 
                 $('.clientphonedata').append(html);
-                $(".telephone").intlTelInput();
                 $('#clientphoneform')[0].reset();
                 $('.addclientphone').modal('hide');
                 itag_phone++;
@@ -1514,6 +1603,86 @@ jQuery(document).ready(function($){
                 $('.removesids_contact').append('<input type="hidden" name="rem_phone[]" value="'+contactid+'">');
             }
         }
+	});
+
+	// Email Management
+	var itag_email = 0;
+	
+	$(document).delegate('.openclientemailnew','click', function(){
+		$('#clientEmailModalLabel').html('Add New Email');
+		$('.saveclientemail').show();
+		$('#clientemailform')[0].reset();
+		$('.addclientemail').modal('show');
+	});
+
+	// Save client email
+	$(document).delegate('.saveclientemail','click', function(){
+		var client_email = $('input[name="client_email"]').val();
+		var email_type = $('select[name="email_type_modal"]').val();
+		
+		$('.client_email_error').html('');
+		$('input[name="client_email"]').parent().removeClass('error');
+		
+		var flag = false;
+		if(client_email == ''){
+			$('.client_email_error').html('The Email field is required.');
+			$('input[name="client_email"]').parent().addClass('error');
+			flag = true;
+		}
+		if(email_type == ''){
+			alert('Please select email type.');
+			flag = true;
+		}
+
+		if(!flag){
+			// Check if this is main email or additional
+			var isMainEmail = (email_type == 'Personal' || email_type == 'Business');
+			var emailId = isMainEmail ? 'email_main' : 'email_additional_' + itag_email;
+			var hiddenName = isMainEmail ? 'email' : 'att_email';
+			var hiddenTypeName = isMainEmail ? 'email_type' : '';
+			
+			// Remove existing main email if adding new main email
+			if(isMainEmail) {
+				$('#email_main').remove();
+			}
+			
+			var html = '<div class="compact-contact-item" id="'+emailId+'">';
+			html += '<span class="contact-type-tag">'+email_type+'</span>';
+			html += '<span class="contact-email">'+client_email+'</span>';
+			html += '<div class="contact-actions">';
+			
+			if(isMainEmail) {
+				html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="{{ $fetchedData->first_name }}" data-email="'+client_email+'" data-clientid="{{ $fetchedData->id }}">';
+				html += '<i class="fas fa-check"></i>';
+				html += '</button>';
+			} else {
+				html += '<a href="javascript:;" class="deleteemail btn-delete" data-email="'+emailId+'">';
+				html += '<i class="fa fa-trash"></i>';
+				html += '</a>';
+			}
+			
+			html += '</div>';
+			
+			// Hidden fields
+			html += '<input type="hidden" name="'+hiddenName+'" value="'+client_email+'">';
+			if(hiddenTypeName) {
+				html += '<input type="hidden" name="'+hiddenTypeName+'" value="'+email_type+'">';
+			}
+			html += '</div>';
+
+			$('.clientemaildata').append(html);
+			$('#clientemailform')[0].reset();
+			$('.addclientemail').modal('hide');
+			itag_email++;
+		}
+	});
+
+	// Delete email
+	$(document).delegate('.deleteemail','click', function(){
+		var emailId = $(this).attr('data-email');
+		if (confirm('Are you sure you want to delete this email?')) {
+			$('#'+emailId).remove();
+		}
 	});
 
     ////////////////////////////////////////
@@ -1735,26 +1904,36 @@ jQuery(document).ready(function($){
                 $('#serviceTaken').modal('hide');
                 $(".popuploader").hide();
 
-                $('#service_taken_complete').html("");
-                $('.client_info').css('display','none');
-                $('#service_taken_complete').css('display','block');
+                // Clear and rebuild services grid
+                $('.services-taken-grid').html('');
+                
                 $.each(res, function(index, value) {
+                    var serviceClass = value.service_type.toLowerCase();
+                    var badgeClass = serviceClass == 'migration' ? 'primary' : 'info';
+                    
+                    var cardHtml = '<div class="service-card service-card-' + serviceClass + '" id="service-card-' + value.id + '">';
+                    cardHtml += '<div class="service-card-header">';
+                    cardHtml += '<span class="service-type-badge badge badge-' + badgeClass + '">' + value.service_type + '</span>';
+                    cardHtml += '<div class="service-actions">';
+                    cardHtml += '<a href="javascript:;" class="service_taken_edit text-primary" id="' + value.id + '" title="Edit"><i class="fa fa-edit"></i></a>';
+                    cardHtml += '<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="' + value.id + '" title="Delete"><i class="fa fa-trash"></i></a>';
+                    cardHtml += '</div></div>';
+                    cardHtml += '<div class="service-card-body">';
+                    
                     if(value.service_type == 'Migration') {
-                        var html =  value.service_type+'-'+value.mig_ref_no+'-'+value.mig_service+'-'+value.mig_notes+' ' ;
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Reference No:</span><span class="detail-value">' + value.mig_ref_no + '</span></div>';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Service:</span><span class="detail-value">' + value.mig_service + '</span></div>';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Notes:</span><span class="detail-value">' + value.mig_notes + '</span></div>';
                     } else if(value.service_type == 'Education') {
-                        var html =  value.service_type+'-'+value.edu_course+'-'+value.edu_college+'-'+value.edu_service_start_date+'-'+value.edu_notes+' ';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Course:</span><span class="detail-value">' + value.edu_course + '</span></div>';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">College:</span><span class="detail-value">' + value.edu_college + '</span></div>';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Start Date:</span><span class="detail-value">' + value.edu_service_start_date + '</span></div>';
+                        cardHtml += '<div class="service-detail"><span class="detail-label">Notes:</span><span class="detail-value">' + value.edu_notes + '</span></div>';
                     }
-                    const newItem = $('<span id="'+value.id+'"></span>').text(html);
-                    $('#service_taken_complete').append(newItem);  //Append the item to the container
-
-					var edit_icon = $('<i class="fa fa-edit service_taken_edit" style="cursor: pointer;color: #6777ef;" id="'+value.id+'"></i>');
-                    $('#service_taken_complete').append(edit_icon);
-
-                    var del_icon = $('<i class="fa fa-trash service_taken_trash" style="cursor: pointer;color: #6777ef;" id="'+value.id+'"></i>');
-                    $('#service_taken_complete').append(del_icon);
-                    $('#service_taken_complete').append('<br>'); //Append a line break after each item
+                    
+                    cardHtml += '</div></div>';
+                    $('.services-taken-grid').append(cardHtml);
                 });
-                //$('#service_taken_complete').html(html);
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText); // Handle error response
@@ -1764,7 +1943,7 @@ jQuery(document).ready(function($){
 
     //delete
 	$(document).delegate('.service_taken_trash', 'click', function(e){
-        var conf = confirm('Are you sure want to delete this?');
+        var conf = confirm('Are you sure you want to delete this service?');
 	    if(conf){
             var sel_service_taken_id = $(this).attr('id');
             $.ajax({
@@ -1776,27 +1955,31 @@ jQuery(document).ready(function($){
                 success: function(response){
                     var obj = $.parseJSON(response);
                     if(obj.status){
-                        alert(obj.message);
-						if ( $('.client_info').css('display') === 'none' ) {
-							$('#service_taken_complete span#'+obj.record_id).remove();
-						}
-						else if ( $('#service_taken_complete').css('display') === 'none' ) {
-							$('.client_info span#'+obj.record_id).remove();
-						}
-
-
-                        var editSpan = $('.service_taken_edit#'+obj.record_id);
-                        $('.service_taken_edit#'+obj.record_id).remove();
-
-                        var targetSpan = $('.service_taken_trash#'+obj.record_id);
-
-                        // Find the <br> element that follows the <span>
-                        var brElement = targetSpan.next('br');
-
-                        $('.service_taken_trash#'+obj.record_id).remove();
-                        // Remove the <br> element
-                        brElement.remove();
-
+                        // Remove the service card with animation
+                        $('#service-card-' + obj.record_id).fadeOut(300, function(){
+                            $(this).remove();
+                            
+                            // Check if no services left, show empty message
+                            if($('.services-taken-grid .service-card').length === 0) {
+                                var emptyHtml = '<div class="no-services-message">';
+                                emptyHtml += '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
+                                emptyHtml += '<p class="text-muted">No services have been added yet.</p>';
+                                emptyHtml += '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
+                                emptyHtml += '</div>';
+                                $('.services-taken-grid').html(emptyHtml);
+                            }
+                        });
+                        
+                        // Show success message
+                        if (typeof iziToast !== 'undefined') {
+                            iziToast.success({
+                                title: 'Success',
+                                message: obj.message,
+                                position: 'topRight'
+                            });
+                        } else {
+                            alert(obj.message);
+                        }
                     } else {
                         alert(obj.message);
                     }
@@ -1813,14 +1996,13 @@ jQuery(document).ready(function($){
     $("#country_select").select2({ width: '200px' });
     
     $(document).delegate('.add_other_email_phone', 'click', function(){
-		if ($('.other_email_div').css('display') == 'none') {
-			$('.other_email_div').css('display','inline-block');
-			$('.other_phone_div').css('display','inline-block');
-			$('.add_other_email_phone').html('<i class="fa fa-minus" aria-hidden="true"></i>');
+		const section = $('.additional-contact-section');
+		if (section.css('display') == 'none') {
+			section.slideDown(300);
+			$(this).html('<i class="fa fa-minus" aria-hidden="true"></i> Hide');
 		} else {
-			$('.other_email_div').css('display','none');
-			$('.other_phone_div').css('display','none');
-			$('.add_other_email_phone').html('<i class="fa fa-plus" aria-hidden="true"></i>');
+			section.slideUp(300);
+			$(this).html('<i class="fa fa-plus" aria-hidden="true"></i> Add More');
 		}
 	});
     
