@@ -117,7 +117,7 @@ class AdminLoginController extends Controller
                             </table>';
                 $message .= '</body></html>';
                 $subject = 'CRM Traced new IP Address- '.$request->getClientIp().' from Email- '.$user->email;
-                $this->send_compose_template('info@bansaleducation.au', $subject, 'info@bansaleducation.au', $message,'Bansal Immigration');
+                $this->send_compose_template($message,'Bansal Immigration', 'info@bansaleducation.au', $subject, 'info@bansaleducation.au');
             } */
 
 
@@ -165,7 +165,7 @@ class AdminLoginController extends Controller
                             </table>';
            $message .= '</body></html>';
            $subject = 'CRM Traced new IP Address- '.$request->getClientIp().' from Email- '.$user->email;
-           $this->send_compose_template('info@bansaleducation.au', $subject, 'info@bansaleducation.au', $message,'Bansal Immigration');
+           $this->send_compose_template($message,'Bansal Immigration', 'info@bansaleducation.au', $subject, 'info@bansaleducation.au');
          }
        
 

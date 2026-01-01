@@ -415,7 +415,7 @@ class ApplicationsController extends Controller
 					$ccarray[] = $clientcc;
 				}
 			}
-				$sent = $this->send_compose_template($to, $subject, 'support@digitrex.live', $message, 'digitrex', $array,@$ccarray);
+				$sent = $this->send_compose_template($message, 'digitrex', $to, $subject, 'support@digitrex.live', $array,@$ccarray);
 			if($sent){
 				$objs = new \App\Models\ApplicationActivitiesLog;
 				$objs->stage = $request->type;

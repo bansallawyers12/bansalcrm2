@@ -35,7 +35,7 @@ class VisaExpireReminderEmail extends Command
     protected $description = 'Visa Expire Reminder Email before 15 days';
 
 
-    protected function send_compose_template($to = null, $subject = null, $sender = null,$content, $sendername, $array = array(), $cc = array())
+    protected function send_compose_template($content, $sendername, $to = null, $subject = null, $sender = null, $array = array(), $cc = array())
 	{
 
 		$explodeTo = explode(';', $to);//for multiple and single to
@@ -100,7 +100,7 @@ class VisaExpireReminderEmail extends Command
                     $ccarray = array();
                     $array = array();
 
-                    $mail_sent = $this->send_compose_template($to_email, $subject, $from_email, $message, '', $array,@$ccarray);
+                    $mail_sent = $this->send_compose_template($message, '', $to_email, $subject, $from_email, $array,@$ccarray);
                     if($mail_sent){
                         $this->info('Mail is sent.');
                         $rec = \App\Models\Admin::find($val->id);

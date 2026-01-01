@@ -152,7 +152,7 @@ class Controller extends BaseController
 		
 	}
 	
-	protected function send_compose_template($to = null, $subject = null, $sender = null,$content, $sendername, $array = array(), $cc = array()) 
+	protected function send_compose_template($content, $sendername, $to = null, $subject = null, $sender = null, $array = array(), $cc = array()) 
 	{
       
         if( $sender != 'noreply@bansalimmigration.com.au' ){
