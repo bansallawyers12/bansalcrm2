@@ -388,99 +388,100 @@
 	
         
     $(function () {
-
-
-        var date = new Date();
-        date.setDate(date.getDate() - 0);
-	$('#deptime').datetimepicker({autoclose: true,
-            startDate: date, minDate:0,step: 15,
-			onSelectDate:function(dateText, inst) {
-				
-				var date1 = new Date($('#deptime').val());
-				var date2 = new Date($('#artime').val());
-				
-				calduration(date1,date2);
-			},onSelectTime:function(dateText, inst){
-				var date1 = new Date($('#deptime').val());
-				var date2 = new Date($('#artime').val());
-				
-				calduration(date1,date2);
-			}
-			});
-			$('#retartime').datetimepicker({autoclose: true,
-            startDate: date, minDate:0,step: 15,
-			onSelectDate:function(dateText, inst) {
-				
-				var date1 = new Date($('#deptime').val());
-				var date2 = new Date($('#retartime').val());
-				
-				retcalduration(date1,date2);
-			},onSelectTime:function(dateText, inst){
-				var date1 = new Date($('#retdeptime').val());
-				var date2 = new Date($('#retartime').val());
-				
-				retcalduration(date1,date2);
-			}
-			});
-			$('#retdeptime').datetimepicker({autoclose: true,
-            startDate: date, minDate:0,step: 15,
-			onSelectDate:function(dateText, inst) {
-				
-				var date1 = new Date($('#retdeptime').val());
-				var date2 = new Date($('#retartime').val());
-				
-				retcalduration(date1,date2);
-			},onSelectTime:function(dateText, inst){
-				var date1 = new Date($('#retdeptime').val());
-				var date2 = new Date($('#retartime').val());
-				
-				retcalduration(date1,date2);
-			}
-			});
-       
-			$('#artime').datetimepicker({autoclose: true,
-            startDate: date, minDate:0,step: 15,
-			onSelectDate:function(dateText, inst) {
-				
-				var date1 = new Date($('#deptime').val());
-				var date2 = new Date($('#artime').val());
-				calduration(date1,date2);
-			},onSelectTime:function(dateText, inst){
-				var date1 = new Date($('#deptime').val());
-				var date2 = new Date($('#artime').val());
-				calduration(date1,date2);
-			}
-			
-			}); 
+		if (typeof flatpickr !== 'undefined') {
+			// Helper functions for duration calculation
 			function append(dtTxt, ddTxt) {
 				$('input[name="duration"]').val(dtTxt);
 			}
 			function retappend(dtTxt, ddTxt) {
 				$('input[name="ret_duration"]').val(dtTxt);
 			}
-        function retcalduration(d1,d2){
-			if(d2 != ''){
-			 var msec = d2 - d1;
-			var mins = Math.floor(msec / 60000);
-			var hrs = Math.floor(mins / 60);
-			var days = Math.floor(hrs / 24);
-			var yrs = Math.floor(days / 365);
-			mins = mins % 60;
-			retappend(hrs + "h " + mins + "m");
+			function retcalduration(d1,d2){
+				if(d2 != ''){
+					var msec = d2 - d1;
+					var mins = Math.floor(msec / 60000);
+					var hrs = Math.floor(mins / 60);
+					var days = Math.floor(hrs / 24);
+					var yrs = Math.floor(days / 365);
+					mins = mins % 60;
+					retappend(hrs + "h " + mins + "m");
+				}
 			}
-		}function calduration(d1,d2){
-			if(d2 != ''){
-			 var msec = d2 - d1;
-			var mins = Math.floor(msec / 60000);
-			var hrs = Math.floor(mins / 60);
-			var days = Math.floor(hrs / 24);
-			var yrs = Math.floor(days / 365);
-			mins = mins % 60;
-			append(hrs + "h " + mins + "m");
+			function calduration(d1,d2){
+				if(d2 != ''){
+					var msec = d2 - d1;
+					var mins = Math.floor(msec / 60000);
+					var hrs = Math.floor(mins / 60);
+					var days = Math.floor(hrs / 24);
+					var yrs = Math.floor(days / 365);
+					mins = mins % 60;
+					append(hrs + "h " + mins + "m");
+				}
+			}
+
+			// DateTime pickers with 15-minute increments
+			var datetimeOptions = {
+				enableTime: true,
+				dateFormat: "Y-m-d H:i",
+				minDate: "today",
+				minuteIncrement: 15,
+				time_24hr: false,
+				allowInput: true
+			};
+
+			// Departure time
+			if ($('#deptime').length) {
+				flatpickr('#deptime', $.extend({}, datetimeOptions, {
+					onChange: function(selectedDates, dateStr, instance) {
+						var date1 = new Date($('#deptime').val());
+						var date2 = new Date($('#artime').val());
+						calduration(date1, date2);
+					}
+				}));
+			}
+
+			// Arrival time
+			if ($('#artime').length) {
+				flatpickr('#artime', $.extend({}, datetimeOptions, {
+					onChange: function(selectedDates, dateStr, instance) {
+						var date1 = new Date($('#deptime').val());
+						var date2 = new Date($('#artime').val());
+						calduration(date1, date2);
+					}
+				}));
+			}
+
+			// Return departure time
+			if ($('#retdeptime').length) {
+				flatpickr('#retdeptime', $.extend({}, datetimeOptions, {
+					onChange: function(selectedDates, dateStr, instance) {
+						var date1 = new Date($('#retdeptime').val());
+						var date2 = new Date($('#retartime').val());
+						retcalduration(date1, date2);
+					}
+				}));
+			}
+
+			// Return arrival time
+			if ($('#retartime').length) {
+				flatpickr('#retartime', $.extend({}, datetimeOptions, {
+					onChange: function(selectedDates, dateStr, instance) {
+						var date1 = new Date($('#retdeptime').val());
+						var date2 = new Date($('#retartime').val());
+						retcalduration(date1, date2);
+					}
+				}));
+			}
+
+			// Date only picker
+			if ($('#ardate').length) {
+				flatpickr('#ardate', {
+					dateFormat: "Y-m-d",
+					minDate: "today",
+					allowInput: true
+				});
 			}
 		}
-		 $('#ardate').datetimepicker({autoclose: true,
-            startDate: date, minDate:0,timepicker: false,format:'Y-m-d'});
 	 //Initialize Select2 Elements
 		$('.select2_name, .select2_source, .select2_destination').select2({
 		  theme: 'bootstrap4'
