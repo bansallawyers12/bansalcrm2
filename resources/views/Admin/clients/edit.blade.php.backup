@@ -321,7 +321,7 @@
                                   
                                    <div class="col-12 col-md-12 col-lg-12">
                                         <div class="row">
-                                          <div class="col-md-2 col-sm-12">
+                                          <div class="col-sm-2">
                                               <div class="form-group">
                                                   <label for="email_type">Email Type <span style="color:#ff0000;">*</span></label>
                                                   <select style="padding: 0px 5px;" name="email_type" id="email_type" class="form-control" data-valid="required">	
@@ -335,7 +335,7 @@
                                                   @endif
                                               </div>
                                           </div>
-                                          <div class="col-md-4 col-sm-12">
+                                          <div class="col-sm-3">
                                               <div class="form-group"> 
                                                   <label for="email">Email <span style="color:#ff0000;">*</span></label>
                                                   {!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
@@ -347,16 +347,17 @@
                                               </div>
                                           </div>	
 									
-                                         <div class="col-md-3 col-sm-12">
+                                         <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label for="manual_email_phone_verified">Email Verification</label>
-                                                    <div class="email-verify-section">
+                                                    <div style="display: flex; align-items: center; gap: 10px;">
                                                         <?php
                                                         if( isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1' )
                                                         { 
-                                                            echo '<div class="verified-status"><i class="fas fa-check-circle verified-icon fa-lg text-success"></i> <span class="verified-text">Verified</span></div>'; 
+                                                            echo '<i class="fas fa-check-circle verified-icon fa-lg" style="color: #28a745; font-size: 24px;"></i>';
+                                                            echo '<span style="color: #28a745; font-weight: 500;">Verified</span>';
                                                         } else { ?>
-                                                            <button type="button" class="btn btn-outline-primary btn-sm manual_email_phone_verified" name="manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm manual_email_phone_verified" name="manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>" style="white-space: nowrap;">
                                                                 <i class="fas fa-envelope"></i> Verify Email
                                                             </button>
                                                         <?php }?>
@@ -364,26 +365,22 @@
                                                 </div>
                                             </div>
 
-                                        <div class="col-md-3 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="Add another email and contact no">Additional Contact</label>
-                                                <div class="additional-contact-toggle">
-                                                    <?php
-                                                    //echo $fetchedData->att_email."===".$fetchedData->att_phone;die;
-                                                    if(
-                                                        ( isset($fetchedData->att_email) && $fetchedData->att_email != "")
-                                                        ||
-                                                        ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
-                                                    ){ ?>
-                                                        <a href="javascript:void(0)" class="btn btn-outline-secondary btn-sm add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Hide additional email and contact">
-                                                            <i class="fa fa-minus" aria-hidden="true"></i> Hide
-                                                        </a>
-                                                    <?php } else { ?>
-                                                        <a href="javascript:void(0)" class="btn btn-outline-secondary btn-sm add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show additional email and contact">
-                                                            <i class="fa fa-plus" aria-hidden="true"></i> Add More
-                                                        </a>
-                                                    <?php } ?>
-                                                </div>
+
+                                        <div class="col-sm-1">
+                                            <div class="form-group" style="display: flex; align-items: flex-end; height: 100%; padding-bottom: 15px;">
+                                                <label for="Add another email and contact no" style="display: none;"> </label>
+                                                <?php
+                                                //echo $fetchedData->att_email."===".$fetchedData->att_phone;die;
+                                                if(
+                                                    ( isset($fetchedData->att_email) && $fetchedData->att_email != "")
+                                                    ||
+                                                    ( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
+                                                ){ ?>
+                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no" style="font-size: 20px; color: #6777ef;"><i class="fa fa-minus" aria-hidden="true"></i></a>
+                                                <?php } else { ?>
+                                                    <a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no" style="font-size: 20px; color: #6777ef;"><i class="fa fa-plus" aria-hidden="true"></i></a>
+
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </div>

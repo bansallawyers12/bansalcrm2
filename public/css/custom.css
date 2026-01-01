@@ -755,3 +755,52 @@ form[name="add-leads"] select:invalid {
 	opacity: 0;
 }
 
+/* Email Verification Section Styling
+   ============================================================================= */
+.email-verify-section {
+	display: flex;
+	align-items: center;
+	min-height: 38px;
+}
+
+.verified-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.verified-icon {
+	color: #28a745 !important;
+	font-size: 1.5rem;
+}
+
+.verified-text {
+	color: #28a745;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.manual_email_phone_verified {
+	white-space: nowrap;
+}
+
+.manual_email_phone_verified:hover {
+	background-color: #0056b3;
+	border-color: #0056b3;
+	color: #fff;
+}
+
+.additional-contact-toggle {
+	display: flex;
+	align-items: center;
+	min-height: 38px;
+}
+
+/* Responsive adjustments for email section */
+@media (max-width: 768px) {
+	.email-verify-section,
+	.additional-contact-toggle {
+		margin-top: 10px;
+	}
+}
+
