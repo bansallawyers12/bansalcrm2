@@ -82,7 +82,7 @@
 													</td>
 													<td style="text-align:right;">
 														<div class="dropdown d-inline">
-															<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" href="javascript:;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item openeditform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
 																<a onClick="deleteAction({{@$list->id}}, 'invoice_schedules')" class="dropdown-item" href="javascript:;">Delete</a>

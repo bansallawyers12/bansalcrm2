@@ -253,7 +253,7 @@
 				</div>
 				<div class="modal-footer justify-content-between">
 				  <a href="{{route('admin.leads.index')}}" class="btn btn-default" >Reset</a>
-				  <button type="submit" id="" class="btn btn-primary">Search</button>
+				  <button type="submit" class="btn btn-primary">Search</button>
 				</div>
 				</form>	
 			  </div>
@@ -299,7 +299,7 @@
 								</div>
 								<div class="form-group">
 									<label for="attach_file" class="col-form-label">Attachments <i class="fa fa-explanation"></i></label>
-									<input type="file" name="attach_file" class="" autocomplete="off" data-valid="" style="display:block;" />
+									<input type="file" name="attach_file" class="" autocomplete="off" data-valid="" style="display:block;">
 									@if ($errors->has('attach_file'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('attach_file') }}</strong>

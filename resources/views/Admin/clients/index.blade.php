@@ -96,14 +96,14 @@
 							
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item is_checked_client" style="display:none;">
-									<a class="btn btn-primary emailmodal" id=""  href="javascript:;"  >Send Mail</a>
+									<a class="btn btn-primary emailmodal" href="javascript:;"  >Send Mail</a>
 								</li>
 								<li class="nav-item is_checked_client" style="display:none;">
-									<a class="btn btn-primary " id=""  href="javascript:;"  >Change Assignee</a>
+									<a class="btn btn-primary " href="javascript:;"  >Change Assignee</a>
 								</li>
 								
 								<li class="nav-item is_checked_client_merge" style="display:none;">
-									<a class="btn btn-primary " id=""  href="javascript:;"  >Merge</a>
+									<a class="btn btn-primary " href="javascript:;"  >Merge</a>
 								</li>
 								
 								<li class="nav-item is_checked_clientn">
@@ -277,7 +277,7 @@
 													<td style="white-space: initial;">{{ @$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...') }}</td>  	
 													<td style="white-space: initial;">
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>

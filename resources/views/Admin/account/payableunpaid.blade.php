@@ -95,7 +95,7 @@
 																	   </td>
 																	<td style="text-align:right;">
 																		<div class="dropdown d-inline">
-																			<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																			<a class="dropdown-toggle" href="javascript:;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 																			<div class="dropdown-menu">
 																			<?php
 																			if(isset($list->invoice) && $list->invoice->status == 1){
@@ -142,7 +142,7 @@
 	<div class="modal-dialog">
 	{!! Form::open(array('url' => 'admin/income-payment-store', 'name'=>"incomepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"incomepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
-	<input type="hidden" value="false" name="is_ajax" id="">
+	<input type="hidden" value="false" name="is_ajax">
 	<input data-valid="required" type="hidden" name="payment_amount" placeholder="" class="paymentAmount" />
 		<div class="modal-content ">
 			<div class="modal-header">

@@ -304,7 +304,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							foreach($doclists as $doclist){
 								$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 							?>
-								<tr id="">
+								<tr>
 									<td><i class="fa fa-file"></i> <?php echo $doclist->file_name; ?><br><?php echo @$docdata->document_type; ?></td>
 									<td>
 										<?php
@@ -322,7 +322,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 											<?php
 										} ?>
 										<div class="dropdown d-inline">
-											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+											<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 											<div class="dropdown-menu">
 												
 												<!--<a target="_blank" class="dropdown-item" href="{{--URL::to('/public/img/documents')--}}/<?php //echo $doclist->file_name; ?>">Preview</a>
@@ -406,7 +406,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							<div class="schedule_btns">
 								<a class="openpaymentschedule btn btn-primary" data-id="{{$fetchData->id}}" href="javascript:;" ><i class="fa fa-plus"></i> Add Schedule</a>
 								<div class="dropdown d-inline">
-									<button class="btn btn-outline-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
+									<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
 									<div class="dropdown-menu">
 										<a class="dropdown-item" href="javascript:;">Email Schedule</a>
 										<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/applications/preview-schedules/')}}/{{$fetchData->id}}">Preview Schedule</a>
@@ -479,7 +479,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 									<td><span title="Non Claimable" class="ui alignMiddle ag-label--circular truncate text-info">Non Claimable</span></td>
 									<td>
 										<div class="dropdown d-inline">
-											<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+											<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 											<div class="dropdown-menu">
 												<a class="dropdown-item editpaymentschedule" data-id="{{$invoiceschedule->id}}" href="javascript:;">Edit</a>
 												<a class="dropdown-item deletenote" data-id="{{$invoiceschedule->id}}" data-href="deletepaymentschedule" href="javascript:;" >Delete</a>

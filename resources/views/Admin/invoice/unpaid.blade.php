@@ -189,7 +189,7 @@
 	<div class="modal-dialog">
 	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"invoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
-	<input type="hidden" value="false" name="is_ajax" id="">
+	<input type="hidden" value="false" name="is_ajax">
 	
 		<div class="modal-content ">
 			<div class="modal-header">

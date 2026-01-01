@@ -426,7 +426,7 @@ use App\Http\Controllers\Controller;
                                                         <?php //} ?>
 
                                                         <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                            <a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                            <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
                                                             <div class="dropdown-menu">
                                                                 <a data-id="{{--$activit->id--}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
                                                                 <?php //if($activit->pin == 1){ ?>
@@ -498,7 +498,7 @@ use App\Http\Controllers\Controller;
 													<td>{{$countapplication}}</td>
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu"> 
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-eye"></i> View</a>
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/edit/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-edit"></i> Edit</a>
@@ -539,7 +539,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openbranchform" data-id="{{$branch->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$branch->id}}" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -712,7 +712,7 @@ use App\Http\Controllers\Controller;
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opencontactform" data-id="{{$clist->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$clist->id}}" data-href="deletecontact" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -762,7 +762,7 @@ use App\Http\Controllers\Controller;
 
                                                 <div class="right" style="float: right;width: 15px;">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
                                                             @if(Auth::user()->role == 1)
@@ -855,7 +855,7 @@ use App\Http\Controllers\Controller;
 													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
 																
@@ -907,7 +907,7 @@ use App\Http\Controllers\Controller;
 												<div class="grid_content">
 													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 														
 																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
@@ -1001,7 +1001,7 @@ use App\Http\Controllers\Controller;
 													@endif
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/view/')}}/{{$invoicelist->id}}">View</a>
@@ -1074,7 +1074,7 @@ use App\Http\Controllers\Controller;
                                                                         </div>
 
                                                                         <div class="dropdown d-inline">
-                                                                            <button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                            <button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                             <div class="dropdown-menu">
                                                                                 <?php
                                                                                 if($DocInfo)
@@ -1171,7 +1171,7 @@ use App\Http\Controllers\Controller;
                                                                 }?>
 
                                                                 <div class="dropdown d-inline">
-																	<button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																	<button class="btn btn-primary dropdown-toggle" style="width: 100px;margin:0px !important;" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																	<div class="dropdown-menu">
                                                                         <!--<a target="_blank" class="dropdown-item"  href="{{--url('/admin/clients/preview-msg/'.$DocInfo->myfile)--}}"><i class="fas fa-eye"></i></a>-->
 																		<?php
@@ -1352,7 +1352,7 @@ use App\Http\Controllers\Controller;
 											<div class="extra_content">
 												<div class="left">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openpromotonform" data-id="{{$promotion->id}}" href="javascript:;">Edit</a>
 														</div>
@@ -1738,7 +1738,7 @@ use App\Http\Controllers\Controller;
 
                                                                         <td style="white-space: initial;">
                                                                             <div class="dropdown d-inline">
-                                                                                <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                                <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                                 <div class="dropdown-menu">
                                                                                     <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data->id; ?>" data-current-status="<?php echo $data->status; ?>" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
                                                                                     <!--<a href="javascript:;" datatype="note" class="btn btn-sm btn-primary dropdown-item create_student_note" data-studentid="<?php echo $data->client_id; ?>" data-studentrefno="<?php //echo $data->client_reference; ?>"  data-collegename="<?php //echo $data->partner_name; ?>">Add Student Note</a>-->
@@ -2099,7 +2099,7 @@ use App\Http\Controllers\Controller;
                                                                     
                                                                     <td style="white-space: initial;">
                                                                         <div class="dropdown d-inline">
-                                                                            <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                                            <button style="margin-top:3px; margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                                             <div class="dropdown-menu">
                                                                                 <button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="<?php echo $data1->id; ?>" data-current-status="<?php echo $data1->status; ?>" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
                                                                                 

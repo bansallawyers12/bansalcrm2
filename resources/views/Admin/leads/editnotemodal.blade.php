@@ -18,7 +18,7 @@
 	<div class="form-group row">
 		<div class="col-sm-12">
 		
-			<input id="" name="lead_id" type="hidden" value="{{base64_encode(convert_uuencode(@$fetchedData->id))}}">
+			<input name="lead_id" type="hidden" value="{{base64_encode(convert_uuencode(@$fetchedData->id))}}">
 			<textarea id="description" name="description" class="form-control summernote-simple" placeholder="Add note" style="">{{$fetchedData->note}}</textarea>
 		</div>
 	</div>

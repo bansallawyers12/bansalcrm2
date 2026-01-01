@@ -525,7 +525,7 @@
 																	</tr> 
 																</thead>
 																<tbody class="tdata">	
-																	<tr id="">
+																	<tr>
 																		<td></td> 
 																		<td></td>
 																		<td></td>
@@ -650,7 +650,7 @@
 																<div class="schedule_btns">
 																	<a href="#" class="btn btn-primary"><i class="fa fa-plus"></i> Add Schedule</a>
 																	<div class="dropdown d-inline">
-																		<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
+																		<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
 																		<div class="dropdown-menu">
 																			<a class="dropdown-item" href="javascript:;">Email Schedule</a>
 																			<a class="dropdown-item" href="javascript:;">Preview Schedule</a>
@@ -675,7 +675,7 @@
 																	</tr> 
 																</thead>
 																<tbody class="tdata">	
-																	<tr id="">
+																	<tr>
 																		<td>12</td> 
 																		<td>43556</td>
 																		<td>Bank</td>
@@ -686,7 +686,7 @@
 																		<td>Pending</td>
 																		<td>
 																			<div class="dropdown d-inline">
-																				<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																				<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																				<div class="dropdown-menu">
 																					<a class="dropdown-item" href="javascript:;">Edit</a>
 																					<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -893,7 +893,7 @@
 												<div class="serv_user_action">
 													<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".interest_service_view" class="btn btn-primary">View</a>
 													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Create Appliation</a>
 															<a class="dropdown-item" href="javascript:;">Delete</a>
@@ -943,7 +943,7 @@
 												<div class="serv_user_action">
 													<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".interest_service_view" class="btn btn-primary">View</a>
 													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Delete</a>
 														</div>
@@ -978,14 +978,14 @@
 													</tr> 
 												</thead>
 												<tbody class="tdata">	
-													<tr id="">
+													<tr>
 														<td><i class="fas fa-file-image"></i> 1643474600_MYF_33 .jpg</td> 
 														<td>Arun</td>
 														<td>18.34 KB</td>
 														<td>2022-05-29</td> 
 														<td>
 															<div class="dropdown d-inline">
-																<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 																<div class="dropdown-menu">
 																	<a class="dropdown-item" href="javascript:;">Rename</a>
 																	<a class="dropdown-item" href="javascript:;">Preview</a>
@@ -1015,7 +1015,7 @@
 												<div class="grid_content">
 													<span>1643474600_MYF_33 .jpg</span>
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item" href="javascript:;">Preview</a>
 															<a class="dropdown-item" href="javascript:;">Download</a>
@@ -1050,7 +1050,7 @@
 													<div class="appoint_created">
 														<span class="span_label">Created By: <span>A</span></span>
 														<div class="dropdown d-inline dropdown_ellipsis_icon">
-															<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item" href="javascript:;">Edit</a>
 																<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -1070,7 +1070,7 @@
 													<div class="appoint_created">
 														<span class="span_label">Created By: <span>A</span></span>
 														<div class="dropdown d-inline dropdown_ellipsis_icon">
-															<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+															<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 															<div class="dropdown-menu">
 																<a class="dropdown-item" href="javascript:;">Edit</a>
 																<a class="dropdown-item" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')">Delete</a>
@@ -1132,7 +1132,7 @@
 													<td><span class="ag-label--circular" style="color: #6777ef" >Paid</span></td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a class="dropdown-item has-icon" href="#"><i class="far fa-mail"></i> View</a>
@@ -1363,7 +1363,7 @@
 													<td></td>
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
 																<a class="dropdown-item has-icon" href="#"><i class="far fa-mail"></i> Decline</a>

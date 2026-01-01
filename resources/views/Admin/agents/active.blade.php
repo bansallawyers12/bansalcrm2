@@ -25,7 +25,7 @@
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item is_checked_client" style="display:none;">
-									<a class="btn btn-primary emailmodal" id=""  href="javascript:;"  >Send Mail</a>
+									<a class="btn btn-primary emailmodal" href="javascript:;"  >Send Mail</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
 									<a class="nav-link active" id="active-tab"  href="{{URL::to('/admin/agents/active')}}" >Active</a>
@@ -88,7 +88,7 @@
 													</td>
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/agents/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'agents')"><i class="fas fa-trash"></i> Archived</a>

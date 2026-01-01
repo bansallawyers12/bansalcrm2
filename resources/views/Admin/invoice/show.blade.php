@@ -299,7 +299,7 @@
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 												
-													<input type="text" id="" value="{{$coom_amt}}" readonly="readonly">
+													<input type="text" value="{{$coom_amt}}" readonly="readonly">
 													<div class="basic_label">AUD</div>
 												</div> 
 											</div>
@@ -354,7 +354,7 @@
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 												
-													<input type="text" id="" value="{{$netamount}}" readonly="readonly">
+													<input type="text" value="{{$netamount}}" readonly="readonly">
 													<div class="basic_label">AUD</div>
 												</div> 
 											</div>
@@ -417,7 +417,7 @@
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 												
-													<input type="text" id="" value="{{$coom_amt}}" readonly="readonly">
+													<input type="text" value="{{$coom_amt}}" readonly="readonly">
 													<div class="basic_label">AUD</div>
 												</div> 
 											</div>
@@ -427,7 +427,7 @@
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 												
-													<input type="text" id="" value="{{$bonus_amt}}" readonly="readonly">
+													<input type="text" value="{{$bonus_amt}}" readonly="readonly">
 													<div class="basic_label">AUD</div>
 												</div> 
 											</div>
@@ -720,7 +720,7 @@
 	<div class="modal-dialog">
 	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 	<input type="hidden" value="{{$invoicedetail->id}}" name="invoice_id">
-	<input type="hidden" value="false" name="is_ajax" id="">
+	<input type="hidden" value="false" name="is_ajax">
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>

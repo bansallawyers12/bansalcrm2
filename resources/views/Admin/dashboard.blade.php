@@ -270,7 +270,7 @@
                                         <td>{{ $note->formatted_created_at ?? 'N/A' }}</td>
                                         <td style="white-space: initial;">
                                             <div class="dropdown d-inline">
-                                                <button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                                                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item has-icon" href="javascript:;" onclick="closeNotesDeadlineAction({{$note->id}})">Close</a>
                                                     <a class="dropdown-item has-icon btn-extend_note_deadline"  data-noteid="{{$note->id}}" data-assignnote="{{$note->description}}" data-deadlinedate="{{$note->formatted_deadline ?? ''}}" href="javascript:;">Extend</a>

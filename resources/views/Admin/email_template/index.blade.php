@@ -144,7 +144,7 @@
 				</div>
 				<div class="modal-footer justify-content-between">
 				  <a href="{{route('admin.themes.index')}}" class="btn btn-default" >Reset</a>
-				  <button type="submit" id="" class="btn btn-primary">Search</button>
+				  <button type="submit" class="btn btn-primary">Search</button>
 				</div>
 			</form>
 		</div>

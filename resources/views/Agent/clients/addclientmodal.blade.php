@@ -95,7 +95,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="">Notes <span class="span_req">*</span></label>
-								<textarea data-valid="required"  class="form-control" name="note" id=""></textarea>
+								<textarea data-valid="required"  class="form-control" name="note"></textarea>
 								
 							</div>
 						</div>
@@ -127,7 +127,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="">Notes <span class="span_req">*</span></label>
-								<textarea data-valid="required"  class="form-control" name="note" id=""></textarea>
+								<textarea data-valid="required"  class="form-control" name="note"></textarea>
 								
 							</div>
 						</div>
@@ -1066,8 +1066,8 @@
 	<div class="modal-dialog">
 	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'method' => 'post', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
-	<input type="hidden" value="true" name="is_ajax" id="">
-	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="">
+	<input type="hidden" value="true" name="is_ajax">
+	<input type="hidden" value="{{$fetchedData->id}}" name="client_id">
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>

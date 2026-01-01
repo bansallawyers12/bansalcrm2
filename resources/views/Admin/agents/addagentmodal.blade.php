@@ -95,7 +95,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="">Notes <span class="span_req">*</span></label>
-								<textarea data-valid="required"  class="form-control" name="note" id=""></textarea>
+								<textarea data-valid="required"  class="form-control" name="note"></textarea>
 								
 							</div>
 						</div>
@@ -127,7 +127,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="">Notes <span class="span_req">*</span></label>
-								<textarea data-valid="required"  class="form-control" name="note" id=""></textarea>
+								<textarea data-valid="required"  class="form-control" name="note"></textarea>
 								
 							</div>
 						</div>

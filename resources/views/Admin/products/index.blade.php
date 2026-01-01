@@ -95,7 +95,7 @@
 													<td style="white-space: initial;">{{@$partnerbranch->name}} ({{@$partnerbranch->city}})</td> 
 													<td>
 														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'products')"><i class="fas fa-trash"></i> Delete</a>

@@ -86,7 +86,7 @@
 																<td>{{@$admindata->first_name}} {{@$admindata->last_name}}</td>
 																<td style="text-align:right;">
 																	<div class="dropdown d-inline">
-																		<a class="dropdown-toggle" href="javascript:;" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																		<a class="dropdown-toggle" href="javascript:;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 																		<div class="dropdown-menu">
 																			<a  data-id="{{$list->id}}" class="dropdown-item revertinvoice" href="javascript:;">Revert Payment</a>
 																			

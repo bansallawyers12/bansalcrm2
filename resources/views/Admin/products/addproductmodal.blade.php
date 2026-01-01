@@ -935,8 +935,8 @@
 		<form action="{{ url('admin/invoice/payment-store') }}" method="POST" name="ajaxinvoicepaymentform" autocomplete="off" enctype="multipart/form-data" id="ajaxinvoicepaymentform">
 			@csrf
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
-	<input type="hidden" value="true" name="is_ajax" id="">
-	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="">
+	<input type="hidden" value="true" name="is_ajax">
+	<input type="hidden" value="{{$fetchedData->id}}" name="client_id">
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>

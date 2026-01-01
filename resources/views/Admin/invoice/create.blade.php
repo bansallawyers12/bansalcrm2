@@ -209,7 +209,7 @@
 													<td>
 														<div class="form-group">
 															<!--<textarea class="form-control" placeholder="Type or click to select an item." name="item_detail"></textarea>-->
-															<select id="" name="item_detail[]" class="select2dat" style="width: 100%;">
+															<select name="item_detail[]" class="select2dat" style="width: 100%;">
 																<option value="">Type or click to select an item.</option>
 																@foreach(\App\Models\Item::where('user_id', @Auth::user()->id)->orderby('name','ASC')->get() as $ilist)
 																	<option value="{{$ilist->name}}">{{$ilist->name}}</option>
@@ -242,7 +242,7 @@
 														<td>
 															<div class="form-group">
 																<!--<textarea class="form-control" placeholder="Type or click to select an item." name="item_detail"></textarea>-->
-																<select id="" name="item_detail[]" class="select2dat"  style="width: 100%;">
+																<select name="item_detail[]" class="select2dat"  style="width: 100%;">
 																	<option value="">Type or click to select an item.</option>
 																	@foreach(\App\Models\Item::where('user_id', @Auth::user()->id)->orderby('name','ASC')->get() as $ilist)
 																		<option value="{{$ilist->name}}">{{$ilist->name}}</option>

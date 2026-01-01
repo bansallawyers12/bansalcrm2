@@ -29,7 +29,7 @@
 
                             <ul class="nav nav-pills" id="client_tabs" role="tablist">
                                 <li class="nav-item is_checked_clientn12">
-									<a class="nav-link" id=""  href="{{URL::to('/admin/action')}}">Incomplete</a>
+									<a class="nav-link" href="{{URL::to('/admin/action')}}">Incomplete</a>
 								</li>
 
                                 <li class="nav-item is_checked_clientn11">

@@ -228,7 +228,7 @@ use App\Http\Controllers\Controller;
 												$list = DateTimeZone::listIdentifiers();
 												
 												?>
-												<form name="usertimezone" action="{{URL::to('admin/users/savezone')}}" method="POST" enctype="multipart/form-data" id="">
+												<form name="usertimezone" action="{{URL::to('admin/users/savezone')}}" method="POST" enctype="multipart/form-data">
 											@csrf
 											<input type="hidden" name="user_id" value="{{$fetchedData->id}}">
 											<div class="row">

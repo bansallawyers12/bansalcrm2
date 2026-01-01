@@ -261,7 +261,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							foreach($doclists as $doclist){
 								$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 							?>
-								<tr id="">
+								<tr>
 									<td><i class="fa fa-file"></i> <?php echo $doclist->file_name; ?><br><?php echo @$docdata->document_type; ?></td>
 									<td>
 										<?php

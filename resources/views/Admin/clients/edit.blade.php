@@ -1218,14 +1218,12 @@ for more information.
  * SPDX-License-Identifier: Apache-2.0
  */
 // @ts-nocheck TODO remove when fixed
-// This example adds a search box to a map, using the Google Place Autocomplete
-// feature. People can enter geographical searches. The search box will return a
-// pick list containing a mix of places and predicted search terms.
+// This example uses Google Places Autocomplete with a map.
+// Users can enter geographical searches and see results on the map.
 // This example requires the Places library. Include the libraries=places
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-// Note: SearchBox is deprecated but still functional until March 2025
-// Consider migrating to Autocomplete in the future
+// Migrated from deprecated SearchBox to Autocomplete API (March 2025)
 
 function initAutocomplete() {
   // Check if required elements exist before initializing
@@ -1253,119 +1251,123 @@ function initAutocomplete() {
     // Show the map once initialized
     mapElement.style.display = 'block';
     
-    // Create the search box and link it to the UI element.
-    // Note: SearchBox is deprecated but still functional until March 2025
-    // Consider migrating to Autocomplete in the future
-    const searchBox = new google.maps.places.SearchBox(input);
+    // Create Autocomplete with Australian bias and required fields
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'au' },
+      fields: ['address_components', 'formatted_address', 'geometry', 'name', 'icon'],
+      types: ['address']
+    });
 
+    // Position the input control on the map
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-    // Bias the SearchBox results towards current map's viewport.
+    
+    // Bias Autocomplete results towards current map's viewport
     map.addListener("bounds_changed", () => {
       if (map.getBounds()) {
-        searchBox.setBounds(map.getBounds());
+        autocomplete.setBounds(map.getBounds());
       }
     });
 
-    let markers = [];
+    let marker = null;
 
-    // Listen for the event fired when the user selects a prediction and retrieve
-    // more details for that place.
-    searchBox.addListener("places_changed", () => {
-      const places = searchBox.getPlaces();
+    // Listen for the event fired when the user selects a prediction
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
 
-      if (places.length == 0) {
+      if (!place.geometry || !place.geometry.location) {
+        console.log("Returned place contains no geometry");
         return;
       }
 
-      // Clear out the old markers.
-      markers.forEach((marker) => {
+      // Clear out the old marker
+      if (marker) {
         marker.setMap(null);
-      });
-      markers = [];
+        marker = null;
+      }
+      
+      // Parse address components directly from Google Places API response
+      if (place.address_components) {
+          let postalCode = '';
+          let locality = '';
+          let state = '';
+          let streetNumber = '';
+          let route = '';
+          
+          // Extract address components
+          place.address_components.forEach((component) => {
+              if (component.types.includes('postal_code')) {
+                  postalCode = component.long_name;
+              }
+              if (component.types.includes('locality')) {
+                  locality = component.long_name;
+              }
+              // Also check for postal_town if locality is not found
+              if (!locality && component.types.includes('postal_town')) {
+                  locality = component.long_name;
+              }
+              // Extract state/administrative area
+              if (component.types.includes('administrative_area_level_1')) {
+                  state = component.long_name;
+              }
+              // Extract street number
+              if (component.types.includes('street_number')) {
+                  streetNumber = component.long_name;
+              }
+              // Extract route/street name
+              if (component.types.includes('route')) {
+                  route = component.long_name;
+              }
+          });
+          
+          // State abbreviation to full name mapping for Australian states
+          const stateMapping = {
+              'NSW': 'New South Wales',
+              'VIC': 'Victoria',
+              'QLD': 'Queensland',
+              'SA': 'South Australia',
+              'WA': 'Western Australia',
+              'TAS': 'Tasmania',
+              'NT': 'Northern Territory',
+              'ACT': 'Australian Capital Territory'
+          };
+          
+          // Populate the form fields
+          if (postalCode) {
+              $('#postal_code').val(postalCode);
+          }
+          if (locality) {
+              $('#locality').val(locality);
+          }
+          if (state) {
+              // Check if state is an abbreviation and convert to full name
+              const fullStateName = stateMapping[state] || state;
+              $('select[name="state"]').val(fullStateName);
+          }
+      }
 
-      // For each place, get the icon, name and location.
+      const icon = {
+        url: place.icon,
+        size: new google.maps.Size(71, 71),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(25, 25),
+      };
+
+      // Create a marker for the selected place
+      marker = new google.maps.Marker({
+        map,
+        icon,
+        title: place.name,
+        position: place.geometry.location,
+      });
+
+      // Adjust map viewport to show the selected place
       const bounds = new google.maps.LatLngBounds();
-
-      places.forEach((place) => {
-        if (!place.geometry || !place.geometry.location) {
-          console.log("Returned place contains no geometry");
-          return;
-        }
-        
-        // Parse address components directly from Google Places API response
-        if (place.address_components) {
-            let postalCode = '';
-            let locality = '';
-            let state = '';
-            
-            // Extract postal code, locality, and state from address components
-            place.address_components.forEach((component) => {
-                if (component.types.includes('postal_code')) {
-                    postalCode = component.long_name;
-                }
-                if (component.types.includes('locality')) {
-                    locality = component.long_name;
-                }
-                // Also check for postal_town if locality is not found
-                if (!locality && component.types.includes('postal_town')) {
-                    locality = component.long_name;
-                }
-                // Extract state/administrative area
-                if (component.types.includes('administrative_area_level_1')) {
-                    state = component.long_name;
-                }
-            });
-            
-            // State abbreviation to full name mapping for Australian states
-            const stateMapping = {
-                'NSW': 'New South Wales',
-                'VIC': 'Victoria',
-                'QLD': 'Queensland',
-                'SA': 'South Australia',
-                'WA': 'Western Australia',
-                'TAS': 'Tasmania',
-                'NT': 'Northern Territory',
-                'ACT': 'Australian Capital Territory'
-            };
-            
-            // Populate the form fields
-            if (postalCode) {
-                $('#postal_code').val(postalCode);
-            }
-            if (locality) {
-                $('#locality').val(locality);
-            }
-            if (state) {
-                // Check if state is an abbreviation and convert to full name
-                const fullStateName = stateMapping[state] || state;
-                $('select[name="state"]').val(fullStateName);
-            }
-        }
-
-        const icon = {
-          url: place.icon,
-          size: new google.maps.Size(71, 71),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(17, 34),
-          scaledSize: new google.maps.Size(25, 25),
-        };
-
-        // Create a marker for each place.
-        markers.push(
-          new google.maps.Marker({
-            map,
-            icon,
-            title: place.name,
-            position: place.geometry.location,
-          }),
-        );
-        if (place.geometry.viewport) {
-          // Only geocodes have viewport.
-          bounds.union(place.geometry.viewport);
-        } else {
-          bounds.extend(place.geometry.location);
-        }
-      });
+      if (place.geometry.viewport) {
+        bounds.union(place.geometry.viewport);
+      } else {
+        bounds.extend(place.geometry.location);
+      }
       map.fitBounds(bounds);
     });
   } catch (error) {

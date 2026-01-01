@@ -47,7 +47,7 @@
 										<td></td> 
 										<td>
 											<div class="dropdown d-inline">
-												<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
 													<a class="dropdown-item has-icon" href="{{URL::to('/admin/contact/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'contacts')"><i class="fas fa-trash"></i> Delete</a>
@@ -124,7 +124,7 @@
 					</div>
 					<div class="justify-content-between">
 						<a href="{{route('admin.managecontact.index')}}" class="btn btn-secondary" >Reset</a>
-						<button type="submit" id="" class="btn btn-primary">Search</button>
+						<button type="submit" class="btn btn-primary">Search</button>
 					</div>
 				</form>
 			</div>

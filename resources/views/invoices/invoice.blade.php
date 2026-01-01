@@ -109,11 +109,11 @@
 			<table style="width: 100%;table-layout:fixed;clear: both;" class="inv-itemtable" id="itemTable" cellspacing="0" cellpadding="0" border="1">
 				<thead>
 					<tr>
-						<th style="text-align: center;" valign="bottom" id="" class="inv-itemtable-header inv-itemtable-breakword">#</th>
-						<th style="text-align: left;" valign="bottom" id="" class="inv-itemtable-header inv-itemtable-breakword"><b>Item &amp; Description</b></th>
-						<th style="text-align: right;" valign="bottom" id="" class="inv-itemtable-header inv-itemtable-breakword"><b>Qty</b></th>
-						<th style="text-align: right;" valign="bottom" id="" class="inv-itemtable-header inv-itemtable-breakword"><b>Rate</b></th>
-						<th style="text-align: right;" valign="bottom" id="" class="inv-itemtable-header inv-itemtable-breakword"><b>Amount</b></th>
+						<th style="text-align: center;" valign="bottom" class="inv-itemtable-header inv-itemtable-breakword">#</th>
+						<th style="text-align: left;" valign="bottom" class="inv-itemtable-header inv-itemtable-breakword"><b>Item &amp; Description</b></th>
+						<th style="text-align: right;" valign="bottom" class="inv-itemtable-header inv-itemtable-breakword"><b>Qty</b></th>
+						<th style="text-align: right;" valign="bottom" class="inv-itemtable-header inv-itemtable-breakword"><b>Rate</b></th>
+						<th style="text-align: right;" valign="bottom" class="inv-itemtable-header inv-itemtable-breakword"><b>Amount</b></th>
 					</tr>
 				</thead>
 				<tbody class="itemBody">
