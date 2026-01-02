@@ -168,15 +168,110 @@
 	</script>
 	<!-- Modern Search JS -->
 	<script src="{{asset('js/modern-search.js')}}" defer></script> 
-	<script>
-		// Wait for vendor libraries to load before initializing components
-		function initializeComponents() {
-			$(document).ready(function () {
-			   
-			    $(".tel_input").on("blur", function() {
-	                /*if (/^0/.test(this.value)) {
-	                   //this.value = this.value.replace(/^0/, "")
-	                } else {
+	
+	<!-- Legacy initialization now loaded via Vite (legacy-init.js) -->
+	@vite(['resources/js/legacy-init.js'])
+	
+	<div id="checkinmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientModalLabel">Create In Person Client</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form method="post" name="checkinmodalsave" id="checkinmodalsave" action="{{URL::to('/admin/checkin')}}" autocomplete="off" enctype="multipart/form-data">
+				@csrf
+			
+					<div class="row">
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="email_from">Search Contact <span class="span_req">*</span></label>
+								<select data-valid="required" class="js-data-example-ajax-check" name="contact"></select>
+								@if ($errors->has('email_from'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('email_from') }}</strong>
+									</span> 
+								@endif
+							</div> 
+						</div>
+						<input type="hidden" id="utype" name="utype" value="">
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="email_from">Office <span class="span_req">*</span></label>
+								<select data-valid="required" class="form-control" name="office">
+									<option value="">Select</option>
+									@foreach(\App\Models\Branch::all() as $of)
+										<option value="{{$of->id}}">{{$of->office_name}}</option>
+									@endforeach
+								</select>
+								
+							</div>
+						</div>
+						
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label for="message">Visit Purpose <span class="span_req">*</span></label>
+								<textarea class="form-control" name="message"></textarea>
+								@if ($errors->has('message'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('message') }}</strong>
+									</span>  
+								@endif
+							</div>
+						</div>
+						
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label for="message">Select In Person Assignee <span class="span_req">*</span></label>
+								<?php
+								$assignee = \App\Models\Admin::where('role','!=', '7')->get();
+								?>
+								<select class="form-control assineeselect2" name="assignee">
+								@foreach($assignee as $assigne)
+									<option value="{{$assigne->id}}">{{$assigne->first_name}} ({{$assigne->email}})</option>
+								@endforeach
+								</select>
+								@if ($errors->has('message'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('message') }}</strong>
+									</span>  
+								@endif
+							</div>
+						</div>
+						<div class="col-12 col-md-12 col-lg-12">
+							<button onclick="customValidate('checkinmodalsave')" type="button" class="btn btn-primary">Send</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="checkindetailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientModalLabel">In Person Details</h5>
+				<a style="margin-left:10px;" href="javascript:;"><i class="fa fa-trash"></i> Archive</a>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body showchecindetail">
+				
+			</div>
+		</div>
+	</div>
+</div>
+@yield('scripts')	
+	<!--<script src="{{--asset('js/custom-chart.js')--}}"></script>-->  
+</body>
+</html>
 	                    //this.value =  "0" + this.value;
 	                }*/
 	                this.value =  this.value;

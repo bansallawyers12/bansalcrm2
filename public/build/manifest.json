@@ -60,6 +60,12 @@
       "_jquery-CEMonh9Y.js"
     ]
   },
+  "resources/js/legacy-init.js": {
+    "file": "assets/legacy-init-A_JieH4r.js",
+    "name": "legacy-init",
+    "src": "resources/js/legacy-init.js",
+    "isEntry": true
+  },
   "resources/js/ui-libs.js": {
     "file": "assets/ui-libs-DX7Asbyi.js",
     "name": "ui-libs",
@@ -71,7 +77,7 @@
     ]
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-DGzjMBXd.js",
+    "file": "assets/vendor-libs-C54Mt7Mm.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,

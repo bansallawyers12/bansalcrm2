@@ -207,21 +207,30 @@
         }
     }
 
-    // Initialize when DOM is ready AND select2 is available
-    function tryInitialize() {
-        if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
-            $(document).ready(function() {
-                initModernSearch();
-            });
+    // Wait for vendor libraries to be ready
+    (async function() {
+        // Wait for vendorLibsReady promise if available
+        if (typeof window.vendorLibsReady !== 'undefined') {
+            await window.vendorLibsReady;
         } else {
-            // Retry after a short delay
-            console.log('Waiting for select2 to load...');
-            setTimeout(tryInitialize, 100);
+            // Fallback: wait for select2 to be available
+            await new Promise((resolve) => {
+                const check = () => {
+                    if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+                        resolve();
+                    } else {
+                        setTimeout(check, 50);
+                    }
+                };
+                check();
+            });
         }
-    }
-    
-    // Start initialization
-    tryInitialize();
+        
+        // Now initialize when DOM is ready
+        $(document).ready(function() {
+            initModernSearch();
+        });
+    })();
 
     // Re-initialize on Turbolinks/AJAX page loads if needed
     $(document).on('turbolinks:load', function() {
