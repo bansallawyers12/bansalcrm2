@@ -14,8 +14,19 @@
 	
 	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	
+	<!-- Load Select2 from CDN (after jQuery, before other scripts) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+	
+	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+	<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
-	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, select2, intlTelInput -->
+ 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, intlTelInput -->
+ 	<!-- Note: select2 and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
@@ -43,6 +54,8 @@
     <!--<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">-->
     
     <link rel="stylesheet" href="{{asset('css/dataTables_min_latest.css')}}">
+    
+    @stack('styles')
     
 
 <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> -->
@@ -85,6 +98,164 @@
 .mydropdown a:hover {background-color: #ddd;}
 
 .show {display: block;}
+
+/* Improved Color Contrast for Icons and Text - Better Readability */
+/* Navbar Icons - Header Navigation */
+.navbar .nav-link,
+.navbar .nav-link-lg,
+.navbar .nav-link i,
+.navbar .nav-link-lg i {
+    color: #2d3748 !important; /* Dark gray for better contrast */
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link-lg:hover,
+.navbar .nav-link:hover i,
+.navbar .nav-link-lg:hover i {
+    color: #1a202c !important; /* Even darker on hover */
+}
+
+/* Specific icon improvements */
+.navbar .collapse-btn i,
+.navbar .fullscreen-btn i,
+.navbar .message-toggle i,
+.navbar .notification-toggle i,
+.navbar .opencheckin i {
+    color: #2d3748 !important;
+    opacity: 1 !important;
+}
+
+.navbar .collapse-btn:hover i,
+.navbar .fullscreen-btn:hover i,
+.navbar .message-toggle:hover i,
+.navbar .notification-toggle:hover i,
+.navbar .opencheckin:hover i {
+    color: #1a202c !important;
+}
+
+/* Search Element - Improved Contrast */
+.search-element .btn,
+.search-element .btn i {
+    color: #2d3748 !important;
+}
+
+.search-element .btn:hover,
+.search-element .btn:hover i {
+    color: #1a202c !important;
+}
+
+.search-element .form-control,
+.search-element .select2-container .select2-selection__rendered {
+    color: #1a202c !important;
+}
+
+/* Dropdown Elements */
+.dropdown-toggle,
+.dropdown-toggle i {
+    color: #2d3748 !important;
+}
+
+.dropdown-toggle:hover,
+.dropdown-toggle:hover i {
+    color: #1a202c !important;
+}
+
+/* Sidebar Menu Items */
+.sidebar-menu .nav-link,
+.sidebar-menu .nav-link i,
+.sidebar-menu .nav-link span {
+    color: #2d3748 !important;
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link:hover i,
+.sidebar-menu .nav-link:hover span {
+    color: #1a202c !important;
+}
+
+.sidebar-menu .active .nav-link,
+.sidebar-menu .active .nav-link i,
+.sidebar-menu .active .nav-link span {
+    color: #1a202c !important;
+    font-weight: 600 !important;
+}
+
+/* Menu Header Text */
+.sidebar-menu .menu-header {
+    color: #4a5568 !important;
+    font-weight: 700 !important;
+}
+
+/* Dropdown Menu Items */
+.dropdown-menu a,
+.dropdown-menu .dropdown-item {
+    color: #2d3748 !important;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu .dropdown-item:hover {
+    color: #1a202c !important;
+    background-color: #f7fafc !important;
+}
+
+/* User Profile Dropdown */
+.nav-link-user,
+.nav-link-user span {
+    color: #2d3748 !important;
+}
+
+/* Bell Icon with Badge */
+.bell,
+.bell i {
+    color: #2d3748 !important;
+}
+
+/* Select2 Dropdown Text */
+.select2-container .select2-selection__rendered {
+    color: #1a202c !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #4a5568 !important;
+}
+
+/* Form Controls Text */
+.form-control,
+.form-control::placeholder {
+    color: #1a202c !important;
+}
+
+.form-control::placeholder {
+    color: #718096 !important;
+    opacity: 1 !important;
+}
+
+/* Button Text */
+.btn:not(.btn-primary):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info) {
+    color: #2d3748 !important;
+}
+
+/* General Text Improvements */
+.text-muted {
+    color: #4a5568 !important;
+}
+
+/* Ensure all Font Awesome icons have good contrast */
+.fas,
+.far,
+.fa,
+[class^="fa-"],
+[class*=" fa-"] {
+    color: inherit;
+}
+
+/* Override any light gray icon colors */
+i[style*="color: #"],
+i[style*="color:#"],
+i[style*="color: rgb"],
+i[style*="color:rgba"] {
+    color: #2d3748 !important;
+}
 </style>
 </head>
 <body >
@@ -133,7 +304,8 @@
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])
 	
-	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast, intl-tel-input) -->
+ 	<!-- Load vendor libraries (flatpickr, izitoast, intl-tel-input) -->
+ 	<!-- Note: select2 and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
 	
 	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
@@ -146,7 +318,8 @@
 	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
 	<!-- Feather Icons and jQuery NiceScroll now loaded via Vite (ui-libs.js) -->
 	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
-	<!-- DataTables, flatpickr, select2, iziToast, intlTelInput now loaded via Vite (vendor-libs.js) -->
+ 	<!-- flatpickr, iziToast, intlTelInput now loaded via Vite (vendor-libs.js) -->
+ 	<!-- Select2 and DataTables are loaded from CDN in <head> section -->
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
   
@@ -166,11 +339,177 @@
 	<!-- Custom JS File -->	
 	<script src="{{asset('js/custom.js')}}" defer>
 	</script>
-	<!-- Modern Search JS -->
-	<script src="{{asset('js/modern-search.js')}}" defer></script> 
 	
 	<!-- Legacy initialization now loaded via Vite (legacy-init.js) -->
 	@vite(['resources/js/legacy-init.js'])
+	
+	<!-- Initialize search bar after all libraries are loaded -->
+	<script>
+		console.log('[Search Init] Script loaded at end of page');
+		
+		// Prevent multiple initializations
+		var searchInitialized = false;
+		
+		// Wait for vendorLibsReady or just try after a short delay
+		function initSearch() {
+			if (searchInitialized) {
+				console.log('[Search Init] Already initialized, skipping...');
+				return;
+			}
+			console.log('[Search Init] Attempting initialization...');
+			console.log('[Search Init] jQuery available:', typeof $ !== 'undefined');
+			console.log('[Search Init] jQuery object:', typeof $ !== 'undefined' ? $ : 'undefined');
+			console.log('[Search Init] $.fn:', typeof $ !== 'undefined' ? $.fn : 'undefined');
+			console.log('[Search Init] $.fn.select2:', typeof $ !== 'undefined' && typeof $.fn.select2);
+			console.log('[Search Init] Select2 available:', typeof $ !== 'undefined' && typeof $.fn.select2 === 'function');
+			
+			if (typeof $ === 'undefined') {
+				console.log('[Search Init] jQuery not ready, retrying in 100ms...');
+				setTimeout(initSearch, 100);
+				return;
+			}
+			
+			if (typeof $.fn.select2 !== 'function') {
+				console.log('[Search Init] Select2 not ready, retrying in 100ms...');
+				console.log('[Search Init] Available jQuery plugins:', Object.keys($.fn).filter(function(k) { return typeof $.fn[k] === 'function'; }).join(', '));
+				setTimeout(initSearch, 100);
+				return;
+			}
+			
+			var $search = $('.js-data-example-ajaxccsearch');
+			console.log('[Search Init] Found search elements:', $search.length);
+			
+			if ($search.length === 0) {
+				console.error('[Search Init] Search element not found!');
+				return;
+			}
+			
+			// If already initialized, destroy and reinitialize to ensure it works
+			if ($search.hasClass('select2-hidden-accessible')) {
+				console.log('[Search Init] Already initialized, destroying and reinitializing...');
+				try {
+					$search.select2('destroy');
+					console.log('[Search Init] Destroyed existing Select2 instance');
+					// Wait a bit for cleanup
+					setTimeout(function() {
+						doInit();
+					}, 100);
+					return;
+				} catch (e) {
+					console.warn('[Search Init] Error destroying Select2:', e);
+					// Remove the class manually if destroy fails
+					$search.removeClass('select2-hidden-accessible');
+					// Also remove any Select2 containers
+					$search.next('.select2-container').remove();
+				}
+			}
+			
+			doInit();
+		}
+		
+		function doInit() {
+			var $search = $('.js-data-example-ajaxccsearch');
+			
+			try {
+				console.log('[Search Init] Initializing Select2 with AJAX...');
+				$search.select2({
+					placeholder: 'Search clients, leads, partners...',
+					allowClear: true,
+					minimumInputLength: 2,
+					ajax: {
+						url: (typeof site_url !== 'undefined' ? site_url : window.location.origin) + '/clients/get-allclients',
+						dataType: 'json',
+						delay: 300,
+						data: function (params) {
+							return { q: params.term };
+						},
+						processResults: function(data) {
+							console.log('[Search Init] Got results:', data);
+							return { results: data.items || [] };
+						}
+					},
+					templateResult: function(item) {
+						if (item.loading) return item.text;
+						var html = '<div>';
+						if (item.client_id) html += '<b>#' + item.client_id + '</b> ';
+						html += (item.name || item.text || '');
+						if (item.email) html += '<br><small>' + item.email + '</small>';
+						html += '</div>';
+						return $(html);
+					},
+					templateSelection: function(item) {
+						return item.name || item.text || 'Search...';
+					}
+				});
+				
+				searchInitialized = true;
+				console.log('[Search Init] ✓✓✓ Select2 initialized successfully! ✓✓✓');
+				console.log('[Search Init] Search box is now ready - try clicking on it!');
+				
+				// Handle selection
+				$search.on('select2:select', function(e) {
+					var data = e.params.data;
+					console.log('[Search Init] Selected:', data);
+					if (data.id) {
+						var parts = data.id.split('/');
+						var id = parts[0];
+						var type = parts[1];
+						var baseUrl = typeof site_url !== 'undefined' ? site_url : window.location.origin;
+						var url = '';
+						
+						if (type === 'Client') {
+							url = baseUrl + '/clients/detail/' + id;
+						} else if (type === 'Lead') {
+							url = baseUrl + '/admin/leads/detail/' + id;
+						}
+						
+						if (url) {
+							console.log('[Search Init] Navigating to:', url);
+							window.location.href = url;
+						}
+					}
+				});
+				
+				$search.on('select2:close', function() {
+					setTimeout(function() { $search.val(null).trigger('change'); }, 100);
+				});
+				
+			} catch (err) {
+				console.error('[Search Init] Error:', err);
+			}
+		}
+		
+		// Start initialization - don't wait for vendorLibsReady since Select2 is from CDN
+		function startInit() {
+			console.log('[Search Init] Starting initialization (Select2 is from CDN)...');
+			
+			// Try immediately
+			initSearch();
+			
+			// If not ready, retry a few times
+			let attempts = 0;
+			const maxAttempts = 30; // 3 seconds max
+			
+			const retry = setInterval(function() {
+				attempts++;
+				if (typeof $ !== 'undefined' && typeof $.fn.select2 === 'function') {
+					console.log('[Search Init] Select2 now available, initializing...');
+					clearInterval(retry);
+					initSearch();
+				} else if (attempts >= maxAttempts) {
+					console.error('[Search Init] Select2 still not available after', maxAttempts * 100, 'ms');
+					clearInterval(retry);
+				}
+			}, 100);
+		}
+		
+		// Start when page is ready
+		if (document.readyState === 'loading') {
+			window.addEventListener('load', startInit);
+		} else {
+			startInit();
+		}
+	</script>
 	
 	<div id="checkinmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">

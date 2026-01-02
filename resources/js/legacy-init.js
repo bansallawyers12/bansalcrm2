@@ -190,8 +190,17 @@
             });
             
             // Initialize intlTelInput if available
-            if (typeof intlTelInput !== 'undefined') {
-                $(".telephone").intlTelInput();
+            // Note: intlTelInput is NOT a jQuery plugin - it's a standalone function
+            if (typeof window.intlTelInput === 'function') {
+                $(".telephone").each(function() {
+                    try {
+                        window.intlTelInput(this);
+                    } catch (e) {
+                        console.warn('Error initializing intlTelInput:', e);
+                    }
+                });
+            } else {
+                console.warn('intlTelInput not available');
             }
             
             // All the table column show/hide logic

@@ -249,6 +249,203 @@ class ClientsController extends Controller
      return $pdf->stream('codeplaners.pdf');
 	}
   
+	// New Client Manager methods
+	public function createNew(Request $request)
+	{
+		// Return the new create view
+		return view('Admin.clients.create-new');
+	}
+
+	public function storeNew(Request $request)
+	{
+		// Reuse the same store logic but redirect to the new edit page
+		if ($request->isMethod('post'))
+		{
+			// Use trait method for validation rules
+			$this->validate($request, $this->getClientValidationRules($request));
+
+			$requestData = $request->all();
+			
+			// Date formatting using trait helpers
+			$dob = $this->formatDateForDatabase(@$requestData['dob']);
+			$visaExpiry = $this->formatDateForDatabase(@$requestData['visaExpiry']);
+			
+			$first_name = substr(@$requestData['first_name'], 0, 4);
+			$obj = new Admin;
+			
+			// Basic info
+			$obj->first_name = @$requestData['first_name'];
+			$obj->last_name = @$requestData['last_name'];
+			$obj->age = @$requestData['age'];
+			$obj->gender = @$requestData['gender'];
+			$obj->martial_status = @$requestData['martial_status'];
+			$obj->contact_type = @$requestData['contact_type'];
+			$obj->email_type = @$requestData['email_type'];
+			$obj->service = @$requestData['service'];
+			$obj->dob = $dob;
+			$obj->email = @$requestData['email'];
+			$obj->phone = @$requestData['phone'];
+			$obj->address = @$requestData['address'];
+			
+			// Geocoding for address
+			if (isset($requestData['address']) && $requestData['address'] != "") {
+				$address = @$requestData['address'];
+				$result = app('geocoder')->geocode($address)->get();
+				$coordinates = $result[0]->getCoordinates();
+				$obj->latitude = $coordinates->getLatitude();
+				$obj->longitude = $coordinates->getLongitude();
+			}
+			
+			$obj->city = @$requestData['city'];
+			$obj->visa_opt = @$requestData['visa_opt'];
+			$obj->state = @$requestData['state'];
+			$obj->zip = @$requestData['zip'];
+			$obj->country = @$requestData['country'];
+			$obj->country_passport = @$requestData['country_passport'];
+			$obj->passport_number = @$requestData['passport_number'];
+			$obj->visa_type = @$requestData['visa_type'];
+			$obj->visaExpiry = $visaExpiry;
+			$obj->preferredIntake = @$requestData['preferredIntake'];
+			$obj->att_email = @$requestData['att_email'];
+			$obj->att_phone = @$requestData['att_phone'];
+			$obj->nomi_occupation = @$requestData['nomi_occupation'];
+			$obj->skill_assessment = @$requestData['skill_assessment'];
+			$obj->high_quali_aus = @$requestData['high_quali_aus'];
+			$obj->high_quali_overseas = @$requestData['high_quali_overseas'];
+			$obj->relevant_work_exp_aus = @$requestData['relevant_work_exp_aus'];
+			$obj->relevant_work_exp_over = @$requestData['relevant_work_exp_over'];
+			$obj->married_partner = @$requestData['married_partner'];
+			$obj->naati_py = isset($requestData['naati_py']) ? implode(',', $requestData['naati_py']) : '';
+			$obj->total_points = @$requestData['total_points'];
+			$obj->start_process = @$requestData['start_process'];
+			$obj->assign_to = @$requestData['assign_to'];
+			$obj->status = @$requestData['status'];
+			$obj->lead_quality = @$requestData['lead_quality'];
+			$obj->source = @$requestData['source'];
+			$obj->agent_id = @$requestData['subagent'];
+			$obj->comments_note = @$requestData['comments_note'];
+			$obj->type = @$requestData['type'];
+			
+			// Related files
+			$related_files = '';
+			if(isset($requestData['related_files'])){
+				$relatedFilesCount = count($requestData['related_files']);
+				for($i=0; $i<$relatedFilesCount; $i++){
+					$related_files .= $requestData['related_files'][$i].',';
+				}
+			}
+			$obj->related_files = $related_files;
+			
+			// Tags
+			$tagname = '';
+			if(isset($requestData['tagname'])){
+				$tagnameCount = count($requestData['tagname']);
+				for($i=0; $i<$tagnameCount; $i++){
+					$tagname .= $requestData['tagname'][$i].',';
+				}
+			}
+			$obj->tagname = $tagname;
+			
+			// Profile image
+			if($request->hasFile('profile_img')){
+				$image = $request->file('profile_img');
+				$image_name = time().'.'.$image->getClientOriginalExtension();
+				$destinationPath = public_path('/img/profile_imgs');
+				$image->move($destinationPath, $image_name);
+				$obj->profile_img = $image_name;
+			}
+			
+			$obj->save();
+			
+			// Redirect to the new edit page
+			return redirect()->route('clients.edit-new', $obj->id)->with('success', 'Client created successfully!');
+		}
+		
+		return redirect()->route('clients.create-new');
+	}
+
+	public function editNew(Request $request, $id = NULL)
+	{
+		// Reuse the same edit logic but return the new edit view
+		if ($request->isMethod('post'))
+		{
+			// Use the same edit logic from the original edit method
+			$requestData = $request->all();
+			
+			$db_arr = Admin::select('related_files')->where('id', $requestData['id'])->get();
+			
+			$this->validate($request, [
+				'first_name' => 'required|max:255',
+				'last_name' => 'required|max:255',
+				'email' => 'required|max:255|unique:admins,email,'.$requestData['id'],
+				'contact_type' => 'required|array',
+				'contact_type.*' => 'required|max:255',
+				'client_phone' => 'required|array',
+				'client_phone.*' => 'required|max:255',
+			]);
+			
+			if ( isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'] , "Personal")) > 1) {
+				return redirect()->back()->with('error', "Error: 'Personal' contact type can only be used once.");
+			}
+			
+			// Call the original edit method's POST logic
+			// For now, we'll redirect to the original edit method to handle the update
+			// Then redirect back to the new edit page
+			$originalEdit = $this->edit($request, $id);
+			
+			// If it's a redirect response, change the route
+			if ($originalEdit instanceof \Illuminate\Http\RedirectResponse) {
+				return redirect()->route('clients.edit-new', $requestData['id'])->with('success', 'Client updated successfully!');
+			}
+			
+			return $originalEdit;
+		}
+		
+		// GET request - show the edit form
+		if($id != NULL){
+			$fetchedData = Admin::where('id', $id)->first();
+			
+			if(!$fetchedData){
+				return redirect()->route('clients.index')->with('error', 'Client not found');
+			}
+			
+			// Get related data for the view
+			$tagdata = [];
+			if($fetchedData->tagname != ''){
+				$tagnameArr = explode(',', $fetchedData->tagname);
+				foreach($tagnameArr AS $tag1){
+					$tagWord = \App\Models\Tag::where('id', $tag1)->first();
+					if($tagWord){
+						$tagdata[] = ['id' => $tagWord->id, 'name' => $tagWord->name];
+					}
+				}
+			}
+			
+			$relatedfiles = [];
+			if($fetchedData->related_files != ''){
+				$exploderel = explode(',', $fetchedData->related_files);
+				foreach($exploderel AS $EXP){
+					if(!empty(trim($EXP)) && trim($EXP) !== '') {
+						$relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();
+						if($relatedclients) {
+							$relatedfiles[] = [
+								'id' => $relatedclients->id,
+								'name' => $relatedclients->first_name.' '.$relatedclients->last_name,
+								'email' => $relatedclients->email
+							];
+						}
+					}
+				}
+			}
+			
+			$showAlert = false;
+			
+			return view('Admin.clients.edit-new', compact('fetchedData', 'tagdata', 'relatedfiles', 'showAlert'));
+		}
+		
+		return redirect()->route('clients.index')->with('error', 'Client ID is required');
+	}
+  
   
 	/*public function edit(Request $request, $id = NULL)
 	{

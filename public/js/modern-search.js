@@ -21,6 +21,19 @@
         const $searchElement = $(searchSelector);
 
         if (!$searchElement.length) {
+            console.log('Search element not found:', searchSelector);
+            return;
+        }
+
+        // Check if already initialized
+        if ($searchElement.hasClass('select2-hidden-accessible')) {
+            console.log('Search already initialized, skipping');
+            return;
+        }
+
+        // Check if Select2 is available
+        if (typeof $.fn.select2 === 'undefined') {
+            console.error('Select2 is not available');
             return;
         }
 
@@ -34,16 +47,25 @@
                 url: (typeof site_url !== 'undefined' ? site_url : '') + '/clients/get-allclients',
                 dataType: 'json',
                 delay: 300, // Debounce built into Select2
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page || 1
+                    };
+                },
                 processResults: function(data) {
                     // Group results by category
-                    const grouped = groupResultsByCategory(data.items);
+                    const grouped = groupResultsByCategory(data.items || []);
                     return {
                         results: grouped
                     };
                 },
                 cache: true,
                 error: function(xhr, status, error) {
-                    console.error('Search error:', error);
+                    console.error('Search error:', error, xhr);
                     return {
                         results: []
                     };
@@ -85,6 +107,14 @@
                 $(this).val(null).trigger('change');
             }, 100);
         });
+
+        // Handle search button click
+        $('.search-element .btn').on('click', function(e) {
+            e.preventDefault();
+            $searchElement.select2('open');
+        });
+
+        console.log('Modern search initialized successfully');
     }
 
     // Group results by category
@@ -211,25 +241,42 @@
     (async function() {
         // Wait for vendorLibsReady promise if available
         if (typeof window.vendorLibsReady !== 'undefined') {
-            await window.vendorLibsReady;
-        } else {
-            // Fallback: wait for select2 to be available
-            await new Promise((resolve) => {
-                const check = () => {
-                    if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
-                        resolve();
-                    } else {
-                        setTimeout(check, 50);
-                    }
-                };
-                check();
-            });
+            try {
+                await window.vendorLibsReady;
+            } catch (e) {
+                console.warn('vendorLibsReady promise rejected, using fallback:', e);
+            }
         }
         
-        // Now initialize when DOM is ready
-        $(document).ready(function() {
-            initModernSearch();
+        // Fallback: wait for select2 to be available
+        await new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 100; // 5 seconds max wait
+            const check = () => {
+                attempts++;
+                if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+                    resolve();
+                } else if (attempts < maxAttempts) {
+                    setTimeout(check, 50);
+                } else {
+                    console.error('Select2 not available after waiting');
+                    resolve(); // Resolve anyway to prevent infinite wait
+                }
+            };
+            check();
         });
+        
+        // Now initialize when DOM is ready
+        if (typeof $ !== 'undefined') {
+            $(document).ready(function() {
+                // Small delay to ensure DOM is fully ready
+                setTimeout(function() {
+                    initModernSearch();
+                }, 100);
+            });
+        } else {
+            console.error('jQuery not available for search initialization');
+        }
     })();
 
     // Re-initialize on Turbolinks/AJAX page loads if needed
