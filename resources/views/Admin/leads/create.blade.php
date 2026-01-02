@@ -550,17 +550,16 @@
 
 									<div class="col-sm-3">
                                         <div class="form-group">
-                                            <label style="display:block;" for="naati_py">Naati/PY </label>
-                                            <div class="form-check form-check-inline">
-                                                <input  class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
-                                                <label class="form-check-label" for="Naati">Naati</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input"  type="checkbox" id="py" value="PY" name="naati_py[]">
-                                                <label class="form-check-label" for="py">PY</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-
+                                            <label style="display:block; margin-bottom: 8px;" for="naati_py">Naati/PY</label>
+                                            <div class="d-flex align-items-center" style="gap: 15px;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
+                                                    <label class="form-check-label" for="Naati">Naati</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
+                                                    <label class="form-check-label" for="py">PY</label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

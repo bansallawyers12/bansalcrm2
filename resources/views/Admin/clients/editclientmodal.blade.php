@@ -113,120 +113,65 @@
 			<div class="modal-body">
 			<?php
 				$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+				$selectedTestType = 'toefl'; // Default to TOEFL
 				?>
 				<form method="post" action="{{URL::to('/admin/edit-test-scores')}}" name="testscoreform" autocomplete="off" id="testscoreform" enctype="multipart/form-data">
 				@csrf 
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" name="type" value="client">
+					<div class="row">
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label for="test_type">Test Type</label>
+								<select class="form-control" name="test_type" id="test_type" onchange="loadTestScores()">
+									<option value="toefl">TOEFL</option>
+									<option value="ilets">IELTS</option>
+									<option value="pte">PTE</option>
+								</select>
+							</div>
+						</div>
+					</div>
 					<div class="edu_test_score edu_english_score" style="margin-bottom:15px;">
 						<div class="edu_test_row" style="text-align:center;">
-							<div class="edu_test_col">&nbsp;</div>
-							<div class="edu_test_col"><span>Listening</span></div>
-							<div class="edu_test_col"><span>Reading</span></div>
-							<div class="edu_test_col"><span>Writing</span></div>
-							<div class="edu_test_col"><span>Speaking</span></div>
-							<div class="edu_test_col"><span style="color:#71cc53;">Overall Scores</span></div>
+							<div class="edu_test_col"><span>L</span></div>
+							<div class="edu_test_col"><span>R</span></div>
+							<div class="edu_test_col"><span>W</span></div>
+							<div class="edu_test_col"><span>S</span></div>
+							<div class="edu_test_col"><span style="color:#71cc53;">O</span></div>
 							<div class="edu_test_col"><span>Date</span></div>
 						</div> 
 						<div class="edu_test_row flex_row">
-							<div class="edu_test_col"><span>TOEFL</span></div>
 							<div class="edu_test_col">
 								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_1_1" value="<?php if(@$testscores->toefl_Listening != ''){ echo @$testscores->toefl_Listening; }else{ echo ''; } ?>" step="0.01"/>
+									<input type="number" class="form-control" name="listening" id="listening" step="0.01" placeholder="Listening"/>
 								</div>
 							</div>
 							<div class="edu_test_col">
 								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_2_1" value="<?php if(@$testscores->toefl_Reading != ''){ echo @$testscores->toefl_Reading; }else{ echo ''; } ?>" step="0.01"/>
+									<input type="number" class="form-control" name="reading" id="reading" step="0.01" placeholder="Reading"/>
 								</div>
 							</div>
 							<div class="edu_test_col">
 								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_3_1" value="<?php if(@$testscores->toefl_Writing != ''){ echo @$testscores->toefl_Writing; }else{ echo ''; } ?>" step="0.01"/>
+									<input type="number" class="form-control" name="writing" id="writing" step="0.01" placeholder="Writing"/>
 								</div>
 							</div>
 							<div class="edu_test_col">
 								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_4_1" value="<?php if(@$testscores->toefl_Speaking != ''){ echo @$testscores->toefl_Speaking; }else{ echo ''; } ?>" step="0.01"/>
+									<input type="number" class="form-control" name="speaking" id="speaking" step="0.01" placeholder="Speaking"/>
 								</div>
 							</div>
 							<div class="edu_test_col overal_block">
 								<div class="edu_field">
-									<input type="number" class="form-control" name="score_1" value="<?php if(@$testscores->score_1 != ''){ echo @$testscores->score_1; }else{ echo ''; } ?>" step="0.01"/>
+									<input type="number" class="form-control" name="overall" id="overall" step="0.01" placeholder="Overall"/>
 								</div>
 							</div>
 							<div class="edu_test_col">
 								<div class="edu_field">
-									<input type="text" class="form-control datepicker" name="band_score_5_1" value="<?php if(@$testscores->toefl_Date != ''){ echo @$testscores->toefl_Date; }else{ echo ''; } ?>"/>
+									<input type="text" class="form-control datepicker" name="test_date" id="test_date" placeholder="Date"/>
 								</div>
 							</div>
 						</div>
-						<div class="edu_test_row flex_row">
-							<div class="edu_test_col"><span>IELTS</span></div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_5_2"  value="<?php if(@$testscores->ilets_Listening != ''){ echo @$testscores->ilets_Listening; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_6_2" value="<?php if(@$testscores->ilets_Reading != ''){ echo @$testscores->ilets_Reading; }else{ echo ''; } ?>"  step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_7_2" value="<?php if(@$testscores->ilets_Writing != ''){ echo $testscores->ilets_Writing; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_8_2" value="<?php if(@$testscores->ilets_Speaking != ''){ echo @$testscores->ilets_Speaking; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col overal_block">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="score_2"  value="<?php if(@$testscores->score_2 != ''){ echo @$testscores->score_2; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="text" class="form-control datepicker" name="band_score_6_1" value="<?php if(@$testscores->ilets_Date != ''){ echo @$testscores->ilets_Date; }else{ echo ''; } ?>"/>
-								</div>
-							</div>
-						</div>
-						<div class="edu_test_row flex_row">
-							<div class="edu_test_col"><span>PTE</span></div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_9_3" value="<?php if(@$testscores->pte_Listening != ''){ echo @$testscores->pte_Listening; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_10_3" value="<?php if(@$testscores->pte_Reading != ''){ echo @$testscores->pte_Reading; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_11_3" value="<?php if(@$testscores->pte_Writing != ''){ echo @$testscores->pte_Writing; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="number" class="form-control" name="band_score_12_3" value="<?php if(@$testscores->pte_Speaking != ''){ echo @$testscores->pte_Speaking; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col overal_block">
-								<div class="edu_field"> 
-									<input type="number" class="form-control" name="score_3" value="<?php if(@$testscores->score_3 != ''){ echo @$testscores->score_3; }else{ echo ''; } ?>" step="0.01"/>
-								</div>
-							</div>
-							<div class="edu_test_col">
-								<div class="edu_field">
-									<input type="text" class="form-control datepicker" name="band_score_7_1" value="<?php if(@$testscores->pte_Date != ''){ echo @$testscores->pte_Date; }else{ echo ''; } ?>"/>
-								</div>
-							</div>
-						</div> 
 						<div class="clearfix"></div>
 					</div>
 					<div class="row">
@@ -235,7 +180,50 @@
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						</div>
 					</div>
-				</form> 
+				</form>
+				<script>
+				function loadTestScores() {
+					var testType = document.getElementById('test_type').value;
+					var testscores = @json($testscores);
+					
+					if (!testscores) {
+						document.getElementById('listening').value = '';
+						document.getElementById('reading').value = '';
+						document.getElementById('writing').value = '';
+						document.getElementById('speaking').value = '';
+						document.getElementById('overall').value = '';
+						document.getElementById('test_date').value = '';
+						return;
+					}
+					
+					if (testType === 'toefl') {
+						document.getElementById('listening').value = testscores.toefl_Listening || '';
+						document.getElementById('reading').value = testscores.toefl_Reading || '';
+						document.getElementById('writing').value = testscores.toefl_Writing || '';
+						document.getElementById('speaking').value = testscores.toefl_Speaking || '';
+						document.getElementById('overall').value = testscores.score_1 || '';
+						document.getElementById('test_date').value = testscores.toefl_Date || '';
+					} else if (testType === 'ilets') {
+						document.getElementById('listening').value = testscores.ilets_Listening || '';
+						document.getElementById('reading').value = testscores.ilets_Reading || '';
+						document.getElementById('writing').value = testscores.ilets_Writing || '';
+						document.getElementById('speaking').value = testscores.ilets_Speaking || '';
+						document.getElementById('overall').value = testscores.score_2 || '';
+						document.getElementById('test_date').value = testscores.ilets_Date || '';
+					} else if (testType === 'pte') {
+						document.getElementById('listening').value = testscores.pte_Listening || '';
+						document.getElementById('reading').value = testscores.pte_Reading || '';
+						document.getElementById('writing').value = testscores.pte_Writing || '';
+						document.getElementById('speaking').value = testscores.pte_Speaking || '';
+						document.getElementById('overall').value = testscores.score_3 || '';
+						document.getElementById('test_date').value = testscores.pte_Date || '';
+					}
+				}
+				// Load initial data when modal is shown
+				$('.edit_english_test').on('shown.bs.modal', function () {
+					loadTestScores();
+				});
+				</script> 
 			</div>
 		</div> 
 	</div>

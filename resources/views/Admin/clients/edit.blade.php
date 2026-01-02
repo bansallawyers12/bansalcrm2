@@ -714,42 +714,128 @@
 											@endif
 										</div>
 									</div>									
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="married_partner">Overall English score</label>
-											{!! Form::text('married_partner', @$fetchedData->married_partner, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
+									<div class="col-sm-12">
+										<div class="form-group">
+											<label>English Test Scores</label>
+											<?php
+												$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+											?>
+											<div class="row">
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="test_type">Test Type</label>
+														<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
+															<option value="toefl">TOEFL</option>
+															<option value="ilets">IELTS</option>
+															<option value="pte">PTE</option>
+														</select>
+													</div>
+												</div>
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="listening_edit">L (Listening)</label>
+														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="Listening"/>
+													</div>
+												</div>
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="reading_edit">R (Reading)</label>
+														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="Reading"/>
+													</div>
+												</div>
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="writing_edit">W (Writing)</label>
+														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="Writing"/>
+													</div>
+												</div>
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="speaking_edit">S (Speaking)</label>
+														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="Speaking"/>
+													</div>
+												</div>
+												<div class="col-sm-2">
+													<div class="form-group">
+														<label for="overall_edit">O (Overall)</label>
+														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="Overall"/>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-3">
+													<div class="form-group">
+														<label for="test_date_edit">Test Date</label>
+														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Date"/>
+													</div>
+												</div>
+											</div>
+											<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
+											<input type="hidden" name="test_score_type" value="client">
+											<script>
+											function loadTestScoresEditPage() {
+												var testType = document.getElementById('test_type').value;
+												var testscores = @json($testscores);
 												
-											@if ($errors->has('married_partner'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('married_partner') }}</strong>
-												</span> 
-											@endif
+												if (!testscores) {
+													document.getElementById('listening_edit').value = '';
+													document.getElementById('reading_edit').value = '';
+													document.getElementById('writing_edit').value = '';
+													document.getElementById('speaking_edit').value = '';
+													document.getElementById('overall_edit').value = '';
+													document.getElementById('test_date_edit').value = '';
+													return;
+												}
+												
+												if (testType === 'toefl') {
+													document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
+													document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
+													document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
+													document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
+													document.getElementById('overall_edit').value = testscores.score_1 || '';
+													document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
+												} else if (testType === 'ilets') {
+													document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
+													document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
+													document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
+													document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
+													document.getElementById('overall_edit').value = testscores.score_2 || '';
+													document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
+												} else if (testType === 'pte') {
+													document.getElementById('listening_edit').value = testscores.pte_Listening || '';
+													document.getElementById('reading_edit').value = testscores.pte_Reading || '';
+													document.getElementById('writing_edit').value = testscores.pte_Writing || '';
+													document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
+													document.getElementById('overall_edit').value = testscores.score_3 || '';
+													document.getElementById('test_date_edit').value = testscores.pte_Date || '';
+												}
+											}
+											// Load initial data on page load
+											document.addEventListener('DOMContentLoaded', function() {
+												loadTestScoresEditPage();
+											});
+											</script>
 										</div>
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<?php
-										$explodeenaati_py = array();
-                                    	if($fetchedData->naati_py != ''){
-                                    		$explodeenaati_py = explode(',', $fetchedData->naati_py);
-                                    	} 
-                                    											?>
-											<div class="form-group"> 
-													<label style="display:block;" for="naati_py">Naati/PY </label>
-													<div class="form-check form-check-inline">
-														<input  <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
-														<label class="form-check-label" for="Naati">Naati</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input"  type="checkbox" id="py" value="PY" name="naati_py[]">
-														<label class="form-check-label" for="py">PY</label>
-													</div>
-													<div class="form-check form-check-inline">
-													
-													</div>
-												
+											$explodeenaati_py = array();
+											if($fetchedData->naati_py != ''){
+												$explodeenaati_py = explode(',', $fetchedData->naati_py);
+											} 
+											?>
+											<label style="display:block; margin-bottom: 8px;" for="naati_py">Naati/PY</label>
+											<div class="d-flex align-items-center" style="gap: 15px;">
+												<div class="form-check">
+													<input <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
+													<label class="form-check-label" for="Naati">Naati</label>
 												</div>
-											
+												<div class="form-check">
+													<input <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
+													<label class="form-check-label" for="py">PY</label>
+												</div>
+											</div>
 										</div>
 									</div>
 									<div class="col-sm-3">

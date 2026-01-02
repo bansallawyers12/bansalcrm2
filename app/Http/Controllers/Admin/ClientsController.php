@@ -619,6 +619,49 @@ class ClientsController extends Controller
                   }
               }
               
+              // Save test scores if provided
+              if(isset($requestData['test_type']) && isset($requestData['test_score_client_id'])) {
+                  $testType = $requestData['test_type'];
+                  $clientId = $requestData['test_score_client_id'];
+                  $testScoreType = isset($requestData['test_score_type']) ? $requestData['test_score_type'] : 'client';
+                  
+                  if(\App\Models\TestScore::where('client_id', $clientId)->where('type', $testScoreType)->exists()){
+                      $testscores = \App\Models\TestScore::where('client_id', $clientId)->where('type', $testScoreType)->first();
+                      $objTest = \App\Models\TestScore::find($testscores->id);
+                  }else{
+                      $objTest = new \App\Models\TestScore;
+                      $objTest->user_id = @Auth::user()->id;
+                      $objTest->client_id = $clientId;
+                      $objTest->type = $testScoreType;
+                  }
+                  
+                  // Update fields based on test type
+                  if($testType == 'toefl'){
+                      $objTest->toefl_Listening = $requestData['listening'] ?? null;
+                      $objTest->toefl_Reading = $requestData['reading'] ?? null;
+                      $objTest->toefl_Writing = $requestData['writing'] ?? null;
+                      $objTest->toefl_Speaking = $requestData['speaking'] ?? null;
+                      $objTest->score_1 = $requestData['overall'] ?? null;
+                      $objTest->toefl_Date = $requestData['test_date'] ?? null;
+                  }elseif($testType == 'ilets'){
+                      $objTest->ilets_Listening = $requestData['listening'] ?? null;
+                      $objTest->ilets_Reading = $requestData['reading'] ?? null;
+                      $objTest->ilets_Writing = $requestData['writing'] ?? null;
+                      $objTest->ilets_Speaking = $requestData['speaking'] ?? null;
+                      $objTest->score_2 = $requestData['overall'] ?? null;
+                      $objTest->ilets_Date = $requestData['test_date'] ?? null;
+                  }elseif($testType == 'pte'){
+                      $objTest->pte_Listening = $requestData['listening'] ?? null;
+                      $objTest->pte_Reading = $requestData['reading'] ?? null;
+                      $objTest->pte_Writing = $requestData['writing'] ?? null;
+                      $objTest->pte_Speaking = $requestData['speaking'] ?? null;
+                      $objTest->score_3 = $requestData['overall'] ?? null;
+                      $objTest->pte_Date = $requestData['test_date'] ?? null;
+                  }
+                  
+                  $objTest->save();
+              }
+              
               return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$requestData['id'])))->with('success', 'Clients Edited Successfully');
 			}
 		}

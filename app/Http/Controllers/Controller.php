@@ -8,6 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 use App\Mail\CommonMail;
 use App\Mail\InvoiceEmailManager;
@@ -32,8 +33,18 @@ class Controller extends BaseController
 	
 	public function __construct()
     {
-		// PostgreSQL: Cannot compare integer column to empty string. Use whereNotNull or just get first record.
-		$siteData = WebsiteSetting::whereNotNull('id')->first();
+		// website_settings table has been removed
+		// Set siteData to null to prevent errors
+		$siteData = null;
+		try {
+			// Try to get website settings if table still exists (for backward compatibility)
+			if (Schema::hasTable('website_settings')) {
+				$siteData = WebsiteSetting::whereNotNull('id')->first();
+			}
+		} catch (\Exception $e) {
+			// Table doesn't exist, set to null
+			$siteData = null;
+		}
 		\View::share('siteData', $siteData);
         //$this->middleware('guest:admin')->except('logout');
 	//	exec('php public_html/development/artisan view:clear');

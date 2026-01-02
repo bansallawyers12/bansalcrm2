@@ -140,8 +140,9 @@ Route::prefix('admin')->group(function() {
 		
 		Route::post('/add_ckeditior_image', 'Admin\AdminController@addCkeditiorImage')->name('add_ckeditior_image');
 		Route::post('/get_chapters', 'Admin\AdminController@getChapters')->name('admin.get_chapters');
-		Route::get('/website_setting', 'Admin\AdminController@websiteSetting')->name('admin.website_setting');
-		Route::post('/website_setting', 'Admin\AdminController@websiteSetting');
+		// NOTE: website_setting routes have been removed - website_settings table has been dropped
+		// Route::get('/website_setting', 'Admin\AdminController@websiteSetting')->name('admin.website_setting');
+		// Route::post('/website_setting', 'Admin\AdminController@websiteSetting');
 		Route::post('/get_states', 'Admin\AdminController@getStates');
 		Route::get('/settings/taxes/returnsetting', 'Admin\AdminController@returnsetting')->name('admin.returnsetting');
 		Route::post('/settings/taxes/savereturnsetting', 'Admin\AdminController@returnsetting')->name('admin.savereturnsetting');

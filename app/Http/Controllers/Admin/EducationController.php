@@ -170,155 +170,53 @@ class EducationController extends Controller
 	}
 	
 	public function edittestscores(Request $request){
+		$testType = $request->test_type; // toefl, ilets, or pte
+		$listening = $request->listening;
+		$reading = $request->reading;
+		$writing = $request->writing;
+		$speaking = $request->speaking;
+		$overall = $request->overall;
+		$testDate = $request->test_date;
+		
 		if(\App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->exists()){
 			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
 			$obj = \App\Models\TestScore::find($testscores->id);
-			$obj->user_id = @Auth::user()->id;
-			$obj->client_id = $request->client_id;
-			$obj->toefl_Listening = $request->band_score_1_1;
-			$obj->toefl_Reading = $request->band_score_2_1;
-			$obj->toefl_Writing = $request->band_score_3_1;
-			$obj->toefl_Speaking = $request->band_score_4_1;
-			$obj->ilets_Listening = $request->band_score_5_2;
-			$obj->ilets_Reading = $request->band_score_6_2;
-			$obj->ilets_Writing = $request->band_score_7_2;
-			$obj->ilets_Speaking = $request->band_score_8_2;
-			$obj->pte_Listening = $request->band_score_9_3;
-			$obj->pte_Reading = $request->band_score_10_3;
-			$obj->pte_Writing = $request->band_score_11_3;
-			$obj->pte_Speaking = $request->band_score_12_3;
-			$obj->score_3 = $request->score_3;
-			$obj->score_2 = $request->score_2;
-			$obj->score_1 = $request->score_1;
-			
-			$obj->toefl_Date = $request->band_score_5_1;
-			$obj->ilets_Date = $request->band_score_6_1;
-			$obj->pte_Date = $request->band_score_7_1;
-			$saved = $obj->save();
 		}else{
 			$obj = new \App\Models\TestScore;
 			$obj->user_id = @Auth::user()->id;
 			$obj->client_id = $request->client_id;
-			$obj->toefl_Listening = $request->band_score_1_1;
-			$obj->toefl_Reading = $request->band_score_2_1;
-			$obj->toefl_Writing = $request->band_score_3_1;
-			$obj->toefl_Speaking = $request->band_score_4_1;
-			$obj->ilets_Listening = $request->band_score_5_2;
-			$obj->ilets_Reading = $request->band_score_6_2;
-			$obj->ilets_Writing = $request->band_score_7_2;
-			$obj->ilets_Speaking = $request->band_score_8_2;
-			$obj->pte_Listening = $request->band_score_9_3;
-			$obj->pte_Reading = $request->band_score_10_3;
-			$obj->pte_Writing = $request->band_score_11_3;
-			$obj->pte_Speaking = $request->band_score_12_3;
-			$obj->score_3 = $request->score_3;
-			$obj->score_2 = $request->score_2;
-			$obj->score_1 = $request->score_1;
 			$obj->type = $request->type;
-			$obj->toefl_Date = $request->band_score_5_1;
-			$obj->ilets_Date = $request->band_score_6_1;
-			$obj->pte_Date = $request->band_score_7_1;
-			$saved = $obj->save();
 		}
 		
+		// Update fields based on test type
+		if($testType == 'toefl'){
+			$obj->toefl_Listening = $listening;
+			$obj->toefl_Reading = $reading;
+			$obj->toefl_Writing = $writing;
+			$obj->toefl_Speaking = $speaking;
+			$obj->score_1 = $overall;
+			$obj->toefl_Date = $testDate;
+		}elseif($testType == 'ilets'){
+			$obj->ilets_Listening = $listening;
+			$obj->ilets_Reading = $reading;
+			$obj->ilets_Writing = $writing;
+			$obj->ilets_Speaking = $speaking;
+			$obj->score_2 = $overall;
+			$obj->ilets_Date = $testDate;
+		}elseif($testType == 'pte'){
+			$obj->pte_Listening = $listening;
+			$obj->pte_Reading = $reading;
+			$obj->pte_Writing = $writing;
+			$obj->pte_Speaking = $speaking;
+			$obj->score_3 = $overall;
+			$obj->pte_Date = $testDate;
+		}
+		
+		$saved = $obj->save();
+		
 		if($saved){
-			$testscores = \App\Models\TestScore::where('client_id', $request->client_id)->where('type', $request->type)->first();
-			$toefl_Listening = '-';
-			if($testscores->toefl_Listening != ''){
-				$toefl_Listening = $testscores->toefl_Listening;
-			}
-			$toefl_Reading = '-';
-			if($testscores->toefl_Reading != ''){
-				$toefl_Reading = $testscores->toefl_Reading;
-			}
-			$toefl_Writing = '-';
-			if($testscores->toefl_Writing != ''){
-				$toefl_Writing = $testscores->toefl_Writing;
-			}
-			$toefl_Speaking = '-';
-			if($testscores->toefl_Speaking != ''){
-				$toefl_Speaking = $testscores->toefl_Speaking;
-			}
-			$ilets_Listening = '-';
-			if($testscores->ilets_Listening != ''){
-				$ilets_Listening = $testscores->ilets_Listening;
-			}
-			$ilets_Reading = '-';
-			if($testscores->ilets_Reading != ''){
-				$ilets_Reading = $testscores->ilets_Reading;
-			}
-			$ilets_Writing = '-';
-			if($testscores->ilets_Writing != ''){
-				$ilets_Writing = $testscores->ilets_Writing;
-			}
-			
-			$ilets_Speaking = '-';
-			if($testscores->ilets_Speaking != ''){
-				$ilets_Speaking = $testscores->ilets_Speaking;
-			}
-			$pte_Listening = '-';
-			if($testscores->pte_Listening != ''){
-				$pte_Listening = $testscores->pte_Listening;
-			}
-			$pte_Reading = '-';
-			if($testscores->pte_Reading != ''){
-				$pte_Reading = $testscores->pte_Reading;
-			}
-			$pte_Writing = '-';
-			if($testscores->pte_Writing != ''){
-				$pte_Writing = $testscores->pte_Writing;
-			}
-			$pte_Speaking = '-';
-			if($testscores->pte_Speaking != ''){
-				$pte_Speaking = $testscores->pte_Speaking;
-			}
-			$score_3 = '-';
-			if($testscores->score_3 != ''){
-				$score_3 = $testscores->score_3;
-			}
-			$score_2 = '-';
-			if($testscores->score_2 != ''){
-				$score_2 = $testscores->score_2;
-			}
-			$score_1 = '-';
-			if($testscores->score_1 != ''){
-				$score_1 = $testscores->score_1;
-			}
-			$toefl_Date = '-';
-			if($testscores->toefl_Date != ''){
-				$toefl_Date = $testscores->toefl_Date;
-			}
-			$ilets_Date = '-';
-			if($testscores->ilets_Date != ''){
-				$ilets_Date = $testscores->ilets_Date;
-			}
-			$pte_Date = '-';
-			if($testscores->pte_Date != ''){
-				$pte_Date = $testscores->pte_Date;
-			}
-				
-			
 			$response['status'] 	= 	true;
 			$response['message']	=	'Scores updated Successfully';
-			$response['score_1']		=	$score_1;
-			$response['score_2']		=	$score_2;
-			$response['score_3']		=	$score_3;
-			$response['pte_Speaking']		=	$pte_Speaking;
-			$response['pte_Writing']		=	$pte_Writing;
-			$response['pte_Reading']		=	$pte_Reading;
-			$response['pte_Listening']		=	$pte_Listening;
-			$response['ilets_Speaking']		=	$ilets_Speaking;
-			$response['ilets_Writing']		=	$ilets_Writing;
-			$response['ilets_Reading']		=	$ilets_Reading;
-			$response['ilets_Listening']		=	$ilets_Listening;
-			$response['toefl_Speaking']		=	$toefl_Speaking;
-			$response['toefl_Writing']		=	$toefl_Writing;
-			$response['toefl_Reading']		=	$toefl_Reading;
-			$response['toefl_Listening']		=	$toefl_Listening;
-			
-			$response['toefl_Date']		=	$toefl_Date;
-			$response['ilets_Date']		=	$ilets_Date;
-			$response['pte_Date']		=	$pte_Date;
 		}else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';

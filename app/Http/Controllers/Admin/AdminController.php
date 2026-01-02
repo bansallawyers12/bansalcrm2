@@ -328,73 +328,9 @@ class AdminController extends Controller
 
 	public function websiteSetting(Request $request)
 	{
-		//check authorization start
-			$check = $this->checkAuthorizationAction('Admin', $request->route()->getActionMethod(), Auth::user()->role);
-			if($check)
-			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
-			}
-		//check authorization end
-
-		if ($request->isMethod('post'))
-		{
-			$requestData 		= 	$request->all();
-
-			$this->validate($request, [
-										'phone' => 'required|max:20',
-										'ofc_timing' => 'nullable|max:255',
-										'email' => 'required|max:255'
-									  ]);
-
-			/* Logo Upload Function Start */
-				if($request->hasfile('logo'))
-				{
-					/* Unlink File Function Start */
-						if(@$requestData['logo'] != '')
-							{
-								$this->unlinkFile(@$requestData['old_logo'], Config::get('constants.logo'));
-							}
-					/* Unlink File Function End */
-
-					$logo = $this->uploadFile($request->file('logo'), Config::get('constants.logo'));
-				}
-				else
-				{
-					$logo = @$requestData['old_logo'];
-				}
-			/* Logoe Upload Function End */
-
-			if(!empty(@$requestData['id']))
-			{
-				$obj				= 	WebsiteSetting::find(@$requestData['id']);
-			}
-			else
-			{
-				$obj				= 	new WebsiteSetting;
-			}
-			$obj->phone				=	@$requestData['phone'];
-			$obj->ofc_timing		=	@$requestData['ofc_timing'];
-			$obj->email				=	@$requestData['email'];
-			$obj->logo				=	@$logo;
-
-			$saved							=	$obj->save();
-
-			if(!$saved)
-			{
-				return redirect()->back()->with('error', Config::get('constants.server_error'));
-			}
-			else
-			{
-				return Redirect::to('/admin/website_setting')->with('success', 'Website Setting has been edited successfully.');
-			}
-		}
-		else
-		{
-			// PostgreSQL: Cannot compare integer column to empty string. Use whereNotNull or just get first record.
-			$fetchedData = WebsiteSetting::whereNotNull('id')->first();
-
-			return view('Admin.website_setting', compact(['fetchedData']));
-		}
+		// website_settings table has been removed
+		// Redirect to dashboard with message
+		return Redirect::to('/admin/dashboard')->with('error', 'Website Settings feature has been removed. The website_settings table no longer exists.');
 	}
 
 
