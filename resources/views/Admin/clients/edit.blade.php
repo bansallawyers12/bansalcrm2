@@ -1450,6 +1450,16 @@ if($fetchedData->tagname != ''){
     @endif
 </script>
 
+{{-- Common JavaScript Files (load first) --}}
+<script src="{{ asset('js/common/config.js') }}"></script>
+<script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
+<script src="{{ asset('js/common/utilities.js') }}"></script>
+<script src="{{ asset('js/common/ui-components.js') }}"></script>
+<script src="{{ asset('js/common/google-maps.js') }}"></script>
+
+{{-- Page-Specific JavaScript (load last) --}}
+<script src="{{ asset('js/pages/admin/client-edit.js') }}"></script>
+
 <!-- Load Google Maps API using the centralized module -->
 <script>
 // Load Google Maps API after the module is loaded
