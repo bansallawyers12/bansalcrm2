@@ -37,8 +37,13 @@ use App\Models\VerifiedNumber;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 
+use App\Traits\ClientQueries;
+use App\Traits\ClientAuthorization;
+use App\Traits\ClientHelpers;
+
 class ClientsController extends Controller
 {
+    use ClientQueries, ClientAuthorization, ClientHelpers;
     /**
      * Create a new controller instance.
      *
@@ -70,92 +75,45 @@ class ClientsController extends Controller
      */
 	public function index(Request $request)
 	{
-		//check authorization start
-
-		/* if($check)
-		{
-			return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
-		} */
-		//check authorization end
-	    $roles = \App\Models\UserRole::find(Auth::user()->role);
-		$newarray = json_decode($roles->module_access);
-		$module_access = (array) $newarray;
-		if(array_key_exists('20',  $module_access)) {
-		    $query 		= Admin::where('is_archived', '=', '0')->where('role', '=', '7')->whereNull('is_deleted');
-
-		$totalData 	= $query->count();	//for all data
-		if ($request->has('client_id'))
-		{
-			$client_id 		= 	$request->input('client_id');
-			if(trim($client_id) != '')
-			{
-				$query->where('client_id', '=', $client_id);
-			}
+		// Check authorization using trait
+		if (!$this->hasModuleAccess('20')) {
+			// Return empty result set for users without module access
+			$lists = $this->getEmptyClientQuery()->paginate(20);
+			$totalData = 0;
+			return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
 		}
-			if ($request->has('type'))
-		{
-			$type 		= 	$request->input('type');
-			if(trim($type) != '')
-			{
-				$query->where('type', 'LIKE', $type);
-
-			}
-		}
-
-		if ($request->has('name'))
-		{
-			$name 		= 	$request->input('name');
-			if(trim($name) != '')
-			{
-				$query->where('first_name', 'LIKE', '%'.$name.'%');
-
-			}
-		}
-
-		if ($request->has('email'))
-		{
-			$email 		= 	$request->input('email');
-			if(trim($email) != '')
-			{
-				//$query->where('email', $email);
-				$query->where('email', 'LIKE','%'.$email.'%')->orwhere('att_email', 'LIKE','%'.$email.'%');
-            }
-		}
-
-		if ($request->has('phone'))
-		{
-			$phone 		= 	$request->input('phone');
-			if(trim($phone) != '')
-			{
-				//$query->where('phone', $phone);
-                $query->where('phone', 'LIKE','%'.$phone.'%')->orwhere('att_phone', 'LIKE','%'.$phone.'%');
-            }
-		}
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
-
-		}else{
-		    // Return empty result set for users without module access
-		    $lists = Admin::whereRaw('1 = 0')->paginate(20);
-		    $totalData = 0;
-		}
-		return view('Admin.clients.index', compact(['lists', 'totalData']));
-
-		//return view('Admin.clients.index');
+		
+		// Get base query with automatic agent filtering
+		$query = $this->getBaseClientQuery();
+		$totalData = $query->count();
+		
+		// Apply filters using trait method
+		$query = $this->applyClientFilters($query, $request);
+		
+		// Paginate results
+		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
+		
+		// Return appropriate view based on context
+		return view($this->getClientViewPath('clients.index'), compact(['lists', 'totalData']));
 	}
 
 	public function archived(Request $request)
 	{
-		$query 		= Admin::where('is_archived', '=', '1')->where('role', '=', '7')->whereNull('is_deleted');
-        $totalData 	= $query->count();	//for all data
-        $lists		= $query->sortable(['id' => 'desc'])->paginate(20);
-        return view('Admin.archived.index', compact(['lists', 'totalData']));
-    }
+		// Get archived clients query with automatic agent filtering
+		$query = $this->getArchivedClientQuery();
+		$totalData = $query->count();
+		
+		// Paginate results
+		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
+		
+		// Return appropriate view based on context
+		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData']));
+	}
 
 	public function prospects(Request $request)
 	{
-
-		return view('Admin.prospects.index');
-
+		// Return appropriate view based on context
+		return view($this->getClientViewPath('prospects.index'));
 	}
 
 	public function create(Request $request)

@@ -4,7 +4,7 @@
  * This file contains JavaScript code specific to the Admin Client Detail page.
  * Common/shared functionality should be in /js/common/ files.
  * 
- * Dependencies:
+ * Dependencies (loaded before this file):
  *   - config.js
  *   - ajax-helpers.js
  *   - crud-operations.js
@@ -16,17 +16,3084 @@
 
 'use strict';
 
-// Page-specific code will be added here during extraction
-// This file will contain:
-// - Client detail specific event handlers
-// - Appointment/time slot handling
-// - Service selection logic
-// - Commission calculation
-// - Other page-unique functionality
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
 
-$(document).ready(function() {
-    console.log('Admin Client Detail page loaded');
-    
-    // Page-specific initialization will go here
+// Download document handler
+document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('click', function (e) {
+        // Check if the clicked element has the class `.download-file`
+        const target = e.target.closest('a.download-file');
+
+        // If it's not a .download-file anchor, do nothing
+        if (!target) return;
+
+        e.preventDefault();
+
+        const filelink = target.dataset.filelink;
+        const filename = target.dataset.filename;
+
+        if (!filelink || !filename) {
+            alert('Missing file info.');
+            return;
+        }
+
+        // Create and submit a hidden form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/admin/download-document';
+        form.target = '_blank';
+
+        // CSRF token
+        const token = App.getCsrf();
+        form.innerHTML = `
+            <input type="hidden" name="_token" value="${token}">
+            <input type="hidden" name="filelink" value="${filelink}">
+            <input type="hidden" name="filename" value="${filename}">
+        `;
+
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+    });
 });
 
+// ChatGPT handlers
+const chatGptToggle = document.getElementById('chatGptToggle');
+if (chatGptToggle) {
+    chatGptToggle.addEventListener('click', function() {
+        const section = document.getElementById('chatGptSection');
+        if (section) {
+            section.classList.toggle('collapse');
+        }
+    });
+}
+
+const chatGptClose = document.getElementById('chatGptClose');
+if (chatGptClose) {
+    chatGptClose.addEventListener('click', function() {
+        const section = document.getElementById('chatGptSection');
+        if (section) {
+            section.classList.add('collapse');
+        }
+    });
+}
+
+const enhanceMessageBtn = document.getElementById('enhanceMessageBtn');
+if (enhanceMessageBtn) {
+    enhanceMessageBtn.addEventListener('click', function() {
+        const chatGptInput = document.getElementById('chatGptInput');
+        if (!chatGptInput || !chatGptInput.value) {
+            alert('Please enter a message to enhance.');
+            return;
+        }
+
+        var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/admin/mail/enhance';
+        
+        fetch(enhanceUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": App.getCsrf()
+            },
+            body: JSON.stringify({ message: chatGptInput.value })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.enhanced_message) {
+                // Split the enhanced message into lines
+                const lines = data.enhanced_message.split('\n').filter(line => line.trim() !== '');
+
+                // First line is the subject
+                const subject = lines[0] || '';
+
+                // Remaining lines are the body
+                const body = lines.slice(1).join('\n') || '';
+
+                // Update the subject and message fields
+                const composeEmailSubject = document.getElementById('compose_email_subject');
+                if (composeEmailSubject) {
+                    composeEmailSubject.value = subject;
+                }
+                // Ensure Summernote is initialized before updating content
+                if ($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                    $("#emailmodal .summernote-simple").summernote('code', body);
+                }
+
+                // Close the ChatGPT section
+                const chatGptSection = document.getElementById('chatGptSection');
+                if (chatGptSection) {
+                    chatGptSection.classList.add('collapse');
+                }
+            } else {
+                alert(data.error || 'Failed to enhance message.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while enhancing the message.');
+        });
+    });
+}
+
+// ============================================================================
+// MAIN JQUERY READY BLOCK
+// ============================================================================
+
+jQuery(document).ready(function($){
+  
+    // Tab click handler
+    $(document).on('click', '#client_tabs a', function(){
+        // Get the target tab's href
+        var target = $(this).attr('href');
+
+        if (target === '#documents' || target === '#migrationdocuments' || target === '#alldocuments' || target === '#notuseddocuments' ) {
+           // Reset the visibility and classes
+            $('.left_section').hide(); // Hide the left section by default
+            $('.right_section').parent().removeClass('col-8 col-md-8 col-lg-8').addClass('col-12 col-md-12 col-lg-12');
+        }  else {
+            $('.left_section').show(); // Show the left section for Activities tab
+            $('.right_section').parent().removeClass('col-12 col-md-12 col-lg-12').addClass('col-8 col-md-8 col-lg-8');
+        }
+    });
+  
+    $('.selecttemplate').select2({dropdownParent: $('#emailmodal')});
+
+    /////////////////////////////////////////////
+    ////// At Google review button sent email with review link code start /////////
+    /////////////////////////////////////////////
+    $(document).on('click', '.googleReviewBtn', function(e){
+        var is_greview_mail_sent = $(this).attr('data-is_greview_mail_sent');
+        console.log(is_greview_mail_sent);
+        if(is_greview_mail_sent != 1){
+            is_greview_mail_sent = 0;
+        } else {
+            is_greview_mail_sent = 1;
+        }
+        var conf = confirm('Do you want to sent google review link in email?');
+        //If review email not sent till now
+        if(conf && is_greview_mail_sent != 1 ){
+            var url = App.getUrl('isGReviewMailSent') || App.getUrl('siteUrl') + '/admin/is_greview_mail_sent';
+            $.ajax({
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                type:'POST',
+                datatype:'json',
+                data:{id: App.getPageConfig('clientId'), is_greview_mail_sent: is_greview_mail_sent},
+                success: function(response){
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    if(obj.status){
+                        alert(obj.message);
+                        location.reload();
+                    } else {
+                        alert(obj.message);
+                    }
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+
+    /////////////////////////////////////////////
+    ////// At Google review button sent email with review link code end /////////
+    /////////////////////////////////////////////
+
+    //create client receipt start
+    // Flatpickr replacements
+    if (typeof flatpickr !== 'undefined') {
+        $('.report_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+        $('.report_entry_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        });
+    }
+
+    $(document).on('click', '.openproductrinfo', function(){
+        var clonedval = $('.clonedrow').html();
+        $('.productitem').append('<tr class="product_field_clone">'+clonedval+'</tr>');
+        
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.report_date_fields:not(._flatpickr-initialized)', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.element.classList.add('_flatpickr-initialized');
+                }
+            });
+            flatpickr('.report_entry_date_fields:not(._flatpickr-initialized)', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.element.classList.add('_flatpickr-initialized');
+                }
+            });
+        }
+    });
+
+    // ============================================================================
+    // RECEIPT FUNCTIONS
+    // ============================================================================
+    
+    function getTopReceiptValInDB(type) {
+        var url = App.getUrl('clientGetTopReceipt') || App.getUrl('siteUrl') + '/admin/clients/getTopReceiptValInDB';
+        $.ajax({
+            type:'post',
+            url: url,
+            sync:true,
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: {type:type},
+            success: function(response){
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                if(obj.receipt_type == 1){ //client receipt
+                    if(obj.record_count >0){
+                        $('#top_value_db').val(obj.record_count);
+                    } else {
+                        $('#top_value_db').val(obj.record_count);
+                    }
+                }
+            }
+        });
+    }
+
+    $(document).on('blur', '.deposit_amount_per_row', function(){
+        if( $(this).val() != ""){
+            var randomNumber = $('#top_value_db').val();
+            randomNumber = Number(randomNumber);
+            randomNumber = randomNumber + 1;
+            $('#top_value_db').val(randomNumber);
+            randomNumber = "Rec"+randomNumber;
+        }
+    });
+
+    function grandtotalAccountTab(){
+        var total_deposit_amount_all_rows = 0;
+        $('.productitem tr').each(function(){
+            if($(this).find('.deposit_amount_per_row').val() != ''){
+                var deposit_amount_per_row = $(this).find('.deposit_amount_per_row').val();
+            }else{
+                var deposit_amount_per_row = 0;
+            }
+            total_deposit_amount_all_rows += parseFloat(deposit_amount_per_row);
+        });
+        $('.total_deposit_amount_all_rows').html("$"+total_deposit_amount_all_rows.toFixed(2));
+    }
+
+    // ============================================================================
+    // TAG HANDLERS
+    // ============================================================================
+    
+    // Initialize tags if they exist
+    var array1 = [];
+    var data1 = [];
+    $('.relatedtag').each(function(){
+        var id1 = $(this).attr('data-id');
+        array1.push(id1);
+        var name1 = $(this).attr('data-name');
+        data1.push({
+            id: id1,
+            text: name1,
+        });
+    });
+
+    if(data1.length > 0) {
+        $("#tag").select2({
+            data: data1,
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data1) {
+                return data1.html;
+            },
+            templateSelection: function(data1) {
+                return data1.text;
+            }
+        });
+
+        $('#tag').val(array1);
+        $('#tag').trigger('change');
+    }
+
+    $('#tag').select2({
+        ajax: {
+            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/admin/gettagdata',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.items.map(item => ({
+                        id: item.id,
+                        text: item.text
+                    })),
+                    pagination: {
+                        more: (params.page * data.per_page) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Search & Select tag',
+        minimumInputLength: 1,
+        templateResult: formatItem,
+        templateSelection: formatItemSelection
+    });
+
+    function formatItem(item) {
+        if (item.loading) {
+            return item.text;
+        }
+        return item.text;
+    }
+
+    function formatItemSelection(item) {
+        return item.text || item.id;
+    }
+
+    // ============================================================================
+    // UI INITIALIZATION
+    // ============================================================================
+    
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#edu_service_start_date', {
+            dateFormat: 'd/m/Y',
+            allowInput: true
+        });
+    }
+
+    $('.filter_btn').on('click', function(){
+        $('.filter_panel').slideToggle();
+    });
+
+    //Service type on change div
+    $('.modal-body form#createservicetaken input[name="service_type"]').on('change', function(){
+        var invid = $(this).attr('id');
+        if(invid == 'Migration_inv'){
+            $('.modal-body form#createservicetaken .is_Migration_inv').show();
+            $('.modal-body form#createservicetaken .is_Migration_inv input').attr('data-valid', 'required');
+            $('.modal-body form#createservicetaken .is_Eductaion_inv').hide();
+            $('.modal-body form#createservicetaken .is_Eductaion_inv input').attr('data-valid', '');
+        }
+        else {
+            $('.modal-body form#createservicetaken .is_Eductaion_inv').show();
+            $('.modal-body form#createservicetaken .is_Eductaion_inv input').attr('data-valid', 'required');
+            $('.modal-body form#createservicetaken .is_Migration_inv').hide();
+            $('.modal-body form#createservicetaken .is_Migration_inv input').attr('data-valid', '');
+        }
+    });
+
+    //Set select2 drop down box width
+    $('#changeassignee').select2();
+    $('#changeassignee').next('.select2-container').first().css('width', '220px');
+
+    var windowsize = $(window).width();
+    if(windowsize > 2000){
+        $('.add_note').css('width','980px');
+    }
+
+    // ============================================================================
+    // NOT PICKED CALL HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.not_picked_call', function (e) {
+        var clientName = App.getPageConfig('clientName') || 'user';
+        clientName = clientName.charAt(0).toUpperCase() + clientName.slice(1).toLowerCase();
+
+        var message = `Hi ${clientName},
+We tried reaching you but couldn't connect. Please call us at 0396021330 or let us know a suitable time.
+Please do not reply via SMS.
+Bansal Immigration`;
+      
+        $('#messageText').val(message);
+        $('#notPickedCallModal').modal('show');
+
+        $('.sendMessage').off('click').on('click', function () {
+            var message = $('#messageText').val();
+            var not_picked_call = 1;
+            var url = App.getUrl('notPickedCall') || App.getUrl('siteUrl') + '/admin/not-picked-call';
+            $.ajax({
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf() },
+                type: 'POST',
+                datatype: 'json',
+                data: {
+                    id: App.getPageConfig('clientId'),
+                    not_picked_call: not_picked_call,
+                    message: message
+                },
+                success: function (response) {
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    if (obj.not_picked_call == 1) {
+                        alert(obj.message);
+                    } else {
+                        alert(obj.message);
+                    }
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                    $('#notPickedCallModal').modal('hide');
+                }
+            });
+        });
+    });
+
+    // ============================================================================
+    // SERVICE AND APPOINTMENT HANDLERS
+    // ============================================================================
+    
+    // Global variables for appointment scheduling
+    var duration, daysOfWeek, starttime, endtime, disabledtimeslotes;
+
+    $(document).on('change', '.enquiry_item', function(){
+        var id = $(this).val();
+        if(id != ""){
+            var v = 'services';
+            if(id == 8){  //If nature of service == INDIA/UK/CANADA/EUROPE TO AUSTRALIA
+                $('#serviceval_2').hide();
+            } else {
+                $('#serviceval_2').show();
+            }
+
+            $('.services_row').show();
+            $('#myTab .nav-item #nature_of_enquiry-tab').addClass('disabled');
+            $('#myTab .nav-item #services-tab').removeClass('disabled');
+            $('#myTab a[href="#'+v+'"]').trigger('click');
+
+            $('.services_item').prop('checked', false);
+            $('.appointment_row').hide();
+            $('.info_row').hide();
+            $('.confirm_row').hide();
+
+            $('.timeslots').html('');
+            $('.showselecteddate').html('');
+
+            $('#timeslot_col_date').val("");
+            $('#timeslot_col_time').val("");
+        } else {
+            var v = 'nature_of_enquiry';
+            $('.services_row').hide();
+            $('.appointment_row').hide();
+            $('.info_row').hide();
+            $('.confirm_row').hide();
+
+            $('#myTab .nav-item #services-tab').addClass('disabled');
+            $('#myTab .nav-item #nature_of_enquiry-tab').removeClass('disabled');
+            $('#myTab a[href="#'+v+'"]').trigger('click');
+        }
+        $('input[name="noe_id"]').val(id);
+    });
+
+    $(document).on('change', '.inperson_address', function() {
+        var id = $("input[name='inperson_address']:checked").attr('data-val');
+        if(id != ""){
+            var v = 'info';
+            $('.info_row').show();
+            $('.appointment_details_cls').show();
+
+            $('#myTab .nav-item #appointment_details-tab').addClass('disabled');
+            $('#myTab .nav-item #info-tab').removeClass('disabled');
+            $('#myTab a[href="#'+v+'"]').trigger('click');
+        } else {
+            var v = 'appointment_details';
+            $('.info_row').hide();
+            $('.appointment_details_cls').hide();
+            $('.confirm_row').hide();
+
+            $('#myTab .nav-item #info-tab').addClass('disabled');
+            $('#myTab .nav-item #appointment_details-tab').removeClass('disabled');
+            $('#myTab a[href="#'+v+'"]').trigger('click');
+        }
+
+        $("input[name='inperson_address']:checked").val(id);
+        $('.timeslots').html('');
+        if(id != ""){
+            var enquiry_item  = $('.enquiry_item').val();
+            var service_id = $("input[name='radioGroup']:checked").val();
+            var inperson_address = $("input[name='inperson_address']:checked").attr('data-val');
+            var url = App.getUrl('getDateTimeBackend') || App.getUrl('siteUrl') + '/getdatetimebackend';
+            $.ajax({
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                type:'POST',
+                data:{id:service_id, enquiry_item:enquiry_item, inperson_address:inperson_address },
+                datatype:'json',
+                success:function(res){
+                    var obj = typeof res === 'string' ? JSON.parse(res) : res;
+                    if(obj.success){
+                        duration = obj.duration;
+                        daysOfWeek =  obj.weeks;
+                        starttime =  obj.start_time;
+                        endtime =  obj.end_time;
+                        disabledtimeslotes = obj.disabledtimeslotes;
+                        var datesForDisable = obj.disabledatesarray;
+
+                        if (typeof flatpickr !== 'undefined') {
+                            flatpickr('#datetimepicker', {
+                                inline: true,
+                                dateFormat: 'd/m/Y',
+                                minDate: 'today',
+                                disable: function(date) {
+                                    var dateYear = date.getFullYear();
+                                    var dateMonth = date.getMonth();
+                                    var dateDay = date.getDate();
+                                    
+                                    var isDisabledDate = datesForDisable && datesForDisable.length > 0 && datesForDisable.some(function(disabledDate) {
+                                        try {
+                                            var disabledDateObj = disabledDate instanceof Date ? disabledDate : new Date(disabledDate);
+                                            return disabledDateObj.getFullYear() === dateYear && 
+                                                   disabledDateObj.getMonth() === dateMonth && 
+                                                   disabledDateObj.getDate() === dateDay;
+                                        } catch(e) {
+                                            return false;
+                                        }
+                                    });
+                                    var isDisabledDay = daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.includes(date.getDay());
+                                    return isDisabledDate || isDisabledDay;
+                                },
+                                onChange: function(selectedDates, dateStr, instance) {
+                                    if (selectedDates.length > 0) {
+                                        var date = dateStr;
+                                        var checked_date = selectedDates[0].toLocaleDateString('en-US');
+
+                                        $('.showselecteddate').html(date);
+                                        $('input[name="date"]').val(date);
+                                        $('#timeslot_col_date').val(date);
+
+                                        $('.timeslots').html('');
+                                        var start_time = parseTime(starttime);
+                                        var end_time = parseTime(endtime);
+                                        var interval = parseInt(duration);
+                                        var service_id = $("input[name='radioGroup']:checked").val();
+                                        var inperson_address = $("input[name='inperson_address']:checked").attr('data-val');
+                                        var enquiry_item  = $('.enquiry_item').val();
+                                        
+                                        var disabledUrl = App.getUrl('getDisabledDateTime') || App.getUrl('siteUrl') + '/getdisableddatetime';
+                                        $.ajax({
+                                            url: disabledUrl,
+                                            headers: {'X-CSRF-TOKEN': App.getCsrf()},
+                                            type:'POST',
+                                            data:{service_id:service_id,sel_date:date, enquiry_item:enquiry_item,inperson_address:inperson_address},
+                                            datatype:'json',
+                                            success:function(res){
+                                                $('.timeslots').html('');
+                                                var obj = typeof res === 'string' ? JSON.parse(res) : res;
+                                                if(obj.success){
+                                                    var objdisable = [];
+                                                    if( $('#slot_overwrite_hidden').val() != 1){
+                                                        objdisable = obj.disabledtimeslotes || [];
+                                                    }
+
+                                                    var start_timer = start_time;
+                                                    for(var i = start_time; i<end_time; i = i+interval){
+                                                        var timeString = start_timer + interval;
+                                                        const timeString12hr = new Date('1970-01-01T' + convertHours(start_timer) + 'Z')
+                                                            .toLocaleTimeString('en-US',
+                                                                {timeZone:'UTC',hour12:true,hour:'numeric',minute:'numeric'}
+                                                            );
+                                                        const timetoString12hr = new Date('1970-01-01T' + convertHours(timeString) + 'Z')
+                                                            .toLocaleTimeString('en-US',
+                                                                {timeZone:'UTC',hour12:true,hour:'numeric',minute:'numeric'}
+                                                            );
+
+                                                        var today_date = new Date();
+                                                        today_date = today_date.toLocaleDateString('en-US');
+
+                                                        var now = new Date();
+                                                        var nowTime = new Date('1/1/1900 ' + now.toLocaleTimeString(navigator.language, {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: true
+                                                        }));
+
+                                                        var current_time=nowTime.toLocaleTimeString('en-US');
+                                                        if(objdisable.length > 0){
+                                                            if(objdisable.indexOf(timeString12hr) !== -1  ) {
+                                                                // Skip disabled time
+                                                            } else if ((checked_date == today_date) && (current_time > timeString12hr || current_time > timetoString12hr)){
+                                                                // Skip past times for today
+                                                            } else{
+                                                                $('.timeslots').append('<div data-fromtime="'+timeString12hr+'" data-totime="'+timetoString12hr+'" style="cursor: pointer;" class="timeslot_col"><span>'+timeString12hr+'</span></div>');
+                                                            }
+                                                        } else{
+                                                            if((checked_date == today_date) && (current_time > timeString12hr || current_time > timetoString12hr)){
+                                                                // Skip past times for today
+                                                            } else {
+                                                                $('.timeslots').append('<div data-fromtime="'+timeString12hr+'" data-totime="'+timetoString12hr+'" style="cursor: pointer;" class="timeslot_col"><span>'+timeString12hr+'</span></div>');
+                                                            }
+                                                        }
+                                                        start_timer = timeString;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+
+                        if(id != ""){
+                            var v = 'appointment_details';
+                            $('#myTab .nav-item #services-tab').addClass('disabled');
+                            $('#myTab .nav-item #appointment_details-tab').removeClass('disabled');
+                            $('#myTab a[href="#'+v+'"]').trigger('click');
+                        } else {
+                            var v = 'services';
+                            $('#myTab .nav-item #services-tab').removeClass('disabled');
+                            $('#myTab .nav-item #appointment_details-tab').addClass('disabled');
+                            $('#myTab a[href="#'+v+'"]').trigger('click');
+                        }
+                        $('input[name="service_id"]').val($("input[name='radioGroup']:checked").val());
+                    } else {
+                        $('input[name="service_id"]').val('');
+                        var v = 'services';
+                        alert('There is a problem in our system. please try again');
+                        $('#myTab .nav-item #services-tab').removeClass('disabled');
+                        $('#myTab .nav-item #appointment_details-tab').addClass('disabled');
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('change', '.appointment_item', function(){
+        var id = $(this).val();
+        if(id != ""){
+            $('input[name="appointment_details"]').val(id);
+        } else {
+            $('input[name="appointment_details"]').val("");
+        }
+    });
+
+    $(document).on('change', '.services_item', function(){
+        $('.info_row').hide();
+        $('.confirm_row').hide();
+        $("input[name='inperson_address']").prop("checked", false);
+        $('.appointment_item').val("");
+        $('.appointment_details_cls').hide();
+
+        $('#timeslot_col_date').val("");
+        $('#timeslot_col_time').val("");
+
+        var id = $(this).val();
+        if ($("input[name='radioGroup'][value='" + id + "']").prop("checked")) {
+            $('#service_id').val(id);
+        }
+
+        if( $('#service_id').val() == 1 ){ //paid
+            $('.submitappointment_paid').show();
+            $('.submitappointment').hide();
+        } else { //free
+            $('.submitappointment').show();
+            $('.submitappointment_paid').hide();
+        }
+
+        if(id != ""){
+            var v = 'appointment_details';
+            if( id == 1 ){ //paid service
+                $('select[name="appointment_details"] option[value="zoom_google_meeting"]').show();
+            } else {
+                $('select[name="appointment_details"] option[value="zoom_google_meeting"]').hide();
+            }
+            $('.appointment_row').show();
+        } else {
+            var v = 'services';
+            $('.appointment_row').hide();
+        }
+        $('.timeslots').html('');
+        $('.showselecteddate').html('');
+
+        // Similar AJAX call for getting datetime backend (code continues...)
+        // This section will be completed in next iteration
+    });
+
+    // ============================================================================
+    // TIME SLOT HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.timeslot_col', function(){
+        $('.timeslot_col').removeClass('active');
+        $(this).addClass('active');
+        var service_id_val = $("input[name='radioGroup']:checked").val();
+        var fromtime = $(this).attr('data-fromtime');
+        
+        // Page-specific function parseTimeLatest (not in common utilities)
+        function parseTimeLatest(s) {
+            var c = s.split(':');
+            var c11 = c[1].split(' ');
+            if(c11[1] == 'PM'){
+                if(parseInt(c[0]) != 12 ){
+                    return ( parseInt(c[0])+12 ) * 60 + parseInt(c[1]);
+                } else {
+                    return parseInt(c[0]) * 60 + parseInt(c[1]);
+                }
+            } else {
+                return parseInt(c[0]) * 60 + parseInt(c[1]);
+            }
+        }
+        
+        if(service_id_val == 2){ //15 min service
+            var fromtime11 = parseTimeLatest(fromtime);
+            var interval11 = 15;
+            var timeString11 = fromtime11 + interval11;
+            var totime = new Date('1970-01-01T' + convertHours(timeString11) + 'Z')
+                .toLocaleTimeString('en-US',
+                    {timeZone:'UTC',hour12:true,hour:'numeric',minute:'numeric'}
+                );
+        } else {
+            var totime = $(this).attr('data-totime');
+        }
+        $('input[name="time"]').val(fromtime+'-'+totime);
+        $('#timeslot_col_time').val(fromtime+'-'+totime);
+    });
+
+    // Page-specific function: calculate_time_slot
+    function calculate_time_slot(start_time, end_time, interval) {
+        interval = interval || 15;
+        var i, formatted_time;
+        var time_slots = new Array();
+        for(var i=start_time; i<=end_time; i = i+interval){
+            formatted_time = convertHours(i);
+            const timeString = formatted_time;
+            time_slots.push(timeString);
+        }
+        return time_slots;
+    }
+
+    // ============================================================================
+    // EMAIL/PHONE VERIFICATION HANDLER
+    // ============================================================================
+    
+    $('.manual_email_phone_verified').on('change', function(){
+        if( $(this).is(":checked") ) {
+            $('.manual_email_phone_verified').val(1);
+            var manual_email_phone_verified = 1;
+        } else {
+            $('.manual_email_phone_verified').val(0);
+            var manual_email_phone_verified = 0;
+        }
+
+        var client_id = App.getPageConfig('clientId');
+        var url = App.getUrl('clientUpdateEmailVerified') || App.getUrl('siteUrl') + '/admin/clients/update-email-verified';
+        $.ajax({
+            url: url,
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            type:'POST',
+            data:{manual_email_phone_verified:manual_email_phone_verified,client_id:client_id},
+            success: function(responses){
+                location.reload();
+            }
+        });
+    });
+
+    // ============================================================================
+    // UI LAYOUT HANDLERS
+    // ============================================================================
+    
+    $('#feather-icon').click(function(){
+        var windowsize = $(window).width();
+        if($('.main-sidebar').width() == 65){
+            if(windowsize > 2000){
+                $('.add_note').css('width','980px');
+            } else {
+                $('.add_note').css('width','155px');
+            }
+        } else if($('.main-sidebar').width() == 250) {
+            if(windowsize > 2000){
+                $('.add_note').css('width','1040px');
+            } else {
+                $('.add_note').css('width','215px');
+            }
+        }
+    });
+
+    //set height of right side section
+    var left_upper_height = $('.left_section_upper').height();
+    var left_section_lower = $('.left_section_lower').height();
+    var total_left  = left_upper_height + left_section_lower;
+    total_left = total_left +25;
+
+    var right_section_height = $('.right_section').height();
+
+    if(right_section_height >total_left ){
+        var total_left_px = total_left+'px';
+        $('.right_section').css({"maxHeight":total_left_px});
+        $('.right_section').css({"overflow": 'scroll' });
+    } else {
+        var total_left_px = total_left+'px';
+        $('.right_section').css({"maxHeight":total_left_px});
+    }
+
+    let css_property = {
+        "display": "none",
+    };
+    $('#create_note_d').hide();
+    $('.main-footer').css(css_property);
+
+    // ============================================================================
+    // MODAL HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.uploadmail', function(){
+        $('#maclient_id').val(App.getPageConfig('clientId'));
+        $('#uploadmail').modal('show');
+    });
+
+    $(document).on('click', '.addnewprevvisa', function(){
+        var $clone = $('.multiplevisa:eq(0)').clone(true,true);
+        $clone.find('.lastfiledcol').after('<div class="col-md-4"><a href="javascript:;" class="removenewprevvisa btn btn-danger btn-sm">Remove</a></div>');
+        $clone.find("input:text").val("");
+        $clone.find("input.visadatesse").val("");
+        $('.multiplevisa:last').after($clone);
+    });
+
+    $(document).on('click', '.removenewprevvisa', function(){
+        $(this).parent().parent().parent().remove();
+    });
+
+    // ============================================================================
+    // ASSIGN USER HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '#assignUser', function(){
+        $(".popuploader").show();
+        var flag = true;
+        var error = "";
+        $(".custom-error").remove();
+        
+        if($('#rem_cat').val() == ''){
+            $('.popuploader').hide();
+            error="Assignee field is required.";
+            $('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
+            flag = false;
+        }
+        if($('#assignnote').val() == ''){
+            $('.popuploader').hide();
+            error="Note field is required.";
+            $('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
+            flag = false;
+        }
+        if($('#task_group').val() == ''){
+            $('.popuploader').hide();
+            error="Group field is required.";
+            $('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
+            flag = false;
+        }
+        if(flag){
+            var url = App.getUrl('clientFollowup') || App.getUrl('siteUrl') + '/admin/clients/followup/store';
+            $.ajax({
+                type:'post',
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                data: {
+                    note_type:'follow_up',
+                    description:$('#assignnote').val(),
+                    client_id:$('#assign_client_id').val(),
+                    followup_datetime:$('#popoverdatetime').val(),
+                    assignee_name:$('#rem_cat :selected').text(),
+                    rem_cat:$('#rem_cat option:selected').val(),
+                    task_group:$('#task_group option:selected').val()
+                },
+                success: function(response){
+                    $('.popuploader').hide();
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    if(obj.success){
+                        $("[data-role=popover]").each(function(){
+                            (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false
+                        });
+                        if(typeof getallactivities === 'function') {
+                            getallactivities();
+                        }
+                        if(typeof getallnotes === 'function') {
+                            getallnotes();
+                        }
+                    }
+                }
+            });
+        }else{
+            $("#loader").hide();
+        }
+    });
+
+    // ============================================================================
+    // OVERRIDE COMMON FUNCTIONS WITH PAGE-SPECIFIC IMPLEMENTATIONS
+    // ============================================================================
+    
+    // Note: These functions override the common ones with more detailed implementations
+    // If needed, these can be moved to common files later
+    
+    var appcid = '';
+    $(document).on('click', '.publishdoc', function(){
+        $('#confirmpublishdocModal').modal('show');
+        appcid = $(this).attr('data-id');
+    });
+
+    $(document).on('click', '.openassigneeshow', function(){
+        $('.assigneeshow').show();
+    });
+
+    $(document).on('click', '.closeassigneeshow', function(){
+        $('.assigneeshow').hide();
+    });
+
+    // ============================================================================
+    // ASSIGNEE HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.saveassignee', function(){
+        var appliid = $(this).attr('data-id');
+        $('.popuploader').show();
+        var url = App.getUrl('clientChangeAssignee') || App.getUrl('siteUrl') + '/admin/clients/change_assignee';
+        $.ajax({
+            url: url,
+            type:'GET',
+            data:{id: appliid, assignee: $('#changeassignee').val()},
+            success: function(response){
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                if(obj.status){
+                    alert(obj.message);
+                    location.reload();
+                }else{
+                    alert(obj.message);
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // DOCUMENT VERIFICATION HANDLERS
+    // ============================================================================
+    
+    var verify_doc_id = '';
+    var verify_doc_href = '';
+    var verify_doc_type = '';
+    $(document).on('click', '.verifydoc', function(){
+        $('#confirmDocModal').modal('show');
+        verify_doc_id = $(this).attr('data-id');
+        verify_doc_href = $(this).attr('data-href');
+        verify_doc_type = $(this).attr('data-doctype');
+    });
+
+    $(document).on('click', '#confirmDocModal .accept', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/' + verify_doc_href,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data:{doc_id:verify_doc_id, doc_type:verify_doc_type },
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmDocModal').modal('hide');
+                if(res.status){
+                    if(res.doc_type == 'documents') {
+                        $('.alldocumnetlist #docverifiedby_'+verify_doc_id).html(res.verified_by + "<br>" + res.verified_at);
+                    }
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                }
+            }
+        });
+    });
+
+    var notuse_doc_id = '';
+    var notuse_doc_href = '';
+    var notuse_doc_type = '';
+    $(document).on('click', '.notuseddoc', function(){
+        $('#confirmNotUseDocModal').modal('show');
+        notuse_doc_id = $(this).attr('data-id');
+        notuse_doc_href = $(this).attr('data-href');
+        notuse_doc_type = $(this).attr('data-doctype');
+    });
+
+    $(document).on('click', '#confirmNotUseDocModal .accept', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/' + notuse_doc_href,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data:{doc_id:notuse_doc_id, doc_type:notuse_doc_type },
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmNotUseDocModal').modal('hide');
+                if(res.status){
+                    if(res.doc_type == 'documents') {
+                        $('.alldocumnetlist #id_'+res.doc_id).remove();
+                    }
+                    if(res.docInfo) {
+                        var subArray = res.docInfo;
+                        var trRow = "";
+                        if(subArray.myfile_key != ''){
+                            trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td><a target='_blank' class='dropdown-item' href='"+subArray.myfile+"'><i class='fas fa-file-image'></i> <span>"+subArray.file_name+'.'+subArray.filetype+"</span></a></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
+                        } else {
+                            trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td><i class='fas fa-file-image'></i> <span>"+subArray.file_name+'.'+subArray.filetype+"</span></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
+                        }
+                        $('.notuseddocumnetlist').append(trRow);
+                    }
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                }
+            }
+        });
+    });
+
+    var backto_doc_id = '';
+    var backto_doc_href = '';
+    var backto_doc_type = '';
+    $(document).on('click', '.backtodoc', function(){
+        $('#confirmBackToDocModal').modal('show');
+        backto_doc_id = $(this).attr('data-id');
+        backto_doc_href = $(this).attr('data-href');
+        backto_doc_type = $(this).attr('data-doctype');
+    });
+
+    $(document).on('click', '#confirmBackToDocModal .accept', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/' + backto_doc_href,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data:{doc_id:backto_doc_id, doc_type:backto_doc_type },
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmBackToDocModal').modal('hide');
+                if(res.status){
+                    if(res.doc_type == 'documents') {
+                        $('.notuseddocumnetlist #id_'+res.doc_id).remove();
+                    }
+                    location.reload();
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // DELETE HANDLERS
+    // ============================================================================
+    
+    var notid = '';
+    var delhref = '';
+    $(document).on('click', '.deletenote', function(){
+        $('#confirmModal').modal('show');
+        notid = $(this).attr('data-id');
+        delhref = $(this).attr('data-href');
+    });
+
+    $(document).on('click', '#confirmModal .accept', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/' + delhref,
+            type:'GET',
+            datatype:'json',
+            data:{note_id:notid},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmModal').modal('hide');
+                if(res.status){
+                    $('#note_id_'+notid).remove();
+                    if(res.status == true){
+                        $('#id_'+notid).remove();
+                    }
+
+                    if(delhref == 'deletedocs'){
+                        $('.documnetlist #id_'+notid).remove();
+                    }
+                    if(delhref == 'deletealldocs'){
+                        $('.alldocumnetlist #id_'+notid).remove();
+                    }
+                    if(delhref == 'deleteservices'){
+                        var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/admin/get-services';
+                        $.ajax({
+                            url: url,
+                            type:'GET',
+                            data:{clientid: App.getPageConfig('clientId')},
+                            success: function(responses){
+                                $('.interest_serv_list').html(responses);
+                            }
+                        });
+                    }else if(delhref == 'deletepaymentschedule'){
+                        var url = App.getUrl('getAllPaymentSchedules') || App.getUrl('siteUrl') + '/admin/get-all-paymentschedules';
+                        $.ajax({
+                            url: url,
+                            type:'GET',
+                            data:{client_id: App.getPageConfig('clientId'), appid:res.application_id},
+                            success: function(responses){
+                                $('.showpaymentscheduledata').html(responses);
+                            }
+                        });
+                    }else if(delhref == 'deleteapplicationdocs'){
+                        $('.mychecklistdocdata').html(res.doclistdata);
+                        $('.checklistuploadcount').html(res.applicationuploadcount);
+                        $('.'+res.type+'_checklists').html(res.checklistdata);
+
+                        if(res.application_id){
+                            var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/admin/get-applications-logs';
+                            $.ajax({
+                                url: logsUrl,
+                                type:'GET',
+                                data:{id: res.application_id},
+                                success: function(responses){
+                                    $('#accordion').html(responses);
+                                }
+                            });
+                        }
+                    }else{
+                        if(typeof getallnotes === 'function') {
+                            getallnotes();
+                        }
+                    }
+
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                }
+            }
+        });
+    });
+
+    var activitylogid = '';
+    var delloghref = '';
+    $(document).on('click', '.deleteactivitylog', function(){
+        $('#confirmLogModal').modal('show');
+        activitylogid = $(this).attr('data-id');
+        delloghref = $(this).attr('data-href');
+    });
+
+    $(document).on('click', '#confirmLogModal .accept', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/' + delloghref,
+            type:'GET',
+            datatype:'json',
+            data:{activitylogid:activitylogid},
+            success:function(response){
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmLogModal').modal('hide');
+                if(res.status){
+                    $('#activity_'+activitylogid).remove();
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // PIN HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.pinnote', function(){
+        $('.popuploader').show();
+        var url = App.getUrl('pinNote') || App.getUrl('siteUrl') + '/admin/pinnote';
+        $.ajax({
+            url: url + '/',
+            type:'GET',
+            datatype:'json',
+            data:{note_id:$(this).attr('data-id')},
+            success:function(response){
+                if(typeof getallnotes === 'function') {
+                    getallnotes();
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.pinactivitylog', function(){
+        $('.popuploader').show();
+        var url = App.getUrl('pinActivityLog') || App.getUrl('siteUrl') + '/admin/pinactivitylog';
+        $.ajax({
+            url: url + '/',
+            type:'GET',
+            datatype:'json',
+            data:{activity_id:$(this).attr('data-id')},
+            success:function(response){
+                if(typeof getallactivities === 'function') {
+                    getallactivities();
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // PUBLISH DOCUMENT HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '#confirmpublishdocModal .acceptpublishdoc', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/application/publishdoc',
+            type:'GET',
+            datatype:'json',
+            data:{appid:appcid,status:'1'},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmpublishdocModal').modal('hide');
+                if(res.status){
+                    $('.mychecklistdocdata').html(res.doclistdata);
+                }else{
+                    alert(res.message);
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // NOTE CREATION HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.createapplicationnewinvoice', function(){
+        $('#opencreateinvoiceform').modal('show');
+        var sid = $(this).attr('data-id');
+        var cid = $(this).attr('data-cid');
+        var aid = $(this).attr('data-app-id');
+        $('#opencreateinvoiceform #invoice_client_id').val(cid);
+        $('#app_id').val(aid);
+        $('#schedule_id').val(sid);
+    });
+
+    $(document).on('click', '.create_note_d', function(){
+        $('#create_note_d input[name="mailid"]').val(0);
+        $('#create_note_d input[name="noteid"]').val('');
+        $('#create_note_d #noteType').val('');
+        $('#create_note_d #additionalFields').html('');
+        $('#create_note_d .customerror').html('');
+        $('#create_note_d .custom-error').html('');
+        
+        if($('#create_note_d .summernote-simple').length > 0){
+            try {
+                if($('#create_note_d .summernote-simple').data('summernote')){
+                    $('#create_note_d .summernote-simple').summernote('code', '');
+                } else {
+                    $('#create_note_d .summernote-simple').val('');
+                }
+            } catch(e) {
+                $('#create_note_d .summernote-simple').val('');
+            }
+        }
+        
+        $('#create_note_d #createNoteDModalLabel').html('Create Note');
+
+        if($(this).attr('datatype') == 'note'){
+            $('.is_not_note').hide();
+        }else{
+            var datasubject = $(this).attr('datasubject');
+            var datamailid = $(this).attr('datamailid');
+            $('#create_note_d input[name="title"]').val(datasubject);
+            $('#create_note_d input[name="mailid"]').val(datamailid);
+            $('.is_not_note').show();
+        }
+        
+        $('#create_note_d').modal('show');
+    });
+
+    $('#noteType').on('change', function() {
+        var selectedValue = $(this).val();
+        var additionalFields = $("#additionalFields");
+        additionalFields.html("");
+
+        if(selectedValue === "Call") {
+            additionalFields.append(`
+                <div class="form-group" style="margin-top:10px;">
+                    <label for="mobileNumber">Mobile Number:</label>
+                    <select name="mobileNumber" id="mobileNumber" class="form-control" data-valid="required"></select>
+                    <span id="mobileNumberError" class="text-danger"></span>
+                </div>
+            `);
+
+            var client_id = $('#create_note_d #note_client_id').val();
+            $('.popuploader').show();
+            var url = App.getUrl('clientFetchContact') || App.getUrl('siteUrl') + '/admin/clients/fetchClientContactNo';
+            $.ajax({
+                url: url,
+                method: "POST",
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                data: {client_id:client_id},
+                datatype: 'json',
+                success: function(response) {
+                    $('.popuploader').hide();
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    var contactlist = '<option value="">Select Contact</option>';
+                    $.each(obj.clientContacts, function(index, subArray) {
+                        var client_country_code = subArray.client_country_code || "";
+                        contactlist += '<option value="'+client_country_code+' '+subArray.client_phone+'">'+client_country_code+' '+subArray.client_phone+' ('+subArray.contact_type+')</option>';
+                    });
+                    $('#mobileNumber').append(contactlist);
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.create_note', function(){
+        $('#create_note').modal('show');
+        $('#create_note input[name="mailid"]').val(0);
+        $('#create_note input[name="title"]').val('');
+        $('#create_note #createNoteModalLabel').html('Create Note');
+        $('#create_note input[name="noteid"]').val('');
+        if($("#create_note .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+            $("#create_note .summernote-simple").summernote('code','');
+        }
+        if($(this).attr('datatype') == 'note'){
+            $('.is_not_note').hide();
+        }else{
+            var datasubject = $(this).attr('datasubject');
+            var datamailid = $(this).attr('datamailid');
+            $('#create_note input[name="title"]').val(datasubject);
+            $('#create_note input[name="mailid"]').val(datamailid);
+            $('.is_not_note').show();
+        }
+    });
+
+    // ============================================================================
+    // SELECT2 INITIALIZATION FOR RECIPIENTS
+    // ============================================================================
+    
+    $('.js-data-example-ajaxcc').select2({
+        multiple: true,
+        closeOnSelect: false,
+        dropdownParent: $('#create_note'),
+        ajax: {
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: true
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+    });
+
+    $('.js-data-example-ajaxccapp').select2({
+        multiple: true,
+        closeOnSelect: false,
+        dropdownParent: $('#applicationemailmodal'),
+        ajax: {
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: true
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+    });
+
+    function formatRepo (repo) {
+        if (repo.loading) {
+            return repo.text;
+        }
+
+        var $container = $(
+            "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+                "<div  class='ag-flex ag-align-start'>" +
+                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
+                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
+                "</div>" +
+            "</div>" +
+            "<div class='ag-flex ag-flex-column ag-align-end'>" +
+                "<span class='ui label yellow select2-result-repository__statistics'>" +
+                "</span>" +
+            "</div>" +
+            "</div>"
+        );
+
+        $container.find(".select2-result-repository__title").text(repo.name);
+        $container.find(".select2-result-repository__description").text(repo.email);
+        $container.find(".select2-result-repository__statistics").append(repo.status);
+
+        return $container;
+    }
+
+    function formatRepoSelection (repo) {
+        return repo.name || repo.text;
+    }
+
+    // ============================================================================
+    // COMPLETE SESSION HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.complete_session', function(){
+        var client_id = $(this).attr('data-clientid');
+        if(client_id !=""){
+            var url = App.getUrl('clientUpdateSession') || App.getUrl('siteUrl') + '/admin/clients/update-session-completed';
+            $.ajax({
+                type:'POST',
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                data: {client_id:client_id },
+                success: function(response){
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    if(obj.status){
+                        alert(obj.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + obj.message);
+                    }
+                },
+                error: function(xhr, status, error){
+                    alert('Failed to complete session. Error: ' + error);
+                }
+            });
+        } else {
+            alert('Client ID is missing');
+        }
+    });
+
+    // ============================================================================
+    // NOTE VIEWING AND EDITING HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.opennoteform', function(){
+        $('#create_note').modal('show');
+        $('#create_note #createNoteModalLabel').html('Edit Note');
+        var v = $(this).attr('data-id');
+        $('#create_note input[name="noteid"]').val(v);
+        $('.popuploader').show();
+        var url = App.getUrl('getNoteDetail') || App.getUrl('siteUrl') + '/admin/getnotedetail';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{note_id:v},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+
+                if(res.status){
+                    $('#create_note input[name="title"]').val(res.data.title);
+                    if($("#create_note .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                        $("#create_note .summernote-simple").summernote('code',res.data.description);
+                    } else {
+                        $("#create_note .summernote-simple").val(res.data.description);
+                    }
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.viewnote', function(){
+        $('#view_note').modal('show');
+        var v = $(this).attr('data-id');
+        $('#view_note input[name="noteid"]').val(v);
+        $('.popuploader').show();
+        var url = App.getUrl('viewNoteDetail') || App.getUrl('siteUrl') + '/admin/viewnotedetail';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{note_id:v},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+
+                if(res.status){
+                    $('#view_note .modal-body .note_content h5').html(res.data.title);
+                    $("#view_note .modal-body .note_content p").html(res.data.description);
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.viewapplicationnote', function(){
+        $('#view_application_note').modal('show');
+        var v = $(this).attr('data-id');
+        $('#view_application_note input[name="noteid"]').val(v);
+        $('.popuploader').show();
+        var url = App.getUrl('viewApplicationNote') || App.getUrl('siteUrl') + '/admin/viewapplicationnote';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{note_id:v},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+
+                if(res.status){
+                    $('#view_application_note .modal-body .note_content h5').html(res.data.title);
+                    $("#view_application_note .modal-body .note_content p").html(res.data.description);
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // APPLICATION HANDLERS
+    // ============================================================================
+    
+    $(document).on('change', '.add_appliation #workflow', function(){
+        var v = $('.add_appliation #workflow option:selected').val();
+        if(v != ''){
+            $('.popuploader').show();
+            var url = App.getUrl('getPartnerBranch') || App.getUrl('siteUrl') + '/admin/getpartnerbranch';
+            $.ajax({
+                url: url,
+                type:'GET',
+                data:{cat_id:v},
+                success:function(response){
+                    $('.popuploader').hide();
+                    $('.add_appliation #partner').html(response);
+                    $(".add_appliation #partner").val('').trigger('change');
+                    $(".add_appliation #product").val('').trigger('change');
+                    $(".add_appliation #branch").val('').trigger('change');
+                }
+            });
+        }
+    });
+
+    $(document).on('change', '.add_appliation #partner', function(){
+        var v = $('.add_appliation #partner option:selected').val();
+        var explode = v.split('_');
+        if(v != ''){
+            $('.popuploader').show();
+            $('.add_appliation #product').attr('data-valid', '');
+            $('.add_appliation #product').prop('disabled', true);
+            $('.add_appliation .product_error').html('');
+            var url = App.getUrl('getBranchProduct') || App.getUrl('siteUrl') + '/admin/getbranchproduct';
+            $.ajax({
+                url: url,
+                type:'GET',
+                data:{cat_id:explode[0]},
+                success:function(response){
+                    $('.popuploader').hide();
+                    $('.add_appliation #product').html(response);
+                    $('.add_appliation #product').prop('disabled', false);
+                    $('.add_appliation #product').attr('data-valid', 'required');
+                    $(".add_appliation #product").val('').trigger('change');
+                },
+                error: function() {
+                    $('.popuploader').hide();
+                    $('.add_appliation #product').prop('disabled', false);
+                    $('.add_appliation #product').attr('data-valid', 'required');
+                    $('.add_appliation #product').html('<option value="">Select Product</option>');
+                }
+            });
+        }
+    });
+
+    // ============================================================================
+    // EMAIL HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.clientemail', function(){
+        $('#emailmodal').modal('show');
+        var array = [];
+        var data = [];
+
+        var id = $(this).attr('data-id');
+        array.push(id);
+        var email = $(this).attr('data-email');
+        var name = $(this).attr('data-name');
+        var status = 'Client';
+
+        data.push({
+            id: id,
+            text: name,
+            html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+                "<div  class='ag-flex ag-align-start'>" +
+                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+name+"</span>&nbsp;</div>" +
+                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+email+"</small ></div>" +
+                "</div>" +
+            "</div>" +
+            "<div class='ag-flex ag-flex-column ag-align-end'>" +
+                "<span class='ui label yellow select2-result-repository__statistics'>"+ status +
+                "</span>" +
+            "</div>" +
+            "</div>",
+            title: name
+        });
+
+        $(".js-data-example-ajax").select2({
+            data: data,
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data) {
+                return data.html;
+            },
+            templateSelection: function(data) {
+                return data.text;
+            }
+        });
+        $('.js-data-example-ajax').val(array);
+        $('.js-data-example-ajax').trigger('change');
+    });
+
+    $(document).on('click', '.sendmsg', function(){
+        $('#sendmsgmodal').modal('show');
+        var client_id = $(this).attr('data-id');
+        $('#sendmsg_client_id').val(client_id);
+    });
+
+    // ============================================================================
+    // CLIENT STATUS HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.change_client_status', function(e){
+        var v = $(this).attr('rating');
+        $('.change_client_status').removeClass('active');
+        $(this).addClass('active');
+
+        var url = App.getUrl('changeClientStatus') || App.getUrl('siteUrl') + '/admin/change-client-status';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{id: App.getPageConfig('clientId'), rating:v},
+            success: function(response){
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                if(res.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+res.message+'</span>');
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                }else{
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+res.message+'</span>');
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // EMAIL TEMPLATE HANDLERS
+    // ============================================================================
+    
+    $(document).on('change', '.selecttemplate', function(){
+        var client_id = $(this).data('clientid');
+        var client_firstname = $(this).data('clientfirstname');
+        if (client_firstname) {
+            client_firstname = client_firstname.charAt(0).toUpperCase() + client_firstname.slice(1);
+        }
+        var client_reference_number = $(this).data('clientreference_number');
+        var company_name = 'Bansal Education Group';
+        var visa_valid_upto = $(this).data('clientvisaExpiry');
+        if ( visa_valid_upto != '' && visa_valid_upto != '0000-00-00') {
+            visa_valid_upto = visa_valid_upto;
+        } else {
+            visa_valid_upto = '';
+        }
+        
+        var clientassignee_name = $(this).data('clientassignee_name');
+        if ( clientassignee_name != '') {
+            clientassignee_name = clientassignee_name;
+        } else {
+            clientassignee_name = '';
+        }
+
+        var v = $(this).val();
+        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/admin/get-templates';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{id:v},
+            success: function(response){
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+
+                var subjct_message = res.subject.replace('{Client First Name}', client_firstname).replace('{client reference}', client_reference_number);
+                $('.selectedsubject').val(subjct_message);
+      
+                if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                    $("#emailmodal .summernote-simple").summernote('reset');
+                }
+      
+                var subjct_description = res.description
+                    .replace('{Client First Name}', client_firstname)
+                    .replace('{Company Name}', company_name)
+                    .replace('{Visa Valid Upto}', visa_valid_upto)
+                    .replace('{Client Assignee Name}', clientassignee_name)
+                    .replace('{client reference}', client_reference_number);
+      
+                if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                    $("#emailmodal .summernote-simple").summernote('code', subjct_description);
+                }
+                $("#emailmodal .summernote-simple").val(subjct_description);
+            }
+        });
+    });
+
+    $(document).on('change', '.selectapplicationtemplate', function(){
+        var v = $(this).val();
+        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/admin/get-templates';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{id:v},
+            success: function(response){
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('.selectedappsubject').val(res.subject);
+                if($("#applicationemailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                    $("#applicationemailmodal .summernote-simple").summernote('reset');
+                    $("#applicationemailmodal .summernote-simple").summernote('code', res.description);
+                }
+                $("#applicationemailmodal .summernote-simple").val(res.description);
+            }
+        });
+    });
+
+    // Initialize Select2 for email recipients
+    $('.js-data-example-ajax').select2({
+        multiple: true,
+        closeOnSelect: false,
+        dropdownParent: $('#emailmodal'),
+        ajax: {
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: true
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+    });
+
+    $('.js-data-example-ajaxccd').select2({
+        multiple: true,
+        closeOnSelect: false,
+        dropdownParent: $('#emailmodal'),
+        ajax: {
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            },
+            cache: true
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+    });
+
+    // ============================================================================
+    // INTERESTED PRODUCT HANDLER
+    // ============================================================================
+    
+    $(document).on('change', '#intrested_product', function(){
+        var v = $('#intrested_product option:selected').val();
+        if(v != ''){
+            $('.popuploader').show();
+            var url = App.getUrl('getBranch') || App.getUrl('siteUrl') + '/admin/getbranch';
+            $.ajax({
+                url: url,
+                type:'GET',
+                data:{cat_id:v},
+                success:function(response){
+                    $('.popuploader').hide();
+                    $('#intrested_branch').html(response);
+                    $("#intrested_branch").val('').trigger('change');
+                }
+            });
+        }
+    });
+
+    // ============================================================================
+    // DOCUMENT UPLOAD HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.docupload', function() {
+        $(this).attr("value", "");
+    });
+
+    $(document).on('change', '.docupload', function() {
+        $('.popuploader').show();
+        var formData = new FormData($('#upload_form')[0]);
+        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/admin/upload-document';
+        $.ajax({
+            url: url,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(responses){
+                $('.popuploader').hide();
+                var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+                if(ress.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+ress.message+'</span>');
+                    $('.documnetlist').html(ress.data);
+                    $('.griddata').html(ress.griddata);
+                }else{
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</span>');
+                }
+                if(typeof getallactivities === 'function') {
+                    getallactivities();
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.migdocupload', function() {
+        $(this).attr("value", "");
+    });
+
+    $(document).on('change', '.migdocupload', function() {
+        $('.popuploader').show();
+        var formData = new FormData($('#mig_upload_form')[0]);
+        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/admin/upload-document';
+        $.ajax({
+            url: url,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(responses){
+                $('.popuploader').hide();
+                var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+                if(ress.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+ress.message+'</span>');
+                    $('.migdocumnetlist').html(ress.data);
+                    $('.miggriddata').html(ress.griddata);
+                }else{
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</span>');
+                }
+                if(typeof getallactivities === 'function') {
+                    getallactivities();
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.add_alldocument_doc', function () {
+        $('.create_alldocument_docs').modal('show');
+        $("#checklist").select2({dropdownParent: $(".create_alldocument_docs")});
+    });
+
+    $(document).on('click', '.alldocupload', function() {
+        $(this).attr("value", "");
+    });
+
+    $(document).on('change', '.alldocupload', function() {
+        $('.popuploader').show();
+        var fileidL = $(this).attr("data-fileid");
+        var formData = new FormData($('#upload_form_'+fileidL)[0]);
+        var url = App.getUrl('uploadAllDocument') || App.getUrl('siteUrl') + '/admin/upload-alldocument';
+        $.ajax({
+            url: url,
+            type:'POST',
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            datatype:'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(responses){
+                $('.popuploader').hide();
+                var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+                if(ress.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+ress.message+'</span>');
+                    $('.alldocumnetlist').html(ress.data);
+                    $('.allgriddata').html(ress.griddata);
+                }else{
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</span>');
+                }
+                if(typeof getallactivities === 'function') {
+                    getallactivities();
+                }
+            }
+        });
+    });
+
+    // ============================================================================
+    // CONVERT TO APPLICATION HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.converttoapplication', function(){
+        var v = $(this).attr('data-id');
+        if(v != ''){
+            $('.popuploader').show();
+            var url = App.getUrl('convertApplication') || App.getUrl('siteUrl') + '/admin/convertapplication';
+            $.ajax({
+                url: url,
+                type:'GET',
+                data:{cat_id:v, clientid: App.getPageConfig('clientId')},
+                success:function(response){
+                    var servicesUrl = App.getUrl('getServices') || App.getUrl('siteUrl') + '/admin/get-services';
+                    $.ajax({
+                        url: servicesUrl,
+                        type:'GET',
+                        data:{clientid: App.getPageConfig('clientId')},
+                        success: function(responses){
+                            $('.interest_serv_list').html(responses);
+                        }
+                    });
+                    var appListsUrl = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/admin/get-application-lists';
+                    $.ajax({
+                        url: appListsUrl,
+                        type:'GET',
+                        datatype:'json',
+                        data:{id: App.getPageConfig('clientId')},
+                        success: function(responses){
+                            $('.applicationtdata').html(responses);
+                        }
+                    });
+                    $('.popuploader').hide();
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#application-tab', function () {
+        $('.popuploader').show();
+        var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/admin/get-application-lists';
+        $.ajax({
+            url: url,
+            type:'GET',
+            datatype:'json',
+            data:{id: App.getPageConfig('clientId')},
+            success: function(responses){
+                $('.popuploader').hide();
+                $('.applicationtdata').html(responses);
+            }
+        });
+    });
+
+    // ============================================================================
+    // DOCUMENT RENAME HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.documnetlist .renamedoc', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.data('current-html', parent.html());
+        var opentime = parent.data('name');
+        parent.empty().append(
+            $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+            $('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+            $('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+        );
+        return false;
+    });
+
+    $(document).on('click', '.migdocumnetlist .renamedoc', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.data('current-html', parent.html());
+        var opentime = parent.data('name');
+        parent.empty().append(
+            $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+            $('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+            $('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+        );
+        return false;
+    });
+
+    // ============================================================================
+    // DATA TABLE INITIALIZATION
+    // ============================================================================
+    
+    // Initialize DataTable for the checklist table
+    let selectedChecklists = [];
+    if($('#mychecklist-datatable').length) {
+        let checklistTable = $('#mychecklist-datatable').DataTable({
+            "paging": true,
+            "pageLength": 10,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "dom": 'lfrtip',
+            "drawCallback": function(settings) {
+                let api = this.api();
+                api.rows().every(function() {
+                    let row = this.node();
+                    let checkbox = $(row).find('input[name="checklistfile[]"]');
+                    let checklistId = checkbox.val();
+                    if (selectedChecklists.includes(checklistId)) {
+                        checkbox.prop('checked', true);
+                    } else {
+                        checkbox.prop('checked', false);
+                    }
+                });
+            }
+        });
+    }
+
+    // ============================================================================
+    // APPLICATION DETAIL HANDLERS
+    // ============================================================================
+    
+    // Handle localStorage for active tab and application ID
+    const activeTab = localStorage.getItem('activeTab');
+    const appliid = localStorage.getItem('appliid');
+
+    if (activeTab === 'application' && appliid != "") {
+        $('#client_tabs .nav-link').removeClass('active');
+        $('.tab-content .tab-pane').removeClass('active show');
+        $('#application-tab').addClass('active');
+        $('#application').addClass('active show');
+        const $applicationDetailButton = $('<button>').addClass('openapplicationdetail').attr('data-id', appliid).hide();
+        $('body').append($applicationDetailButton);
+        $applicationDetailButton.trigger('click');
+        $applicationDetailButton.remove();
+        localStorage.removeItem('activeTab');
+        localStorage.removeItem('appliid');
+    }
+
+    $(document).on('click', '#application-tab', function(){
+        $('.if_applicationdetail').show();
+        $('.ifapplicationdetailnot').hide();
+        $('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
+    });
+
+    $(document).on('click', '.openappnote', function(){
+        var apptype = $(this).attr('data-app-type');
+        var id = $(this).attr('data-id');
+        $('#create_applicationnote #noteid').val(id);
+        $('#create_applicationnote #type').val(apptype);
+        $('#create_applicationnote').modal('show');
+    });
+
+    $(document).on('click', '.openappappoint', function(){
+        var id = $(this).attr('data-id');
+        var apptype = $(this).attr('data-app-type');
+        $('#create_applicationappoint #type').val(apptype);
+        $('#create_applicationappoint #appointid').val(id);
+        $('#create_applicationappoint').modal('show');
+    });
+
+    $(document).on('click', '.openappaction', function(){
+        var assign_application_id = $(this).attr('data-id');
+        $('#create_applicationaction #assign_application_id').val(assign_application_id);
+        var stage_name = $(this).attr('data-app-type');
+        $('#create_applicationaction #stage_name').val(stage_name);
+        $('#create_applicationaction #stage_name_f').html(stage_name);
+        var course = $(this).attr('data-course');
+        $('#create_applicationaction #course_s').html(course);
+        $('#create_applicationaction #course').val(course);
+        var school = $(this).attr('data-school');
+        $('#create_applicationaction #school_s').html(school);
+        $('#create_applicationaction #school').val(school);
+        $('#create_applicationaction').modal('show');
+    });
+
+    $(document).on('click', '.openclientemail', function(){
+        var id = $(this).attr('data-id');
+        var apptype = $(this).attr('data-app-type');
+        $('#applicationemailmodal #type').val(apptype);
+        $('#applicationemailmodal #appointid').val(id);
+        $('#applicationemailmodal').modal('show');
+    });
+
+    $(document).on('click', '.openchecklist', function(){
+        var id = $(this).attr('data-id');
+        var type = $(this).attr('data-type');
+        var typename = $(this).attr('data-typename');
+        $('#create_checklist #checklistapp_id').val(id);
+        $('#create_checklist #checklist_type').val(type);
+        $('#create_checklist #checklist_typename').val(typename);
+        $('#create_checklist').modal('show');
+    });
+
+    $(document).on('click', '.openpaymentschedule', function(){
+        var id = $(this).attr('data-id');
+        $('#addpaymentschedule').modal('show');
+        $('.popuploader').show();
+        var url = App.getUrl('addScheduleInvoiceDetail') || App.getUrl('siteUrl') + '/admin/addscheduleinvoicedetail';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {id: $(this).attr('data-id')},
+            success: function(res){
+                $('.popuploader').hide();
+                $('.showpoppaymentscheduledata').html(res);
+                
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr(".datepicker", {
+                        dateFormat: "Y-m-d",
+                        allowInput: true
+                    });
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.addfee', function(){
+        var clonedval = $('.feetypecopy').html();
+        $('.fee_type_sec .fee_fields').append('<div class="fee_fields_row field_clone">'+clonedval+'</div>');
+    });
+
+    $(document).on('click', '.payremoveitems', function(){
+        $(this).parent().parent().remove();
+        schedulecalculatetotal();
+    });
+
+    $(document).on('keyup', '.payfee_amount', function(){
+        schedulecalculatetotal();
+    });
+
+    $(document).on('keyup', '.paydiscount', function(){
+        schedulecalculatetotal();
+    });
+
+    function schedulecalculatetotal(){
+        var feeamount = 0;
+        $('.payfee_amount').each(function(){
+            if($(this).val() != ''){
+                feeamount += parseFloat($(this).val());
+            }
+        });
+        var discount = 0;
+        if($('.paydiscount').val() != ''){
+            discount = $('.paydiscount').val();
+        }
+        var netfee = feeamount - parseFloat(discount);
+        $('.paytotlfee').html(feeamount.toFixed(2));
+        $('.paynetfeeamt').html(netfee.toFixed(2));
+    }
+
+    $(document).on('click', '.openfileupload', function(){
+        var id = $(this).attr('data-id');
+        var type = $(this).attr('data-type');
+        var typename = $(this).attr('data-typename');
+        var aid = $(this).attr('data-aid');
+        $(".checklisttype").val(type);
+        $(".checklistid").val(id);
+        $(".checklisttypename").val(typename);
+        $(".application_id").val(aid);
+        $('#openfileuploadmodal').modal('show');
+    });
+
+    // ============================================================================
+    // COMMISSION CALCULATION HANDLERS
+    // ============================================================================
+    
+    // Total Fee Amount blur change
+    $(document).on('blur', '.total_fee_am_2nd', function(){
+        var tution_fee_paid = $(this).val();
+        if(tution_fee_paid != ""){
+            tution_fee_paid = tution_fee_paid;
+        } else {
+            tution_fee_paid = 0;
+        }
+
+        var commission_percentage = $(this).closest('tr').find('.commission_percentage').val();
+        if(commission_percentage != ""){
+            commission_percentage = commission_percentage;
+        } else {
+            commission_percentage = 0;
+        }
+
+        var commission_percentage_calculate = ( parseFloat(tution_fee_paid) * parseFloat(commission_percentage))/100;
+        var commission_percentage_calculate_fixed = commission_percentage_calculate.toFixed(2);
+
+        $(this).closest('tr').find('.commission_cal').val(commission_percentage_calculate);
+        $(this).closest('tr').find('.commission_cal_hidden').val(commission_percentage_calculate);
+
+        var adjustment_discount_entry = $(this).closest('tr').find('.adjustment_discount_entry').val();
+        if(adjustment_discount_entry != ""){
+            adjustment_discount_entry = parseFloat(adjustment_discount_entry);
+        } else {
+            adjustment_discount_entry = 0;
+        }
+
+        var commission_claimed = commission_percentage_calculate + adjustment_discount_entry;
+        $(this).closest('tr').find('.commission_claimed').val(commission_claimed);
+        $(this).closest('tr').find('.commission_claimed_hidden').val(commission_claimed);
+
+        var total_fee_paid = 0;
+        $('.total_fee_am_2nd').each(function(){
+            total_fee_paid += parseFloat($(this).val());
+        });
+
+        var total_com_price = 0;
+        $('.commission_cal').each(function(){
+            total_com_price += parseFloat($(this).val());
+        });
+
+        var total_adjustment_discount_entry = 0;
+        $('.adjustment_discount_entry').each(function(){
+            total_adjustment_discount_entry += parseFloat($(this).val());
+        });
+
+        var total_commission_claimed = 0;
+        $('.commission_claimed').each(function(){
+            total_commission_claimed += parseFloat($(this).val());
+        });
+
+        $('.total_fees_paid').html(total_fee_paid);
+        $('.total_commission_earned').html(total_com_price);
+        $('.total_adjustment_discount_entry').html(total_adjustment_discount_entry);
+        $('.total_commission_claimed').html(total_commission_claimed);
+    });
+
+    // Commission Percentage blur change
+    $(document).on('blur', '.commission_percentage', function(){
+        var commission_percentage = $(this).val();
+        if(commission_percentage != ""){
+            commission_percentage = commission_percentage;
+        } else {
+            commission_percentage = 0;
+        }
+        var tution_fee_paid = $(this).closest('tr').find('.total_fee_am_2nd').val();
+        if(tution_fee_paid != ""){
+            tution_fee_paid = tution_fee_paid;
+        } else {
+            tution_fee_paid = 0;
+        }
+
+        var commission_percentage_calculate = ( parseFloat(tution_fee_paid) * parseFloat(commission_percentage))/100;
+        var commission_percentage_calculate_fixed = commission_percentage_calculate.toFixed(2);
+
+        $(this).closest('tr').find('.commission_cal').val(commission_percentage_calculate);
+        $(this).closest('tr').find('.commission_cal_hidden').val(commission_percentage_calculate);
+
+        var adjustment_discount_entry = $(this).closest('tr').find('.adjustment_discount_entry').val();
+        if(adjustment_discount_entry != ""){
+            adjustment_discount_entry = parseFloat(adjustment_discount_entry);
+        } else {
+            adjustment_discount_entry = 0;
+        }
+
+        var commission_claimed = commission_percentage_calculate + adjustment_discount_entry;
+        $(this).closest('tr').find('.commission_claimed').val(commission_claimed);
+        $(this).closest('tr').find('.commission_claimed_hidden').val(commission_claimed);
+
+        var total_fee_paid = 0;
+        $('.total_fee_am_2nd').each(function(){
+            total_fee_paid += parseFloat($(this).val());
+        });
+
+        var total_com_price = 0;
+        $('.commission_cal').each(function(){
+            total_com_price += parseFloat($(this).val());
+        });
+
+        var total_adjustment_discount_entry = 0;
+        $('.adjustment_discount_entry').each(function(){
+            total_adjustment_discount_entry += parseFloat($(this).val());
+        });
+
+        var total_commission_claimed = 0;
+        $('.commission_claimed').each(function(){
+            total_commission_claimed += parseFloat($(this).val());
+        });
+
+        $('.total_fees_paid').html(total_fee_paid);
+        $('.total_commission_earned').html(total_com_price);
+        $('.total_adjustment_discount_entry').html(total_adjustment_discount_entry);
+        $('.total_commission_claimed').html(total_commission_claimed);
+    });
+
+    // Adjustment Discount Entry blur change
+    $(document).on('blur', '.adjustment_discount_entry', function(){
+        var adjustment_discount_entry = $(this).val();
+        if(adjustment_discount_entry != ""){
+            adjustment_discount_entry = parseFloat(adjustment_discount_entry);
+        } else {
+            adjustment_discount_entry = 0;
+        }
+
+        var tution_fee_paid = $(this).closest('tr').find('.total_fee_am_2nd').val();
+        if(tution_fee_paid != ""){
+            tution_fee_paid = tution_fee_paid;
+        } else {
+            tution_fee_paid = 0;
+        }
+
+        var commission_percentage = $(this).closest('tr').find('.commission_percentage').val();
+        if(commission_percentage != ""){
+            commission_percentage = commission_percentage;
+        } else {
+            commission_percentage = 0;
+        }
+
+        var commission_percentage_calculate = ( parseFloat(tution_fee_paid) * parseFloat(commission_percentage))/100;
+        var commission_percentage_calculate_fixed = commission_percentage_calculate.toFixed(2);
+
+        $(this).closest('tr').find('.commission_cal').val(commission_percentage_calculate);
+        $(this).closest('tr').find('.commission_cal_hidden').val(commission_percentage_calculate);
+
+        var commission_claimed = commission_percentage_calculate + adjustment_discount_entry;
+        $(this).closest('tr').find('.commission_claimed').val(commission_claimed);
+        $(this).closest('tr').find('.commission_claimed_hidden').val(commission_claimed);
+
+        var total_fee_paid = 0;
+        $('.total_fee_am_2nd').each(function(){
+            total_fee_paid += parseFloat($(this).val());
+        });
+
+        var total_com_price = 0;
+        $('.commission_cal').each(function(){
+            total_com_price += parseFloat($(this).val());
+        });
+
+        var total_adjustment_discount_entry = 0;
+        $('.adjustment_discount_entry').each(function(){
+            total_adjustment_discount_entry += parseFloat($(this).val());
+        });
+
+        var total_commission_claimed = 0;
+        $('.commission_claimed').each(function(){
+            total_commission_claimed += parseFloat($(this).val());
+        });
+
+        $('.total_fees_paid').html(total_fee_paid);
+        $('.total_commission_earned').html(total_com_price);
+        $('.total_adjustment_discount_entry').html(total_adjustment_discount_entry);
+        $('.total_commission_claimed').html(total_commission_claimed);
+    });
+
+    // ============================================================================
+    // DRAG AND DROP HANDLERS FOR APPLICATION CHECKLIST UPLOADS
+    // ============================================================================
+    
+    $(document).on("dragover", "#ddArea", function() {
+        $(this).addClass("drag_over");
+        return false;
+    });
+
+    $(document).on("dragleave", "#ddArea", function() {
+        $(this).removeClass("drag_over");
+        return false;
+    });
+
+    $(document).on("click", "#ddArea", function(e) {
+        applicationFileExplorer();
+    });
+
+    $(document).on("drop", "#ddArea", function(e) {
+        e.preventDefault();
+        $(this).removeClass("drag_over");
+        var formData = new FormData();
+        var files = e.originalEvent.dataTransfer.files;
+        for (var i = 0; i < files.length; i++) {
+            formData.append("file[]", files[i]);
+        }
+        formData.append("type", $('.checklisttype').val());
+        formData.append("typename", $('.checklisttypename').val());
+        formData.append("id", $('.checklistid').val());
+        formData.append("application_id", $('.application_id').val());
+        formData.append("client_id", $('.app_doc_client_id').val());
+        applicationUploadFormData(formData);
+    });
+
+    // Page-specific file explorer for application checklist uploads
+    function applicationFileExplorer() {
+        const selectfile = document.getElementById("selectfile");
+        if (!selectfile) {
+            console.warn("selectfile element not found");
+            return;
+        }
+        selectfile.click();
+        selectfile.onchange = function() {
+            var files = selectfile.files;
+            var formData = new FormData();
+
+            for (var i = 0; i < files.length; i++) {
+                formData.append("file[]", files[i]);
+            }
+            formData.append("type", $('.checklisttype').val());
+            formData.append("typename", $('.checklisttypename').val());
+            formData.append("id", $('.checklistid').val());
+            formData.append("application_id", $('.application_id').val());
+            formData.append("client_id", $('.app_doc_client_id').val());
+            applicationUploadFormData(formData);
+        };
+    }
+
+    // Page-specific upload function for application checklist uploads
+    function applicationUploadFormData(form_data) {
+        $('.popuploader').show();
+        var url = App.getUrl('applicationChecklistUpload') || App.getUrl('siteUrl') + '/admin/application/checklistupload';
+        $.ajax({
+            url: url,
+            method: "POST",
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: form_data,
+            datatype: 'json',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                $('.popuploader').hide();
+                $('#openfileuploadmodal').modal('hide');
+                $('.mychecklistdocdata').html(obj.doclistdata);
+                $('.checklistuploadcount').html(obj.applicationuploadcount);
+                $('.'+obj.type+'_checklists').html(obj.checklistdata);
+                if ($('#selectfile').length) {
+                    $('#selectfile').val('');
+                }
+
+                if(obj.application_id){
+                    var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/admin/get-applications-logs';
+                    $.ajax({
+                        url: logsUrl,
+                        type:'GET',
+                        data:{id: obj.application_id},
+                        success: function(responses){
+                            $('#accordion').html(responses);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    // Make these functions available globally for backward compatibility
+    if(typeof window !== 'undefined') {
+        window.applicationFileExplorer = applicationFileExplorer;
+        window.applicationUploadFormData = applicationUploadFormData;
+    }
+
+    // ============================================================================
+    // DOCUMENT RENAME HANDLERS (CONTINUED)
+    // ============================================================================
+    
+    $(document).on('click', '.documnetlist .drow .btn-danger', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        var hourid = parent.data('id');
+        if (hourid) {
+            parent.html(parent.data('current-html'));
+        } else {
+            parent.remove();
+        }
+    });
+
+    $(document).on('click', '.migdocumnetlist .drow .btn-danger', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        var hourid = parent.data('id');
+        if (hourid) {
+            parent.html(parent.data('current-html'));
+        } else {
+            parent.remove();
+        }
+    });
+
+    $(document).on('click', '.documnetlist .drow .btn-primary', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.find('.opentime').removeClass('is-invalid');
+        parent.find('.invalid-feedback').remove();
+
+        var opentime = parent.find('.opentime').val();
+
+        if (!opentime) {
+            parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+            parent.append($("<div class='invalid-feedback'>This field is required</div>"));
+            return false;
+        }
+
+        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/admin/renamedoc';
+        $.ajax({
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: {"filename": opentime, "id": parent.data('id')},
+            url: url,
+            success: function(result){
+                var obj = typeof result === 'string' ? JSON.parse(result) : result;
+                if (obj.status) {
+                    parent.empty()
+                        .data('id', obj.Id)
+                        .data('name', opentime)
+                        .append(
+                            $('<span>').html('<i class="fas fa-file-image"></i> '+obj.filename+'.'+obj.filetype)
+                        );
+                    $('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
+                } else {
+                    parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+                    parent.append($('<div class="invalid-feedback">' + obj.message + '</div>'));
+                }
+            }
+        });
+        return false;
+    });
+
+    $(document).on('click', '.migdocumnetlist .drow .btn-primary', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.find('.opentime').removeClass('is-invalid');
+        parent.find('.invalid-feedback').remove();
+
+        var opentime = parent.find('.opentime').val();
+
+        if (!opentime) {
+            parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+            parent.append($("<div class='invalid-feedback'>This field is required</div>"));
+            return false;
+        }
+
+        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/admin/renamedoc';
+        $.ajax({
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: {"filename": opentime, "id": parent.data('id')},
+            url: url,
+            success: function(result){
+                var obj = typeof result === 'string' ? JSON.parse(result) : result;
+                if (obj.status) {
+                    parent.empty()
+                        .data('id', obj.Id)
+                        .data('name', opentime)
+                        .append(
+                            $('<span>').html('<i class="fas fa-file-image"></i> '+obj.filename+'.'+obj.filetype)
+                        );
+                    $('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
+                } else {
+                    parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+                    parent.append($('<div class="invalid-feedback">' + obj.message + '</div>'));
+                }
+            }
+        });
+        return false;
+    });
+
+    // Rename File Name For All Documents
+    $(document).on('click', '.alldocumnetlist .renamealldoc', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.data('current-html', parent.html());
+        var opentime = parent.data('name');
+        parent.empty().append(
+            $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+            $('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+            $('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+        );
+        return false;
+    });
+
+    $(document).on('click', '.alldocumnetlist .drow .btn-danger', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        var hourid = parent.data('id');
+        if (hourid) {
+            parent.html(parent.data('current-html'));
+        } else {
+            parent.remove();
+        }
+    });
+
+    $(document).on('click', '.alldocumnetlist .drow .btn-primary', function () {
+        var parent = $(this).closest('.drow').find('.doc-row');
+        parent.find('.opentime').removeClass('is-invalid');
+        parent.find('.invalid-feedback').remove();
+        var opentime = parent.find('.opentime').val();
+        if (!opentime) {
+            parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+            parent.append($("<div class='invalid-feedback'>This field is required</div>"));
+            return false;
+        }
+        var url = App.getUrl('renameAllDoc') || App.getUrl('siteUrl') + '/admin/renamealldoc';
+        $.ajax({
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: {"filename": opentime, "id": parent.data('id')},
+            url: url,
+            success: function(result){
+                var obj = typeof result === 'string' ? JSON.parse(result) : result;
+                if (obj.status) {
+                    parent.empty()
+                        .data('id', obj.Id)
+                        .data('name', opentime)
+                        .append(
+                            $('<span>').html('<i class="fas fa-file-image"></i> '+obj.filename+'.'+obj.filetype)
+                        );
+                    $('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
+                } else {
+                    parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+                    parent.append($('<div class="invalid-feedback">' + obj.message + '</div>'));
+                }
+            }
+        });
+        return false;
+    });
+
+    // Rename Checklist Name For All Documents
+    $(document).on('click', '.alldocumnetlist .renamechecklist', function () {
+        var parent = $(this).closest('.drow').find('.personalchecklist-row');
+        parent.data('current-html', parent.html());
+        var opentime = parent.data('personalchecklistname');
+        parent.empty().append(
+            $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+            $('<button class="btn btn-personalprimary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+            $('<button class="btn btn-personaldanger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+        );
+        return false;
+    });
+
+    $(document).on('click', '.alldocumnetlist .drow .btn-personaldanger', function () {
+        var parent = $(this).closest('.drow').find('.personalchecklist-row');
+        var hourid = parent.data('id');
+        if (hourid) {
+            parent.html(parent.data('current-html'));
+        } else {
+            parent.remove();
+        }
+    });
+
+    $(document).on('click', '.alldocumnetlist .drow .btn-personalprimary', function () {
+        var parent = $(this).closest('.drow').find('.personalchecklist-row');
+        parent.find('.opentime').removeClass('is-invalid');
+        parent.find('.invalid-feedback').remove();
+        var opentime = parent.find('.opentime').val();
+        if (!opentime) {
+            parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+            parent.append($("<div class='invalid-feedback'>This field is required</div>"));
+            return false;
+        }
+        var url = App.getUrl('renameChecklistDoc') || App.getUrl('siteUrl') + '/admin/renamechecklistdoc';
+        $.ajax({
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            data: {"checklist": opentime, "id": parent.data('id')},
+            url: url,
+            success: function(result){
+                var obj = typeof result === 'string' ? JSON.parse(result) : result;
+                if (obj.status) {
+                    parent.empty()
+                        .data('id', obj.Id)
+                        .data('name', opentime)
+                        .append(
+                            $('<span>').html(obj.checklist)
+                        );
+                    $('#grid_'+obj.Id).html(obj.checklist);
+                } else {
+                    parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
+                    parent.append($('<div class="invalid-feedback">' + obj.message + '</div>'));
+                }
+            }
+        });
+        return false;
+    });
+
+    // ============================================================================
+    // EDUCATION HANDLERS
+    // ============================================================================
+    
+    var eduid = '';
+    $(document).on('click', '.deleteeducation', function(){
+        eduid = $(this).attr('data-id');
+        $('#confirmEducationModal').modal('show');
+    });
+
+    $(document).on('click', '#confirmEducationModal .accepteducation', function(){
+        $('.popuploader').show();
+        var baseUrl = App.getUrl('siteUrl') || '';
+        $.ajax({
+            url: baseUrl + '/admin/delete-education',
+            type:'GET',
+            datatype:'json',
+            data:{edu_id:eduid},
+            success:function(response){
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+                $('#confirmEducationModal').modal('hide');
+                if(res.status){
+                    $('#edu_id_'+eduid).remove();
+                }else{
+                    alert('Please try again');
+                }
+            }
+        });
+    });
+
+    $(document).on('change', '#educationform #subjectlist', function(){
+        var v = $('#educationform #subjectlist option:selected').val();
+        if(v != ''){
+            $('.popuploader').show();
+            var url = App.getUrl('getSubjects') || App.getUrl('siteUrl') + '/admin/getsubjects';
+            $.ajax({
+                url: url,
+                type:'GET',
+                data:{cat_id:v},
+                success:function(response){
+                    $('.popuploader').hide();
+                    $('#educationform #subject').html(response);
+                    $("#add_appliation #subject").val('').trigger('change');
+                }
+            });
+        }
+    });
+
+    // ============================================================================
+    // SELECT2 INITIALIZATION FOR APPLICATION FORMS
+    // ============================================================================
+    
+    $(".applicationselect2").select2({
+        dropdownParent: $(".add_appliation")
+    });
+
+    $(".partner_branchselect2").select2({
+        dropdownParent: $(".add_appliation")
+    });
+
+    // ============================================================================
+    // CHECKLIST FILE SELECTION HANDLER
+    // ============================================================================
+    
+    $(document).on('change', 'input[name="checklistfile[]"]', function() {
+        var checklistId = $(this).val();
+        if ($(this).is(':checked')) {
+            if (!selectedChecklists.includes(checklistId)) {
+                selectedChecklists.push(checklistId);
+            }
+        } else {
+            selectedChecklists = selectedChecklists.filter(id => id !== checklistId);
+        }
+    });
+
+    // ============================================================================
+    // ADDITIONAL HANDLERS
+    // ============================================================================
+    
+    // Remove items handler for receipt
+    $(document).on('click', '.removeitems', function(){
+        $(this).parent().parent().remove();
+        grandtotalAccountTab();
+    });
+
+    // Deposit amount per row keyup handler
+    $(document).on('keyup', '.deposit_amount_per_row', function(){
+        grandtotalAccountTab();
+    });
+
+    // ============================================================================
+    // APPOINTMENT CONFIRMATION HANDLER
+    // ============================================================================
+    
+    $(document).on('click', '.nextbtn', function(){
+        var v = $(this).attr('data-steps');
+        $(".custom-error").remove();
+        var flag = 1;
+        if(v == 'confirm'){ //datetime
+            $('#sendCodeBtn_txt').html("");
+            $('#sendCodeBtn_txt').hide();
+            var fullname = $('.fullname').val();
+            var email = $('.email').val();
+            var phone = $('.phone').val();
+            var description = $('.description').val();
+            var timeslot_col_date = $('#timeslot_col_date').val();
+            var timeslot_col_time = $('#timeslot_col_time').val();
+
+            var phoneRegex = /^\+?[0-9]{1,4}[-.\s]?[0-9]{10,}$/;
+            var nameRegex = /^[a-zA-Z\s]+$/;
+
+            var appointment_item = $('.appointment_item').val();
+            if( !$.trim(appointment_item) ){
+                flag = 0;
+                $('.appointment_item').after('<span class="custom-error" role="alert">Appointment detail is required</span>');
+            }
+            if( !$.trim(fullname) ){
+                flag = 0;
+                $('.fullname').after('<span class="custom-error" role="alert">Fullname is required</span>');
+            }
+            else if (!nameRegex.test(fullname)) {
+                flag = 0;
+                $('.fullname').after('<span class="custom-error" role="alert">Full name must not contain special characters</span>');
+            }
+            if( !ValidateEmail(email) ){
+                flag = 0;
+                if(!$.trim(email)){
+                    $('.email').after('<span class="custom-error" role="alert">Email is required.</span>');
+                }else{
+                    $('.email').after('<span class="custom-error" role="alert">You have entered an invalid email address!</span>');
+                }
+            }
+
+            if( !$.trim(phone) ){
+                flag = 0;
+                $('#sendCodeBtn').after('<span class="custom-error" role="alert">Phone number is required</span>');
+            } else if (!phoneRegex.test(phone)) {
+                flag = 0;
+                $('#sendCodeBtn').after('<span class="custom-error" role="alert">Phone must contain extension with phone.</span>');
+            } else if( $('#phone_verified_bit').val() != "1" ){
+                flag = 0;
+                $('#sendCodeBtn').after('<span class="custom-error" role="alert">Phone number is not verified</span>');
+            }
+
+            if( !$.trim(description) ){
+                flag = 0;
+                $('.description').after('<span class="custom-error" role="alert">Description is required</span>');
+            }
+            if( !$.trim(timeslot_col_date) || !$.trim(timeslot_col_time)  ){
+                flag = 0;
+                $('.timeslot_col_date_time').after('<span class="custom-error" role="alert">Date and Time is required</span>');
+            }
+        }
+        
+        if(flag == 1 && v == 'confirm'){
+            $('.confirm_row').show();
+            $('#myTab .nav-item .nav-link').addClass('disabled');
+            $('#myTab .nav-item #'+v+'-tab').removeClass('disabled');
+            $('#myTab a[href="#'+v+'"]').trigger('click');
+
+            $('.full_name').text($('.fullname').val());
+            $('.email').text($('.email').val());
+            $('.phone').text($('.phone').val());
+            $('.description').text($('.description').val());
+            $('.date').text($('input[name="date"]').val());
+            $('.time').text($('input[name="time"]').val());
+
+            if(  $("input[name='radioGroup']:checked").val() == 1 ){ //paid
+                $('.submitappointment_paid').show();
+                $('.submitappointment').hide();
+            } else { //free
+                $('.submitappointment').show();
+                $('.submitappointment_paid').hide();
+            }
+        } else {
+            $('.confirm_row').hide();
+        }
+    });
+
+    // ============================================================================
+    // RECEIPT HANDLERS
+    // ============================================================================
+    
+    function getClientReceiptInfoById(id) {
+        var url = App.getUrl('clientGetReceiptInfo') || App.getUrl('siteUrl') + '/admin/clients/getClientReceiptInfoById';
+        $.ajax({
+            type:'post',
+            url: url,
+            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+            sync:true,
+            data: {id:id},
+            success: function(response){
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+
+                if(obj.status){
+                    $('#top_value_db').val(obj.last_record_id);
+
+                    $('#function_type').val("edit");
+                    $('#createclientreceiptmodal').modal('show');
+                    if(obj.record_get){
+                        var record_get = obj.record_get;
+                        var sum = 0;
+                        $('.productitem tr.clonedrow').remove();
+                        $('.productitem tr.product_field_clone').remove();
+                        $.each(record_get, function(index, subArray) {
+                            var value_sum = parseFloat(subArray.deposit_amount);
+                            if (!isNaN(value_sum)) {
+                                sum += value_sum;
+                            }
+                            if(index <1 ){
+                                var rowCls = 'clonedrow';
+                            } else {
+                                var rowCls = 'product_field_clone';
+                            }
+                            var trRows_client = '<tr class="'+rowCls+'"><td><input name="id[]" type="hidden" value="'+subArray.id+'" /><input data-valid="required" class="form-control report_date_fields" name="trans_date[]" type="text" value="'+subArray.trans_date+'" /></td><td><input data-valid="required" class="form-control report_entry_date_fields" name="entry_date[]" type="text" value="'+subArray.entry_date+'" /></td><td><input class="form-control unique_trans_no" type="text" value="'+subArray.trans_no+'" readonly/><input class="unique_trans_no_hidden" name="trans_no[]" type="hidden" value="'+subArray.trans_no+'" /></td><td><select class="form-control payment_method_cls" name="payment_method[]"><option value="">Select</option><option value="Cash">Cash</option><option value="Bank transfer">Bank transfer</option><option value="EFTPOS">EFTPOS</option></select></td><td><input data-valid="required" class="form-control" name="description[]" type="text" value="'+subArray.description+'" /></td><td><span class="currencyinput" style="display: inline-block;">$</span><input data-valid="required" style="display: inline-block;" class="form-control deposit_amount_per_row" name="deposit_amount[]" type="text" value="'+subArray.deposit_amount+'" /></td><td><a class="removeitems" href="javascript:;"><i class="fa fa-times"></i></a></td></tr>';
+                            $('.productitem').append(trRows_client);
+
+                            $('.productitem tr:last .payment_method_cls').val(subArray.payment_method);
+                            
+                            if (typeof flatpickr !== 'undefined') {
+                                flatpickr('.report_date_fields:not(._flatpickr-initialized)', {
+                                    dateFormat: 'd/m/Y',
+                                    allowInput: true,
+                                    onReady: function(selectedDates, dateStr, instance) {
+                                        instance.element.classList.add('_flatpickr-initialized');
+                                    }
+                                });
+                                flatpickr('.report_entry_date_fields:not(._flatpickr-initialized)', {
+                                    dateFormat: 'd/m/Y',
+                                    allowInput: true,
+                                    onReady: function(selectedDates, dateStr, instance) {
+                                        instance.element.classList.add('_flatpickr-initialized');
+                                    }
+                                });
+                            }
+
+                            if(index <1 ){
+                                $('#receipt_id').val(subArray.receipt_id);
+                            }
+                        });
+                        $('.total_deposit_amount_all_rows').text("$"+sum.toFixed(2));
+                    }
+                }
+            }
+        });
+    }
+
+    //On Close Hide all content from popups
+    $('#createclientreceiptmodal').on('hidden.bs.modal', function() {
+        $('#create_client_receipt')[0].reset();
+        $('.total_deposit_amount_all_rows').text("");
+        $('#sel_client_agent_id').val("").trigger('change');
+        
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.report_entry_date_fields', {
+                dateFormat: 'd/m/Y',
+                defaultDate: 'today',
+                allowInput: true
+            });
+        }
+    });
+
+    // Make function available globally
+    if(typeof window !== 'undefined') {
+        window.getClientReceiptInfoById = getClientReceiptInfoById;
+    }
+
+    // ============================================================================
+    // PAYMENT HANDLERS
+    // ============================================================================
+    
+    $(document).on('click', '.addpaymentmodal', function(){
+        var v = $(this).attr('data-invoiceid');
+        var netamount = $(this).attr('data-netamount');
+        var dueamount = $(this).attr('data-dueamount');
+        $('#invoice_id').val(v);
+        $('.invoicenetamount').html(netamount+' AUD');
+        $('.totldueamount').html(dueamount);
+        $('.totldueamount').attr('data-totaldue', dueamount);
+        $('#addpaymentmodal').modal('show');
+        $('.payment_field_clone').remove();
+        $('.paymentAmount').val('');
+    });
+
+    $(document).on('keyup', '.paymentAmount', function(){
+        grandtotal();
+    });
+
+    function grandtotal(){
+        var p = 0;
+        $('.paymentAmount').each(function(){
+            if($(this).val() != ''){
+                p += parseFloat($(this).val());
+            }
+        });
+
+        var tamount = $('.totldueamount').attr('data-totaldue');
+        var am = parseFloat(tamount) - parseFloat(p);
+        $('.totldueamount').html(am.toFixed(2));
+    }
+
+    $('.add_payment_field a').on('click', function(){
+        var clonedval = $('.payment_field .payment_field_row .payment_first_step').html();
+        $('.payment_field .payment_field_row').append('<div class="payment_field_col payment_field_clone">'+clonedval+'</div>');
+    });
+
+    $('.add_fee_type a.fee_type_btn').on('click', function(){
+        var clonedval = $('.fees_type_sec .fee_type_row .fees_type_col').html();
+        $('.fees_type_sec .fee_type_row').append('<div class="custom_type_col fees_type_clone">'+clonedval+'</div>');
+    });
+
+    $(document).on('click', '.payment_field_col .field_remove_col a.remove_col', function(){
+        var $tr = $(this).closest('.payment_field_clone');
+        var trclone = $('.payment_field_clone').length;
+        if(trclone > 0){
+            $tr.remove();
+            grandtotal();
+        }
+    });
+
+    $(document).on('click', '.fees_type_sec .fee_type_row .fees_type_clone a.remove_btn', function(){
+        var $tr = $(this).closest('.fees_type_clone');
+        var trclone = $('.fees_type_clone').length;
+        if(trclone > 0){
+            $tr.remove();
+            grandtotal();
+        }
+    });
+
+    // Make function available globally
+    if(typeof window !== 'undefined') {
+        window.grandtotal = grandtotal;
+    }
+
+    // ============================================================================
+    // FORM SUBMISSION HANDLERS
+    // ============================================================================
+    
+    // Email form submission handler
+    $('form[name="sendmail"]').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/admin/sendmail';
+        
+        // Get summernote content if available
+        var emailContent = '';
+        if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+            emailContent = $("#emailmodal .summernote-simple").summernote('code');
+        } else {
+            emailContent = $("#emailmodal .summernote-simple").val();
+        }
+        
+        var formData = {
+            _token: App.getCsrf(),
+            to: $('.js-data-example-ajax').val(),
+            cc: $('.js-data-example-ajaxcc').val(),
+            subject: $('.selectedsubject').val(),
+            message: emailContent,
+            client_id: App.getPageConfig('clientId')
+        };
+        
+        $('.popuploader').show();
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $('.popuploader').hide();
+                var res = typeof response === 'string' ? $.parseJSON(response) : response;
+                if(res.status) {
+                    alert(res.message || 'Email sent successfully');
+                    $('#emailmodal').modal('hide');
+                    if(typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                } else {
+                    alert(res.message || 'Failed to send email');
+                }
+            },
+            error: function() {
+                $('.popuploader').hide();
+                alert('An error occurred while sending the email');
+            }
+        });
+        
+        return false;
+    });
+
+    console.log('Admin Client Detail page initialized');
+});
+
+// ============================================================================
+// ADDITIONAL PAGE-SPECIFIC FUNCTIONS
+// ============================================================================
+
+// NOTE: Additional functions will be extracted and added here
+// Functions like getTopReceiptValInDB, grandtotalAccountTab, etc. will be added
