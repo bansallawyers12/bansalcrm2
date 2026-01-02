@@ -692,15 +692,12 @@
 									<!-- English Test Scores & Additional Information Section -->
 									<section class="form-section">
 										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
-										<?php
-											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
-										?>
 										<div class="english-test-wrapper">
 											<div class="row g-3 mb-3">
 												<div class="col-md-3 col-sm-6">
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
-														<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
+														<select class="form-control" name="test_type" id="test_type">
 															<option value="toefl">TOEFL</option>
 															<option value="ilets">IELTS</option>
 															<option value="pte">PTE</option>
@@ -709,113 +706,63 @@
 												</div>
 												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="listening_edit">L</label>
-														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+														<label for="listening">L</label>
+														<input type="number" class="form-control" name="listening" id="listening" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="reading_edit">R</label>
-														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+														<label for="reading">R</label>
+														<input type="number" class="form-control" name="reading" id="reading" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="writing_edit">W</label>
-														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+														<label for="writing">W</label>
+														<input type="number" class="form-control" name="writing" id="writing" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="speaking_edit">S</label>
-														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+														<label for="speaking">S</label>
+														<input type="number" class="form-control" name="speaking" id="speaking" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="overall_edit">O</label>
-														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+														<label for="overall">O</label>
+														<input type="number" class="form-control" name="overall" id="overall" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 											</div>
 											<div class="row g-3">
 												<div class="col-md-3 col-sm-6">
 													<div class="form-group">
-														<label for="test_date_edit">Test Date</label>
-														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Select date"/>
+														<label for="test_date">Test Date</label>
+														<input type="text" class="form-control datepicker" name="test_date" id="test_date" placeholder="Select date"/>
 													</div>
 												</div>
 											</div>
 										</div>
-										<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
 										<input type="hidden" name="test_score_type" value="client">
-										<script>
-										function loadTestScoresEditPage() {
-											var testType = document.getElementById('test_type').value;
-											var testscores = @json($testscores);
-											
-											if (!testscores) {
-												document.getElementById('listening_edit').value = '';
-												document.getElementById('reading_edit').value = '';
-												document.getElementById('writing_edit').value = '';
-												document.getElementById('speaking_edit').value = '';
-												document.getElementById('overall_edit').value = '';
-												document.getElementById('test_date_edit').value = '';
-												return;
-											}
-											
-											if (testType === 'toefl') {
-												document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
-												document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
-												document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_1 || '';
-												document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
-											} else if (testType === 'ilets') {
-												document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
-												document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
-												document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_2 || '';
-												document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
-											} else if (testType === 'pte') {
-												document.getElementById('listening_edit').value = testscores.pte_Listening || '';
-												document.getElementById('reading_edit').value = testscores.pte_Reading || '';
-												document.getElementById('writing_edit').value = testscores.pte_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_3 || '';
-												document.getElementById('test_date_edit').value = testscores.pte_Date || '';
-											}
-										}
-										// Load initial data on page load
-										document.addEventListener('DOMContentLoaded', function() {
-											loadTestScoresEditPage();
-										});
-										</script>
 										
 										<div class="content-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; margin-top: 20px;">
 											<div class="form-group">
-												<?php
-												$explodeenaati_py = array();
-												if($fetchedData->naati_py != ''){
-													$explodeenaati_py = explode(',', $fetchedData->naati_py);
-												} 
-												?>
 												<label for="naati_py">Naati/PY</label>
 												<div class="naati-checkbox-wrapper">
 													<label class="naati-checkbox-item" for="Naati">
-														<input type="checkbox" id="Naati" value="Naati" name="naati_py[]" <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<input type="checkbox" id="Naati" value="Naati" name="naati_py[]">
 														<span class="naati-checkbox-label">Naati</span>
 													</label>
 													<label class="naati-checkbox-item" for="py">
-														<input type="checkbox" id="py" value="PY" name="naati_py[]" <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<input type="checkbox" id="py" value="PY" name="naati_py[]">
 														<span class="naati-checkbox-label">PY</span>
 													</label>
 												</div>
 											</div>
 											<div class="form-group">
 												<label for="total_points">Total Points</label>
-												{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
+												{!! Form::text('total_points', old('total_points'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
 												@if ($errors->has('total_points'))
 													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
 												@endif
@@ -824,10 +771,10 @@
 												<label for="start_process">When You want to start Process</label>
 												<select class="form-control" name="start_process">
 													<option value="">Select</option>
-													<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
-													<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
-													<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
-													<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
+													<option value="As soon As Possible">As soon As Possible</option>
+													<option value="In Next 3 Months">In Next 3 Months</option>
+													<option value="In Next 6 Months">In Next 6 Months</option>
+													<option value="Advise Only">Advise Only</option>
 												</select>
 												@if ($errors->has('start_process'))
 													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
@@ -836,7 +783,6 @@
 										</div>
 									</section>
 								</div>
-								@endif
 
 								<!-- Internal Information Section -->
 								<div class="row mt-3">
@@ -852,7 +798,7 @@
 											<select class="form-control select2" name="service" data-valid="required">
 												<option value="">- Select Lead Service -</option>
 												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
-												<option @if($fetchedData->service == $leadservlist->name) selected @endif value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
+												<option value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('service'))
@@ -868,37 +814,14 @@
                                           
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
 											<?php
-                                            if( !empty($fetchedData->assignee) )
-                                            {
-                                                if ( str_contains($fetchedData->assignee, ',') ) {
-                                                    $assigneeArr = explode(",",$fetchedData->assignee);
-                                                } else {
-                                                    $assigneeArr = array($fetchedData->assignee);
-                                                }
-
-                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
-                                                foreach($admins as $admin)
-                                                {
-                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                    foreach($assigneeArr as $assigneeKey=>$assigneeVal ) {
-                                            ?>
-                                                <option @if($assigneeVal == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                            <?php
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                $assigneeArr = array();
                                                 $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
                                                 foreach($admins as $admin){
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                 ?>
-                                                <option @if($fetchedData->assignee == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                                <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                             <?php
                                                 }
-                                            } ?>
-
+                                            ?>
                                             </select>
                                           
 											@if ($errors->has('assign_to'))
@@ -913,10 +836,10 @@
 											<label for="status">Status</label>
 											<select style="padding: 0px 5px;" name="status" id="status" class="form-control" data-valid="">
 												<option value="">Select Status</option>
-												<option value="Unassigned" @if(@$fetchedData->status == "Unassigned") selected @endif>Unassigned</option>
-												<option value="Assigned" @if(@$fetchedData->status == "Assigned") selected @endif>Assigned</option>
-												<option value="In-Progress" @if(@$fetchedData->status == "In-Progress") selected @endif>In-Progress</option>
-												<option value="Closed" @if(@$fetchedData->status == "Closed") selected @endif>Closed</option>
+												<option value="Unassigned">Unassigned</option>
+												<option value="Assigned">Assigned</option>
+												<option value="In-Progress">In-Progress</option>
+												<option value="Closed">Closed</option>
 											</select>
 											@if ($errors->has('status'))
 												<span class="custom-error" role="alert">
@@ -929,11 +852,11 @@
 										<div class="form-group">
 											<label for="lead_quality">Quality <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control" data-valid="required">
-												<option value="1" @if(@$fetchedData->lead_quality == "1") selected @endif>1</option>
-												<option value="2" @if(@$fetchedData->lead_quality == "2") selected @endif>2</option>
-												<option value="3" @if(@$fetchedData->lead_quality == "3") selected @endif>3</option>
-												<option value="4" @if(@$fetchedData->lead_quality == "4") selected @endif>4</option>
-												<option value="5" @if(@$fetchedData->lead_quality == "5") selected @endif>5</option>
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
 											</select>
 											@if ($errors->has('lead_quality'))
 												<span class="custom-error" role="alert">
@@ -947,9 +870,9 @@
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
 												<option value="">- Source -</option>
-												<option value="Sub Agent" @if(@$fetchedData->source == 'Sub Agent') selected @endif>Sub Agent</option>
+												<option value="Sub Agent">Sub Agent</option>
 												@foreach(\App\Models\Source::all() as $sources)
-													<option value="{{$sources->name}}" @if(@$fetchedData->source == $sources->name) selected @endif>{{$sources->name}}</option>
+													<option value="{{$sources->name}}">{{$sources->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('lead_source'))
@@ -965,7 +888,7 @@
 											<select class="form-control select2" name="subagent">  
 												<option>-- Choose a sub agent --</option>
 												@foreach(\App\Models\Agent::all() as $agentlist)
-													<option <?php if(@$fetchedData->agent_id == $agentlist->id){ echo 'selected'; } ?> value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
+													<option value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('subagent'))
@@ -979,23 +902,6 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="tags_label">Tags/Label </label>
-											<?php
-											/*$explodee = array();
-                                            if($fetchedData->tagname != ''){
-                                                $explodee = explode(',', $fetchedData->tagname);
-                                            } */
-											?>
-											<!--<select multiple class="form-control select2" name="tagname[]">
-												<option value="">-- Search & Select tag --</option>-->
-												<?php
-												//foreach(\App\Models\Tag::all() as $tags){
-                                                 //foreach(\App\Models\Tag::select('id', 'name')->paginate(50) as $tags){
-												?>
-										<!--<option <?php //if(in_array($tags->id, $explodee)){ echo 'selected'; } ?>  value="{{--$tags->id--}}">{{--$tags->name--}}</option>-->
-												<?php
-												//}
-												?>	 
-											<!--</select>-->
                                           
                                             <select multiple class="form-control select2"  id="tag"  name="tagname[]">
 
@@ -1003,89 +909,10 @@
 										</div>
 									</div>
                                   
-									<!-- Services Taken Section -->
-									<div class="col-12 mt-4">
-										<div class="services-taken-header d-flex justify-content-between align-items-center mb-3">
-											<h6 class="mb-0"><i class="fas fa-briefcase"></i> Services Taken</h6>
-											<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-sm btn-primary serviceTaken">
-												<i class="fa fa-plus"></i> Add Service
-											</a>
-										</div>
-                                       
-									   <div id="service_taken_complete" style="display:none;"></div>
-
-										<div class="services-taken-grid">
-											<?php
-											$serviceTakenArr = \App\Models\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
-											if( !empty($serviceTakenArr) && count($serviceTakenArr) > 0 ){
-												foreach ($serviceTakenArr as $tokenkey => $tokenval) {
-													$serviceClass = strtolower($tokenval['service_type']);
-													?>
-													<div class="service-card service-card-<?php echo $serviceClass; ?>" id="service-card-<?php echo $tokenval['id']; ?>">
-														<div class="service-card-header">
-															<span class="service-type-badge badge badge-<?php echo $serviceClass == 'migration' ? 'primary' : 'info'; ?>">
-																<?php echo $tokenval['service_type']; ?>
-															</span>
-															<div class="service-actions">
-																<a href="javascript:;" class="service_taken_edit text-primary" id="<?php echo $tokenval['id']; ?>" title="Edit">
-																	<i class="fa fa-edit"></i>
-																</a>
-																<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="<?php echo $tokenval['id']; ?>" title="Delete">
-																	<i class="fa fa-trash"></i>
-																</a>
-															</div>
-														</div>
-														<div class="service-card-body">
-															<?php if($tokenval['service_type'] == "Migration") { ?>
-																<div class="service-detail">
-																	<span class="detail-label">Reference No:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_ref_no']); ?></span>
-																</div>
-																<div class="service-detail">
-																	<span class="detail-label">Service:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_service']); ?></span>
-																</div>
-																<div class="service-detail">
-																	<span class="detail-label">Notes:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_notes']); ?></span>
-																</div>
-															<?php } else if($tokenval['service_type'] == "Education") { ?>
-																<div class="service-detail">
-																	<span class="detail-label">Course:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_course']); ?></span>
-																</div>
-																<div class="service-detail">
-																	<span class="detail-label">College:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_college']); ?></span>
-																</div>
-																<div class="service-detail">
-																	<span class="detail-label">Start Date:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_service_start_date']); ?></span>
-																</div>
-																<div class="service-detail">
-																	<span class="detail-label">Notes:</span>
-																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_notes']); ?></span>
-																</div>
-															<?php } ?>
-														</div>
-													</div>
-													<?php
-												}
-											} else {
-												echo '<div class="no-services-message">';
-												echo '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
-												echo '<p class="text-muted">No services have been added yet.</p>';
-												echo '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
-												echo '</div>';
-											}
-											?>
-										</div>
-									</div>
-                                  
 									<div class="col-sm-12">
 										<div class="form-group">
 											<label for="comments_note">Comments / Note</label>
-											<textarea class="form-control" name="comments_note" placeholder="" data-valid="">{{@$fetchedData->comments_note}}</textarea>
+											<textarea class="form-control" name="comments_note" placeholder="" data-valid="">{{old('comments_note')}}</textarea>
 											@if ($errors->has('comments_note')) 
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('comments_note') }}</strong>
@@ -1095,8 +922,7 @@
 									</div>  
 									<div class="col-sm-12">
 										<div class="form-group float-end">
-                                             <div class="removesids_contact"></div>
-											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients")' ])  !!}
+											{!! Form::button('Create Client', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-clients")' ])  !!}
 										</div>
 									</div>
 								</div>
@@ -1105,274 +931,14 @@
 					</div>	
 				</div>
 			</div>  
-			</form>
+			{!! Form::close()  !!}
 		</div>
 	</section>
-</div>
- <?php if($fetchedData->related_files != ''){
-     $exploderel = explode(',', $fetchedData->related_files);
-     foreach($exploderel AS $EXP){ 
-         // PostgreSQL doesn't accept empty strings for integer columns - filter empty values
-         if(!empty(trim($EXP)) && trim($EXP) !== '') {
-             $relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();	
-             if($relatedclients) {
-    ?>
- <input type="hidden" class="relatedfile" data-email="<?php echo $relatedclients->email; ?>" data-name="<?php echo $relatedclients->first_name.' '.$relatedclients->last_name; ?>" data-id="<?php echo $relatedclients->id; ?>">
-    <?php
-            }
-        }
-     }
- } ?>
-
-<?php
-if($fetchedData->tagname != ''){
-   $tagnameArr = explode(',', $fetchedData->tagname);
-   foreach($tagnameArr AS $tag1){
-       $tagWord = \App\Models\Tag::where('id', $tag1)->first();
-   ?>
-<input type="hidden" class="relatedtag" data-name="<?php echo $tagWord->name; ?>" data-id="<?php echo $tagWord->id; ?>">
-<?php
-   }
-} ?>
-
-<div class="modal fade custom_modal" id="serviceTaken" tabindex="-1" role="dialog" aria-labelledby="create_interestModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="interestModalLabel">Service Taken</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-                <form name="createservicetaken" id="createservicetaken" autocomplete="off">
-				@csrf
-                    <input id="logged_client_id" name="logged_client_id"  type="hidden" value="<?php echo $fetchedData->id;?>">
-					<input type="hidden" name="entity_type" id="entity_type" value="add">
-                    <input type="hidden" name="entity_id" id="entity_id" value="">
-                    <div class="row">
-						<div class="col-12 col-md-12 col-lg-12">
-
-							<div class="form-group">
-								<label style="display:block;" for="service_type">Select Service Type:</label>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="Migration_inv" value="Migration" name="service_type" checked>
-									<label class="form-check-label" for="Migration_inv">Migration</label>
-								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="Eductaion_inv" value="Education" name="service_type">
-									<label class="form-check-label" for="Eductaion_inv">Education</label>
-								</div>
-								<span class="custom-error service_type_error" role="alert">
-									<strong></strong>
-								</span>
-							</div>
-						</div>
-
-						<div class="col-12 col-md-12 col-lg-12 is_Migration_inv">
-                            <div class="form-group">
-								<label for="mig_ref_no">Reference No: <span class="span_req">*</span></label>
-                                <input type="text" name="mig_ref_no" id="mig_ref_no" value="" class="form-control" data-valid="required">
-                            </div>
-
-                            <div class="form-group">
-								<label for="mig_service">Service: <span class="span_req">*</span></label>
-                                <input type="text" name="mig_service" id="mig_service" value="" class="form-control" data-valid="required">
-                            </div>
-
-                            <div class="form-group">
-								<label for="mig_notes">Notes: <span class="span_req">*</span></label>
-                                <input type="text" name="mig_notes" id="mig_notes" value="" class="form-control" data-valid="required">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-12 col-lg-12 is_Eductaion_inv" style="display:none;">
-                            <div class="form-group">
-								<label for="edu_course">Course: <span class="span_req">*</span></label>
-                                <input type="text" name="edu_course" id="edu_course" value="" class="form-control">
-                            </div>
-
-                            <div class="form-group">
-								<label for="edu_college">College: <span class="span_req">*</span></label>
-                                <input type="text" name="edu_college" id="edu_college" value="" class="form-control">
-                            </div>
-
-                            <div class="form-group">
-								<label for="edu_service_start_date">Service Start Date: <span class="span_req">*</span></label>
-                                <input type="text" name="edu_service_start_date" id="edu_service_start_date" value="" class="form-control">
-                            </div>
-
-                            <div class="form-group">
-								<label for="edu_notes">Notes: <span class="span_req">*</span></label>
-                                <input type="text" name="edu_notes" id="edu_notes" value="" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('createservicetaken')" type="button" class="btn btn-primary" id="createservicetaken_btn">Save</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<div class="modal fade addclientphone custom_modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="clientPhoneModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="clientPhoneModalLabel">Add New Phone</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<form method="post" id="clientphoneform" autocomplete="off" enctype="multipart/form-data">
-					<div class="row">
-                        <div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="contact_type">Contact Type <span style="color:#ff0000;">*</span></label>
-								<select name="contact_type[]" id="contact_type" class="form-control">
-                                    <option value="">Select</option>
-                                    <option value="Personal">Personal</option>
-                                    <option value="Business">Business</option>
-                                    <option value="Secondary">Secondary</option>
-                                    <option value="Father">Father</option>
-                                    <option value="Mother">Mother</option>
-                                    <option value="Brother">Brother</option>
-                                    <option value="Sister">Sister</option>
-                                    <option value="Uncle">Uncle</option>
-                                    <option value="Aunt">Aunt</option>
-                                    <option value="Cousin">Cousin</option>
-                                    <option value="Others">Others</option>
-                                    <option value="Partner">Partner</option>
-                                    <option value="Not In Use">Not In Use</option>
-                                </select>
-								@if ($errors->has('contact_type'))
-									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('contact_type') }}</strong>
-									</span>
-								@endif
-							</div>
-						</div>
-
-                        <div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="client_phone">Phone Number </label>
-								<div class="cus_field_input">
-									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" name="client_country_code" >
-									</div>
-									{!! Form::text('client_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
-									@if ($errors->has('client_phone'))
-										<span class="custom-error" role="alert">
-											<strong>{{ @$errors->first('client_phone') }}</strong>
-										</span>
-									@endif
-								</div>
-							</div>
-						</div>
-
-                        <div class="col-12 col-md-12 col-lg-12">
-							<button type="button" class="btn btn-primary saveclientphone">Save</button>
-							<button type="button" id="update_clientphone" style="display:none" class="btn btn-primary">Update</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<!-- Add Client Email Modal -->
-<div class="modal fade addclientemail custom_modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="clientEmailModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="clientEmailModalLabel">Add New Email</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<form method="post" id="clientemailform" autocomplete="off" enctype="multipart/form-data">
-					<div class="row">
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="email_type_modal">Email Type <span style="color:#ff0000;">*</span></label>
-								<select name="email_type_modal" id="email_type_modal" class="form-control">
-									<option value="">Select</option>
-									<option value="Personal">Personal</option>
-									<option value="Business">Business</option>
-									<option value="Secondary">Secondary</option>
-									<option value="Additional">Additional</option>
-								</select>
-								@if ($errors->has('email_type_modal'))
-									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('email_type_modal') }}</strong>
-									</span>
-								@endif
-							</div>
-						</div>
-
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="client_email">Email Address <span style="color:#ff0000;">*</span></label>
-								{!! Form::text('client_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address' ))  !!}
-								@if ($errors->has('client_email'))
-									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('client_email') }}</strong>
-									</span>
-								@endif
-							</div>
-						</div>
-
-						<div class="col-12 col-md-12 col-lg-12">
-							<button type="button" class="btn btn-primary saveclientemail">Save</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Verify Phone-->
-<div id="verifyphonemodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-                <div class="mb-4" id="verificationSection">
-                    <h5>Verify Phone Number</h5>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="verify_phone_number" placeholder="" value="">
-                        <button class="btn btn-outline-secondary" type="button" id="sendCodeBtn">Send Code</button>
-                    </div>
-
-                    <div id="verificationCodeSection" style="display: none;">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" id="verification_code" placeholder="Enter verification code">
-                            <button class="btn btn-outline-secondary" type="button" id="verifyCodeBtn">Verify Code</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-		</div>
-	</div>
 </div>
 
 @endsection
 
 @section('scripts')
-
-@if($showAlert)
-    <script>
-        alert("Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?");
-    </script>
-@endif
 
 <!-- Configuration for Page-Specific JavaScript -->
 <script>
@@ -1386,82 +952,90 @@ if($fetchedData->tagname != ''){
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
         getTagData: '{{ url("/admin/gettagdata") }}',
-        verifyEmail: '{{ route("verify.send-code") }}',
-        checkCode: '{{ route("verify.check-code") }}',
         getRecipients: '{{ url("/clients/get-recipients") }}',
-        checkClientExist: '{{ url("/admin/checkclientexist") }}',
-        getServiceTaken: '{{ url("/admin/client/getservicetaken") }}',
-        createServiceTaken: '{{ url("/admin/client/createservicetaken") }}',
-        removeServiceTaken: '{{ url("/admin/client/removeservicetaken") }}',
-        emailVerify: '{{ url("/email-verify") }}',
-        verifySendCode: '{{ route("verify.send-code") }}',
-        verifyCheckCode: '{{ route("verify.check-code") }}'
+        checkClientExist: '{{ url("/admin/checkclientexist") }}'
     };
     
-    // Page-specific data
-    PageConfig.clientId = {{ $fetchedData->id }};
-    PageConfig.clientFirstName = '{{ $fetchedData->first_name }}';
-    PageConfig.source = '{{ $fetchedData->source ?? "" }}';
+    // Page-specific data for create
+    PageConfig.isCreatePage = true;
     
-    @if(isset($tagdata) && !empty($tagdata))
-    PageConfig.tagInitialData = {!! json_encode($tagdata) !!};
-    @else
-    PageConfig.tagInitialData = [];
-    @endif
-    
-    @if(isset($relatedfiles) && !empty($relatedfiles))
-    PageConfig.relatedFilesData = {!! json_encode($relatedfiles) !!};
-    @else
-    PageConfig.relatedFilesData = [];
-    @endif
+    // Google Maps Autocomplete Function
+    function initAutocomplete() {
+        var input = document.getElementById('pac-input');
+        if (!input) {
+            console.warn('Google Maps: pac-input element not found');
+            return;
+        }
+        
+        var autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['geocode']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            var place = autocomplete.getPlace();
+            
+            if (!place.geometry) {
+                console.warn("No details available for input: '" + place.name + "'");
+                return;
+            }
+            
+            // Parse address components
+            var addressComponents = place.address_components;
+            var locality = '';
+            var postal_code = '';
+            var state = '';
+            var country = '';
+            
+            for (var i = 0; i < addressComponents.length; i++) {
+                var component = addressComponents[i];
+                var addressType = component.types[0];
+                
+                if (addressType === 'locality') {
+                    locality = component.long_name;
+                } else if (addressType === 'postal_code') {
+                    postal_code = component.long_name;
+                } else if (addressType === 'administrative_area_level_1') {
+                    state = component.long_name;
+                } else if (addressType === 'country') {
+                    country = component.short_name;
+                }
+            }
+            
+            // Fill in the form fields
+            if (locality) document.getElementById('locality').value = locality;
+            if (postal_code) document.getElementById('postal_code').value = postal_code;
+            if (state) {
+                var stateSelect = document.querySelector('select[name="state"]');
+                if (stateSelect) {
+                    var options = stateSelect.options;
+                    for (var j = 0; j < options.length; j++) {
+                        if (options[j].text.includes(state) || options[j].value.includes(state)) {
+                            stateSelect.value = options[j].value;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (country) {
+                var countrySelect = document.getElementById('country_select');
+                if (countrySelect && typeof $(countrySelect).val === 'function') {
+                    $(countrySelect).val(country).trigger('change');
+                }
+            }
+        });
+    }
 </script>
 
-{{-- Common JavaScript Files (load first) --}}
-<script src="{{ asset('js/common/config.js') }}"></script>
-<script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
-<script src="{{ asset('js/common/utilities.js') }}"></script>
-<script src="{{ asset('js/common/ui-components.js') }}"></script>
-<script src="{{ asset('js/common/google-maps.js') }}"></script>
+{{-- Page-Specific JavaScript --}}
+<script src="{{ asset('js/pages/admin/client-create.js') }}"></script>
 
-{{-- Page-Specific JavaScript (load last) --}}
-<script src="{{ asset('js/pages/admin/client-edit.js') }}"></script>
-
-<!-- Load Google Maps API using the centralized module -->
-<script>
-// Load Google Maps API after the module is loaded
-(function() {
-  function loadGoogleMaps() {
-    // Only load if required elements exist
-    if (!document.getElementById("map") || !document.getElementById("pac-input")) {
-      console.warn("Google Maps: Required elements (map or pac-input) not found. Maps functionality disabled.");
-      return;
-    }
-    
-    // Check if GoogleMaps module is available
-    if (typeof GoogleMaps === 'undefined') {
-      console.error("GoogleMaps module not loaded. Make sure google-maps.js is loaded before this script.");
-      return;
-    }
-    
-    // Load Google Maps API using the centralized module (prevents duplicate loading)
-    GoogleMaps.loadGoogleMaps('<?php echo env('GOOGLE_MAPS_API_KEY');?>', 'initAutocomplete');
-  }
-  
-  // Load after modules are ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadGoogleMaps);
-  } else {
-    // Small delay to ensure google-maps.js is loaded
-    setTimeout(loadGoogleMaps, 50);
-  }
-})();
-</script>
+<!-- Load Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY');?>&libraries=places&callback=initAutocomplete" async defer></script>
 
 <!-- Naati/PY Checkbox Handling -->
 <script>
 jQuery(document).ready(function($){
     // Handle Naati/PY checkbox state changes
-    // Use 'change' event only - label's 'for' attribute handles clicks automatically
     $('.naati-checkbox-item input[type="checkbox"]').on('change', function() {
         updateCheckboxState(this);
     });
