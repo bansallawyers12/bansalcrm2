@@ -34,6 +34,26 @@ const GoogleMaps = {
             return;
         }
         
+        // Check if script is already being loaded (prevent duplicate script tags)
+        const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+        if (existingScript) {
+            // Script is already in DOM, wait for it to load and call callback when ready
+            if (callback && typeof window[callback] === 'function') {
+                // Poll for Google Maps to be ready
+                const checkReady = setInterval(function() {
+                    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                        clearInterval(checkReady);
+                        window[callback]();
+                    }
+                }, 100);
+                // Timeout after 10 seconds
+                setTimeout(function() {
+                    clearInterval(checkReady);
+                }, 10000);
+            }
+            return;
+        }
+        
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callback}&libraries=places&v=weekly&loading=async`;
         script.async = true;

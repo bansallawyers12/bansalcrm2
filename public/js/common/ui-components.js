@@ -13,6 +13,39 @@
 
 'use strict';
 
+// ============================================================================
+// ASYNC WRAPPER - Wait for vendor libraries before initialization
+// ============================================================================
+
+(async function() {
+    // Wait for vendor libraries to be ready
+    if (typeof window.vendorLibsReady !== 'undefined') {
+        console.log('[ui-components.js] Waiting for vendorLibsReady promise...');
+        await window.vendorLibsReady;
+        console.log('[ui-components.js] Vendor libraries ready!');
+    } else {
+        // Fallback: Poll for vendor libraries if vendorLibsReady not available
+        console.log('[ui-components.js] vendorLibsReady not found, polling for libraries...');
+        await new Promise((resolve) => {
+            const check = () => {
+                if (typeof $ !== 'undefined' && 
+                    typeof $.fn.select2 === 'function' &&
+                    typeof flatpickr !== 'undefined' &&
+                    typeof intlTelInput !== 'undefined') {
+                    console.log('[ui-components.js] All vendor libraries detected!');
+                    resolve();
+                } else {
+                    setTimeout(check, 50);
+                }
+            };
+            check();
+        });
+    }
+
+    // ========================================================================
+    // UI Components Definition (now safe to use vendor libraries)
+    // ========================================================================
+
 /**
  * UI Components helper object
  */
@@ -78,13 +111,17 @@ const UIComponents = {
     }
 };
 
-// Auto-initialize on document ready
-$(document).ready(function() {
-    UIComponents.init();
-});
+    // Auto-initialize on document ready
+    $(document).ready(function() {
+        UIComponents.init();
+    });
 
-// Export for use in other modules
-if (typeof window !== 'undefined') {
-    window.UIComponents = UIComponents;
-}
+    // Export for use in other modules
+    if (typeof window !== 'undefined') {
+        window.UIComponents = UIComponents;
+    }
+
+    console.log('[ui-components.js] Module initialized and ready');
+
+})(); // End async wrapper
 

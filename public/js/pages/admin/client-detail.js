@@ -17,6 +17,34 @@
 'use strict';
 
 // ============================================================================
+// ASYNC WRAPPER - Wait for vendor libraries before initialization
+// ============================================================================
+
+(async function() {
+    // Wait for vendor libraries to be ready
+    if (typeof window.vendorLibsReady !== 'undefined') {
+        console.log('[client-detail.js] Waiting for vendorLibsReady promise...');
+        await window.vendorLibsReady;
+        console.log('[client-detail.js] Vendor libraries ready!');
+    } else {
+        // Fallback: Poll for vendor libraries
+        console.log('[client-detail.js] vendorLibsReady not found, polling for libraries...');
+        await new Promise((resolve) => {
+            const check = () => {
+                if (typeof $ !== 'undefined' && 
+                    typeof $.fn.select2 === 'function' &&
+                    typeof flatpickr !== 'undefined') {
+                    console.log('[client-detail.js] All vendor libraries detected!');
+                    resolve();
+                } else {
+                    setTimeout(check, 50);
+                }
+            };
+            check();
+        });
+    }
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -3090,6 +3118,8 @@ Bansal Immigration`;
 
     console.log('Admin Client Detail page initialized');
 });
+
+})(); // End async wrapper
 
 // ============================================================================
 // ADDITIONAL PAGE-SPECIFIC FUNCTIONS

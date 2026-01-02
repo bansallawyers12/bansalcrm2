@@ -15,6 +15,35 @@
 'use strict';
 
 // ============================================================================
+// ASYNC WRAPPER - Wait for vendor libraries before initialization
+// ============================================================================
+
+(async function() {
+    // Wait for vendor libraries to be ready
+    if (typeof window.vendorLibsReady !== 'undefined') {
+        console.log('[client-edit.js] Waiting for vendorLibsReady promise...');
+        await window.vendorLibsReady;
+        console.log('[client-edit.js] Vendor libraries ready!');
+    } else {
+        // Fallback: Poll for vendor libraries
+        console.log('[client-edit.js] vendorLibsReady not found, polling for libraries...');
+        await new Promise((resolve) => {
+            const check = () => {
+                if (typeof $ !== 'undefined' && 
+                    typeof $.fn.select2 === 'function' &&
+                    typeof flatpickr !== 'undefined' &&
+                    typeof intlTelInput !== 'undefined') {
+                    console.log('[client-edit.js] All vendor libraries detected!');
+                    resolve();
+                } else {
+                    setTimeout(check, 50);
+                }
+            };
+            check();
+        });
+    }
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -712,6 +741,8 @@ jQuery(document).ready(function($){
     
     console.log('Admin Client Edit page initialized');
 });
+
+})(); // End async wrapper
 
 // ============================================================================
 // GOOGLE MAPS INITIALIZATION
