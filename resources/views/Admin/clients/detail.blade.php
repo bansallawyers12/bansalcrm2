@@ -3581,7 +3581,7 @@ if($fetchedData->tagname != ''){
 jQuery(document).ready(function($){
   
      //Tab click
-    $(document).delegate('#client_tabs a', 'click', function(){
+    $(document).on('click', '#client_tabs a', function(){
         // Get the target tab's href
         var target = $(this).attr('href'); //console.log(target);
 
@@ -3600,7 +3600,7 @@ jQuery(document).ready(function($){
      /////////////////////////////////////////////
     ////// At Google review button sent email with review link code start /////////
     /////////////////////////////////////////////
-    $(document).delegate('.googleReviewBtn', 'click', function(e){
+    $(document).on('click', '.googleReviewBtn', function(e){
         var is_greview_mail_sent = $(this).attr('data-is_greview_mail_sent');
         console.log(is_greview_mail_sent);
         if(is_greview_mail_sent != 1){
@@ -3656,7 +3656,7 @@ jQuery(document).ready(function($){
     }
 
 
-    $(document).delegate('.openproductrinfo', 'click', function(){
+    $(document).on('click', '.openproductrinfo', function(){
 		var clonedval = $('.clonedrow').html();
 		$('.productitem').append('<tr class="product_field_clone">'+clonedval+'</tr>');
         
@@ -3681,7 +3681,7 @@ jQuery(document).ready(function($){
 
     });
 
-    $(document).delegate('.removeitems', 'click', function(){
+    $(document).on('click', '.removeitems', function(){
 		var $tr    = $(this).closest('.product_field_clone');
 		var trclone = $('.product_field_clone').length;
 		if(trclone > 0){
@@ -3690,7 +3690,7 @@ jQuery(document).ready(function($){
 		grandtotalAccountTab();
 	});
 
-    $(document).delegate('.deposit_amount_per_row', 'keyup', function(){
+    $(document).on('keyup', '.deposit_amount_per_row', function(){
         grandtotalAccountTab();
     });
 
@@ -3723,7 +3723,7 @@ jQuery(document).ready(function($){
 
 
 
-    $(document).delegate('.deposit_amount_per_row', 'blur', function(){
+    $(document).on('blur', '.deposit_amount_per_row', function(){
         if( $(this).val() != ""){
             var randomNumber = $('#top_value_db').val();
             randomNumber = Number(randomNumber);
@@ -3911,7 +3911,7 @@ jQuery(document).ready(function($){
     });*/
   
   
-    $(document).delegate('.not_picked_call', 'click', function (e) {
+    $(document).on('click', '.not_picked_call', function (e) {
         var clientName = '{{$fetchedData->first_name ?? 'user'}}';
         clientName = clientName.charAt(0).toUpperCase() + clientName.slice(1).toLowerCase(); //alert(clientName);
 
@@ -3994,7 +3994,7 @@ Bansal Immigration`;
     ////// appointment popup chnages start /////////
     /////////////////////////////////////////////
 
-    $(document).delegate('.enquiry_item', 'change', function(){
+    $(document).on('change', '.enquiry_item', function(){
         var id = $(this).val();
         if(id != ""){
             var v = 'services';
@@ -4173,7 +4173,7 @@ Bansal Immigration`;
 
                                             var current_time=nowTime.toLocaleTimeString('en-US');
                                             if(objdisable.length > 0){
-                                                if(jQuery.inArray(timeString12hr, objdisable) != -1  ) {
+                                                if(objdisable.indexOf(timeString12hr) !== -1  ) {
 
                                                 } else if ((checked_date == today_date) && (current_time > timeString12hr || current_time > timetoString12hr)){ //console.log('elseee-ifff');
                                                 } else{
@@ -4222,7 +4222,7 @@ Bansal Immigration`;
     }
 });
 
-    $(document).delegate('.appointment_item', 'change', function(){
+	$(document).on('change', '.appointment_item', function(){
         var id = $(this).val();
         if(id != ""){
             $('input[name="appointment_details"]').val(id);
@@ -4233,7 +4233,7 @@ Bansal Immigration`;
 
     // Promo code functionality removed
 
-	$(document).delegate('.services_item', 'change', function(){
+	$(document).on('change', '.services_item', function(){
         $('.info_row').hide();
         $('.confirm_row').hide();
         $("input[name='inperson_address']").prop("checked", false);
@@ -4382,8 +4382,8 @@ Bansal Immigration`;
 
                                         var current_time=nowTime.toLocaleTimeString('en-US');
                                         if(objdisable.length > 0){
-                                            //if(jQuery.inArray(timeString12hr, objdisable) != -1  || jQuery.inArray(timetoString12hr, objdisable) != -1) { //console.log('ifff');
-                                            if(jQuery.inArray(timeString12hr, objdisable) != -1  ) {
+                                            //if(objdisable.indexOf(timeString12hr) !== -1  || objdisable.indexOf(timetoString12hr) !== -1) { //console.log('ifff');
+                                            if(objdisable.indexOf(timeString12hr) !== -1  ) {
 
                                             } else if ((checked_date == today_date) && (current_time > timeString12hr || current_time > timetoString12hr)){ //console.log('elseee-ifff');
                                             } else{
@@ -4454,7 +4454,7 @@ Bansal Immigration`;
     });
 
 
-    $(document).delegate('.nextbtn', 'click', function(){
+    $(document).on('click', '.nextbtn', function(){
 		var v = $(this).attr('data-steps');
 		$(".custom-error").remove();
 		var flag = 1;
@@ -4564,7 +4564,7 @@ Bansal Immigration`;
 		}
     });
 
-    $(document).delegate('.timeslot_col', 'click', function(){
+    $(document).on('click', '.timeslot_col', function(){
 		$('.timeslot_col').removeClass('active');
 		$(this).addClass('active');
         var service_id_val = $("input[name='radioGroup']:checked").val(); //alert(service_id_val);
@@ -4697,11 +4697,11 @@ Bansal Immigration`;
         }
 	$('#create_note_d').hide();
 	$('.main-footer').css(css_property);
-    $(document).delegate('.uploadmail','click', function(){
+    $(document).on('click', '.uploadmail', function(){
 		$('#maclient_id').val('{{$fetchedData->id}}');
 		$('#uploadmail').modal('show');
 	});
-    $(document).delegate('.addnewprevvisa','click', function(){
+    $(document).on('click', '.addnewprevvisa', function(){
 	 var $clone = $('.multiplevisa:eq(0)').clone(true,true);
 
 	 $clone.find('.lastfiledcol').after('<div class="col-md-4"><a href="javascript:;" class="removenewprevvisa btn btn-danger btn-sm">Remove</a></div>');
@@ -4711,10 +4711,10 @@ Bansal Immigration`;
 
 
 	});
-	 $(document).delegate('.removenewprevvisa','click', function(){
+	 $(document).on('click', '.removenewprevvisa', function(){
 	 $(this).parent().parent().parent().remove();
 	 });
-    $(document).delegate('#assignUser','click', function(){
+    $(document).on('click', '#assignUser', function(){
 		$(".popuploader").show();
 		var flag = true;
 		var error ="";
@@ -4837,19 +4837,19 @@ function getallactivities(){
 }
 
 var appcid = '';
-	$(document).delegate('.publishdoc', 'click', function(){
+	$(document).on('click', '.publishdoc', function(){
 		$('#confirmpublishdocModal').modal('show');
 		appcid = $(this).attr('data-id');
 
 	});
-$(document).delegate('.openassigneeshow', 'click', function(){
+$(document).on('click', '.openassigneeshow', function(){
         $('.assigneeshow').show();
     });
-    $(document).delegate('.closeassigneeshow', 'click', function(){
+    $(document).on('click', '.closeassigneeshow', function(){
         $('.assigneeshow').hide();
     });
 
-$(document).delegate('.saveassignee', 'click', function(){
+$(document).on('click', '.saveassignee', function(){
         var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
@@ -4869,7 +4869,7 @@ $(document).delegate('.saveassignee', 'click', function(){
 			}
 		});
     });
-$(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', function(){
+$(document).on('click', '#confirmpublishdocModal .acceptpublishdoc', function(){
 	$('.popuploader').show();
 	$.ajax({
 		url: '{{URL::to('/admin/')}}/'+'application/publishdoc',
@@ -4893,14 +4893,14 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
   	var verify_doc_id = '';
 	var verify_doc_href = '';
     var verify_doc_type = '';
-	$(document).delegate('.verifydoc', 'click', function(){
+	$(document).on('click', '.verifydoc', function(){
 		$('#confirmDocModal').modal('show');
 		verify_doc_id = $(this).attr('data-id');
 		verify_doc_href = $(this).attr('data-href');
         verify_doc_type = $(this).attr('data-doctype');
 	});
 
-	$(document).delegate('#confirmDocModal .accept', 'click', function(){
+	$(document).on('click', '#confirmDocModal .accept', function(){
         $('.popuploader').show();
 		$.ajax({
 			url: '{{URL::to('/admin/')}}/'+verify_doc_href,
@@ -4926,14 +4926,14 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 	var notuse_doc_id = '';
 	var notuse_doc_href = '';
     var notuse_doc_type = '';
-    $(document).delegate('.notuseddoc', 'click', function(){
+    $(document).on('click', '.notuseddoc', function(){
 		$('#confirmNotUseDocModal').modal('show');
 		notuse_doc_id = $(this).attr('data-id');
 		notuse_doc_href = $(this).attr('data-href');
         notuse_doc_type = $(this).attr('data-doctype');
 	});
 
-	$(document).delegate('#confirmNotUseDocModal .accept', 'click', function(){
+	$(document).on('click', '#confirmNotUseDocModal .accept', function(){
         $('.popuploader').show();
 		$.ajax({
 			url: '{{URL::to('/admin/')}}/'+notuse_doc_href,
@@ -4971,14 +4971,14 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
     var backto_doc_id = '';
 	var backto_doc_href = '';
     var backto_doc_type = '';
-    $(document).delegate('.backtodoc', 'click', function(){
+    $(document).on('click', '.backtodoc', function(){
 		$('#confirmBackToDocModal').modal('show');
 		backto_doc_id = $(this).attr('data-id');
 		backto_doc_href = $(this).attr('data-href');
         backto_doc_type = $(this).attr('data-doctype');
 	});
 
-	$(document).delegate('#confirmBackToDocModal .accept', 'click', function(){
+	$(document).on('click', '#confirmBackToDocModal .accept', function(){
         $('.popuploader').show();
 		$.ajax({
 			url: '{{URL::to('/admin/')}}/'+backto_doc_href,
@@ -5009,13 +5009,13 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 
 	var notid = '';
 	var delhref = '';
-	$(document).delegate('.deletenote', 'click', function(){
+	$(document).on('click', '.deletenote', function(){
 		$('#confirmModal').modal('show');
 		notid = $(this).attr('data-id');
 		delhref = $(this).attr('data-href');
 	});
 
-	$(document).delegate('#confirmModal .accept', 'click', function(){
+	$(document).on('click', '#confirmModal .accept', function(){
 
 		$('.popuploader').show();
 		$.ajax({
@@ -5096,13 +5096,13 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 
     var activitylogid = '';
 	var delloghref = '';
-	$(document).delegate('.deleteactivitylog', 'click', function(){
+	$(document).on('click', '.deleteactivitylog', function(){
 		$('#confirmLogModal').modal('show');
 		activitylogid = $(this).attr('data-id');
 		delloghref = $(this).attr('data-href');
 	});
 
-	$(document).delegate('#confirmLogModal .accept', 'click', function(){
+	$(document).on('click', '#confirmLogModal .accept', function(){
         $('.popuploader').show();
 		$.ajax({
 			url: '{{URL::to('/admin/')}}/'+delloghref,
@@ -5126,7 +5126,7 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 	});
 
 
-	$(document).delegate('.pinnote', 'click', function(){
+	$(document).on('click', '.pinnote', function(){
 		$('.popuploader').show();
 		$.ajax({
 			url: '{{URL::to('/admin/pinnote')}}/',
@@ -5140,7 +5140,7 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 	});
 
     //Pin activity log click
-    $(document).delegate('.pinactivitylog', 'click', function(){
+    $(document).on('click', '.pinactivitylog', function(){
         $('.popuploader').show();
         $.ajax({
             url: '{{URL::to('/admin/pinactivitylog')}}/',
@@ -5153,7 +5153,7 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
         });
     });
 
-	$(document).delegate('.createapplicationnewinvoice', 'click', function(){
+	$(document).on('click', '.createapplicationnewinvoice', function(){
 		$('#opencreateinvoiceform').modal('show');
 		var sid	= $(this).attr('data-id');
 		var cid	= $(this).attr('data-cid');
@@ -5162,7 +5162,7 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 		$('#app_id').val(aid);
 		$('#schedule_id').val(sid);
 	});
-	$(document).delegate('.create_note_d', 'click', function(){
+	$(document).on('click', '.create_note_d', function(){
 
 		// Reset form fields
 		$('#create_note_d input[name="mailid"]').val(0);
@@ -5267,7 +5267,7 @@ $(document).delegate('#confirmpublishdocModal .acceptpublishdoc', 'click', funct
 
 
 
-	$(document).delegate('.create_note', 'click', function(){
+	$(document).on('click', '.create_note', function(){
 
 		$('#create_note').modal('show');
 		$('#create_note input[name="mailid"]').val(0);
@@ -5361,7 +5361,7 @@ function formatRepo (repo) {
 
 
 //Function is used for complete the session
-$(document).delegate('.complete_session', 'click', function(){
+$(document).on('click', '.complete_session', function(){
     var client_id = $(this).attr('data-clientid');
     console.log('Complete Session clicked for client_id:', client_id);
     
@@ -5399,7 +5399,7 @@ $(document).delegate('.complete_session', 'click', function(){
 function formatRepoSelection (repo) {
   return repo.name || repo.text;
 }
-	$(document).delegate('.opennoteform', 'click', function(){
+	$(document).on('click', '.opennoteform', function(){
 		$('#create_note').modal('show');
 		$('#create_note #createNoteModalLabel').html('Edit Note');
 		var v = $(this).attr('data-id');
@@ -5422,7 +5422,7 @@ function formatRepoSelection (repo) {
 			}
 		});
 	});
-	$(document).delegate('.viewnote', 'click', function(){
+	$(document).on('click', '.viewnote', function(){
 		$('#view_note').modal('show');
 		var v = $(this).attr('data-id');
 		$('#view_note input[name="noteid"]').val(v);
@@ -5445,7 +5445,7 @@ function formatRepoSelection (repo) {
 		});
 	});
 
-	$(document).delegate('.viewapplicationnote', 'click', function(){
+	$(document).on('click', '.viewapplicationnote', function(){
 		$('#view_application_note').modal('show');
 		var v = $(this).attr('data-id');
 		$('#view_application_note input[name="noteid"]').val(v);
@@ -5467,7 +5467,7 @@ function formatRepoSelection (repo) {
 			}
 		});
 	});
-	$(document).delegate('.add_appliation #workflow', 'change', function(){
+	$(document).on('change', '.add_appliation #workflow', function(){
 
 				var v = $('.add_appliation #workflow option:selected').val();
 				if(v != ''){
@@ -5488,7 +5488,7 @@ function formatRepoSelection (repo) {
 				}
 	});
 
-	$(document).delegate('.add_appliation #partner','change', function(){
+	$(document).on('change', '.add_appliation #partner', function(){
 
 				var v = $('.add_appliation #partner option:selected').val();
 				var explode = v.split('_');
@@ -5522,7 +5522,7 @@ function formatRepoSelection (repo) {
 
 
 
-	$(document).delegate('.clientemail', 'click', function(){
+	$(document).on('click', '.clientemail', function(){
 
 	$('#emailmodal').modal('show');
 	var array = [];
@@ -5575,13 +5575,13 @@ function formatRepoSelection (repo) {
 
 
   //Send message
-    $(document).delegate('.sendmsg', 'click', function(){
+    $(document).on('click', '.sendmsg', function(){
         $('#sendmsgmodal').modal('show');
         var client_id = $(this).attr('data-id');
         $('#sendmsg_client_id').val(client_id);
     });
 
-$(document).delegate('.change_client_status', 'click', function(e){
+$(document).on('click', '.change_client_status', function(e){
 
 	var v = $(this).attr('rating');
 	$('.change_client_status').removeClass('active');
@@ -5605,7 +5605,7 @@ $(document).delegate('.change_client_status', 'click', function(e){
 		}
 	});
 });
-$(document).delegate('.selecttemplate', 'change', function(){
+$(document).on('change', '.selecttemplate', function(){
     var client_id = $(this).data('clientid'); //alert(client_id);
     var client_firstname = $(this).data('clientfirstname'); //alert(client_firstname);
     if (client_firstname) {
@@ -5675,7 +5675,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 	});
 });
 
-$(document).delegate('.selectapplicationtemplate', 'change', function(){
+$(document).on('change', '.selectapplicationtemplate', function(){
 	var v = $(this).val();
 	$.ajax({
 		url: '{{URL::to('/admin/get-templates')}}',
@@ -5921,7 +5921,7 @@ $(".invoicetable").dataTable({
 });
 
 
-$(document).delegate('#intrested_workflow', 'change', function(){
+$(document).on('change', '#intrested_workflow', function(){
 
 				var v = $('#intrested_workflow option:selected').val();
 
@@ -5943,7 +5943,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				}
 	});
 
-	$(document).delegate('#edit_intrested_workflow', 'change', function(){
+	$(document).on('change', '#edit_intrested_workflow', function(){
 
 				var v = $('#edit_intrested_workflow option:selected').val();
 
@@ -5965,7 +5965,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				}
 	});
 
-	$(document).delegate('#intrested_partner','change', function(){
+	$(document).on('change', '#intrested_partner', function(){
 
 				var v = $('#intrested_partner option:selected').val();
 				if(v != ''){
@@ -5983,7 +5983,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		});
 				}
 	});
-	$(document).delegate('#edit_intrested_partner','change', function(){
+	$(document).on('change', '#edit_intrested_partner', function(){
 
 				var v = $('#edit_intrested_partner option:selected').val();
 				if(v != ''){
@@ -6002,7 +6002,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				}
 	});
 
-	$(document).delegate('#intrested_product','change', function(){
+	$(document).on('change', '#intrested_product', function(){
 
 				var v = $('#intrested_product option:selected').val();
 				if(v != ''){
@@ -6019,10 +6019,10 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		});
 		}
 	});
-	$(document).delegate('.docupload', 'click', function() {
+	$(document).on('click', '.docupload', function() {
     $(this).attr("value", "");
 })
-	$(document).delegate('.docupload', 'change', function() {
+	$(document).on('change', '.docupload', function() {
 		$('.popuploader').show();
 var formData = new FormData($('#upload_form')[0]);
 		$.ajax({
@@ -6047,11 +6047,11 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 			}
 		});
 	});
-$(document).delegate('.migdocupload', 'click', function() {
+$(document).on('click', '.migdocupload', function() {
     $(this).attr("value", "");
 });
 
-$(document).delegate('.migdocupload', 'change', function() {
+$(document).on('change', '.migdocupload', function() {
 	$('.popuploader').show();
     var formData = new FormData($('#mig_upload_form')[0]);
 	$.ajax({
@@ -6077,16 +6077,16 @@ $(document).delegate('.migdocupload', 'change', function() {
 });
 
   //All Document Upload
-    $(document).delegate('.add_alldocument_doc', 'click', function () {
+    $(document).on('click', '.add_alldocument_doc', function () {
         $('.create_alldocument_docs').modal('show');
         $("#checklist").select2({dropdownParent: $(".create_alldocument_docs")});
     });
 
-    $(document).delegate('.alldocupload', 'click', function() {
+    $(document).on('click', '.alldocupload', function() {
         $(this).attr("value", "");
     })
 
-	$(document).delegate('.alldocupload', 'change', function() {
+	$(document).on('change', '.alldocupload', function() {
 		$('.popuploader').show();
         var fileidL = $(this).attr("data-fileid");
         console.log('fileidL='+fileidL);
@@ -6114,7 +6114,7 @@ $(document).delegate('.migdocupload', 'change', function() {
 		});
 	});
 
-	$(document).delegate('.converttoapplication','click', function(){
+	$(document).on('click', '.converttoapplication', function(){
 
 				var v = $(this).attr('data-id');
 				if(v != ''){
@@ -6218,7 +6218,7 @@ $(document).on('click', '#application-tab', function () {
 			}
 		});
 
-	$(document).delegate('.documnetlist .drow .btn-primary', 'click', function () {
+	$(document).on('click', '.documnetlist .drow .btn-primary', function () {
 
 			var parent = $(this).closest('.drow').find('.doc-row');
 			parent.find('.opentime').removeClass('is-invalid');
@@ -6258,7 +6258,7 @@ $(document).on('click', '#application-tab', function () {
 			return false;
 		});
 
-		$(document).delegate('.migdocumnetlist .drow .btn-primary', 'click', function () {
+		$(document).on('click', '.migdocumnetlist .drow .btn-primary', function () {
 
 			var parent = $(this).closest('.drow').find('.doc-row');
 			parent.find('.opentime').removeClass('is-invalid');
@@ -6320,7 +6320,7 @@ $(document).on('click', '#application-tab', function () {
         }
     });
 
-    $(document).delegate('.alldocumnetlist .drow .btn-primary', 'click', function () {
+    $(document).on('click', '.alldocumnetlist .drow .btn-primary', function () {
         var parent = $(this).closest('.drow').find('.doc-row');
         parent.find('.opentime').removeClass('is-invalid');
         parent.find('.invalid-feedback').remove();
@@ -6376,7 +6376,7 @@ $(document).on('click', '#application-tab', function () {
         }
     });
 
-    $(document).delegate('.alldocumnetlist .drow .btn-personalprimary', 'click', function () {
+    $(document).on('click', '.alldocumnetlist .drow .btn-personalprimary', function () {
         var parent = $(this).closest('.drow').find('.personalchecklist-row');
         parent.find('.opentime').removeClass('is-invalid');
         parent.find('.invalid-feedback').remove();
@@ -6417,13 +6417,13 @@ $(document).on('click', '#application-tab', function () {
 {{-- Appointment JavaScript removed - Appointment model deleted --}}
 
 	 var eduid = '';
-    $(document).delegate('.deleteeducation', 'click', function(){
+    $(document).on('click', '.deleteeducation', function(){
 		eduid = $(this).attr('data-id');
 		$('#confirmEducationModal').modal('show');
 
 	});
 
-	$(document).delegate('#confirmEducationModal .accepteducation', 'click', function(){
+	$(document).on('click', '#confirmEducationModal .accepteducation', function(){
 
 		$('.popuploader').show();
 		$.ajax({
@@ -6443,7 +6443,7 @@ $(document).on('click', '#application-tab', function () {
 			}
 		});
 	});
-    $(document).delegate('#educationform #subjectlist', 'change', function(){
+    $(document).on('change', '#educationform #subjectlist', function(){
 
 				var v = $('#educationform #subjectlist option:selected').val();
 				if(v != ''){
@@ -6517,7 +6517,7 @@ $(document).on('click', '#application-tab', function () {
   $(".branchselect2").select2({
     dropdownParent: $(".add_interested_service")
   });
-	$(document).delegate('.editeducation', 'click', function(){
+	$(document).on('click', '.editeducation', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
 		$('#edit_education').modal('show');
@@ -6541,7 +6541,7 @@ $(document).on('click', '#application-tab', function () {
 		});
 	});
 
-	$(document).delegate('.interest_service_view', 'click', function(){
+	$(document).on('click', '.interest_service_view', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
 		$('#interest_service_view').modal('show');
@@ -6557,7 +6557,7 @@ $(document).on('click', '#application-tab', function () {
 	});
 
 
-	$(document).delegate('.openeditservices', 'click', function(){
+	$(document).on('click', '.openeditservices', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
 		$('#interest_service_view').modal('hide');
@@ -6592,7 +6592,7 @@ $(document).on('click', '#application-tab', function () {
 		});
 	});
 
-	$(document).delegate('.opencommissioninvoice', 'click', function(){
+	$(document).on('click', '.opencommissioninvoice', function(){
 		$('#opencommissionmodal').modal('show');
 	});
 	
@@ -6607,13 +6607,13 @@ $(document).on('click', '#application-tab', function () {
 		});
 	});
 
-	$(document).delegate('.opengeneralinvoice', 'click', function(){
+	$(document).on('click', '.opengeneralinvoice', function(){
 		$('#opengeneralinvoice').modal('show');
 	});
 
 
     //Account Tab Receipt Popup
-    $(document).delegate('.createclientreceipt', 'click', function(){
+    $(document).on('click', '.createclientreceipt', function(){
         getTopReceiptValInDB(1);
        $('#function_type').val("add");
         $('#createclientreceiptmodal').modal('show');
@@ -6623,7 +6623,7 @@ $(document).on('click', '#application-tab', function () {
         $('.modal-dialog').css('max-width', '80%');
     });
 
-     $(document).delegate('.updateclientreceipt', 'click', function(){
+     $(document).on('click', '.updateclientreceipt', function(){
         var id = $(this).data('id');
         //console.log('id'+id);
         getClientReceiptInfoById(id);
@@ -6715,7 +6715,7 @@ $(document).on('click', '#application-tab', function () {
 
 
 
-$(document).delegate('.addpaymentmodal','click', function(){
+$(document).on('click', '.addpaymentmodal', function(){
 		var v = $(this).attr('data-invoiceid');
 		var netamount = $(this).attr('data-netamount');
 		var dueamount = $(this).attr('data-dueamount');
@@ -6728,7 +6728,7 @@ $(document).delegate('.addpaymentmodal','click', function(){
 		$('.paymentAmount').val('');
 	});
 
-$(document).delegate('.paymentAmount','keyup', function(){
+$(document).on('keyup', '.paymentAmount', function(){
 		grandtotal();
 
 		});
@@ -6753,7 +6753,7 @@ $(document).delegate('.paymentAmount','keyup', function(){
 		var clonedval = $('.fees_type_sec .fee_type_row .fees_type_col').html();
 		$('.fees_type_sec .fee_type_row').append('<div class="custom_type_col fees_type_clone">'+clonedval+'</div>');
 	});
-	$(document).delegate('.payment_field_col .field_remove_col a.remove_col', 'click', function(){
+	$(document).on('click', '.payment_field_col .field_remove_col a.remove_col', function(){
 		var $tr    = $(this).closest('.payment_field_clone');
 		var trclone = $('.payment_field_clone').length;
 		if(trclone > 0){
@@ -6761,7 +6761,7 @@ $(document).delegate('.paymentAmount','keyup', function(){
 			grandtotal();
 		}
 	});
-	$(document).delegate('.fees_type_sec .fee_type_row .fees_type_clone a.remove_btn', 'click', function(){
+	$(document).on('click', '.fees_type_sec .fee_type_row .fees_type_clone a.remove_btn', function(){
 		var $tr    = $(this).closest('.fees_type_clone');
 		var trclone = $('.fees_type_clone').length;
 		if(trclone > 0){
@@ -6895,30 +6895,30 @@ $(document).delegate('.paymentAmount','keyup', function(){
 		<?php
 	}
 	?>
-$(document).delegate('.discon_application', 'click', function(){
+$(document).on('click', '.discon_application', function(){
 	var appliid = $(this).attr('data-id');
 	$('#discon_application').modal('show');
 	$('input[name="diapp_id"]').val(appliid);
 });
 
-$(document).delegate('.refund_application', 'click', function(){
+$(document).on('click', '.refund_application', function(){
 	var appliid = $(this).attr('data-id');
 	$('#refund_application').modal('show');
 	$('input[name="reapp_id"]').val(appliid);
 });
 
-$(document).delegate('.revertapp', 'click', function(){
+$(document).on('click', '.revertapp', function(){
 	var appliid = $(this).attr('data-id');
 	$('#revert_application').modal('show');
 	$('input[name="revapp_id"]').val(appliid);
 });
-$(document).delegate('.completestage', 'click', function(){
+$(document).on('click', '.completestage', function(){
 	var appliid = $(this).attr('data-id');
 	$('#confirmcompleteModal').modal('show');
 	$('.acceptapplication').attr('data-id',appliid)
 
 });
-$(document).delegate('.openapplicationdetail', 'click', function(){
+$(document).on('click', '.openapplicationdetail', function(){
 		var appliid = $(this).attr('data-id');
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
@@ -7063,21 +7063,21 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
     }
 
 
-	$(document).delegate('#application-tab', 'click', function(){
+	$(document).on('click', '#application-tab', function(){
 
 		$('.if_applicationdetail').show();
 		$('.ifapplicationdetailnot').hide();
 		$('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
 	});
 
-$(document).delegate('.openappnote', 'click', function(){
+$(document).on('click', '.openappnote', function(){
 	var apptype = $(this).attr('data-app-type');
 	var id = $(this).attr('data-id');
 	$('#create_applicationnote #noteid').val(id);
 	$('#create_applicationnote #type').val(apptype);
 	$('#create_applicationnote').modal('show');
 });
-$(document).delegate('.openappappoint', 'click', function(){
+$(document).on('click', '.openappappoint', function(){
 	var id = $(this).attr('data-id');
 	var apptype = $(this).attr('data-app-type');
 	$('#create_applicationappoint #type').val(apptype);
@@ -7087,7 +7087,7 @@ $(document).delegate('.openappappoint', 'click', function(){
 
 
 //application stages assign user
-$(document).delegate('.openappaction', 'click', function(){
+$(document).on('click', '.openappaction', function(){
 	var assign_application_id = $(this).attr('data-id');
     $('#create_applicationaction #assign_application_id').val(assign_application_id);
 
@@ -7107,7 +7107,7 @@ $(document).delegate('.openappaction', 'click', function(){
 });
 
 
-$(document).delegate('.openclientemail', 'click', function(){
+$(document).on('click', '.openclientemail', function(){
 	var id = $(this).attr('data-id');
 	var apptype = $(this).attr('data-app-type');
 	$('#applicationemailmodal #type').val(apptype);
@@ -7115,7 +7115,7 @@ $(document).delegate('.openclientemail', 'click', function(){
 	$('#applicationemailmodal').modal('show');
 });
 
-$(document).delegate('.openchecklist', 'click', function(){
+$(document).on('click', '.openchecklist', function(){
 	var id = $(this).attr('data-id');
 	var type = $(this).attr('data-type');
 	var typename = $(this).attr('data-typename');
@@ -7124,7 +7124,7 @@ $(document).delegate('.openchecklist', 'click', function(){
 	$('#create_checklist #checklist_typename').val(typename);
 	$('#create_checklist').modal('show');
 });
-$(document).delegate('.openpaymentschedule', 'click', function(){
+$(document).on('click', '.openpaymentschedule', function(){
 	var id = $(this).attr('data-id');
 	//$('#create_apppaymentschedule #application_id').val(id);
 	$('#addpaymentschedule').modal('show');
@@ -7147,20 +7147,20 @@ $(document).delegate('.openpaymentschedule', 'click', function(){
 		});
 });
 
-$(document).delegate('.addfee', 'click', function(){
+$(document).on('click', '.addfee', function(){
 	var clonedval = $('.feetypecopy').html();
 	$('.fee_type_sec .fee_fields').append('<div class="fee_fields_row field_clone">'+clonedval+'</div>');
 
 });
-$(document).delegate('.payremoveitems', 'click', function(){
+$(document).on('click', '.payremoveitems', function(){
 		$(this).parent().parent().remove();
 		schedulecalculatetotal();
 	});
 
-	$(document).delegate('.payfee_amount', 'keyup', function(){
+	$(document).on('keyup', '.payfee_amount', function(){
 		schedulecalculatetotal();
 	});
-	$(document).delegate('.paydiscount', 'keyup', function(){
+	$(document).on('keyup', '.paydiscount', function(){
 		schedulecalculatetotal();
 	});
 
@@ -7186,7 +7186,7 @@ function schedulecalculatetotal(){
 // 	$('#create_appoint').modal('show');
 // });
 
-$(document).delegate('.openfileupload', 'click', function(){
+$(document).on('click', '.openfileupload', function(){
 	var id = $(this).attr('data-id');
 	var type = $(this).attr('data-type');
 	var typename = $(this).attr('data-typename');
@@ -7198,7 +7198,7 @@ $(document).delegate('.openfileupload', 'click', function(){
 	$('#openfileuploadmodal').modal('show');
 });
 
-/*$(document).delegate('.opendocnote', 'click', function(){
+/*$(document).on('click', '.opendocnote', function(){
 	var id = '';
 	var type = $(this).attr('data-app-type');
 	var aid = $(this).attr('data-id');
@@ -7208,7 +7208,7 @@ $(document).delegate('.openfileupload', 'click', function(){
 	$('#openfileuploadmodal').modal('show');
 });*/
 
-$(document).delegate('.opendocnote', 'click', function(){
+$(document).on('click', '.opendocnote', function(){
 	var id = '';
 	var type = $(this).attr('data-app-type');
 	var aid = $(this).attr('data-id');
@@ -7225,18 +7225,18 @@ $(document).delegate('.opendocnote', 'click', function(){
 });
 
 
-$(document).delegate('.due_date_sec a.due_date_btn', 'click', function(){
+$(document).on('click', '.due_date_sec a.due_date_btn', function(){
 	$('.due_date_sec .due_date_col').show();
 	$(this).hide();
 	$('.checklistdue_date').val(1);
 });
-$(document).delegate('.remove_col a.remove_btn', 'click', function(){
+$(document).on('click', '.remove_col a.remove_btn', function(){
 	$('.due_date_sec .due_date_col').hide();
 	$('.due_date_sec a.due_date_btn').show();
 	$('.checklistdue_date').val(0);
 });
 
-$(document).delegate('.nextstage', 'click', function(){
+$(document).on('click', '.nextstage', function(){
 	var appliid = $(this).attr('data-id');
 	var stage = $(this).attr('data-stage');
 	$('.popuploader').show();
@@ -7281,7 +7281,7 @@ $(document).delegate('.nextstage', 'click', function(){
 	});
 });
 
-$(document).delegate('.acceptapplication', 'click', function(){
+$(document).on('click', '.acceptapplication', function(){
 	var appliid = $(this).attr('data-id');
 
 	$('.popuploader').show();
@@ -7323,7 +7323,7 @@ $(document).delegate('.acceptapplication', 'click', function(){
 	});
 });
 
-$(document).delegate('.backstage', 'click', function(){
+$(document).on('click', '.backstage', function(){
 	var appliid = $(this).attr('data-id');
 	var stage = $(this).attr('data-stage');
 	if(stage == 'Application'){
@@ -7372,7 +7372,7 @@ $(document).delegate('.backstage', 'click', function(){
 });
 
 
-$(document).delegate('#notes-tab', 'click', function(){
+$(document).on('click', '#notes-tab', function(){
 		var appliid = $(this).attr('data-id');
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
@@ -7409,13 +7409,13 @@ $(document).delegate('#notes-tab', 'click', function(){
        $('.showattachment').html(filename);
     });
 
-	$(document).delegate('.opensuperagent', 'click', function(){
+	$(document).on('click', '.opensuperagent', function(){
 		var appid = $(this).attr('data-id');
 		$('#superagent_application').modal('show');
 		$('#superagent_application #siapp_id').val(appid);
 	});
 
-	$(document).delegate('.opentagspopup', 'click', function(){
+	$(document).on('click', '.opentagspopup', function(){
 		var appid = $(this).attr('data-id');
 		$('#tags_clients').modal('show');
 		$('#tags_clients #tags_client_id').val(appid);
@@ -7425,23 +7425,23 @@ $(document).delegate('#notes-tab', 'click', function(){
 				});
 	});
 
-    $(document).delegate('.serviceTaken','click', function(){
+    $(document).on('click', '.serviceTaken', function(){
 		$('#serviceTaken').modal('show');
 	});
 
-	$(document).delegate('.opensubagent', 'click', function(){
+	$(document).on('click', '.opensubagent', function(){
 		var appid = $(this).attr('data-id');
 		$('#subagent_application').modal('show');
 		$('#subagent_application #sbapp_id').val(appid);
 	});
 
 
-	$(document).delegate('.removesuperagent', 'click', function(){
+	$(document).on('click', '.removesuperagent', function(){
 		var appid = $(this).attr('data-id');
 
 	});
 
-	$(document).delegate('.application_ownership', 'click', function(){
+	$(document).on('click', '.application_ownership', function(){
 		var appid = $(this).attr('data-id');
 		var ration = $(this).attr('data-ration');
 		$('#application_ownership #mapp_id').val(appid);
@@ -7451,7 +7451,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 
 	});
 
-	$(document).delegate('.opensaleforcast', 'click', function(){
+	$(document).on('click', '.opensaleforcast', function(){
 		var fapp_id = $(this).attr('data-id');
 		var client_revenue = $(this).attr('data-client_revenue');
 		var partner_revenue = $(this).attr('data-partner_revenue');
@@ -7464,7 +7464,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 
 	});
 
-	$(document).delegate('.openpaymentfee', 'click', function(){
+	$(document).on('click', '.openpaymentfee', function(){
 		var appliid = $(this).attr('data-id');
         var partnerid = $(this).attr('data-partnerid');
 		$('.popuploader').show();
@@ -7481,7 +7481,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	});
 
 
-    $(document).delegate('.openpaymentfeeLatest', 'click', function(){
+    $(document).on('click', '.openpaymentfeeLatest', function(){
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
          /*$('#new_fee_option_latest .modal-dialog').css({
@@ -7513,7 +7513,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	});
 	});
 
-	$(document).delegate('.opensaleforcastservice', 'click', function(){
+	$(document).on('click', '.opensaleforcastservice', function(){
 		var fapp_id = $(this).attr('data-id');
 		var client_revenue = $(this).attr('data-client_revenue');
 		var partner_revenue = $(this).attr('data-partner_revenue');
@@ -7527,7 +7527,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 
 	});
 
-	$(document).delegate('.closeservmodal', 'click', function(){
+	$(document).on('click', '.closeservmodal', function(){
 
 		$('#interest_service_view').modal('hide');
 		$('#application_opensaleforcastservice').modal('hide');
@@ -7537,13 +7537,13 @@ $(document).delegate('#notes-tab', 'click', function(){
 		$('body').addClass('modal-open');
 	});
 
-	$(document).delegate('#new_fee_option .fee_option_addbtn a', 'click', function(){
+	$(document).on('click', '#new_fee_option .fee_option_addbtn a', function(){
 		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control semester_amount" name="semester_amount[]"></td><td><input type="number" value="1" class="form-control no_semester" name="no_semester[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_semester[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td> <a href="javascript:;" class="removefeetype"><i class="fa fa-trash"></i></a></td></tr>';
 		$('#new_fee_option #productitemview tbody').append(html);
 
 	});
 
-  $(document).delegate('#new_fee_option_latest .fee_option_addbtn_latest a', 'click', function(){
+  $(document).on('click', '#new_fee_option_latest .fee_option_addbtn_latest a', function(){
 		//var html = '<tr class="add_fee_option cus_fee_option"><td><input type="text" data-valid="required" value="" class="form-control date_paid" name="date_paid[]"><input type="hidden" value="2" name="fee_option_type[]"></td><td><input type="number" data-valid="required" value="" class="form-control total_fee_am_2nd" name="total_fee[]"></td><td><input type="number" data-valid="required" value="" class="form-control commission_cal" name="commission[]"></td><td><input type="text" value="" class="form-control commission_earned" readonly><input type="text" value="" class="form-control commission_earned_hidden" name="commission_earned[]"></td><td><input type="number" data-valid="required" value="" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]"></td><td><input type="text" value="" class="form-control commission_claimed" readonly><input type="text" value="" class="form-control commission_claimed_hidden" name="commission_claimed[]"></td><td><select class="form-control" data-valid="required"  name="claimed_or_not[]" ><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select></td><td><select class="form-control" data-valid="required"  name="source[]" ><option value="">Select</option><option value="Prededuct">Prededuct</option><option value="Reported by college">Reported by college</option><option value="Calculated by us">Calculated by us</option><option value="Told by student">Told by student</option></select></td></tr>';
         var html = '<tr class="add_fee_option cus_fee_option"><td><input type="text" data-valid="required" value="" class="form-control date_paid" name="date_paid[]"><input type="hidden" value="2" name="fee_option_type[]"></td><td><input type="number" data-valid="required" value="" class="form-control total_fee_am_2nd" name="total_fee[]"></td><td><input type="number" data-valid="required" value="" class="form-control commission_percentage" name="commission_percentage[]"></td><td><input type="text" value="" class="form-control commission_cal" readonly><input type="hidden" value="" class="form-control commission_cal_hidden" name="commission[]"></td><td><input type="number" data-valid="required" value="" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]"></td><td><input type="text" value="" class="form-control commission_claimed" readonly><input type="hidden" value="" class="form-control commission_claimed_hidden" name="commission_claimed[]"></td><td><select class="form-control" data-valid="required"  name="claimed_or_not[]" ><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option><option value="Anticipated">Anticipated</option></select></td><td><select class="form-control" data-valid="required"  name="source[]" ><option value="">Select</option><option value="Prededuct">Prededuct</option><option value="Reported by college">Reported by college</option><option value="Calculated by us">Calculated by us</option><option value="Told by student">Told by student</option><option value="Bonus">Bonus</option></select></td></tr>';
         $('#new_fee_option_latest #productitemviewlatest tbody').append(html);
@@ -7560,7 +7560,7 @@ $(document).delegate('#notes-tab', 'click', function(){
         }
     });
 
-	$(document).delegate('#new_fee_option .removefeetype', 'click', function(){
+	$(document).on('click', '#new_fee_option .removefeetype', function(){
 		$(this).parent().parent().remove();
 
 		var price = 0;
@@ -7586,7 +7586,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	});
 
 
-	$(document).delegate('#new_fee_option .semester_amount','keyup', function(){
+	$(document).on('keyup', '#new_fee_option .semester_amount', function(){
 		var installment_amount = $(this).val();
 		var cserv = 0.00;
 		if(installment_amount != ''){
@@ -7621,7 +7621,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	});
 
 
-	$(document).delegate('#new_fee_option .no_semester','keyup', function(){
+	$(document).on('keyup', '#new_fee_option .no_semester', function(){
 		var installment = $(this).val();
 
 
@@ -7655,7 +7655,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		$('#new_fee_option .net_totl').html(duductdis.toFixed(2));
 	});
 
-	$(document).delegate('#new_fee_option .discount_amount','keyup', function(){
+	$(document).on('keyup', '#new_fee_option .discount_amount', function(){
 		var discount_amount = $(this).val();
 		var discount_sem = $('.discount_sem').val();
 		var cserv = 0.00;
@@ -7679,7 +7679,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 
 	});
 
-	$(document).delegate('#new_fee_option .discount_sem','keyup', function(){
+	$(document).on('keyup', '#new_fee_option .discount_sem', function(){
 		var discount_sem = $(this).val();
 		var discount_amount = $('.discount_amount').val();
 		var cserv = 0.00;
@@ -7704,7 +7704,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 
 	});
 
-	$(document).delegate('.editpaymentschedule', 'click', function(){
+	$(document).on('click', '.editpaymentschedule', function(){
 		$('#editpaymentschedule').modal('show');
 		$('.popuploader').show();
 		$.ajax({
@@ -7739,7 +7739,7 @@ $(document).ready(function() {
     //////////////////////////////////////////////////////
 
     //Calculate Tution Fee => on blur of Total Course Fee, Scholarship Fee, Enrolment Fee, Material fees
-    $(document).delegate('.total_fee_am','blur', function(){
+    $(document).on('blur', '.total_fee_am', function(){
         /*var commission_percentage = $('#commission_percentage').val();
         if(commission_percentage >0){
             commission_percentage = commission_percentage;
@@ -7814,7 +7814,7 @@ $(document).ready(function() {
     });
 
     //Student id blur
-    $(document).delegate('#student_id','blur', function(){
+    $(document).on('blur', '#student_id', function(){
         var student_id = $(this).val();
         var application_id = $(this).attr('data-applicationid');
         $('.popuploader').show();
@@ -7947,7 +7947,7 @@ $(document).ready(function() {
     //////////////////////////////////////////////////////
 
     //Tution fee amount blur change
-    $(document).delegate('.total_fee_am_2nd','blur', function(){
+    $(document).on('blur', '.total_fee_am_2nd', function(){
         var tution_fee_paid = $(this).val();
         if(tution_fee_paid != ""){
             tution_fee_paid = tution_fee_paid;
@@ -8006,7 +8006,7 @@ $(document).ready(function() {
     });
 
     //Commission Percentage blur change
-    $(document).delegate('.commission_percentage','blur', function(){
+    $(document).on('blur', '.commission_percentage', function(){
         var commission_percentage = $(this).val();
         if(commission_percentage != ""){
             commission_percentage = commission_percentage;
@@ -8066,7 +8066,7 @@ $(document).ready(function() {
     });
 
     //Adjustment Discount Entry blur change
-    $(document).delegate('.adjustment_discount_entry','blur', function(){
+    $(document).on('blur', '.adjustment_discount_entry', function(){
         var adjustment_discount_entry = $(this).val();
         if(adjustment_discount_entry != ""){
             adjustment_discount_entry = parseFloat(adjustment_discount_entry);
@@ -8134,97 +8134,96 @@ $(document).ready(function() {
 
 
 
+    $(document).on("dragover", "#ddArea", function() {
+        $(this).addClass("drag_over");
+        return false;
+    });
 
+    $(document).on("dragleave", "#ddArea", function() {
+        $(this).removeClass("drag_over");
+        return false;
+    });
 
-        $(document).delegate("#ddArea", "dragover", function() {
-          $(this).addClass("drag_over");
-          return false;
-        });
+    $(document).on("click", "#ddArea", function(e) {
+        file_explorer();
+    });
 
-        $(document).delegate("#ddArea", "dragleave", function() {
-          $(this).removeClass("drag_over");
-          return false;
-        });
-
-        $(document).delegate("#ddArea", "click", function(e) {
-          file_explorer();
-        });
-
-        $(document).delegate("#ddArea", "drop", function(e) {
-          e.preventDefault();
-          $(this).removeClass("drag_over");
-          var formData = new FormData();
-          var files = e.originalEvent.dataTransfer.files;
-          for (var i = 0; i < files.length; i++) {
+    $(document).on("drop", "#ddArea", function(e) {
+        e.preventDefault();
+        $(this).removeClass("drag_over");
+        var formData = new FormData();
+        var files = e.originalEvent.dataTransfer.files;
+        for (var i = 0; i < files.length; i++) {
             formData.append("file[]", files[i]);
-          }
-          formData.append("type", $('.checklisttype').val());
-            formData.append("typename", $('.checklisttypename').val());
-            formData.append("id", $('.checklistid').val());
-            formData.append("application_id", $('.application_id').val());
-            formData.append("client_id", $('.app_doc_client_id').val());
-          uploadFormData(formData);
-        });
+        }
+        formData.append("type", $('.checklisttype').val());
+        formData.append("typename", $('.checklisttypename').val());
+        formData.append("id", $('.checklistid').val());
+        formData.append("application_id", $('.application_id').val());
+        formData.append("client_id", $('.app_doc_client_id').val());
+        uploadFormData(formData);
+    });
 
-        function file_explorer() {
-          const selectfile = document.getElementById("selectfile");
-          if (!selectfile) {
+    function file_explorer() {
+        const selectfile = document.getElementById("selectfile");
+        if (!selectfile) {
             console.warn("selectfile element not found");
             return;
-          }
-          selectfile.click();
-          selectfile.onchange = function() {
+        }
+        selectfile.click();
+        selectfile.onchange = function() {
             files = selectfile.files;
             var formData = new FormData();
 
             for (var i = 0; i < files.length; i++) {
-              formData.append("file[]", files[i]);
+                formData.append("file[]", files[i]);
             }
-			formData.append("type", $('.checklisttype').val());
-			formData.append("typename", $('.checklisttypename').val());
-			formData.append("id", $('.checklistid').val());
-			formData.append("application_id", $('.application_id').val());
+            formData.append("type", $('.checklisttype').val());
+            formData.append("typename", $('.checklisttypename').val());
+            formData.append("id", $('.checklistid').val());
+            formData.append("application_id", $('.application_id').val());
             formData.append("client_id", $('.app_doc_client_id').val());
             uploadFormData(formData);
-          };
-        }
+        };
+    }
 
-       function uploadFormData(form_data) {
-            $('.popuploader').show();
-            $.ajax({
-                url: "{{URL::to('/admin/application/checklistupload')}}",
-                method: "POST",
-                data: form_data,
-                datatype: 'json',
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(response) {
-                    var obj = $.parseJSON(response);
-                    $('.popuploader').hide();
-                    $('#openfileuploadmodal').modal('hide');
-                    $('.mychecklistdocdata').html(obj.doclistdata);
-                    $('.checklistuploadcount').html(obj.applicationuploadcount);
-                    $('.'+obj.type+'_checklists').html(obj.checklistdata);
-                    if ($('#selectfile').length) {
-                        $('#selectfile').val('');
-                    }
-
-                    if(obj.application_id){
-                        $.ajax({
-                            url: site_url+'/admin/get-applications-logs',
-                            type:'GET',
-                            data:{id: obj.application_id},
-                            success: function(responses){
-                                $('#accordion').html(responses);
-                            }
-                        });
-                    }
+   function uploadFormData(form_data) {
+        $('.popuploader').show();
+        $.ajax({
+            url: "{{URL::to('/admin/application/checklistupload')}}",
+            method: "POST",
+            data: form_data,
+            datatype: 'json',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(response) {
+                var obj = $.parseJSON(response);
+                $('.popuploader').hide();
+                $('#openfileuploadmodal').modal('hide');
+                $('.mychecklistdocdata').html(obj.doclistdata);
+                $('.checklistuploadcount').html(obj.applicationuploadcount);
+                $('.'+obj.type+'_checklists').html(obj.checklistdata);
+                if ($('#selectfile').length) {
+                    $('#selectfile').val('');
                 }
-            });
-        }
 
-});
+                if(obj.application_id){
+                    $.ajax({
+                        url: site_url+'/admin/get-applications-logs',
+                        type:'GET',
+                        data:{id: obj.application_id},
+                        success: function(responses){
+                            $('#accordion').html(responses);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+}); // Close $(document).ready()
+
 function arcivedAction( id, table ) {
 		var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
 		if(conf){

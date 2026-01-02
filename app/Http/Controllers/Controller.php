@@ -72,7 +72,18 @@ class Controller extends BaseController
 	{
 		if ( base64_encode(base64_decode($string, true)) === $string)
 		{
-			return convert_uudecode(base64_decode($string));
+			try {
+				$decoded = @convert_uudecode(base64_decode($string));
+				// convert_uudecode returns false or empty string on failure in some PHP versions
+				// but throws an error in PHP 8.x for invalid uuencoded strings
+				if ($decoded === false || $decoded === '') {
+					return false;
+				}
+				return $decoded;
+			} catch (\Throwable $e) {
+				// Handle PHP 8.x throwing errors for invalid uuencoded strings
+				return false;
+			}
 		} 
 		else
 		{

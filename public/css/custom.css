@@ -1296,6 +1296,177 @@ form[name="add-leads"] select:invalid {
 	border-top: 1px solid #e3e6f0;
 }
 
+/* Professional Details Section Styles */
+.professional-details-card {
+	border: 1px solid #e2e8f0;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.professional-details-card .card-header {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-bottom: none;
+	padding: 18px 24px;
+}
+
+.professional-details-card .card-header h5 {
+	color: #ffffff;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+}
+
+.professional-details-card .card-header i {
+	color: #ffffff;
+	margin-right: 12px;
+	font-size: 20px;
+}
+
+.professional-details-card .card-body {
+	padding: 28px;
+	background: #ffffff;
+}
+
+.professional-section {
+	padding: 0;
+}
+
+.professional-section:not(:last-child) {
+	border-bottom: 1px solid #f1f5f9;
+	padding-bottom: 24px;
+}
+
+.professional-section .form-group {
+	margin-bottom: 0;
+}
+
+.professional-section .form-group label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #334155;
+	margin-bottom: 8px;
+	display: block;
+}
+
+.professional-section .form-control {
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	padding: 10px 14px;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	background-color: #ffffff;
+}
+
+.professional-section .form-control:focus {
+	border-color: #667eea;
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	outline: none;
+}
+
+.professional-section .form-control[readonly] {
+	background-color: #f8fafc;
+	color: #64748b;
+	cursor: not-allowed;
+}
+
+/* English Test Scores Section */
+.english-test-header {
+	padding: 12px 16px;
+	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+	border-left: 4px solid #0ea5e9;
+	border-radius: 6px;
+	margin-bottom: 20px;
+}
+
+.english-test-header h6 {
+	color: #0c4a6e;
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.english-test-header i {
+	color: #0284c7;
+}
+
+.english-test-wrapper {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 20px;
+}
+
+.english-test-wrapper .form-group label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #475569;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.english-test-wrapper .form-control {
+	background: #ffffff;
+	border: 1px solid #cbd5e1;
+}
+
+.english-test-wrapper .form-control:focus {
+	border-color: #0ea5e9;
+	box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* Naati/PY Checkboxes */
+.naati-py-checkboxes {
+	display: flex;
+	gap: 20px;
+	padding: 8px 0;
+}
+
+.naati-py-checkboxes .form-check {
+	margin: 0;
+}
+
+.naati-py-checkboxes .form-check-input {
+	margin-top: 0.35em;
+	cursor: pointer;
+	width: 18px;
+	height: 18px;
+	border: 2px solid #cbd5e1;
+}
+
+.naati-py-checkboxes .form-check-input:checked {
+	background-color: #667eea;
+	border-color: #667eea;
+}
+
+.naati-py-checkboxes .form-check-label {
+	font-weight: 500;
+	color: #475569;
+	cursor: pointer;
+	margin-left: 6px;
+	font-size: 14px;
+}
+
+/* Responsive adjustments for Professional Details */
+@media (max-width: 768px) {
+	.professional-details-card .card-body {
+		padding: 20px 16px;
+	}
+	
+	.professional-section {
+		padding-bottom: 20px;
+	}
+	
+	.english-test-wrapper {
+		padding: 16px;
+	}
+	
+	.naati-py-checkboxes {
+		flex-direction: column;
+		gap: 12px;
+	}
+	
+	.professional-section .row.g-3 > * {
+		margin-bottom: 16px;
+	}
+}
+
 /* Help Text */
 .form-text.text-muted {
 	font-size: 12px;
@@ -1352,6 +1523,8 @@ input[type="checkbox"] {
 	flex-shrink: 0;
 	transition: all 0.2s ease;
 	position: relative;
+	pointer-events: auto !important;
+	z-index: 1;
 }
 
 input[type="radio"] {
@@ -1394,6 +1567,8 @@ input[type="radio"]:checked::before {
 	top: 50% !important;
 	left: 50% !important;
 	transform: translate(-50%, -50%) !important;
+	pointer-events: none !important;
+	z-index: 0;
 }
 
 input[type="checkbox"]:checked {
@@ -1409,6 +1584,8 @@ input[type="checkbox"]:checked::after {
 	font-weight: bold !important;
 	text-align: center !important;
 	line-height: 16px !important;
+	pointer-events: none !important;
+	z-index: 0;
 }
 
 .form-check-input:disabled,

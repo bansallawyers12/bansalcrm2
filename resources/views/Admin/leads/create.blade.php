@@ -117,11 +117,9 @@
 												<div class="form-group">
 													<label for="dob">Date of Birth</label>
 													<div class="input-group" style="width: 90%;">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 														{!! Form::text('dob', '', array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('dob'))
 															<span class="custom-error" role="alert">
@@ -136,11 +134,9 @@
 												<div class="form-group">
 													<label for="age">Age</label>
 													<div class="input-group" style="width: 90%;">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 														{!! Form::text('age', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 														@if ($errors->has('age'))
 															<span class="custom-error" role="alert">
@@ -303,13 +299,11 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="visaExpiry">Visa Expiry Date</label>
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<div class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
-													</div>
-												</div>
+										<label for="visaExpiry">Visa Expiry Date</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
 												{!! Form::text('visaExpiry', '', array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('visaExpiry'))
 													<span class="custom-error" role="alert">
@@ -321,13 +315,11 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="preferredIntake">Preferred Intake</label>
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<div class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
-													</div>
-												</div>
+										<label for="preferredIntake">Preferred Intake</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
 												{!! Form::text('preferredIntake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('preferredIntake'))
 													<span class="custom-error" role="alert">
@@ -550,13 +542,13 @@
 
 									<div class="col-sm-3">
                                         <div class="form-group">
-                                            <label style="display:block; margin-bottom: 8px;" for="naati_py">Naati/PY</label>
-                                            <div class="d-flex align-items-center" style="gap: 15px;">
-                                                <div class="form-check">
+                                            <label style="display:block;" for="naati_py">Naati/PY</label>
+                                            <div style="white-space: nowrap;">
+                                                <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
                                                     <label class="form-check-label" for="Naati">Naati</label>
                                                 </div>
-                                                <div class="form-check">
+                                                <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
                                                     <label class="form-check-label" for="py">PY</label>
                                                 </div>

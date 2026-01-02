@@ -17,11 +17,11 @@
 								@include('../Elements/flash-message')
 							</div>
 							
-							<form action="{{URL::to('agent/login')}}" method="post" name="admin_login">
+							<form action="{{URL::to('agent/login')}}" method="post" name="admin_login" autocomplete="on">
 							<input type="hidden" name="_token" value="{{ csrf_token() }}">
 								<div class="form-group">
 									<label for="email">Email</label>
-									<input id="email" placeholder="Email" type="email" class="form-control" name="email" tabindex="1" value="{{ (Cookie::get('email') !='' && !old('email')) ? Cookie::get('email') : old('email')  }}" required autofocus>
+									<input id="email" placeholder="Email" type="email" class="form-control" name="email" tabindex="1" value="{{ (Cookie::get('email') !='' && !old('email')) ? Cookie::get('email') : old('email')  }}" required autofocus autocomplete="username">
 									@if ($errors->has('email'))
 									<div style="color: #dc3545;">
 									 {{ $errors->first('email') }}
@@ -35,7 +35,7 @@
 											<a href="#" class="text-small">Forgot Password?</a>
 										</div>
 									</div>
-									<input id="password" type="password" class="form-control" name="password" tabindex="2" placeholder="Password" value="{{ (Cookie::get('password') !='' && !old('password')) ? Cookie::get('password') : old('password')  }}" required>
+									<input id="password" type="password" class="form-control" name="password" tabindex="2" placeholder="Password" value="{{ (Cookie::get('password') !='' && !old('password')) ? Cookie::get('password') : old('password')  }}" required autocomplete="current-password">
 									<div class="invalid-feedback">
 									  please fill in your password
 									</div>

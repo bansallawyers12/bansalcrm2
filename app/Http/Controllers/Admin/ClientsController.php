@@ -1555,41 +1555,39 @@ class ClientsController extends Controller
     }
 
 	public function getrecipients(Request $request){
-		$squery = $request->q ?? ''; //dd($squery);
+		$squery = $request->q ?? '';
 		if($squery != ''){
-				$d = '';
-			 $clients = \App\Models\Admin::where('is_archived', '=', 0)
-       ->where('role', '=', 7)
-       ->where(
-           function($query) use ($squery) {
-             return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('first_name', 'LIKE','%'.$squery.'%')->orwhere('last_name', 'LIKE','%'.$squery.'%')->orwhere('client_id', 'LIKE','%'.$squery.'%')->orwhere('phone', 'LIKE','%'.$squery.'%')  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$squery."%");
-            })
-            ->get();
+			try {
+				$clients = \App\Models\Admin::where('is_archived', '=', 0)
+					->where('role', '=', 7)
+					->where(function($query) use ($squery) {
+						$query->where('email', 'LIKE', '%'.$squery.'%')
+							->orWhere('first_name', 'LIKE', '%'.$squery.'%')
+							->orWhere('last_name', 'LIKE', '%'.$squery.'%')
+							->orWhere('client_id', 'LIKE', '%'.$squery.'%')
+							->orWhere('phone', 'LIKE', '%'.$squery.'%')
+							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', '%'.$squery.'%');
+					})
+					->get();
 
-            	/* $leads = \App\Models\Lead::where('converted', '=', 0)
+				$items = array();
+				foreach($clients as $clint){
+					$fullName = trim(($clint->first_name ?? '') . ' ' . ($clint->last_name ?? ''));
+					$items[] = array(
+						'id' => $clint->id,
+						'text' => $fullName, // Required by Select2
+						'name' => $fullName,
+						'email' => $clint->email ?? '',
+						'status' => $clint->type ?? 'Client',
+						'cid' => base64_encode(convert_uuencode($clint->id))
+					);
+				}
 
-       ->where(
-           function($query) use ($squery,$d) {
-             return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('first_name', 'LIKE','%'.$squery.'%')->orwhere('last_name', 'LIKE','%'.$squery.'%')->orwhere('phone', 'LIKE','%'.$squery.'%')  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$squery."%");
-
-            })
-            ->get();*/
-
-			$items = array();
-			foreach($clients as $clint){
-				$items[] = array('name' => $clint->first_name.' '.$clint->last_name,'email'=>$clint->email,'status'=>$clint->type,'id'=>$clint->id,'cid'=>base64_encode(convert_uuencode(@$clint->id)));
+				return response()->json(array('items'=>$items));
+			} catch (\Exception $e) {
+				\Log::error('getrecipients error: ' . $e->getMessage());
+				return response()->json(array('items'=>array(), 'error' => $e->getMessage()));
 			}
-
-				$litems = array();
-		/*	foreach($leads as $lead){
-				$litems[] = array('name' => $lead->first_name.' '.$lead->last_name,'email'=>$lead->email,'status'=>'Lead','id'=>$lead->id,'cid'=>base64_encode(convert_uuencode(@$lead->id)));
-			}*/
-				$m = array_merge($items, $litems);
-			return response()->json(array('items'=>$m));
 		} else {
 			return response()->json(array('items'=>array()));
 		}

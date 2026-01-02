@@ -76,11 +76,9 @@
 															<div class="form-group"> 
 																<label for="dob">D.O.B</label>
 																<div class="input-group">
-																	<div class="input-group-prepend">
-																		<div class="input-group-text">
-																			<i class="fas fa-calendar-alt"></i>
-																		</div>
-																	</div>
+																	<span class="input-group-text">
+																		<i class="fas fa-calendar-alt"></i>
+																	</span>
 																	{!! Form::text('dob', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 																	@if ($errors->has('dob'))
 																		<span class="custom-error" role="alert">
@@ -251,13 +249,11 @@
 											<div class="row">
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
-														<label for="preferredIntake">Preferred Intake</label>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<div class="input-group-text">
-																	<i class="fas fa-calendar-alt"></i>
-																</div>
-															</div>
+													<label for="preferredIntake">Preferred Intake</label>
+													<div class="input-group">
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 															{!! Form::text('preferredIntake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 															@if ($errors->has('preferredIntake'))
 																<span class="custom-error" role="alert">
@@ -316,13 +312,11 @@
 												</div>
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
-														<label for="visaExpiry">Visa Expiry Date</label>
-														<div class="input-group">
-															<div class="input-group-prepend">
-																<div class="input-group-text">
-																	<i class="fas fa-calendar-alt"></i>
-																</div>
-															</div>
+													<label for="visaExpiry">Visa Expiry Date</label>
+													<div class="input-group">
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 															{!! Form::text('visaExpiry', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 															@if ($errors->has('visaExpiry'))
 																<span class="custom-error" role="alert">

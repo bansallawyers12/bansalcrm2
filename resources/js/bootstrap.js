@@ -139,6 +139,61 @@ if (typeof window.$ !== 'undefined' && window.bootstrap && window.bootstrap.Popo
 }
 
 /**
+ * Bootstrap 5 jQuery Bridge for Modals
+ * This adds jQuery-style API for Bootstrap 5 modals to maintain compatibility
+ * with legacy code that uses $(element).modal('show') or $(element).modal('hide')
+ */
+if (typeof window.$ !== 'undefined' && window.bootstrap && window.bootstrap.Modal) {
+    const Modal = window.bootstrap.Modal;
+    
+    // Only add bridge if Bootstrap 4 modal doesn't exist (avoid conflicts)
+    if (typeof window.$.fn.modal === 'undefined') {
+        window.$.fn.modal = function(action) {
+            return this.each(function() {
+                const $el = window.$(this);
+                const element = this;
+                let modalInstance = Modal.getInstance(element);
+                
+                // Initialize if doesn't exist
+                if (!modalInstance) {
+                    const options = {};
+                    // Support data-* attributes
+                    if ($el.attr('data-backdrop') !== undefined) {
+                        options.backdrop = $el.attr('data-backdrop') === 'false' ? false : true;
+                    }
+                    if ($el.attr('data-keyboard') !== undefined) {
+                        options.keyboard = $el.attr('data-keyboard') !== 'false';
+                    }
+                    if ($el.attr('data-focus') !== undefined) {
+                        options.focus = $el.attr('data-focus') !== 'false';
+                    }
+                    
+                    modalInstance = new Modal(element, options);
+                }
+                
+                // Handle actions: 'show', 'hide', 'toggle', 'dispose', 'handleUpdate'
+                if (action === 'show') {
+                    modalInstance.show();
+                } else if (action === 'hide') {
+                    modalInstance.hide();
+                } else if (action === 'toggle') {
+                    modalInstance.toggle();
+                } else if (action === 'dispose') {
+                    modalInstance.dispose();
+                } else if (action === 'handleUpdate') {
+                    modalInstance.handleUpdate();
+                } else if (!action) {
+                    // If no action, just initialize (jQuery plugin pattern)
+                    // Already initialized above
+                }
+            });
+        };
+        
+        console.log('Bootstrap 5 jQuery bridge for Modals initialized');
+    }
+}
+
+/**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.

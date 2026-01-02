@@ -211,11 +211,9 @@
 							<div class="form-group">
 								<label for="expect_start_date">Expected Start Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('expect_start_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -228,11 +226,9 @@
 							<div class="form-group">
 								<label for="expect_win_date">Expected Win Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('expect_win_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -793,11 +789,9 @@
 							<div class="form-group">
 								<label for="due_date">Due Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('due_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -810,11 +804,9 @@
 							<div class="form-group">
 								<label for="due_time">Due Time</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-clock"></i>
+									</span>
 									{!! Form::time('due_time', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off', 'placeholder'=>'Select Time' ))  !!}
 								</div>
 								<span class="custom-error due_time_error" role="alert">
@@ -1012,11 +1004,9 @@
 							<div class="form-group">
 								<label for="course_start">Course Start</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('course_start', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									@if ($errors->has('course_start'))
 										<span class="custom-error" role="alert">
@@ -1030,11 +1020,9 @@
 							<div class="form-group">
 								<label for="course_end">Course End</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('course_end', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									@if ($errors->has('course_end'))
 										<span class="custom-error" role="alert">
@@ -1278,11 +1266,9 @@
 							</div>
 							<div class="field_col">
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-clock"></i>
+									</span>
 									<input type="text" name="payment_date[]" placeholder="" class="datepicker form-control" />
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -1432,11 +1418,9 @@
 							<div class="form-group">
 								<label for="appoint_date">Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -1449,11 +1433,9 @@
 							<div class="form-group">
 								<label for="appoint_time">Time</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-clock"></i>
+									</span>
 									{!! Form::time('appoint_time', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' ))  !!}
 								</div>
 								<span class="custom-error appoint_time_error" role="alert">
@@ -1566,11 +1548,9 @@
 									<div class="form-group">
 										<label for="appoint_date">Date</label>
 										<div class="input-group">
-											<div class="input-group-prepend">
-												<div class="input-group-text">
-													<i class="fas fa-calendar-alt"></i>
-												</div>
-											</div>
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
 											{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 										</div>
 										<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -1583,11 +1563,9 @@
 									<div class="form-group">
 										<label for="appoint_time">Time</label>
 										<div class="input-group">
-											<div class="input-group-prepend">
-												<div class="input-group-text">
-													<i class="fas fa-clock"></i>
-												</div>
-											</div>
+											<span class="input-group-text">
+												<i class="fas fa-clock"></i>
+											</span>
 											{!! Form::time('appoint_time', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' ))  !!}
 										</div>
 										<span class="custom-error appoint_time_error" role="alert">
@@ -1659,11 +1637,9 @@
 							<div class="form-group">
 								<label for="installment_date">Installment Date <span class="span_req">*</span></label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -1782,11 +1758,9 @@
 							<div class="form-group">
 								<label for="invoice_date">Invoice Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -1954,11 +1928,9 @@
 							<div class="form-group">
 								<label for="installment_date">Installment Date <span class="span_req">*</span></label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
@@ -2004,11 +1976,9 @@
 							<div class="form-group">
 								<label for="invoice_date">Invoice Date</label>
 								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
 									{!! Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 								</div>
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>

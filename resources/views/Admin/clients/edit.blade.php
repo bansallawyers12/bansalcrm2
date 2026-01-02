@@ -119,13 +119,11 @@
 									<!-- DOB, Age, Client ID Row -->
 									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
-											<label for="dob">Date of Birth</label>
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<div class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
-													</div>
-												</div>
+										<label for="dob">Date of Birth</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
 												<?php
 													if($fetchedData->dob != ''){
 														$dob = date('d/m/Y', strtotime($fetchedData->dob));
@@ -143,13 +141,11 @@
 									
 									<div class="col-md-3 col-sm-12">
 										<div class="form-group"> 
-											<label for="age">Age</label>
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<div class="input-group-text">
-														<i class="fas fa-calendar-alt"></i>
-													</div>
-												</div>
+										<label for="age">Age</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
 												{!! Form::text('age', @$fetchedData->age, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Age' ))  !!}
 												@if ($errors->has('age'))
 													<span class="custom-error" role="alert">
@@ -379,11 +375,9 @@
 												<div class="form-group"> 
 													<label for="visaExpiry">Visa Expiry Date</label>
 													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 														{!! Form::text('visaExpiry', $visa_expiry_date, array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
 														@if ($errors->has('visaExpiry'))
 															<span class="custom-error" role="alert">
@@ -398,11 +392,9 @@
 												<div class="form-group"> 
 													<label for="preferredIntake">Preferred Intake</label>
 													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
+														<span class="input-group-text">
+															<i class="fas fa-calendar-alt"></i>
+														</span>
 														{!! Form::text('preferredIntake', @$fetchedData->preferredIntake, array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select intake date' ))  !!}
 														@if ($errors->has('preferredIntake'))
 															<span class="custom-error" role="alert">
@@ -631,97 +623,110 @@
 					@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
 					<div class="row mt-3">
 						<div class="col-12">
-							<div class="card section-card">
-								<div class="card-header bg-light">
+							<div class="card section-card professional-details-card">
+								<div class="card-header">
 									<h5 class="mb-0">
 										<i class="fas fa-briefcase text-primary"></i> Professional Details
 									</h5>
 								</div>
 								<div class="card-body">
-									<div class="row">
-										<div class="col-md-4 col-sm-12">
-											<div class="form-group"> 
-												<label for="nomi_occupation">Nominated Occupation</label>
-												{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
-												@if ($errors->has('nomi_occupation'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('nomi_occupation') }}</strong>
-													</span> 
-												@endif
+									<!-- Basic Professional Information -->
+									<div class="professional-section">
+										<div class="row g-3">
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="nomi_occupation">Nominated Occupation</label>
+													{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
+													@if ($errors->has('nomi_occupation'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('nomi_occupation') }}</strong>
+														</span> 
+													@endif
+												</div>
 											</div>
-										</div>
-										
-										<div class="col-md-4 col-sm-12">
-											<div class="form-group"> 
-												<label for="skill_assessment">Skill Assessment</label>
-												<select class="form-control" name="skill_assessment">
-													<option value="">Select</option>
-													<option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
-													<option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
-												</select>											
-												@if ($errors->has('skill_assessment'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('skill_assessment') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										
-										<div class="col-md-4 col-sm-12">
-											<div class="form-group"> 
-												<label for="high_quali_aus">Highest Qualification (Australia)</label>
-												{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
-												@if ($errors->has('high_quali_aus'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('high_quali_aus') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="high_quali_overseas">Highest Qualification Overseas</label>
-											{!! Form::text('high_quali_overseas', @$fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 											
-											@if ($errors->has('high_quali_overseas'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('high_quali_overseas') }}</strong>
-												</span> 
-											@endif
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="skill_assessment">Skill Assessment</label>
+													<select class="form-control" name="skill_assessment">
+														<option value="">Select</option>
+														<option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
+														<option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
+													</select>											
+													@if ($errors->has('skill_assessment'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('skill_assessment') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+											
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="high_quali_aus">Highest Qualification (Australia)</label>
+													{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification', 'readonly' => 'readonly' ))  !!}
+													@if ($errors->has('high_quali_aus'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('high_quali_aus') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
 										</div>
 									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
-											{!! Form::text('relevant_work_exp_aus', @$fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											
-											@if ($errors->has('relevant_work_exp_aus'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('relevant_work_exp_aus') }}</strong>
-												</span> 
-											@endif
+
+									<!-- Qualifications and Experience -->
+									<div class="professional-section mt-4">
+										<div class="row g-3">
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="high_quali_overseas">Highest Qualification Overseas</label>
+													{!! Form::text('high_quali_overseas', @$fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+													@if ($errors->has('high_quali_overseas'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('high_quali_overseas') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
+													{!! Form::text('relevant_work_exp_aus', @$fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 2 years' ))  !!}
+													@if ($errors->has('relevant_work_exp_aus'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('relevant_work_exp_aus') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+											<div class="col-md-4 col-sm-6">
+												<div class="form-group"> 
+													<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
+													{!! Form::text('relevant_work_exp_over', @$fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 5 years' ))  !!}
+													@if ($errors->has('relevant_work_exp_over'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('relevant_work_exp_over') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
 										</div>
 									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
-											{!! Form::text('relevant_work_exp_over', @$fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												
-											@if ($errors->has('relevant_work_exp_over'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('relevant_work_exp_over') }}</strong>
-												</span> 
-											@endif
+
+									<!-- English Test Scores Section -->
+									<div class="professional-section mt-4">
+										<div class="english-test-header mb-3">
+											<h6 class="mb-0">
+												<i class="fas fa-language text-info me-2"></i> English Test Scores
+											</h6>
 										</div>
-									</div>									
-									<div class="col-sm-12">
-										<div class="form-group">
-											<label>English Test Scores</label>
-											<?php
-												$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
-											?>
-											<div class="row">
-												<div class="col-sm-2">
+										<?php
+											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+										?>
+										<div class="english-test-wrapper">
+											<div class="row g-3 mb-3">
+												<div class="col-md-3 col-sm-6">
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
@@ -731,140 +736,145 @@
 														</select>
 													</div>
 												</div>
-												<div class="col-sm-2">
+												<div class="col-md-2 col-sm-4 col-6">
 													<div class="form-group">
 														<label for="listening_edit">L (Listening)</label>
-														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="Listening"/>
+														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0"/>
 													</div>
 												</div>
-												<div class="col-sm-2">
+												<div class="col-md-2 col-sm-4 col-6">
 													<div class="form-group">
 														<label for="reading_edit">R (Reading)</label>
-														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="Reading"/>
+														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0"/>
 													</div>
 												</div>
-												<div class="col-sm-2">
+												<div class="col-md-2 col-sm-4 col-6">
 													<div class="form-group">
 														<label for="writing_edit">W (Writing)</label>
-														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="Writing"/>
+														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0"/>
 													</div>
 												</div>
-												<div class="col-sm-2">
+												<div class="col-md-2 col-sm-4 col-6">
 													<div class="form-group">
 														<label for="speaking_edit">S (Speaking)</label>
-														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="Speaking"/>
+														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0"/>
 													</div>
 												</div>
-												<div class="col-sm-2">
+												<div class="col-md-1 col-sm-4 col-6">
 													<div class="form-group">
 														<label for="overall_edit">O (Overall)</label>
-														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="Overall"/>
+														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0"/>
 													</div>
 												</div>
 											</div>
-											<div class="row">
-												<div class="col-sm-3">
+											<div class="row g-3">
+												<div class="col-md-3 col-sm-6">
 													<div class="form-group">
 														<label for="test_date_edit">Test Date</label>
-														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Date"/>
+														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Select date"/>
 													</div>
 												</div>
 											</div>
-											<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
-											<input type="hidden" name="test_score_type" value="client">
-											<script>
-											function loadTestScoresEditPage() {
-												var testType = document.getElementById('test_type').value;
-												var testscores = @json($testscores);
-												
-												if (!testscores) {
-													document.getElementById('listening_edit').value = '';
-													document.getElementById('reading_edit').value = '';
-													document.getElementById('writing_edit').value = '';
-													document.getElementById('speaking_edit').value = '';
-													document.getElementById('overall_edit').value = '';
-													document.getElementById('test_date_edit').value = '';
-													return;
-												}
-												
-												if (testType === 'toefl') {
-													document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
-													document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
-													document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
-													document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
-													document.getElementById('overall_edit').value = testscores.score_1 || '';
-													document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
-												} else if (testType === 'ilets') {
-													document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
-													document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
-													document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
-													document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
-													document.getElementById('overall_edit').value = testscores.score_2 || '';
-													document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
-												} else if (testType === 'pte') {
-													document.getElementById('listening_edit').value = testscores.pte_Listening || '';
-													document.getElementById('reading_edit').value = testscores.pte_Reading || '';
-													document.getElementById('writing_edit').value = testscores.pte_Writing || '';
-													document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
-													document.getElementById('overall_edit').value = testscores.score_3 || '';
-													document.getElementById('test_date_edit').value = testscores.pte_Date || '';
-												}
-											}
-											// Load initial data on page load
-											document.addEventListener('DOMContentLoaded', function() {
-												loadTestScoresEditPage();
-											});
-											</script>
 										</div>
+										<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
+										<input type="hidden" name="test_score_type" value="client">
+										<script>
+										function loadTestScoresEditPage() {
+											var testType = document.getElementById('test_type').value;
+											var testscores = @json($testscores);
+											
+											if (!testscores) {
+												document.getElementById('listening_edit').value = '';
+												document.getElementById('reading_edit').value = '';
+												document.getElementById('writing_edit').value = '';
+												document.getElementById('speaking_edit').value = '';
+												document.getElementById('overall_edit').value = '';
+												document.getElementById('test_date_edit').value = '';
+												return;
+											}
+											
+											if (testType === 'toefl') {
+												document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
+												document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
+												document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_1 || '';
+												document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
+											} else if (testType === 'ilets') {
+												document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
+												document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
+												document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_2 || '';
+												document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
+											} else if (testType === 'pte') {
+												document.getElementById('listening_edit').value = testscores.pte_Listening || '';
+												document.getElementById('reading_edit').value = testscores.pte_Reading || '';
+												document.getElementById('writing_edit').value = testscores.pte_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_3 || '';
+												document.getElementById('test_date_edit').value = testscores.pte_Date || '';
+											}
+										}
+										// Load initial data on page load
+										document.addEventListener('DOMContentLoaded', function() {
+											loadTestScoresEditPage();
+										});
+										</script>
 									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<?php
-											$explodeenaati_py = array();
-											if($fetchedData->naati_py != ''){
-												$explodeenaati_py = explode(',', $fetchedData->naati_py);
-											} 
-											?>
-											<label style="display:block; margin-bottom: 8px;" for="naati_py">Naati/PY</label>
-											<div class="d-flex align-items-center" style="gap: 15px;">
-												<div class="form-check">
-													<input <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
-													<label class="form-check-label" for="Naati">Naati</label>
-												</div>
-												<div class="form-check">
-													<input <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
-													<label class="form-check-label" for="py">PY</label>
+
+									<!-- Additional Information -->
+									<div class="professional-section mt-4">
+										<div class="row g-3">
+											<div class="col-md-3 col-sm-6">
+												<div class="form-group"> 
+													<?php
+													$explodeenaati_py = array();
+													if($fetchedData->naati_py != ''){
+														$explodeenaati_py = explode(',', $fetchedData->naati_py);
+													} 
+													?>
+													<label for="naati_py">Naati/PY</label>
+													<div class="naati-py-checkboxes">
+														<div class="form-check form-check-inline">
+															<input <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
+															<label class="form-check-label" for="Naati">Naati</label>
+														</div>
+														<div class="form-check form-check-inline">
+															<input <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
+															<label class="form-check-label" for="py">PY</label>
+														</div>
+													</div>
 												</div>
 											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="total_points">Total Points</label>
-											{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												
-											@if ($errors->has('total_points'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('total_points') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
-													<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
-													<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
-													<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
-											</select>
-											@if ($errors->has('start_process'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('start_process') }}</strong>
-												</span> 
-											@endif
+											<div class="col-md-3 col-sm-6">
+												<div class="form-group"> 
+													<label for="total_points">Total Points</label>
+													{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
+													@if ($errors->has('total_points'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('total_points') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group"> 
+													<label for="start_process">When You want to start Process</label>
+													<select class="form-control" name="start_process">
+														<option value="">Select</option>
+														<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
+														<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
+														<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
+														<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
+													</select>
+													@if ($errors->has('start_process'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('start_process') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -1164,10 +1174,7 @@ if($fetchedData->tagname != ''){
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="interestModalLabel">Service Taken</h5>
-
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
                 <form name="createservicetaken" id="createservicetaken" autocomplete="off">
@@ -1250,9 +1257,7 @@ if($fetchedData->tagname != ''){
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientPhoneModalLabel">Add New Phone</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<form method="post" id="clientphoneform" autocomplete="off" enctype="multipart/form-data">
@@ -1320,9 +1325,7 @@ if($fetchedData->tagname != ''){
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientEmailModalLabel">Add New Email</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<form method="post" id="clientemailform" autocomplete="off" enctype="multipart/form-data">
@@ -1373,9 +1376,7 @@ if($fetchedData->tagname != ''){
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
                 <div class="mb-4" id="verificationSection">
@@ -2219,26 +2220,40 @@ jQuery(document).ready(function($){
   title: name
 				});
 	});
+	$(".js-data-example-ajaxcc").select2({
+		data: data,
+		escapeMarkup: function(markup) {
+			return markup;
+		},
+		templateResult: function(data) {
+			return data.html;
+		},
+		templateSelection: function(data) {
+			return data.text;
+		}
+	});
+	$('.js-data-example-ajaxcc').val(array);
+	$('.js-data-example-ajaxcc').trigger('change');
+	
 	<?php } ?>
 	
+// Re-initialize with AJAX support (this overrides the previous initialization)
+console.log('About to initialize Select2 with AJAX for:', $('.js-data-example-ajaxcc').length, 'elements');
 $('.js-data-example-ajaxcc').select2({
 		 multiple: true,
 		 closeOnSelect: false,
-		 minimumInputLength: 1,
-		 <?php if($fetchedData->related_files != ''){ ?>
-		 data: data,
-		 <?php } ?>
 		  ajax: {
 			url: '{{URL::to('/admin/clients/get-recipients')}}',
 			dataType: 'json',
-			delay: 250,
 			data: function (params) {
+				console.log('AJAX data function called with params:', params);
 				return {
 					q: params.term, // search term
 					page: params.page || 1
 				};
 			},
 			processResults: function (data) {
+			  console.log('AJAX processResults called with:', data);
 			  // Transforms the top-level key of the response object from 'items' to 'results'
 			  return {
 				results: data.items
@@ -2251,10 +2266,7 @@ $('.js-data-example-ajaxcc').select2({
 	templateResult: formatRepo,
 	templateSelection: formatRepoSelection
 });
-<?php if($fetchedData->related_files != ''){ ?>
-	$('.js-data-example-ajaxcc').val(array);
-	$('.js-data-example-ajaxcc').trigger('change');
-<?php } ?>
+console.log('Select2 initialized. Configuration:', $('.js-data-example-ajaxcc').data('select2'));
 function formatRepo (repo) {
   if (repo.loading) {
     return repo.text;
