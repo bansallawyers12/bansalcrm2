@@ -8,13 +8,12 @@ use App\Http\Controllers\Admin\ClientsController;
 | Unified Client Routes
 |--------------------------------------------------------------------------
 |
-| Routes accessible by both admins (auth:admin) and agents (auth:agents)
-| Agent filtering is handled automatically by traits in the controller
-| All routes use the unified route names (clients.*) instead of admin.clients.* or agent.clients.*
+| Routes accessible by admin users only (auth:admin)
+| All routes use the unified route names (clients.*) instead of admin.clients.*
 |
 */
 
-Route::middleware(['auth.multi:admin,agents'])->group(function() {
+Route::middleware(['auth:admin'])->group(function() {
     
     // Main CRUD routes
     Route::get('/clients', [ClientsController::class, 'index'])->name('clients.index');

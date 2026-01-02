@@ -14,16 +14,7 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-        // Check the request path to determine which login route to use
-        if ($request->is('admin*')) {
-            return route('admin.login');
-        }
-        
-        if ($request->is('agent*')) {
-            return route('agent.login');
-        }
-        
-        // Default to admin login if no match
+        // Redirect to admin login
         return route('admin.login');
     }
 }

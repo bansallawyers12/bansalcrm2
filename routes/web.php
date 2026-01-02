@@ -109,7 +109,8 @@ Route::get('/', 'Auth\AdminLoginController@showLoginForm')->name('login');
 Route::post('/', 'Auth\AdminLoginController@login');
 
 /*---------------Agent Route-------------------*/
-require __DIR__ . '/agent.php';
+// Agent routes disabled - agents don't have login access (they exist only as records)
+// require __DIR__ . '/agent.php';
 /*********************Admin Panel Start ***********************/
 Route::prefix('admin')->group(function() {
 	
@@ -273,59 +274,10 @@ Route::prefix('admin')->group(function() {
 	Route::get('/api-key', 'Admin\AdminController@editapi')->name('admin.edit_api');
 	Route::post('/api-key', 'Admin\AdminController@editapi');	
 	
-	//clients Start
-		Route::get('/clients', [ClientsController::class, 'index'])->name('admin.clients.index');
-		Route::get('/clients/create', [ClientsController::class, 'create'])->name('admin.clients.create'); 
-		Route::post('/clients/store', [ClientsController::class, 'store'])->name('admin.clients.store');
-		Route::get('/clients/edit/{id}', [ClientsController::class, 'edit'])->name('admin.clients.edit');
-		Route::post('/clients/edit', [ClientsController::class, 'edit']);
-		// Fallback route: redirect GET requests to edit without ID back to clients list
-		Route::get('/clients/edit', function() {
-			return redirect()->route('admin.clients.index')->with('error', 'Please select a client to edit');
-		});
-  
-		Route::post('/clients/followup/store', [ClientsController::class, 'followupstore']);
-        Route::post('/clients/followup_application/store_application', [ClientsController::class, 'followupstore_application']);
-  
-		Route::post('/clients/followup/retagfollowup', [ClientsController::class, 'retagfollowup']);
-		Route::get('/clients/changetype/{id}/{type}', [ClientsController::class, 'changetype']);
-		Route::get('/document/download/pdf/{id}', [ClientsController::class, 'downloadpdf']);
-		Route::get('/clients/removetag', [ClientsController::class, 'removetag']);
-		Route::get('/clients/detail/{id}', [ClientsController::class, 'clientdetail'])->name('admin.clients.detail');	
-		Route::get('/clients/get-recipients', [ClientsController::class, 'getrecipients'])->name('admin.clients.getrecipients');
-		Route::get('/clients/get-onlyclientrecipients', [ClientsController::class, 'getonlyclientrecipients'])->name('admin.clients.getonlyclientrecipients');
-		// Global search endpoint with rate limiting (60 requests per minute)
-		Route::get('/clients/get-allclients', [ClientsController::class, 'getallclients'])
-			->name('admin.clients.getallclients')
-			->middleware('throttle:60,1');
-		Route::get('/clients/change_assignee', [ClientsController::class, 'change_assignee']);
+	//clients routes - moved to routes/clients.php (unified routes)
+		// Keep get-templates and sendmail here as they use AdminController (not in clients.php)
 		Route::get('/get-templates', 'Admin\AdminController@gettemplates')->name('admin.clients.gettemplates');
 		Route::post('/sendmail', 'Admin\AdminController@sendmail')->name('admin.clients.sendmail');
-		Route::post('/create-note', [ClientsController::class, 'createnote'])->name('admin.clients.createnote');
-		Route::get('/getnotedetail', [ClientsController::class, 'getnotedetail'])->name('admin.clients.getnotedetail');
-		Route::get('/deletenote', [ClientsController::class, 'deletenote'])->name('admin.clients.deletenote');
-  
-        Route::get('/deleteactivitylog', [ClientsController::class, 'deleteactivitylog'])->name('admin.clients.deleteactivitylog');
-
-  
-         Route::post('/not-picked-call', [ClientsController::class, 'notpickedcall'])->name('admin.clients.notpickedcall');
-		Route::get('/viewnotedetail', [ClientsController::class, 'viewnotedetail']);
-		Route::get('/viewapplicationnote', [ClientsController::class, 'viewapplicationnote']);
-		Route::post('/saveprevvisa', [ClientsController::class, 'saveprevvisa']);	
-		//archived Start  
-		Route::get('/archived', [ClientsController::class, 'archived'])->name('admin.clients.archived');
-		Route::get('/change-client-status', [ClientsController::class, 'updateclientstatus'])->name('admin.clients.updateclientstatus');
-		Route::get('/get-activities', [ClientsController::class, 'activities'])->name('admin.clients.activities');
-		Route::get('/get-application-lists', [ClientsController::class, 'getapplicationlists'])->name('admin.clients.getapplicationlists');
-		Route::post('/saveapplication', [ClientsController::class, 'saveapplication'])->name('admin.clients.saveapplication');
-		Route::get('/get-notes', [ClientsController::class, 'getnotes'])->name('admin.clients.getnotes');
-		Route::get('/convertapplication', [ClientsController::class, 'convertapplication'])->name('admin.clients.convertapplication');
-		Route::get('/deleteservices', [ClientsController::class, 'deleteservices'])->name('admin.clients.deleteservices');
-		Route::post('/upload-document', [ClientsController::class, 'uploaddocument'])->name('admin.clients.uploaddocument');
-		Route::get('/deletedocs', [ClientsController::class, 'deletedocs'])->name('admin.clients.deletedocs');
-		Route::post('/renamedoc', [ClientsController::class, 'renamedoc'])->name('admin.clients.renamedoc');
-		
-		Route::post('/savetoapplication', [ClientsController::class, 'savetoapplication']);
 		
 		//products Start   
 		Route::get('/products', [ProductsController::class, 'index'])->name('admin.products.index');
@@ -715,14 +667,6 @@ Route::prefix('admin')->group(function() {
         
         Route::post('/action/assignee-list', 'Admin\ActionController@getAssigneeList'); //get assignee list
 
-        //Save Personal Task
-        Route::post('/clients/personalfollowup/store', [ClientsController::class, 'personalfollowup']);
-        Route::post('/clients/updatefollowup/store', [ClientsController::class, 'updatefollowup']);
-        Route::post('/clients/reassignfollowup/store', [ClientsController::class, 'reassignfollowupstore']);
-        
-        //update attending session to be completed
-        Route::post('/clients/update-session-completed', [ClientsController::class, 'updatesessioncompleted'])->name('admin.clients.updatesessioncompleted');
-        
         //Total person waiting and total activity counter
         Route::get('/fetch-InPersonWaitingCount', 'Admin\AdminController@fetchInPersonWaitingCount');
         Route::get('/fetch-TotalActivityCount', 'Admin\AdminController@fetchTotalActivityCount');
@@ -730,35 +674,7 @@ Route::prefix('admin')->group(function() {
         Route::post('/is_email_unique', 'Admin\LeadController@is_email_unique');
         Route::post('/is_contactno_unique', 'Admin\LeadController@is_contactno_unique');
         
-        //merge records
-        Route::post('/merge_records',[ClientsController::class, 'merge_records'])->name('client.merge_records');
-        
-        //update email verified at client detail page
-        Route::post('/clients/update-email-verified', [ClientsController::class, 'updateemailverified']);
-        
-        
-        Route::post('/address_auto_populate', [ClientsController::class, 'address_auto_populate']);
-  
-        Route::post('/client/createservicetaken', [ClientsController::class, 'createservicetaken']);
-        Route::post('/client/removeservicetaken', [ClientsController::class, 'removeservicetaken']);
-        Route::post('/client/getservicetaken', [ClientsController::class, 'getservicetaken']);
-  
-        Route::get('/gettagdata', [ClientsController::class, 'gettagdata']);
-  
-  		//Account Receipts section
-        Route::get('/clients/saveaccountreport/{id}', [ClientsController::class, 'saveaccountreport'])->name('admin.clients.saveaccountreport');
-        Route::post('/clients/saveaccountreport', [ClientsController::class, 'saveaccountreport'])->name('admin.clients.saveaccountreport.update');
-        Route::post('/clients/getTopReceiptValInDB', [ClientsController::class, 'getTopReceiptValInDB'])->name('admin.clients.getTopReceiptValInDB');
-        Route::get('/clients/printpreview/{id}', [ClientsController::class, 'printpreview']); //Client receipt print preview
-		Route::post('/clients/getClientReceiptInfoById', [ClientsController::class, 'getClientReceiptInfoById'])->name('admin.clients.getClientReceiptInfoById');
-
-
-        Route::get('/clients/clientreceiptlist', [ClientsController::class, 'clientreceiptlist'])->name('admin.clients.clientreceiptlist');
-        Route::post('/validate_receipt',[ClientsController::class, 'validate_receipt'])->name('client.validate_receipt');
-  
-  		//Commission Report
-        Route::get('/commissionreport', [ClientsController::class, 'commissionreport'])->name('admin.commissionreport');
-        Route::post('/commissionreport/list',[ClientsController::class, 'getcommissionreport'])->name('admin.commissionreportlist');
+        // Client routes moved to routes/clients.php (unified routes)
   
         Route::post('/application/updateStudentId', 'Admin\ApplicationsController@updateStudentId');
   
@@ -770,22 +686,9 @@ Route::prefix('admin')->group(function() {
 		Route::get('/documentchecklist/create', 'Admin\DocumentChecklistController@create')->name('admin.feature.documentchecklist.create');
 		Route::post('/documentchecklist/store', 'Admin\DocumentChecklistController@store')->name('admin.feature.documentchecklist.store');
 		Route::get('/documentchecklist/edit/{id}', 'Admin\DocumentChecklistController@edit')->name('admin.feature.documentchecklist.edit');
-		Route::post('/documentchecklist/edit', 'Admin\DocumentChecklistController@edit');
+        Route::post('/documentchecklist/edit', 'Admin\DocumentChecklistController@edit');
   
-  		//All Document Upload
-        Route::post('/add-alldocchecklist', [ClientsController::class, 'addalldocchecklist'])->name('admin.clients.addalldocchecklist');
-        Route::post('/upload-alldocument', [ClientsController::class, 'uploadalldocument'])->name('admin.clients.uploadalldocument');
-
-        //Document Not Use Tab
-        Route::post('/notuseddoc', [ClientsController::class, 'notuseddoc'])->name('admin.clients.notuseddoc');
-        Route::post('/renamechecklistdoc', [ClientsController::class, 'renamechecklistdoc'])->name('admin.clients.renamechecklistdoc');
-        Route::post('/verifydoc', [ClientsController::class, 'verifydoc'])->name('admin.clients.verifydoc');
-        Route::get('/deletealldocs', [ClientsController::class, 'deletealldocs'])->name('admin.clients.deletealldocs');
-		Route::post('/renamealldoc', [ClientsController::class, 'renamealldoc'])->name('admin.clients.renamealldoc');
-  
-  
-       //Back To Document
-        Route::post('/backtodoc', [ClientsController::class, 'backtodoc'])->name('admin.clients.backtodoc');
+  		// Client document routes moved to routes/clients.php (unified routes)
   
         //inactive partners
         Route::get('/partners-inactive', [PartnersController::class, 'inactivePartnerList'])->name('admin.partners.inactive');
@@ -842,8 +745,7 @@ Route::prefix('admin')->group(function() {
         Route::post('/partners/followup_partner/store_partner', [PartnersController::class, 'followupstore_partner']);
         //Route::get('/get-partner-activities', [PartnersController::class, 'partnerActivities')->name('admin.partners.activities');
   
-        //Fetch all contact list of any client at create note popup
-        Route::post('/clients/fetchClientContactNo', [ClientsController::class, 'fetchClientContactNo']);
+        // Client routes moved to routes/clients.php (unified routes): fetchClientContactNo
   
         //Fetch all contact list of any partner at create note popup at partner detail page
         Route::post('/partners/fetchPartnerContactNo', [PartnersController::class, 'fetchPartnerContactNo']);
@@ -882,9 +784,6 @@ Route::prefix('admin')->group(function() {
   
   
         //admin send msg
-        Route::post('/sendmsg', [ClientsController::class, 'sendmsg'])->name('admin.clients.sendmsg');
-  
-  
         //Twilio api
         Route::post('/verify/is-phone-verify-or-not', 'Admin\SMSTwilioController@isPhoneVerifyOrNot')->name('verify.is-phone-verify-or-not');
         //Route::get('/show-form', 'Admin\SMSTwilioController@showForm')->name('sms.form');
@@ -904,20 +803,14 @@ Route::prefix('admin')->group(function() {
         Route::get('/sms/responses', 'Admin\SmsController@getResponses')->name('sms.responses');
 
   
-       //Google review email sent
-        Route::post('/is_greview_mail_sent', [ClientsController::class, 'isgreviewmailsent'])->name('admin.clients.isgreviewmailsent');
-  
-        Route::post('/mail/enhance', [ClientsController::class, 'enhanceMessage'])->name('admin.mail.enhance');
+       // Client routes moved to routes/clients.php (unified routes): sendmsg, is_greview_mail_sent, mail/enhance, download-document
   
        //partner document upload
         Route::post('/upload-partner-document-upload', [PartnersController::class, 'uploadpartnerdocumentupload']);
-  
-         //Download Document
-        Route::post('/download-document', [ClientsController::class, 'download_document']);
 });     
 
-	// Include unified client routes (accessible by both admin and agents)
-	// These routes use /clients/* instead of /admin/clients/* or /agent/clients/*
+	// Include unified client routes (accessible by admin only)
+	// These routes use /clients/* instead of /admin/clients/*
 	require __DIR__ . '/clients.php';
 
 	//Email verify and client self-update routes - REMOVED (HomeController deleted, will be recreated in future)

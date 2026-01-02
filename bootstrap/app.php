@@ -17,9 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/web.php'));
             
-            Route::middleware('web')
-                ->namespace('App\Http\Controllers')
-                ->group(base_path('routes/agent.php'));
+            // Agent routes disabled - agents don't have login access (they exist only as records)
+            // Route::middleware('web')
+            //     ->namespace('App\Http\Controllers')
+            //     ->group(base_path('routes/agent.php'));
             
             Route::middleware('web')
                 ->namespace('App\Http\Controllers')
@@ -34,7 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \App\Http\Middleware\Authenticate::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'checkDobSession' => \App\Http\Middleware\CheckDobSession::class,
-            'auth.multi' => \App\Http\Middleware\AuthenticateMultiGuard::class,
         ]);
         
         // CSRF Token Exceptions for AJAX routes

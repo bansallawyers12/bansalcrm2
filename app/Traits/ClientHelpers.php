@@ -203,17 +203,16 @@ trait ClientHelpers
     }
     
     /**
-     * Get view path based on user context
+     * Get view path - always returns Admin views
+     * 
+     * Note: Agents don't have login access, so all views use Admin views
+     * Agents exist only as database records for accounting (agent_id field)
      * 
      * @param string $viewName View name without prefix (e.g., 'clients.index')
-     * @return string Full view path
+     * @return string Full view path (always Admin.*)
      */
     protected function getClientViewPath(string $viewName): string
     {
-        if ($this->isAgentContext()) {
-            return 'Agent.' . $viewName;
-        }
-        
         return 'Admin.' . $viewName;
     }
     

@@ -127,20 +127,14 @@ trait ClientQueries
      * 
      * @return bool
      */
+    /**
+     * Check if current context is agent (deprecated - agents don't have login access)
+     * 
+     * @return bool Always returns false since agents don't log in
+     */
     protected function isAgentContext(): bool
     {
-        // Check if authenticated as agent
-        if (Auth::guard('agents')->check()) {
-            return true;
-        }
-        
-        // Check if admin user has agent role (for future unified auth)
-        if (Auth::guard('admin')->check()) {
-            // This can be extended if agents are migrated to admin table
-            // For now, only check agent guard
-            return false;
-        }
-        
+        // Agents don't have login access - they exist only as records/accounting
         return false;
     }
     

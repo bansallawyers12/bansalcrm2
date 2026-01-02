@@ -41,13 +41,14 @@ trait ClientAuthorization
     }
     
     /**
-     * Check if current user is an agent
+     * Check if current user is an agent (deprecated - agents don't have login access)
      * 
-     * @return bool
+     * @return bool Always returns false since agents don't log in
      */
     protected function isAgentUser(): bool
     {
-        return Auth::guard('agents')->check();
+        // Agents don't have login access - they exist only as records/accounting
+        return false;
     }
     
     /**
