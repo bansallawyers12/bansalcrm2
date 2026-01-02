@@ -117,23 +117,10 @@
 				<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
 			</li>
 			<?php
-				}
-			
-			// New Client Manager
-			if(Route::currentRouteName() == 'clients.create-new' || Route::currentRouteName() == 'clients.edit-new' || Route::currentRouteName() == 'clients.store-new' || Route::currentRouteName() == 'clients.update-new'){
-				$clientnewclasstype = 'active'; 
 			}
-			?> 
-			<?php
-				if(array_key_exists('21',  $module_access)) {
-			?>
-			<li class="dropdown {{@$clientnewclasstype}}">
-				<a href="{{route('clients.create-new')}}" class="nav-link"><i class="fas fa-user-plus"></i><span>Client Manager New</span></a>
-			</li>
-			<?php
-				}
+		?>
 
-
+			<?php
 				//if( Auth::user()->role == 1 ){ //super admin or admin
 
                     if(Route::currentRouteName() == 'clients.clientreceiptlist'){

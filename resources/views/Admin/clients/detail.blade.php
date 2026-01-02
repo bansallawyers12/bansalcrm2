@@ -76,6 +76,90 @@
     display: inline-block;
 }
 
+/* Ensure Bootstrap dropdowns work properly in tables */
+.table .dropdown {
+    position: relative;
+}
+
+.table .dropdown-menu {
+    z-index: 1050 !important;
+    position: absolute !important;
+}
+
+/* Fix for dropdowns inside table cells */
+td .dropdown-menu {
+    z-index: 1050 !important;
+}
+
+/* Document row right-click styling */
+.document-row {
+    cursor: context-menu !important;
+    user-select: none;
+}
+
+.document-row td {
+    cursor: context-menu !important;
+}
+
+/* Allow links and buttons inside rows to work normally */
+.document-row a[href]:not([href^="javascript:"]),
+.document-row button,
+.document-row input,
+.document-row textarea,
+.document-row select {
+    cursor: pointer !important;
+}
+
+/* Context Menu Styles */
+.document-context-menu {
+    display: none;
+    position: fixed;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 10000;
+    min-width: 180px;
+    padding: 4px 0;
+    list-style: none;
+    margin: 0;
+}
+
+.document-context-menu.show {
+    display: block;
+}
+
+.document-context-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.document-context-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.document-context-menu a:hover {
+    background-color: #f5f5f5;
+}
+
+.document-context-menu a.disabled {
+    color: #999;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.document-context-menu .divider {
+    height: 1px;
+    margin: 4px 0;
+    background-color: #e0e0e0;
+    padding: 0;
+}
+
 .preview-image {
     max-width: 100%;
     height: auto;
@@ -1237,10 +1321,7 @@ use App\Http\Controllers\Controller;
 												<thead>
 													<tr>
 														<th>File Name</th>
-														<th>Added By</th>
-
 														<th>Added Date</th>
-														<th></th>
 													</tr>
 												</thead>
 												<tbody class="tdata documnetlist">
@@ -1248,8 +1329,17 @@ use App\Http\Controllers\Controller;
 										$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->where('doc_type', 'education')->where('type','client')->orderby('created_at', 'DESC')->get();
 										foreach($fetchd as $fetch){
 										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+										$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 										?>
-													<tr class="drow" id="id_{{$fetch->id}}">
+													<tr class="drow document-row" id="id_{{$fetch->id}}" 
+														data-doc-id="{{$fetch->id}}"
+														data-file-name="<?php echo htmlspecialchars($fetch->file_name, ENT_QUOTES, 'UTF-8'); ?>"
+														data-file-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+														data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
+														data-doc-type="education"
+														data-is-education="true"
+														title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
+														style="cursor: context-menu;">
 													<td  style="white-space: initial;">
 														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
 															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','preview-container-documentlist')">
@@ -1257,26 +1347,7 @@ use App\Http\Controllers\Controller;
                                                             </a>
 														</div>
 													</td>
-													<td style="white-space: initial;"><?php echo $admin->first_name; ?></td>
-
 													<td style="white-space: initial;"><?php echo date('d/m/Y', strtotime($fetch->created_at)); ?></td>
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<?php
-																$explodeimg = explode('.',$fetch->myfile);
-                                          						if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
-																?>
-																	<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
-																	<?php } ?>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-															</div>
-														</div>
-													</td>
 												</tr>
 												<?php } ?>
 												</tbody>
@@ -1438,12 +1509,9 @@ use App\Http\Controllers\Controller;
                                             <table class="table text_wrap">
                                                 <thead>
                                                     <tr>
-                                                        <th>SNo.</th>
                                                         <th>Checklist</th>
-                                                        <th>Added By</th>
                                                         <th>File Name</th>
                                                         <!--<th>Verified By</th>-->
-                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="tdata alldocumnetlist">
@@ -1452,6 +1520,7 @@ use App\Http\Controllers\Controller;
                                                     foreach($fetchd as $docKey=>$fetch)
                                                     {
                                                         $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                                                        $addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                                                         //Checklist verified by
                                                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
                                                             $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
@@ -1466,18 +1535,21 @@ use App\Http\Controllers\Controller;
                                                             $checklist_verified_at = 'N/A';
                                                         }*/
                                                         ?>
-                                                        <tr class="drow" id="id_{{$fetch->id}}">
-                                                            <td><?php echo $docKey+1;?></td>
+                                                        <tr class="drow document-row" id="id_{{$fetch->id}}" 
+                                                            data-doc-id="<?php echo $fetch->id;?>"
+                                                            data-checklist-name="<?php echo htmlspecialchars($fetch->checklist, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-file-name="<?php echo htmlspecialchars($fetch->file_name, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-file-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-myfile-key="<?php echo isset($fetch->myfile_key) ? htmlspecialchars($fetch->myfile_key, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                                                            data-doc-type="<?php echo htmlspecialchars($fetch->doc_type, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-user-role="<?php echo Auth::user()->role; ?>"
+                                                            title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            style="cursor: context-menu;">
                                                             <td style="white-space: initial;">
                                                                 <div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $fetch->checklist; ?>" class="personalchecklist-row">
                                                                     <span><?php echo $fetch->checklist; ?></span>
                                                                 </div>
-                                                            </td>
-                                                            <td style="white-space: initial;">
-                                                                <?php
-                                                                echo $admin->first_name. "<br>";
-                                                                echo date('d/m/Y', strtotime($fetch->created_at));
-                                                                ?>
                                                             </td>
                                                             <td style="white-space: initial;">
                                                                 <?php
@@ -1529,55 +1601,6 @@ use App\Http\Controllers\Controller;
                                                                 //echo $checklist_verified_at;
                                                                 ?>
                                                             </td>-->
-
-                                                            <td>
-                                                                <?php
-                                                                if( isset($fetch->myfile) && $fetch->myfile != "")
-                                                                { ?>
-                                                                    <div class="dropdown d-inline">
-                                                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a class="dropdown-item renamechecklist" href="javascript:;">Rename Checklist</a>
-                                                                            <a class="dropdown-item renamealldoc" href="javascript:;">Rename File Name</a>
-
-                                                                            <?php
-                                                                            $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                                                            ?>
-                                                                            <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-                                                                                <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Preview</a>-->
-                                                                                <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-                                                                            <?php } else {  //For old file upload?>
-                                                                                <a target="_blank" class="dropdown-item" href="<?php echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">Preview</a>
-                                                                            <?php } ?>
-
-
-                                                                            <?php
-                                                                            $explodeimg = explode('.',$fetch->myfile);
-                                                                            if(strtolower($explodeimg[1]) == 'jpg'|| strtolower($explodeimg[1]) == 'png'|| strtolower($explodeimg[1]) == 'jpeg')
-                                                                            { ?>
-                                                                            <a target="_blank" class="dropdown-item" href="{{URL::to('/admin/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
-                                                                            <?php
-                                                                            } ?>
-
-                                                                            <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
-                                                                                <!--<a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
-                                                                                <a href="#" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>">Download</a>
-                                                                            
-                                                                            <?php } else {  //For old file upload?>
-                                                                                <!--<a download class="dropdown-item" href="<?php //echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">Download</a>-->
-                                                                                <a href="#" class="dropdown-item download-file" data-filelink="<?= $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>" data-filename="<?= $fetch->file_name; ?>">Download</a>
-                                                                            <?php } ?>
-
-                                                                            <?php if( Auth::user()->role == 1 ){ //echo Auth::user()->role;//super admin ?>
-                                                                            <a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletealldocs" href="javascript:;">Delete</a>
-                                                                            <?php } ?>
-                                                                            <a data-id="{{$fetch->id}}" class="dropdown-item verifydoc" data-doctype="documents" data-href="verifydoc" href="javascript:;">Verify</a>
-                                                                            <a data-id="{{$fetch->id}}" class="dropdown-item notuseddoc" data-doctype="documents" data-href="notuseddoc" href="javascript:;">Not Used</a>
-                                                                        </div>
-                                                                    </div>
-                                                                <?php
-                                                                }?>
-                                                            </td>
                                                         </tr>
                                                     <?php
                                                     } //end foreach?>
@@ -3488,6 +3511,104 @@ if($fetchedData->tagname != ''){
 <script>
     // Any remaining Blade-specific code that cannot be extracted goes here
     // Most functionality has been moved to external JS files
+    
+    // Initialize Bootstrap 5 dropdowns for Action buttons
+    // This ensures all dropdown buttons work properly
+    (function() {
+        var dropdownInitAttempts = 0;
+        var maxAttempts = 50; // 5 seconds max wait
+        
+        function initDropdowns() {
+            dropdownInitAttempts++;
+            
+            // Check if Bootstrap is available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                // Initialize all dropdown toggles that aren't already initialized
+                var dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+                var initializedCount = 0;
+                
+                dropdownToggles.forEach(function(element) {
+                    // Check if dropdown is already initialized
+                    if (!bootstrap.Dropdown.getInstance(element)) {
+                        try {
+                            new bootstrap.Dropdown(element);
+                            initializedCount++;
+                        } catch (e) {
+                            console.warn('Failed to initialize dropdown:', e, element);
+                        }
+                    }
+                });
+                
+                if (initializedCount > 0) {
+                    console.log('Initialized ' + initializedCount + ' Bootstrap dropdown(s)');
+                }
+                
+                // Setup mutation observer for dynamically added dropdowns
+                if (!window.dropdownObserverSetup) {
+                    window.dropdownObserverSetup = true;
+                    
+                    var observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.addedNodes.length > 0) {
+                                mutation.addedNodes.forEach(function(node) {
+                                    if (node.nodeType === 1) { // Element node
+                                        // Check for dropdown toggles in the added node
+                                        var dropdowns = node.querySelectorAll ? node.querySelectorAll('[data-bs-toggle="dropdown"]') : [];
+                                        dropdowns.forEach(function(element) {
+                                            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(element)) {
+                                                try {
+                                                    new bootstrap.Dropdown(element);
+                                                } catch (e) {
+                                                    console.warn('Failed to initialize dynamic dropdown:', e);
+                                                }
+                                            }
+                                        });
+                                        
+                                        // Also check if the node itself is a dropdown toggle
+                                        if (node.hasAttribute && node.hasAttribute('data-bs-toggle') && node.getAttribute('data-bs-toggle') === 'dropdown') {
+                                            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(node)) {
+                                                try {
+                                                    new bootstrap.Dropdown(node);
+                                                } catch (e) {
+                                                    console.warn('Failed to initialize dynamic dropdown:', e);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Observe the document body for changes
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            } else if (dropdownInitAttempts < maxAttempts) {
+                // Retry if Bootstrap isn't loaded yet
+                setTimeout(initDropdowns, 100);
+            } else {
+                console.error('Bootstrap Dropdown not available after ' + maxAttempts + ' attempts');
+            }
+        }
+        
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDropdowns);
+        } else {
+            // DOM is already ready
+            initDropdowns();
+        }
+        
+        // Also try after window load as a fallback
+        window.addEventListener('load', function() {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                initDropdowns();
+            }
+        });
+    })();
 </script>
 
 @push('tinymce-scripts')

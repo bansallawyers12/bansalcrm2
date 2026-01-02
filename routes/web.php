@@ -812,6 +812,43 @@ Route::prefix('admin')->group(function() {
         // Document upload routes (aliases for backward compatibility)
         Route::post('/upload-alldocument', [ClientsController::class, 'uploadalldocument'])->name('admin.clients.uploadalldocument');
         Route::post('/upload-all-document', [ClientsController::class, 'uploadalldocument']); // Support hyphenated version
+        
+        // Client routes aliases (for backward compatibility with /admin/ prefix)
+        // These routes are defined in routes/clients.php without /admin/ prefix
+        // but JavaScript in detail.blade.php expects them with /admin/ prefix
+        
+        // Document routes
+        Route::post('/upload-document', [ClientsController::class, 'uploaddocument']);
+        Route::post('/renamedoc', [ClientsController::class, 'renamedoc']);
+        Route::post('/renamealldoc', [ClientsController::class, 'renamealldoc']);
+        Route::post('/renamechecklistdoc', [ClientsController::class, 'renamechecklistdoc']);
+        Route::post('/download-document', [ClientsController::class, 'download_document']);
+        
+        // Note routes
+        Route::get('/getnotedetail', [ClientsController::class, 'getnotedetail']);
+        Route::get('/viewnotedetail', [ClientsController::class, 'viewnotedetail']);
+        Route::get('/viewapplicationnote', [ClientsController::class, 'viewapplicationnote']);
+        Route::get('/get-notes', [ClientsController::class, 'getnotes']);
+        
+        // Activity routes
+        Route::get('/get-activities', [ClientsController::class, 'activities']);
+        Route::get('/deleteactivitylog', [ClientsController::class, 'deleteactivitylog']);
+        Route::post('/not-picked-call', [ClientsController::class, 'notpickedcall']);
+        
+        // Application routes
+        Route::get('/convertapplication', [ClientsController::class, 'convertapplication']);
+        Route::get('/get-application-lists', [ClientsController::class, 'getapplicationlists']);
+        
+        // Client status route
+        Route::get('/change-client-status', [ClientsController::class, 'updateclientstatus']);
+        
+        // Service taken routes
+        Route::post('/client/getservicetaken', [ClientsController::class, 'getservicetaken']);
+        Route::post('/client/createservicetaken', [ClientsController::class, 'createservicetaken']);
+        Route::post('/client/removeservicetaken', [ClientsController::class, 'removeservicetaken']);
+        
+        // Tag route
+        Route::get('/gettagdata', [ClientsController::class, 'gettagdata']);
 });     
 
 	// Include unified client routes (accessible by admin only)

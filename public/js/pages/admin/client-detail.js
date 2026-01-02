@@ -3122,8 +3122,336 @@ Bansal Immigration`;
 })(); // End async wrapper
 
 // ============================================================================
+// DOCUMENT CONTEXT MENU (Right-Click) - Must be outside async wrapper
+// ============================================================================
+
+// Create context menu element
+let contextMenu = null;
+let currentDocumentRow = null;
+
+function createContextMenu() {
+    if (contextMenu) return contextMenu;
+    
+    contextMenu = document.createElement('ul');
+    contextMenu.className = 'document-context-menu';
+    contextMenu.id = 'documentContextMenu';
+    document.body.appendChild(contextMenu);
+    return contextMenu;
+}
+
+function showContextMenu(event, row) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    currentDocumentRow = row;
+    const menu = createContextMenu();
+    
+    // Get document data from row
+    const docId = row.getAttribute('data-doc-id');
+    const checklistName = row.getAttribute('data-checklist-name') || '';
+    const fileName = row.getAttribute('data-file-name') || '';
+    const fileType = row.getAttribute('data-file-type') || '';
+    const myfile = row.getAttribute('data-myfile') || '';
+    const myfileKey = row.getAttribute('data-myfile-key') || '';
+    const docType = row.getAttribute('data-doc-type') || '';
+    const isEducation = row.getAttribute('data-is-education') === 'true';
+    const userRole = parseInt(row.getAttribute('data-user-role') || '0');
+    
+    console.log('Context menu triggered for doc:', docId, 'isEducation:', isEducation);
+    
+    // Clear existing menu items
+    menu.innerHTML = '';
+        
+        // Build menu items based on document type
+        if (!isEducation) {
+            // Documents section menu
+            if (checklistName) {
+                menu.appendChild(createMenuItem('Rename Checklist', function() {
+                    const renameEl = document.querySelector(`.renamechecklist[data-id="${docId}"], .personalchecklist-row[data-id="${docId}"]`);
+                    if (renameEl) renameEl.click();
+                    hideContextMenu();
+                }));
+            }
+            
+            if (fileName) {
+                menu.appendChild(createMenuItem('Rename File Name', function() {
+                    const renameEl = document.querySelector(`.renamealldoc[data-id="${docId}"]`);
+                    if (renameEl) renameEl.click();
+                    hideContextMenu();
+                }));
+            }
+            
+            menu.appendChild(createDivider());
+            
+            // Preview
+            menu.appendChild(createMenuItem('Preview', function() {
+                if (myfileKey) {
+                    // New file upload
+                    if (typeof previewFile === 'function') {
+                        const fileUrl = window.location.origin + '/' + myfile.replace(/^\//, '');
+                        previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
+                    }
+                } else {
+                    // Old file upload
+                    const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
+                    const clientId = window.PageConfig?.clientId || '';
+                    const fileUrl = url + clientId + '/' + docType + '/' + myfile;
+                    window.open(fileUrl, '_blank');
+                }
+                hideContextMenu();
+            }));
+            
+            // PDF (only for images)
+            if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
+                menu.appendChild(createMenuItem('PDF', function() {
+                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/admin/document/download/pdf/' + docId;
+                    window.open(pdfUrl, '_blank');
+                    hideContextMenu();
+                }));
+            }
+            
+            // Download
+            menu.appendChild(createMenuItem('Download', function() {
+                if (myfileKey) {
+                    const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
+                    if (downloadEl) {
+                        downloadEl.click();
+                    } else {
+                        // Create and trigger download
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/admin/download-document');
+                        form.target = '_blank';
+                        form.innerHTML = `
+                            <input type="hidden" name="_token" value="${App.getCsrf()}">
+                            <input type="hidden" name="filelink" value="${myfile}">
+                            <input type="hidden" name="filename" value="${myfileKey}">
+                        `;
+                        document.body.appendChild(form);
+                        form.submit();
+                        form.remove();
+                    }
+                } else {
+                    const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
+                    const clientId = window.PageConfig?.clientId || '';
+                    const fileUrl = url + clientId + '/' + docType + '/' + myfile;
+                    const downloadEl = document.querySelector(`.download-file[data-filelink*="${myfile}"]`);
+                    if (downloadEl) {
+                        downloadEl.click();
+                    } else {
+                        // Direct download
+                        const a = document.createElement('a');
+                        a.href = fileUrl;
+                        a.download = fileName + '.' + fileType;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                }
+                hideContextMenu();
+            }));
+            
+            menu.appendChild(createDivider());
+            
+            // Delete (only for super admin)
+            if (userRole === 1) {
+                menu.appendChild(createMenuItem('Delete', function() {
+                    const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletealldocs"]`);
+                    if (deleteEl) {
+                        if (confirm('Are you sure you want to delete this document?')) {
+                            deleteEl.click();
+                        }
+                    }
+                    hideContextMenu();
+                }));
+            }
+            
+            // Verify
+            menu.appendChild(createMenuItem('Verify', function() {
+                const verifyEl = document.querySelector(`.verifydoc[data-id="${docId}"]`);
+                if (verifyEl) verifyEl.click();
+                hideContextMenu();
+            }));
+            
+            // Not Used
+            menu.appendChild(createMenuItem('Not Used', function() {
+                const notUsedEl = document.querySelector(`.notuseddoc[data-id="${docId}"]`);
+                if (notUsedEl) notUsedEl.click();
+                hideContextMenu();
+            }));
+        } else {
+            // Education documents section menu
+            menu.appendChild(createMenuItem('Rename', function() {
+                const renameEl = document.querySelector(`.renamedoc[data-id="${docId}"]`);
+                if (renameEl) renameEl.click();
+                hideContextMenu();
+            }));
+            
+            menu.appendChild(createMenuItem('Preview', function() {
+                const previewUrl = (App.getUrl('siteUrl') || window.location.origin) + '/img/documents/' + myfile;
+                window.open(previewUrl, '_blank');
+                hideContextMenu();
+            }));
+            
+            // PDF (only for images)
+            if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
+                menu.appendChild(createMenuItem('PDF', function() {
+                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/admin/document/download/pdf/' + docId;
+                    window.open(pdfUrl, '_blank');
+                    hideContextMenu();
+                }));
+            }
+            
+            menu.appendChild(createMenuItem('Download', function() {
+                const downloadUrl = (App.getUrl('siteUrl') || window.location.origin) + '/img/documents/' + myfile;
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = fileName + '.' + fileType;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                hideContextMenu();
+            }));
+            
+            menu.appendChild(createDivider());
+            
+            menu.appendChild(createMenuItem('Delete', function() {
+                const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletedocs"]`);
+                if (deleteEl) {
+                    if (confirm('Are you sure you want to delete this document?')) {
+                        deleteEl.click();
+                    }
+                }
+                hideContextMenu();
+            }));
+        }
+        
+        // Position menu
+        menu.style.left = event.pageX + 'px';
+        menu.style.top = event.pageY + 'px';
+        menu.classList.add('show');
+        
+        // Hide menu on outside click
+        setTimeout(() => {
+            document.addEventListener('click', hideContextMenu, { once: true });
+            document.addEventListener('contextmenu', hideContextMenu, { once: true });
+        }, 0);
+    }
+    
+    function hideContextMenu() {
+        if (contextMenu) {
+            contextMenu.classList.remove('show');
+        }
+        currentDocumentRow = null;
+    }
+    
+    function createMenuItem(text, onClick) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.textContent = text;
+        a.href = 'javascript:;';
+        a.addEventListener('click', onClick);
+        li.appendChild(a);
+        return li;
+    }
+    
+    function createDivider() {
+        const li = document.createElement('li');
+        li.className = 'divider';
+        return li;
+    }
+    
+// Attach context menu to document rows
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[Context Menu] DOMContentLoaded fired');
+    console.log('[Context Menu] Looking for .document-row elements:', document.querySelectorAll('.document-row').length);
+    
+    // Handle right-click on document rows - works on entire row
+    // Use capture phase to catch events before they bubble
+    document.addEventListener('contextmenu', function(e) {
+        console.log('[Context Menu] Context menu event fired on:', e.target);
+        
+        // Check if click is on a document row or any element inside it
+        const row = e.target.closest('.document-row');
+        console.log('[Context Menu] Found row:', row);
+        
+        if (row) {
+            // Check if the click is on an interactive element that should have its own behavior
+            const isInteractiveElement = e.target.closest('a[href]:not([href^="javascript:"]), button:not([type="button"]), input, textarea, select, [contenteditable="true"]');
+            
+            console.log('[Context Menu] Is interactive element:', isInteractiveElement);
+            
+            // If it's not an interactive element, show our context menu
+            if (!isInteractiveElement) {
+                // Prevent default browser context menu
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('[Context Menu] Showing context menu');
+                
+                // Show our custom context menu
+                showContextMenu(e, row);
+                return false;
+            }
+        }
+    }, true); // Use capture phase to catch events early
+        
+        // Also handle dynamically added rows
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        // Check if the node itself is a document row
+                        if (node.classList && node.classList.contains('document-row')) {
+                            // Row will work through event delegation
+                            node.style.cursor = 'context-menu';
+                        }
+                        // Check if any child is a document row
+                        const childRows = node.querySelectorAll ? node.querySelectorAll('.document-row') : [];
+                        childRows.forEach(function(row) {
+                            // Ensure row has proper styling for context menu
+                            row.style.cursor = 'context-menu';
+                            // Also set cursor on all cells
+                            const cells = row.querySelectorAll('td');
+                            cells.forEach(function(cell) {
+                                cell.style.cursor = 'context-menu';
+                            });
+                        });
+                    }
+                });
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Ensure existing rows have proper cursor style
+        function styleDocumentRows() {
+            document.querySelectorAll('.document-row').forEach(function(row) {
+                row.style.cursor = 'context-menu';
+                // Also set cursor on all cells
+                const cells = row.querySelectorAll('td');
+                cells.forEach(function(cell) {
+                    cell.style.cursor = 'context-menu';
+                });
+            });
+        }
+        
+        // Style existing rows
+        styleDocumentRows();
+        
+        // Also style after a short delay to catch any rows added during page load
+        setTimeout(styleDocumentRows, 500);
+        
+        console.log('[Context Menu] Initialized for document rows');
+    });
+
+// ============================================================================
 // ADDITIONAL PAGE-SPECIFIC FUNCTIONS
 // ============================================================================
 
 // NOTE: Additional functions will be extracted and added here
 // Functions like getTopReceiptValInDB, grandtotalAccountTab, etc. will be added
+

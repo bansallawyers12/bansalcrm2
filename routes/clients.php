@@ -22,11 +22,6 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::get('/clients/edit/{id}', [ClientsController::class, 'edit'])->name('clients.edit');
     Route::post('/clients/edit', [ClientsController::class, 'edit'])->name('clients.update');
     
-    // New Client Manager routes
-    Route::get('/clients/create-new', [ClientsController::class, 'createNew'])->name('clients.create-new');
-    Route::post('/clients/store-new', [ClientsController::class, 'storeNew'])->name('clients.store-new');
-    Route::get('/clients/edit-new/{id}', [ClientsController::class, 'editNew'])->name('clients.edit-new');
-    Route::post('/clients/edit-new', [ClientsController::class, 'editNew'])->name('clients.update-new');
     // Fallback route: redirect GET requests to edit without ID back to clients list
     Route::get('/clients/edit', function() {
         return redirect()->route('clients.index')->with('error', 'Please select a client to edit');

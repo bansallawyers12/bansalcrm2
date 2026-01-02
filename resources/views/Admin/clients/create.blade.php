@@ -1,6 +1,224 @@
 @extends('layouts.admin')
 @section('title', 'Create Client')
 
+@push('styles')
+<style>
+/* Form Section Subheading Styles - Matching Create New Page */
+.form-section {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Compact spacing adjustments */
+.form-section:not(:last-child) {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 16px;
+}
+
+/* Override any card-header styles that might interfere */
+.card-body .form-section h3,
+.section-card .form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.card-body .form-section h3::after,
+.section-card .form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.card-body .form-section h3 i,
+.section-card .form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Ensure all section cards have consistent sizing and padding - matching create-new page */
+.form-content-section {
+    background: #ffffff !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    width: 100% !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+}
+
+.form-content-section:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.form-content-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Legacy section-card support */
+.section-card {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 16px !important;
+    transition: all 0.2s ease !important;
+}
+
+.section-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.section-card .card-body {
+    padding: 16px !important;
+}
+
+/* Remove default card styling that might interfere */
+.section-card .card-header {
+    display: none !important;
+}
+
+/* Make content-grid consistent across all sections */
+.content-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+/* Naati/PY Checkbox Styling - Matching Create New Page */
+.naati-checkbox-wrapper {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+}
+
+.naati-checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    position: relative;
+}
+
+.naati-checkbox-item:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.naati-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.naati-checkbox-label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+
+.naati-checkbox-item input[type="checkbox"]:checked ~ .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+
+.naati-checkbox-item:has(input[type="checkbox"]:checked),
+.naati-checkbox-item.checked {
+    border-color: #6366f1 !important;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)) !important;
+}
+
+.naati-checkbox-item.checked .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+</style>
+@endpush
+
 @section('content')
 
 <!-- Main Content -->
@@ -10,33 +228,54 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/clients/store', 'name'=>"add-clients", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
-			<input type="hidden" name="type" value="client">
+			{!! Form::open(array('url' => 'admin/clients/store', 'name'=>"add-clients", 'id' => 'create-client-form', 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'data-check-url' => URL::to('admin/checkclientexist'), 'data-recipients-url' => URL::to('/clients/get-recipients')))  !!}
+				<input type="hidden" name="type" value="client"> 
+				<!-- Page Header -->
 				<div class="row">   
-					<div class="col-12 col-md-12 col-lg-12">
-						<div class="card">
-							<div class="card-header">
-								<h4>Create Client</h4>
+					<div class="col-12">
+						<div class="card client-edit-header">
+							<div class="card-header d-flex justify-content-between align-items-center">
+								<div class="header-title-section">
+									<h4 class="mb-1">
+										<i class="fas fa-user-plus text-primary"></i> 
+										Create Client
+									</h4>
+								</div>
 								<div class="card-header-action">
-									<a href="{{route('clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
+								    	<i class="fa fa-arrow-left"></i> Back
+								    </a>
+								    <button type="submit" class="btn btn-primary" onclick="customValidate('add-clients')">
+								    	<i class="fas fa-save"></i> Create Client
+								    </button>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-12 col-md-12 col-lg-12">
-						<div class="card">
+				</div>
+
+				<!-- Section 1: Basic Information -->
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card section-card">
 							<div class="card-body">
+								<section class="form-section">
+									<h3><i class="fas fa-id-card"></i> Basic Information</h3>
 								<div class="row">
-									<div class="col-3 col-md-3 col-lg-3">
-								    	<div class="form-group profile_img_field">
+									<!--<div class="col-3 col-md-3 col-lg-3">
+								    	<div class="form-group profile_img_field">	
+											<input type="hidden" id="old_profile_img" name="old_profile_img" value="{{@$fetchedData->profile_img}}" />
 											<div class="profile_upload">
 												<div class="upload_content">
-													<img id="output"/> 
-													<i class="fa fa-camera if_image"></i>
-													<span class="if_image">Upload Profile Image</span>
-												</div>
-												<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
-												
+													@if(@$fetchedData->profile_img != '')
+														<img src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" style="width:100px;height:100px;" id="output"/> 
+													@else
+														<img id="output"/> 
+													@endif
+														<i <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="fa fa-camera if_image"></i>
+														<span <?php if(@$fetchedData->profile_img != ''){ echo 'style="display:none;"'; } ?> class="if_image">Upload Profile Image</span>
+													</div>
+													<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
 											</div>	
 											@if ($errors->has('profile_img'))
 												<span class="custom-error" role="alert">
@@ -44,527 +283,577 @@
 												</span> 
 											@endif
 										</div>
-									</div>
-									<div class="col-9 col-md-9 col-lg-9">
-										<div class="row">
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label for="first_name">First Name <span class="span_req">*</span></label>
-													{!! Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('first_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('first_name') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label for="last_name">Last Name <span class="span_req">*</span></label>
-													{!! Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-													@if ($errors->has('last_name'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('last_name') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-												<?php
-													$oldgender = old('gender');
-												?>
-												<div class="form-group"> 
-													<label style="display:block;" for="gender">Gender <span class="span_req">*</span></label>
-													<div class="gender-radio-group" style="display: flex !important; gap: 0.8rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem;">
-														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0.5rem; margin-bottom: 0;">
-															<input class="form-check-input" type="radio" id="male" value="Male" name="gender" <?php if($oldgender == 'Male' || $oldgender == ''){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
-															<label class="form-check-label" for="male" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Male</label>
-														</div>
-														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0.5rem; margin-bottom: 0;">
-															<input class="form-check-input" type="radio" id="female" value="Female" name="gender" <?php if($oldgender == 'Female'){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
-															<label class="form-check-label" for="female" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Female</label>
-														</div>
-														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0; margin-bottom: 0;">
-															<input class="form-check-input" type="radio" id="other" value="Other" name="gender" <?php if($oldgender == 'Other'){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
-															<label class="form-check-label" for="other" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Other</label>
-														</div>
-													</div>
-													@if ($errors->has('gender'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('gender') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group">
-													<label for="dob">
-													Date of Birth</label>
-													<div class="input-group">
-														<span class="input-group-text">
-															<i class="fas fa-calendar-alt"></i>
-														</span>
-														{!! Form::text('dob', '', array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!} 
-														@if ($errors->has('dob'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('dob') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-												<div class="form-group"> 
-													<label for="age">Age</label>
-													<div class="input-group">
-														<span class="input-group-text">
-															<i class="fas fa-calendar-alt"></i>
-														</span>
-														{!! Form::text('age', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-														@if ($errors->has('age'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('age') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-											</div>
-											<div class="col-4 col-md-4 col-lg-4">
-															<div class="form-group"> 
-																<label for="client_id">Client ID</label>
-																{!! Form::text('client_id', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-																@if ($errors->has('client_id'))
-																	<span class="custom-error" role="alert">
-																		<strong>{{ @$errors->first('client_id') }}</strong>
-																	</span> 
-																@endif
-															</div>
-														</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group">
-											<label for="martial_status">
-													Marital Status</label>
-											<select style="padding: 0px 5px;" name="martial_status" id="martial_status" class="form-control">
-														<option value="">Select Marital Status</option>
-														<option value="Married" <?php if(old('martial_status') == 'Married'){ echo 'selected'; } ?>>Married</option>
-														<option <?php if(old('martial_status') == 'Never Married'){ echo 'selected'; } ?> value="Never Married">Never Married</option>
-														<option <?php if(old('martial_status') == 'Engaged'){ echo 'selected'; } ?> value="Engaged">Engaged</option>
-														<option <?php if(old('martial_status') == 'Divorced'){ echo 'selected'; } ?> value="Divorced">Divorced</option>
-														<option <?php if(old('martial_status') == 'Separated'){ echo 'selected'; } ?> value="Separated">Separated</option>
-														<option <?php if(old('martial_status') == 'De facto'){ echo 'selected'; } ?> value="De facto">De facto</option>
-														<option <?php if(old('martial_status') == 'Widowed'){ echo 'selected'; } ?> value="Widowed">Widowed</option>
-														<option <?php if(old('martial_status') == 'Others'){ echo 'selected'; } ?> value="Others">Others</option>
-													</select>
-													@if ($errors->has('martial_status'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('martial_status') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-									<div class="col-sm-3">
-										<div class="form-group">
-											<label for="contact_type">
-											Contact Type <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="contact_type" id="contact_type" class="form-control" data-valid="required">
-												<option value="Personal" <?php if(old('contact_type') == 'Personal'){ echo 'selected'; } ?>> Personal</option>
-												<option <?php if(old('contact_type') == 'Office'){ echo 'selected'; } ?> value="Office">Office</option>
-											</select>
-											@if ($errors->has('contact_type'))
+									</div>-->
+									<input type="hidden" name="route" value="{{url()->previous()}}">
+									
+									<!-- Name and Gender Row -->
+									<div class="col-md-4 col-sm-12">
+										<div class="form-group"> 
+											<label for="first_name">First Name <span class="span_req">*</span></label>
+											{!! Form::text('first_name', old('first_name'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter first name' ))  !!}
+											@if ($errors->has('first_name'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('contact_type') }}</strong>
+													<strong>{{ @$errors->first('first_name') }}</strong>
 												</span> 
 											@endif
 										</div>
 									</div>
-									<div class="col-sm-3">
+									
+									<div class="col-md-4 col-sm-12">
 										<div class="form-group"> 
-											<label for="phone">Contact No.<span style="color:#ff0000;">*</span></label>
-											<div class="cus_field_input">
-												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="country_code" readonly >
-												</div>	
-												{!! Form::text('phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'', 'id' => 'checkphone' ))  !!}
-												@if ($errors->has('phone'))
+											<label for="last_name">Last Name <span class="span_req">*</span></label>
+											{!! Form::text('last_name', old('last_name'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter last name' ))  !!}
+											@if ($errors->has('last_name'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('last_name') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<div class="col-md-4 col-sm-12">
+										<div class="form-group"> 
+											<label for="gender">Gender <span class="span_req">*</span></label>
+											<select name="gender" id="gender" class="form-control" data-valid="required">
+												<option value="">Select Gender</option>
+												<option value="Male">Male</option>
+												<option value="Female">Female</option>
+												<option value="Other">Other</option>
+											</select>
+											@if ($errors->has('gender'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('gender') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<!-- DOB, Age, Client ID Row -->
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group">
+										<label for="dob">Date of Birth</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
+												{!! Form::text('dob', old('dob'), array('class' => 'form-control dobdatepickers', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!} 
+												@if ($errors->has('dob'))
 													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('phone') }}</strong>
+														<strong>{{ @$errors->first('dob') }}</strong>
 													</span> 
 												@endif
 											</div>
 										</div>
 									</div>
-									<div class="col-sm-3">
-										<div class="form-group">
-											<label for="email_type">
-											Email Type <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="email_type" id="email_type" class="form-control" data-valid="required">	
-												<option value="Personal" <?php if(old('email_type') == 'Personal'){ echo 'selected'; } ?>> Personal</option>
-												<option value="Business" <?php if(old('email_type') == 'Business'){ echo 'selected'; } ?>>Business</option>
-											</select>
-											@if ($errors->has('email_type'))
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group"> 
+										<label for="age">Age</label>
+										<div class="input-group">
+											<span class="input-group-text">
+												<i class="fas fa-calendar-alt"></i>
+											</span>
+												{!! Form::text('age', old('age'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Age' ))  !!}
+												@if ($errors->has('age'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('age') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group"> 
+											<label for="client_id">Client ID</label>
+											{!! Form::text('client_id', '', array('class' => 'form-control bg-light', 'data-valid'=>'', 'autocomplete'=>'off', 'id' => 'checkclientid', 'placeholder'=>'Auto-generated' ,'readonly' => 'readonly' ))  !!}
+											@if ($errors->has('client_id'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('email_type') }}</strong>
+													<strong>{{ @$errors->first('client_id') }}</strong>
 												</span> 
 											@endif
 										</div>
 									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="email">Email <span style="color:#ff0000;">*</span></label>
-											{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'', 'id' => 'checkemail' ))  !!}
+									
+									<div class="col-md-3 col-sm-12">
+										<div class="form-group">
+											<label for="martial_status">Marital Status</label>
+											<select name="martial_status" id="martial_status" class="form-control">
+												<option value="">Select Marital Status</option>
+												<option value="Married">Married</option>
+												<option value="Never Married">Never Married</option>
+												<option value="Engaged">Engaged</option>
+												<option value="Divorced">Divorced</option>
+												<option value="Separated">Separated</option>
+												<option value="De facto">De facto</option>
+												<option value="Widowed">Widowed</option>
+												<option value="Others">Others</option>
+											</select>
+											@if ($errors->has('martial_status'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('martial_status') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+								</div>
+								</section>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Section 2: Contact Information -->
+				<div class="row mt-3">
+					<div class="col-12">
+						<div class="card section-card">
+							<div class="card-body compact-contact-section">
+								<section class="form-section" style="margin-bottom: 0;">
+									<h3><i class="fas fa-user"></i> Contact Information</h3>
+								<div class="row">
+									<!-- Phone Number -->
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="client_phone">Phone Number <span class="span_req">*</span></label>
+											<div class="cus_field_input">
+												<div class="country_code">
+													<input class="telephone" id="telephone" type="tel" name="client_country_code" readonly>
+												</div>
+												{!! Form::text('client_phone', old('client_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
+												@if ($errors->has('client_phone'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('client_phone') }}</strong>
+													</span> 
+												@endif
+											</div>
+										</div>
+									</div>
+
+									<!-- Email Address -->
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="email">Email Address <span class="span_req">*</span></label>
+											{!! Form::text('email', old('email'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address', 'id'=>'checkemail' ))  !!}
 											@if ($errors->has('email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('email') }}</strong>
 												</span> 
 											@endif
 										</div>
-									</div>													
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="att_email">Email </label>
-											{!! Form::text('att_email', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('att_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('att_email') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div> 
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="att_phone">Phone</label>
-											<div class="cus_field_input">
-												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="att_country_code" readonly >
-												</div>	
-												{!! Form::text('att_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('att_phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_phone') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="visa_type">Visa Type</label>
-											<select class="form-control select2" name="visa_type">
-											<option value="">- Select Visa Type -</option>
-											@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
-												<option value="{{$visalist->name}}">{{$visalist->name}}</option>
-											@endforeach
-											</select>
-											@if ($errors->has('visa_type'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('visa_type') }}</strong>
-												</span> 
-											@endif
-									<div style="margin-top:10px;">		
-    								{!! Form::text('visa_opt', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Visa' ))  !!}
-    								</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="visaExpiry">Visa Expiry Date</label>
-											<div class="input-group">
-												<span class="input-group-text">
-													<i class="fas fa-calendar-alt"></i>
-												</span>
-												{!! Form::text('visaExpiry', '', array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('visaExpiry'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('visaExpiry') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="preferredIntake">Preferred Intake</label>
-											<div class="input-group">
-												<span class="input-group-text">
-													<i class="fas fa-calendar-alt"></i>
-												</span>
-												{!! Form::text('preferredIntake', '', array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('preferredIntake'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('preferredIntake') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div> 
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="country_passport">Country of Passport</label>
-											<select class="form-control  select2" name="country_passport" >
-											<?php
-												foreach(\App\Models\Country::all() as $list){
-													?>
-													<option <?php if(@$list->sortname == 'IN'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
-													<?php
-												}
-												?>
-											</select>
-											
-											@if ($errors->has('country_passport'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('country_passport') }}</strong>
-												</span> 
-											@endif 
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="passport_number">Passport Number</label>
-											{!! Form::text('passport_number', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('passport_number'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('passport_number') }}</strong>
-												</span> 
-											@endif
-										</div>
 									</div>
 								</div>
-								<div class="row">
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="address">Address</label>
-											{!! Form::text('address', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('address'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('address') }}</strong>
-												</span> 
-											@endif
+								</section>
+							</div>
+						</div>
+					</div>
+
+					<!-- Section 3: Visa & Passport Information -->
+					<div class="row mt-3">
+						<div class="col-12">
+							<div class="card section-card">
+								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-file-contract"></i> Visa Details</h3>
+									<div class="row">
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="visa_type">Visa Type</label>
+												<select class="form-control select2" name="visa_type" id="visa_type">
+													<option value="">- Select Visa Type -</option>
+													@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
+														<option value="{{$visalist->name}}">{{$visalist->name}}</option>
+													@endforeach
+												</select>
+												@if ($errors->has('visa_type'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('visa_type') }}</strong>
+													</span> 
+												@endif
+											</div>
 										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="city">City</label>
-											{!! Form::text('city', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('city'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('city') }}</strong>
-												</span> 
-											@endif
+										
+										<div class="col-md-4 col-sm-12">
+											<div class="form-group"> 
+												<label for="visa_opt">Visa Details</label>
+												{!! Form::text('visa_opt', old('visa_opt'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Additional visa information' ))  !!}
+											</div>
 										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="state">State</label>
-											<select class="form-control" name="state">
-												<option value="">- Select State -</option>
-												<option value="Australian Capital Territory">Australian Capital Territory</option>
-												<option value="New South Wales">New South Wales</option>
-												<option value="Northern Territory">Northern Territory</option>
-												<option value="Queensland">Queensland</option>
-												<option value="South Australia">South Australia</option>
-												<option value="Tasmania">Tasmania</option>
-												<option value="Victoria">Victoria</option>
-												<option value="Western Australia">Western Australia</option>
-											</select>
-											@if ($errors->has('state'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('state') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="zip">Post Code</label>
-											{!! Form::text('zip', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('zip'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('zip') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-								</div>
-								<hr style="border-color: #000;"/>
-								<div class="row">
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="country">Country</label>
-											<select class="form-control select2" name="country" >
-											<?php
-												foreach(\App\Models\Country::all() as $list){
-													?>
-													<option <?php if(@$list->sortname == 'AU'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
-													<?php
-												}
-												?>
-											</select>
-											@if ($errors->has('country'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('country') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-8">
-										<div class="form-group"> 
-											<label for="related_files">Similar related files</label>
-											<select class="form-control js-data-example-ajaxcc" name="related_files[]">
-												
-											</select>
-											@if ($errors->has('related_files'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('related_files') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="nomi_occupation">Nominated Occupation</label>
-											{!! Form::text('nomi_occupation', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											
-											@if ($errors->has('nomi_occupation'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('nomi_occupation') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="skill_assessment">Skill Assessment</label>
-											<select class="form-control" name="skill_assessment">
-									<option value="">Select</option>
-									<option value="Yes">Yes</option>
-									<option value="No">No</option>
-											</select>
-											
-											
-											@if ($errors->has('skill_assessment'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('skill_assessment') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="high_quali_aus">Highest Qualification in Australia</label>
-											{!! Form::text('high_quali_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											
-											@if ($errors->has('high_quali_aus'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('high_quali_aus') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="high_quali_overseas">Highest Qualification Overseas</label>
-											{!! Form::text('high_quali_overseas', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											
-											@if ($errors->has('high_quali_overseas'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('high_quali_overseas') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
-											{!! Form::text('relevant_work_exp_aus', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											
-											@if ($errors->has('relevant_work_exp_aus'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('relevant_work_exp_aus') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
-											{!! Form::text('relevant_work_exp_over', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												
-											@if ($errors->has('relevant_work_exp_over'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('relevant_work_exp_over') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>									
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="married_partner">Overall English score</label>
-											{!! Form::text('married_partner', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												
-											@if ($errors->has('married_partner'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('married_partner') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label style="display:block;" for="naati_py">Naati/PY</label>
-											<div style="white-space: nowrap;">
-												<div class="form-check form-check-inline">
-													<input class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
-													<label class="form-check-label" for="Naati">Naati</label>
-												</div>
-												<div class="form-check form-check-inline">
-													<input class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
-													<label class="form-check-label" for="py">PY</label>
+										
+										<div class="col-md-4 col-sm-12 visa-expiry-field">
+											<div class="form-group"> 
+												<label for="visaExpiry">Visa Expiry Date</label>
+												<div class="input-group">
+													<span class="input-group-text">
+														<i class="fas fa-calendar-alt"></i>
+													</span>
+													{!! Form::text('visaExpiry', old('visaExpiry'), array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
+													@if ($errors->has('visaExpiry'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('visaExpiry') }}</strong>
+														</span> 
+													@endif
 												</div>
 											</div>
 										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="total_points">Total Points</label>
-											{!! Form::text('total_points', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												
-											@if ($errors->has('total_points'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('total_points') }}</strong>
-												</span> 
-											@endif
+										
+										<div class="col-md-4 col-sm-12 visa-intake-field">
+											<div class="form-group"> 
+												<label for="preferredIntake">Preferred Intake</label>
+												<div class="input-group">
+													<span class="input-group-text">
+														<i class="fas fa-calendar-alt"></i>
+													</span>
+													{!! Form::text('preferredIntake', old('preferredIntake'), array('class' => 'form-control datepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select intake date' ))  !!}
+													@if ($errors->has('preferredIntake'))
+														<span class="custom-error" role="alert">
+															<strong>{{ @$errors->first('preferredIntake') }}</strong>
+														</span> 
+													@endif
+												</div>
+											</div> 
+										</div>
+										
+										<div class="col-md-4 col-sm-12 visa-passport-field">
+											<div class="form-group"> 
+												<label for="country_passport">Country of Passport</label>
+												<select class="form-control select2" name="country_passport">
+													<option value="">- Select Country -</option>
+												<?php
+													foreach(\App\Models\Country::all() as $list){
+														?>
+														<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+														<?php
+													}
+												?>
+												</select>
+												@if ($errors->has('country_passport'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('country_passport') }}</strong>
+													</span> 
+												@endif 
+											</div>
+										</div>
+										
+										<div class="col-md-4 col-sm-12 visa-passport-field">
+											<div class="form-group"> 
+												<label for="passport_number">Passport Number</label>
+												{!! Form::text('passport_number', old('passport_number'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter passport number' ))  !!}
+												@if ($errors->has('passport_number'))
+													<span class="custom-error" role="alert">
+														<strong>{{ @$errors->first('passport_number') }}</strong>
+													</span> 
+												@endif
+											</div>
 										</div>
 									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="start_process">When You want to start Process</label>
+								</section>
+							</div>
+						</div>
+					</div>
+
+					<!-- Address Information & Related Files -->
+					<div class="form-content-section">
+						<section class="form-section">
+							<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+							<div class="content-grid">
+								<div class="form-group" style="grid-column: span 2;">
+									<label for="address">Address</label>
+									{!! Form::text('address', old('address'), array('placeholder'=>"Search address" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
+									@if ($errors->has('address'))
+										<span class="text-danger">{{ @$errors->first('address') }}</span>
+									@endif
+									<small class="form-text text-muted">Start typing to search address</small>
+								</div>
+								
+								<div id="map" style="display:none;"></div>
+								
+								<div class="form-group">
+									<label for="city">City</label>
+									{!! Form::text('city', old('city'), array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
+									@if ($errors->has('city'))
+										<span class="text-danger">{{ @$errors->first('city') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="zip">Post Code</label>
+									{!! Form::text('zip', old('zip'), array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
+									@if ($errors->has('zip'))
+										<span class="text-danger">{{ @$errors->first('zip') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="state">State</label>
+									<select class="form-control" name="state">
+										<option value="">- Select State -</option>	
+										<option value="Australian Capital Territory">Australian Capital Territory</option>
+										<option value="New South Wales">New South Wales</option>
+										<option value="Northern Territory">Northern Territory</option>
+										<option value="Queensland">Queensland</option>
+										<option value="South Australia">South Australia</option>
+										<option value="Tasmania">Tasmania</option>
+										<option value="Victoria">Victoria</option>
+										<option value="Western Australia">Western Australia</option>
+									</select>
+									@if ($errors->has('state'))
+										<span class="text-danger">{{ @$errors->first('state') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="country">Country</label>
+									<select class="form-control select2" id="country_select" name="country">
+										<option value="">- Select Country -</option>
+									<?php
+										foreach(\App\Models\Country::all() as $list){
+											?>
+											<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+											<?php
+										}
+									?>
+									</select>
+									@if ($errors->has('country'))
+										<span class="text-danger">{{ @$errors->first('country') }}</span>
+									@endif
+								</div>
+							</div>
+						</section>
+
+						<section class="form-section">
+							<h3><i class="fas fa-link"></i> Related Files</h3>
+							<div class="content-grid">
+								<div class="form-group" style="grid-column: span 2;">
+									<label for="related_files">Similar Related Files</label>
+									<select class="form-control js-data-example-ajaxcc select2" name="related_files[]" multiple>
+									</select>
+									@if ($errors->has('related_files'))
+										<span class="text-danger">{{ @$errors->first('related_files') }}</span>
+									@endif
+								</div>
+							</div>
+						</section>
+					</div>
+
+					<!-- Professional Details Section -->
+					<div class="form-content-section">
+						<section class="form-section">
+							<h3><i class="fas fa-briefcase"></i> Professional Details</h3>
+							<div class="content-grid">
+								<div class="form-group">
+									<label for="nomi_occupation">Nominated Occupation</label>
+									{!! Form::text('nomi_occupation', old('nomi_occupation'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
+									@if ($errors->has('nomi_occupation'))
+										<span class="text-danger">{{ @$errors->first('nomi_occupation') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="skill_assessment">Skill Assessment</label>
+									<select class="form-control" name="skill_assessment">
+										<option value="">Select</option>
+										<option value="Yes">Yes</option>
+										<option value="No">No</option>
+									</select>
+									@if ($errors->has('skill_assessment'))
+										<span class="text-danger">{{ @$errors->first('skill_assessment') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="high_quali_aus">Highest Qualification in Australia</label>
+									{!! Form::text('high_quali_aus', old('high_quali_aus'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+									@if ($errors->has('high_quali_aus'))
+										<span class="text-danger">{{ @$errors->first('high_quali_aus') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="high_quali_overseas">Highest Qualification Overseas</label>
+									{!! Form::text('high_quali_overseas', old('high_quali_overseas'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+									@if ($errors->has('high_quali_overseas'))
+										<span class="text-danger">{{ @$errors->first('high_quali_overseas') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
+									{!! Form::text('relevant_work_exp_aus', old('relevant_work_exp_aus'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 2 years' ))  !!}
+									@if ($errors->has('relevant_work_exp_aus'))
+										<span class="text-danger">{{ @$errors->first('relevant_work_exp_aus') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
+									{!! Form::text('relevant_work_exp_over', old('relevant_work_exp_over'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 5 years' ))  !!}
+									@if ($errors->has('relevant_work_exp_over'))
+										<span class="text-danger">{{ @$errors->first('relevant_work_exp_over') }}</span>
+									@endif
+								</div>
+							</div>
+						</section>
+									
+									<!-- English Test Scores & Additional Information Section -->
+									<section class="form-section">
+										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
+										<?php
+											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+										?>
+										<div class="english-test-wrapper">
+											<div class="row g-3 mb-3">
+												<div class="col-md-3 col-sm-6">
+													<div class="form-group">
+														<label for="test_type">Test Type</label>
+														<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
+															<option value="toefl">TOEFL</option>
+															<option value="ilets">IELTS</option>
+															<option value="pte">PTE</option>
+														</select>
+													</div>
+												</div>
+												<div class="col-md-auto col-sm-4 col-6">
+													<div class="form-group">
+														<label for="listening_edit">L</label>
+														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+													</div>
+												</div>
+												<div class="col-md-auto col-sm-4 col-6">
+													<div class="form-group">
+														<label for="reading_edit">R</label>
+														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+													</div>
+												</div>
+												<div class="col-md-auto col-sm-4 col-6">
+													<div class="form-group">
+														<label for="writing_edit">W</label>
+														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+													</div>
+												</div>
+												<div class="col-md-auto col-sm-4 col-6">
+													<div class="form-group">
+														<label for="speaking_edit">S</label>
+														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+													</div>
+												</div>
+												<div class="col-md-auto col-sm-4 col-6">
+													<div class="form-group">
+														<label for="overall_edit">O</label>
+														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+													</div>
+												</div>
+											</div>
+											<div class="row g-3">
+												<div class="col-md-3 col-sm-6">
+													<div class="form-group">
+														<label for="test_date_edit">Test Date</label>
+														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Select date"/>
+													</div>
+												</div>
+											</div>
+										</div>
+										<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
+										<input type="hidden" name="test_score_type" value="client">
+										<script>
+										function loadTestScoresEditPage() {
+											var testType = document.getElementById('test_type').value;
+											var testscores = @json($testscores);
+											
+											if (!testscores) {
+												document.getElementById('listening_edit').value = '';
+												document.getElementById('reading_edit').value = '';
+												document.getElementById('writing_edit').value = '';
+												document.getElementById('speaking_edit').value = '';
+												document.getElementById('overall_edit').value = '';
+												document.getElementById('test_date_edit').value = '';
+												return;
+											}
+											
+											if (testType === 'toefl') {
+												document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
+												document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
+												document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_1 || '';
+												document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
+											} else if (testType === 'ilets') {
+												document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
+												document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
+												document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_2 || '';
+												document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
+											} else if (testType === 'pte') {
+												document.getElementById('listening_edit').value = testscores.pte_Listening || '';
+												document.getElementById('reading_edit').value = testscores.pte_Reading || '';
+												document.getElementById('writing_edit').value = testscores.pte_Writing || '';
+												document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
+												document.getElementById('overall_edit').value = testscores.score_3 || '';
+												document.getElementById('test_date_edit').value = testscores.pte_Date || '';
+											}
+										}
+										// Load initial data on page load
+										document.addEventListener('DOMContentLoaded', function() {
+											loadTestScoresEditPage();
+										});
+										</script>
+										
+										<div class="content-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; margin-top: 20px;">
+											<div class="form-group">
+												<?php
+												$explodeenaati_py = array();
+												if($fetchedData->naati_py != ''){
+													$explodeenaati_py = explode(',', $fetchedData->naati_py);
+												} 
+												?>
+												<label for="naati_py">Naati/PY</label>
+												<div class="naati-checkbox-wrapper">
+													<label class="naati-checkbox-item" for="Naati">
+														<input type="checkbox" id="Naati" value="Naati" name="naati_py[]" <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<span class="naati-checkbox-label">Naati</span>
+													</label>
+													<label class="naati-checkbox-item" for="py">
+														<input type="checkbox" id="py" value="PY" name="naati_py[]" <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<span class="naati-checkbox-label">PY</span>
+													</label>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="total_points">Total Points</label>
+												{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
+												@if ($errors->has('total_points'))
+													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
+												@endif
+											</div>
+											<div class="form-group">
+												<label for="start_process">When You want to start Process</label>
 												<select class="form-control" name="start_process">
 													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
-											</select>
-											@if ($errors->has('start_process'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('start_process') }}</strong>
-												</span> 
-											@endif
+													<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
+													<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
+													<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
+													<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
+												</select>
+												@if ($errors->has('start_process'))
+													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
+												@endif
+											</div>
 										</div>
-									</div>
+									</section>
 								</div>
-								<hr style="border-color: #000;"/>
-								<div class="row " id="internal">
-									<div class="col-sm-3">
+								@endif
+
+								<!-- Internal Information Section -->
+								<div class="row mt-3">
+									<div class="col-12">
+										<div class="card section-card">
+											<div class="card-body">
+												<section class="form-section">
+													<h3><i class="fas fa-cogs"></i> Internal Information</h3>
+												<div class="row" id="internal">
+													<div class="col-sm-3">
 										<div class="form-group">
 											<label for="service">Service <span style="color:#ff0000;">*</span></label>
 											<select class="form-control select2" name="service" data-valid="required">
-											<option value="">- Select Lead Service -</option>
-											@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
-												<option <?php if(old('service') == $leadservlist->name){ echo 'selected'; } ?> value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
-											@endforeach
+												<option value="">- Select Lead Service -</option>
+												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
+												<option @if($fetchedData->service == $leadservlist->name) selected @endif value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
+												@endforeach
 											</select>
 											@if ($errors->has('service'))
 												<span class="custom-error" role="alert">
@@ -576,15 +865,42 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="assign_to" id="assign_to" class="form-control select2" data-valid="required">
+                                          
+											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
 											<?php
-												$admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
-												foreach($admins as $admin){
-													$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-												?>
-												<option <?php if(old('assign_to') == $admin->id){ echo 'selected'; } ?> value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?> </option>
-												<?php } ?>
-											</select>
+                                            if( !empty($fetchedData->assignee) )
+                                            {
+                                                if ( str_contains($fetchedData->assignee, ',') ) {
+                                                    $assigneeArr = explode(",",$fetchedData->assignee);
+                                                } else {
+                                                    $assigneeArr = array($fetchedData->assignee);
+                                                }
+
+                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                foreach($admins as $admin)
+                                                {
+                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+                                                    foreach($assigneeArr as $assigneeKey=>$assigneeVal ) {
+                                            ?>
+                                                <option @if($assigneeVal == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                            <?php
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                $assigneeArr = array();
+                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                foreach($admins as $admin){
+                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+                                                ?>
+                                                <option @if($fetchedData->assignee == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                            <?php
+                                                }
+                                            } ?>
+
+                                            </select>
+                                          
 											@if ($errors->has('assign_to'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('assign_to') }}</strong>
@@ -597,10 +913,10 @@
 											<label for="status">Status</label>
 											<select style="padding: 0px 5px;" name="status" id="status" class="form-control" data-valid="">
 												<option value="">Select Status</option>
-												<option <?php if(old('status') == 'Unassigned'){ echo 'selected'; } ?> value="Unassigned">Unassigned</option>
-												<option <?php if(old('status') == 'Assigned'){ echo 'selected'; } ?> value="Assigned">Assigned</option>
-												<option <?php if(old('status') == 'In-Progress'){ echo 'selected'; } ?> value="In-Progress">In-Progress</option>
-												<option <?php if(old('status') == 'Closed'){ echo 'selected'; } ?> value="Closed">Closed</option>
+												<option value="Unassigned" @if(@$fetchedData->status == "Unassigned") selected @endif>Unassigned</option>
+												<option value="Assigned" @if(@$fetchedData->status == "Assigned") selected @endif>Assigned</option>
+												<option value="In-Progress" @if(@$fetchedData->status == "In-Progress") selected @endif>In-Progress</option>
+												<option value="Closed" @if(@$fetchedData->status == "Closed") selected @endif>Closed</option>
 											</select>
 											@if ($errors->has('status'))
 												<span class="custom-error" role="alert">
@@ -613,11 +929,11 @@
 										<div class="form-group">
 											<label for="lead_quality">Quality <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control" data-valid="required">
-												<option <?php if(old('lead_quality') == '1'){ echo 'selected'; } ?> value="1">1</option>
-												<option <?php if(old('lead_quality') == '2'){ echo 'selected'; } ?> value="2">2</option>
-												<option <?php if(old('lead_quality') == '3'){ echo 'selected'; } ?> value="3">3</option>
-												<option <?php if(old('lead_quality') == '4'){ echo 'selected'; } ?> value="4">4</option>
-												<option <?php if(old('lead_quality') == '5'){ echo 'selected'; } ?> value="5">5</option>
+												<option value="1" @if(@$fetchedData->lead_quality == "1") selected @endif>1</option>
+												<option value="2" @if(@$fetchedData->lead_quality == "2") selected @endif>2</option>
+												<option value="3" @if(@$fetchedData->lead_quality == "3") selected @endif>3</option>
+												<option value="4" @if(@$fetchedData->lead_quality == "4") selected @endif>4</option>
+												<option value="5" @if(@$fetchedData->lead_quality == "5") selected @endif>5</option>
 											</select>
 											@if ($errors->has('lead_quality'))
 												<span class="custom-error" role="alert">
@@ -630,11 +946,11 @@
 										<div class="form-group">
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
-										<option value="">- Source -</option>
-									    <option value="Sub Agent">Sub Agent</option>
-											@foreach(\App\Models\Source::all() as $sources)
-											<option <?php if(old('lead_source') == $sources->name){ echo 'selected'; } ?> value="{{$sources->name}}">{{$sources->name}}</option>
-							@endforeach
+												<option value="">- Source -</option>
+												<option value="Sub Agent" @if(@$fetchedData->source == 'Sub Agent') selected @endif>Sub Agent</option>
+												@foreach(\App\Models\Source::all() as $sources)
+													<option value="{{$sources->name}}" @if(@$fetchedData->source == $sources->name) selected @endif>{{$sources->name}}</option>
+												@endforeach
 											</select>
 											@if ($errors->has('lead_source'))
 												<span class="custom-error" role="alert">
@@ -644,41 +960,132 @@
 										</div>
 									</div>
 									<div class="col-sm-3 is_subagent" style="display:none;">
-													<div class="form-group"> 
-														<label for="subagent">Sub Agent <span class="span_req">*</span></label>
-														<select class="form-control select2" name="subagent">  
-															<option>-- Choose a sub agent --</option>
-															@foreach(\App\Models\Agent::all() as $agentlist)
-																<option value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
-															@endforeach
-														</select>
-														@if ($errors->has('subagent'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('subagent') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
+										<div class="form-group"> 
+											<label for="subagent">Sub Agent <span class="span_req">*</span></label>
+											<select class="form-control select2" name="subagent">  
+												<option>-- Choose a sub agent --</option>
+												@foreach(\App\Models\Agent::all() as $agentlist)
+													<option <?php if(@$fetchedData->agent_id == $agentlist->id){ echo 'selected'; } ?> value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
+												@endforeach
+											</select>
+											@if ($errors->has('subagent'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('subagent') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+                                  
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="tags_label">Tags/Label </label>
-										<select multiple class="form-control select2" name="tagname[]">
-															<option value="">-- Search & Select tag --</option>
-														<?php
-														foreach(\App\Models\Tag::all() as $tags){
-															?>
-															<option value="{{$tags->id}}">{{$tags->name}}</option>
-															<?php
-														}
-														?>	 
-														</select>
-										
+											<?php
+											/*$explodee = array();
+                                            if($fetchedData->tagname != ''){
+                                                $explodee = explode(',', $fetchedData->tagname);
+                                            } */
+											?>
+											<!--<select multiple class="form-control select2" name="tagname[]">
+												<option value="">-- Search & Select tag --</option>-->
+												<?php
+												//foreach(\App\Models\Tag::all() as $tags){
+                                                 //foreach(\App\Models\Tag::select('id', 'name')->paginate(50) as $tags){
+												?>
+										<!--<option <?php //if(in_array($tags->id, $explodee)){ echo 'selected'; } ?>  value="{{--$tags->id--}}">{{--$tags->name--}}</option>-->
+												<?php
+												//}
+												?>	 
+											<!--</select>-->
+                                          
+                                            <select multiple class="form-control select2"  id="tag"  name="tagname[]">
+
+											</select>
 										</div>
 									</div>
+                                  
+									<!-- Services Taken Section -->
+									<div class="col-12 mt-4">
+										<div class="services-taken-header d-flex justify-content-between align-items-center mb-3">
+											<h6 class="mb-0"><i class="fas fa-briefcase"></i> Services Taken</h6>
+											<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-sm btn-primary serviceTaken">
+												<i class="fa fa-plus"></i> Add Service
+											</a>
+										</div>
+                                       
+									   <div id="service_taken_complete" style="display:none;"></div>
+
+										<div class="services-taken-grid">
+											<?php
+											$serviceTakenArr = \App\Models\clientServiceTaken::where('client_id', $fetchedData->id )->orderBy('created_at', 'desc')->get();
+											if( !empty($serviceTakenArr) && count($serviceTakenArr) > 0 ){
+												foreach ($serviceTakenArr as $tokenkey => $tokenval) {
+													$serviceClass = strtolower($tokenval['service_type']);
+													?>
+													<div class="service-card service-card-<?php echo $serviceClass; ?>" id="service-card-<?php echo $tokenval['id']; ?>">
+														<div class="service-card-header">
+															<span class="service-type-badge badge badge-<?php echo $serviceClass == 'migration' ? 'primary' : 'info'; ?>">
+																<?php echo $tokenval['service_type']; ?>
+															</span>
+															<div class="service-actions">
+																<a href="javascript:;" class="service_taken_edit text-primary" id="<?php echo $tokenval['id']; ?>" title="Edit">
+																	<i class="fa fa-edit"></i>
+																</a>
+																<a href="javascript:;" class="service_taken_trash text-danger ms-2" id="<?php echo $tokenval['id']; ?>" title="Delete">
+																	<i class="fa fa-trash"></i>
+																</a>
+															</div>
+														</div>
+														<div class="service-card-body">
+															<?php if($tokenval['service_type'] == "Migration") { ?>
+																<div class="service-detail">
+																	<span class="detail-label">Reference No:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_ref_no']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Service:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_service']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Notes:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['mig_notes']); ?></span>
+																</div>
+															<?php } else if($tokenval['service_type'] == "Education") { ?>
+																<div class="service-detail">
+																	<span class="detail-label">Course:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_course']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">College:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_college']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Start Date:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_service_start_date']); ?></span>
+																</div>
+																<div class="service-detail">
+																	<span class="detail-label">Notes:</span>
+																	<span class="detail-value"><?php echo htmlspecialchars($tokenval['edu_notes']); ?></span>
+																</div>
+															<?php } ?>
+														</div>
+													</div>
+													<?php
+												}
+											} else {
+												echo '<div class="no-services-message">';
+												echo '<i class="fas fa-inbox fa-3x text-muted mb-3"></i>';
+												echo '<p class="text-muted">No services have been added yet.</p>';
+												echo '<p class="text-muted"><small>Click "Add Service" to create a new service record.</small></p>';
+												echo '</div>';
+											}
+											?>
+										</div>
+									</div>
+                                  
 									<div class="col-sm-12">
 										<div class="form-group">
 											<label for="comments_note">Comments / Note</label>
-											<textarea class="form-control" name="comments_note" placeholder="" data-valid="">{{old('comments_note')}}</textarea>
+											<textarea class="form-control" name="comments_note" placeholder="" data-valid="">{{@$fetchedData->comments_note}}</textarea>
 											@if ($errors->has('comments_note')) 
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('comments_note') }}</strong>
@@ -688,124 +1095,401 @@
 									</div>  
 									<div class="col-sm-12">
 										<div class="form-group float-end">
-											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-clients")' ])  !!}
+                                             <div class="removesids_contact"></div>
+											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients")' ])  !!}
 										</div>
 									</div>
-								</div> 
+								</div>
+								</section> 
 							</div>
-						</div>	
-					</div>
-				</div>  
-			 {!! Form::close()  !!}	
+					</div>	
+				</div>
+			</div>  
+			</form>
 		</div>
 	</section>
+</div>
+ <?php if($fetchedData->related_files != ''){
+     $exploderel = explode(',', $fetchedData->related_files);
+     foreach($exploderel AS $EXP){ 
+         // PostgreSQL doesn't accept empty strings for integer columns - filter empty values
+         if(!empty(trim($EXP)) && trim($EXP) !== '') {
+             $relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();	
+             if($relatedclients) {
+    ?>
+ <input type="hidden" class="relatedfile" data-email="<?php echo $relatedclients->email; ?>" data-name="<?php echo $relatedclients->first_name.' '.$relatedclients->last_name; ?>" data-id="<?php echo $relatedclients->id; ?>">
+    <?php
+            }
+        }
+     }
+ } ?>
+
+<?php
+if($fetchedData->tagname != ''){
+   $tagnameArr = explode(',', $fetchedData->tagname);
+   foreach($tagnameArr AS $tag1){
+       $tagWord = \App\Models\Tag::where('id', $tag1)->first();
+   ?>
+<input type="hidden" class="relatedtag" data-name="<?php echo $tagWord->name; ?>" data-id="<?php echo $tagWord->id; ?>">
+<?php
+   }
+} ?>
+
+<div class="modal fade custom_modal" id="serviceTaken" tabindex="-1" role="dialog" aria-labelledby="create_interestModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="interestModalLabel">Service Taken</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+                <form name="createservicetaken" id="createservicetaken" autocomplete="off">
+				@csrf
+                    <input id="logged_client_id" name="logged_client_id"  type="hidden" value="<?php echo $fetchedData->id;?>">
+					<input type="hidden" name="entity_type" id="entity_type" value="add">
+                    <input type="hidden" name="entity_id" id="entity_id" value="">
+                    <div class="row">
+						<div class="col-12 col-md-12 col-lg-12">
+
+							<div class="form-group">
+								<label style="display:block;" for="service_type">Select Service Type:</label>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" id="Migration_inv" value="Migration" name="service_type" checked>
+									<label class="form-check-label" for="Migration_inv">Migration</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" id="Eductaion_inv" value="Education" name="service_type">
+									<label class="form-check-label" for="Eductaion_inv">Education</label>
+								</div>
+								<span class="custom-error service_type_error" role="alert">
+									<strong></strong>
+								</span>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-12 col-lg-12 is_Migration_inv">
+                            <div class="form-group">
+								<label for="mig_ref_no">Reference No: <span class="span_req">*</span></label>
+                                <input type="text" name="mig_ref_no" id="mig_ref_no" value="" class="form-control" data-valid="required">
+                            </div>
+
+                            <div class="form-group">
+								<label for="mig_service">Service: <span class="span_req">*</span></label>
+                                <input type="text" name="mig_service" id="mig_service" value="" class="form-control" data-valid="required">
+                            </div>
+
+                            <div class="form-group">
+								<label for="mig_notes">Notes: <span class="span_req">*</span></label>
+                                <input type="text" name="mig_notes" id="mig_notes" value="" class="form-control" data-valid="required">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-12 col-lg-12 is_Eductaion_inv" style="display:none;">
+                            <div class="form-group">
+								<label for="edu_course">Course: <span class="span_req">*</span></label>
+                                <input type="text" name="edu_course" id="edu_course" value="" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+								<label for="edu_college">College: <span class="span_req">*</span></label>
+                                <input type="text" name="edu_college" id="edu_college" value="" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+								<label for="edu_service_start_date">Service Start Date: <span class="span_req">*</span></label>
+                                <input type="text" name="edu_service_start_date" id="edu_service_start_date" value="" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+								<label for="edu_notes">Notes: <span class="span_req">*</span></label>
+                                <input type="text" name="edu_notes" id="edu_notes" value="" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-12 col-lg-12">
+							<button onclick="customValidate('createservicetaken')" type="button" class="btn btn-primary" id="createservicetaken_btn">Save</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade addclientphone custom_modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="clientPhoneModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientPhoneModalLabel">Add New Phone</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form method="post" id="clientphoneform" autocomplete="off" enctype="multipart/form-data">
+					<div class="row">
+                        <div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="contact_type">Contact Type <span style="color:#ff0000;">*</span></label>
+								<select name="contact_type[]" id="contact_type" class="form-control">
+                                    <option value="">Select</option>
+                                    <option value="Personal">Personal</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Secondary">Secondary</option>
+                                    <option value="Father">Father</option>
+                                    <option value="Mother">Mother</option>
+                                    <option value="Brother">Brother</option>
+                                    <option value="Sister">Sister</option>
+                                    <option value="Uncle">Uncle</option>
+                                    <option value="Aunt">Aunt</option>
+                                    <option value="Cousin">Cousin</option>
+                                    <option value="Others">Others</option>
+                                    <option value="Partner">Partner</option>
+                                    <option value="Not In Use">Not In Use</option>
+                                </select>
+								@if ($errors->has('contact_type'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('contact_type') }}</strong>
+									</span>
+								@endif
+							</div>
+						</div>
+
+                        <div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="client_phone">Phone Number </label>
+								<div class="cus_field_input">
+									<div class="country_code">
+										<input class="telephone" id="telephone" type="tel" name="client_country_code" >
+									</div>
+									{!! Form::text('client_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
+									@if ($errors->has('client_phone'))
+										<span class="custom-error" role="alert">
+											<strong>{{ @$errors->first('client_phone') }}</strong>
+										</span>
+									@endif
+								</div>
+							</div>
+						</div>
+
+                        <div class="col-12 col-md-12 col-lg-12">
+							<button type="button" class="btn btn-primary saveclientphone">Save</button>
+							<button type="button" id="update_clientphone" style="display:none" class="btn btn-primary">Update</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Add Client Email Modal -->
+<div class="modal fade addclientemail custom_modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="clientEmailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientEmailModalLabel">Add New Email</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form method="post" id="clientemailform" autocomplete="off" enctype="multipart/form-data">
+					<div class="row">
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="email_type_modal">Email Type <span style="color:#ff0000;">*</span></label>
+								<select name="email_type_modal" id="email_type_modal" class="form-control">
+									<option value="">Select</option>
+									<option value="Personal">Personal</option>
+									<option value="Business">Business</option>
+									<option value="Secondary">Secondary</option>
+									<option value="Additional">Additional</option>
+								</select>
+								@if ($errors->has('email_type_modal'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('email_type_modal') }}</strong>
+									</span>
+								@endif
+							</div>
+						</div>
+
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="client_email">Email Address <span style="color:#ff0000;">*</span></label>
+								{!! Form::text('client_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address' ))  !!}
+								@if ($errors->has('client_email'))
+									<span class="custom-error" role="alert">
+										<strong>{{ @$errors->first('client_email') }}</strong>
+									</span>
+								@endif
+							</div>
+						</div>
+
+						<div class="col-12 col-md-12 col-lg-12">
+							<button type="button" class="btn btn-primary saveclientemail">Save</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Verify Phone-->
+<div id="verifyphonemodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+                <div class="mb-4" id="verificationSection">
+                    <h5>Verify Phone Number</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="verify_phone_number" placeholder="" value="">
+                        <button class="btn btn-outline-secondary" type="button" id="sendCodeBtn">Send Code</button>
+                    </div>
+
+                    <div id="verificationCodeSection" style="display: none;">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="verification_code" placeholder="Enter verification code">
+                            <button class="btn btn-outline-secondary" type="button" id="verifyCodeBtn">Verify Code</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
 </div>
 
 @endsection
 
 @section('scripts')
+
+@if($showAlert)
+    <script>
+        alert("Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?");
+    </script>
+@endif
+
+<!-- Configuration for Page-Specific JavaScript -->
+<script>
+    window.AppConfig = window.AppConfig || {};
+    window.PageConfig = window.PageConfig || {};
+    
+    // CSRF Token
+    AppConfig.csrf = '{{ csrf_token() }}';
+    
+    // API URLs
+    AppConfig.urls = {
+        siteUrl: '{{ url("/") }}',
+        getTagData: '{{ url("/admin/gettagdata") }}',
+        verifyEmail: '{{ route("verify.send-code") }}',
+        checkCode: '{{ route("verify.check-code") }}',
+        getRecipients: '{{ url("/clients/get-recipients") }}',
+        checkClientExist: '{{ url("/admin/checkclientexist") }}',
+        getServiceTaken: '{{ url("/admin/client/getservicetaken") }}',
+        createServiceTaken: '{{ url("/admin/client/createservicetaken") }}',
+        removeServiceTaken: '{{ url("/admin/client/removeservicetaken") }}',
+        emailVerify: '{{ url("/email-verify") }}',
+        verifySendCode: '{{ route("verify.send-code") }}',
+        verifyCheckCode: '{{ route("verify.check-code") }}'
+    };
+    
+    // Page-specific data
+    PageConfig.clientId = {{ $fetchedData->id }};
+    PageConfig.clientFirstName = '{{ $fetchedData->first_name }}';
+    PageConfig.source = '{{ $fetchedData->source ?? "" }}';
+    
+    @if(isset($tagdata) && !empty($tagdata))
+    PageConfig.tagInitialData = {!! json_encode($tagdata) !!};
+    @else
+    PageConfig.tagInitialData = [];
+    @endif
+    
+    @if(isset($relatedfiles) && !empty($relatedfiles))
+    PageConfig.relatedFilesData = {!! json_encode($relatedfiles) !!};
+    @else
+    PageConfig.relatedFilesData = [];
+    @endif
+</script>
+
+{{-- Common JavaScript Files (load first) --}}
+<script src="{{ asset('js/common/config.js') }}"></script>
+<script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
+<script src="{{ asset('js/common/utilities.js') }}"></script>
+<script src="{{ asset('js/common/ui-components.js') }}"></script>
+<script src="{{ asset('js/common/google-maps.js') }}"></script>
+
+{{-- Page-Specific JavaScript (load last) --}}
+<script src="{{ asset('js/pages/admin/client-edit.js') }}"></script>
+
+<!-- Load Google Maps API using the centralized module -->
+<script>
+// Load Google Maps API after the module is loaded
+(function() {
+  function loadGoogleMaps() {
+    // Only load if required elements exist
+    if (!document.getElementById("map") || !document.getElementById("pac-input")) {
+      console.warn("Google Maps: Required elements (map or pac-input) not found. Maps functionality disabled.");
+      return;
+    }
+    
+    // Check if GoogleMaps module is available
+    if (typeof GoogleMaps === 'undefined') {
+      console.error("GoogleMaps module not loaded. Make sure google-maps.js is loaded before this script.");
+      return;
+    }
+    
+    // Load Google Maps API using the centralized module (prevents duplicate loading)
+    GoogleMaps.loadGoogleMaps('<?php echo env('GOOGLE_MAPS_API_KEY');?>', 'initAutocomplete');
+  }
+  
+  // Load after modules are ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadGoogleMaps);
+  } else {
+    // Small delay to ensure google-maps.js is loaded
+    setTimeout(loadGoogleMaps, 50);
+  }
+})();
+</script>
+
+<!-- Naati/PY Checkbox Handling -->
 <script>
 jQuery(document).ready(function($){
-     $('#checkphone').on('blur', function(){
-        var v = $(this).val();
-        if(v != ''){
-            $.ajax({
-                url: '{{URL::to('admin/checkclientexist')}}',
-                type:'GET',
-                data:{vl:v,type:'phone'},
-                success:function(res){
-                    if(res == 1){
-                        alert('Phone number is already exist in our record.');
-                    }
-                }
-            });
-        }
+    // Handle Naati/PY checkbox state changes
+    // Use 'change' event only - label's 'for' attribute handles clicks automatically
+    $('.naati-checkbox-item input[type="checkbox"]').on('change', function() {
+        updateCheckboxState(this);
     });
-      $('#checkemail').on('blur', function(){
-        var v = $(this).val();
-        if(v != ''){
-           $. ajax({
-                url: '{{URL::to('admin/checkclientexist')}}',
-                type:'GET',
-                data:{vl:v,type:'email'},
-                success:function(res){
-                    if(res == 1){
-                        alert('Email is already exist in our record.');
-                    }
-                }
-            });
-        }
+    
+    // Initialize checked state on page load
+    $('.naati-checkbox-item input[type="checkbox"]').each(function() {
+        updateCheckboxState(this);
     });
-$('.js-data-example-ajaxcc').select2({
-		 multiple: true,
-		 closeOnSelect: false,
-		 minimumInputLength: 1,
-		  ajax: {
-			url: '{{URL::to('/clients/get-recipients')}}',
-			dataType: 'json',
-			delay: 250,
-			data: function (params) {
-				return {
-					q: params.term, // search term
-					page: params.page || 1
-				};
-			},
-			processResults: function (data) {
-			  // Transforms the top-level key of the response object from 'items' to 'results'
-			  return {
-				results: data.items
-			  };
-			  
-			},
-			 cache: true
-			
-		  },
-	templateResult: formatRepo,
-	templateSelection: formatRepoSelection
-});
-function formatRepo (repo) {
-  if (repo.loading) {
-    return repo.text;
-  }
-
-  var $container = $(
-    "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-
-      "<div  class='ag-flex ag-align-start'>" +
-        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
-      
-      "</div>" +
-      "</div>" +
-	   "<div class='ag-flex ag-flex-column ag-align-end'>" +
+    
+    function updateCheckboxState(checkbox) {
+        var $item = $(checkbox).closest('.naati-checkbox-item');
+        var $label = $item.find('.naati-checkbox-label');
         
-        "<span class='ui label yellow select2-result-repository__statistics'>" +
-          
-        "</span>" +
-      "</div>" +
-    "</div>"
-  );
-
-  $container.find(".select2-result-repository__title").text(repo.name);
-  $container.find(".select2-result-repository__description").text(repo.email);
-  $container.find(".select2-result-repository__statistics").append(repo.status);
- 
-  return $container;
-}
-
-function formatRepoSelection (repo) {
-  return repo.name || repo.text;
-}
-});
-
-  var loadFile = function(event) {
-    var output = document.getElementById('output');
-    output.src = URL.createObjectURL(event.target.files[0]);
-    output.onload = function() {
-      URL.revokeObjectURL(output.src); // free memory
-	  $('.if_image').hide();
-	  $('#output').css({'width':"100px",'height':"100px"});
+        if ($(checkbox).is(':checked')) {
+            $item.addClass('checked');
+            $label.css({
+                'color': '#6366f1',
+                'font-weight': '600'
+            });
+        } else {
+            $item.removeClass('checked');
+            $label.css({
+                'color': '#475569',
+                'font-weight': '500'
+            });
+        }
     }
-  };
+});
 </script>
+
 @endsection
