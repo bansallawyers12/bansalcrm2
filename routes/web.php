@@ -825,7 +825,9 @@ Route::prefix('admin')->group(function() {
         Route::post('/download-document', [ClientsController::class, 'download_document']);
         
         // Note routes
+        Route::post('/create-note', [ClientsController::class, 'createnote']);
         Route::get('/getnotedetail', [ClientsController::class, 'getnotedetail']);
+        Route::get('/deletenote', [ClientsController::class, 'deletenote']);
         Route::get('/viewnotedetail', [ClientsController::class, 'viewnotedetail']);
         Route::get('/viewapplicationnote', [ClientsController::class, 'viewapplicationnote']);
         Route::get('/get-notes', [ClientsController::class, 'getnotes']);
