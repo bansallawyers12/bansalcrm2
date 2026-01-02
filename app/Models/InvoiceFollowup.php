@@ -16,13 +16,18 @@ class InvoiceFollowup extends Model
 	
 	
 	protected $fillable = [
-        'id', 'created_at', 'updated_at'
+        'id', 'invoice_id', 'user_id', 'followup_type', 'comment', 'created_at', 'updated_at'
     ];
   
-	public $sortable = ['id', 'created_at', 'updated_at'];
+	public $sortable = ['id', 'invoice_id', 'user_id', 'followup_type', 'created_at', 'updated_at'];
 	
 	public function user()
     {
         return $this->belongsTo('App\Models\Admin','user_id','id');
+    }
+    
+    public function invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice','invoice_id','id');
     }
 }

@@ -345,6 +345,7 @@ Route::prefix('admin')->group(function() {
 		Route::post('/edit-interested-service', [ClientsController::class, 'editinterestedService']); 	 
 		Route::get('/get-services', [ClientsController::class, 'getServices']); 	 
 		Route::post('/upload-mail', [ClientsController::class, 'uploadmail']); 	 
+		Route::post('/mail/enhance', [ClientsController::class, 'enhanceMessage'])->name('admin.mail.enhance');
 		Route::post('/updatefollowupschedule', [ClientsController::class, 'updatefollowupschedule']); 
   
         Route::get('/pinnote', [ClientsController::class, 'pinnote']); 	 

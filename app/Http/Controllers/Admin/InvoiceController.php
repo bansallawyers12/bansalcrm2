@@ -15,7 +15,8 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\InvoicePayment;
 use App\Models\ScheduleItem;
-use App\Models\InvoiceFollowup;
+// NOTE: InvoiceFollowup is used in CronJob.php for audit logging
+// use App\Models\InvoiceFollowup;
 use App\Models\EmailTemplate;
 use App\Models\ShareInvoice;
 use App\Models\InvoiceSchedule;

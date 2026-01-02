@@ -15,7 +15,6 @@ return new class extends Migration
      * - application_notes (no references found)
      * - attach_files (only path config, no active usage)
      * - attachments (references are form fields, not table queries)
-     * - invoice_followups (model exists but no usage)
      * - items (references are JavaScript arrays, not table queries)
      * - representing_partners (only 1 delete action reference, table empty)
      * - templates (system uses email_templates and crm_email_templates instead)
@@ -30,7 +29,6 @@ return new class extends Migration
             'application_notes',
             'attach_files',
             'attachments',
-            'invoice_followups',
             'items',
             'representing_partners',
             'templates',
