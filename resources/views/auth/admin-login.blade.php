@@ -17,7 +17,7 @@
 								@include('../Elements/flash-message')
 							</div>
 							
-							<form action="{{URL::to('admin/login')}}" method="post" name="admin_login" autocomplete="on">
+							<form id="admin-login-form" action="{{URL::to('admin/login')}}" method="post" name="admin_login" autocomplete="on">
 							<input type="hidden" name="_token" value="{{ csrf_token() }}">
 								<div class="form-group">
 									<label for="email">Email</label>
@@ -42,7 +42,7 @@
 								</div>
 								
 								<!-- Google Recaptcha -->
-                                <div class="g-recaptcha mt-4" data-sitekey={{ config('services.recaptcha.key') }}></div>
+                                <div id="recaptcha-container" class="g-recaptcha mt-4" data-sitekey={{ config('services.recaptcha.key') }}></div>
 
                                 @if ($errors->has('g-recaptcha-response'))
 									<div style="color: #dc3545;">Captcha field is required.</div>

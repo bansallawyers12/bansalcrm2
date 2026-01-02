@@ -2320,7 +2320,6 @@ class ClientsController extends Controller
         			$obj->type = $request->type;
         			$obj->file_size = $size;
         			$obj->doc_type = $doctype;
-        			$obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
         			$saved = $obj->save();
 
 		      }
@@ -4316,7 +4315,6 @@ class ClientsController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved = $obj->save();
 
                     $insertedDocId = $obj->id;
@@ -4466,7 +4464,6 @@ class ClientsController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_savedL = $obj->save();
 
                     $insertedDocIdL = $obj->id;
@@ -4971,29 +4968,39 @@ class ClientsController extends Controller
     
 	//Add All Doc checklist
     public function addalldocchecklist(Request $request){ //dd($request->all());
-        $clientid = $request->clientid;
-        $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
-        if(!empty($admin_info1)){
-            $client_unique_id = $admin_info1->client_id;
-        } else {
-            $client_unique_id = "";
-        }  //dd($client_unique_id);
-        $doctype = isset($request->doctype)? $request->doctype : '';
+        try {
+            $response = ['status' => false, 'message' => 'Please try again'];
+            $clientid = $request->clientid;
+            
+            if(empty($clientid)) {
+                $response['message'] = 'Client ID is required';
+                echo json_encode($response);
+                return;
+            }
+            
+            $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
+            if(!empty($admin_info1)){
+                $client_unique_id = $admin_info1->client_id;
+            } else {
+                $client_unique_id = "";
+            }  //dd($client_unique_id);
+            $doctype = isset($request->doctype)? $request->doctype : '';
 
-        if ($request->has('checklist'))
+            if ($request->has('checklist'))
         {
             $checklistArray = $request->input('checklist'); //dd($checklistArray);
-            if (is_array($checklistArray))
+            if (is_array($checklistArray) && !empty($checklistArray))
             {
+                $saved = false;
                 foreach ($checklistArray as $item)
                 {
+                    if(empty($item)) continue; // Skip empty items
                     $obj = new \App\Models\Document;
                     $obj->user_id = Auth::user()->id;
                     $obj->client_id = $clientid;
                     $obj->type = $request->type;
                     $obj->doc_type = $doctype;
                     $obj->checklist = $item;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $saved = $obj->save();
                 } //end foreach
 
@@ -5014,7 +5021,7 @@ class ClientsController extends Controller
                     $response['status'] 	= 	true;
                     $response['message']	=	'You have successfully added your document checklist';
 
-                    $fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
+                    $fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderBy('updated_at', 'DESC')->get();
                     ob_start();
                     foreach($fetchd as $docKey=>$fetch)
                     {
@@ -5042,7 +5049,11 @@ class ClientsController extends Controller
                             </td>
                             <td style="white-space: initial;">
                                 <?php
-                                echo $admin->first_name. "<br>";
+                                if($admin) {
+                                    echo $admin->first_name. "<br>";
+                                } else {
+                                    echo "N/A<br>";
+                                }
                                 echo date('d/m/Y', strtotime($fetch->created_at));
                                 ?>
                             </td>
@@ -5191,7 +5202,12 @@ class ClientsController extends Controller
             $response['message'] = 'Please try again';
         } //end else
         echo json_encode($response);
-	}
+        } catch (\Exception $e) {
+            \Log::error('Error in addalldocchecklist: ' . $e->getMessage() . ' at line ' . $e->getLine());
+            $response = ['status' => false, 'message' => 'An error occurred: ' . $e->getMessage()];
+            echo json_encode($response);
+        }
+    }
 
     //Update all Document upload
 	public function uploadalldocument(Request $request){ //dd($request->all());

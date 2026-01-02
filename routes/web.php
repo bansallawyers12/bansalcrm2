@@ -808,6 +808,10 @@ Route::prefix('admin')->group(function() {
   
        //partner document upload
         Route::post('/upload-partner-document-upload', [PartnersController::class, 'uploadpartnerdocumentupload']);
+        
+        // Document upload routes (aliases for backward compatibility)
+        Route::post('/upload-alldocument', [ClientsController::class, 'uploadalldocument'])->name('admin.clients.uploadalldocument');
+        Route::post('/upload-all-document', [ClientsController::class, 'uploadalldocument']); // Support hyphenated version
 });     
 
 	// Include unified client routes (accessible by admin only)

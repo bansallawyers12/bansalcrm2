@@ -1,6 +1,224 @@
 @extends('layouts.admin')
 @section('title', 'Edit Client')
 
+@push('styles')
+<style>
+/* Form Section Subheading Styles - Matching Create New Page */
+.form-section {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Compact spacing adjustments */
+.form-section:not(:last-child) {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 16px;
+}
+
+/* Override any card-header styles that might interfere */
+.card-body .form-section h3,
+.section-card .form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.card-body .form-section h3::after,
+.section-card .form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.card-body .form-section h3 i,
+.section-card .form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Ensure all section cards have consistent sizing and padding - matching create-new page */
+.form-content-section {
+    background: #ffffff !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    width: 100% !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+}
+
+.form-content-section:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.form-content-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Legacy section-card support */
+.section-card {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 16px !important;
+    transition: all 0.2s ease !important;
+}
+
+.section-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.section-card .card-body {
+    padding: 16px !important;
+}
+
+/* Remove default card styling that might interfere */
+.section-card .card-header {
+    display: none !important;
+}
+
+/* Make content-grid consistent across all sections */
+.content-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+/* Naati/PY Checkbox Styling - Matching Create New Page */
+.naati-checkbox-wrapper {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+}
+
+.naati-checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    position: relative;
+}
+
+.naati-checkbox-item:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.naati-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.naati-checkbox-label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+
+.naati-checkbox-item input[type="checkbox"]:checked ~ .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+
+.naati-checkbox-item:has(input[type="checkbox"]:checked),
+.naati-checkbox-item.checked {
+    border-color: #6366f1 !important;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)) !important;
+}
+
+.naati-checkbox-item.checked .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+</style>
+@endpush
+
 @section('content')
 
 <!-- Main Content -->
@@ -43,12 +261,9 @@
 				<div class="row mt-3">
 					<div class="col-12">
 						<div class="card section-card">
-							<div class="card-header bg-light">
-								<h5 class="mb-0">
-									<i class="fas fa-user text-primary"></i> Basic Information
-								</h5>
-							</div>
 							<div class="card-body">
+								<section class="form-section">
+									<h3><i class="fas fa-id-card"></i> Basic Information</h3>
 								<div class="row">
 									<!--<div class="col-3 col-md-3 col-lg-3">
 								    	<div class="form-group profile_img_field">	
@@ -190,6 +405,7 @@
 										</div>
 									</div>
 								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -199,12 +415,9 @@
 				<div class="row mt-3">
 					<div class="col-12">
 						<div class="card section-card">
-							<div class="card-header bg-light">
-								<h5 class="mb-0">
-									<i class="fas fa-address-book text-primary"></i> Contact Information
-								</h5>
-							</div>
 							<div class="card-body compact-contact-section">
+								<section class="form-section" style="margin-bottom: 0;">
+									<h3><i class="fas fa-user"></i> Contact Information</h3>
 								<div class="row">
 									<!-- Phone Numbers - Left Side -->
 									<div class="col-md-6 col-sm-12">
@@ -324,6 +537,7 @@
 										</div>
 									</div>
 								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -332,12 +546,9 @@
 					<div class="row mt-3">
 						<div class="col-12">
 							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-passport text-primary"></i> Visa & Passport Information
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-file-contract"></i> Visa Details</h3>
 									<div class="row">
 										<div class="col-md-4 col-sm-12">
 											<div class="form-group"> 
@@ -438,106 +649,92 @@
 											</div>
 										@endif
 									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
 
-					<!-- Section 4: Address Information -->
-					<div class="row mt-3">
-						<div class="col-12">
-							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-map-marker-alt text-primary"></i> Address Information
-									</h5>
+					<!-- Address Information & Related Files -->
+					<div class="form-content-section">
+						<section class="form-section">
+							<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+							<div class="content-grid">
+								<div class="form-group" style="grid-column: span 2;">
+									<label for="address">Address</label>
+									{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search address" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
+									@if ($errors->has('address'))
+										<span class="text-danger">{{ @$errors->first('address') }}</span>
+									@endif
+									<small class="form-text text-muted">Start typing to search address</small>
 								</div>
-								<div class="card-body">
-									<div class="row">
-										<div class="col-md-6 col-sm-12">
-											<div class="form-group"> 
-												<label for="address">Address</label>
-												{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search address" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
-												@if ($errors->has('address'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('address') }}</strong>
-													</span> 
-												@endif
-												<small class="form-text text-muted">Start typing to search address</small>
-											</div>
-										</div>
-										
-										<div id="map" style="display:none;"></div>
-										
-										<div class="col-md-3 col-sm-12">
-											<div class="form-group"> 
-												<label for="city">City</label>
-												{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
-												@if ($errors->has('city'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('city') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										
-										<div class="col-md-3 col-sm-12">
-											<div class="form-group"> 
-												<label for="zip">Post Code</label>
-												{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
-												@if ($errors->has('zip'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('zip') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										
-										<div class="col-md-6 col-sm-12">
-											<div class="form-group"> 
-												<label for="state">State</label>
-												<select class="form-control" name="state">
-													<option value="">- Select State -</option>	
-													<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
-													<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
-													<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
-													<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
-													<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
-													<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
-													<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
-													<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
-												</select>
-												@if ($errors->has('state'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('state') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										
-										<div class="col-md-6 col-sm-12">
-											<div class="form-group"> 
-												<label for="country">Country</label>
-												<select class="form-control select2" id="country_select" name="country">
-												<?php
-													foreach(\App\Models\Country::all() as $list){
-														?>
-														<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
-														<?php
-													}
-												?>
-												</select>
-												@if ($errors->has('country'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('country') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
+								
+								<div id="map" style="display:none;"></div>
+								
+								<div class="form-group">
+									<label for="city">City</label>
+									{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
+									@if ($errors->has('city'))
+										<span class="text-danger">{{ @$errors->first('city') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="zip">Post Code</label>
+									{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
+									@if ($errors->has('zip'))
+										<span class="text-danger">{{ @$errors->first('zip') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="state">State</label>
+									<select class="form-control" name="state">
+										<option value="">- Select State -</option>	
+										<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
+										<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
+										<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
+										<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
+										<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
+										<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
+										<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
+										<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
+									</select>
+									@if ($errors->has('state'))
+										<span class="text-danger">{{ @$errors->first('state') }}</span>
+									@endif
+								</div>
+								
+								<div class="form-group">
+									<label for="country">Country</label>
+									<select class="form-control select2" id="country_select" name="country">
+									<?php
+										foreach(\App\Models\Country::all() as $list){
+											?>
+											<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+											<?php
+										}
+									?>
+									</select>
+									@if ($errors->has('country'))
+										<span class="text-danger">{{ @$errors->first('country') }}</span>
+									@endif
 								</div>
 							</div>
-						</div>
+						</section>
+
+						<section class="form-section">
+							<h3><i class="fas fa-link"></i> Related Files</h3>
+							<div class="content-grid">
+								<div class="form-group" style="grid-column: span 2;">
+									<label for="related_files">Similar Related Files</label>
+									<select class="form-control js-data-example-ajaxcc select2" name="related_files[]" multiple>
+									</select>
+									@if ($errors->has('related_files'))
+										<span class="text-danger">{{ @$errors->first('related_files') }}</span>
+									@endif
+								</div>
+							</div>
+						</section>
 					</div>
 
 					<!-- Additional Contact (Collapsible) -->
@@ -548,12 +745,9 @@
 								||
 								( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
 							) { ?> style="display:block;" <?php } else { ?> style="display:none;" <?php }?>>
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-plus-circle text-primary"></i> Additional Contact
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-plus-circle"></i> Additional Contact</h3>
 									<div class="row">
 										<div class="col-md-6 col-sm-12">
 											<div class="form-group"> 
@@ -584,143 +778,69 @@
 											</div>
 										</div>
 									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Section 5: Related Files & Country -->
-					<div class="row mt-3">
-						<div class="col-12">
-							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-link text-primary"></i> Related Files & Country
-									</h5>
-								</div>
-								<div class="card-body">
-									<div class="row">
-										<div class="col-md-9 col-sm-12">
-											<div class="form-group"> 
-												<label for="related_files">Similar Related Files</label>
-												<select multiple class="form-control js-data-example-ajaxcc" name="related_files[]">
-												</select>
-												@if ($errors->has('related_files'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('related_files') }}</strong>
-													</span> 
-												@endif
-												<small class="form-text text-muted">Search and select related client files</small>
-											</div>
-										</div>
-									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
 
 					<!-- Professional Details Section (for non-Citizen/PR visa types) -->
 					@if($fetchedData->visa_type!="Citizen" && $fetchedData->visa_type!="PR")
-					<div class="row mt-3">
-						<div class="col-12">
-							<div class="card section-card professional-details-card">
-								<div class="card-header">
-									<h5 class="mb-0">
-										<i class="fas fa-briefcase text-primary"></i> Professional Details
-									</h5>
+					<div class="form-content-section">
+						<section class="form-section">
+							<h3><i class="fas fa-briefcase"></i> Professional Details</h3>
+							<div class="content-grid">
+								<div class="form-group">
+									<label for="nomi_occupation">Nominated Occupation</label>
+									{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
+									@if ($errors->has('nomi_occupation'))
+										<span class="text-danger">{{ @$errors->first('nomi_occupation') }}</span>
+									@endif
 								</div>
-								<div class="card-body">
-									<!-- Basic Professional Information -->
-									<div class="professional-section">
-										<div class="row g-3">
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="nomi_occupation">Nominated Occupation</label>
-													{!! Form::text('nomi_occupation', @$fetchedData->nomi_occupation, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter occupation' ))  !!}
-													@if ($errors->has('nomi_occupation'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('nomi_occupation') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="skill_assessment">Skill Assessment</label>
-													<select class="form-control" name="skill_assessment">
-														<option value="">Select</option>
-														<option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
-														<option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
-													</select>											
-													@if ($errors->has('skill_assessment'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('skill_assessment') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="high_quali_aus">Highest Qualification (Australia)</label>
-													{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification', 'readonly' => 'readonly' ))  !!}
-													@if ($errors->has('high_quali_aus'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('high_quali_aus') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<!-- Qualifications and Experience -->
-									<div class="professional-section mt-4">
-										<div class="row g-3">
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="high_quali_overseas">Highest Qualification Overseas</label>
-													{!! Form::text('high_quali_overseas', @$fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
-													@if ($errors->has('high_quali_overseas'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('high_quali_overseas') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
-													{!! Form::text('relevant_work_exp_aus', @$fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 2 years' ))  !!}
-													@if ($errors->has('relevant_work_exp_aus'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('relevant_work_exp_aus') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-md-4 col-sm-6">
-												<div class="form-group"> 
-													<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
-													{!! Form::text('relevant_work_exp_over', @$fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 5 years' ))  !!}
-													@if ($errors->has('relevant_work_exp_over'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('relevant_work_exp_over') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<!-- English Test Scores Section -->
-									<div class="professional-section mt-4">
-										<div class="english-test-header mb-3">
-											<h6 class="mb-0">
-												<i class="fas fa-language text-info me-2"></i> English Test Scores
-											</h6>
-										</div>
+								<div class="form-group">
+									<label for="skill_assessment">Skill Assessment</label>
+									<select class="form-control" name="skill_assessment">
+										<option value="">Select</option>
+										<option @if($fetchedData->skill_assessment == 'Yes') selected @endif value="Yes">Yes</option>
+										<option @if($fetchedData->skill_assessment == 'No') selected @endif value="No">No</option>
+									</select>
+									@if ($errors->has('skill_assessment'))
+										<span class="text-danger">{{ @$errors->first('skill_assessment') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="high_quali_aus">Highest Qualification in Australia</label>
+									{!! Form::text('high_quali_aus', @$fetchedData->high_quali_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+									@if ($errors->has('high_quali_aus'))
+										<span class="text-danger">{{ @$errors->first('high_quali_aus') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="high_quali_overseas">Highest Qualification Overseas</label>
+									{!! Form::text('high_quali_overseas', @$fetchedData->high_quali_overseas, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter qualification' ))  !!}
+									@if ($errors->has('high_quali_overseas'))
+										<span class="text-danger">{{ @$errors->first('high_quali_overseas') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="relevant_work_exp_aus">Relevant work experience in Australia</label>
+									{!! Form::text('relevant_work_exp_aus', @$fetchedData->relevant_work_exp_aus, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 2 years' ))  !!}
+									@if ($errors->has('relevant_work_exp_aus'))
+										<span class="text-danger">{{ @$errors->first('relevant_work_exp_aus') }}</span>
+									@endif
+								</div>
+								<div class="form-group">
+									<label for="relevant_work_exp_over">Relevant work experience in Overseas</label>
+									{!! Form::text('relevant_work_exp_over', @$fetchedData->relevant_work_exp_over, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'e.g., 5 years' ))  !!}
+									@if ($errors->has('relevant_work_exp_over'))
+										<span class="text-danger">{{ @$errors->first('relevant_work_exp_over') }}</span>
+									@endif
+								</div>
+							</div>
+						</section>
+									
+									<!-- English Test Scores & Additional Information Section -->
+									<section class="form-section">
+										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
 										<?php
 											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
 										?>
@@ -736,34 +856,34 @@
 														</select>
 													</div>
 												</div>
-												<div class="col-md-2 col-sm-4 col-6">
+												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="listening_edit">L (Listening)</label>
-														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0"/>
+														<label for="listening_edit">L</label>
+														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
-												<div class="col-md-2 col-sm-4 col-6">
+												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="reading_edit">R (Reading)</label>
-														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0"/>
+														<label for="reading_edit">R</label>
+														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
-												<div class="col-md-2 col-sm-4 col-6">
+												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="writing_edit">W (Writing)</label>
-														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0"/>
+														<label for="writing_edit">W</label>
+														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
-												<div class="col-md-2 col-sm-4 col-6">
+												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="speaking_edit">S (Speaking)</label>
-														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0"/>
+														<label for="speaking_edit">S</label>
+														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
-												<div class="col-md-1 col-sm-4 col-6">
+												<div class="col-md-auto col-sm-4 col-6">
 													<div class="form-group">
-														<label for="overall_edit">O (Overall)</label>
-														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0"/>
+														<label for="overall_edit">O</label>
+														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 													</div>
 												</div>
 											</div>
@@ -821,66 +941,61 @@
 											loadTestScoresEditPage();
 										});
 										</script>
-									</div>
-
-									<!-- Additional Information -->
-									<div class="professional-section mt-4">
-										<div class="row g-3">
-											<div class="col-md-3 col-sm-6">
-												<div class="form-group"> 
-													<?php
-													$explodeenaati_py = array();
-													if($fetchedData->naati_py != ''){
-														$explodeenaati_py = explode(',', $fetchedData->naati_py);
-													} 
-													?>
-													<label for="naati_py">Naati/PY</label>
-													<div class="naati-py-checkboxes">
-														<div class="form-check form-check-inline">
-															<input <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]">
-															<label class="form-check-label" for="Naati">Naati</label>
-														</div>
-														<div class="form-check form-check-inline">
-															<input <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?> class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]">
-															<label class="form-check-label" for="py">PY</label>
-														</div>
-													</div>
+										
+										<div class="content-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; margin-top: 20px;">
+											<div class="form-group">
+												<?php
+												$explodeenaati_py = array();
+												if($fetchedData->naati_py != ''){
+													$explodeenaati_py = explode(',', $fetchedData->naati_py);
+												} 
+												?>
+												<label for="naati_py">Naati/PY</label>
+												<div class="naati-checkbox-wrapper">
+													<label class="naati-checkbox-item" for="Naati">
+														<input type="checkbox" id="Naati" value="Naati" name="naati_py[]" <?php if(in_array('Naati', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<span class="naati-checkbox-label">Naati</span>
+													</label>
+													<label class="naati-checkbox-item" for="py">
+														<input type="checkbox" id="py" value="PY" name="naati_py[]" <?php if(in_array('PY', $explodeenaati_py)){ echo 'checked'; } ?>>
+														<span class="naati-checkbox-label">PY</span>
+													</label>
 												</div>
 											</div>
-											<div class="col-md-3 col-sm-6">
-												<div class="form-group"> 
-													<label for="total_points">Total Points</label>
-													{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
-													@if ($errors->has('total_points'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('total_points') }}</strong>
-														</span> 
-													@endif
-												</div>
+											<div class="form-group">
+												<label for="total_points">Total Points</label>
+												{!! Form::text('total_points', @$fetchedData->total_points, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
+												@if ($errors->has('total_points'))
+													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
+												@endif
 											</div>
-											<div class="col-md-6 col-sm-12">
-												<div class="form-group"> 
-													<label for="start_process">When You want to start Process</label>
-													<select class="form-control" name="start_process">
-														<option value="">Select</option>
-														<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
-														<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
-														<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
-														<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
-													</select>
-													@if ($errors->has('start_process'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('start_process') }}</strong>
-														</span> 
-													@endif
-												</div>
+											<div class="form-group">
+												<label for="start_process">When You want to start Process</label>
+												<select class="form-control" name="start_process">
+													<option value="">Select</option>
+													<option @if($fetchedData->start_process == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
+													<option @if($fetchedData->start_process == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
+													<option @if($fetchedData->start_process == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
+													<option @if($fetchedData->start_process == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
+												</select>
+												@if ($errors->has('start_process'))
+													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
+												@endif
 											</div>
 										</div>
-									</div>
+									</section>
 								</div>
-								<hr style="border-color: #000;"/>
-								<div class="row " id="internal">
-									<div class="col-sm-3">
+								@endif
+
+								<!-- Internal Information Section -->
+								<div class="row mt-3">
+									<div class="col-12">
+										<div class="card section-card">
+											<div class="card-body">
+												<section class="form-section">
+													<h3><i class="fas fa-cogs"></i> Internal Information</h3>
+												<div class="row" id="internal">
+													<div class="col-sm-3">
 										<div class="form-group">
 											<label for="service">Service <span style="color:#ff0000;">*</span></label>
 											<select class="form-control select2" name="service" data-valid="required">
@@ -1127,14 +1242,14 @@
 											@endif
 										</div>
 									</div>  
-									@endif
 									<div class="col-sm-12">
 										<div class="form-group float-end">
                                              <div class="removesids_contact"></div>
 											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients")' ])  !!}
 										</div>
 									</div>
-								</div> 
+								</div>
+								</section> 
 							</div>
 					</div>	
 				</div>
@@ -1489,6 +1604,41 @@ if($fetchedData->tagname != ''){
     setTimeout(loadGoogleMaps, 50);
   }
 })();
+</script>
+
+<!-- Naati/PY Checkbox Handling -->
+<script>
+jQuery(document).ready(function($){
+    // Handle Naati/PY checkbox state changes
+    // Use 'change' event only - label's 'for' attribute handles clicks automatically
+    $('.naati-checkbox-item input[type="checkbox"]').on('change', function() {
+        updateCheckboxState(this);
+    });
+    
+    // Initialize checked state on page load
+    $('.naati-checkbox-item input[type="checkbox"]').each(function() {
+        updateCheckboxState(this);
+    });
+    
+    function updateCheckboxState(checkbox) {
+        var $item = $(checkbox).closest('.naati-checkbox-item');
+        var $label = $item.find('.naati-checkbox-label');
+        
+        if ($(checkbox).is(':checked')) {
+            $item.addClass('checked');
+            $label.css({
+                'color': '#6366f1',
+                'font-weight': '600'
+            });
+        } else {
+            $item.removeClass('checked');
+            $label.css({
+                'color': '#475569',
+                'font-weight': '500'
+            });
+        }
+    }
+});
 </script>
 
 @endsection

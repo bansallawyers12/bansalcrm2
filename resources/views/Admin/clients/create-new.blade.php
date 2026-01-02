@@ -541,16 +541,355 @@
     right: 12px !important;
 }
 
+/* Related Files Select2 specific styling */
+.js-data-example-ajaxcc + .select2-container {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-search--inline .select2-search__field {
+    padding: 6px 8px !important;
+    font-size: 13px !important;
+    border: none !important;
+    outline: none !important;
+    min-width: 200px !important;
+}
+
+.select2-container--default .select2-search--inline .select2-search__field:focus {
+    outline: none !important;
+    border: none !important;
+}
+
+.select2-dropdown {
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 4px !important;
+}
+
+.select2-results__option {
+    padding: 0 !important;
+}
+
+.select2-results__option--highlighted {
+    background-color: #f1f5f9 !important;
+}
+
 /* Checkbox styling */
 .form-check-input {
-    accent-color: #667eea;
+    accent-color: #6366f1;
     cursor: pointer;
+    margin: 0;
+    margin-right: 8px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .form-check-label {
     cursor: pointer;
     font-size: 13px;
     color: #475569;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Naati/PY Checkbox Styling - Fixed */
+.naati-checkbox-wrapper {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+}
+
+.naati-checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    position: relative;
+}
+
+.naati-checkbox-item:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.naati-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.naati-checkbox-label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+
+.naati-checkbox-item input[type="checkbox"]:checked ~ .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+
+.naati-checkbox-item:has(input[type="checkbox"]:checked),
+.naati-checkbox-item.checked {
+    border-color: #6366f1 !important;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)) !important;
+}
+
+.naati-checkbox-item.checked .naati-checkbox-label {
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+}
+
+/* Contact Information Section - Two Column Design */
+.contact-information-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 0;
+}
+
+.contact-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.contact-column-header h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contact-column-header h4 i {
+    color: #6366f1;
+    font-size: 14px;
+}
+
+.contact-add-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+}
+
+.contact-add-btn:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
+    transform: translateY(-1px);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.contact-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.contact-item-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+.contact-item-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+}
+
+.contact-item-input:focus {
+    background: #f8fafc;
+    border-radius: 4px;
+}
+
+.contact-item-check {
+    color: #10b981;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #10b981;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.1);
+    flex-shrink: 0;
+}
+
+.contact-item-remove {
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.contact-item-remove:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.contact-item-hidden-inputs {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .contact-information-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Modal Styles */
+#phone-modal,
+#email-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+#phone-modal > div,
+#email-modal > div {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#phone-modal h3,
+#email-modal h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+#phone-modal .cus_field_input,
+#email-modal .cus_field_input {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+}
+
+#phone-modal .country_code,
+#email-modal .country_code {
+    display: flex;
+    align-items: center;
+}
+
+#phone-modal .country_code input,
+#email-modal .country_code input {
+    width: 80px;
+    padding: 8px 4px;
+    border: 2px solid #e2e8f0;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    text-align: center;
+    font-size: 13px;
+    background: #f8fafc;
+}
+
+#phone-modal .tel_input,
+#email-modal .tel_input {
+    flex: 1;
+    border-radius: 0 6px 6px 0;
+    border-left: none;
+}
+
+#phone-modal .modal-actions,
+#email-modal .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
 }
 </style>
 @endpush
@@ -692,75 +1031,131 @@
 
         <!-- Contact Information -->
         <div class="form-content-section">
-            <section class="form-section">
-                <h3><i class="fas fa-phone"></i> Phone Numbers</h3>
-                <div class="content-grid">
-                    <div class="form-group">
-                        <label for="contact_type">Contact Type <span class="span_req">*</span></label>
-                        <select name="contact_type" id="contact_type" class="form-control" data-valid="required" required>
-                            <option value="Personal" {{ old('contact_type', 'Personal') == 'Personal' ? 'selected' : '' }}>Personal</option>
-                            <option value="Office" {{ old('contact_type') == 'Office' ? 'selected' : '' }}>Office</option>
-                        </select>
-                        @if ($errors->has('contact_type'))
-                            <span class="text-danger">{{ @$errors->first('contact_type') }}</span>
-                        @endif
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Contact No. <span class="span_req">*</span></label>
-                        <div class="cus_field_input">
-                            <div class="country_code"> 
-                                <input class="telephone" id="telephone" type="tel" name="country_code" readonly>
-                            </div>	
-                            {!! Form::text('phone', old('phone'), array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id' => 'checkphone', 'required' ))  !!}
+            <section class="form-section" style="margin-bottom: 0;">
+                <h3><i class="fas fa-user"></i> Contact Information</h3>
+                <div class="contact-information-section">
+                    <!-- Phone Numbers Column -->
+                    <div class="contact-column">
+                        <div class="contact-column-header">
+                            <h4><i class="fas fa-phone"></i> PHONE NUMBERS</h4>
+                            <button type="button" class="contact-add-btn" onclick="addPhoneNumber()">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
                         </div>
-                        @if ($errors->has('phone'))
-                            <span class="text-danger">{{ @$errors->first('phone') }}</span>
-                        @endif
-                    </div>
-                    <div class="form-group">
-                        <label for="att_phone">Additional Phone</label>
-                        <div class="cus_field_input">
-                            <div class="country_code"> 
-                                <input class="telephone" id="telephone2" type="tel" name="att_country_code" readonly>
-                            </div>	
-                            {!! Form::text('att_phone', old('att_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
+                        <div id="phone-numbers-container">
+                            @if(old('phone'))
+                                @php
+                                    $phones = is_array(old('phone')) ? old('phone') : [old('phone')];
+                                    $phoneTypes = is_array(old('contact_type')) ? old('contact_type') : [old('contact_type', 'Personal')];
+                                    $countryCodes = is_array(old('country_code')) ? old('country_code') : [old('country_code', '+61')];
+                                @endphp
+                                @foreach($phones as $index => $phone)
+                                    <div class="contact-item" data-index="{{ $index }}">
+                                        <span class="contact-item-badge">{{ $phoneTypes[$index] ?? 'Personal' }}</span>
+                                        <input type="text" class="contact-item-input" value="{{ $countryCodes[$index] ?? '+61' }} {{ $phone }}" readonly>
+                                        <input type="hidden" name="phone[]" value="{{ $phone }}">
+                                        <input type="hidden" name="contact_type[]" value="{{ $phoneTypes[$index] ?? 'Personal' }}">
+                                        <input type="hidden" name="country_code[]" value="{{ $countryCodes[$index] ?? '+61' }}">
+                                        <div class="contact-item-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="contact-item-remove" onclick="removePhoneNumber(this)">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
-                        @if ($errors->has('att_phone'))
-                            <span class="text-danger">{{ @$errors->first('att_phone') }}</span>
-                        @endif
+                        <div id="phone-empty-message" style="display: {{ old('phone') ? 'none' : 'block' }}; text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
+                            No phone numbers added yet. Click "+ Add" to add one.
+                        </div>
                     </div>
-                </div>
-            </section>
 
-            <section class="form-section">
-                <h3><i class="fas fa-envelope"></i> Email Addresses</h3>
-                <div class="content-grid">
-                    <div class="form-group">
-                        <label for="email_type">Email Type <span class="span_req">*</span></label>
-                        <select name="email_type" id="email_type" class="form-control" data-valid="required" required>
-                            <option value="Personal" {{ old('email_type', 'Personal') == 'Personal' ? 'selected' : '' }}>Personal</option>
-                            <option value="Business" {{ old('email_type') == 'Business' ? 'selected' : '' }}>Business</option>
-                        </select>
-                        @if ($errors->has('email_type'))
-                            <span class="text-danger">{{ @$errors->first('email_type') }}</span>
-                        @endif
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email <span class="span_req">*</span></label>
-                        {!! Form::text('email', old('email'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address', 'id' => 'checkemail', 'type' => 'email', 'required' ))  !!}
-                        @if ($errors->has('email'))
-                            <span class="text-danger">{{ @$errors->first('email') }}</span>
-                        @endif
-                    </div>
-                    <div class="form-group">
-                        <label for="att_email">Additional Email</label>
-                        {!! Form::text('att_email', old('att_email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional email', 'type' => 'email' ))  !!}
-                        @if ($errors->has('att_email'))
-                            <span class="text-danger">{{ @$errors->first('att_email') }}</span>
-                        @endif
+                    <!-- Email Addresses Column -->
+                    <div class="contact-column">
+                        <div class="contact-column-header">
+                            <h4><i class="fas fa-envelope"></i> EMAIL ADDRESSES</h4>
+                            <button type="button" class="contact-add-btn" onclick="addEmailAddress()">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                        <div id="email-addresses-container">
+                            @if(old('email'))
+                                @php
+                                    $emails = is_array(old('email')) ? old('email') : [old('email')];
+                                    $emailTypes = is_array(old('email_type')) ? old('email_type') : [old('email_type', 'Personal')];
+                                @endphp
+                                @foreach($emails as $index => $email)
+                                    <div class="contact-item" data-index="{{ $index }}">
+                                        <span class="contact-item-badge">{{ $emailTypes[$index] ?? 'Personal' }}</span>
+                                        <input type="text" class="contact-item-input" value="{{ $email }}" readonly>
+                                        <input type="hidden" name="email[]" value="{{ $email }}">
+                                        <input type="hidden" name="email_type[]" value="{{ $emailTypes[$index] ?? 'Personal' }}">
+                                        <div class="contact-item-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="contact-item-remove" onclick="removeEmailAddress(this)">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                        <div id="email-empty-message" style="display: {{ old('email') ? 'none' : 'block' }}; text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
+                            No email addresses added yet. Click "+ Add" to add one.
+                        </div>
                     </div>
                 </div>
             </section>
+        </div>
+
+        <!-- Hidden modal/form for adding phone numbers -->
+        <div id="phone-modal">
+            <div>
+                <h3>Add Phone Number</h3>
+                <div class="form-group">
+                    <label for="modal_contact_type">Contact Type <span class="span_req">*</span></label>
+                    <select id="modal_contact_type" class="form-control">
+                        <option value="Personal">Personal</option>
+                        <option value="Office">Office</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modal_phone">Phone Number <span class="span_req">*</span></label>
+                    <div class="cus_field_input">
+                        <div class="country_code"> 
+                            <input class="telephone" id="modal_telephone" type="tel" readonly>
+                        </div>	
+                        <input type="text" id="modal_phone" class="form-control tel_input" placeholder="Enter phone number">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closePhoneModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="savePhoneNumber()">Add Phone</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden modal/form for adding email addresses -->
+        <div id="email-modal">
+            <div>
+                <h3>Add Email Address</h3>
+                <div class="form-group">
+                    <label for="modal_email_type">Email Type <span class="span_req">*</span></label>
+                    <select id="modal_email_type" class="form-control">
+                        <option value="Personal">Personal</option>
+                        <option value="Business">Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modal_email">Email Address <span class="span_req">*</span></label>
+                    <input type="email" id="modal_email" class="form-control" placeholder="Enter email address">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEmailAddress()">Add Email</button>
+                </div>
+            </div>
         </div>
 
         <!-- Visas & Addresses -->
@@ -940,16 +1335,16 @@
                         @endif
                     </div>
                     <div class="form-group">
-                        <label style="display:block;" for="naati_py">Naati/PY</label>
-                        <div style="white-space: nowrap;">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="Naati" value="Naati" name="naati_py[]" {{ in_array('Naati', old('naati_py', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="Naati">Naati</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="py" value="PY" name="naati_py[]" {{ in_array('PY', old('naati_py', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="py">PY</label>
-                            </div>
+                        <label for="naati_py">Naati/PY</label>
+                        <div class="naati-checkbox-wrapper">
+                            <label class="naati-checkbox-item" for="Naati">
+                                <input type="checkbox" id="Naati" value="Naati" name="naati_py[]" {{ in_array('Naati', old('naati_py', [])) ? 'checked' : '' }}>
+                                <span class="naati-checkbox-label">Naati</span>
+                            </label>
+                            <label class="naati-checkbox-item" for="py">
+                                <input type="checkbox" id="py" value="PY" name="naati_py[]" {{ in_array('PY', old('naati_py', [])) ? 'checked' : '' }}>
+                                <span class="naati-checkbox-label">PY</span>
+                            </label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1085,6 +1480,82 @@
     </section>
 </div>
 
+<script>
+// Form validation before submission
+document.getElementById('createClientForm').addEventListener('submit', function(e) {
+    var phoneCount = document.querySelectorAll('#phone-numbers-container .contact-item').length;
+    var emailCount = document.querySelectorAll('#email-addresses-container .contact-item').length;
+    
+    if (phoneCount === 0) {
+        e.preventDefault();
+        alert('Please add at least one phone number');
+        return false;
+    }
+    
+    if (emailCount === 0) {
+        e.preventDefault();
+        alert('Please add at least one email address');
+        return false;
+    }
+    
+    // Set the first phone and email as the main ones for backward compatibility
+    var firstPhone = document.querySelector('#phone-numbers-container .contact-item input[name="phone[]"]');
+    var firstEmail = document.querySelector('#email-addresses-container .contact-item input[name="email[]"]');
+    var firstPhoneType = document.querySelector('#phone-numbers-container .contact-item input[name="contact_type[]"]');
+    var firstEmailType = document.querySelector('#email-addresses-container .contact-item input[name="email_type[]"]');
+    var firstCountryCode = document.querySelector('#phone-numbers-container .contact-item input[name="country_code[]"]');
+    
+    if (firstPhone) {
+        // Create hidden inputs for main phone/email if they don't exist
+        if (!document.querySelector('input[name="phone"]')) {
+            var phoneInput = document.createElement('input');
+            phoneInput.type = 'hidden';
+            phoneInput.name = 'phone';
+            phoneInput.value = firstPhone.value;
+            this.appendChild(phoneInput);
+        } else {
+            document.querySelector('input[name="phone"]').value = firstPhone.value;
+        }
+        
+        if (!document.querySelector('input[name="contact_type"]')) {
+            var contactTypeInput = document.createElement('input');
+            contactTypeInput.type = 'hidden';
+            contactTypeInput.name = 'contact_type';
+            contactTypeInput.value = firstPhoneType ? firstPhoneType.value : 'Personal';
+            this.appendChild(contactTypeInput);
+        }
+        
+        if (!document.querySelector('input[name="country_code"]')) {
+            var countryCodeInput = document.createElement('input');
+            countryCodeInput.type = 'hidden';
+            countryCodeInput.name = 'country_code';
+            countryCodeInput.value = firstCountryCode ? firstCountryCode.value : '+61';
+            this.appendChild(countryCodeInput);
+        }
+    }
+    
+    if (firstEmail) {
+        if (!document.querySelector('input[name="email"]')) {
+            var emailInput = document.createElement('input');
+            emailInput.type = 'hidden';
+            emailInput.name = 'email';
+            emailInput.value = firstEmail.value;
+            this.appendChild(emailInput);
+        } else {
+            document.querySelector('input[name="email"]').value = firstEmail.value;
+        }
+        
+        if (!document.querySelector('input[name="email_type"]')) {
+            var emailTypeInput = document.createElement('input');
+            emailTypeInput.type = 'hidden';
+            emailTypeInput.name = 'email_type';
+            emailTypeInput.value = firstEmailType ? firstEmailType.value : 'Personal';
+            this.appendChild(emailTypeInput);
+        }
+    }
+});
+</script>
+
 @endsection
 
 @section('scripts')
@@ -1179,56 +1650,100 @@ jQuery(document).ready(function($){
         }
     });
 
-    // Related files select2
-    $('.js-data-example-ajaxcc').select2({
-        multiple: true,
-        closeOnSelect: false,
-        minimumInputLength: 1,
-        ajax: {
-            url: '{{URL::to('/clients/get-recipients')}}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1
-                };
+    // Related files select2 - Initialize after Select2 is ready
+    function initializeRelatedFilesSelect2() {
+        if (typeof $.fn.select2 === 'undefined') {
+            console.warn('Select2 not loaded yet, retrying...');
+            setTimeout(initializeRelatedFilesSelect2, 200);
+            return;
+        }
+        
+        // Destroy existing instance if any
+        if ($('.js-data-example-ajaxcc').hasClass('select2-hidden-accessible')) {
+            $('.js-data-example-ajaxcc').select2('destroy');
+        }
+        
+        $('.js-data-example-ajaxcc').select2({
+            multiple: true,
+            closeOnSelect: false,
+            minimumInputLength: 1,
+            placeholder: 'Type to search for related clients...',
+            allowClear: true,
+            ajax: {
+                url: '{{URL::to('/clients/get-recipients')}}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data) {
+                    if (!data || !data.items) {
+                        return { results: [] };
+                    }
+                    return {
+                        results: data.items.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name || item.text || 'Unknown',
+                                name: item.name || item.text || 'Unknown',
+                                email: item.email || '',
+                                status: item.status || 'Client'
+                            };
+                        })
+                    };
+                },
+                cache: true
             },
-            processResults: function (data) {
-                return {
-                    results: data.items
-                };
-            },
-            cache: true
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepoSelection
-    });
+            templateResult: formatRepo,
+            templateSelection: formatRepoSelection,
+            escapeMarkup: function(markup) {
+                return markup; // Let our custom formatter handle the markup
+            }
+        });
+    }
+    
+    // Initialize when ready
+    if (typeof window.vendorLibsReady !== 'undefined') {
+        window.vendorLibsReady.then(function() {
+            setTimeout(initializeRelatedFilesSelect2, 100);
+        }).catch(function() {
+            setTimeout(initializeRelatedFilesSelect2, 500);
+        });
+    } else {
+        // Fallback: try after a delay
+        setTimeout(initializeRelatedFilesSelect2, 500);
+    }
 
     function formatRepo (repo) {
         if (repo.loading) {
-            return repo.text;
+            return repo.text || 'Searching...';
         }
+        
+        var name = repo.name || repo.text || 'Unknown';
+        var email = repo.email || '';
+        var status = repo.status || 'Client';
+        
         var $container = $(
-            "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                "<div class='ag-flex ag-align-start'>" +
-                    "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small></div>" +
+            "<div class='select2-result-repository' style='padding: 8px; border-bottom: 1px solid #e2e8f0;'>" +
+                "<div style='display: flex; justify-content: space-between; align-items: center;'>" +
+                    "<div style='flex: 1;'>" +
+                        "<div style='font-weight: 600; color: #1e293b; margin-bottom: 4px;'>" + name + "</div>" +
+                        "<div style='font-size: 12px; color: #64748b;'>" + email + "</div>" +
+                    "</div>" +
+                    "<div style='margin-left: 12px;'>" +
+                        "<span style='background: #fbbf24; color: #78350f; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'>" + status + "</span>" +
+                    "</div>" +
                 "</div>" +
-            "</div>" +
-            "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                "<span class='ui label yellow select2-result-repository__statistics'></span>" +
-            "</div>" +
             "</div>"
         );
-        $container.find(".select2-result-repository__title").text(repo.name);
-        $container.find(".select2-result-repository__description").text(repo.email);
-        $container.find(".select2-result-repository__statistics").append(repo.status);
         return $container;
     }
 
     function formatRepoSelection (repo) {
-        return repo.name || repo.text;
+        return repo.name || repo.text || 'Unknown';
     }
 
     // Show/hide subagent field based on source
@@ -1243,6 +1758,264 @@ jQuery(document).ready(function($){
     // Trigger on page load if source is already Sub Agent
     if($('#lead_source').val() == 'Sub Agent'){
         $('.is_subagent').show();
+    }
+    
+    // Handle Naati/PY checkbox state changes
+    // Use 'change' event only - label's 'for' attribute handles clicks automatically
+    $('.naati-checkbox-item input[type="checkbox"]').on('change', function() {
+        updateCheckboxState(this);
+    });
+    
+    // Initialize checked state on page load
+    $('.naati-checkbox-item input[type="checkbox"]').each(function() {
+        updateCheckboxState(this);
+    });
+    
+    function updateCheckboxState(checkbox) {
+        var $item = $(checkbox).closest('.naati-checkbox-item');
+        var $label = $item.find('.naati-checkbox-label');
+        
+        if ($(checkbox).is(':checked')) {
+            $item.addClass('checked');
+            $label.css({
+                'color': '#6366f1',
+                'font-weight': '600'
+            });
+        } else {
+            $item.removeClass('checked');
+            $label.css({
+                'color': '#475569',
+                'font-weight': '500'
+            });
+        }
+    }
+});
+
+// Phone Number Management
+let phoneCounter = {{ old('phone') ? (is_array(old('phone')) ? count(old('phone')) : 1) : 0 }};
+let emailCounter = {{ old('email') ? (is_array(old('email')) ? count(old('email')) : 1) : 0 }};
+
+function addPhoneNumber() {
+    document.getElementById('phone-modal').style.display = 'flex';
+    document.getElementById('modal_phone').value = '';
+    document.getElementById('modal_contact_type').value = 'Personal';
+    
+    // Initialize telephone input - wait for libraries to load
+    setTimeout(function() {
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.intlTelInput !== 'undefined') {
+            // Destroy existing instance if any
+            if (jQuery('#modal_telephone').data('intlTelInput')) {
+                jQuery('#modal_telephone').intlTelInput('destroy');
+            }
+            // Initialize with jQuery plugin
+            jQuery('#modal_telephone').intlTelInput({
+                preferredCountries: ["au", "in", "us", "gb"],
+                initialCountry: "au"
+            });
+        } else if (typeof intlTelInput !== 'undefined') {
+            // Fallback to vanilla JS version
+            var telInput = document.querySelector("#modal_telephone");
+            if (telInput && !telInput.intlTelInput) {
+                intlTelInput(telInput, {
+                    preferredCountries: ["au", "in", "us", "gb"],
+                    initialCountry: "au"
+                });
+            }
+        }
+    }, 100);
+}
+
+function closePhoneModal() {
+    document.getElementById('phone-modal').style.display = 'none';
+}
+
+function savePhoneNumber() {
+    var phoneType = document.getElementById('modal_contact_type').value;
+    var phoneInput = document.getElementById('modal_phone').value;
+    var countryCode = '+61';
+    
+    // Get country code from intlTelInput
+    if (typeof jQuery !== 'undefined' && jQuery('#modal_telephone').data('intlTelInput')) {
+        var iti = jQuery('#modal_telephone').intlTelInput('getSelectedCountryData');
+        if (iti && iti.dialCode) {
+            countryCode = '+' + iti.dialCode;
+        }
+    } else if (typeof intlTelInput !== 'undefined') {
+        var telInput = document.querySelector("#modal_telephone");
+        if (telInput && telInput.intlTelInput) {
+            var iti = telInput.intlTelInput;
+            var countryData = iti.getSelectedCountryData();
+            if (countryData && countryData.dialCode) {
+                countryCode = '+' + countryData.dialCode;
+            }
+        }
+    }
+    
+    if (!phoneInput.trim()) {
+        alert('Please enter a phone number');
+        return;
+    }
+    
+    var fullPhone = countryCode + ' ' + phoneInput;
+    var container = document.getElementById('phone-numbers-container');
+    var index = phoneCounter++;
+    
+    var phoneItem = document.createElement('div');
+    phoneItem.className = 'contact-item';
+    phoneItem.setAttribute('data-index', index);
+    phoneItem.innerHTML = `
+        <span class="contact-item-badge">${phoneType}</span>
+        <input type="text" class="contact-item-input" value="${fullPhone}" readonly>
+        <input type="hidden" name="phone[]" value="${phoneInput}">
+        <input type="hidden" name="contact_type[]" value="${phoneType}">
+        <input type="hidden" name="country_code[]" value="${countryCode}">
+        <div class="contact-item-check">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="contact-item-remove" onclick="removePhoneNumber(this)">
+            <i class="fas fa-times"></i>
+        </div>
+    `;
+    
+    container.appendChild(phoneItem);
+    
+    // Hide empty message
+    var emptyMsg = document.getElementById('phone-empty-message');
+    if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+    }
+    
+    closePhoneModal();
+    
+    // Validate phone uniqueness
+    validatePhoneUniqueness(phoneInput);
+}
+
+function removePhoneNumber(element) {
+    if (confirm('Are you sure you want to remove this phone number?')) {
+        var container = document.getElementById('phone-numbers-container');
+        element.closest('.contact-item').remove();
+        
+        // Show empty message if no phones left
+        if (container.querySelectorAll('.contact-item').length === 0) {
+            var emptyMsg = document.getElementById('phone-empty-message');
+            if (emptyMsg) {
+                emptyMsg.style.display = 'block';
+            }
+        }
+    }
+}
+
+function addEmailAddress() {
+    document.getElementById('email-modal').style.display = 'flex';
+    document.getElementById('modal_email').value = '';
+    document.getElementById('modal_email_type').value = 'Personal';
+}
+
+function closeEmailModal() {
+    document.getElementById('email-modal').style.display = 'none';
+}
+
+function saveEmailAddress() {
+    var emailType = document.getElementById('modal_email_type').value;
+    var emailInput = document.getElementById('modal_email').value;
+    
+    if (!emailInput.trim()) {
+        alert('Please enter an email address');
+        return;
+    }
+    
+    // Basic email validation
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailInput)) {
+        alert('Please enter a valid email address');
+        return;
+    }
+    
+    var container = document.getElementById('email-addresses-container');
+    var index = emailCounter++;
+    
+    var emailItem = document.createElement('div');
+    emailItem.className = 'contact-item';
+    emailItem.setAttribute('data-index', index);
+    emailItem.innerHTML = `
+        <span class="contact-item-badge">${emailType}</span>
+        <input type="text" class="contact-item-input" value="${emailInput}" readonly>
+        <input type="hidden" name="email[]" value="${emailInput}">
+        <input type="hidden" name="email_type[]" value="${emailType}">
+        <div class="contact-item-check">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="contact-item-remove" onclick="removeEmailAddress(this)">
+            <i class="fas fa-times"></i>
+        </div>
+    `;
+    
+    container.appendChild(emailItem);
+    
+    // Hide empty message
+    var emptyMsg = document.getElementById('email-empty-message');
+    if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+    }
+    
+    closeEmailModal();
+    
+    // Validate email uniqueness
+    validateEmailUniqueness(emailInput);
+}
+
+function removeEmailAddress(element) {
+    if (confirm('Are you sure you want to remove this email address?')) {
+        var container = document.getElementById('email-addresses-container');
+        element.closest('.contact-item').remove();
+        
+        // Show empty message if no emails left
+        if (container.querySelectorAll('.contact-item').length === 0) {
+            var emptyMsg = document.getElementById('email-empty-message');
+            if (emptyMsg) {
+                emptyMsg.style.display = 'block';
+            }
+        }
+    }
+}
+
+function validatePhoneUniqueness(phone) {
+    jQuery.ajax({
+        url: '{{URL::to('admin/checkclientexist')}}',
+        type: 'GET',
+        data: {vl: phone, type: 'phone'},
+        success: function(res) {
+            if(res == 1) {
+                alert('Phone number is already exist in our record.');
+            }
+        }
+    });
+}
+
+function validateEmailUniqueness(email) {
+    jQuery.ajax({
+        url: '{{URL::to('admin/checkclientexist')}}',
+        type: 'GET',
+        data: {vl: email, type: 'email'},
+        success: function(res) {
+            if(res == 1) {
+                alert('Email is already exist in our record.');
+            }
+        }
+    });
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    var phoneModal = document.getElementById('phone-modal');
+    var emailModal = document.getElementById('email-modal');
+    
+    if (event.target === phoneModal) {
+        closePhoneModal();
+    }
+    if (event.target === emailModal) {
+        closeEmailModal();
     }
 });
 </script>

@@ -19,7 +19,7 @@ This document serves as a quick reference for syntax changes made during the MyS
 12. [Pending Migrations and Schema Mismatches](#pending-migrations-and-schema-mismatches)
 13. [Handling Missing Form Fields](#handling-missing-form-fields)
 14. [Notes Table - Missing Default Values](#notes-table---missing-default-values)
-15. [Documents Table - Missing signer_count Field](#documents-table---missing-signer_count-field)
+15. [~~Documents Table - Missing signer_count Field~~](#documents-table---missing-signer_count-field) - **OBSOLETE: Column never existed in database**
 16. [Search Patterns](#search-patterns)
 17. [Quick Reference Table](#quick-reference-table)
 18. [Migration Checklist](#migration-checklist)
@@ -1333,7 +1333,22 @@ Error saving note. Please try again.
 
 ## Documents Table - Missing signer_count Field
 
-### Issue: Documents Table NOT NULL Constraint on signer_count
+**⚠️ OBSOLETE - This section is outdated and no longer applicable.**
+
+**Status:** The `signer_count` column was documented as required but **never actually existed in the database schema**. All references to this column have been removed from the codebase as of January 2026.
+
+**Background:** This was planned functionality for tracking document signing requirements, but the database migration was never created. The column does not exist in the `documents` table and all code references have been removed.
+
+**Actual Documents Table Columns:**
+- id, file_name, filetype, myfile, myfile_key, user_id, client_id, file_size, type, doc_type, mail_type, checklist, checklist_verified_by, checklist_verified_at, not_used_doc, created_at, updated_at
+
+**Files Fixed (January 2, 2026):**
+- `app/Http/Controllers/Admin/ClientsController.php` - Removed 4 instances
+- `app/Http/Controllers/Admin/PartnersController.php` - Removed 7 instances
+
+---
+
+### ~~Issue: Documents Table NOT NULL Constraint on signer_count~~ (OBSOLETE)
 
 **Problem:** After MySQL to PostgreSQL migration, creating documents (including document checklists, receipt uploads, invoice PDFs, etc.) fails with "Error saving '...': SQLSTATE[23502]: Not null violation: 7 ERROR: null value in column "signer_count" of relation "documents" violates not-null constraint". The `documents` table has a NOT NULL constraint on the `signer_count` column that MySQL may have allowed to be NULL or had implicit defaults, but PostgreSQL strictly enforces.
 

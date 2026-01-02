@@ -2318,7 +2318,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/add-alldocchecklist')}}" name="alldocs_upload_form" id="alldocs_upload_form" autocomplete="off"  enctype="multipart/form-data">
+				<form method="post" action="{{route('clients.addalldocchecklist')}}" name="alldocs_upload_form" id="alldocs_upload_form" autocomplete="off"  enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="clientid" value="{{$fetchedData->id}}">
                     <input type="hidden" name="type" value="client">

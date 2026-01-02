@@ -1786,7 +1786,6 @@ class PartnersController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved = $obj->save();
                     $insertedDocId = $obj->id;
                 }  //end foreach
@@ -1917,7 +1916,6 @@ class PartnersController extends Controller
                     $obj2->type = $request->type;
                     $obj2->file_size = $size;
                     $obj2->doc_type = $doctype;
-                    $obj2->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved2 = $obj2->save();
                     $insertedDocId2 = $obj2->id;
                 }  //end foreach
@@ -2175,7 +2173,6 @@ class PartnersController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved = $obj->save();
 
                     $insertedDocId = $obj->id;
@@ -2327,7 +2324,6 @@ class PartnersController extends Controller
                     $obj->type = $request->type;
                     $obj->file_size = $size;
                     $obj->doc_type = $doctype;
-                    $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                     $doc_saved = $obj->save();
 
                     $insertedDocId = $obj->id;
@@ -2726,7 +2722,6 @@ class PartnersController extends Controller
                 $obj->mail_type = "inbox";
                 $obj->file_size = $size;
                 $obj->doc_type = $doc_type;
-                $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                 $saved = $obj->save();
                 if($saved) {
                     $lastInsertedDocId = $obj->id;
@@ -2863,7 +2858,6 @@ class PartnersController extends Controller
                 $obj->mail_type = "sent";
                 $obj->file_size = $size;
                 $obj->doc_type = $doc_type;
-                $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                 $saved = $obj->save();
                 if($saved){
                     $lastInsertedDocId = $obj->id;
@@ -3605,7 +3599,6 @@ class PartnersController extends Controller
                 $obj->type = $request->type;
                 $obj->file_size = $size;
                 $obj->doc_type = '';
-                $obj->signer_count = 1; // Required NOT NULL field (default: 1 for regular documents)
                 $saved = $obj->save();
             }
 

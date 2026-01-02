@@ -1,6 +1,101 @@
 @extends('layouts.admin')
 @section('title', 'Edit Client (New)')
 
+@push('styles')
+<style>
+/* Form Section Subheading Styles - Matching Create New Page */
+.form-section {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Compact spacing adjustments */
+.form-section:not(:last-child) {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 16px;
+}
+
+/* Override any card-header styles that might interfere */
+.card-body .form-section h3,
+.section-card .form-section h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    position: relative !important;
+}
+
+.card-body .form-section h3::after,
+.section-card .form-section h3::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+    border-radius: 2px !important;
+}
+
+.card-body .form-section h3 i,
+.section-card .form-section h3 i {
+    color: #6366f1 !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+</style>
+@endpush
+
 @section('content')
 
 <!-- Main Content -->
@@ -43,12 +138,9 @@
 				<div class="row mt-3">
 					<div class="col-12">
 						<div class="card section-card">
-							<div class="card-header bg-light">
-								<h5 class="mb-0">
-									<i class="fas fa-user text-primary"></i> Basic Information
-								</h5>
-							</div>
 							<div class="card-body">
+								<section class="form-section">
+									<h3><i class="fas fa-id-card"></i> Basic Information</h3>
 								<div class="row">
 									<!--<div class="col-3 col-md-3 col-lg-3">
 								    	<div class="form-group profile_img_field">	
@@ -190,6 +282,7 @@
 										</div>
 									</div>
 								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -199,12 +292,9 @@
 				<div class="row mt-3">
 					<div class="col-12">
 						<div class="card section-card">
-							<div class="card-header bg-light">
-								<h5 class="mb-0">
-									<i class="fas fa-address-book text-primary"></i> Contact Information
-								</h5>
-							</div>
 							<div class="card-body compact-contact-section">
+								<section class="form-section" style="margin-bottom: 0;">
+									<h3><i class="fas fa-user"></i> Contact Information</h3>
 								<div class="row">
 									<!-- Phone Numbers - Left Side -->
 									<div class="col-md-6 col-sm-12">
@@ -324,6 +414,7 @@
 										</div>
 									</div>
 								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -332,12 +423,9 @@
 					<div class="row mt-3">
 						<div class="col-12">
 							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-passport text-primary"></i> Visa & Passport Information
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-file-contract"></i> Visa Details</h3>
 									<div class="row">
 										<div class="col-md-4 col-sm-12">
 											<div class="form-group"> 
@@ -438,7 +526,7 @@
 											</div>
 										@endif
 									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -447,12 +535,9 @@
 					<div class="row mt-3">
 						<div class="col-12">
 							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-map-marker-alt text-primary"></i> Address Information
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
 									<div class="row">
 										<div class="col-md-6 col-sm-12">
 											<div class="form-group"> 
@@ -535,7 +620,7 @@
 											</div>
 										</div>
 									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -548,12 +633,9 @@
 								||
 								( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
 							) { ?> style="display:block;" <?php } else { ?> style="display:none;" <?php }?>>
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-plus-circle text-primary"></i> Additional Contact
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-plus-circle"></i> Additional Contact</h3>
 									<div class="row">
 										<div class="col-md-6 col-sm-12">
 											<div class="form-group"> 
@@ -584,7 +666,7 @@
 											</div>
 										</div>
 									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -593,12 +675,9 @@
 					<div class="row mt-3">
 						<div class="col-12">
 							<div class="card section-card">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">
-										<i class="fas fa-link text-primary"></i> Related Files & Country
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-link"></i> Related Files</h3>
 									<div class="row">
 										<div class="col-md-9 col-sm-12">
 											<div class="form-group"> 
@@ -614,7 +693,7 @@
 											</div>
 										</div>
 									</div>
-								</div>
+								</section>
 							</div>
 						</div>
 					</div>
@@ -624,12 +703,9 @@
 					<div class="row mt-3">
 						<div class="col-12">
 							<div class="card section-card professional-details-card">
-								<div class="card-header">
-									<h5 class="mb-0">
-										<i class="fas fa-briefcase text-primary"></i> Professional Details
-									</h5>
-								</div>
 								<div class="card-body">
+									<section class="form-section">
+										<h3><i class="fas fa-briefcase"></i> Professional Details</h3>
 									<!-- Basic Professional Information -->
 									<div class="professional-section">
 										<div class="row g-3">
@@ -877,8 +953,10 @@
 											</div>
 										</div>
 									</div>
-								</div>
+								</section>
 								<hr style="border-color: #000;"/>
+								<section class="form-section">
+									<h3><i class="fas fa-cogs"></i> Internal Information</h3>
 								<div class="row " id="internal">
 									<div class="col-sm-3">
 										<div class="form-group">
@@ -1134,7 +1212,8 @@
 											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients-new")' ])  !!}
 										</div>
 									</div>
-								</div> 
+								</div>
+								</section> 
 							</div>
 					</div>	
 				</div>

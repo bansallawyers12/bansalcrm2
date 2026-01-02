@@ -1,0 +1,1 @@
+import{g as r}from"./_commonjsHelpers-Cpj98o6Y.js";import{r as o}from"./jquery-CEMonh9Y.js";var u=o();const e=r(u);typeof window.jQuery>"u"?(window.$=window.jQuery=e,console.log("jQuery "+e.fn.jquery+" loaded via Vite")):console.log("jQuery "+window.jQuery.fn.jquery+" already loaded from CDN");
