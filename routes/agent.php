@@ -46,8 +46,6 @@
         Route::post('/interested-service', 'Agent\ClientsController@interestedService'); 	 
         Route::post('/edit-interested-service', 'Agent\ClientsController@editinterestedService'); 
         
-        Route::get('/showproductfeeserv', 'Agent\ClientsController@showproductfeeserv');
-        Route::post('/servicesavefee', 'Agent\ClientsController@servicesavefee');
         
         Route::get('/pinnote', 'Agent\ClientsController@pinnote'); 
         Route::get('/getpartner', 'Agent\DashboardController@getpartner');

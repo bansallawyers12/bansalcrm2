@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
-use App\Models\ServiceFeeOption;
-use App\Models\ServiceFeeOptionType;
    
 use Auth;
 use Config;
@@ -831,21 +829,9 @@ class ClientsController extends Controller
 			}
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			
-			$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $inteservice->id)->first();
 			$totl = 0.00;
 			$net = 0.00;
 			$discount = 0.00;
-			if($appfeeoption){
-				$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
-				foreach($appfeeoptiontype as $fee){
-					$totl += $fee->total_fee;
-				}
-			}
-	
-			if(@$appfeeoption->total_discount != ''){
-				$discount = @$appfeeoption->total_discount;
-			}
-			$net = $totl -  $discount;
 			?>
 			<div class="interest_serv_fees">
 				<div class="fees_col cus_col">
@@ -1028,36 +1014,6 @@ class ClientsController extends Controller
 			
 			$saved = $obj->save();
 			
-			if(\App\Models\ServiceFeeOption::where('app_id', $app->id)->exists()){
-				$servicedata = \App\Models\ServiceFeeOption::where('app_id', $app->id)->first();
-				
-				$aobj = new \App\Models\Models\ApplicationFeeOption;
-				$aobj->user_id = Auth::user()->id;
-				$aobj->app_id = $obj->id;
-				$aobj->name = $servicedata->name;
-				$aobj->country = $servicedata->country;
-				$aobj->installment_type = $servicedata->installment_type;
-				$aobj->discount_amount = $servicedata->discount_amount;
-				$aobj->discount_sem = $servicedata->discount_sem;
-				$aobj->total_discount = $servicedata->total_discount;
-				$aobj->save();
-				if(\App\Models\ServiceFeeOptionType::where('fee_id', $servicedata->id)->exists()){
-					$totl = 0.00;
-					$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $servicedata->id)->get();
-					foreach($appfeeoptiontype as $fee){
-						$totl += $fee->total_fee;
-						$aobjs = new \App\Models\Models\ApplicationFeeOptionType;
-						$aobjs->fee_id = $aobj->id;
-						$aobjs->fee_type = $fee->fee_type;
-						$aobjs->inst_amt = $fee->inst_amt;
-						$aobjs->installment = $fee->installment;
-						$aobjs->total_fee = $fee->total_fee;
-						$aobjs->claim_term = $fee->claim_term;
-						$aobjs->commission = $fee->commission;
-						$saved = $aobjs->save();
-					}
-				}
-			}
 			
 			$app = \App\Models\InterestedService::find($id);
 			$app->status = 1;
@@ -1432,40 +1388,8 @@ class ClientsController extends Controller
 						<?php
 						$totl = 0.00;
 						$discount = 0.00;
-						$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $obj->id)->first();
-						if($appfeeoption){
-							?>
-							<div class="prod_type">Installment Type: <span class="installtype"><?php echo $appfeeoption->installment_type; ?></span></div>
-						<div class="feedata">
-						<?php
-						$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
-						foreach($appfeeoptiontype as $fee){
-							$totl += $fee->total_fee;
 						?>
-						<p class="clearfix"> 
-							<span class="float-left">Tuition Fee <span class="note">(<?php echo $fee->installment; ?> installments at <span class="classfee"><?php echo $fee->inst_amt; ?></span> each)</span></span>
-							<span class="float-right text-muted feetotl"><?php echo $fee->inst_amt * $fee->installment; ?></span>
-						</p>
-						<?php } 
-						
-						if(@$appfeeoption->total_discount != ''){
-								$discount = @$appfeeoption->total_discount;
-							}
-							$net = $totl -  $discount;
-						?>
-						</div>
-						<p class="clearfix" style="color:#ff0000;"> 
-							<span class="float-left">Client Discounts</span>
-							<span class="float-right text-muted client_dicounts"><?php echo $discount; ?></span>
-						</p>
-						<p class="clearfix" style="color:#6777ef;"> 
-							<span class="float-left">Total</span>
-							<span class="float-right text-muted client_totl"><?php echo $net; ?></span>
-						</p>
-							<?php
-						}else{
-							?>
-							<div class="prod_type">Installment Type: <span class="installtype">Per Semester</span></div>
+						<div class="prod_type">Installment Type: <span class="installtype">Per Semester</span></div>
 						<div class="feedata">
 						<p class="clearfix"> 
 							<span class="float-left">Tuition Fee <span class="note">(1 installments at <span class="classfee">0.00</span> each)</span></span>
@@ -1480,8 +1404,7 @@ class ClientsController extends Controller
 							<span class="float-left">Total</span>
 							<span class="float-right text-muted client_totl">0.00</span>
 						</p>
-							<?php
-						}
+						<?php
 						?>
 						
 					</div>
@@ -1630,293 +1553,6 @@ class ClientsController extends Controller
 	}
 	
 	
-	public function showproductfeeserv(Request $request){
-		$id = $request->id;
-		ob_start();
-		$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $id)->first();
-	
-		?>
-		<form method="post" action="<?php echo \URL::to('/agent/servicesavefee'); ?>" name="servicefeeform" id="servicefeeform" autocomplete="off" enctype="multipart/form-data">
-				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
-				<input type="hidden" name="id" value="<?php echo $id; ?>">
-					<div class="row">
-						<div class="col-12 col-md-4 col-lg-4">
-							<div class="form-group">
-								<label for="fee_option_name">Fee Option Name <span class="span_req">*</span></label> 	
-								<input type="text" readonly name="fee_option_name" class="form-control" value="Default Fee">
-								
-								<span class="custom-error feeoption_name_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-4 col-lg-4">
-							<div class="form-group">
-								<label for="country_residency">Country of Residency <span class="span_req">*</span></label> 
-								<input type="text" readonly name="country_residency" class="form-control" value="All Countries">
-								<span class="custom-error country_residency_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-4 col-lg-4">
-							<div class="form-group">
-								<label for="degree_level">Installment Type <span class="span_req">*</span></label> 
-								<select data-valid="required" class="form-control degree_level installment_type select2" name="degree_level">
-									<option value="">Select Type</option>
-									<option value="Full Fee" <?php if(@$appfeeoption->installment_type == 'Full Fee'){ echo 'selected'; }?>>Full Fee</option>
-									<option value="Per Year" <?php if(@$appfeeoption->installment_type == 'Per Year'){ echo 'selected'; }?>>Per Year</option>
-									<option value="Per Month" <?php if(@$appfeeoption->installment_type == 'Per Month'){ echo 'selected'; }?>>Per Month</option>
-									<option value="Per Term" <?php if(@$appfeeoption->installment_type == 'Per Term'){ echo 'selected'; }?>>Per Term</option>
-									<option value="Per Trimester" <?php if(@$appfeeoption->installment_type == 'Per Trimester'){ echo 'selected'; }?>>Per Trimester</option>
-									<option value="Per Semester" <?php if(@$appfeeoption->installment_type == 'Per Semester'){ echo 'selected'; }?>>Per Semester</option>
-									<option value="Per Week" <?php if(@$appfeeoption->installment_type == 'Per Week'){ echo 'selected'; }?>>Per Week</option>
-									<option value="Installment" <?php if(@$appfeeoption->installment_type == 'Installment'){ echo 'selected'; }?>>Installment</option>
-								</select>
-								<span class="custom-error degree_level_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="table-responsive"> 
-								<table class="table text_wrap" id="productitemview">
-									<thead>
-										<tr> 
-											<th>Fee Type <span class="span_req">*</span></th>
-											<th>Per Semester Amount <span class="span_req">*</span></th>
-											<th>No. of Semester <span class="span_req">*</span></th>
-											<th>Total Fee</th>
-											<th>Claimable Semester</th>
-											<th>Commission %</th>
-											
-								
-										</tr> 
-									</thead>
-									<tbody class="tdata">
-									<?php
-									$totl = 0.00;
-									$discount = 0.00;
-									if($appfeeoption){
-										$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
-										foreach($appfeeoptiontype as $fee){
-											$totl += $fee->total_fee;
-										?>
-										<tr class="add_fee_option cus_fee_option">
-											<td>
-												<select data-valid="required" class="form-control course_fee_type " name="course_fee_type[]">
-													<option value="">Select Type</option>
-													<option value="Accommodation Fee" <?php if(@$fee->fee_type == 'Accommodation Fee'){ echo 'selected'; }?>>Accommodation Fee</option>
-													<option value="Administration Fee" <?php if(@$fee->fee_type == 'Administration Fee'){ echo 'selected'; }?>>Administration Fee</option>
-													<option value="Airline Ticket" <?php if(@$fee->fee_type == 'Airline Ticket'){ echo 'selected'; }?>>Airline Ticket</option>
-													<option value="Airport Transfer Fee" <?php if(@$fee->fee_type == 'Airport Transfer Fee'){ echo 'selected'; }?>>Airport Transfer Fee</option>
-													<option value="Application Fee" <?php if(@$fee->fee_type == 'Application Fee'){ echo 'selected'; }?>>Application Fee</option>
-													<option value="Bond" <?php if(@$fee->fee_type == 'Bond'){ echo 'selected'; }?>>Bond</option>
-												</select>
-											</td>
-											<td>
-												<input type="number" value="<?php echo @$fee->inst_amt; ?>" class="form-control semester_amount" name="semester_amount[]">
-											</td>
-											<td>
-												<input type="number" value="<?php echo @$fee->installment; ?>" class="form-control no_semester" name="no_semester[]">
-											</td>
-											<td class="total_fee"><span><?php echo @$fee->total_fee; ?></span><input value="<?php echo @$fee->total_fee; ?>" type="hidden"  class="form-control total_fee_am" name="total_fee[]"></td>
-											<td>
-												<input type="number" value="<?php echo @$fee->claim_term; ?>" class="form-control claimable_terms" name="claimable_semester[]">
-											</td>
-											<td>
-												<input type="number" value="<?php echo @$fee->commission; ?>" class="form-control commission" name="commission[]">
-											</td>
-											
-										</tr>
-										<?php
-										}
-									}else{
-									?>
-										<tr class="add_fee_option cus_fee_option">
-											<td>
-												<select data-valid="required" class="form-control course_fee_type " name="course_fee_type[]">
-													<option value="">Select Type</option>
-													<option value="Accommodation Fee">Accommodation Fee</option>
-													<option value="Administration Fee">Administration Fee</option>
-													<option value="Airline Ticket">Airline Ticket</option>
-													<option value="Airport Transfer Fee">Airport Transfer Fee</option>
-													<option value="Application Fee">Application Fee</option>
-													<option value="Bond">Bond</option>
-												</select>
-											</td>
-											<td>
-												<input type="number" value="0" class="form-control semester_amount" name="semester_amount[]">
-											</td>
-											<td>
-												<input type="number" value="1" class="form-control no_semester" name="no_semester[]">
-											</td>
-											<td class="total_fee"><span>0.00</span><input value="0" type="hidden"  class="form-control total_fee_am" name="total_fee[]"></td>
-											<td>
-												<input type="number" value="1" class="form-control claimable_terms" name="claimable_semester[]">
-											</td>
-											<td>
-												<input type="number" class="form-control commission" name="commission[]">
-											</td>
-											
-										</tr>
-	<?php } 
-	
-	$net = $totl -  $discount;
-	?>
-									</tbody>
-									<tfoot>
-										<tr>
-											<td><input type="text" readonly value="Discounts" name="discount" class="form-control"></td>
-											<td><input type="number"  value="<?php echo @$appfeeoption->discount_amount; ?>" name="discount_amount" class="form-control discount_amount"></td>
-											<td><input type="number"  value="<?php if(@$appfeeoption->discount_sem != ''){ echo @$appfeeoption->discount_sem; }else{ echo 0.00; } ?>" name="discount_sem" class="form-control discount_sem"></td>
-											<td class="totaldis" style="color:#ff0000;"><span><?php if(@$appfeeoption->total_discount != ''){ echo @$appfeeoption->total_discount; }else{ echo 0.00; } ?></span><input value="<?php if(@$appfeeoption->total_discount != ''){ echo @$appfeeoption->total_discount; }else{ echo 0.00; } ?>" type="hidden" class="form-control total_dis_am" name="total_discount"></td>
-											<td><input type="text"  readonly value="" name="" class="form-control"></td>
-											<td><input type="text"  readonly value="" name="" class="form-control"></td>
-										</tr>	
-										<tr>
-											<?php
-											$dis = 0.00;
-											if(@$appfeeoption->total_discount != ''){
-												$dis = @$appfeeoption->total_discount;
-											}
-											$duductamt = $net - $dis;
-											?>
-											<td colspan="3" style="text-align: right;"><b>Net Total</b></td>
-											<td class="net_totl text-info"><?php echo $duductamt; ?></td>
-											<td colspan="3"></td>
-										</tr>
-									</tfoot>
-								</table>	
-							</div>
-							<div class="fee_option_addbtn">
-								<a href="#" class="btn btn-primary"><i class="fas fa-plus"></i> Add Fee</a>
-							</div>
-							
-						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('servicefeeform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>
-		<?php
-		return ob_get_clean();
-	}
-	
-	
-	
-	public function servicesavefee(Request $request){
-		$requestData = $request->all();
-		$InterestedService = \App\Models\InterestedService::find($request->id);
-		if(ServiceFeeOption::where('app_id', $request->id)->exists()){
-			$o = ServiceFeeOption::where('app_id', $request->id)->first();
-			$obj = ServiceFeeOption::find($o->id);
-			$obj->user_id = Auth::user()->id;
-			$obj->app_id = $request->id;
-			$obj->name = $requestData['fee_option_name'];
-			$obj->country = $requestData['country_residency'];
-			$obj->installment_type = $requestData['degree_level'];
-			$obj->discount_amount = $requestData['discount_amount'];
-			$obj->discount_sem = $requestData['discount_sem'];
-			$obj->total_discount = $requestData['total_discount'];
-			$saved = $obj->save();
-			if($saved){
-				ServiceFeeOptionType::where('fee_id', $obj->id)->delete();
-				$course_fee_type = $requestData['course_fee_type'];
-				$totl = 0;
-				for($i = 0; $i< count($course_fee_type); $i++){
-					$totl += $requestData['total_fee'][$i];
-					$objs = new ServiceFeeOptionType;
-					$objs->fee_id = $obj->id;
-					$objs->fee_type = $requestData['course_fee_type'][$i];
-					$objs->inst_amt = $requestData['semester_amount'][$i];
-					$objs->installment = $requestData['no_semester'][$i];
-					$objs->total_fee = $requestData['total_fee'][$i];
-					$objs->claim_term = $requestData['claimable_semester'][$i];
-					$objs->commission = $requestData['commission'][$i];
-					
-					$saved = $objs->save();
-					$p = '<p class="clearfix"> 
-							<span class="float-left">'.$requestData['course_fee_type'][$i].' <span class="note">('.$requestData['no_semester'][$i].' installments at <span class="classfee">'.$requestData['total_fee'][$i].'</span> each)</span></span>
-							<span class="float-right text-muted feetotl">'.$requestData['total_fee'][$i].'</span>
-						</p>';
-				}
-				$discount = 0.00;
-				if(@$obj->total_discount != ''){
-				$discount = @$obj->total_discount;
-				}
-				$response['status'] 	= 	true;
-					$response['message']	=	'Fee Option added successfully';
-					$response['installment_type']	=	$obj->installment_type;
-				$response['feedata']			=	$p;
-				$response['totalfee']			=	$totl;
-				$response['discount']			=	$discount;
-				$response['client_id']			=	$InterestedService->client_id;
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Record not found';
-			}
-		}else{
-			$obj = new ServiceFeeOption;
-			$obj->user_id = Auth::user()->id;
-			$obj->app_id = $request->id;
-			$obj->name = $requestData['fee_option_name'];
-			$obj->country = $requestData['country_residency'];
-			$obj->installment_type = $requestData['degree_level'];
-			$obj->discount_amount = $requestData['discount_amount'];
-			$obj->discount_sem = $requestData['discount_sem'];
-			$obj->total_discount = $requestData['total_discount'];
-			$saved = $obj->save();
-			if($saved){
-				$course_fee_type = $requestData['course_fee_type'];
-				$totl = 0;
-				$p = '';
-				for($i = 0; $i< count($course_fee_type); $i++){
-					$totl += $requestData['total_fee'][$i];
-					$objs = new ServiceFeeOptionType;
-					$objs->fee_id = $obj->id;
-					$objs->fee_type = $requestData['course_fee_type'][$i];
-					$objs->inst_amt = $requestData['semester_amount'][$i];
-					$objs->installment = $requestData['no_semester'][$i];
-					$objs->total_fee = $requestData['total_fee'][$i];
-					$objs->claim_term = $requestData['claimable_semester'][$i];
-					$objs->commission = $requestData['commission'][$i];
-					
-					$saved = $objs->save();
-					
-				}
-				$discount = 0.00;
-				if(@$obj->total_discount != ''){
-					$discount = @$obj->total_discount;
-				}
-				$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $obj->id)->first();
-				$totl = 0.00;
-				
-				if($appfeeoption){
-					$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
-					foreach($appfeeoptiontype as $fee){
-						$totl += $fee->total_fee;
-						$p = '<p class="clearfix"> 
-							<span class="float-left">'.$fee->installment.' <span class="note">('.$fee->installment.' installments at <span class="classfee">'.$fee->inst_amt.'</span> each)</span></span>
-							<span class="float-right text-muted feetotl">'.$fee->inst_amt * $fee->installment.'</span>
-						</p>';
-					}
-				}
-				$response['status'] 				= 	true;
-				$response['message']			=	'Fee Option added successfully';
-				$response['installment_type']	=	$obj->installment_type;
-				$response['feedata']			=	$p;
-				$response['totalfee']			=	$totl;
-				$response['discount']			=	$discount;
-				$response['client_id']			=	$InterestedService->client_id;
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Record not found';
-			}
-		}
-		echo json_encode($response);	
-	}
 	
 	public function pinnote(Request $request){
 		$requestData = $request->all();

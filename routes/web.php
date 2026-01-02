@@ -393,7 +393,6 @@ Route::prefix('admin')->group(function() {
 		Route::post('/interested-service', [ClientsController::class, 'interestedService']); 	 
 		Route::post('/edit-interested-service', [ClientsController::class, 'editinterestedService']); 	 
 		Route::get('/get-services', [ClientsController::class, 'getServices']); 	 
-		Route::get('/showproductfeeserv', [ClientsController::class, 'showproductfeeserv']);Route::post('/servicesavefee', [ClientsController::class, 'servicesavefee']);		 	 
 		Route::post('/upload-mail', [ClientsController::class, 'uploadmail']); 	 
 		Route::post('/updatefollowupschedule', [ClientsController::class, 'updatefollowupschedule']); 
   

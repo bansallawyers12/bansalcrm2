@@ -60,16 +60,19 @@ class TransferDataToPostgres extends Command
                 'interested_services' => 15087,
                 'applications' => 27797,
                 'admins' => 53095,
+                'test_scores' => 55,
             ];
 
             $tableName = $this->option('table');
             if ($tableName) {
-                if (!isset($tablesToTransfer[$tableName])) {
-                    $this->error("Table '{$tableName}' is not in the list of tables to transfer.");
-                    $this->info('Available tables: ' . implode(', ', array_keys($tablesToTransfer)));
+                // If table is specified, check if it exists in MySQL
+                if (!$this->tableExists($tableName, 'mysql')) {
+                    $this->error("Table '{$tableName}' does not exist in MySQL.");
                     return 1;
                 }
-                $tablesToTransfer = [$tableName => $tablesToTransfer[$tableName]];
+                // Get actual count from MySQL
+                $actualCount = $mysqlConnection->table($tableName)->count();
+                $tablesToTransfer = [$tableName => $actualCount];
             }
 
             if ($isDryRun) {

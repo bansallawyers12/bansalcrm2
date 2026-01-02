@@ -1156,22 +1156,9 @@ use App\Http\Controllers\Controller;
 												$nettotal = $client_revenue + $partner_revenue - $discounts;
 
 
-												$appfeeoption = \App\Models\ServiceFeeOption::where('app_id', $inteservice->id)->first();
-
 												$totl = 0.00;
 												$net = 0.00;
 												$discount = 0.00;
-												if($appfeeoption){
-													$appfeeoptiontype = \App\Models\ServiceFeeOptionType::where('fee_id', $appfeeoption->id)->get();
-													foreach($appfeeoptiontype as $fee){
-														$totl += $fee->total_fee;
-													}
-												}
-
-												if(@$appfeeoption->total_discount != ''){
-													$discount = @$appfeeoption->total_discount;
-												}
-												$net = $totl -  $discount;
 												?>
 											<div class="interest_serv_info">
 												<h4>{{@$workflowdetail->name}}</h4>
@@ -3216,21 +3203,6 @@ use App\Http\Controllers\Controller;
 	</div>
 
 
-<div class="modal fade custom_modal" id="new_fee_option_serv" tabindex="-1" role="dialog" aria-labelledby="feeoptionModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-xl">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="feeoptionModalLabel">Fee Option</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body showproductfeeserv">
-
-			</div>
-		</div>
-	</div>
-</div>
 
 <div class="modal fade custom_modal" id="application_opensaleforcast" tabindex="-1" role="dialog" aria-labelledby="applicationModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -7536,22 +7508,6 @@ $(document).delegate('#notes-tab', 'click', function(){
 		});
 	});
 
-	$(document).delegate('.openpaymentfeeserv', 'click', function(){
-		var appliid = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('hide');
-		$('#new_fee_option_serv').modal('show');
-		$.ajax({
-			url: '{{URL::to('/admin/showproductfeeserv')}}',
-			type:'GET',
-			data:{id:appliid},
-			success:function(response){
-				$('.popuploader').hide();
-
-				$('.showproductfeeserv').html(response);
-
-			}
-		});
 		$(document).on("hidden.bs.modal", "#interest_service_view", function (e) {
 		$('body').addClass('modal-open');
 	});
@@ -8268,155 +8224,6 @@ $(document).ready(function() {
             });
         }
 
-	$(document).delegate('#new_fee_option_serv .fee_option_addbtn a', 'click', function(){
-		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control semester_amount" name="semester_amount[]"></td><td><input type="number" value="1" class="form-control no_semester" name="no_semester[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_semester[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td> <a href="javascript:;" class="removefeetype"><i class="fa fa-trash"></i></a></td></tr>';
-		$('#new_fee_option_serv #productitemview tbody').append(html);
-
-			});
-
-	$(document).delegate('#new_fee_option_serv .removefeetype', 'click', function(){
-		$(this).parent().parent().remove();
-
-		var price = 0;
-		$('#new_fee_option_serv .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-
-		var discount_sem = $('#new_fee_option_serv .discount_sem').val();
-		var discount_amount = $('#new_fee_option_serv .discount_amount').val();
-		var cservd = 0.00;
-		if(discount_sem != ''){
-			cservd = discount_sem;
-		}
-
-		var cservs = 0.00;
-		if(discount_amount != ''){
-			cservs = discount_amount;
-		}
-		var dis = parseFloat(cservs) * parseFloat(cservd);
-		var duductdis = price - dis;
-
-		$('#new_fee_option_serv .net_totl').html(duductdis.toFixed(2));
-	});
-
-
-	$(document).delegate('#new_fee_option_serv .semester_amount','keyup', function(){
-		var installment_amount = $(this).val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-
-		var installment = $(this).parent().parent().find('.no_semester').val();
-
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#new_fee_option_serv .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-
-		var discount_sem = $('#new_fee_option_serv .discount_sem').val();
-		var discount_amount = $('#new_fee_option_serv .discount_amount').val();
-		var cservd = 0.00;
-		if(discount_sem != ''){
-			cservd = discount_sem;
-		}
-
-		var cservs = 0.00;
-		if(discount_amount != ''){
-			cservs = discount_amount;
-		}
-		var dis = parseFloat(cservs) * parseFloat(cservd);
-		var duductdis = price - dis;
-
-		$('#new_fee_option_serv .net_totl').html(duductdis.toFixed(2));
-	});
-
-
-	$(document).delegate('#new_fee_option_serv .no_semester','keyup', function(){
-		var installment = $(this).val();
-
-
-		var installment_amount = $(this).parent().parent().find('.semester_amount').val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#new_fee_option_serv .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-
-		var discount_sem = $('.discount_sem').val();
-		var discount_amount = $('.discount_amount').val();
-		var cservd = 0.00;
-		if(discount_sem != ''){
-			cservd = discount_sem;
-		}
-
-		var cservs = 0.00;
-		if(discount_amount != ''){
-			cservs = discount_amount;
-		}
-		var dis = parseFloat(cservs) * parseFloat(cservd);
-		var duductdis = price - dis;
-
-		$('#new_fee_option_serv .net_totl').html(duductdis.toFixed(2));
-	});
-
-	$(document).delegate('#new_fee_option_serv .discount_amount','keyup', function(){
-		var discount_amount = $(this).val();
-		var discount_sem = $('#new_fee_option_serv .discount_sem').val();
-		var cserv = 0.00;
-		if(discount_sem != ''){
-			cserv = discount_sem;
-		}
-
-		var cservs = 0.00;
-		if(discount_amount != ''){
-			cservs = discount_amount;
-		}
-		var dis = parseFloat(cservs) * parseFloat(cserv);
-		$('#new_fee_option_serv .totaldis span').html(dis.toFixed(2));
-		var price = 0;
-		$('#new_fee_option_serv .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		var duductdis = price - dis;
-		$('#new_fee_option_serv .net_totl').html(duductdis.toFixed(2));
-		$('#new_fee_option_serv .totaldis .total_dis_am').val(dis.toFixed(2));
-
-	});
-
-	$(document).delegate('#new_fee_option_serv .discount_sem','keyup', function(){
-		var discount_sem = $(this).val();
-		var discount_amount = $('#new_fee_option_serv .discount_amount').val();
-		var cserv = 0.00;
-		if(discount_sem != ''){
-			cserv = discount_sem;
-		}
-
-		var cservs = 0.00;
-		if(discount_amount != ''){
-			cservs = discount_amount;
-		}
-		var dis = parseFloat(cservs) * parseFloat(cserv);
-		$('#new_fee_option_serv .totaldis span').html(dis.toFixed(2));
-		$('#new_fee_option_serv .totaldis .total_dis_am').val(dis.toFixed(2));
-
-		var price = 0;
-		$('#new_fee_option_serv .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		var duductdis = price - dis;
-		$('#new_fee_option_serv .net_totl').html(duductdis.toFixed(2));
-
-	});
 });
 function arcivedAction( id, table ) {
 		var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
