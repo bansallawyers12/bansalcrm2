@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
       
         'checkDobSession' => \App\Http\Middleware\CheckDobSession::class,
+        'auth.multi' => \App\Http\Middleware\AuthenticateMultiGuard::class,
     ];
 }

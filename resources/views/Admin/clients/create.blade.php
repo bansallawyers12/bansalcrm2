@@ -18,7 +18,7 @@
 							<div class="card-header">
 								<h4>Create Client</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -75,17 +75,19 @@
 												?>
 												<div class="form-group"> 
 													<label style="display:block;" for="gender">Gender <span class="span_req">*</span></label>
-													<div class="form-check form-check-inline">
-														<input <?php if($oldgender == 'Male'){ echo 'checked'; } ?> class="form-check-input" type="radio" id="male" value="Male" name="gender" checked>
-														<label class="form-check-label" for="male">Male</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" <?php if($oldgender == 'Female'){ echo 'checked'; } ?> type="radio" id="female" value="Female" name="gender">
-														<label class="form-check-label" for="female">Female</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" <?php if($oldgender == 'Other'){ echo 'checked'; } ?> type="radio" id="other" value="Other" name="gender">
-														<label class="form-check-label" for="other">Other</label>
+													<div class="gender-radio-group" style="display: flex !important; gap: 0.8rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem;">
+														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0.5rem; margin-bottom: 0;">
+															<input class="form-check-input" type="radio" id="male" value="Male" name="gender" <?php if($oldgender == 'Male' || $oldgender == ''){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
+															<label class="form-check-label" for="male" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Male</label>
+														</div>
+														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0.5rem; margin-bottom: 0;">
+															<input class="form-check-input" type="radio" id="female" value="Female" name="gender" <?php if($oldgender == 'Female'){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
+															<label class="form-check-label" for="female" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Female</label>
+														</div>
+														<div class="form-check form-check-inline" style="display: inline-flex !important; align-items: center; margin-right: 0; margin-bottom: 0;">
+															<input class="form-check-input" type="radio" id="other" value="Other" name="gender" <?php if($oldgender == 'Other'){ echo 'checked'; } ?> style="width: 18px; height: 18px; margin-right: 6px; cursor: pointer; flex-shrink: 0;">
+															<label class="form-check-label" for="other" style="cursor: pointer; margin-bottom: 0; white-space: nowrap;">Other</label>
+														</div>
 													</div>
 													@if ($errors->has('gender'))
 														<span class="custom-error" role="alert">
@@ -739,7 +741,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		 minimumInputLength: 1,
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			delay: 250,
 			data: function (params) {

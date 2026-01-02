@@ -89,17 +89,10 @@ class ClientsController extends Controller
 		
 		
 		return view('Agent.archived.index', compact(['lists', 'totalData'])); 	
- 
+
 	}
 	
-	public function prospects(Request $request)
-	{
-		
-		return view('Agent.prospects.index'); 	
- 
-	}
-	
-		public function create(Request $request)
+	public function create(Request $request)
 	{
 		//check authorization end
 		//return view('Admin.users.create',compact(['usertype']));	

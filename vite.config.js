@@ -7,6 +7,8 @@ export default defineConfig({
             input: [
                 'resources/js/jquery-init.js',  // Load jQuery first
                 'resources/js/fullcalendar-init.js',  // Load FullCalendar v6
+                'resources/js/vendor-libs.js',  // Third-party libraries (flatpickr, select2, datatables, izitoast, intl-tel-input)
+                'resources/js/ui-libs.js',  // UI libraries (feather-icons, jquery.nicescroll)
                 'resources/js/app.js',
             ],
             refresh: true,

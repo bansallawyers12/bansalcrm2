@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Edit Clients</h4>
 								<div class="card-header-action">
-									<a href="{{route('agent.clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('clients.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -510,7 +510,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 	
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

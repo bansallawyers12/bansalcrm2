@@ -248,7 +248,7 @@ jQuery(document).ready(function($){
     // ============================================================================
     
     function getTopReceiptValInDB(type) {
-        var url = App.getUrl('clientGetTopReceipt') || App.getUrl('siteUrl') + '/admin/clients/getTopReceiptValInDB';
+        var url = App.getUrl('clientGetTopReceipt') || App.getUrl('siteUrl') + '/clients/getTopReceiptValInDB';
         $.ajax({
             type:'post',
             url: url,
@@ -792,7 +792,7 @@ Bansal Immigration`;
         }
 
         var client_id = App.getPageConfig('clientId');
-        var url = App.getUrl('clientUpdateEmailVerified') || App.getUrl('siteUrl') + '/admin/clients/update-email-verified';
+        var url = App.getUrl('clientUpdateEmailVerified') || App.getUrl('siteUrl') + '/clients/update-email-verified';
         $.ajax({
             url: url,
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -898,7 +898,7 @@ Bansal Immigration`;
             flag = false;
         }
         if(flag){
-            var url = App.getUrl('clientFollowup') || App.getUrl('siteUrl') + '/admin/clients/followup/store';
+            var url = App.getUrl('clientFollowup') || App.getUrl('siteUrl') + '/clients/followup/store';
             $.ajax({
                 type:'post',
                 url: url,
@@ -961,7 +961,7 @@ Bansal Immigration`;
     $(document).on('click', '.saveassignee', function(){
         var appliid = $(this).attr('data-id');
         $('.popuploader').show();
-        var url = App.getUrl('clientChangeAssignee') || App.getUrl('siteUrl') + '/admin/clients/change_assignee';
+        var url = App.getUrl('clientChangeAssignee') || App.getUrl('siteUrl') + '/clients/change_assignee';
         $.ajax({
             url: url,
             type:'GET',
@@ -1336,7 +1336,7 @@ Bansal Immigration`;
 
             var client_id = $('#create_note_d #note_client_id').val();
             $('.popuploader').show();
-            var url = App.getUrl('clientFetchContact') || App.getUrl('siteUrl') + '/admin/clients/fetchClientContactNo';
+            var url = App.getUrl('clientFetchContact') || App.getUrl('siteUrl') + '/clients/fetchClientContactNo';
             $.ajax({
                 url: url,
                 method: "POST",
@@ -1386,7 +1386,7 @@ Bansal Immigration`;
         closeOnSelect: false,
         dropdownParent: $('#create_note'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             processResults: function (data) {
@@ -1405,7 +1405,7 @@ Bansal Immigration`;
         closeOnSelect: false,
         dropdownParent: $('#applicationemailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             processResults: function (data) {
@@ -1456,7 +1456,7 @@ Bansal Immigration`;
     $(document).on('click', '.complete_session', function(){
         var client_id = $(this).attr('data-clientid');
         if(client_id !=""){
-            var url = App.getUrl('clientUpdateSession') || App.getUrl('siteUrl') + '/admin/clients/update-session-completed';
+            var url = App.getUrl('clientUpdateSession') || App.getUrl('siteUrl') + '/clients/update-session-completed';
             $.ajax({
                 type:'POST',
                 url: url,
@@ -1779,7 +1779,7 @@ Bansal Immigration`;
         closeOnSelect: false,
         dropdownParent: $('#emailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             processResults: function (data) {
@@ -1798,7 +1798,7 @@ Bansal Immigration`;
         closeOnSelect: false,
         dropdownParent: $('#emailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             processResults: function (data) {
@@ -2884,7 +2884,7 @@ Bansal Immigration`;
     // ============================================================================
     
     function getClientReceiptInfoById(id) {
-        var url = App.getUrl('clientGetReceiptInfo') || App.getUrl('siteUrl') + '/admin/clients/getClientReceiptInfoById';
+        var url = App.getUrl('clientGetReceiptInfo') || App.getUrl('siteUrl') + '/clients/getClientReceiptInfoById';
         $.ajax({
             type:'post',
             url: url,

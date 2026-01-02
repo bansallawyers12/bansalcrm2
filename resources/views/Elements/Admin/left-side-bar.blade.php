@@ -106,7 +106,7 @@
 			<!-- PEOPLE MANAGEMENT -->
 			<?php
 			
-			if(Route::currentRouteName() == 'admin.clients.index' || Route::currentRouteName() == 'admin.clients.create' || Route::currentRouteName() == 'admin.clients.edit' || Route::currentRouteName() == 'admin.clients.detail'){
+			if(Route::currentRouteName() == 'clients.index' || Route::currentRouteName() == 'clients.create' || Route::currentRouteName() == 'clients.edit' || Route::currentRouteName() == 'clients.detail'){
 				$clientclasstype = 'active'; 
 			}
 			?> 
@@ -114,7 +114,7 @@
 				if(array_key_exists('21',  $module_access)) {
 			?>
 			<li class="dropdown {{@$clientclasstype}}">
-				<a href="{{route('admin.clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
+				<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
 			</li>
 			<?php
 				}
@@ -122,7 +122,7 @@
 
 				//if( Auth::user()->role == 1 ){ //super admin or admin
 
-                    if(Route::currentRouteName() == 'admin.clients.clientreceiptlist'){
+                    if(Route::currentRouteName() == 'clients.clientreceiptlist'){
                         $clientaccountmanagerclasstype = 'active';
                     }
                     ?>
@@ -130,8 +130,8 @@
                     <a href="#" class="menu-toggle nav-link has-dropdown"><i
                     class="fas fa-file-alt"></i><span>Client Account Manager</span></a>
                     <ul class="dropdown-menu">
-                        <li class="{{(Route::currentRouteName() == 'admin.clients.clientreceiptlist') ? 'active' : ''}}">
-                            <a href="{{route('admin.clients.clientreceiptlist')}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Clients Receipts</span></a>
+                        <li class="{{(Route::currentRouteName() == 'clients.clientreceiptlist') ? 'active' : ''}}">
+                            <a href="{{route('clients.clientreceiptlist')}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Clients Receipts</span></a>
                         </li>
                       
                         <!--<li class="{{--(Route::currentRouteName() == 'admin.commissionreport') ? 'active' : ''--}}">

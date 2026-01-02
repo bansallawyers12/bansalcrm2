@@ -31,14 +31,14 @@
 										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Added On</label>
 									</div>
 								</div>
-								<a href="{{route('admin.clients.create')}}" class="btn btn-primary">Create Client</a>
+								<a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a>
 							</div>
 						</div>
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								
 								<li class="nav-item">
-									<a class="nav-link " id="clients-tab"  href="{{URL::to('/admin/clients')}}" >Clients</a>
+									<a class="nav-link " id="clients-tab"  href="{{URL::to('/clients')}}" >Clients</a>
 								</li>
 								<li class="nav-item ">
 									<a class="nav-link active" id="archived-tab"  href="{{URL::to('/admin/archived')}}" >Archived</a>

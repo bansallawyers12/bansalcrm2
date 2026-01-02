@@ -15,14 +15,13 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	 
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
+	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): flatpickr, select2, intlTelInput -->
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
-	<link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
 	<!-- Template CSS -->
 	<link rel="stylesheet" href="{{asset('css/niceCountryInput.css')}}">
 	<!--<link rel="stylesheet" href="{{asset('css/flagstrap.css')}}">-->
 	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
-	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
+	<!-- intlTelInput CSS now loaded via Vite (vendor-libs.js) -->
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
@@ -93,26 +92,29 @@
 	<!-- Load jQuery FIRST as separate entry (synchronous) -->
 	@vite(['resources/js/jquery-init.js'])
 	
+	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast, intl-tel-input) -->
+	@vite(['resources/js/vendor-libs.js'])
+	
+	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
+	@vite(['resources/js/ui-libs.js'])
+	
 	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
 	<!--<script src="{{asset('js/niceCountryInput.js')}}"></script> -->  
 	<script src="{{asset('js/chart.min.js')}}"></script>   
-	<script src="{{asset('js/datatables.min.js')}}"></script>   
-	<script src="{{asset('js/dataTables.bootstrap5.js')}}"></script>   
+	<!-- DataTables now loaded via Vite (vendor-libs.js) -->
 	 <!-- JS Libraies -->
 	<!--<script src="{{asset('js/apexcharts.min.js')}}"></script>--> 
 	<!-- Page Specific JS File -->	
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/flatpickr.min.js')}}"></script> 
+	<!-- flatpickr, select2, intlTelInput now loaded via Vite (vendor-libs.js) -->
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}"></script> 
 	
-	<script src="{{asset('js/select2.full.min.js')}}"></script> 
 	<!--<script src="{{asset('js/jquery.flagstrap.js')}}"></script>--> 
 	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}"></script> 
-	<script src="{{asset('js/intlTelInput.js')}}"></script> 
 	<script src="{{asset('js/agent-custom-form-validation.js')}}"></script> 
 	<!-- Template JS File -->
 	<script src="{{asset('js/scripts.js')}}"></script>   
@@ -655,7 +657,7 @@ $(document).delegate('.opencheckin', 'click', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#checkinmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

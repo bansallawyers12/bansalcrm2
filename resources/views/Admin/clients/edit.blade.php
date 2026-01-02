@@ -27,7 +27,7 @@
 									<small class="text-muted">Client ID: <span class="badge badge-secondary">{{ @$fetchedData->client_id }}</span></small>
 								</div>
 								<div class="card-header-action">
-								    <a href="{{route('admin.clients.index')}}" class="btn btn-outline-secondary me-2">
+								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
 								    	<i class="fa fa-arrow-left"></i> Back
 								    </a>
 								    <button type="submit" class="btn btn-primary" onclick="customValidate('edit-clients')">
@@ -2243,7 +2243,7 @@ $('.js-data-example-ajaxcc').select2({
 		 multiple: true,
 		 closeOnSelect: false,
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			data: function (params) {
 				console.log('AJAX data function called with params:', params);

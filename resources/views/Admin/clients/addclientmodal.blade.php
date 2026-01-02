@@ -2192,7 +2192,7 @@
 			</div>
 			<div class="modal-body">
                 <input type="hidden"  id="top_value_db" value="">
-				<form method="post" action="{{URL::to('/admin/clients/saveaccountreport')}}" name="create_client_receipt" autocomplete="off" id="create_client_receipt" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/clients/saveaccountreport')}}" name="create_client_receipt" autocomplete="off" id="create_client_receipt" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
                 <input type="hidden" name="loggedin_userid" value="{{@Auth::user()->id}}">
@@ -2381,7 +2381,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/clients/followup_application/store_application')}}" name="appliassignform" id="appliassignform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/clients/followup_application/store_application')}}" name="appliassignform" id="appliassignform" autocomplete="off" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="client_id" value="{{$fetchedData->id}}">
                     <input type="hidden" id="assign_application_id" name="application_id" value="">

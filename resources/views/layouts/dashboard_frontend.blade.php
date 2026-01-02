@@ -13,7 +13,7 @@
     <link href="{{asset('css/font-awesome.min.css')}}" rel="stylesheet">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
-    <link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
+    <!-- flatpickr CSS now loaded via Vite (vendor-libs.js) -->
 </head>
 <body>
 	<!--Content-->
@@ -28,13 +28,14 @@
 	<!-- Load jQuery FIRST as separate entry (synchronous) -->
 	@vite(['resources/js/jquery-init.js'])
 	
+	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast, intl-tel-input) -->
+	@vite(['resources/js/vendor-libs.js'])
+	
 	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])
 	
 	<!-- jQuery should now be available immediately -->
-		 
-	<!-- Option 1: Bootstrap Bundle with Popper -->
-	<script src="{{asset('js/flatpickr.min.js')}}"></script> 
+	<!-- flatpickr now loaded via Vite (vendor-libs.js) --> 
 
 	<script>
 		$(document).ready(function() {

@@ -129,7 +129,7 @@ nav.navbar.main-navbar {
             <div style="width: 50px;" class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				
 				<div class="">
-					<a href="{{URL::to('/admin/clients')}}" class="dropdown-item">
+					<a href="{{URL::to('/clients')}}" class="dropdown-item">
 						Client
 					</a>
 					

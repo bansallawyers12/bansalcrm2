@@ -23,8 +23,6 @@
         Route::post('/create-note', 'Agent\ClientsController@createnote')->name('agent.clients.createnote');
         Route::get('/getnotedetail', 'Agent\ClientsController@getnotedetail')->name('agent.clients.getnotedetail');
         Route::get('/deletenote', 'Agent\ClientsController@deletenote')->name('agent.clients.deletenote');
-        //prospects Start  
-        Route::get('/prospects', 'Agent\ClientsController@prospects')->name('agent.clients.prospects');
         Route::get('/viewnotedetail', 'Agent\ClientsController@viewnotedetail');
         Route::get('/viewapplicationnote', 'Agent\ClientsController@viewapplicationnote');
         

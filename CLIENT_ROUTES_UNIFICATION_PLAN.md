@@ -176,7 +176,7 @@ protected function canDeleteClient($client): bool
 - [ ] Add trait usage: `use ClientQueries, ClientAuthorization, ClientHelpers;`
 - [ ] Refactor `index()` method to use traits
 - [ ] Refactor `archived()` method
-- [ ] Refactor `prospects()` method
+- [x] ~~Refactor `prospects()` method~~ **[REMOVED - Feature discontinued]**
 - [ ] Add agent context detection
 - [ ] Update query methods to handle agent filtering
 

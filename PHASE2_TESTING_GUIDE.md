@@ -67,16 +67,12 @@ Or use your XAMPP setup (should already be running).
    - ✅ Pagination works
    - ✅ No errors
 
-#### Test 3: Prospects Page (`/admin/prospects`)
+#### ~~Test 3: Prospects Page (`/admin/prospects`)~~ [REMOVED]
 
-1. **Navigate:**
-   - Go to: `http://localhost/bansalcrm2/admin/prospects`
-   - Or click "Prospects" in the menu
-
-2. **What to Check:**
-   - ✅ Page loads without errors
-   - ✅ Prospects page displays
-   - ✅ No errors
+> **Note:** The prospects feature has been removed as it was unused. The system now uses:
+> - **Leads** → for potential clients (`/admin/leads`)
+> - **Clients** → for active clients (`/admin/clients`)
+> - **Archived** → for archived clients (`/admin/archived`)
 
 ---
 
@@ -174,7 +170,7 @@ php artisan cache:clear
 - [ ] Filters work (client_id, name, email, phone)
 - [ ] Pagination works
 - [ ] `/admin/archived` loads correctly
-- [ ] `/admin/prospects` loads correctly
+- [ ] ~~`/admin/prospects` loads correctly~~ [REMOVED - Feature discontinued]
 - [ ] No JavaScript errors in console
 - [ ] No PHP errors in Laravel logs
 - [ ] Functionality same as before

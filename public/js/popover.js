@@ -303,7 +303,7 @@ console.log(timestring);
         $('.js-data-example-ajaxccsearch__addmytask').select2({
             closeOnSelect: true,
             ajax: {
-                url: '/admin/clients/get-allclients',
+                url: '/clients/get-allclients',
                 dataType: 'json',
                 processResults: function (data) {
                     // Transforms the top-level key of the response object from 'items' to 'results'

@@ -92,13 +92,6 @@ class ApplicationsController extends Controller
 		//return view('Admin.applications.index');
 	}
 	
-	public function prospects(Request $request) 
-	{
-		
-		//return view('Admin.prospects.index'); 	
- 
-	}
-	
 	public function create(Request $request)
 	{
 		//check authorization end

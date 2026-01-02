@@ -88,7 +88,7 @@
 										
 									</div>
 								</div>
-								<a href="{{route('admin.clients.create')}}" class="btn btn-primary">Create Client</a>
+								<a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
@@ -107,7 +107,7 @@
 								</li>
 								
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/admin/clients')}}" >Clients</a>
+									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/clients')}}" >Clients</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
 									<a class="nav-link" id="archived-tab"  href="{{URL::to('/admin/archived')}}" >Archived</a>
@@ -116,7 +116,7 @@
 							<div class="tab-content" id="clientContent">	
 							<div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/admin/clients')}}" method="get">
+								<form action="{{URL::to('/clients')}}" method="get">
 									<div class="row">
 										<div class="col-md-4">
 											<div class="form-group">
@@ -158,7 +158,7 @@
 										<div class="col-md-12 text-center">
 									
 											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/admin/clients')}}">Reset</a>
+											<a class="btn btn-info" href="{{URL::to('/clients')}}">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -203,7 +203,7 @@
 															<label for="checkbox-{{$i}}" class="custom-control-label">&nbsp;</label>
 														</div>
 													</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }} </a><span class="badge btn-warning"><?php echo $list->type; ?></span><br/>{{--<a data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" class="clientemail">{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</a>--}}</td> 
+													<td style="white-space: initial;"><a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }} </a><span class="badge btn-warning"><?php echo $list->type; ?></span><br/>{{--<a data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" class="clientemail">{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</a>--}}</td> 
 													<?php
 													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
 													?>
@@ -280,7 +280,7 @@
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'admins')"><i class="fas fa-trash"></i> Archived</a>
 															</div>
 														</div>								  
@@ -680,7 +680,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -701,7 +701,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

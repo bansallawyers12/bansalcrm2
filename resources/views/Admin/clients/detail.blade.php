@@ -223,7 +223,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<h4>Client Detail </h4>
 							<div class="card-header-action">
-							    <a href="{{route('admin.clients.index')}}" class="btn btn-primary">Client List</a>
+							    <a href="{{route('clients.index')}}" class="btn btn-primary">Client List</a>
 							</div>
 
 							<?php
@@ -241,7 +241,7 @@ use App\Http\Controllers\Controller;
 
                          <div class="filter_panel">
                             <?php //echo $encodeId;?>
-                            <form action="{{URL::to('/admin/clients/detail/'.$encodeId)}}" method="get">
+                            <form action="{{URL::to('/clients/detail/'.$encodeId)}}" method="get">
                                 <div class="row" style="padding-left: 10px;">
 
                                     <div class="col-md-4">
@@ -260,7 +260,7 @@ use App\Http\Controllers\Controller;
 
                                     <div class="col-md-4" style="padding-top: 35px;">
                                         {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-                                        <a class="btn btn-info" href="{{URL::to('/admin/clients/detail/'.$encodeId)}}">Reset</a>
+                                        <a class="btn btn-info" href="{{URL::to('/clients/detail/'.$encodeId)}}">Reset</a>
                                     </div>
                                 </div>
                             </form>
@@ -294,7 +294,7 @@ use App\Http\Controllers\Controller;
                                       <a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="sendmsg" title="Send Message"><i class="fas fa-comment-alt"></i></a>
 
                                       <a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
-                                      <a href="{{URL::to('/admin/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+                                      <a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
                                       @if($fetchedData->is_archived == 0)
                                           <a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
                                       @else
@@ -310,8 +310,8 @@ use App\Http\Controllers\Controller;
                               
                               
 									<p>
-									<a  onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/admin/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
-								    <a  onclick="return confirm('Are you sure?')" href="{{URL::to('/admin/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
+									<a  onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
+								    <a  onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
 
 								</p>
 								<p><button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
@@ -735,7 +735,7 @@ use App\Http\Controllers\Controller;
 											//$relatedclientss = \App\Models\Admin::select('id',  'first_name', 'last_name')->whereRaw("FIND_IN_SET($fetchedData->id,related_files)")->get();
 											//foreach($relatedclientss AS $res){
 										?>
-											<!--<li><a target="_blank" href="{{--URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))--}}">{{--$res->first_name--}} {{--$res->last_name--}}</a></li>-->
+											<!--<li><a target="_blank" href="{{--URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))--}}">{{--$res->first_name--}} {{--$res->last_name--}}</a></li>-->
 										<?php //} ?>
 
 										<?php
@@ -751,7 +751,7 @@ use App\Http\Controllers\Controller;
 													$relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();
 													if($relatedclients) {
 										?>
-														<li><a target="_blank" href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
+														<li><a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
 										<?php 
 													}
 												}
@@ -779,7 +779,7 @@ use App\Http\Controllers\Controller;
 											if($stagd){
 											?>
 												<span class="ui label ag-flex ag-align-center ag-space-between" style="display: inline-flex;">
-													<span class="col-hr-1" style="font-size: 12px;">{{@$stagd->name}} <!--<a href="{{--URL::to('/admin/clients/removetag?rem_id='.$key.'&c='.$fetchedData->id)--}}" class="removetag" ><i class="fa fa-times"></i></a>--></span>
+													<span class="col-hr-1" style="font-size: 12px;">{{@$stagd->name}} <!--<a href="{{--URL::to('/clients/removetag?rem_id='.$key.'&c='.$fetchedData->id)--}}" class="removetag" ><i class="fa fa-times"></i></a>--></span>
 												</span>
 											<?php
 											}
@@ -1907,7 +1907,7 @@ use App\Http\Controllers\Controller;
                                                     <td><?php echo $rec_val->description;?></td>
                                                     <td>
                                                         <?php echo "$".$rec_val->deposit_amount;?>
-                                                        <a target="_blank" class="link-primary" href="{{URL::to('/admin/clients/printpreview')}}/{{$rec_val->id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                        <?php
                                                         if( isset($rec_val->validate_receipt) && $rec_val->validate_receipt != 1){
                                                         ?>
@@ -3428,14 +3428,14 @@ if($fetchedData->tagname != ''){
         deleteActivityLog: '{{ url("/admin/deleteactivitylog") }}',
         mailEnhance: '{{ route("admin.mail.enhance") }}',
         isGReviewMailSent: '{{ url("/admin/is_greview_mail_sent") }}',
-        clientGetTopReceipt: '{{ url("/admin/clients/getTopReceiptValInDB") }}',
+        clientGetTopReceipt: '{{ url("/clients/getTopReceiptValInDB") }}',
         getTagData: '{{ url("/admin/gettagdata") }}',
         notPickedCall: '{{ url("/admin/not-picked-call") }}',
         getDateTimeBackend: '{{ url("/getdatetimebackend") }}',
         getDisabledDateTime: '{{ url("/getdisableddatetime") }}',
-        clientUpdateEmailVerified: '{{ url("/admin/clients/update-email-verified") }}',
-        clientChangeAssignee: '{{ url("/admin/clients/change_assignee") }}',
-        clientFollowup: '{{ url("/admin/clients/followup/store") }}',
+        clientUpdateEmailVerified: '{{ url("/clients/update-email-verified") }}',
+        clientChangeAssignee: '{{ url("/clients/change_assignee") }}',
+        clientFollowup: '{{ url("/clients/followup/store") }}',
         pinNote: '{{ url("/admin/pinnote") }}',
         pinActivityLog: '{{ url("/admin/pinactivitylog") }}',
         getNoteDetail: '{{ url("/admin/getnotedetail") }}',
@@ -3443,7 +3443,7 @@ if($fetchedData->tagname != ''){
         viewApplicationNote: '{{ url("/admin/viewapplicationnote") }}',
         getPartnerBranch: '{{ url("/admin/getpartnerbranch") }}',
         getBranchProduct: '{{ url("/admin/getbranchproduct") }}',
-        clientGetRecipients: '{{ url("/admin/clients/get-recipients") }}',
+        clientGetRecipients: '{{ url("/clients/get-recipients") }}',
         changeClientStatus: '{{ url("/admin/change-client-status") }}',
         getTemplates: '{{ url("/admin/get-templates") }}',
         uploadDocument: '{{ url("/admin/upload-document") }}',
@@ -3455,11 +3455,11 @@ if($fetchedData->tagname != ''){
         renameAllDoc: '{{ url("/admin/renamealldoc") }}',
         renameChecklistDoc: '{{ url("/admin/renamechecklistdoc") }}',
         getBranch: '{{ url("/admin/getbranch") }}',
-        clientUpdateSession: '{{ url("/admin/clients/update-session-completed") }}',
-        clientFetchContact: '{{ url("/admin/clients/fetchClientContactNo") }}',
+        clientUpdateSession: '{{ url("/clients/update-session-completed") }}',
+        clientFetchContact: '{{ url("/clients/fetchClientContactNo") }}',
         getSubjects: '{{ url("/admin/getsubjects") }}',
         sendMail: '{{ url("/admin/sendmail") }}',
-        clientGetReceiptInfo: '{{ url("/admin/clients/getClientReceiptInfoById") }}',
+        clientGetReceiptInfo: '{{ url("/clients/getClientReceiptInfoById") }}',
         addScheduleInvoiceDetail: '{{ url("/admin/addscheduleinvoicedetail") }}',
         applicationChecklistUpload: '{{ url("/admin/application/checklistupload") }}',
         getApplicationsLogs: '{{ url("/admin/get-applications-logs") }}',

@@ -18,7 +18,7 @@
 				<a href="{{route('agent.dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
 			</li>
 		    	<li class="dropdown {{@$clientclasstype}}">
-				<a href="{{route('agent.clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
+				<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
 			</li>
 		
 			<li class="dropdown">

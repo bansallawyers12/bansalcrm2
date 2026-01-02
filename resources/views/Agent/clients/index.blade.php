@@ -88,7 +88,7 @@
 										
 									</div>
 								</div>
-								<a href="{{route('agent.clients.create')}}" class="btn btn-primary">Create Client</a>
+								<a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
@@ -97,7 +97,7 @@
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 							
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/agent/clients')}}" >Clients</a>
+									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/clients')}}" >Clients</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
 									<a class="nav-link" id="archived-tab"  href="{{URL::to('/agent/archived')}}" >Archived</a>
@@ -106,7 +106,7 @@
 							<div class="tab-content" id="clientContent">	
 							<div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/agent/clients')}}" method="get">
+								<form action="{{URL::to('/clients')}}" method="get">
 									<div class="row">
 										<div class="col-md-4">
 											<div class="form-group">
@@ -139,7 +139,7 @@
 										<div class="col-md-12 text-center">
 									
 											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/agent/clients')}}">Reset</a>
+											<a class="btn btn-info" href="{{URL::to('/clients')}}">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -172,7 +172,7 @@
 												@foreach (@$lists as $list)
 												<tr id="id_{{@$list->id}}"> 
 													
-													<td><a href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</a><br/>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</td> 
+													<td><a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</a><br/>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</td> 
 												
 												
 													<td>
@@ -246,7 +246,7 @@
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																
-																<a class="dropdown-item has-icon" href="{{URL::to('/agent/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																
 															</div>
 														</div>								  
@@ -569,7 +569,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/agent/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -590,7 +590,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/agent/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

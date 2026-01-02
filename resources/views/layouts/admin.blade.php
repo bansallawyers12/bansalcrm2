@@ -15,18 +15,16 @@
 	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
-	<link rel="stylesheet" href="{{asset('css/iziToast.min.css')}}">
+	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, select2, intlTelInput -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('css/flatpickr.min.css')}}">
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
-	<link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
 	<!-- Template CSS -->
 	<!--<link rel="stylesheet" href="{{--asset('css/niceCountryInput.css')--}}">-->
 	<!--<link rel="stylesheet" href="{{--asset('css/flagstrap.css')--}}">-->
   
 	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
-	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
+	<!-- intlTelInput CSS now loaded via Vite (vendor-libs.js) -->
   
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
@@ -135,62 +133,71 @@
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])
 	
+	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast, intl-tel-input) -->
+	@vite(['resources/js/vendor-libs.js'])
+	
+	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
+	@vite(['resources/js/ui-libs.js'])
+	
 	<!-- Then load main app with Bootstrap, etc -->
 	@vite(['resources/js/app.js'])
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
 	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
-	<!-- Feather Icons (required before scripts.js) -->
-	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
-	<!-- jQuery NiceScroll (required for sidebar scrolling) -->
-	<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/dist/jquery.nicescroll.min.js" defer></script>
+	<!-- Feather Icons and jQuery NiceScroll now loaded via Vite (ui-libs.js) -->
 	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
+	<!-- DataTables, flatpickr, select2, iziToast, intlTelInput now loaded via Vite (vendor-libs.js) -->
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
   
-	<script src="{{asset('js/datatables.min.js')}}" defer></script>   
-	<script src="{{asset('js/dataTables.bootstrap5.js')}}" defer></script>   
 	 <!-- JS Libraies -->
 	<!--<script src="{{--asset('js/apexcharts.min.js')--}}"></script>--> 
 	<!-- Page Specific JS File -->	
 	<!--<script src="{{asset('js/index.js')}}"></script> -->  
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/flatpickr.min.js')}}" defer></script> 
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}" defer></script> 
 	
-	<script src="{{asset('js/select2.full.min.js')}}" defer></script> 
 	<!--<script src="{{--asset('js/jquery.flagstrap.js')--}}"></script>--> 
 	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}" defer></script> 
-	<script src="{{asset('js/intlTelInput.js')}}" defer></script> 
 	<script src="{{asset('js/custom-form-validation.js')}}" defer></script> 
-	<script src="{{asset('js/scripts.js')}}" defer></script> 
-	<!-- Template JS File -->
-	<script src="{{asset('js/iziToast.min.js')}}" defer></script>   
+	<script src="{{asset('js/scripts.js')}}" defer></script>   
 
 	<!-- Custom JS File -->	
 	<script src="{{asset('js/custom.js')}}" defer>
 	</script>
 	<!-- Modern Search JS -->
 	<script src="{{asset('js/modern-search.js')}}" defer></script> 
-	<script defer>
-		$(document).ready(function () {
-		   
-		    $(".tel_input").on("blur", function() {
-                /*if (/^0/.test(this.value)) {
-                   //this.value = this.value.replace(/^0/, "")
-                } else {
-                    //this.value =  "0" + this.value;
-                }*/
-                this.value =  this.value;
-            });
-            
-		    $('.assineeselect2').select2({
-		       dropdownParent: $('#checkinmodal'),
-		    });
-		 
-			// Modern search is now initialized in modern-search.js
-			// This provides better performance with debouncing, keyboard shortcuts, and categorization
+	<script>
+		// Wait for vendor libraries to load before initializing components
+		function initializeComponents() {
+			$(document).ready(function () {
+			   
+			    $(".tel_input").on("blur", function() {
+	                /*if (/^0/.test(this.value)) {
+	                   //this.value = this.value.replace(/^0/, "")
+	                } else {
+	                    //this.value =  "0" + this.value;
+	                }*/
+	                this.value =  this.value;
+	            });
+	            
+			    // Initialize select2 after vendor-libs loads
+			    if (typeof $.fn.select2 !== 'undefined') {
+				    $('.assineeselect2').select2({
+				       dropdownParent: $('#checkinmodal'),
+				    });
+			    } else {
+				    console.warn('select2 not loaded yet, retrying...');
+				    setTimeout(function() {
+					    $('.assineeselect2').select2({
+						   dropdownParent: $('#checkinmodal'),
+					    });
+				    }, 100);
+			    }
+			 
+				// Modern search is now initialized in modern-search.js
+				// This provides better performance with debouncing, keyboard shortcuts, and categorization
 			
 
 $(document).delegate('.opencheckin', 'click', function(){
@@ -339,7 +346,12 @@ $(document).delegate('.opencheckin', 'click', function(){
 				new NiceCountryInput(e).init();
 			}); */ 
 			//$('.country_input').flagStrap(); 
-			$(".telephone").intlTelInput(); 
+			// Initialize intlTelInput if available
+			if (typeof intlTelInput !== 'undefined') {
+				$(".telephone").intlTelInput();
+			} else {
+				console.warn('intlTelInput not loaded yet');
+			}
 			$('.drop_table_data button').on('click', function(){
 				$('.client_dropdown_list').toggleClass('active');
 			});
@@ -813,18 +825,19 @@ $(document).delegate('.opencheckin', 'click', function(){
 				$('.card .card-body .grid_data').show();
 			});
 			
-		$('.js-data-example-ajax-check').on("select2:select", function(e) { 
-  var data = e.params.data;
-  console.log(data);
-   $('#utype').val(data.status);
-});	
-			
-			$('.js-data-example-ajax-check').select2({
+			// Initialize select2 for check-in modal if available
+			if (typeof $.fn.select2 !== 'undefined') {
+				$('.js-data-example-ajax-check').on("select2:select", function(e) { 
+					var data = e.params.data;
+					console.log(data);
+					$('#utype').val(data.status);
+				});				
+				$('.js-data-example-ajax-check').select2({
 		 multiple: true,
 		 closeOnSelect: false,
 		dropdownParent: $('#checkinmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -877,14 +890,35 @@ function formatRepocheck (repo) {
 function formatRepoSelectioncheck (repo) {
   return repo.name || repo.text;
 }
+			} else {
+				console.warn('select2 not available for .js-data-example-ajax-check initialization');
+			}
 
 		/* $('.timepicker').timepicker({
 			minuteStep: 1,
 			showSeconds: true,
 		}); */
-	});	
-	
-$(document).ready(function(){
+		});	// End of $(document).ready
+		
+		} // End of initializeComponents function
+		
+		// Initialize components when vendor libraries are ready
+		if (typeof $.fn.select2 !== 'undefined') {
+			// Libraries already loaded, initialize immediately
+			initializeComponents();
+		} else {
+			// Wait for vendor libraries to load
+			document.addEventListener('VendorLibsLoaded', initializeComponents);
+			// Fallback: try after a delay if event doesn't fire
+			setTimeout(function() {
+				if (typeof $.fn.select2 !== 'undefined') {
+					initializeComponents();
+				}
+			}, 500);
+		}
+		
+		// Notification polling - separate from component initialization
+		$(document).ready(function(){
     
     document.getElementById('countbell_notification').parentNode.addEventListener('click', function(event){
        window.location = "/admin/all-notifications";
@@ -979,7 +1013,7 @@ $(document).ready(function(){
         //load_TotalActivityCount();
     },120000); //5000
   
-});
+	}); // End of $(document).ready for notifications
 	
 	</script>
 	

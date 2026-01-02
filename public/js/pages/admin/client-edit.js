@@ -640,7 +640,7 @@ jQuery(document).ready(function($){
         multiple: true,
         closeOnSelect: false,
         ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/admin/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
             dataType: 'json',
             data: function (params) {
                 console.log('AJAX data function called with params:', params);

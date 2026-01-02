@@ -48,7 +48,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<h4>Client Detail</h4>
 							<div class="card-header-action">
-								<a href="{{route('agent.clients.index')}}" class="btn btn-primary">Client List</a>
+								<a href="{{route('clients.index')}}" class="btn btn-primary">Client List</a>
 							</div>
 						</div>
 					</div>
@@ -73,7 +73,7 @@ use App\Http\Controllers\Controller;
 								<div class="author-mail_sms">
 									
 									
-									<a href="{{URL::to('/agent/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+									<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
 									
 								</div>
 							
@@ -239,7 +239,7 @@ use App\Http\Controllers\Controller;
 								        $relatedclientss = \App\Models\Admin::whereRaw('? = ANY(string_to_array(related_files, \',\'))', [$fetchedData->id])->get();	
 								        foreach($relatedclientss AS $res){ 
 									?>
-									    <li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))}}">{{$res->first_name}} {{$res->last_name}}</a></li>
+									    <li><a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$res->id)))}}">{{$res->first_name}} {{$res->last_name}}</a></li>
 									<?php } ?>
 									<?php
 								if($fetchedData->related_files != ''){
@@ -255,7 +255,7 @@ use App\Http\Controllers\Controller;
 												$relatedclients = \App\Models\Admin::where('id', trim($EXP))->first();	
 												if($relatedclients) {
 									?>
-													<li><a target="_blank" href="{{URL::to('/agent/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
+													<li><a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$relatedclients->id)))}}">{{$relatedclients->first_name}} {{$relatedclients->last_name}}</a></li>
 									<?php 
 												}
 											}
@@ -735,7 +735,7 @@ use App\Http\Controllers\Controller;
         getInterestedServiceEdit: '{{ url("/agent/getintrestedserviceedit") }}',
         
         // Email & Templates
-        clientGetRecipients: '{{ url("/agent/clients/get-recipients") }}',
+        clientGetRecipients: '{{ url("/clients/get-recipients") }}',
         getTemplates: '{{ url("/agent/get-templates") }}',
         
         // Partner/Product/Branch

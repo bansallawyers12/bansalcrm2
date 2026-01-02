@@ -31,7 +31,7 @@
             allowClear: true,
             minimumInputLength: 2,
             ajax: {
-                url: (typeof site_url !== 'undefined' ? site_url : '') + '/admin/clients/get-allclients',
+                url: (typeof site_url !== 'undefined' ? site_url : '') + '/clients/get-allclients',
                 dataType: 'json',
                 delay: 300, // Debounce built into Select2
                 processResults: function(data) {
@@ -182,7 +182,7 @@
         switch (type) {
             case 'Client':
                  // Both clients and leads (old and new) route to client detail page
-                 url = siteUrl + '/admin/clients/detail/' + id;
+                 url = siteUrl + '/clients/detail/' + id;
                  break;
             case 'Lead':
                 // Both clients and leads (old and new) route to client detail page
@@ -207,14 +207,27 @@
         }
     }
 
-    // Initialize when DOM is ready
-    $(document).ready(function() {
-        initModernSearch();
-    });
+    // Initialize when DOM is ready AND select2 is available
+    function tryInitialize() {
+        if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+            $(document).ready(function() {
+                initModernSearch();
+            });
+        } else {
+            // Retry after a short delay
+            console.log('Waiting for select2 to load...');
+            setTimeout(tryInitialize, 100);
+        }
+    }
+    
+    // Start initialization
+    tryInitialize();
 
     // Re-initialize on Turbolinks/AJAX page loads if needed
     $(document).on('turbolinks:load', function() {
-        initModernSearch();
+        if (typeof $.fn.select2 !== 'undefined') {
+            initModernSearch();
+        }
     });
 
 })();

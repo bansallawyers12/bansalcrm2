@@ -297,7 +297,7 @@ jQuery(document).ready(function($) {
         closeOnSelect: false,
         dropdownParent: $('#create_note'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || siteUrl + '/agent/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || siteUrl + '/clients/get-recipients',
             dataType: 'json',
             processResults: function(data) {
                 return {
@@ -315,7 +315,7 @@ jQuery(document).ready(function($) {
         closeOnSelect: false,
         dropdownParent: $('#applicationemailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || siteUrl + '/agent/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || siteUrl + '/clients/get-recipients',
             dataType: 'json',
             processResults: function(data) {
                 return {
@@ -333,7 +333,7 @@ jQuery(document).ready(function($) {
         closeOnSelect: false,
         dropdownParent: $('#opentaskmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || siteUrl + '/agent/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || siteUrl + '/clients/get-recipients',
             dataType: 'json',
             processResults: function(data) {
                 return {
@@ -561,7 +561,7 @@ jQuery(document).ready(function($) {
         closeOnSelect: false,
         dropdownParent: $('#emailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || siteUrl + '/agent/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || siteUrl + '/clients/get-recipients',
             dataType: 'json',
             processResults: function(data) {
                 return {
@@ -579,7 +579,7 @@ jQuery(document).ready(function($) {
         closeOnSelect: false,
         dropdownParent: $('#emailmodal'),
         ajax: {
-            url: App.getUrl('clientGetRecipients') || siteUrl + '/agent/clients/get-recipients',
+            url: App.getUrl('clientGetRecipients') || siteUrl + '/clients/get-recipients',
             dataType: 'json',
             processResults: function(data) {
                 return {

@@ -92,7 +92,7 @@
 						<div class="card-body">
                             <div class="filter_panel" style="padding: 10px !important;">
                                 <h4>Filter Receipts</h4>
-                                <form action="{{URL::to('/admin/clients/clientreceiptlist')}}" method="get">
+                                <form action="{{URL::to('/clients/clientreceiptlist')}}" method="get">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
@@ -124,7 +124,7 @@
                                         <div class="col-md-4 text-start" style="margin-top: 38px;">
                                             <div class="form-group">
                                                 {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-                                                <a class="btn btn-info" href="{{URL::to('/admin/clients/clientreceiptlist')}}">Reset</a>
+                                                <a class="btn btn-info" href="{{URL::to('/clients/clientreceiptlist')}}">Reset</a>
                                             </div>
                                         </div>
                                     </div>
@@ -214,7 +214,7 @@
 
                                                     <td><?php echo $list->receipt_id;?></td>
                                                      <td>
-                                                        <a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}"><?php echo $client_info->client_id;?> </a>
+                                                        <a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}"><?php echo $client_info->client_id;?> </a>
                                                     </td>
                                                     <td><?php echo $client_info->first_name.' '.$client_info->last_name;?></td>
                                                     <td><?php echo $list->trans_date;?></td>

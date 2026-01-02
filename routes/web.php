@@ -309,8 +309,6 @@ Route::prefix('admin')->group(function() {
 
   
          Route::post('/not-picked-call', [ClientsController::class, 'notpickedcall'])->name('admin.clients.notpickedcall');
-		//prospects Start  
-		Route::get('/prospects', [ClientsController::class, 'prospects'])->name('admin.clients.prospects');
 		Route::get('/viewnotedetail', [ClientsController::class, 'viewnotedetail']);
 		Route::get('/viewapplicationnote', [ClientsController::class, 'viewapplicationnote']);
 		Route::post('/saveprevvisa', [ClientsController::class, 'saveprevvisa']);	
@@ -917,6 +915,10 @@ Route::prefix('admin')->group(function() {
          //Download Document
         Route::post('/download-document', [ClientsController::class, 'download_document']);
 });     
+
+	// Include unified client routes (accessible by both admin and agents)
+	// These routes use /clients/* instead of /admin/clients/* or /agent/clients/*
+	require __DIR__ . '/clients.php';
 
 	//Email verify and client self-update routes - REMOVED (HomeController deleted, will be recreated in future)
     //Route::post('email-verify', 'HomeController@emailVerify')->name('emailVerify');

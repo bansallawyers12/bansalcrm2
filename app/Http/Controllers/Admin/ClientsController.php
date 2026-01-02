@@ -110,166 +110,135 @@ class ClientsController extends Controller
 		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData']));
 	}
 
-	public function prospects(Request $request)
-	{
-		// Return appropriate view based on context
-		return view($this->getClientViewPath('prospects.index'));
-	}
-
 	public function create(Request $request)
 	{
-		//check authorization end
-		//return view('Admin.users.create',compact(['usertype']));
-
-		return view('Admin.clients.create');
+		// Return appropriate view based on context
+		return view($this->getClientViewPath('clients.create'));
 	}
 
 	public function store(Request $request)
 	{
-		//check authorization end
 		if ($request->isMethod('post'))
 		{
-			$this->validate($request, [
-										'first_name' => 'required|max:255',
-										'last_name' => 'required|max:255',
-										'email' => 'required|max:255|unique:admins,email',
-										'phone' => 'required|max:255|unique:admins,phone',
-									//	'client_id' => 'required|max:255|unique:admins,client_id'
-									  ]);
+			// Use trait method for validation rules
+			$this->validate($request, $this->getClientValidationRules($request));
 
-			$requestData 		= 	$request->all();
-			$related_files = '';
-	        if(isset($requestData['related_files'])){
-	            $relatedFilesCount = count($requestData['related_files']);
-	            for($i=0; $i<$relatedFilesCount; $i++){
-	                $related_files .= $requestData['related_files'][$i].',';
-	            }
-
-	        }
-	        $dob = '';
-	        if($requestData['dob'] != ''){
-	           $dobs = explode('/', $requestData['dob']);
-	          $dob = $dobs[2].'-'.$dobs[1].'-'. $dobs[0];
-	        }
-	        $visaExpiry = '';
-	        if($requestData['visaExpiry'] != ''){
-	           $visaExpirys = explode('/', $requestData['visaExpiry']);
-	          $visaExpiry = $visaExpirys[2].'-'.$visaExpirys[1].'-'. $visaExpirys[0];
-	        }
+			$requestData = $request->all();
+			
+			// Date formatting using trait helpers
+			$dob = $this->formatDateForDatabase(@$requestData['dob']);
+			$visaExpiry = $this->formatDateForDatabase(@$requestData['visaExpiry']);
+			
 			$first_name = substr(@$requestData['first_name'], 0, 4);
-			$obj				= 	new Admin;
-			$obj->first_name	=	@$requestData['first_name'];
-			$obj->last_name	=	@$requestData['last_name'];
-			$obj->age	=	@$requestData['age'];
-			$obj->gender	=	@$requestData['gender'];
-			$obj->martial_status	=	@$requestData['martial_status'];
-			$obj->contact_type	=	@$requestData['contact_type'];
-			$obj->email_type	=	@$requestData['email_type'];
-			$obj->service	=	@$requestData['service'];
-			$obj->dob	=	($dob != '') ? $dob : null;
-			$obj->related_files	=	rtrim($related_files,',');
-			$obj->email	=	@$requestData['email'];
-			$obj->phone	=	@$requestData['phone'];
-			$obj->address	=	@$requestData['address'];
+			$obj = new Admin;
 			
-			if( isset($requestData['address']) && $requestData['address'] != ""){
-                //$address = "16-18, Argyle Street, Camden, London, WC1H 8EG, United Kingdom";
-                $address = @$requestData['address'];
-                $result = app('geocoder')->geocode($address)->get();
-                $coordinates = $result[0]->getCoordinates();
-                $lat = $coordinates->getLatitude();
-                $long = $coordinates->getLongitude();
-                //echo "lat==".$lat;
-                //echo "long==".$long; die();
-
-                $obj->latitude	=	$lat;
-                $obj->longitude	=	$long;
-            }
+			// Basic info
+			$obj->first_name = @$requestData['first_name'];
+			$obj->last_name = @$requestData['last_name'];
+			$obj->age = @$requestData['age'];
+			$obj->gender = @$requestData['gender'];
+			$obj->martial_status = @$requestData['martial_status'];
+			$obj->contact_type = @$requestData['contact_type'];
+			$obj->email_type = @$requestData['email_type'];
+			$obj->service = @$requestData['service'];
+			$obj->dob = $dob;
+			$obj->email = @$requestData['email'];
+			$obj->phone = @$requestData['phone'];
+			$obj->address = @$requestData['address'];
 			
-			$obj->city	=	@$requestData['city'];
+			// Geocoding for address
+			if (isset($requestData['address']) && $requestData['address'] != "") {
+				$address = @$requestData['address'];
+				$result = app('geocoder')->geocode($address)->get();
+				$coordinates = $result[0]->getCoordinates();
+				$obj->latitude = $coordinates->getLatitude();
+				$obj->longitude = $coordinates->getLongitude();
+			}
+			
+			$obj->city = @$requestData['city'];
 			$obj->visa_opt = @$requestData['visa_opt'];
-			$obj->state	=	@$requestData['state'];
-			$obj->zip	=	@$requestData['zip'];
-			$obj->country	=	@$requestData['country'];
-			$obj->preferredIntake	=	@$requestData['preferredIntake'];
-			$obj->country_passport			=	@$requestData['country_passport'];
-			$obj->passport_number			=	@$requestData['passport_number'];
-			$obj->visa_type			=		@$requestData['visa_type'];
-			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
-			$obj->applications	=	@$requestData['applications'];
-			$obj->assignee	=	@$requestData['assign_to'];
-			$obj->status	=	$requestData['status'] ?? 1;
-			$obj->lead_quality	=	@$requestData['lead_quality'];
-			$obj->att_phone	=	@$requestData['att_phone'];
-			$obj->att_country_code	=	@$requestData['att_country_code'];
-			$obj->att_email	=	@$requestData['att_email'];
-			$obj->nomi_occupation	=	@$requestData['nomi_occupation'];
-			$obj->skill_assessment	=	@$requestData['skill_assessment'];
-			$obj->high_quali_aus	=	@$requestData['high_quali_aus'];
-			$obj->high_quali_overseas	=	@$requestData['high_quali_overseas'];
-			$obj->relevant_work_exp_aus	=	@$requestData['relevant_work_exp_aus'];
-			$obj->relevant_work_exp_over	=	@$requestData['relevant_work_exp_over'];
-
-			$obj->married_partner	=	@$requestData['married_partner'];
-			$obj->total_points	=	@$requestData['total_points'];
-			$obj->start_process	=	@$requestData['start_process'];
-			$obj->comments_note	=	@$requestData['comments_note'];
-			$obj->type	=	@$requestData['type'];
-			$followers = '';
-			if(isset($requestData['followers']) && !empty($requestData['followers'])){
-				foreach($requestData['followers'] as $follows){
-					$followers .= $follows.',';
-				}
+			$obj->state = @$requestData['state'];
+			$obj->zip = @$requestData['zip'];
+			$obj->country = @$requestData['country'];
+			$obj->preferredIntake = @$requestData['preferredIntake'];
+			$obj->country_passport = @$requestData['country_passport'];
+			$obj->passport_number = @$requestData['passport_number'];
+			$obj->visa_type = @$requestData['visa_type'];
+			$obj->visaExpiry = $visaExpiry;
+			$obj->applications = @$requestData['applications'];
+			$obj->assignee = @$requestData['assign_to'];
+			$obj->status = $requestData['status'] ?? 1;
+			$obj->lead_quality = @$requestData['lead_quality'];
+			$obj->att_phone = @$requestData['att_phone'];
+			$obj->att_country_code = @$requestData['att_country_code'];
+			$obj->att_email = @$requestData['att_email'];
+			$obj->nomi_occupation = @$requestData['nomi_occupation'];
+			$obj->skill_assessment = @$requestData['skill_assessment'];
+			$obj->high_quali_aus = @$requestData['high_quali_aus'];
+			$obj->high_quali_overseas = @$requestData['high_quali_overseas'];
+			$obj->relevant_work_exp_aus = @$requestData['relevant_work_exp_aus'];
+			$obj->relevant_work_exp_over = @$requestData['relevant_work_exp_over'];
+			$obj->married_partner = @$requestData['married_partner'];
+			$obj->total_points = @$requestData['total_points'];
+			$obj->start_process = @$requestData['start_process'];
+			$obj->comments_note = @$requestData['comments_note'];
+			$obj->type = @$requestData['type'];
+			
+			// Use trait helpers for array processing
+			$obj->related_files = $this->processRelatedFiles($request);
+			$obj->followers = $this->processFollowers($request);
+			$obj->tagname = $this->processTags($request);
+			
+			// NAATI
+			if (isset($requestData['naati_py']) && !empty($requestData['naati_py'])) {
+				$obj->naati_py = implode(',', @$requestData['naati_py']);
 			}
-			$obj->followers	=	rtrim($followers,',');
-			$obj->source	=	@$requestData['source'];
-			if(isset($requestData['tagname']) && !empty($requestData['tagname'])){
-			$obj->tagname	=	implode(',',@$requestData['tagname']);
+			
+			// Source and agent assignment
+			$obj->source = @$requestData['source'];
+			if (@$requestData['source'] == 'Sub Agent') {
+				$obj->agent_id = @$requestData['subagent'];
+			} else {
+				$obj->agent_id = '';
 			}
-			if(isset($requestData['naati_py']) && !empty($requestData['naati_py'])){
-			$obj->naati_py	=	implode(',',@$requestData['naati_py']);
+			
+			$obj->role = 7; // Client role
+			$obj->country_code = @$requestData['country_code'];
+			
+			// Profile image upload using trait helper
+			if ($request->hasfile('profile_img')) {
+				$obj->profile_img = $this->uploadClientFile(
+					$request->file('profile_img'), 
+					'constants.profile_imgs'
+				);
+			} else {
+				$obj->profile_img = NULL;
 			}
-			if(@$requestData['source'] == 'Sub Agent' ){
-				$obj->agent_id	=	@$requestData['subagent'];
+			
+			// Client ID handling
+			if (!empty($requestData['client_id'])) {
+				$obj->client_id = @$requestData['client_id'];
 			}
-			else{
-				$obj->agent_id	=	'';
+			
+			$saved = $obj->save();
+			
+			// Generate client_id if not provided
+			if (empty($requestData['client_id'])) {
+				$objs = Admin::find($obj->id);
+				$objs->client_id = $this->generateClientId($requestData['first_name'], $obj->id);
+				$objs->save();
 			}
-			$obj->role	=	7;
-
-			/* Profile Image Upload Function Start */
-			if($request->hasfile('profile_img'))
-			{
-				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-			}
-			else
-			{
-				$profile_img = NULL;
-			}
-		    /* Profile Image Upload Function End */
-			$obj->profile_img			=	@$profile_img;
-			if(@$requestData['client_id'] != ''){
-			    $obj->client_id	=	@$requestData['client_id'];
-			}
-            $obj->country_code	=	@$requestData['country_code'];
-			$saved				=	$obj->save();
-			if($requestData['client_id'] == ''){
-		    	$objs							= 	Admin::find($obj->id);
-		    	$objs->client_id	=	strtoupper($first_name).date('ym').$objs->id;
-		    	$saveds				=	$objs->save();
-			}
-			if(!$saved)
-			{
+			
+			if (!$saved) {
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-			else
-			{
-				//return Redirect::to('/admin/clients')->with('success', 'Clients Added Successfully');
-				return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$obj->id)))->with('success', 'Clients Added Successfully');
-			}
+			
+			// Redirect to client detail page
+			return redirect($this->getClientRedirectUrl('detail', $obj->id))
+				->with('success', 'Clients Added Successfully');
 		}
 
-		return view('Admin.clients.create');
+		return view($this->getClientViewPath('clients.create'));
 	}
 
 	public function downloadpdf(Request $request, $id = NULL){
@@ -1331,7 +1300,7 @@ class ClientsController extends Controller
             // Check if decodeString returned false (invalid encoded string)
             if($id === false || empty($id))
             {
-                return Redirect::to('/admin/clients')->with('error', 'Invalid Client ID');
+                return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Invalid Client ID');
             }
             // Otherwise check admins table (old clients/leads)
             if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
@@ -1341,7 +1310,7 @@ class ClientsController extends Controller
                 // Double check that fetchedData exists
                 if(empty($fetchedData))
                 {
-                    return Redirect::to('/admin/clients')->with('error', 'Client data not found');
+                    return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client data not found');
                 }
                 
                 if(!empty($fetchedData) && $fetchedData->dob != ""){
@@ -1360,16 +1329,16 @@ class ClientsController extends Controller
                     }
                 }
                 
-                return view('Admin.clients.detail', compact(['fetchedData','encodeId','showAlert']));
+                return view($this->getClientViewPath('clients.detail'), compact(['fetchedData','encodeId','showAlert']));
             }
             else
             {
-                return Redirect::to('/admin/clients')->with('error', 'Client or Lead Not Found');
+                return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
             }
         }
         else
         {
-            return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+            return Redirect::to($this->getClientRedirectUrl('index'))->with('error', Config::get('constants.unauthorized'));
         }
     }
 
@@ -1466,16 +1435,16 @@ class ClientsController extends Controller
                         $showAlert = true;
                     }
                 }
-                return view('Admin.clients.detail', compact(['fetchedData','encodeId','showAlert']));
+                return view($this->getClientViewPath('clients.detail'), compact(['fetchedData','encodeId','showAlert']));
             }
             else
             {
-                return Redirect::to('/admin/clients')->with('error', 'Client or Lead Not Found');
+                return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
             }
         }
         else
         {
-            return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+            return Redirect::to($this->getClientRedirectUrl('index'))->with('error', Config::get('constants.unauthorized'));
         }
     }
   

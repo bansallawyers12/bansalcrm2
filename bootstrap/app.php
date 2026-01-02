@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \App\Http\Middleware\Authenticate::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'checkDobSession' => \App\Http\Middleware\CheckDobSession::class,
+            'auth.multi' => \App\Http\Middleware\AuthenticateMultiGuard::class,
         ]);
         
         // CSRF Token Exceptions for AJAX routes

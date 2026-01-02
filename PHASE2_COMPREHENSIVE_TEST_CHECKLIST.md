@@ -22,9 +22,11 @@
 - [ ] Pagination works
 - [ ] No active clients appear in archived list
 
-### Test 4: Prospects Page (`/admin/prospects`)
-- [ ] Page loads without errors
-- [ ] Prospects page displays correctly
+### ~~Test 4: Prospects Page (`/admin/prospects`)~~ [REMOVED]
+> **Note:** Prospects functionality has been removed as it was unused. The system now uses:
+> - **Leads** → via Lead Manager (`/admin/leads`)
+> - **Clients** → via Clients Manager (`/admin/clients`)
+> - **Archived** → via Archived tab (`/admin/archived`)
 
 ---
 
@@ -103,9 +105,7 @@ Run these URLs in your browser (while logged in as admin):
    - ✅ Should load
    - ✅ Should show archived clients only
 
-3. **Prospects:** `http://127.0.0.1:8000/admin/prospects`
-   - ✅ Should load
-   - ✅ Should show prospects page
+3. ~~**Prospects:** `http://127.0.0.1:8000/admin/prospects`~~ [REMOVED - Feature discontinued]
 
 ---
 
