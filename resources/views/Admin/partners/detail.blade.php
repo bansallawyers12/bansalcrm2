@@ -1511,7 +1511,7 @@ use App\Http\Controllers\Controller;
                                                                             <?php
                                                                             if($data->client_reference){
                                                                                 $client_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                                                                                echo $client_reference = '<a href="'.url('/admin/clients/detail/'.$client_encoded_id).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank" >'.$data->client_reference.'</a>';
+                                                                                echo $client_reference = '<a href="'.url('/clients/detail/'.$client_encoded_id).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank" >'.$data->client_reference.'</a>';
                                                                             } else {
                                                                                 echo $client_reference = 'N/P';
                                                                             }?>
@@ -1873,7 +1873,7 @@ use App\Http\Controllers\Controller;
                                                                         <?php
                                                                         if($data1->client_reference){
                                                                             $client_encoded_id1 = base64_encode(convert_uuencode(@$data1->client_id)) ;
-                                                                           echo $client_reference1 = '<a href="'.url('/admin/clients/detail/'.$client_encoded_id1).'" class="activate-app-tab" data-tab="application" data-id="'.$data1->id.'" target="_blank" >'.$data1->client_reference.'</a>';
+                                                                           echo $client_reference1 = '<a href="'.url('/clients/detail/'.$client_encoded_id1).'" class="activate-app-tab" data-tab="application" data-id="'.$data1->id.'" target="_blank" >'.$data1->client_reference.'</a>';
                                                                         } else {
                                                                             echo $client_reference1 = 'N/P';
                                                                         }?>

@@ -654,7 +654,7 @@
                     closeOnSelect: false,
                     dropdownParent: $('#checkinmodal'),
                     ajax: {
-                        url: site_url + '/admin/clients/get-recipients',
+                        url: site_url + '/clients/get-recipients',
                         dataType: 'json',
                         processResults: function (data) {
                             return {
