@@ -61,60 +61,108 @@ jQuery(document).ready(function($){
         $('#clientPhoneModalLabel').html('Add New Client Phone');
         $('.saveclientphone').show();
         $('#update_clientphone').hide();
+        // Clear errors
+        $('.client_phone_error').html('');
+        $('.contact_type_error').html('');
+        $('input[name="client_phone"]').parent().removeClass('error');
+        $('#contact_type').parent().removeClass('error');
         $('#clientphoneform')[0].reset();
         $('.addclientphone').modal('show');
-        $(".telephone").intlTelInput();
     });
 
     $('.addclientphone').on('shown.bs.modal', function () {
-        $(".telephone").intlTelInput();
+        // Initialize intlTelInput when modal is shown
+        if ($(".telephone").length > 0 && typeof intlTelInput !== 'undefined') {
+            $(".telephone").intlTelInput();
+        }
     });
   
     // Save client phone
     $(document).delegate('.saveclientphone','click', function() {
-        var client_phone = $('input[name="client_phone"]').val();
+        // Clear previous errors
         $('.client_phone_error').html('');
+        $('.contact_type_error').html('');
         $('input[name="client_phone"]').parent().removeClass('error');
-        if ($('table#metatag_table').find('#metatag2_'+itag_phone).length > 0) {
+        $('#contact_type').parent().removeClass('error');
+        
+        // Get form values
+        var contact_type = $('#contact_type').val();
+        var client_phone = $('input[name="client_phone"]').val();
+        
+        // Get country code from intlTelInput - extract dial code from input value
+        var country_code_input = $('.telephone').val();
+        var country_code = '';
+        if (country_code_input) {
+            // Extract dial code (e.g., "+61 " -> "61" or "+61" -> "61")
+            var match = country_code_input.match(/^\+?(\d+)/);
+            if (match) {
+                country_code = '+' + match[1];
+            }
         }
-        else {
-            var flag = false;
-            if(client_phone == ''){
-                $('.client_phone_error').html('The Phone field is required.');
-                $('input[name="client_phone"]').parent().addClass('error');
-                flag = true;
+        
+        // Check if phone already exists
+        if ($('table#metatag_table').find('#metatag2_'+itag_phone).length > 0) {
+            // Phone already exists, skip
+            return;
+        }
+        
+        // Validate form fields
+        var flag = false;
+        
+        // Validate contact type (required field)
+        if(contact_type == '' || contact_type == null){
+            $('.contact_type_error').html('The Contact Type field is required.');
+            $('#contact_type').parent().addClass('error');
+            flag = true;
+        }
+        
+        // Validate phone number
+        if(client_phone == ''){
+            $('.client_phone_error').html('The Phone field is required.');
+            $('input[name="client_phone"]').parent().addClass('error');
+            flag = true;
+        }
+        
+        // Validate country code
+        if(country_code == ''){
+            $('.client_phone_error').html('Please select a valid country code.');
+            $('.telephone').parent().addClass('error');
+            flag = true;
+        }
+
+        if(!flag){
+            // Store data for reference
+            clientphonedata[itag_phone] = {
+                "contact_type": contact_type,
+                "country_code": country_code,
+                "phone": client_phone
+            };
+
+            // New compact design HTML
+            var html = '<div class="compact-contact-item" id="metatag2_'+itag_phone+'">';
+            html += '<span class="contact-type-tag">'+contact_type+'</span>';
+            html += '<span class="contact-phone">'+country_code+' '+client_phone+'</span>';
+            html += '<div class="contact-actions">';
+            
+            if(contact_type != 'Personal') {
+                html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fa fa-trash"></i></a>';
             }
+            
+            html += '</div>';
+            
+            // Hidden fields
+            html += '<input type="hidden" name="contact_type[]" value="'+contact_type+'">';
+            html += '<input type="hidden" name="client_country_code[]" value="'+country_code+'">';
+            html += '<input type="hidden" name="client_phone[]" value="'+client_phone+'">';
+            html += '<input type="hidden" name="clientphoneid[]" value="">';
+            html += '</div>';
 
-            if(!flag){
-                var str = $( "#clientphoneform" ).serializeArray();
-                console.log(str);
-                clientphonedata[itag_phone] = {"contact_type":str[0].value, "country_code":str[1].value ,"phone":str[2].value}
-                console.log(clientphonedata);
-
-                // New compact design HTML
-                var html = '<div class="compact-contact-item" id="metatag2_'+itag_phone+'">';
-                html += '<span class="contact-type-tag">'+str[0].value+'</span>';
-                html += '<span class="contact-phone">'+str[1].value+' '+str[2].value+'</span>';
-                html += '<div class="contact-actions">';
-                
-                if(str[0].value != 'Personal') {
-                    html += '<a href="javascript:;" dataid="'+itag_phone+'" class="deletecontact btn-delete"><i class="fa fa-trash"></i></a>';
-                }
-                
-                html += '</div>';
-                
-                // Hidden fields
-                html += '<input type="hidden" name="contact_type[]" value="'+str[0].value+'">';
-                html += '<input type="hidden" name="client_country_code[]" value="'+str[1].value+'">';
-                html += '<input type="hidden" name="client_phone[]" value="'+str[2].value+'">';
-                html += '<input type="hidden" name="clientphoneid[]" value="">';
-                html += '</div>';
-
-                $('.clientphonedata').append(html);
-                $('#clientphoneform')[0].reset();
-                $('.addclientphone').modal('hide');
-                itag_phone++;
-            }
+            $('.clientphonedata').append(html);
+            $('#clientphoneform')[0].reset();
+            // Re-initialize intlTelInput after reset
+            $(".telephone").intlTelInput();
+            $('.addclientphone').modal('hide');
+            itag_phone++;
         }
     });
 

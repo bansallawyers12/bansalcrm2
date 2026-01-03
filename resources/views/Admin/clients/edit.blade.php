@@ -248,7 +248,7 @@
 								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
 								    	<i class="fa fa-arrow-left"></i> Back
 								    </a>
-								    <button type="submit" class="btn btn-primary" onclick="customValidate('edit-clients')">
+								    <button type="button" class="btn btn-primary" onclick="customValidate('edit-clients')">
 								    	<i class="fas fa-save"></i> Save Changes
 								    </button>
 								</div>
@@ -1396,6 +1396,9 @@ if($fetchedData->tagname != ''){
                                     <option value="Partner">Partner</option>
                                     <option value="Not In Use">Not In Use</option>
                                 </select>
+								<span class="custom-error contact_type_error" role="alert">
+									<strong></strong>
+								</span>
 								@if ($errors->has('contact_type'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('contact_type') }}</strong>
@@ -1412,6 +1415,9 @@ if($fetchedData->tagname != ''){
 										<input class="telephone" id="telephone" type="tel" name="client_country_code" >
 									</div>
 									{!! Form::text('client_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
+									<span class="custom-error client_phone_error" role="alert">
+										<strong></strong>
+									</span>
 									@if ($errors->has('client_phone'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('client_phone') }}</strong>

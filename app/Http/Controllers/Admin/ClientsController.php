@@ -1779,6 +1779,8 @@ class ClientsController extends Controller
         	}
       
 			$obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+			$obj->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+			$obj->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 			$saved = $obj->save();
 			if($saved){
 				if($request->vtype == 'client'){
@@ -5026,109 +5028,62 @@ class ClientsController extends Controller
                 }
 				$response['status'] 	= 	true;
 				$response['message']	=	'You have successfully uploaded your document';
-				$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
-				ob_start();
-				foreach($fetchd as  $docKey=>$fetch){
-					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-                    //Checklist verified by
-                    /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
-                        $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
-                        $checklist_verified_by = $checklist_verified_Info->first_name;
-                    } else {
-                        $checklist_verified_by = 'N/A';
-                    }
-
-                    if( isset($fetch->checklist_verified_at) && $fetch->checklist_verified_at != "") {
-                        $checklist_verified_at = date('d/m/Y', strtotime($fetch->checklist_verified_at));
-                    } else {
-                        $checklist_verified_at = 'N/A';
-                    }*/
+			$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
+			ob_start();
+			foreach($fetchd as  $docKey=>$fetch){
+				$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+					$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 					?>
-					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
-                        <td><?php echo $docKey+1;?></td>
-                        <td style="white-space: initial;">
-                            <div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $fetch->checklist; ?>" class="personalchecklist-row">
-                                <span><?php echo $fetch->checklist; ?></span>
-                            </div>
-                        </td>
-                        <td style="white-space: initial;">
-                            <?php
-                            echo $admin->first_name. "<br>";
-                            echo date('d/m/Y', strtotime($fetch->created_at));
-                            ?>
-                        </td>
-                        <td style="white-space: initial;">
-                            <?php
-                            if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
-                                <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-                                    <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>" style="white-space: initial;">
-                                        <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                    </a>-->
-                                  
-                                  
-                                        <a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-                                            <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                        </a>
-                                </div>
-                            <?php
-                            }
-                            else
-                            {?>
-                                <div class="allupload_document" style="display:inline-block;">
-                                    <form method="POST" enctype="multipart/form-data" id="upload_form_<?php echo $fetch->id;?>">
-                                        <input type="hidden" name="_token" value="<?php echo csrf_token();?>" />
-                                        <input type="hidden" name="clientid" value="<?php echo $fetch->client_id;?>">
-                                        <input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
-                                        <input type="hidden" name="type" value="client">
-                                        <input type="hidden" name="doctype" value="documents">
-                                        <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
-                                        <input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
-                                    </form>
-                                </div>
-                            <?php
-                            }?>
-                        </td>
-                        <!--<td id="docverifiedby_<?php //echo $fetch->id;?>">
-                            <?php
-                            //echo $checklist_verified_by. "<br>";
-                            //echo $checklist_verified_at;
-                            ?>
-                        </td>-->
-                        <td>
-                            <?php
-                            if( isset($fetch->file_name) && $fetch->file_name !="")
-                            { ?>
-                                <div class="dropdown d-inline">
-                                    <button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item renamechecklist" href="javascript:;">Rename Checklist</a>
-                                        <a class="dropdown-item renamealldoc" href="javascript:;">Rename File Name</a>
-                                        <?php
-                                        //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                        ?>
-                                        <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Preview</a>-->
-                                        <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Preview</a>-->
-									    <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-                                        <?php
-                                        $explodeimg = explode('.',$fetch->myfile);
-                                        if(strtolower($explodeimg[1]) == 'jpg'|| strtolower($explodeimg[1]) == 'png'|| strtolower($explodeimg[1]) == 'jpeg'){
-                                        ?>
-                                            <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
-                                        <?php } ?>
-                                        <!--<a download class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Download</a>-->
-                                        <!--<a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
-                                        <a href="#" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>">Download</a>
-
-
-                                        <?php if( Auth::user()->role == 1 ){ //echo Auth::user()->role;//super admin ?>
-                                        <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletealldocs" href="javascript:;" >Delete</a>
-                                        <?php } ?>
-                                        <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item verifydoc" data-doctype="documents" data-href="verifydoc" href="javascript:;">Verify</a>
-                                        <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item notuseddoc" data-doctype="documents" data-href="notuseddoc" href="javascript:;">Not Used</a>
-                                    </div>
-                                </div>
-                            <?php
-                            }?>
+					<tr class="drow document-row" id="id_<?php echo $fetch->id; ?>" 
+						data-doc-id="<?php echo $fetch->id;?>"
+						data-checklist-name="<?php echo htmlspecialchars($fetch->checklist, ENT_QUOTES, 'UTF-8'); ?>"
+						data-file-name="<?php echo htmlspecialchars($fetch->file_name, ENT_QUOTES, 'UTF-8'); ?>"
+						data-file-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+						data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
+						data-myfile-key="<?php echo isset($fetch->myfile_key) ? htmlspecialchars($fetch->myfile_key, ENT_QUOTES, 'UTF-8') : ''; ?>"
+						data-doc-type="<?php echo htmlspecialchars($fetch->doc_type, ENT_QUOTES, 'UTF-8'); ?>"
+						data-user-role="<?php echo Auth::user()->role; ?>"
+						title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
+						style="cursor: context-menu;">
+						<td style="white-space: initial;">
+							<div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $fetch->checklist; ?>" class="personalchecklist-row">
+								<span><?php echo $fetch->checklist; ?></span>
+							</div>
+						</td>
+						<td style="white-space: initial;">
+							<?php
+							if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
+								<div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
+									<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+										<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
+											<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+										</a>
+									<?php } else {  //For old file upload
+										$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+										$myawsfile = $url.$client_unique_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
+										?>
+										<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
+											<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+										</a>
+									<?php } ?>
+								</div>
+							<?php
+							}
+							else
+							{?>
+								<div class="allupload_document" style="display:inline-block;">
+									<form method="POST" enctype="multipart/form-data" id="upload_form_<?php echo $fetch->id;?>">
+										<input type="hidden" name="_token" value="<?php echo csrf_token();?>" />
+										<input type="hidden" name="clientid" value="<?php echo $fetch->client_id;?>">
+										<input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
+										<input type="hidden" name="type" value="client">
+										<input type="hidden" name="doctype" value="documents">
+										<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+										<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
+									</form>
+								</div>
+							<?php
+							}?>
 						</td>
 					</tr>
 					<?php
