@@ -47,7 +47,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<h4>Agent Detail</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.agents.active')}}" class="btn btn-primary">Agent List</a>
+								<a href="{{route('agents.active')}}" class="btn btn-primary">Agent List</a>
 							</div>
 						</div>
 					</div>

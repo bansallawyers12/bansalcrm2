@@ -18,7 +18,7 @@
 						<div class="card-header">
 							<h4>All Agents</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.agents.create')}}" class="btn btn-primary">Create Agent</a>
+								<a href="{{route('agents.create')}}" class="btn btn-primary">Create Agent</a>
 							</div>
 						</div>
 						<div class="card-body">

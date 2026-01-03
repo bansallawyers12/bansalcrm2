@@ -18,7 +18,7 @@
 						<div class="card-header">
 							<h4>All Agents</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.agents.create')}}" class="btn btn-primary">Create Agent</a>
+								<a href="{{route('agents.create')}}" class="btn btn-primary">Create Agent</a>
 								<a href="javascript:;" class="btn btn-primary openimportmodal">Import</a>
 							</div>
 						</div>

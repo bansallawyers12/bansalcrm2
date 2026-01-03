@@ -15,7 +15,7 @@
 							<div class="card-header">
 								<h4>Add New Agent</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.agents.active')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('agents.active')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
