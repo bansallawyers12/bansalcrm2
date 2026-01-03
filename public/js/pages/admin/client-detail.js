@@ -2269,6 +2269,20 @@ Bansal Immigration`;
         $('#openfileuploadmodal').modal('show');
     });
 
+    // Handler for opendocnote - Add Document icon in application detail
+    $(document).on('click', '.opendocnote', function(){
+        var apptype = $(this).attr('data-app-type');
+        var typename = $(this).attr('data-typename');
+        var aid = $(this).attr('data-id');
+        var clientid = $(this).attr('data-appdocclientid');
+        $(".checklisttype").val(apptype);
+        $(".checklistid").val(''); // No specific checklist id for general document upload
+        $(".checklisttypename").val(typename);
+        $(".application_id").val(aid);
+        $(".app_doc_client_id").val(clientid);
+        $('#openfileuploadmodal').modal('show');
+    });
+
     // ============================================================================
     // COMMISSION CALCULATION HANDLERS
     // ============================================================================

@@ -1778,6 +1778,7 @@ class ClientsController extends Controller
             	$obj->mobile_number = $request->mobileNumber; // Add this line
         	}
       
+			$obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 			$saved = $obj->save();
 			if($saved){
 				if($request->vtype == 'client'){

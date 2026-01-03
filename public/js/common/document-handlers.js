@@ -180,3 +180,16 @@ if (typeof window !== 'undefined') {
     window.previewFile = previewFile;
 }
 
+// ============================================================================
+// DOCUMENT UPLOAD BUTTON HANDLERS
+// ============================================================================
+// Trigger file input when "Add Document" button is clicked in upload_client_receipt_document containers
+// This handles: Client Receipt, Student Invoice, Record Invoice, Record Payment documents
+$(document).on('click', '.upload_client_receipt_document .btn-primary, .upload_client_receipt_document .btn-outline-primary', function(e) {
+    e.preventDefault();
+    var fileInput = $(this).closest('.upload_client_receipt_document').find('.docclientreceiptupload');
+    if (fileInput.length) {
+        fileInput.click();
+    }
+});
+

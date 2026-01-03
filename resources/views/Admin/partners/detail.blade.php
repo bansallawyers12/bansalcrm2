@@ -4677,6 +4677,12 @@ $(document).on('change', '.note-field1', function () {
 
 });  
 
+// Trigger file input when "Add Document" button is clicked in upload_document container
+$(document).delegate('.upload_document .btn-primary', 'click', function(e) {
+	e.preventDefault();
+	$(this).closest('.upload_document').find('input[name=document_upload]').click();
+});
+
 $(document).delegate('input[name=document_upload]', 'click', function() {
 		$(this).attr("value", "");
 	}); 
