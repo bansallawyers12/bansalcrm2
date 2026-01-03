@@ -69,7 +69,7 @@ use App\Http\Controllers\Controller;
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS"><i class="fas fa-comment-alt"></i></a>
 									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->full_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>  
-									<a href="{{URL::to('/admin/agents/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+									<a href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
 								</div>
 							</div>
 						</div>
@@ -248,8 +248,8 @@ use App\Http\Controllers\Controller;
 				$clientdetail = \App\Models\Admin::where('id', $alist->client_id)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
-													<td><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><br/>{{@$clientdetail->email}}</td> 
-													<td><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{$productdetail->name}}</a> <br><small>{{$partnerdetail->partner_name}} ({{$PartnerBranch->name}})</small></td> 
+													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><br/>{{@$clientdetail->email}}</td> 
+													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{$productdetail->name}}</a> <br><small>{{$partnerdetail->partner_name}} ({{$PartnerBranch->name}})</small></td> 
 													<td>{{$alist->stage}}<br>{{$workflow->name}}</td>
 												
 													<td>
@@ -399,7 +399,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="type" value="agent">
 					<div class="row">
@@ -548,7 +548,7 @@ jQuery(document).ready(function($){
 		$('#opentaskview').modal('show');
 		var v = $(this).attr('id');
 		$.ajax({
-			url: site_url+'/admin/get-task-detail',
+			url: site_url+'/get-task-detail',
 			type:'GET',
 			data:{task_id:v},
 			success: function(responses){
@@ -559,7 +559,7 @@ jQuery(document).ready(function($){
 	});
 	 function getallnotes(){
 		$.ajax({
-			url: site_url+'/admin/get-notes',
+			url: site_url+'/get-notes',
 			type:'GET',
 			data:{clientid:'{{$fetchedData->id}}',type:'client'},
 			success: function(responses){
@@ -580,7 +580,7 @@ jQuery(document).ready(function($){
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/'+delhref,
+			url: '{{URL::to('/')}}/'+delhref,
 			type:'GET',
 			datatype:'json',
 			data:{note_id:notid},
@@ -595,7 +595,7 @@ jQuery(document).ready(function($){
 					} 
 					if(delhref == 'deleteservices'){
 						$.ajax({
-						url: site_url+'/admin/get-services', 
+						url: site_url+'/get-services', 
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -605,7 +605,7 @@ jQuery(document).ready(function($){
 					});
 					}if(delhref == 'deleteappointment'){
 						$.ajax({
-						url: site_url+'/admin/get-appointments',
+						url: site_url+'/get-appointments',
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -663,7 +663,7 @@ jQuery(document).ready(function($){
 		 closeOnSelect: false,
 		dropdownParent: $('#create_note'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -683,7 +683,7 @@ $('.js-data-example-ajaxcontact').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#opentaskmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -738,7 +738,7 @@ function formatRepoSelection (repo) {
 		$('#create_note input[name="noteid"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/getnotedetail')}}',
+			url: '{{URL::to('/getnotedetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -760,7 +760,7 @@ function formatRepoSelection (repo) {
 		$('#view_note input[name="noteid"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/viewnotedetail')}}',
+			url: '{{URL::to('/viewnotedetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -782,7 +782,7 @@ function formatRepoSelection (repo) {
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getpartnerbranch')}}',
+			url: '{{URL::to('/getpartnerbranch')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -804,7 +804,7 @@ function formatRepoSelection (repo) {
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getbranchproduct')}}',
+			url: '{{URL::to('/getbranchproduct')}}',
 			type:'GET',
 			data:{cat_id:explode[0]},
 			success:function(response){
@@ -876,7 +876,7 @@ function formatRepoSelection (repo) {
 	$(this).addClass('active');
 	
 	 $.ajax({
-		url: '{{URL::to('/admin/change-client-status')}}',
+		url: '{{URL::to('/change-client-status')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:'{{$fetchedData->id}}',rating:v},
@@ -896,7 +896,7 @@ function formatRepoSelection (repo) {
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -914,7 +914,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 $(document).delegate('.selectapplicationtemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -933,7 +933,7 @@ $(document).delegate('.selectapplicationtemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -954,7 +954,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#create_note'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -1031,7 +1031,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getpartner')}}',
+			url: '{{URL::to('/getpartner')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -1052,7 +1052,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getproduct')}}',
+			url: '{{URL::to('/getproduct')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -1105,7 +1105,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/delete-education',
+			url: '{{URL::to('/')}}/delete-education',
 			type:'GET',
 			datatype:'json',
 			data:{edu_id:eduid},
@@ -1127,7 +1127,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getsubjects')}}',
+			url: '{{URL::to('/getsubjects')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -1146,7 +1146,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 		$('.popuploader').show();
 		$('#edit_appointment').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getAppointmentdetail')}}',
+			url: '{{URL::to('/getAppointmentdetail')}}',
 			type:'GET',
 			data:{id:v},
 			success:function(response){
@@ -1175,7 +1175,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 		$('.popuploader').show();
 		$('#edit_education').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getEducationdetail')}}',
+			url: '{{URL::to('/getEducationdetail')}}',
 			type:'GET',
 			data:{id:v},
 		success:function(response){
@@ -1198,7 +1198,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 		$('.popuploader').show();
 		$('#interest_service_view').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getintrestedservice')}}',
+			url: '{{URL::to('/getintrestedservice')}}',
 			type:'GET',
 			data:{id:v},
 			success:function(response){
@@ -1215,7 +1215,7 @@ $(document).delegate('.opencreate_task', 'click', function () {
 		$('#interest_service_view').modal('hide');
 		$('#eidt_interested_service').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getintrestedserviceedit')}}',
+			url: '{{URL::to('/getintrestedserviceedit')}}',
 			type:'GET',
 			data:{id:v},
 		success:function(response){
@@ -1303,7 +1303,7 @@ $(document).delegate('.paymentAmount','keyup', function(){
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getapplicationdetail')}}',
+			url: '{{URL::to('/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
 		success:function(response){
@@ -1317,7 +1317,7 @@ $(document).delegate('.paymentAmount','keyup', function(){
 					onChange: function(selectedDates, dateStr, instance) {
 						if (selectedDates.length > 0) {
 							$.ajax({
-								url:"{{URL::to('/admin/application/updateintake')}}",
+								url:"{{URL::to('/application/updateintake')}}",
 								method: "GET",
 								dataType: "json",
 								data: {from: dateStr, appid: appliid},
@@ -1358,7 +1358,7 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getapplicationdetail')}}',
+			url: '{{URL::to('/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
 			success:function(response){
@@ -1372,7 +1372,7 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 						onChange: function(selectedDates, dateStr, instance) {
 							if (selectedDates.length > 0) {
 								$.ajax({
-									url:"{{URL::to('/admin/application/updateintake')}}",
+									url:"{{URL::to('/application/updateintake')}}",
 									method: "GET",
 									dataType: "json",
 									data: {from: dateStr, appid: appliid},
@@ -1446,7 +1446,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getapplicationnotes')}}',
+			url: '{{URL::to('/getapplicationnotes')}}',
 			type:'GET',
 			data:{id:appliid},
 			success:function(response){

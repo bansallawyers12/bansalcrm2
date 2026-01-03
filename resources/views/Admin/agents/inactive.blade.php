@@ -24,10 +24,10 @@
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link" id="active-tab"  href="{{URL::to('/admin/agents/active')}}" >Active</a>
+									<a class="nav-link" id="active-tab"  href="{{URL::to('/agents/active')}}" >Active</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link active" id="inactive-tab"  href="{{URL::to('/admin/agents/inactive')}}" >Inactive</a>
+									<a class="nav-link active" id="inactive-tab"  href="{{URL::to('/agents/inactive')}}" >Inactive</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent">								
@@ -64,7 +64,7 @@
 															<label for="checkbox-1" class="custom-control-label">&nbsp;</label>
 														</div>
 													</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->full_name == "" ? config('constants.empty') : str_limit(@$list->full_name, '50', '...') }}</a> <br/>{{--@$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...')--}}</td> 
+													<td style="white-space: initial;"><a href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->full_name == "" ? config('constants.empty') : str_limit(@$list->full_name, '50', '...') }}</a> <br/>{{--@$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...')--}}</td> 
 													<td style="white-space: initial;">{{ @$list->agent_type == "" ? config('constants.empty') : str_limit(@$list->agent_type, '50', '...') }}</td>
 													<td style="white-space: initial;">{{ @$list->struture == "" ? config('constants.empty') : str_limit(@$list->struture, '50', '...') }}</td>
 													<!--<td>-->{{--@$list->country_code == "" ? config('constants.empty') : str_limit(@$list->country_code, '50', '...') }} {{ @$list->phone == "" ? config('constants.empty') : str_limit(@$list->phone, '50', '...')--}}<!--</td>-->	

@@ -7,7 +7,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/emails/edit', 'name'=>"add-emails", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'adminconsole/emails/edit', 'name'=>"add-emails", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">

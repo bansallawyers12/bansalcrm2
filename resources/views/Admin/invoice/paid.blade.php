@@ -73,10 +73,10 @@
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="prospects-tab"  href="{{URL::to('/admin/invoice/unpaid')}}" >Unpaid Invoices</a>
+									<a class="nav-link" id="prospects-tab"  href="{{URL::to('/invoice/unpaid')}}" >Unpaid Invoices</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/admin/invoice/paid')}}" >Paid Invoices</a>
+									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/invoice/paid')}}" >Paid Invoices</a>
 								</li>
 							
 							</ul> 
@@ -138,8 +138,8 @@
 																	?>
 												<tr id="id_<?php echo $invoicelist->id; ?>">
 													<td><?php echo $invoicelist->id; ?></td>
-													<td style="white-space: initial;"><a href="{{URL::to('admin/invoice/view/')}}/<?php echo $invoicelist->id; ?>">{{date('d/m/Y', strtotime($invoicelist->invoice_date))}} <?php //echo $invoicelist->invoice_date; ?></a></td>
-													<td style="white-space: initial;"><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdata->id))}}">{{$clientdata->first_name}} {{$clientdata->last_name}}</a></td>
+													<td style="white-space: initial;"><a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">{{date('d/m/Y', strtotime($invoicelist->invoice_date))}} <?php //echo $invoicelist->invoice_date; ?></a></td>
+													<td style="white-space: initial;"><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdata->id))}}">{{$clientdata->first_name}} {{$clientdata->last_name}}</a></td>
 													<td style="white-space: initial;"><a href="">{{$admindata->first_name}}</a></td>
 													<td style="white-space: initial;">{{@$partnerdata->partner_name}}</td>
 													<td style="white-space: initial;">{{@$workflowdaa->name}}</td>
@@ -147,7 +147,7 @@
 													<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>
 													
 													<td>
-													<a href="{{URL::to('admin/invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-eye"></i></a>
+													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-eye"></i></a>
 												<!--	<a href=""><i class="fa fa-envelope"></i></a>-->
 													
 													<!--<a href=""><i class="fa fa-dollor"></i></a>-->
@@ -193,7 +193,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">

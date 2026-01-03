@@ -20,7 +20,7 @@
 	
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/invoice/general-store', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'invoice/general-store', 'name'=>"invoiceform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			<input type="hidden" name="type" value="">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -28,7 +28,7 @@
 							<div class="card-header">
 								<h4>Create General Invoice</h4>
 								<div class="card-header-action">
-									<a href="{{URL::to('admin/invoice/unpaid')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

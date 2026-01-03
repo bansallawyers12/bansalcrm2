@@ -28,10 +28,10 @@
 									<a class="btn btn-primary emailmodal" href="javascript:;"  >Send Mail</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="active-tab"  href="{{URL::to('/admin/agents/active')}}" >Active</a>
+									<a class="nav-link active" id="active-tab"  href="{{URL::to('/agents/active')}}" >Active</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="inactive-tab"  href="{{URL::to('/admin/agents/inactive')}}" >Inactive</a>
+									<a class="nav-link" id="inactive-tab"  href="{{URL::to('/agents/inactive')}}" >Inactive</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent">								
@@ -70,7 +70,7 @@
 															<label for="checkbox-{{$i}}" class="custom-control-label">&nbsp;</label>
 														</div>
 													</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->full_name == "" ? config('constants.empty') : str_limit(@$list->full_name, '50', '...') }}</a> <br/>{{--@$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...')--}}</td> 
+													<td style="white-space: initial;"><a href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->full_name == "" ? config('constants.empty') : str_limit(@$list->full_name, '50', '...') }}</a> <br/>{{--@$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...')--}}</td> 
 													<td style="white-space: initial;">{{ @$list->agent_type == "" ? config('constants.empty') : str_limit(@$list->agent_type, '50', '...') }}</td>
 													<td style="white-space: initial;">{{ @$list->struture == "" ? config('constants.empty') : str_limit(@$list->struture, '50', '...') }}</td>
 													<!--<td>-->{{--@$list->country_code == "" ? config('constants.empty') : str_limit(@$list->country_code, '50', '...') }} {{ @$list->phone == "" ? config('constants.empty') : str_limit(@$list->phone, '50', '...')--}}<!--</td>-->	
@@ -90,7 +90,7 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/agents/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'agents')"><i class="fas fa-trash"></i> Archived</a>
 															</div>
 														</div>								  
@@ -134,7 +134,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="type" value="agent">
 					<div class="row">
@@ -230,11 +230,11 @@
 			<div class="modal-body">
 				 <div class="col-md-12">	
 					<h5>Business</h5>
-					<a href="{{URL::to('admin/agents/import/business')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Import Business Agents</a>
+					<a href="{{URL::to('agents/import/business')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Import Business Agents</a>
 				 </div>
 				  <div class="col-md-12" style="margin-top: 20px!important;">
 				  <h5>Individual</h5>
-					<a href="{{URL::to('admin/agents/import/individual')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Import Individual Agents</a>
+					<a href="{{URL::to('agents/import/individual')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Import Individual Agents</a>
 				 </div>
 			</div>
 		</div>
@@ -397,7 +397,7 @@ $(document).delegate('.clientemail', 'click', function(){
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -416,7 +416,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -437,7 +437,7 @@ $('.js-data-example-ajaxccdd').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

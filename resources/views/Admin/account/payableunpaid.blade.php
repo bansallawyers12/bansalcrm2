@@ -25,20 +25,20 @@
 						<div class="card-body">							
 							<ul class="nav nav-pills" id="payable_tabs" role="tablist">
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="payables-tab"  href="{{URL::to('/admin/income-sharing/payables/unpaid')}}" >Payables</a>
+									<a class="nav-link active" id="payables-tab"  href="{{URL::to('/income-sharing/payables/unpaid')}}" >Payables</a>
 								</li> 
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="receivables-tab"  href="{{URL::to('/admin/income-sharing/receivables/unpaid')}}" >Receivables</a>
+									<a class="nav-link" id="receivables-tab"  href="{{URL::to('/income-sharing/receivables/unpaid')}}" >Receivables</a>
 								</li> 	
 							</ul> 
 							<div class="tab-content" id="payableContent">
 								<div class="tab-pane fade show active" id="payables" role="tabpanel" aria-labelledby="payables-tab">
 									<ul class="nav nav-pills" id="paypaid_tabs" role="tablist">
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link active" id="unpaid-tab"  href="{{URL::to('/admin/income-sharing/payables/unpaid')}}" >Unpaid</a>
+											<a class="nav-link active" id="unpaid-tab"  href="{{URL::to('/income-sharing/payables/unpaid')}}" >Unpaid</a>
 										</li> 
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link" id="paid-tab"  href="{{URL::to('/admin/income-sharing/payables/paid')}}" >Paid</a>
+											<a class="nav-link" id="paid-tab"  href="{{URL::to('/income-sharing/payables/paid')}}" >Paid</a>
 										</li> 	
 									</ul>
 									<div class="tab-content" id="payableContent">
@@ -74,10 +74,10 @@
 														    }
 															?>
 																<tr>
-																	<td style="white-space: initial;"><a href="{{URL::to('/admin/invoice/view/')}}/{{$list->invoice_id}}">{{@$list->invoice_id}}</a></td>
+																	<td style="white-space: initial;"><a href="{{URL::to('/invoice/view/')}}/{{$list->invoice_id}}">{{@$list->invoice_id}}</a></td>
 																	<td style="white-space: initial;"><a href="#">{{@$list->branch->office_name}}</a></td>
 																	<td>-</td>
-																	<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode($list->invoice->customer->id ?? 'N/A'))}}">{{@$list->invoice->customer->first_name ?? 'N/A'}} {{@$list->invoice->customer->last_name ?? 'N/A'}}</a></td>
+																	<td style="white-space: initial;"><a href="{{URL::to('/clients/detail/')}}/{{base64_encode(convert_uuencode($list->invoice->customer->id ?? 'N/A'))}}">{{@$list->invoice->customer->first_name ?? 'N/A'}} {{@$list->invoice->customer->last_name ?? 'N/A'}}</a></td>
 																	<td style="white-space: initial;">{{date('d/m/Y', strtotime(@$list->invoice->customer->dob))}}</td>
 																	<td style="white-space: initial;">{{@$partnerdata->partner_name ?? 'N/A'}}</td>
 																	<td style="white-space: initial;">{{@$productdata->name ?? 'N/A'}}</td>
@@ -140,7 +140,7 @@
 </div>
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{!! Form::open(array('url' => 'admin/income-payment-store', 'name'=>"incomepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"incomepaymentform"))  !!}
+	{!! Form::open(array('url' => 'income-payment-store', 'name'=>"incomepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"incomepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="false" name="is_ajax">
 	<input data-valid="required" type="hidden" name="payment_amount" placeholder="" class="paymentAmount" />

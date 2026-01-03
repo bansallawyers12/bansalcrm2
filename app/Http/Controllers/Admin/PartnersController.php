@@ -3098,7 +3098,7 @@ class PartnersController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat123'];
 	    	$o->module_id = $requestData['partner_id'];
-            $o->url = \URL::to('/admin/partners/detail/'.$partner_decode_id);
+            $o->url = route('partners.detail', $partner_decode_id);
 	    	$o->notification_type = 'partner';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A');
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -3248,7 +3248,7 @@ class PartnersController extends Controller
 
         //$obj->description = $request->description;
         $partner_encoded_id = base64_encode(convert_uuencode(@$request->partner_id)) ;
-        $partner_reference = '<a href="'.url('/admin/partners/detail/'.$partner_encoded_id).'" target="_blank" >'.$request->college_name.'</a>';
+        $partner_reference = '<a href="'.route('partners.detail', $partner_encoded_id).'" target="_blank" >'.$request->college_name.'</a>';
 
         $title = 'Added a note by partner '.$partner_reference;
         if(isset($request->noteid) && $request->noteid != ''){
@@ -3265,7 +3265,7 @@ class PartnersController extends Controller
             //In Partner activity log
             if($request->vtype == 'partner'){
                 $client_encoded_id = base64_encode(convert_uuencode(@$request->student_id)) ;
-                $client_reference = '<a href="'.url('/admin/clients/detail/'.$client_encoded_id).'" target="_blank" >'.$request->student_ref_no.'</a>';
+                $client_reference = '<a href="'.route('clients.detail', $client_encoded_id).'" target="_blank" >'.$request->student_ref_no.'</a>';
 
                 $subject = 'added a note for '.$client_reference;
                 if(isset($request->noteid) && $request->noteid != ''){

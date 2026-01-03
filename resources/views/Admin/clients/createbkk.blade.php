@@ -228,7 +228,7 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/clients/store', 'name'=>"add-clients", 'id' => 'create-client-form', 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'data-check-url' => URL::to('admin/checkclientexist'), 'data-recipients-url' => URL::to('/clients/get-recipients')))  !!} 
+			{!! Form::open(array('url' => 'clients/store', 'name'=>"add-clients", 'id' => 'create-client-form', 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'data-check-url' => URL::to('checkclientexist'), 'data-recipients-url' => URL::to('/clients/get-recipients')))  !!} 
 			<input type="hidden" name="type" value="client">
 				<div class="row">   
 					<div class="col-12">

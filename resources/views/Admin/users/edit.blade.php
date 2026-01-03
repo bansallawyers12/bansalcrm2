@@ -11,7 +11,7 @@
 			</div>
 			<div class="custom-error-msg">
 			</div>
-			{!! Form::open(array('url' => 'admin/users/edit', 'name'=>"edit-user", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'users/edit', 'name'=>"edit-user", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">

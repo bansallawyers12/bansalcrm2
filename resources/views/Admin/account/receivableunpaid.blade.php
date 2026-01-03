@@ -25,20 +25,20 @@
 						<div class="card-body">							
 							<ul class="nav nav-pills" id="payable_tabs" role="tablist">
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="payables-tab"  href="{{URL::to('/admin/income-sharing/payables/unpaid')}}" >Payables</a>
+									<a class="nav-link" id="payables-tab"  href="{{URL::to('/income-sharing/payables/unpaid')}}" >Payables</a>
 								</li> 
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="receivables-tab"  href="{{URL::to('/admin/income-sharing/receivables/unpaid')}}" >Receivables</a>
+									<a class="nav-link active" id="receivables-tab"  href="{{URL::to('/income-sharing/receivables/unpaid')}}" >Receivables</a>
 								</li> 	
 							</ul> 
 							<div class="tab-content" id="payableContent">
 								<div class="tab-pane fade show active" id="payables" role="tabpanel" aria-labelledby="payables-tab">
 									<ul class="nav nav-pills" id="paypaid_tabs" role="tablist">
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link active" id="unpaid-tab"  href="{{URL::to('/admin/income-sharing/receivables/unpaid')}}" >Unpaid</a>
+											<a class="nav-link active" id="unpaid-tab"  href="{{URL::to('/income-sharing/receivables/unpaid')}}" >Unpaid</a>
 										</li> 
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link" id="paid-tab"  href="{{URL::to('/admin/income-sharing/receivables/paid')}}" >Received</a>
+											<a class="nav-link" id="paid-tab"  href="{{URL::to('/income-sharing/receivables/paid')}}" >Received</a>
 										</li> 	
 									</ul>
 									<div class="tab-content" id="payableContent">

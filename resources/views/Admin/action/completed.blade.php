@@ -30,7 +30,7 @@
 
                             <ul class="nav nav-pills" id="client_tabs" role="tablist">
                                 <li class="nav-item is_checked_clientn11">
-									<a class="nav-link active" id="archived-tab"  href="{{URL::to('/admin/action')}}">Incomplete</a>
+									<a class="nav-link active" id="archived-tab"  href="{{URL::to('/action')}}">Incomplete</a>
 								</li>
                             </ul>
 						</div>
@@ -85,30 +85,30 @@
 
 
                                             <?php //echo $task_group;?>
-                                            <a href="{{URL::to('/admin/action/completed?group_type=All')}}" id="All" class="group_type <?php if($task_group == 'All') { echo 'active';}?>">All <span class="countAction">{{ $assigneesCount_All_type }}</span></a> | &nbsp;
+                                            <a href="{{URL::to('/action/completed?group_type=All')}}" id="All" class="group_type <?php if($task_group == 'All') { echo 'active';}?>">All <span class="countAction">{{ $assigneesCount_All_type }}</span></a> | &nbsp;
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Call')}}" id="Call" class="group_type <?php if($task_group == 'Call') { echo 'active';}?>"> <i class="fa fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Call')}}" id="Call" class="group_type <?php if($task_group == 'Call') { echo 'active';}?>"> <i class="fa fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Checklist')}}" id="Checklist" class="group_type <?php if($task_group == 'Checklist') { echo 'active';}?>"><i class="fa fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Checklist')}}" id="Checklist" class="group_type <?php if($task_group == 'Checklist') { echo 'active';}?>"><i class="fa fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Review')}}" id="Review" class="group_type <?php if($task_group == 'Review') { echo 'active';}?>"> <i class="fa fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Review')}}" id="Review" class="group_type <?php if($task_group == 'Review') { echo 'active';}?>"> <i class="fa fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Query')}}" id="Query" class="group_type <?php if($task_group == 'Query') { echo 'active';}?>"><i class="fa fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Query')}}" id="Query" class="group_type <?php if($task_group == 'Query') { echo 'active';}?>"><i class="fa fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Urgent')}}" id="Urgent" class="group_type <?php if($task_group == 'Urgent') { echo 'active';}?>"> <i class="fa fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Urgent')}}" id="Urgent" class="group_type <?php if($task_group == 'Urgent') { echo 'active';}?>"> <i class="fa fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/admin/action/completed?group_type=Personal Task')}}" id="Personal Task" class="group_type <?php if($task_group == 'Personal Task') { echo 'active';}?>"> <i class="fa fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Personal Task')}}" id="Personal Task" class="group_type <?php if($task_group == 'Personal Task') { echo 'active';}?>"> <i class="fa fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></a> &nbsp;
                                             </button>
                                         </div>
                                     </div>
@@ -164,7 +164,7 @@
                                                     <?php
                                                     if($list->noteClient)
                                                     { ?>
-                                                        <a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}" target="_blank" >{{ $list->noteClient->client_id }}</a>
+                                                        <a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}" target="_blank" >{{ $list->noteClient->client_id }}</a>
                                                     <?php
                                                     } ?>
                                                 </td>
@@ -522,7 +522,7 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 		// console.log($('#changeassignee').val());
 		$.ajax({
-			url: site_url+'/admin/change_assignee',
+			url: site_url+'/change_assignee',
 			type:'GET',
 			data:{id: appliid,assinee: assinee},
 			success: function(response){
@@ -544,14 +544,14 @@ jQuery(document).ready(function($){
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_comment',
+			url: site_url+'/update_apppointment_comment',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_comment:visitcomment},
 			success: function(responses){
 				// $('.popuploader').hide();
 				$('.taskcomment').val('');
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -567,7 +567,7 @@ jQuery(document).ready(function($){
 	$('#openassigneview').modal('show');
 	var v = $(this).attr('id');
 		$.ajax({
-			url: site_url+'/admin/get-assigne-detail',
+			url: site_url+'/get-assigne-detail',
 			type:'GET',
 			data:{id:v},
 			success: function(responses){
@@ -584,7 +584,7 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 
 		$.ajax({
-			url: site_url+'/admin/update_list_status',
+			url: site_url+'/update_list_status',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,statusname:statusame,status:status},
 			success: function(responses){
@@ -595,7 +595,7 @@ jQuery(document).ready(function($){
 				    $('.updatestatusview'+appliid).html(obj.viewstatus);
 				}
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -614,14 +614,14 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 
 		$.ajax({
-			url: site_url+'/admin/update_list_priority',
+			url: site_url+'/update_list_priority',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,status:status},
 			success: function(responses){
 				$('.popuploader').hide();
 
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -650,12 +650,12 @@ jQuery(document).ready(function($){
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_description',
+			url: site_url+'/update_apppointment_description',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_purpose:visitpurpose},
 			success: function(responses){
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -673,12 +673,12 @@ jQuery(document).ready(function($){
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_description',
+			url: site_url+'/update_apppointment_description',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_purpose:visitpurpose},
 			success: function(responses){
 				 $.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){

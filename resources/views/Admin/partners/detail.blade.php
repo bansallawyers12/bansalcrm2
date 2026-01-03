@@ -44,11 +44,11 @@ use App\Http\Controllers\Controller;
 							<h4>Partner Detail</h4>
 							<div class="card-header-action">
                               
-                                <a target="_blank" href="{{URL::to('/admin/partners/updatecommissionpercentage/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Percentage</a>
+                                <a target="_blank" href="{{URL::to('/partners/updatecommissionpercentage/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Percentage</a>
 
-                                <a target="_blank" href="{{URL::to('/admin/partners/updatecommissionclaimed/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Claimed</a>
+                                <a target="_blank" href="{{URL::to('/partners/updatecommissionclaimed/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Claimed</a>
 
-								<a href="{{route('admin.partners.index')}}" class="btn btn-primary">Partner List</a>
+								<a href="{{route('partners.index')}}" class="btn btn-primary">Partner List</a>
 							</div>
 						</div>
 					</div>
@@ -67,7 +67,7 @@ use App\Http\Controllers\Controller;
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS"><i class="fas fa-comment-alt"></i></a>
 									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->partner_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a> 
-									<a href="{{URL::to('/admin/partners/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+									<a href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
 									
 									@if($fetchedData->is_archived == 0)
 										<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="Archive"><i class="fas fa-archive"></i></a>
@@ -350,7 +350,7 @@ use App\Http\Controllers\Controller;
 				$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
-													<td><a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$partnerdetail->id)))}}">{{$partnerdetail->first_name}} {{$partnerdetail->last_name}}</a></td>
+													<td><a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$partnerdetail->id)))}}">{{$partnerdetail->first_name}} {{$partnerdetail->last_name}}</a></td>
 													<td></td>
 													<td>{{$productdetail->name}}</td>
 													<td>{{$workflow->name}}</td>
@@ -460,7 +460,7 @@ use App\Http\Controllers\Controller;
                               
 								<div class="tab-pane fade <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'show active'; } ?>" id="products" role="tabpanel" aria-labelledby="products-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="{{route('admin.products.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="{{route('products.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
 									<div class="table-responsive"> 
 										<table class="table text_wrap">
@@ -500,8 +500,8 @@ use App\Http\Controllers\Controller;
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu"> 
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-eye"></i> View</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/edit/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-eye"></i> View</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$product->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$product->id}}, 'products')"><i class="fas fa-trash"></i> Delete</a>
 															</div>
 														</div>
@@ -561,7 +561,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade" id="agreements" role="tabpanel" aria-labelledby="agreements-tab">
 									<div class="agreement_info">
 										<h4>Contact Information</h4>
-										<form method="post"  action="{{URL::to('/admin/partner/saveagreement')}}" autocomplete="off" name="saveagreement" id="saveagreement" enctype="multipart/form-data">
+										<form method="post"  action="{{URL::to('/partner/saveagreement')}}" autocomplete="off" name="saveagreement" id="saveagreement" enctype="multipart/form-data">
 										@csrf
 										<input type="hidden" name="partner_id" value="{{$fetchedData->id}}">
 										<div class="row">
@@ -1004,9 +1004,9 @@ use App\Http\Controllers\Controller;
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/view/')}}/{{$invoicelist->id}}">View</a>
+																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/view/')}}/{{$invoicelist->id}}">View</a>
 																<?php if($invoicelist->status == 0){ ?>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/edit/')}}/{{$invoicelist->id}}">Edit</a>
+																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/edit/')}}/{{$invoicelist->id}}">Edit</a>
 																<a data-netamount="{{$netamount}}" data-dueamount="{{$totaldue}}" data-invoiceid="{{$invoicelist->id}}" class="dropdown-item has-icon addpaymentmodal" href="javascript:;"> Make Payment</a>
 																<?php } ?>
 															</div>
@@ -2242,7 +2242,7 @@ use App\Http\Controllers\Controller;
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;"><?php echo $rec_val->student_count;?></td>
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;">
                                                                     <?php echo "$".$rec_val->total_amount_aud;?>
-                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/admin/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                                     <?php if ( isset( $rec_val->sent_option ) && $rec_val->sent_option == 'Yes' ) { ?>
                                                                     <?php } else { ?>
                                                                         <a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="<?php echo $rec_val->invoice_id;?>"><i class="fas fa-pencil-alt"></i></a>
@@ -2326,7 +2326,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $inv_val->invoice_no;?></td>
                                                                 <td>
                                                                     <?php echo "$".$inv_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/admin/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>"><i class="fas fa-pencil-alt"></i></a>-->
                                                                     <a class="link-primary deletestudentrecordinvoice" href="javascript:;" data-uniqueid="<?php echo $inv_val->id;?>" data-invoicetype="<?php echo $inv_val->invoice_type;?>" data-partnerid="<?php echo $inv_val->partner_id;?>"><i class="fas fa-trash"></i></a>
                                                                 </td>
@@ -2402,7 +2402,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $pay_val->verified_date;?></td>
                                                                 <td>
                                                                     <?php echo "$".$pay_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/admin/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>"><i class="fas fa-pencil-alt"></i></a>-->
                                                                     <a class="link-primary deletestudentpaymentinvoice" href="javascript:;" data-uniqueid="<?php echo $pay_val->id;?>" data-invoicetype="<?php echo $pay_val->invoice_type;?>" data-partnerid="<?php echo $pay_val->partner_id;?>"><i class="fas fa-trash"></i></a>
                                                                 </td>
@@ -2459,7 +2459,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type ="hidden" value="partner" name="type">
 					<div class="row">
@@ -2793,7 +2793,7 @@ use App\Http\Controllers\Controller;
         e.preventDefault();
         const formData = new FormData(this);
         //console.log(formData);
-        fetch('/admin/partners/update-student-status', {
+        fetch('/partners/update-student-status', {
             method: 'POST',
             body: formData,
             headers: {
@@ -2852,7 +2852,7 @@ use App\Http\Controllers\Controller;
     document.getElementById('changeApplicationOverallStatusForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        fetch('/admin/partners/update-student-application-overall-status', {
+        fetch('/partners/update-student-application-overall-status', {
             method: 'POST',
             body: formData,
             headers: {
@@ -3009,7 +3009,7 @@ jQuery(document).ready(function($){
         var partnerid =  $('#partner_id').val();
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getEnrolledStudentList')}}',
+            url: '{{URL::to('/partners/getEnrolledStudentList')}}',
             sync:true,
             data: {partnerid:partnerid},
             success: function(response){
@@ -3062,7 +3062,7 @@ jQuery(document).ready(function($){
     function getTopReceiptValInDB(type) {
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getTopReceiptValInDB')}}',
+            url: '{{URL::to('/partners/getTopReceiptValInDB')}}',
             sync:true,
             data: {type:type},
             success: function(response){
@@ -3095,7 +3095,7 @@ jQuery(document).ready(function($){
     function getTopInvoiceValInDB(type) {
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getTopInvoiceValInDB')}}',
+            url: '{{URL::to('/partners/getTopInvoiceValInDB')}}',
             sync:true,
             data: {type:type},
             success: function(response){
@@ -3125,7 +3125,7 @@ jQuery(document).ready(function($){
         //console.log('partnerid='+partnerid);
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getEnrolledStudentList')}}',
+            url: '{{URL::to('/partners/getEnrolledStudentList')}}',
             sync:true,
             data: {partnerid:partnerid},
             success: function(response){
@@ -3161,7 +3161,7 @@ jQuery(document).ready(function($){
         if(sel_student_id != ""){
             $.ajax({
                 type:'post',
-                url: '{{URL::to('/admin/partners/getStudentInfo')}}',
+                url: '{{URL::to('/partners/getStudentInfo')}}',
                 sync:true,
                 data: {sel_student_id:sel_student_id},
                 success: function(response){
@@ -3181,7 +3181,7 @@ jQuery(document).ready(function($){
             var partner_id = $('#partner_id').val();
             $.ajax({
                 type:'post',
-                url: '{{URL::to('/admin/partners/getStudentCourseInfo')}}',
+                url: '{{URL::to('/partners/getStudentCourseInfo')}}',
                 sync:true,
                 data: {sel_student_id:sel_student_id,partner_id:partner_id},
                 success: function(response){
@@ -3253,7 +3253,7 @@ jQuery(document).ready(function($){
                                 //alert('Confirmed! Sent Date: ' + sentDate);
                                 $.ajax({
                                     type:'post',
-                                    url: '{{URL::to('/admin/partners/updateInvoiceSentOptionToYes')}}',
+                                    url: '{{URL::to('/partners/updateInvoiceSentOptionToYes')}}',
                                     sync:true,
                                     data: {sel_invoice_id:sel_invoice_id,sentDate:sentDate},
                                     success: function(response){
@@ -3302,7 +3302,7 @@ jQuery(document).ready(function($){
     function getInfoByInvoiceId(invoiceid) {
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getInfoByInvoiceId')}}',
+            url: '{{URL::to('/partners/getInfoByInvoiceId')}}',
             sync:true,
             data: {invoiceid:invoiceid},
             success: function(response){
@@ -3352,7 +3352,7 @@ jQuery(document).ready(function($){
         if( invoiceid != "" && confirm('Are you sure you want to delete this invoice?') ) {
             $.ajax({
                 type:'post',
-                url: '{{URL::to('/admin/partners/deleteStudentRecordByInvoiceId')}}',
+                url: '{{URL::to('/partners/deleteStudentRecordByInvoiceId')}}',
                 sync:true,
                 data: {invoiceid:invoiceid,invoicetype:invoicetype,partnerid:partnerid},
                 success: function(response){
@@ -3370,7 +3370,7 @@ jQuery(document).ready(function($){
     function getEnrolledStudentListInEditMode(partnerid,uniqueRowId) {
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getEnrolledStudentListInEditMode')}}',
+            url: '{{URL::to('/partners/getEnrolledStudentListInEditMode')}}',
             sync:true,
             data: {partnerid:partnerid,uniqueRowId:uniqueRowId},
             success: function(response){
@@ -3497,7 +3497,7 @@ jQuery(document).ready(function($){
         if( id != "" && confirm('Are you sure you want to delete this record invoice?') ) {
             $.ajax({
                 type:'post',
-                url: '{{URL::to('/admin/partners/deleteStudentRecordInvoiceByInvoiceId')}}',
+                url: '{{URL::to('/partners/deleteStudentRecordInvoiceByInvoiceId')}}',
                 sync:true,
                 data: {id:id,invoicetype:invoicetype,partnerid:partnerid},
                 success: function(response){
@@ -3598,7 +3598,7 @@ jQuery(document).ready(function($){
         //console.log('partnerid='+partnerid);
         $.ajax({
             type:'post',
-            url: '{{URL::to('/admin/partners/getRecordedInvoiceList')}}',
+            url: '{{URL::to('/partners/getRecordedInvoiceList')}}',
             sync:true,
             data: {partnerid:partnerid},
             success: function(response){
@@ -3628,7 +3628,7 @@ jQuery(document).ready(function($){
         if( id != "" && confirm('Are you sure you want to delete this payment invoice?') ) {
             $.ajax({
                 type:'post',
-                url: '{{URL::to('/admin/partners/deleteStudentPaymentInvoiceByInvoiceId')}}',
+                url: '{{URL::to('/partners/deleteStudentPaymentInvoiceByInvoiceId')}}',
                 sync:true,
                 data: {id:id,invoicetype:invoicetype,partnerid:partnerid},
                 success: function(response){
@@ -3694,7 +3694,7 @@ jQuery(document).ready(function($){
 		$('#view_note input[name="noteid"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/viewnotedetail')}}',
+			url: '{{URL::to('/viewnotedetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -3811,7 +3811,7 @@ jQuery(document).ready(function($){
 		$('#opentaskview').modal('show');
 		var v = $(this).attr('id');
 		$.ajax({
-			url: site_url+'/admin/partner/get-task-detail',
+			url: site_url+'/partner/get-task-detail',
 			type:'GET',
 			data:{task_id:v},
 			success: function(responses){
@@ -3822,7 +3822,7 @@ jQuery(document).ready(function($){
 	});
 	function getallnotes(){
 	$.ajax({
-		url: site_url+'/admin/get-notes',
+		url: site_url+'/get-notes',
 		type:'GET',
 		data:{clientid:'{{$fetchedData->id}}',type:'partner'},
 		success: function(responses){
@@ -3834,7 +3834,7 @@ jQuery(document).ready(function($){
 
 function getallactivities(){
 	$.ajax({
-					url: site_url+'/admin/get-activities',
+					url: site_url+'/get-activities',
 					type:'GET',
 					datatype:'json',
 					data:{id:'{{$fetchedData->id}}'},
@@ -3863,7 +3863,7 @@ function getallactivities(){
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/'+delhref,
+			url: '{{URL::to('/')}}/'+delhref,
 			type:'GET',
 			datatype:'json',
 			data:{note_id:notid,type:'partner'},
@@ -3878,7 +3878,7 @@ function getallactivities(){
 					}
 					else if(delhref == 'deleteservices'){
 						$.ajax({
-						url: site_url+'/admin/get-services',
+						url: site_url+'/get-services',
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -3888,7 +3888,7 @@ function getallactivities(){
 					});
 					}else if(delhref == 'deletecontact'){
 						$.ajax({
-						url: site_url+'/admin/get-contacts',
+						url: site_url+'/get-contacts',
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -3898,7 +3898,7 @@ function getallactivities(){
 					});
 					}else if(delhref == 'deletebranch'){
 						$.ajax({
-						url: site_url+'/admin/get-branches',
+						url: site_url+'/get-branches',
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -3957,7 +3957,7 @@ function getallactivities(){
             var partner_id = $('#partner_id').val();
             $('.popuploader').show();
             $.ajax({
-                url: "{{URL::to('/admin/partners/fetchPartnerContactNo')}}",
+                url: "{{URL::to('/partners/fetchPartnerContactNo')}}",
                 method: "POST",
                 data: {partner_id:partner_id},
                 datatype: 'json',
@@ -4033,7 +4033,7 @@ function getallactivities(){
             var client_id = $('#student_id').val();
             $('.popuploader').show();
             $.ajax({
-                url: "{{URL::to('/admin/clients/fetchClientContactNo')}}",
+                url: "{{URL::to('/clients/fetchClientContactNo')}}",
                 method: "POST",
                 data: {client_id:client_id},
                 datatype: 'json',
@@ -4082,7 +4082,7 @@ function getallactivities(){
 		 closeOnSelect: false,
 		dropdownParent: $('#create_note'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -4102,7 +4102,7 @@ $('.js-data-example-ajaxcontact').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#opentaskmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -4157,7 +4157,7 @@ function formatRepoSelection (repo) {
 		$('#create_note input[name="noteid"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/getnotedetail')}}',
+			url: '{{URL::to('/getnotedetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -4181,7 +4181,7 @@ function formatRepoSelection (repo) {
 		$('#add_clientcontact input[name="contact_id"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/getcontactdetail')}}',
+			url: '{{URL::to('/getcontactdetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -4216,7 +4216,7 @@ function formatRepoSelection (repo) {
 		$('#add_clientbranch input[name="branch_id"]').val(v);
 			$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/getbranchdetail')}}',
+			url: '{{URL::to('/getbranchdetail')}}',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:v},
@@ -4251,7 +4251,7 @@ function formatRepoSelection (repo) {
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getpartnerbranch')}}',
+			url: '{{URL::to('/getpartnerbranch')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -4273,7 +4273,7 @@ function formatRepoSelection (repo) {
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getbranchproduct')}}',
+			url: '{{URL::to('/getbranchproduct')}}',
 			type:'GET',
 			data:{cat_id:explode[0]},
 			success:function(response){
@@ -4289,7 +4289,7 @@ function formatRepoSelection (repo) {
 	$(document).delegate('.pinnote', 'click', function(){
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/pinnote')}}/',
+			url: '{{URL::to('/pinnote')}}/',
 			type:'GET',
 			datatype:'json',
 			data:{note_id:$(this).attr('data-id')},
@@ -4356,7 +4356,7 @@ $(document).delegate('.change_client_status', 'click', function(e){
 	$(this).addClass('active');
 	
 	 $.ajax({
-		url: '{{URL::to('/admin/change-client-status')}}',
+		url: '{{URL::to('/change-client-status')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:'{{$fetchedData->id}}',rating:v},
@@ -4376,7 +4376,7 @@ $(document).delegate('.change_client_status', 'click', function(e){
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -4394,7 +4394,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 $(document).delegate('.selectapplicationtemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -4413,7 +4413,7 @@ $(document).delegate('.selectapplicationtemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -4434,7 +4434,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#create_note'),
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -4730,7 +4730,7 @@ $(document).delegate('input[name=document_upload]', 'click', function() {
 		$('.popuploader').show();	
 var formData = new FormData($('#upload_form')[0]);		
 		$.ajax({
-			url: site_url+'/admin/upload-partner-document-upload',
+			url: site_url+'/upload-partner-document-upload',
 			type:'POST',
 			datatype:'json',
 			 data: formData,
@@ -4758,7 +4758,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getpartner')}}',
+			url: '{{URL::to('/getpartner')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -4779,7 +4779,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getproduct')}}',
+			url: '{{URL::to('/getproduct')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -4798,7 +4798,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getbranch')}}',
+			url: '{{URL::to('/getbranch')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -4817,13 +4817,13 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 					$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/convertapplication')}}',
+			url: '{{URL::to('/convertapplication')}}',
 			type:'GET',
 			data:{cat_id:v,clientid:'{{$fetchedData->id}}'},
 			success:function(response){
 				$('.popuploader').hide();
 				$.ajax({
-					url: site_url+'/admin/get-services',
+					url: site_url+'/get-services',
 					type:'GET',
 					data:{clientid:'{{$fetchedData->id}}'},
 					success: function(responses){
@@ -4883,7 +4883,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 			$.ajax({
 			   type: "POST",
 			   data: {"_token": $('meta[name="csrf-token"]').attr('content'),"filename": opentime, "id": parent.data('id')},
-			   url: '{{URL::to('/admin/renamedoc')}}',
+			   url: '{{URL::to('/renamedoc')}}',
 			   success: function(result){
 				   var obj = JSON.parse(result);
 				 if (obj.status) {
@@ -4918,7 +4918,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/delete-education',
+			url: '{{URL::to('/')}}/delete-education',
 			type:'GET',
 			datatype:'json',
 			data:{edu_id:eduid},
@@ -4940,7 +4940,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 				if(v != ''){
 						$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getsubjects')}}',
+			url: '{{URL::to('/getsubjects')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -4961,7 +4961,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		$('.popuploader').show();
 		$('#edit_education').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getEducationdetail')}}',
+			url: '{{URL::to('/getEducationdetail')}}',
 			type:'GET',
 			data:{id:v},
 		success:function(response){
@@ -4984,7 +4984,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		$('.popuploader').show();
 		$('#interest_service_view').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getintrestedservice')}}',
+			url: '{{URL::to('/getintrestedservice')}}',
 			type:'GET',
 			data:{id:v},
 			success:function(response){
@@ -5001,7 +5001,7 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		$('#interest_service_view').modal('hide');
 		$('#eidt_interested_service').modal('show');
 		$.ajax({
-			url: '{{URL::to('/admin/getintrestedserviceedit')}}',
+			url: '{{URL::to('/getintrestedserviceedit')}}',
 			type:'GET',
 			data:{id:v},
 		success:function(response){
@@ -5092,7 +5092,7 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getapplicationdetail')}}',
+			url: '{{URL::to('/getapplicationdetail')}}',
 			type:'GET',
 			data:{id:appliid},
 		success:function(response){
@@ -5106,7 +5106,7 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 					onChange: function(selectedDates, dateStr, instance) {
 						if (selectedDates.length > 0) {
 							$.ajax({
-								url:"{{URL::to('/admin/application/updateintake')}}",
+								url:"{{URL::to('/application/updateintake')}}",
 								method: "GET",
 								dataType: "json",
 								data: {from: dateStr, appid: appliid},
@@ -5178,7 +5178,7 @@ $(document).delegate('.nextstage', 'click', function(){
 	var stage = $(this).attr('data-stage');
 	$('.popuploader').show();
 	$.ajax({
-		url: '{{URL::to('/admin/updatestage')}}',
+		url: '{{URL::to('/updatestage')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:appliid, client_id:'{{$fetchedData->id}}'},
@@ -5189,7 +5189,7 @@ $(document).delegate('.nextstage', 'click', function(){
 				$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 				$('.curerentstage').text(obj.stage);
 				$.ajax({
-					url: site_url+'/admin/get-applications-logs',
+					url: site_url+'/get-applications-logs',
 					type:'GET',
 					data:{clientid:'{{$fetchedData->id}}',id: appliid},
 					success: function(responses){
@@ -5209,7 +5209,7 @@ $(document).delegate('.backstage', 'click', function(){
 	var stage = $(this).attr('data-stage');
 	$('.popuploader').show();
 	$.ajax({
-		url: '{{URL::to('/admin/updatebackstage')}}',
+		url: '{{URL::to('/updatebackstage')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:appliid, client_id:'{{$fetchedData->id}}'},
@@ -5220,7 +5220,7 @@ $(document).delegate('.backstage', 'click', function(){
 				$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 				$('.curerentstage').text(obj.stage);
 				$.ajax({
-					url: site_url+'/admin/get-applications-logs',
+					url: site_url+'/get-applications-logs',
 					type:'GET',
 					data:{clientid:'{{$fetchedData->id}}',id: appliid},
 					success: function(responses){
@@ -5241,7 +5241,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		$('.if_applicationdetail').hide();
 		$('.ifapplicationdetailnot').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getapplicationnotes')}}',
+			url: '{{URL::to('/getapplicationnotes')}}',
 			type:'GET',
 			data:{id:appliid},
 			success:function(response){
@@ -5261,7 +5261,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	  var appliid = $(this).attr('data-id');
 	  var dstatus = $(this).attr('data-status');
 	  $.ajax({
-			url: '{{URL::to('/admin/change-promotion-status')}}',
+			url: '{{URL::to('/change-promotion-status')}}',
 			type:'GET',
 			data:{id:appliid, status:dstatus},
 			success:function(response){
@@ -5276,7 +5276,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 						}
 					$(".changepromotonstatus[data-id="+appliid+"]").attr('data-status', updated_status);
 					$.ajax({
-						url: site_url+'/admin/get-promotions',
+						url: site_url+'/get-promotions',
 						type:'GET',
 						data:{clientid:'{{$fetchedData->id}}'},
 						success: function(responses){
@@ -5302,7 +5302,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	  $('.taskstatus').html(statusname+' <i class="fa fa-angle-down"></i>');
 	  $('.popuploader').show();
 	  $.ajax({
-			url: '{{URL::to('/admin/change-task-status')}}',
+			url: '{{URL::to('/change-task-status')}}',
 			type:'GET',
 			data:{id:did, status:dstatus},
 			success:function(response){
@@ -5313,7 +5313,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 					$('.tasklogs').html(obj.data);
 					// Task system removed - December 2025
 					// $.ajax({
-					// 		url: site_url+'/admin/partner/get-tasks',
+					// 		url: site_url+'/partner/get-tasks',
 					// 		type:'GET',
 					// 		data:{clientid:'{{$fetchedData->id}}'},
 					// 		success: function(responses){
@@ -5344,7 +5344,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	  $('.prioritystatus').html(statusname+' <i class="fa fa-angle-down"></i>');
 	  $('.popuploader').show();
 	  $.ajax({
-			url: '{{URL::to('/admin/change-task-priority')}}',
+			url: '{{URL::to('/change-task-priority')}}',
 			type:'GET',
 			data:{id:did, status:statusname},
 			success:function(response){
@@ -5355,7 +5355,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 					$('.tasklogs').html(obj.data);
 					// Task system removed - December 2025
 					// $.ajax({
-					// 		url: site_url+'/admin/partner/get-tasks',
+					// 		url: site_url+'/partner/get-tasks',
 					// 		type:'GET',
 					// 		data:{clientid:'{{$fetchedData->id}}'},
 					// 		success: function(responses){
@@ -5388,7 +5388,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 	  if(!flag){
 		  $('.popuploader').show();
 		  $.ajax({
-			url: '{{URL::to('/admin/partner/savecomment')}}',
+			url: '{{URL::to('/partner/savecomment')}}',
 			type:'POST',
 			data:{comment:$('#comment').val(), taskid:$('#taskid').val()},
 			 headers: {
@@ -5409,7 +5409,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		$('#edit_promotion').modal('show');
 		$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getpromotioneditform')}}',
+			url: '{{URL::to('/getpromotioneditform')}}',
 			type:'GET',
 			data:{id:appliid},
 			success:function(response){
@@ -5457,7 +5457,7 @@ function arcivedAction( id, table ) {
 						$('#popuploader').hide();
 						var obj = $.parseJSON(resp);
 						if(obj.status == 1) {
-							window.location.href= '{{URL::to('admin/partners')}}';
+							window.location.href= '{{URL::to('partners')}}';
 							
 						} else{
 							var html = errorMessage(obj.message);

@@ -58,7 +58,7 @@ foreach($visaexpires as $visaexpire){
         'startdate' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
         'end' => date("Y-m-d",strtotime($visaexpire->visaExpiry)),
         'displayDate' => date("F d, Y",strtotime($visaexpire->visaExpiry)),
-        'url' => URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode($visaexpire->id)))
+        'url' => URL::to('/clients/detail/'.base64_encode(convert_uuencode($visaexpire->id)))
     ];
     $sched_res[$visaexpire->id] = $visaexpireArray;
 }

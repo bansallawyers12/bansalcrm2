@@ -1963,7 +1963,7 @@ class AdminController extends Controller
                          $o->sender_id = Auth::user()->id;
                          $o->receiver_id = $note_info['assigned_to'];
                          $o->module_id = $note_info['client_id'];
-                         $o->url = \URL::to('/admin/partners/detail/' . @$note_info['client_id']);
+                         $o->url = route('partners.detail', @$note_info['client_id']);
                          $o->notification_type = 'client';
                          $o->message = 'Followup Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name . ' on ' . date('d/M/Y h:i A', strtotime(@$note_info['followup_date']));
                          $o->seen = 0; // Set seen to 0 (unseen) for new notifications

@@ -27,7 +27,7 @@
 		@endif
 		
 		<div class="section-body">
-		<form action="{{ route('admin.leads.store') }}" method="POST" name="add-leads" autocomplete="off" enctype="multipart/form-data" novalidate>
+		<form action="{{ route('leads.store') }}" method="POST" name="add-leads" autocomplete="off" enctype="multipart/form-data" novalidate>
 			@csrf
 			<input type="hidden" name="type" value="lead">
 				<div class="row">
@@ -36,7 +36,7 @@
 							<div class="card-header">
 								<h4>Create Leads</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.leads.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('leads.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -1180,7 +1180,7 @@ jQuery(document).ready(function($){
 		 closeOnSelect: false,
 
 		  ajax: {
-			url: '{{URL::to('/admin/clients/get-recipients')}}',
+			url: '{{URL::to('/clients/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

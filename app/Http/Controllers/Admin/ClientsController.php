@@ -2913,7 +2913,7 @@ class ClientsController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat'];
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
-	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
+	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -2991,7 +2991,7 @@ class ClientsController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat'];
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
-	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
+	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
@@ -3071,7 +3071,7 @@ class ClientsController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat'];
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
-	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
+	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
@@ -3205,7 +3205,7 @@ class ClientsController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['changeassignee'];
 	    	$o->module_id = @$requestData['client_id'];
-	    	$o->url = \URL::to('/admin/clients/detail/'.@$requestData['client_id']);
+	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -3234,7 +3234,7 @@ class ClientsController extends Controller
     	    	$o->sender_id = Auth::user()->id;
     	    	$o->receiver_id = $request->assinee;
     	    	$o->module_id = $request->id;
-    	    	$o->url = \URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$request->id)));
+    	    	$o->url = route('clients.detail', base64_encode(convert_uuencode(@$request->id)));
     	    	$o->notification_type = 'client';
     	    	$o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
     	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -3271,7 +3271,7 @@ class ClientsController extends Controller
                         $o->sender_id = Auth::user()->id;
                         $o->receiver_id = $val; //$request->assinee;
                         $o->module_id = $request->id;
-                        $o->url = \URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$request->id)));
+                        $o->url = route('clients.detail', base64_encode(convert_uuencode(@$request->id)));
                         $o->notification_type = 'client';
                         $o->message = 'Client Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
                         $o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -4574,7 +4574,7 @@ class ClientsController extends Controller
             ->addColumn('client_reference', function($data) {
                 if($data->client_reference){
                     $client_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                    $client_reference = '<a href="'.url('/admin/clients/detail/'.$client_encoded_id).'" target="_blank" >'.$data->client_reference.'</a>';
+                    $client_reference = '<a href="'.route('clients.detail', $client_encoded_id).'" target="_blank" >'.$data->client_reference.'</a>';
                 } else {
                     $client_reference = 'N/P';
                 }
@@ -5571,7 +5571,7 @@ class ClientsController extends Controller
 	    	$o->receiver_id = @$requestData['rem_cat11'];
 	    	$o->module_id = $requestData['client_id'];
 
-	    	$o->url = \URL::to('/admin/clients/detail/'.$client_decode_id);
+	    	$o->url = route('clients.detail', $client_decode_id);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A');
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications

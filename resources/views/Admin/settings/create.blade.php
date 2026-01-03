@@ -56,7 +56,7 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/settings/taxes/taxrates/store', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::open(array('url' => 'settings/taxes/taxrates/store', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 						<div class="card-body">
 							<div class="row">
 								<div class="col-sm-12 is_gst_yes">

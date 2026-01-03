@@ -82,7 +82,7 @@
 									<div class="nav-item dropdown action_dropdown">
 										<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><span class="caret"></span></a>
 										<div class="dropdown-menu">
-											<a href="{{URL::to('/admin/settings/taxes/taxrates/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
+											<a href="{{URL::to('/settings/taxes/taxrates/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
 											<a href="javascript:;" onClick="deleteAction({{@$list->id}}, 'tax_rates')"><i class="fa fa-trash"></i> Delete</a>
 										</div>
 									</div>

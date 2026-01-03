@@ -9,7 +9,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/saveapplication')}}" name="applicationform" id="addapplicationformform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/saveapplication')}}" name="applicationform" id="addapplicationformform" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">
@@ -73,7 +73,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/discontinue_application')}}" name="discontinue_application" id="discontinue_application" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/discontinue_application')}}" name="discontinue_application" id="discontinue_application" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="diapp_id" value="">
 					<div class="row">
@@ -121,7 +121,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/revert_application')}}" name="revertapplication" id="revertapplication" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/revert_application')}}" name="revertapplication" id="revertapplication" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="revapp_id" value="">
 					<div class="row">
@@ -153,7 +153,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/interested-service')}}" name="inter_servform" autocomplete="off" id="inter_servform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/interested-service')}}" name="inter_servform" autocomplete="off" id="inter_servform" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">
@@ -261,7 +261,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/add-appointment-book')}}" name="appointform" id="appointform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/add-appointment-book')}}" name="appointform" id="appointform" autocomplete="off" enctype="multipart/form-data">
 				    @csrf
 				    <input type="hidden" name="client_id" value="{{$fetchedData->id}}">
                     <input type="hidden" name="client_unique_id" value="{{$fetchedData->client_id}}">
@@ -521,7 +521,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/create-note')}}" name="notetermform" autocomplete="off" id="notetermform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/create-note')}}" name="notetermform" autocomplete="off" id="notetermform" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" name="noteid" value="">
@@ -604,7 +604,7 @@
 				</button>
 			</div>
 		<div class="modal-body">
-			<form method="post" action="{{URL::to('/admin/create-note')}}" name="notetermform_n" autocomplete="off" id="notetermform_n" enctype="multipart/form-data">
+			<form method="post" action="{{URL::to('/create-note')}}" name="notetermform_n" autocomplete="off" id="notetermform_n" enctype="multipart/form-data">
 			@csrf
 			<input type="hidden" name="client_id" id="note_client_id" value="{{$fetchedData->id}}">
 			<input type="hidden" name="noteid" value="">
@@ -962,7 +962,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/saveeducation')}}" name="educationform" id="educationform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/saveeducation')}}" name="educationform" id="educationform" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">
@@ -1101,7 +1101,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/create-invoice')}}" name="noteinvform" autocomplete="off" id="noteinvform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/create-invoice')}}" name="noteinvform" autocomplete="off" id="noteinvform" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 
@@ -1175,7 +1175,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/create-invoice')}}" name="notegetinvform" autocomplete="off" id="notegetinvform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/create-invoice')}}" name="notegetinvform" autocomplete="off" id="notegetinvform" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 
@@ -1235,7 +1235,7 @@
 
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'method' => 'post', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform"))  !!}
+	{!! Form::open(array('url' => 'invoice/payment-store', 'method' => 'post', 'name'=>"ajaxinvoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"ajaxinvoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="true" name="is_ajax" id="invoice_is_ajax">
 	<input type="hidden" value="{{$fetchedData->id}}" name="client_id" id="payment_invoice_client_id">
@@ -1314,7 +1314,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/create-app-note')}}" name="appnotetermform" autocomplete="off" id="appnotetermform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/create-app-note')}}" name="appnotetermform" autocomplete="off" id="appnotetermform" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" name="noteid" id="noteid" value="">
@@ -1361,7 +1361,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/add-appointment')}}" name="appliappointform" id="appliappointform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/add-appointment')}}" name="appliappointform" id="appliappointform" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" id="type" name="type" value="application">
@@ -1499,7 +1499,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/add-checklists')}}" name="checklistform" id="checklistform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/add-checklists')}}" name="checklistform" id="checklistform" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" id="checklistapp_id" name="app_id" value="{{$fetchedData->id}}">
@@ -1602,7 +1602,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/add-appointment')}}" name="paymentform" id="paymentform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/add-appointment')}}" name="paymentform" id="paymentform" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">
@@ -1814,7 +1814,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="appkicationsendmail" id="appkicationsendmail" action="{{URL::to('/admin/application-sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="appkicationsendmail" id="appkicationsendmail" action="{{URL::to('/application-sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 				<input type="hidden" id="type" name="type" value="application">
@@ -1919,7 +1919,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/setup-paymentschedule')}}" name="setuppaymentschedule" id="setuppaymentschedule" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/setup-paymentschedule')}}" name="setuppaymentschedule" id="setuppaymentschedule" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="application_id" id="application_id" value="">
 				<input type="hidden" name="is_ajax" id="is_ajax" value="true">
@@ -2049,7 +2049,7 @@
 				</button>
 			</div>
 		<div class="modal-body">
-		<form method="post" action="{{URL::to('/admin/create-invoice')}}" name="createinvoive"  autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="{{URL::to('/create-invoice')}}" name="createinvoive"  autocomplete="off" enctype="multipart/form-data">
 			@csrf
 			<input type="hidden" name="client_id" id="invoice_client_id">
 			<input type="hidden" name="application" id="app_id">
@@ -2092,7 +2092,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-			<form method="post" action="{{URL::to('/admin/upload-mail')}}" name="uploadmail"  autocomplete="off" enctype="multipart/form-data">
+			<form method="post" action="{{URL::to('/upload-mail')}}" name="uploadmail"  autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" id="maclient_id">
 					<div class="row">
@@ -2449,7 +2449,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/refund_application')}}" name="refund_app" id="refund_app" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/refund_application')}}" name="refund_app" id="refund_app" autocomplete="off" enctype="multipart/form-data">
 				    @csrf
 				    <input type="hidden" name="reapp_id" value="">
 					<div class="row">

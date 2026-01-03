@@ -29,11 +29,11 @@
 
                             <ul class="nav nav-pills" id="client_tabs" role="tablist">
                                 <li class="nav-item is_checked_clientn12">
-									<a class="nav-link" href="{{URL::to('/admin/action')}}">Incomplete</a>
+									<a class="nav-link" href="{{URL::to('/action')}}">Incomplete</a>
 								</li>
 
                                 <li class="nav-item is_checked_clientn11">
-									<a class="nav-link" id="archived-tab"  href="{{URL::to('/admin/action/completed')}}">Completed</a>
+									<a class="nav-link" id="archived-tab"  href="{{URL::to('/action/completed')}}">Completed</a>
 								</li>
                             </ul>
 						</div>
@@ -97,7 +97,7 @@
                                                     <?php
                                                     if($list->noteClient)
                                                     { ?>
-                                                        <a href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}" target="_blank" >{{ $list->noteClient->client_id }}</a>
+                                                        <a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}" target="_blank" >{{ $list->noteClient->client_id }}</a>
                                                     <?php
                                                     } ?>
                                                 </td>
@@ -443,7 +443,7 @@
 		$('.popuploader').show();
 		// console.log($('#changeassignee').val());
 		$.ajax({
-			url: site_url+'/admin/change_assignee',
+			url: site_url+'/change_assignee',
 			type:'GET',
 			data:{id: appliid,assinee: assinee},
 			success: function(response){
@@ -465,14 +465,14 @@
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_comment',
+			url: site_url+'/update_apppointment_comment',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_comment:visitcomment},
 			success: function(responses){
 				// $('.popuploader').hide();
 				$('.taskcomment').val('');
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -489,7 +489,7 @@
 	    $('#openassigneview').modal('show');
 	    var v = $(this).attr('id');
 		$.ajax({
-			url: site_url+'/admin/get-assigne-detail',
+			url: site_url+'/get-assigne-detail',
 			type:'GET',
 			data:{id:v},
 			success: function(responses){
@@ -506,7 +506,7 @@
 		$('.popuploader').show();
 
 		$.ajax({
-			url: site_url+'/admin/update_list_status',
+			url: site_url+'/update_list_status',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,statusname:statusame,status:status},
 			success: function(responses){
@@ -517,7 +517,7 @@
 				    $('.updatestatusview'+appliid).html(obj.viewstatus);
 				}
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -536,14 +536,14 @@
 		$('.popuploader').show();
 
 		$.ajax({
-			url: site_url+'/admin/update_list_priority',
+			url: site_url+'/update_list_priority',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,status:status},
 			success: function(responses){
 				$('.popuploader').hide();
 
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -572,12 +572,12 @@
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_description',
+			url: site_url+'/update_apppointment_description',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_purpose:visitpurpose},
 			success: function(responses){
 				$.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){
@@ -595,12 +595,12 @@
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/update_apppointment_description',
+			url: site_url+'/update_apppointment_description',
 			type:'POST',
 			data:{"_token":$('meta[name="csrf-token"]').attr('content'),id: appliid,visit_purpose:visitpurpose},
 			success: function(responses){
 				 $.ajax({
-					url: site_url+'/admin/get-assigne-detail',
+					url: site_url+'/get-assigne-detail',
 					type:'GET',
 					data:{id:appliid},
 					success: function(responses){

@@ -41,7 +41,7 @@
 									<a class="nav-link " id="clients-tab"  href="{{URL::to('/clients')}}" >Clients</a>
 								</li>
 								<li class="nav-item ">
-									<a class="nav-link active" id="archived-tab"  href="{{URL::to('/admin/archived')}}" >Archived</a>
+									<a class="nav-link active" id="archived-tab"  href="{{URL::to('/archived')}}" >Archived</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent">
@@ -83,7 +83,7 @@
 													<?php
 													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
 													?>
-													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
+													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
 													<td style="white-space: initial;">-</td>
 													<td style="white-space: initial;">{{@$list->city}}</td>
 													<?php

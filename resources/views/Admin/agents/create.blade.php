@@ -7,7 +7,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			<form action="{{ url('admin/agents/store') }}" method="POST" name="add-agents" autocomplete="off" enctype="multipart/form-data">
+			<form action="{{ url('agents/store') }}" method="POST" name="add-agents" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">

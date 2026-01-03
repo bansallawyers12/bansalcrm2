@@ -73,7 +73,7 @@ foreach($followups as $followup){
             'end' => date("Y-m-d", strtotime($followup->followup_date)),
             'followup_date' => date("F d, Y", strtotime($followup->followup_date)),
             'description' => htmlspecialchars($followup->description, ENT_QUOTES, 'UTF-8'),
-            'url' => URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode($client->id)))
+            'url' => URL::to('/clients/detail/'.base64_encode(convert_uuencode($client->id)))
         ];
         $sched_res[$followup->id] = $followupData;
     }
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <dd id="description" class="fw-bold fs-4"></dd>
                                 </div>
                                  </div>
-                        <form method="post" name="retagmodalsave" id="retagmodalsave" action="{{URL::to('/admin/clients/followup/retagfollowup')}}" autocomplete="off" enctype="multipart/form-data">
+                        <form method="post" name="retagmodalsave" id="retagmodalsave" action="{{URL::to('/clients/followup/retagfollowup')}}" autocomplete="off" enctype="multipart/form-data">
 		            	@csrf   
 		            	<input type="hidden" name="client_id" id="followup_client_id">
 		            	<input type="hidden" name="lead_id" id="lead_id">

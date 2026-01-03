@@ -48,7 +48,7 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/email_templates/store', 'name'=>"add-template", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::open(array('url' => 'email_templates/store', 'name'=>"add-template", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 					   
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">

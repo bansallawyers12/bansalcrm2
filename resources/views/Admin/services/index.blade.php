@@ -30,7 +30,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<form class="search_form" action="{{URL::to('/admin/services')}}">
+							<form class="search_form" action="{{URL::to('/services')}}">
 								<div class="service_search">
 									<div class="row">
 										<div class="col-md-3">
@@ -105,7 +105,7 @@
 														<a href="#"><i class="fas fa-shopping-cart"></i></a>
 													</div>
 													<div class="service_content"> 
-														<h4><a target="_blank" href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->partner_name; ?></a></h4>
+														<h4><a target="_blank" href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->partner_name; ?></a></h4>
 														<h5><?php echo @$servlist->city.', '.@$servlist->country; ?></h5>
 														<span class="serv_office"><?php  echo @$PartnerBranch['name'];  ?></span>
 														<div class="course_details">
@@ -162,7 +162,7 @@
 															<h4><?php echo \App\Models\Product::where('partner', $servlist->id)->count(); ?></h4>
 														</div>
 														<div class="">
-															<a href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}?tab=product">View All {{@$subcat->name}}</a>
+															<a href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}?tab=product">View All {{@$subcat->name}}</a>
 														</div>
 													</div>
 												</div>
@@ -170,7 +170,7 @@
 												<div class="service_actions">
 													
 													<div class="serv_action_btns">
-														<a target="_blank" href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}" class="btn btn-outline-secondary view_full_detail">View Full Details</a>
+														<a target="_blank" href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}" class="btn btn-outline-secondary view_full_detail">View Full Details</a>
 														<a servicetype="partner" data-partner-name="{{@$servlist->partner_name}}" data-partner-id="{{@$servlist->id}}" href="javascript:;" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo @$workflow->name; ?>" data-workflow-id="<?php echo @$workflow->id; ?>" href="javascript:;" class="btn btn-outline-secondary interest_btn add_interested_service">Add To Interested Services</a>
 														
 													</div>
@@ -191,8 +191,8 @@
 														<a href="#"><i class="fas fa-shopping-cart"></i></a>
 													</div>
 													<div class="service_content"> 
-														<h4><a target="_blank" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->name; ?></a></h4>
-														<h5><a target="_blank" href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$partnerdetail->id)))}}"><?php echo @$partnerdetail->partner_name; ?></a></h5>
+														<h4><a target="_blank" href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}"><?php echo @$servlist->name; ?></a></h4>
+														<h5><a target="_blank" href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$partnerdetail->id)))}}"><?php echo @$partnerdetail->partner_name; ?></a></h5>
 														<span class="serv_office"><?php echo @$PartnerBranch->name; ?></span>
 														<div class="course_details">
 															<div class="course_row">
@@ -291,7 +291,7 @@
 														<span>Processed via <span>Super Agent</span></span>
 													</div>
 													<div class="serv_action_btns">
-														<a target="_blank" href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}" class="btn btn-outline-secondary view_full_detail">View Full Details</a>
+														<a target="_blank" href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}" class="btn btn-outline-secondary view_full_detail">View Full Details</a>
 														<a servicetype="product" data-partner-name="{{@$partnerdetail->partner_name}}" data-partner-id="{{@$partnerdetail->id}}" href="javascript:;" data-product-name="{{@$servlist->name}}" data-product-id="{{@$servlist->id}}" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo @$workflow->name; ?>" data-workflow-id="<?php echo @$workflow->id; ?>" href="javascript:;" class="btn btn-outline-secondary interest_btn add_interested_service">Add To Interested Services</a>
 														<a data-partner-name="{{@$partnerdetail->partner_name}}" data-partner-id="{{@$partnerdetail->id}}" href="javascript:;" data-product-name="{{@$servlist->name}}" data-product-id="{{$servlist->id}}" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo @$workflow->name; ?>" data-workflow-id="<?php echo $workflow->id; ?>" href="javascript:;" class="btn btn-primary add_application">Add To Application</a>
 														
@@ -453,7 +453,7 @@
 			</div>
 			<div class="modal-body">
 			<div style="margin-bottom: 20px;" class="custom-error-popupmsg"></div>
-				<form method="post" action="{{URL::to('/admin/savetoapplication')}}" name="addtoapplicationform" id="addtoapplicationform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/savetoapplication')}}" name="addtoapplicationform" id="addtoapplicationform" autocomplete="off" enctype="multipart/form-data">
 				@csrf 
 				
 					<div class="row">
@@ -556,11 +556,11 @@
 			<div class="modal-body">
 				 <div class="col-md-12">	
 					<h5>Partners</h5>
-					<a href="{{URL::to('admin/partners/create')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Add New Partner</a>
+					<a href="{{URL::to('partners/create')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Add New Partner</a>
 				 </div>
 				  <div class="col-md-12" style="margin-top: 20px!important;">
 				  <h5>Products</h5>
-					<a href="{{URL::to('admin/products/create')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Add New Product</a>
+					<a href="{{URL::to('products/create')}}" style="background-color: transparent;color: #9c9c9c;fill: #9c9c9c;width: 48%;border: 1px solid #9c9c9c;display: inline-flex;" class="btn btn-info defaultButton ghostButton">Add New Product</a>
 				 </div>
 			</div>
 		</div>
@@ -631,7 +631,7 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 		var v = $('#getpartnertype option:selected').val();
 		$.ajax({
-			url: '{{URL::to('/admin/getsubcategories')}}',
+			url: '{{URL::to('/getsubcategories')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -644,7 +644,7 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 		var v = $('.productselect2 option:selected').val();
 		$.ajax({
-			url: '{{URL::to('/admin/getproductbranch')}}',
+			url: '{{URL::to('/getproductbranch')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
@@ -678,7 +678,7 @@ jQuery(document).ready(function($){
 		 $('#add_interested_service').modal('show');
 		$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/getservicemodal')}}',
+			url: '{{URL::to('/getservicemodal')}}',
 			type:'GET',
 			data:{servicetype:servicetype,partnerid:partnerid},
 			success:function(response){

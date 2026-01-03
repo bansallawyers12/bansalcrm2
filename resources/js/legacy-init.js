@@ -55,12 +55,12 @@
                 var appliid = $(this).attr('data-id');
                 $('.popuploader').show();
                 $.ajax({
-                    url: site_url+'/admin/update_visit_purpose',
+                    url: site_url+'/update_visit_purpose',
                     type:'POST',
                     data:{id: appliid,visit_purpose:visitpurpose},
                     success: function(responses){
                          $.ajax({
-                            url: site_url+'/admin/get-checkin-detail',
+                            url: site_url+'/get-checkin-detail',
                             type:'GET',
                             data:{id: appliid},
                             success: function(res){
@@ -78,14 +78,14 @@
                 var appliid = $(this).attr('data-id');
                 $('.popuploader').show();
                 $.ajax({
-                    url: site_url+'/admin/update_visit_comment',
+                    url: site_url+'/update_visit_comment',
                     type:'POST',
                     data:{id: appliid,visit_comment:visitcomment},
                     success: function(responses){
                         // $('.popuploader').hide();
                         $('.visit_comment').val('');
                         $.ajax({
-                            url: site_url+'/admin/get-checkin-detail',
+                            url: site_url+'/get-checkin-detail',
                             type:'GET',
                             data:{id: appliid},
                             success: function(res){
@@ -101,7 +101,7 @@
                 var appliid = $(this).attr('data-id');
                 $('.popuploader').show();
                 $.ajax({
-                    url: site_url+'/admin/attend_session',
+                    url: site_url+'/attend_session',
                     type:'POST',
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data:{id: appliid,waitcountdata: $('#waitcountdata').val()},
@@ -109,7 +109,7 @@
                          var obj = $.parseJSON(response);
                         if(obj.status){
                             $.ajax({
-                            url: site_url+'/admin/get-checkin-detail',
+                            url: site_url+'/get-checkin-detail',
                             type:'GET',
                             data:{id: appliid},
                             success: function(res){
@@ -131,7 +131,7 @@
                 console.log('Complete Session clicked - ID:', appliid, 'Attend Count:', attendcountdata);
                 $('.popuploader').show();
                 $.ajax({
-                    url: site_url+'/admin/complete_session',
+                    url: site_url+'/complete_session',
                     type:'POST',
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data:{id: appliid, attendcountdata: attendcountdata},
@@ -141,7 +141,7 @@
                             var obj = $.parseJSON(response);
                             if(obj.status){
                                 $.ajax({
-                                    url: site_url+'/admin/get-checkin-detail',
+                                    url: site_url+'/get-checkin-detail',
                                     type:'GET',
                                     data:{id: appliid},
                                     success: function(res){
@@ -179,7 +179,7 @@
                 $('.popuploader').show();
                 var appliid = $(this).attr('id');
                 $.ajax({
-                        url: site_url+'/admin/get-checkin-detail',
+                        url: site_url+'/get-checkin-detail',
                         type:'GET',
                         data:{id: appliid},
                         success: function(responses){
@@ -708,13 +708,13 @@
     $(document).ready(function(){
         if (document.getElementById('countbell_notification')) {
             document.getElementById('countbell_notification').parentNode.addEventListener('click', function(event){
-                window.location = "/admin/all-notifications";
+                window.location = "/all-notifications";
             });
         }
         
         function load_unseen_notification(view = '') {
             $.ajax({
-                url: site_url + "/admin/fetch-notification",
+                url: site_url + "/fetch-notification",
                 method:"GET",
                 dataType:"json",
                 success:function(data) {
@@ -729,7 +729,7 @@
             load_unseen_notification();
             var playing = false;
             $.ajax({
-                url: site_url + "/admin/fetch-messages",
+                url: site_url + "/fetch-messages",
                 method:"GET",
                 success:function(data) {
                     if(data != 0){

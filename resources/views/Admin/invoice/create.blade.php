@@ -51,7 +51,7 @@
 					  <!-- /.card-header -->
 						<div class="card-body">
 							<!-- form start -->
-							{!! Form::open(array('url' => 'admin/invoice/store', 'name'=>"add-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+							{!! Form::open(array('url' => 'invoice/store', 'name'=>"add-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 								<div class="form-group" style="text-align:right;">
 									<a style="margin-right:5px;" href="{{route('admin.invoice.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
 									{!! Form::button('<i class="fa fa-save"></i> Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")' ])  !!}
@@ -381,7 +381,7 @@
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>
-			{!! Form::open(array('url' => 'admin/contact/add', 'name'=>"add-customer", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'addcustomer'))  !!}
+			{!! Form::open(array('url' => 'contact/add', 'name'=>"add-customer", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'addcustomer'))  !!}
 			<div class="modal-body">
 				<div class="customerror"></div>
 				<div class="form-group row">  
@@ -448,7 +448,7 @@
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>
-			{!! Form::open(array('url' => 'admin/contact/storeaddress', 'name'=>"add-billingdetail", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'updatebillingdetail'))  !!}
+			{!! Form::open(array('url' => 'contact/storeaddress', 'name'=>"add-billingdetail", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>'updatebillingdetail'))  !!}
 			<div class="modal-body">
 				
 					<input type="hidden" value="" name="customer_id" id="customer_id">

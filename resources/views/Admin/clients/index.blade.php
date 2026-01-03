@@ -110,7 +110,7 @@
 									<a class="nav-link active" id="clients-tab"  href="{{URL::to('/clients')}}" >Clients</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="archived-tab"  href="{{URL::to('/admin/archived')}}" >Archived</a>
+									<a class="nav-link" id="archived-tab"  href="{{URL::to('/archived')}}" >Archived</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent">	
@@ -207,7 +207,7 @@
 													<?php
 													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
 													?>
-													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
+													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
 													<td style="white-space: initial;">
 													<?php if($list->tagname != ''){ 
 													$rs = explode(',', $list->tagname);
@@ -324,7 +324,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
@@ -661,7 +661,7 @@ $(document).delegate('.clientemail', 'click', function(){
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},

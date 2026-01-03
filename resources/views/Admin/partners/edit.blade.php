@@ -6,7 +6,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/partners/edit', 'method' => 'post', 'name'=>"edit-partner", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'partners/edit', 'method' => 'post', 'name'=>"edit-partner", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Edit Partners</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.partners.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('partners.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -811,7 +811,7 @@ jQuery(document).ready(function($){
 		$('.popuploader').show();
 		var v = $('#getpartnertype option:selected').val();
 		$.ajax({
-			url: '{{URL::to('/admin/getpaymenttype')}}',
+			url: '{{URL::to('/getpaymenttype')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){

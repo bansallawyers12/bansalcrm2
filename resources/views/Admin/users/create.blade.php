@@ -11,7 +11,7 @@
 			</div>
 			<div class="custom-error-msg">
 			</div>
-			{!! Form::open(array('url' => 'admin/users/store', 'name'=>"edit-user", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'users/store', 'name'=>"edit-user", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">

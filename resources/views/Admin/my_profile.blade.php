@@ -10,7 +10,7 @@
 			</div>
 			<div class="custom-error-msg"></div>
 			
-			{!! Form::open(array('url' => 'admin/my_profile', 'name'=>"my-profile", 'enctype'=>'multipart/form-data'))  !!}
+			{!! Form::open(array('url' => 'my_profile', 'name'=>"my-profile", 'enctype'=>'multipart/form-data'))  !!}
 			{!! Form::hidden('id', $fetchedData->id)  !!}
 			
 			<div class="row">

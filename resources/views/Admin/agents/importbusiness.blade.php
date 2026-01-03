@@ -26,7 +26,7 @@
 							<p>This approach allows you to import your huge amount of existing business agents at once</p>
 							<div class="tab-content" id="clientContent">	
 								<div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
-								{!! Form::open(array('url' => 'admin/agents/import/business', 'name'=>"add-agents", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+								{!! Form::open(array('url' => 'agents/import/business', 'name'=>"add-agents", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 								<input class="form-check-input" type="hidden" id="struture" value="buisness" name="struture">
 										<div class="row"> 
 											<div class="col-6 col-md-6 col-lg-6">

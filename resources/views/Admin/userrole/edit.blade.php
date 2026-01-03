@@ -10,7 +10,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body"> 
-			{!! Form::open(array('url' => 'admin/userrole/edit', 'name'=>"edit-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'userrole/edit', 'name'=>"edit-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			  {!! Form::hidden('id', @$fetchedData->id)  !!}
 				
 				<div class="row">

@@ -73,10 +73,10 @@
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="prospects-tab"  href="{{URL::to('/admin/invoice/unpaid')}}" >Unpaid Invoices</a>
+									<a class="nav-link active" id="prospects-tab"  href="{{URL::to('/invoice/unpaid')}}" >Unpaid Invoices</a>
 								</li>
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link " id="clients-tab"  href="{{URL::to('/admin/invoice/paid')}}" >Paid Invoices</a>
+									<a class="nav-link " id="clients-tab"  href="{{URL::to('/invoice/paid')}}" >Paid Invoices</a>
 								</li>
 							
 							</ul> 
@@ -140,8 +140,8 @@
 												?>
 												<tr id="id_<?php echo $invoicelist->id; ?>">
 													<td><?php echo $invoicelist->invoice_no; ?></td>
-													<td style="white-space: initial;"><a href="{{URL::to('admin/invoice/view/')}}/<?php echo $invoicelist->id; ?>">{{date('d/m/Y', strtotime($invoicelist->invoice_date))}}<?php //echo $invoicelist->invoice_date; ?></a></td>
-													<td style="white-space: initial;"><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdata->id))}}">{{@$clientdata->first_name}} {{@$clientdata->last_name}}</a></td>
+													<td style="white-space: initial;"><a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>">{{date('d/m/Y', strtotime($invoicelist->invoice_date))}}<?php //echo $invoicelist->invoice_date; ?></a></td>
+													<td style="white-space: initial;"><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdata->id))}}">{{@$clientdata->first_name}} {{@$clientdata->last_name}}</a></td>
 													<td style="white-space: initial;"><a href="">{{@$admindata->first_name}}</a></td>
 													<td style="white-space: initial;">{{@$partnerdata->partner_name}}</td>
 													<td style="white-space: initial;">{{@$workflowdaa->name}}</td>
@@ -150,9 +150,9 @@
 													<td><?php echo $totaldue; ?></td>
 													<td>{{date('d/m/Y', strtotime($invoicelist->due_date))}} <?php //echo $invoicelist->due_date; ?></td>
 													<td>
-													<a href="{{URL::to('admin/invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-eye"></i></a>
-													<a class="clientemail" data-id="{{$invoicelist->id}}" data-rec-name="invoice_{{$invoicelist->id}}.pdf" data-href="{{URL::to('admin/invoice/preview/')}}/{{@$invoicelist->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" href="javascript:;"><i class="fa fa-envelope"></i></a>
-													<a href="{{URL::to('admin/invoice/edit/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-edit"></i></a>
+													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-eye"></i></a>
+													<a class="clientemail" data-id="{{$invoicelist->id}}" data-rec-name="invoice_{{$invoicelist->id}}.pdf" data-href="{{URL::to('invoice/preview/')}}/{{@$invoicelist->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" href="javascript:;"><i class="fa fa-envelope"></i></a>
+													<a href="{{URL::to('invoice/edit/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-edit"></i></a>
 													<a href="javascript:;" class="openpaymentform" data-netamount="{{$netamount}}" data-dueamount="{{$totaldue}}" data-invoiceid="{{$invoicelist->id}}">$</a>
 													<a data-id="{{$invoicelist->id}}" href="javascript:;" class="deleteinvoice"><i class="fa fa-trash"></i></a>
 													</td>
@@ -187,7 +187,7 @@
 </div>
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"invoicepaymentform"))  !!}
+	{!! Form::open(array('url' => 'invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", "id"=>"invoicepaymentform"))  !!}
 	<input type="hidden" value="" name="invoice_id" id="invoice_id">
 	<input type="hidden" value="false" name="is_ajax">
 	
@@ -267,7 +267,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="type" value="client">
 					<div class="row">
@@ -392,7 +392,7 @@ jQuery(document).ready(function($){
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/delete-invoice',
+			url: '{{URL::to('/')}}/delete-invoice',
 			type:'GET',
 			datatype:'json',
 			data:{id:notid},
@@ -482,7 +482,7 @@ jQuery(document).ready(function($){
 	$(document).delegate('.selecttemplate', 'change', function(){
 		var v = $(this).val();
 		$.ajax({
-			url: '{{URL::to('/admin/get-templates')}}',
+			url: '{{URL::to('/get-templates')}}',
 			type:'GET',
 			datatype:'json',
 			data:{id:v},
@@ -501,7 +501,7 @@ jQuery(document).ready(function($){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -521,7 +521,7 @@ jQuery(document).ready(function($){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'

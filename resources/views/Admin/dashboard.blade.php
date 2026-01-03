@@ -117,7 +117,7 @@
 									<div class="card-content">
 										<h5 class="font-14">Today Followup</h5>
 										<h2 class="mb-3 font-18">{{$todayFollowupCount}}</h2>
-										<p class="mb-0"><span class="col-green">{{$todayFollowupCount}}</span> <a href="{{URL::to('/admin/followup-dates/')}}">click here</a></p>
+										<p class="mb-0"><span class="col-green">{{$todayFollowupCount}}</span> <a href="{{URL::to('/followup-dates/')}}">click here</a></p>
 									</div>
 								</div>
 							</div>
@@ -264,7 +264,7 @@
                                     @else
                                     @foreach($notesData as $note)
                                     <tr>
-                                        <td><a href="{{URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode(@$note->client_id)) )}}">{{ @$note->partner_name == "" ? config('constants.empty') : str_limit(@$note->partner_name, '50', '...') }}</a></td>
+                                        <td><a href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$note->client_id)) )}}">{{ @$note->partner_name == "" ? config('constants.empty') : str_limit(@$note->partner_name, '50', '...') }}</a></td>
                                         <td><?php echo preg_replace('/<\/?p>/', '', $note->description ); ?></td>
                                         <td>{{ $note->formatted_deadline ?? 'N/A' }}</td>
                                         <td>{{ $note->formatted_created_at ?? 'N/A' }}</td>
@@ -348,7 +348,7 @@ $(document).ready(function() {
     // Task filter change handler
     $('#task_filter').on('change', function() {
         var filter = $(this).val();
-        window.location.href = '{{URL::to('/admin/dashboard')}}?task_filter=' + filter;
+        window.location.href = '{{URL::to('/dashboard')}}?task_filter=' + filter;
     });
 
     if (typeof flatpickr !== 'undefined') {

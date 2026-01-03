@@ -275,9 +275,9 @@ class InvoiceController extends Controller
 						<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 						<div class="dropdown-menu">
 							<a class="dropdown-item has-icon" href="#">Send Email</a>
-							<a target="_blank" class="dropdown-item has-icon" href="<?php echo \URL::to('admin/invoice/view/'); ?>/<?php echo $invoicelist->id; ?>">View</a>
+							<a target="_blank" class="dropdown-item has-icon" href="<?php echo \URL::to('invoice/view/'); ?>/<?php echo $invoicelist->id; ?>">View</a>
 							<?php if($invoicelist->status == 0){ ?>
-							<a target="_blank" class="dropdown-item has-icon" href="<?php echo \URL::to('admin/invoice/edit/'); ?>/<?php echo $invoicelist->id; ?>">Edit</a>
+							<a target="_blank" class="dropdown-item has-icon" href="<?php echo \URL::to('invoice/edit/'); ?>/<?php echo $invoicelist->id; ?>">Edit</a>
 							<a data-netamount="<?php echo $netamount; ?>" data-dueamount="<?php echo $totaldue; ?>" data-invoiceid="<?php echo $invoicelist->id; ?>" class="dropdown-item has-icon addpaymentmodal" href="javascript:;"> Make Payment</a>
 							<?php } ?>
 						</div>

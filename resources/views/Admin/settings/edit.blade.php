@@ -56,7 +56,7 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/settings/taxes/taxrates/edit', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::open(array('url' => 'settings/taxes/taxrates/edit', 'name'=>"add-city", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 					  {!! Form::hidden('id', @$fetchedData->id)  !!}
 						<div class="card-body">
 							<div class="row">

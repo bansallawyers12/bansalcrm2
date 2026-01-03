@@ -43,7 +43,7 @@
 				</div>
 			</div>
 			<!-- form start -->
-			{!! Form::open(array('url' => 'admin/contact/edit', 'name'=>"edit-contacts", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => 'contact/edit', 'name'=>"edit-contacts", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">
 					<div class="col-md-12">

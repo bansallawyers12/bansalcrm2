@@ -40,10 +40,10 @@
 						<div class="card-body">
 							<ul class="nav nav-pills" id="checkin_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link" id="forecast_application-tab"  href="{{URL::to('/admin/report/sale-forecast/application')}}" >Application</a>
+									<a class="nav-link" id="forecast_application-tab"  href="{{URL::to('/report/sale-forecast/application')}}" >Application</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link active" id="interested_service-tab"  href="{{URL::to('/admin/report/sale-forecast/interested-service')}}" >Interested Service</a>
+									<a class="nav-link active" id="interested_service-tab"  href="{{URL::to('/report/sale-forecast/interested-service')}}" >Interested Service</a>
 								</li>								
 							</ul> 
 							<div class="tab-content" id="checkinContent">
@@ -87,8 +87,8 @@
 															<label for="checkbox-{{$i}}" class="custom-control-label">&nbsp;</label>
 														</div>
 													</td>
-													<td><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$list->id}}">{{ @$list->id == "" ? config('constants.empty') : str_limit(@$list->id, '50', '...') }}</a></td> 
-													<td><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a></td> 
+													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$list->id}}">{{ @$list->id == "" ? config('constants.empty') : str_limit(@$list->id, '50', '...') }}</a></td> 
+													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a></td> 
 													<td>{{ @$list->intakedate == "" ? config('constants.empty') : str_limit(@$list->intakedate, '50', '...') }} </td>
 													<td><a data-id="{{@$list->id}}" data-email="{{@$clientdetail->email}}" data-name="{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}" href="javascript:;" class="clientemail">{{ @$clientdetail->email == "" ? config('constants.empty') : str_limit(@$clientdetail->email, '50', '...') }}</a></td>
 													<td>-</td>

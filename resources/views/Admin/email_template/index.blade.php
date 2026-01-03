@@ -89,7 +89,7 @@
 									<div class="nav-item dropdown action_dropdown">
 										<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><span class="caret"></span></a>
 										<div class="dropdown-menu">
-											<a href="{{URL::to('/admin/edit_email_template/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
+											<a href="{{URL::to('/edit_email_template/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a>
 											
 										</div>
 									</div>

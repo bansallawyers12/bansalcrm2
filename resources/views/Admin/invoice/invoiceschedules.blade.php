@@ -28,7 +28,7 @@
 						<div class="card-body">							
 							<ul class="nav nav-pills" id="invoice_tabs" role="tablist">
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="invoiceschedule-tab"  href="{{URL::to('/admin/invoice-schedules')}}" >Invoice Schedule</a>
+									<a class="nav-link active" id="invoiceschedule-tab"  href="{{URL::to('/invoice-schedules')}}" >Invoice Schedule</a>
 								</li> 						
 							</ul> 
 							<div class="tab-content" id="clientContent">
@@ -66,7 +66,7 @@
 												@endphp
 												<tr id="id_{{@$list->id}}">
 													<td>{{$list->id}}</td>
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id ?? ''))}}">{{@$clientdetail->first_name ?? ''}} {{@$clientdetail->last_name ?? ''}}</a><br>{{@$clientdetail->email ?? ''}}</td>
+													<td style="white-space: initial;"><a href="{{URL::to('/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id ?? ''))}}">{{@$clientdetail->first_name ?? ''}} {{@$clientdetail->last_name ?? ''}}</a><br>{{@$clientdetail->email ?? ''}}</td>
 													<td style="white-space: initial;">{{@$productdetail->name ?? 'N/A'}}<br>{{@$partnerdetail->partner_name ?? 'N/A'}}<br>{{@$PartnerBranch->name ?? 'N/A'}}</td>
 													<td style="white-space: initial;">{{@$application->stage ?? 'N/A'}} <br/>({{@$Workflow->name ?? 'N/A'}})</td>
 													<td style="white-space: initial;">{{$list->installment_name}}</td>
@@ -129,7 +129,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/paymentschedule')}}" name="invpaymentschedule"  autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/paymentschedule')}}" name="invpaymentschedule"  autocomplete="off" enctype="multipart/form-data">
 				@csrf 
 	
 					<div class="row">
@@ -310,7 +310,7 @@
 				</button>
 			</div>
 		<div class="modal-body">
-		<form method="post" action="{{URL::to('/admin/create-invoice')}}" name="createinvoive"  autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="{{URL::to('/create-invoice')}}" name="createinvoive"  autocomplete="off" enctype="multipart/form-data">
 			@csrf 
 			<input type="hidden" name="client_id" id="invoice_client_id">
 			<input type="hidden" name="application" id="app_id">
@@ -479,7 +479,7 @@ jQuery(document).ready(function($){
 		$('#openeditform').modal('show');
 		$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/scheduleinvoicedetail')}}',
+			url: '{{URL::to('/scheduleinvoicedetail')}}',
 			type: 'GET',
 			data: {id: $(this).attr('data-id')},
 			success: function(res){
@@ -495,7 +495,7 @@ jQuery(document).ready(function($){
 	$('#application').html('<option value="">Select Client Name</option>');
 	$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/application/getapplicationbycid')}}',
+			url: '{{URL::to('/application/getapplicationbycid')}}',
 			type: 'GET',
 			data: {clientid: $('#clientname option:selected').val()},
 			success: function(res){
@@ -509,7 +509,7 @@ jQuery(document).ready(function($){
 	$('#editapplication').html('<option value="">Select Client Name</option>');
 	$('.popuploader').show();
 		$.ajax({
-			url: '{{URL::to('/admin/application/getapplicationbycid')}}',
+			url: '{{URL::to('/application/getapplicationbycid')}}',
 			type: 'GET',
 			data: {clientid: $('#editclientname option:selected').val()},
 			success: function(res){

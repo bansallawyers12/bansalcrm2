@@ -48,7 +48,7 @@
 				  </div>
 				  <!-- /.card-header -->
 				  <!-- form start -->
-				  <form action="{{ url('admin/staff/edit') }}" method="POST" name="edit-staff" autocomplete="off" enctype="multipart/form-data">
+				  <form action="{{ url('staff/edit') }}" method="POST" name="edit-staff" autocomplete="off" enctype="multipart/form-data">
 					@csrf
 					<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 						<div class="card-body">	

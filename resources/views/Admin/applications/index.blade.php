@@ -31,20 +31,20 @@
 						<div class="card-body">
                             <ul class="nav nav-pills" id="application_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link" id="applications-tab"  href="{{URL::to('/admin/applications')}}" >All</a>
+									<a class="nav-link" id="applications-tab"  href="{{URL::to('/applications')}}" >All</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="applications-overdue-tab"  href="{{URL::to('/admin/applications-overdue')}}" >Overdue</a>
+									<a class="nav-link" id="applications-overdue-tab"  href="{{URL::to('/applications-overdue')}}" >Overdue</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" id="applications-finalize-tab"  href="{{URL::to('/admin/applications-finalize')}}" >Finalized</a>
+									<a class="nav-link" id="applications-finalize-tab"  href="{{URL::to('/applications-finalize')}}" >Finalized</a>
 								</li>
 							</ul>
                           
 						    <div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/admin/applications')}}" method="get">
+								<form action="{{URL::to('/applications')}}" method="get">
 									<div class="row">
 										<div class="col-md-4">
 											<div class="form-group">
@@ -102,7 +102,7 @@
 									<div class="row">
 										<div class="col-md-12 text-center">
                                             {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/admin/applications')}}">Reset</a>
+											<a class="btn btn-info" href="{{URL::to('/applications')}}">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -142,8 +142,8 @@
 									?>
 									<tbody class="tdata">	 
 										<tr id="id_{{@$list->id}}">
-											<td  style="white-space: initial;"><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$list->id}}">{{ @$list->id == "" ? config('constants.empty') : str_limit(@$list->id, '50', '...') }}</a></td> 
-											<td  style="white-space: initial;"><a href="{{URL::to('admin/clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><!--<br/>-->{{--@$clientdetail->email--}}</td> 
+											<td  style="white-space: initial;"><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$list->id}}">{{ @$list->id == "" ? config('constants.empty') : str_limit(@$list->id, '50', '...') }}</a></td> 
+											<td  style="white-space: initial;"><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a><!--<br/>-->{{--@$clientdetail->email--}}</td> 
 										
 											{{--<td>{{@$clientdetail->phone}}</td>--}}
 											<td  style="white-space: initial;">{{@$list->application_assignee->first_name}}</td> 
@@ -177,7 +177,7 @@
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
-													<a class="dropdown-item has-icon" href="{{URL::to('/admin/applications/detail/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-eye"></i> View Detail</a>
+													<a class="dropdown-item has-icon" href="{{URL::to('/applications/detail/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-eye"></i> View Detail</a>
 													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'applications')"><i class="fas fa-trash"></i> Delete</a>
 												</div>
 											</div>								  
@@ -216,7 +216,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="POST" action="{{URL::to('/admin/applications-import')}}"  enctype="multipart/form-data">
+				<form method="POST" action="{{URL::to('/applications-import')}}"  enctype="multipart/form-data">
 				@csrf
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">

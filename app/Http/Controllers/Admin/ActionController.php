@@ -433,7 +433,7 @@ class ActionController extends Controller
                         $user_name .= "\n";
 
                         $client_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                        $user_name .= '<a href="'.url('/admin/clients/detail/'.$client_encoded_id).'" target="_blank" >'.$data->noteClient->client_id.'</a>';
+                        $user_name .= '<a href="'.route('clients.detail', $client_encoded_id).'" target="_blank" >'.$data->noteClient->client_id.'</a>';
                     } else {
                         $user_name = 'N/P';
                     }
@@ -445,7 +445,7 @@ class ActionController extends Controller
                         $user_name .= "\n";
 
                         $partner_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                        $user_name .= '<a href="'.url('/admin/partners/detail/'.$partner_encoded_id).'" target="_blank" >'.$partnerInfo->partner_name.'</a>';
+                        $user_name .= '<a href="'.route('partners.detail', $partner_encoded_id).'" target="_blank" >'.$partnerInfo->partner_name.'</a>';
                     } else {
                         $user_name = 'N/P';
                     }

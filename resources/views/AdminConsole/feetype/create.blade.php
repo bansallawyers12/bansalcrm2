@@ -7,7 +7,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'admin/feetype/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'adminconsole/feetype/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">

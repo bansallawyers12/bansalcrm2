@@ -32,14 +32,14 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 					<div class="card-header">
 						<h4>Leads</h4>
 						<div class="card-header-action">
-							<a href="{{route('admin.leads.create')}}" class="btn btn-primary">Add Lead</a>
+							<a href="{{route('leads.create')}}" class="btn btn-primary">Add Lead</a>
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 						</div>
 					</div>
 						<div class="card-body">
 						    <div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/admin/leads')}}" method="get">
+								<form action="{{URL::to('/leads')}}" method="get">
 									<div class="row">
 									<div class="col-md-4">
 											<div class="form-group">
@@ -88,7 +88,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										<div class="col-md-12 text-center">
 									
 											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/admin/leads')}}">Reset</a>
+											<a class="btn btn-info" href="{{URL::to('/leads')}}">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -113,7 +113,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 
 										?> 
 										<tr id="id_{{@$list->id}}">
-											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('admin.leads.detail', base64_encode(convert_uuencode(@$list->id)))}}">Lead - {{str_pad($list->id, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
+											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode(@$list->id)))}}">Lead - {{str_pad($list->id, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
 										
 											{{@$list->created_at}}
 											<?php
@@ -121,7 +121,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											if($assigneduser){
 											    ?>
 											    <br>
-											   Assigned: <a target="_blank" href="{{URL::to('/admin/users/view')}}/{{$assigneduser->id}}">{{$assigneduser->first_name}} {{$assigneduser->first_name}}</a> 
+											   Assigned: <a target="_blank" href="{{URL::to('/users/view')}}/{{$assigneduser->id}}">{{$assigneduser->first_name}} {{$assigneduser->first_name}}</a> 
 											    <?php
 											}else{ echo '-'; }
 											?>
@@ -147,10 +147,10 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 													<div class="dropdown-menu">
-														<a class="dropdown-item has-icon" href="{{route('admin.leads.detail', base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-eye"></i> View Details</a>
+														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-eye"></i> View Details</a>
 														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-edit"></i> Assign To</a>
 										@if($list->converted == 0)
-											<a class="dropdown-item has-icon" href="{{URL::to('/admin/leads/convert/'.@$list->id)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	
+											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.@$list->id)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	
 											@endif
 													</div>
 												</div>	
@@ -188,7 +188,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 					<span aria-hidden="true">&times;</span>
 				  </button>
 			</div>
-			{!! Form::open(array('url' => 'admin/leads/assign', 'name'=>"add-assign", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
+			{!! Form::open(array('url' => 'leads/assign', 'name'=>"add-assign", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"addnoteform"))  !!}
 			<div class="modal-body">
 				<div class="form-group row">
 					<div class="col-sm-12">

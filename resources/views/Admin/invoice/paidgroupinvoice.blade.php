@@ -25,10 +25,10 @@
 						<div class="card-body">							
 							<ul class="nav nav-pills" id="invoice_tabs" role="tablist">
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="unpaid-tab"  href="{{URL::to('/admin/group-invoice/unpaid')}}" >Unpaid</a>
+									<a class="nav-link" id="unpaid-tab"  href="{{URL::to('/group-invoice/unpaid')}}" >Unpaid</a>
 								</li> 
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="paid-tab"  href="{{URL::to('/admin/group-invoice/paid')}}" >Paid</a>
+									<a class="nav-link active" id="paid-tab"  href="{{URL::to('/group-invoice/paid')}}" >Paid</a>
 								</li>							
 							</ul> 
 							<div class="tab-content" id="clientContent">
@@ -94,7 +94,7 @@
 			<div class="modal-body">
 	
 				<p>Invoices will be created for Gross Unpaid Invoices Only.</p>
-				<form method="post" action="{{URL::to('/admin/addgroupinvoice')}}" name="addgroupinvoice" id="addgroupinvoice" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/addgroupinvoice')}}" name="addgroupinvoice" id="addgroupinvoice" autocomplete="off" enctype="multipart/form-data">
 				@csrf 
 				
 					<div class="row">

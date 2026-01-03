@@ -577,12 +577,12 @@
 								<div class="row">
 									<div class="col-md-12">
 										<div class="invoice_btns text-end">
-											<a target="_blank" href="{{URL::to('admin/invoice/preview/')}}/{{$invoicedetail->id}}" class="btn btn-success">Preview & Print</a>
+											<a target="_blank" href="{{URL::to('invoice/preview/')}}/{{$invoicedetail->id}}" class="btn btn-success">Preview & Print</a>
 											
 											<button class="btn btn-primary addpaymentmodal" >Add Payment</button>
-											<a class="btn btn-secondary" href="{{URL::to('admin/invoice/edit/')}}/<?php echo $invoicedetail->id; ?>">Edit</a>
+											<a class="btn btn-secondary" href="{{URL::to('invoice/edit/')}}/<?php echo $invoicedetail->id; ?>">Edit</a>
 											
-											<button data-id="{{$invoicedetail->id}}" data-rec-name="invoice_{{$invoicedetail->id}}.pdf" data-href="{{URL::to('admin/invoice/preview/')}}/{{@$invoicedetail->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" class="btn btn-primary clientemail">Send</button>
+											<button data-id="{{$invoicedetail->id}}" data-rec-name="invoice_{{$invoicedetail->id}}.pdf" data-href="{{URL::to('invoice/preview/')}}/{{@$invoicedetail->id}}" data-cus-id="{{@$clientdata->id}}" data-email="{{@$clientdata->email}}" data-name="{{@$clientdata->first_name}} {{@$clientdata->last_name}}" class="btn btn-primary clientemail">Send</button>
 										</div>
 									</div>
 								</div>
@@ -604,7 +604,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="type" value="client">
 					<div class="row">
@@ -718,7 +718,7 @@
 
 <div id="addpaymentmodal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
-	{!! Form::open(array('url' => 'admin/invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+	{!! Form::open(array('url' => 'invoice/payment-store', 'name'=>"invoicepaymentform", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 	<input type="hidden" value="{{$invoicedetail->id}}" name="invoice_id">
 	<input type="hidden" value="false" name="is_ajax">
 		<div class="modal-content ">
@@ -845,7 +845,7 @@ $(document).delegate('.accepteducation', 'click', function(){
 		$('.popuploader').show(); 
 		$('#confirmEducationModal').modal('hide');
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/invoice/delete-payment',
+			url: '{{URL::to('/')}}/invoice/delete-payment',
 			type:'GET',
 			datatype:'json',
 			data:{pay_id:pid},
@@ -928,7 +928,7 @@ $(document).delegate('.accepteducation', 'click', function(){
 	$(document).delegate('.selecttemplate', 'change', function(){
 		var v = $(this).val();
 		$.ajax({
-			url: '{{URL::to('/admin/get-templates')}}',
+			url: '{{URL::to('/get-templates')}}',
 			type:'GET',
 			datatype:'json',
 			data:{id:v},
@@ -947,7 +947,7 @@ $(document).delegate('.accepteducation', 'click', function(){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -967,7 +967,7 @@ $(document).delegate('.accepteducation', 'click', function(){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'

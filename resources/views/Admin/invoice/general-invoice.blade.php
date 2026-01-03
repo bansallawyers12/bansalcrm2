@@ -26,7 +26,7 @@
 	
 	<section class="section">
 	<div class="section-body">
-	<form method="POST" action="{{ url('admin/invoice/general-store') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
+	<form method="POST" action="{{ url('invoice/general-store') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
 	@csrf
 	<input type="hidden" name="client_id" value="{{$clientid}}">
 	<input type="hidden" name="applicationid" value="{{$applicationid}}">
@@ -37,7 +37,7 @@
 							<div class="card-header">
 								<h4>Create General Invoice</h4>
 								<div class="card-header-action">
-									<a href="{{URL::to('admin/invoice/unpaid')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{URL::to('invoice/unpaid')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

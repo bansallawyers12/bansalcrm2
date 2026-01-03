@@ -47,8 +47,8 @@
 												<div class="dropdown d-inline">
 													<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 													<div class="dropdown-menu">
-														<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-eye"></i> View Receipt</a>
-														<a data-id="{{$list->id}}" data-rec-name="receipt_{{$list->id}}.pdf" data-href="{{URL::to('admin/payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}" data-cus-id="{{@$list->invoice->customer->id}}" data-email="{{@$list->invoice->customer->email}}" data-name="{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}" href="javascript:;" class="clientemail dropdown-item has-icon"><i class="far fa-envelope"></i> Email Receipt</a>
+														<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-eye"></i> View Receipt</a>
+														<a data-id="{{$list->id}}" data-rec-name="receipt_{{$list->id}}.pdf" data-href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$list->id))}}" data-cus-id="{{@$list->invoice->customer->id}}" data-email="{{@$list->invoice->customer->email}}" data-name="{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}" href="javascript:;" class="clientemail dropdown-item has-icon"><i class="far fa-envelope"></i> Email Receipt</a>
 													</div>
 												</div>		
 											</td>
@@ -86,7 +86,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="type" value="client">
 					<div class="row">
@@ -264,7 +264,7 @@ jQuery(document).ready(function($){
 	$(document).delegate('.selecttemplate', 'change', function(){
 		var v = $(this).val();
 		$.ajax({
-			url: '{{URL::to('/admin/get-templates')}}',
+			url: '{{URL::to('/get-templates')}}',
 			type:'GET',
 			datatype:'json',
 			data:{id:v},
@@ -283,7 +283,7 @@ jQuery(document).ready(function($){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -303,7 +303,7 @@ jQuery(document).ready(function($){
 		closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		ajax: {
-		url: '{{URL::to('/admin/clients/get-recipients')}}',
+		url: '{{URL::to('/clients/get-recipients')}}',
 		dataType: 'json',
 		processResults: function (data) {
 		  // Transforms the top-level key of the response object from 'items' to 'results'

@@ -8,10 +8,10 @@
 	<section class="section">
 		<div class="section-body">
 		    @if(@$fetchedData)
-			{!! Form::open(array('url' => 'admin/teams/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'teams/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 		    	<input type="hidden" name="id" value="{{$fetchedData->id}}">
 			@else
-			{!! Form::open(array('url' => 'admin/teams/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
+			{!! Form::open(array('url' => 'teams/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 			@endif
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
@@ -97,7 +97,7 @@
 											<span style="background-color:{{$list->color}};width: 40px;display: inline-block;">&nbsp;</span>						  
 										</td>
 										<td>
-										<a class="dropdown-item has-icon" href="{{URL::to('/admin/teams/edit/'.$list->id)}}" ><i class="fas fa-edit"></i> Edit</a>							  
+										<a class="dropdown-item has-icon" href="{{URL::to('/teams/edit/'.$list->id)}}" ><i class="fas fa-edit"></i> Edit</a>							  
 										</td>
 									</tr>	
 								@endforeach	 

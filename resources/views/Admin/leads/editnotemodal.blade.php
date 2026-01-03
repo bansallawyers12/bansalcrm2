@@ -1,4 +1,4 @@
-{!! Form::open(array('url' => 'admin/followup/update', 'name'=>"edit-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"editnoteform"))  !!}
+{!! Form::open(array('url' => 'followup/update', 'name'=>"edit-note", 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'id'=>"editnoteform"))  !!}
 
 	<div class="customerror"></div> 
 	<div class="form-group row">

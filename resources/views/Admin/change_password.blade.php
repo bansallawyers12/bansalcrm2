@@ -39,7 +39,7 @@
 						<div class="card-header">
 							<h3 class="card-title" style="display:block;">Change Password</h3>
 						</div>
-						{!! Form::open(array('url' => 'admin/change_password', 'name'=>"change-password"))  !!}
+						{!! Form::open(array('url' => 'change_password', 'name'=>"change-password"))  !!}
 							{!! Form::hidden('admin_id', @Auth::user()->id)  !!}
 							<div class="card-body">
 								<div class="form-group">

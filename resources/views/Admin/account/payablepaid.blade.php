@@ -25,20 +25,20 @@
 						<div class="card-body">							
 							<ul class="nav nav-pills" id="payable_tabs" role="tablist">
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link active" id="payables-tab"  href="{{URL::to('/admin/income-sharing/payables/unpaid')}}" >Payables</a>
+									<a class="nav-link active" id="payables-tab"  href="{{URL::to('/income-sharing/payables/unpaid')}}" >Payables</a>
 								</li> 
 								<li class="nav-item is_checked_clientn">
-									<a class="nav-link" id="receivables-tab"  href="{{URL::to('/admin/income-sharing/receivables/unpaid')}}" >Receivables</a>
+									<a class="nav-link" id="receivables-tab"  href="{{URL::to('/income-sharing/receivables/unpaid')}}" >Receivables</a>
 								</li> 	
 							</ul> 
 							<div class="tab-content" id="payableContent">
 								<div class="tab-pane fade show active" id="payables" role="tabpanel" aria-labelledby="payables-tab">
 									<ul class="nav nav-pills" id="paypaid_tabs" role="tablist">
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link" id="unpaid-tab"  href="{{URL::to('/admin/income-sharing/payables/unpaid')}}" >Unpaid</a>
+											<a class="nav-link" id="unpaid-tab"  href="{{URL::to('/income-sharing/payables/unpaid')}}" >Unpaid</a>
 										</li> 
 										<li class="nav-item is_checked_clientn">
-											<a class="nav-link active" id="paid-tab"  href="{{URL::to('/admin/income-sharing/payables/paid')}}" >Paid</a>
+											<a class="nav-link active" id="paid-tab"  href="{{URL::to('/income-sharing/payables/paid')}}" >Paid</a>
 										</li> 	
 									</ul>
 									<div class="tab-content" id="paypaidContent">
@@ -72,10 +72,10 @@
 															
 																										?>
 																										<tr id="id_{{$list->id}}">
-																<td><a href="{{URL::to('/admin/invoice/view/')}}/{{$list->invoice_id}}">{{@$list->invoice_id}}</a></td>
+																<td><a href="{{URL::to('/invoice/view/')}}/{{$list->invoice_id}}">{{@$list->invoice_id}}</a></td>
 																<td><a href="#">{{@$list->branch->office_name}}</a></td>
 																<td>-</td>
-																<td><a href="{{URL::to('/admin/clients/detail/')}}/{{base64_encode(convert_uuencode($list->invoice->customer->id))}}">{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}</a></td>
+																<td><a href="{{URL::to('/clients/detail/')}}/{{base64_encode(convert_uuencode($list->invoice->customer->id))}}">{{@$list->invoice->customer->first_name}} {{@$list->invoice->customer->last_name}}</a></td>
 																<td>{{date('d/m/Y', strtotime(@$list->invoice->customer->dob))}}</td>
 																<td>{{@$partnerdata->partner_name}}</td>
 																<td>{{@$productdata->name}}</td>
@@ -148,7 +148,7 @@ jQuery(document).ready(function($){
 	
 		$('.popuploader').show(); 
 		$.ajax({
-			url: '{{URL::to('/admin/')}}/revert-payment',
+			url: '{{URL::to('/')}}/revert-payment',
 			type:'GET',
 			datatype:'json',
 			data:{id:notid},

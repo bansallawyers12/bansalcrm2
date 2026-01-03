@@ -521,7 +521,7 @@ i[style*="color:rgba"] {
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="checkinmodalsave" id="checkinmodalsave" action="{{URL::to('/admin/checkin')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="checkinmodalsave" id="checkinmodalsave" action="{{URL::to('/checkin')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 			
 					<div class="row">

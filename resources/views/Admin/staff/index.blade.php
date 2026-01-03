@@ -68,7 +68,7 @@
 								  <td>{{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</td> 
 								  <td>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</td>  
 								  <td><input data-id="{{@$list->id}}"  data-status="{{@$list->status}}" data-col="status" data-table="admins" class="change-status" value="1" type="checkbox" name="is_active" {{ (@$list->status == 1 ? 'checked' : '')}} data-bootstrap-switch></td> 	
-								  <td><a href="{{URL::to('/admin/staff/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a> / <a href="javascript:;" onClick="deleteAction({{@$list->id}}, 'admins')"><i class="fa fa-trash"></i> Delete</a>
+								  <td><a href="{{URL::to('/staff/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-edit"></i> Edit</a> / <a href="javascript:;" onClick="deleteAction({{@$list->id}}, 'admins')"><i class="fa fa-trash"></i> Delete</a>
 								  </td>
 								</tr>	
 								@endforeach						

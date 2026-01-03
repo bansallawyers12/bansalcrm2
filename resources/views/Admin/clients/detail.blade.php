@@ -1446,7 +1446,7 @@ use App\Http\Controllers\Controller;
 																$explodeimg = explode('.',$fetch->myfile);
 																if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 																?>
-																	<a target="_blank" class="dropdown-item" href="{{URL::to('/admin/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
+																	<a target="_blank" class="dropdown-item" href="{{URL::to('/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
 																	<?php } ?>
 																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
 																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
@@ -1825,7 +1825,7 @@ use App\Http\Controllers\Controller;
 
 												<div class="left">
 													<div class="author">
-														<a href="{{URL::to('/admin/users/view/'.$admin->id)}}">{{substr($admin->first_name, 0, 1)}}</a>
+														<a href="{{URL::to('/users/view/'.$admin->id)}}">{{substr($admin->first_name, 0, 1)}}</a>
 													</div>
 													<div class="note_modify">
 														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>
@@ -2039,9 +2039,9 @@ use App\Http\Controllers\Controller;
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon" href="#">Send Email</a>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/view/')}}/{{$invoicelist->id}}">View</a>
+																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/view/')}}/{{$invoicelist->id}}">View</a>
 																<?php if($invoicelist->status == 0){ ?>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('admin/invoice/edit/')}}/{{$invoicelist->id}}">Edit</a>
+																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/edit/')}}/{{$invoicelist->id}}">Edit</a>
 																<a data-netamount="{{$netamount}}" data-dueamount="{{$totaldue}}" data-invoiceid="{{$invoicelist->id}}" class="dropdown-item has-icon addpaymentmodal" href="javascript:;"> Make Payment</a>
 																<?php } ?>
 															</div>
@@ -2147,7 +2147,7 @@ use App\Http\Controllers\Controller;
 															<span class="attach_label"><i class="fa fa-link"></i> Attachments:</span>
 															<div class="attach_file_list">
 																<div class="attach_col">
-																	<a href="{{URL::to('admin/payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
+																	<a href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
 																</div>
 															</div>
 														</div>
@@ -2231,7 +2231,7 @@ use App\Http\Controllers\Controller;
 															<span class="attach_label"><i class="fa fa-link"></i> Attachments:</span>
 															<div class="attach_file_list">
 																<div class="attach_col">
-																	<a href="{{URL::to('admin/payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
+																	<a href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
 																</div>
 															</div>
 														</div>
@@ -2450,7 +2450,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade" id="prevvisa" role="tabpanel" aria-labelledby="prevvisa-tab">
 									<div class="agreement_info">
 										<h4>Previous Visa Information</h4>
-										<form method="post"  action="{{URL::to('/admin/saveprevvisa')}}" autocomplete="off" name="saveprevvisa" id="saveprevvisa" enctype="multipart/form-data">
+										<form method="post"  action="{{URL::to('/saveprevvisa')}}" autocomplete="off" name="saveprevvisa" id="saveprevvisa" enctype="multipart/form-data">
 										@csrf
 										<?php
 										$prev_visa = array();
@@ -2574,7 +2574,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmail" action="{{URL::to('/admin/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
@@ -2843,7 +2843,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmsg" id="sendmsg" action="{{URL::to('/admin/sendmsg')}}" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" name="sendmsg" id="sendmsg" action="{{URL::to('/sendmsg')}}" autocomplete="off" enctype="multipart/form-data">
 				    @csrf
                     <input type="hidden" name="client_id" id="sendmsg_client_id" value="">
                     <input type="hidden" name="vtype" value="client">
@@ -2994,7 +2994,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/saleforcast')}}" name="saleforcast" id="saleforcast" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/saleforcast')}}" name="saleforcast" id="saleforcast" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="fapp_id" id="fapp_id" value="">
 					<div class="row">
@@ -3045,7 +3045,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/application_ownership')}}" name="xapplication_ownership" id="xapplication_ownership" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/application_ownership')}}" name="xapplication_ownership" id="xapplication_ownership" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="mapp_id" id="mapp_id" value="">
 					<div class="row">
@@ -3079,7 +3079,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/spagent_application')}}" name="spagent_application" id="spagent_application" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/spagent_application')}}" name="spagent_application" id="spagent_application" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="siapp_id" id="siapp_id" value="">
 					<div class="row">
@@ -3120,7 +3120,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/sbagent_application')}}" name="sbagent_application" id="sbagent_application" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/sbagent_application')}}" name="sbagent_application" id="sbagent_application" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="sbapp_id" id="sbapp_id" value="">
 					<div class="row">
@@ -3161,7 +3161,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/save_tag')}}" name="stags_application" id="stags_application" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/save_tag')}}" name="stags_application" id="stags_application" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" id="tags_client_id" value="">
 					<div class="row">
@@ -3237,7 +3237,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/saleforcast')}}" name="saleforcast" id="saleforcast" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/saleforcast')}}" name="saleforcast" id="saleforcast" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="fapp_id" id="fapp_id" value="">
 					<div class="row">
@@ -3288,7 +3288,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/admin/application/saleforcastservice')}}" name="saleforcastservice" id="saleforcastservice" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/application/saleforcastservice')}}" name="saleforcastservice" id="saleforcastservice" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="fapp_id" id="fapp_id" value="">
 					<div class="row">
@@ -3341,7 +3341,7 @@ use App\Http\Controllers\Controller;
 				</button>
 			</div>
 			<div class="modal-body">
-                <form method="post" action="{{URL::to('/admin/client/createservicetaken')}}" name="createservicetaken" id="createservicetaken" autocomplete="off" enctype="multipart/form-data">
+                <form method="post" action="{{URL::to('/client/createservicetaken')}}" name="createservicetaken" id="createservicetaken" autocomplete="off" enctype="multipart/form-data">
 				@csrf
                     <input id="logged_client_id" name="logged_client_id"  type="hidden" value="<?php echo $fetchedData->id;?>">
 					<div class="row">
@@ -3449,7 +3449,7 @@ if($fetchedData->tagname != ''){
         getActivities: '{{ url("/admin/get-activities") }}',
         getNotes: '{{ url("/admin/get-notes") }}',
         deleteActivityLog: '{{ url("/admin/deleteactivitylog") }}',
-        mailEnhance: '{{ route("admin.mail.enhance") }}',
+        mailEnhance: '{{ route("clients.enhanceMessage") }}',
         isGReviewMailSent: '{{ url("/admin/is_greview_mail_sent") }}',
         clientGetTopReceipt: '{{ url("/clients/getTopReceiptValInDB") }}',
         getTagData: '{{ url("/admin/gettagdata") }}',

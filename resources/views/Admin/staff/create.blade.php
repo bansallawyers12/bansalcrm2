@@ -48,7 +48,7 @@
 				  </div>
 				  <!-- /.card-header -->
 				  <!-- form start -->
-				  <form action="{{ url('admin/staff/store') }}" method="POST" name="add-staff" autocomplete="off" enctype="multipart/form-data">
+				  <form action="{{ url('staff/store') }}" method="POST" name="add-staff" autocomplete="off" enctype="multipart/form-data">
 					@csrf
 						<div class="card-body">	
 						  <div class="form-group"> 

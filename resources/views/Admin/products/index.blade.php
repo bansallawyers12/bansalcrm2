@@ -21,7 +21,7 @@
 						<div class="card-header">
 							<h4>All Products</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.products.create')}}" class="btn btn-primary">Create Product</a>
+								<a href="{{route('products.create')}}" class="btn btn-primary">Create Product</a>
 								<a href="#" class="btn btn-primary importmodal"> Import csv</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
@@ -29,7 +29,7 @@
 						<div class="card-body">
 						<div class="filter_panel">
 								<h4>Search By Details</h4>								
-								<form action="{{URL::to('/admin/products')}}" method="get">
+								<form action="{{URL::to('/products')}}" method="get">
 									<div class="row">
 										
 										<div class="col-md-4">
@@ -56,7 +56,7 @@
 										<div class="col-md-12 text-center">
 									
 											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-											<a class="btn btn-info" href="{{URL::to('/admin/products')}}">Reset</a>
+											<a class="btn btn-info" href="{{URL::to('/products')}}">Reset</a>
 										</div>
 									</div>
 								</form>
@@ -86,7 +86,7 @@
 													$partnerbranch = \App\Models\PartnerBranch::where('id', $list->branches)->first();
 												?>	
 												<tr id="id_{{@$list->id}}"> 
-													<td style="white-space: initial;"><a href="{{URL::to('/admin/products/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '30', '...') }}</a></td> 
+													<td style="white-space: initial;"><a href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '30', '...') }}</a></td> 
 													<td style="white-space: initial;"> - </td>
 													<td style="white-space: initial;">{{@$partner->partner_name}}</td> 
 													<td style="white-space: initial;">{{ @$list->product_type == "" ? config('constants.empty') : str_limit(@$list->product_type, '50', '...') }}</td>
@@ -97,7 +97,7 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="{{URL::to('/admin/products/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
+																<a class="dropdown-item has-icon" href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'products')"><i class="fas fa-trash"></i> Delete</a>
 															</div>
 														</div>								  
@@ -206,7 +206,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="POST" action="{{URL::to('/admin/products-import')}}"  enctype="multipart/form-data">
+				<form method="POST" action="{{URL::to('/products-import')}}"  enctype="multipart/form-data">
 				@csrf
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
@@ -397,7 +397,7 @@ $(document).delegate('.partneremail', 'click', function(){
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
-		url: '{{URL::to('/admin/get-templates')}}',
+		url: '{{URL::to('/get-templates')}}',
 		type:'GET',
 		datatype:'json',
 		data:{id:v},
@@ -416,7 +416,7 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/partners/get-recipients')}}',
+			url: '{{URL::to('/partners/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'
@@ -437,7 +437,7 @@ $('.js-data-example-ajaxcc').select2({
 		 closeOnSelect: false,
 		dropdownParent: $('#emailmodal'),
 		  ajax: {
-			url: '{{URL::to('/admin/partners/get-recipients')}}',
+			url: '{{URL::to('/partners/get-recipients')}}',
 			dataType: 'json',
 			processResults: function (data) {
 			  // Transforms the top-level key of the response object from 'items' to 'results'

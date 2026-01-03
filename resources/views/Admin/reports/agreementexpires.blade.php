@@ -51,7 +51,7 @@ foreach($partners as $partner){
         'start' => date("Y-m-d", strtotime($partner->contract_expiry)),
         'end' => date("Y-m-d", strtotime($partner->contract_expiry)),
         'displayDate' => date("F d, Y", strtotime($partner->contract_expiry)),
-        'url' => URL::to('/admin/partners/detail/'.base64_encode(convert_uuencode($partner->id))),
+        'url' => URL::to('/partners/detail/'.base64_encode(convert_uuencode($partner->id))),
         'backgroundColor' => "#00bcd4"
     ];
     $sched_res[$partner->id] = $row;

@@ -44,7 +44,7 @@
     						Client
     					</a>
     					<!-- Task system removed - December 2025 -->
-    					<!-- <a href="{{URL::to('/admin/tasks')}}" class="dropdown-item">
+    					<!-- <a href="{{URL::to('/tasks')}}" class="dropdown-item">
     						Task
     					</a> -->
     					<a href="#" class="dropdown-item">
@@ -153,7 +153,7 @@
 					
 				</div>
 				<div class="dropdown-footer text-center">
-					<a href="{{--URL::to('/admin/all-notifications')--}}">View All <i class="fas fa-chevron-right"></i></a>
+					<a href="{{--URL::to('/all-notifications')--}}">View All <i class="fas fa-chevron-right"></i></a>
 				</div>
 			</div>-->
 		</li>

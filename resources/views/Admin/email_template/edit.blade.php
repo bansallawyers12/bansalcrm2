@@ -48,7 +48,7 @@
 					  </div> 
 					  <!-- /.card-header -->
 					  <!-- form start -->
-					  {!! Form::open(array('url' => 'admin/edit_email_template', 'name'=>"edit-holidaytype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+					  {!! Form::open(array('url' => 'edit_email_template', 'name'=>"edit-holidaytype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 					   {!! Form::hidden('id', @$fetchedData->id)  !!}
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">

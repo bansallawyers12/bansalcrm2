@@ -54,19 +54,19 @@
 							<ul class="nav nav-pills" id="checkin_tabs" role="tablist">
 
 								<li class="nav-item">
-									<a class="nav-link active" id="waiting-tab"  href="{{URL::to('/admin/office-visits/waiting')}}" >Waiting <span class="countAction">{{ $InPersonCount_waiting_type }}</span></a>
+									<a class="nav-link active" id="waiting-tab"  href="{{URL::to('/office-visits/waiting')}}" >Waiting <span class="countAction">{{ $InPersonCount_waiting_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="attending-tab"  href="{{URL::to('/admin/office-visits/attending')}}" >Attending <span class="countAction">{{ $InPersonCount_attending_type }}</span></a>
+									<a class="nav-link" id="attending-tab"  href="{{URL::to('/office-visits/attending')}}" >Attending <span class="countAction">{{ $InPersonCount_attending_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="completed-tab"  href="{{URL::to('/admin/office-visits/completed')}}" >Completed <span class="countAction">{{ $InPersonCount_completed_type }}</span></a>
+									<a class="nav-link" id="completed-tab"  href="{{URL::to('/office-visits/completed')}}" >Completed <span class="countAction">{{ $InPersonCount_completed_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="archived-tab"  href="{{URL::to('/admin/office-visits/archived')}}" >Archived <span class="countAction">{{ $InPersonCount_archived_type }}</span></a>
+									<a class="nav-link" id="archived-tab"  href="{{URL::to('/office-visits/archived')}}" >Archived <span class="countAction">{{ $InPersonCount_archived_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link " id="all-tab"  href="{{URL::to('/admin/office-visits')}}" >All <span class="countAction">{{ $InPersonCount_All_type }}</span></a>
+									<a class="nav-link " id="all-tab"  href="{{URL::to('/office-visits')}}" >All <span class="countAction">{{ $InPersonCount_All_type }}</span></a>
 								</li>
 							</ul>
 							<div class="tab-content" id="checkinContent">
@@ -75,12 +75,12 @@
 								  <?php echo isset($_GET['office_name']) ? $_GET['office_name'] : 'All Branches'; ?>
 								   <i style="font-size: 10px;" class="fa fa-arrow-down"></i></button>
 								  <div id="myDropdown" class="dropdown-content">
-								  <a href="{{URL::to('/admin/office-visits/waiting')}}">All Branches</a>
+								  <a href="{{URL::to('/office-visits/waiting')}}">All Branches</a>
 								  <?php
 								  $branchs = \App\Models\Branch::all();
 								  foreach($branchs as $branch){
 									?>
-									<a href="{{URL::to('/admin/office-visits/waiting')}}?office={{$branch->id}}&office_name={{$branch->office_name}}">{{$branch->office_name}}</a>
+									<a href="{{URL::to('/office-visits/waiting')}}?office={{$branch->id}}&office_name={{$branch->office_name}}">{{$branch->office_name}}</a>
 								  <?php } ?>
 
 								  </div>
@@ -120,7 +120,7 @@
 										}else{
 										    $client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
 										    ?>
-										    <a target="_blank" href="{{URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+										    <a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
 										    <?php
 										}
 
@@ -133,7 +133,7 @@
 													<?php
 													$admin = \App\Models\Admin::where('role', '!=', '7')->where('id', '=', $list->user_id)->first();
 													?>
-													<a href="{{URL::to('/admin/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
+													<a href="{{URL::to('/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
 													</td>
 													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else{ echo '<span >-</span>'; } ?></td>
 										<td style="white-space: initial;">
@@ -250,7 +250,7 @@ jQuery(document).ready(function($){
 		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/attend_session',
+			url: site_url+'/attend_session',
 			type:'POST',
 			data:{id: appliid,waitcountdata: $('#waitcountdata').val()},
 			success: function(response){
@@ -270,7 +270,7 @@ jQuery(document).ready(function($){
         var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/attend_session',
+			url: site_url+'/attend_session',
 			type:'POST',
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			data:{id: appliid,waitcountdata: $('#waitcountdata').val(),waitingtype: waitingtype},
@@ -296,7 +296,7 @@ jQuery(document).ready(function($){
         var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
-			url: site_url+'/admin/office-visits/change_assignee',
+			url: site_url+'/office-visits/change_assignee',
 			type:'GET',
 			data:{id: appliid,assinee: $('#changeassignee').val()},
 			success: function(response){

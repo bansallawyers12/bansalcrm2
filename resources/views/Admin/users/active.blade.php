@@ -14,19 +14,19 @@
 						<div class="card-header">
 							<h4>Users</h4>
 							<div class="card-header-action">
-								<a href="{{URL::to('admin/users/create')}}" class="btn btn-primary">Add User</a>
+								<a href="{{URL::to('users/create')}}" class="btn btn-primary">Add User</a>
 							</div>
 						</div>
 						<div class="card-body">
 							<ul class="nav nav-pills" id="user_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link active" id="active-tab"  href="{{URL::to('/admin/users/active')}}" >Active</a>
+									<a class="nav-link active" id="active-tab"  href="{{URL::to('/users/active')}}" >Active</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="inactive-tab"  href="{{URL::to('/admin/users/inactive')}}" >Inactive</a>
+									<a class="nav-link" id="inactive-tab"  href="{{URL::to('/users/inactive')}}" >Inactive</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="invited-tab"  href="{{URL::to('/admin/users/invited')}}" >Invited</a>
+									<a class="nav-link" id="invited-tab"  href="{{URL::to('/users/invited')}}" >Invited</a>
 								</li>
 								
 								<form action="{{ route('admin.users.active') }}" method="get">
@@ -59,9 +59,9 @@
 										?>
 											<tbody class="tdata">	
 												<tr id="id_{{@$list->id}}"> 
-													<td><a href="{{URL::to('/admin/users/view')}}/{{$list->id}}">{{@$list->first_name}}</a><br>{{@$list->email}}</td> 
+													<td><a href="{{URL::to('/users/view')}}/{{$list->id}}">{{@$list->first_name}}</a><br>{{@$list->email}}</td> 
 													<td>{{@$list->position}}</td>
-													<td><a href="{{URL::to('/admin/branch/view/')}}/{{@$b->id}}">{{@$b->office_name}}</a></td> 
+													<td><a href="{{URL::to('/branch/view/')}}/{{@$b->id}}">{{@$b->office_name}}</a></td> 
 													
 													
 													<td>{{ @$list->usertype->name == "" ? config('constants.empty') : str_limit(@$list->usertype->name, '50', '...') }}</td>  
@@ -79,7 +79,7 @@
                                                         if(\Auth::user()->id != $list->id) //if loggedin user is not same
                                                         {?>
                                                             <div class="card-header-action">
-                                                                <a href="{{URL::to('admin/users/edit/'.$list->id)}}" class="btn btn-primary">Edit User</a>
+                                                                <a href="{{URL::to('users/edit/'.$list->id)}}" class="btn btn-primary">Edit User</a>
                                                             </div>
                                                         <?php
                                                         } ?>

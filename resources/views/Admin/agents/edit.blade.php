@@ -6,7 +6,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			<form action="{{ url('admin/agents/edit') }}" method="POST" name="edit-agents" autocomplete="off" enctype="multipart/form-data">
+			<form action="{{ url('agents/edit') }}" method="POST" name="edit-agents" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 				<div class="row">

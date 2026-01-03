@@ -6,7 +6,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			<form action="{{ url('admin/products/edit') }}" method="POST" name="edit-products" autocomplete="off" enctype="multipart/form-data">
+			<form action="{{ url('products/edit') }}" method="POST" name="edit-products" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="id" value="{{ @$fetchedData->id }}"> 
 				<div class="row">
@@ -15,7 +15,7 @@
 							<div class="card-header">
 								<h4>Edit Products</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.products.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('products.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -203,7 +203,7 @@ jQuery(document).ready(function($){
 		if(v != ''){
 			$('.popuploader').show();
 			$.ajax({
-				url: '{{URL::to('/admin/getnewPartnerbranch')}}',
+				url: '{{URL::to('/getnewPartnerbranch')}}',
 				type:'GET',
 				data:{cat_id:v},
 				success:function(response){

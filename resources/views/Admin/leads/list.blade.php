@@ -6,8 +6,8 @@
 			<div> 
 				<i class="fas fa-envelope bg-success"></i>
 				<div class="timeline-item" style="padding: 10px;">
-					<span class="time"><i class="far fa-clock"></i><?php FollowupController::time_Ago($strtime); ?> @if($list->pin == 1)<a href="{{URL::to('/admin/leads/pin/'.$list->id)}}"><i style="color:red;" class="fa fa-thumbtack"></i></a>@else<a href="{{URL::to('/admin/leads/pin/'.$list->id)}}"><i style="color:#808080;" class="fa fa-thumbtack"></i></a> @endif</span>
-					<span class="name">{{@$list->user->first_name}} {{@$list->user->last_name}}</span> <a  onclick="return confirm('Are you sure?')" style="color:#808080;" href="{{URL::to('/admin/leads/notes/delete/'.$list->id)}}"><i style="color:#6777ef;"  class="fa fa-trash"></i></a>
+					<span class="time"><i class="far fa-clock"></i><?php FollowupController::time_Ago($strtime); ?> @if($list->pin == 1)<a href="{{URL::to('/leads/pin/'.$list->id)}}"><i style="color:red;" class="fa fa-thumbtack"></i></a>@else<a href="{{URL::to('/leads/pin/'.$list->id)}}"><i style="color:#808080;" class="fa fa-thumbtack"></i></a> @endif</span>
+					<span class="name">{{@$list->user->first_name}} {{@$list->user->last_name}}</span> <a  onclick="return confirm('Are you sure?')" style="color:#808080;" href="{{URL::to('/leads/notes/delete/'.$list->id)}}"><i style="color:#6777ef;"  class="fa fa-trash"></i></a>
 					<h3 class="timeline-header"><a href="#">Mail Activity</a> Mail Sent <i class="fa fa-share"></i></h3>
 					<div class="timeline-body">
 						Subject: {{$list->subject}} 
@@ -64,8 +64,8 @@
 			<i class="fas fa-{{FollowupController::followuptype($list->followup_type,'icon')}} {{FollowupController::followuptype($list->followup_type,'color')}}"></i>
 			<div class="timeline-item" style="padding: 10px;">
 			    
-				<span class="time"><i style="color:#808080;" class="far fa-clock"></i> <?php FollowupController::time_Ago($strtime); ?> @if($list->pin == 1)<a href="{{URL::to('/admin/leads/pin/'.$list->id)}}"><i style="color:red;" class="fa fa-thumbtack"></i></a>@else<a href="{{URL::to('/admin/leads/pin/'.$list->id)}}"><i style="color:#808080;" class="fa fa-thumbtack"></i></a> @endif</span>
-				<span class="name">{{@$list->user->first_name}} {{@$list->user->last_name}}</span> @if($list->followup_type != 'mail_compose' && $list->followup_type != 'follow_up')<a href="javascript:;" class="editnote" data-id={{$list->id}}><i style="color:#6777ef;"  class="fa fa-edit" ></i></a> @endif | <a  onclick="return confirm('Are you sure?')" style="color:#808080;" href="{{URL::to('/admin/leads/notes/delete/'.$list->id)}}"><i style="color:#6777ef;"  class="fa fa-trash"></i></a>
+				<span class="time"><i style="color:#808080;" class="far fa-clock"></i> <?php FollowupController::time_Ago($strtime); ?> @if($list->pin == 1)<a href="{{URL::to('/leads/pin/'.$list->id)}}"><i style="color:red;" class="fa fa-thumbtack"></i></a>@else<a href="{{URL::to('/leads/pin/'.$list->id)}}"><i style="color:#808080;" class="fa fa-thumbtack"></i></a> @endif</span>
+				<span class="name">{{@$list->user->first_name}} {{@$list->user->last_name}}</span> @if($list->followup_type != 'mail_compose' && $list->followup_type != 'follow_up')<a href="javascript:;" class="editnote" data-id={{$list->id}}><i style="color:#6777ef;"  class="fa fa-edit" ></i></a> @endif | <a  onclick="return confirm('Are you sure?')" style="color:#808080;" href="{{URL::to('/leads/notes/delete/'.$list->id)}}"><i style="color:#6777ef;"  class="fa fa-trash"></i></a>
 				@if($list->followup_type == "follow_up")
 					<h3 class="timeline-header"><a href="#">{{FollowupController::followuptype($list->followup_type,'name')}}</a> set for {{date('d-m-Y h:i A', strtotime($list->followup_date))}}  @if($list->rem_cat == 1) regardless @else no reply @endif     </h3>
 				@else

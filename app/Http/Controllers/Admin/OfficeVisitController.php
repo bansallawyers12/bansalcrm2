@@ -121,7 +121,7 @@ class OfficeVisitController extends Controller
 					<div class="col-md-6">
 						<b>Contact</b>
 						<div class="clientinfo">
-							<a href="<?php echo \URL::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$client->id))); ?>"><?php echo $client->first_name.' '.$client->last_name; ?></a>
+							<a href="<?php echo route('clients.detail', base64_encode(convert_uuencode(@$client->id))); ?>"><?php echo $client->first_name.' '.$client->last_name; ?></a>
 							<br>
 							<?php echo $client->email; ?>
 						</div>
