@@ -363,7 +363,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				</div>
 				<div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
 				</div>
-				<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+				{{-- Task system removed - December 2025 --}}
+				<!--<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
 					<div id="taskaccordion">
 					<?php
 					$stagesquery = \App\Models\WorkflowStage::where('w_id', $fetchData->workflow)->get();
@@ -377,13 +378,10 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 									<a title="Add Task" class="opentaskmodal" href="javascript:;"><i class="fa fa-suitcase"></i></a>
 								</div>
 							</div>
-							<!--<div class="accordion-body collapse" id="application_accor" data-parent="#taskaccordion" style="">
-							</div>-->
 						</div>
 					<?php } ?>
-						
 					</div>
-				</div>
+				</div>-->
 				<div class="tab-pane fade" id="paymentschedule" role="tabpanel" aria-labelledby="paymentschedule-tab">
 					<div class="row">
 						<div class="col-md-6">

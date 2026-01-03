@@ -229,12 +229,10 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
 								</li>
-								<li class="nav-item">
+								{{-- Task system removed - December 2025 --}}
+								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
-								</li>
+								</li>-->
 								<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
 								</li>
@@ -1216,7 +1214,8 @@ use App\Http\Controllers\Controller;
 								</div>
                       
                       
-								<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+								{{-- Task system removed - December 2025 --}}
+								<!--<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary opencreate_task"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -1233,18 +1232,10 @@ use App\Http\Controllers\Controller;
 												</tr>
 											</thead>
 											<tbody class="taskdata ">
-											{{-- Task system removed - December 2025 (database tables preserved) --}}
 											</tbody>
-											<!--<tbody>
-												<tr>
-													<td style="text-align:center;" colspan="10">
-														No Record found
-													</td>
-												</tr>
-											</tbody>-->
 										</table> 
 									</div>
-								</div>
+								</div>-->
 								<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
 									<span>other_info</span>
 								</div>
@@ -3629,14 +3620,15 @@ jQuery(document).ready(function($){
         width: "100%"
     });
 
-	$(document).delegate('.opencreate_task', 'click', function () {
+	// Task system removed - December 2025 (dead code - modal is commented out)
+	/*$(document).delegate('.opencreate_task', 'click', function () {
         $('#tasktermclientform')[0].reset();
         $('#tasktermclientform select').val('').trigger('change');
         $('.create_task').modal('show');
         $('.ifselecttask').hide();
         $('.ifselecttask select').attr('data-valid', '');
 
-    });
+    });*/
   
 	$(document).delegate('.addpaymentmodal','click', function(){
 		var v = $(this).attr('data-invoiceid');

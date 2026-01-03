@@ -700,8 +700,9 @@
 	</div>
 </div>
 
+{{-- Task system removed - December 2025 --}}
 <!-- Task Modal -->
-<div class="modal fade custom_modal" id="opentaskview" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+<!--<div class="modal fade custom_modal" id="opentaskview" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content taskview">
 
@@ -718,8 +719,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<!-- Task system removed - December 2025 -->
-				<form method="post" action="#" name="taskform" autocomplete="off" id="tasktermform" enctype="multipart/form-data" onsubmit="alert('Task system has been removed'); return false;">
+				<form method="post" action="#" name="taskform" autocomplete="off" id="tasktermform" enctype="multipart/form-data" onsubmit="alert('Task system has been removed'); return false;">-->
 				@csrf
 				<input type="hidden" name="mailid" value="">
 
@@ -949,7 +949,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div>-->
 
 <!-- Note & Terms Modal -->
 <div class="modal fade custom_modal" id="opencommissionmodal" tabindex="-1" role="dialog" aria-labelledby="create_noteModalLabel" aria-hidden="true">

@@ -56,7 +56,7 @@ return new class extends Migration
         'invoice_details',
         'invoice_followups',
         'invoice_payments',
-        'invoice_schedules',
+        // 'invoice_schedules', // Removed - table dropped
         'invoices',
         'items',
         'lead_services',
@@ -80,7 +80,7 @@ return new class extends Migration
         'profiles',
         'promotions',
         'representing_partners',
-        'schedule_items',
+        // 'schedule_items', // Removed - table dropped
         // 'service_fee_option_types', // Removed - table dropped
         // 'service_fee_options', // Removed - table dropped
         // 'services', // Removed - table dropped

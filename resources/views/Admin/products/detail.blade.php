@@ -1334,14 +1334,15 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 		});
 		
 
-$(document).delegate('.opencreate_task', 'click', function () {
+// Task system removed - December 2025 (dead code - modal is commented out)
+/*$(document).delegate('.opencreate_task', 'click', function () {
 	$('#tasktermform')[0].reset();
 	$('#tasktermform select').val('').trigger('change');
 	$('.create_task').modal('show');
 	$('.ifselecttask').hide();
 	$('.ifselecttask select').attr('data-valid', '');
 	
-});
+});*/
 	 var eduid = '';
     $(document).delegate('.deleteeducation', 'click', function(){
 		eduid = $(this).attr('data-id');

@@ -596,8 +596,9 @@
 	</div>
 </div>
 
+{{-- Task system removed - December 2025 --}}
 <!-- Task Modal -->
-<div class="modal fade custom_modal" id="opentaskview" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+<!--<div class="modal fade custom_modal" id="opentaskview" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content taskview">
 			
@@ -614,7 +615,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/partner/addtask/')}}" name="tasktermclientform" autocomplete="off" id="tasktermclientform" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/partner/addtask/')}}" name="tasktermclientform" autocomplete="off" id="tasktermclientform" enctype="multipart/form-data" onsubmit="alert('Task system has been removed'); return false;">-->
 				@csrf 
 				<input type="hidden" name="partnerid" value="{{$fetchedData->id}}">
 				
@@ -846,7 +847,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div>-->
 
 <!-- Education Modal -->
 <div class="modal fade create_education custom_modal" tabindex="-1" role="dialog" aria-labelledby="create_educationModalLabel" aria-hidden="true">

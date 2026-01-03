@@ -278,7 +278,8 @@
 										</div>
 									</div>
 									
-									<div class="accordion">
+									{{-- Task system removed - December 2025 --}}
+									<!--<div class="accordion">
 										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-13">
 											<h4>TASKS</h4>
 										</div>
@@ -291,7 +292,7 @@
 												<li><label><input type="checkbox" name="module_access[82]" class="tasks"> Can create tasks.</label></li>
 											</ul>
 										</div>
-									</div>
+									</div>-->
 									<div class="accordion">
 										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-14">
 											<h4>OFFICE CHECK-IN</h4>
