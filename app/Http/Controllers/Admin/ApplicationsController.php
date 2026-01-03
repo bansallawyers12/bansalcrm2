@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use App\Models\Admin;
 use App\Models\Application;
@@ -1571,57 +1570,6 @@ class ApplicationsController extends Controller
 			<?php
 		}
 		return ob_get_clean();
-	}
-
-	public function import(Request $request){
-		$the_file = $request->file('uploaded_file');
-		try{
-			$spreadsheet = IOFactory::load($the_file->getRealPath());
-			$sheet        = $spreadsheet->getActiveSheet();
-			$row_limit    = $sheet->getHighestDataRow();
-			$column_limit = $sheet->getHighestDataColumn();
-			$row_range    = range( 2, $row_limit );
-			$column_range = range( 'Z', $column_limit );
-			$startcount = 2;
-			$data = array();
-			
-			foreach ( $row_range as $row ) {
-				$data[] = [
-											   'user_id'=>$sheet->getCell( 'B' . $row )->getValue(),
-											   'workflow'=>$sheet->getCell( 'C' . $row )->getValue(),
-											   'partner_id'=>$sheet->getCell( 'D' . $row )->getValue(),
-											   'product_id'=>$sheet->getCell( 'E' . $row )->getValue(),
-											   'status'=>$sheet->getCell( 'F' . $row )->getValue(),
-											   'stage'=>$sheet->getCell( 'G' . $row )->getValue(),
-											   'sale_forcast'=>$sheet->getCell( 'H' . $row )->getValue(),
-											   'created_at'=>$sheet->getCell( 'I' . $row )->getValue(),
-											   'updated_at'=>$sheet->getCell( 'J' . $row )->getValue(),
-											   'client_id'=>$sheet->getCell( 'K' . $row )->getValue(),
-											   'branch'=>$sheet->getCell( 'L' . $row )->getValue(),
-											   'intakedate'=>$sheet->getCell( 'M' . $row )->getValue(),
-											   'start_date'=>$sheet->getCell( 'N' . $row )->getValue(),
-											   'end_date'=>$sheet->getCell( 'O' . $row )->getValue(),
-											   'expect_win_date'=>$sheet->getCell( 'P' . $row )->getValue(),
-											   'super_agent'=>$sheet->getCell( 'Q' . $row )->getValue(),
-											   'sub_agent'=>$sheet->getCell( 'R' . $row )->getValue(),
-											   'ratio'=>$sheet->getCell( 'S' . $row )->getValue(),
-											   'client_revenue'=>$sheet->getCell( 'T' . $row )->getValue(),
-											   'partner_revenue'=>$sheet->getCell( 'U' . $row )->getValue(),
-											   'discounts'=>$sheet->getCell( 'V' . $row )->getValue(),
-											   'progresswidth'=>$sheet->getCell( 'W' . $row )->getValue()
-				];
-				$startcount++;
-			}
-			// NOTE: check_applications table has been removed
-			// If import functionality is needed, rewrite to insert directly into applications table
-			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
-			// DB::table('check_applications')->insert($data);
-			// DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-		} catch (Exception $e) {
-			$error_code = $e->errorInfo[1];
-			return back()->withErrors('There was a problem uploading the data!');
-		} 
-		return back()->withSuccess('Great! Data has been successfully uploaded.');
 	}
   
     //Update Student id

@@ -306,7 +306,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/products/store', [ProductsController::class, 'store'])->name('products.store');
 		Route::get('/products/edit/{id}', [ProductsController::class, 'edit'])->name('products.edit');
 		Route::post('/products/edit', [ProductsController::class, 'edit'])->name('products.update');
-		Route::post('/products-import', [ProductsController::class, 'import'])->name('products.import');
 
 		
 		Route::get('/products/detail/{id}', [ProductsController::class, 'detail'])->name('products.detail');	 
@@ -461,7 +460,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/get-contacts', [PartnersController::class, 'getcontacts']);
 		Route::get('/deletecontact', [PartnersController::class, 'deletecontact']);
 		Route::get('/getcontactdetail', [PartnersController::class, 'getcontactdetail']);
-		Route::post('/partners-import', [PartnersController::class, 'import'])->name('partners.import');
 		
 		Route::post('/partner/create-branch', [PartnersController::class, 'createbranch']);
 		Route::get('/get-branches', [PartnersController::class, 'getbranch']);
@@ -499,7 +497,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/applications/create', [ApplicationsController::class, 'create'])->name('applications.create');  
 		Route::post('/discontinue_application', [ApplicationsController::class, 'discontinue_application']);  
 		Route::post('/revert_application', [ApplicationsController::class, 'revert_application']);  
-		Route::post('/applications-import', [ApplicationsController::class, 'import'])->name('applications.import');
 		//Route::post('/product-type/store', [ProductTypeController::class, 'store'])->name('feature.producttype.store');   
 		//Route::get('/product-type/edit/{id}', [ProductTypeController::class, 'edit'])->name('feature.producttype.edit');
 		//Route::post('/product-type/edit', [ProductTypeController::class, 'edit'])->name('feature.producttype.edit');

@@ -22,7 +22,6 @@
 							<h4>All Products</h4>
 							<div class="card-header-action">
 								<a href="{{route('products.create')}}" class="btn btn-primary">Create Product</a>
-								<a href="#" class="btn btn-primary importmodal"> Import csv</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
@@ -195,38 +194,6 @@
 		</div>
 	</div>
 </div>
-
-<div id="importmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="importmodalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="importmodalLabel">Import CSV</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form method="POST" action="{{URL::to('/products-import')}}"  enctype="multipart/form-data">
-				@csrf
-					<div class="row">
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="import">Select Import File<span class="span_req">*</span></label>
-								<input type="file" required class="form-control" name="uploaded_file" id="uploaded_file">
-								<small class="warning text-muted">Please upload only CSV file</small>
-							</div>
-						</div>
-						
-						<div class="col-12 col-md-12 col-lg-12">
-							<button  type="submit" class="btn btn-primary">Import</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
 @endsection
 @section('scripts')
 <script>
@@ -268,11 +235,6 @@ jQuery(document).ready(function($){
       }
     }
   });
-});
-
-$(document).delegate('.importmodal', 'click', function(){
-
-$('#importmodal').modal('show');
 });
 
 $('.cb-element').change(function () {
