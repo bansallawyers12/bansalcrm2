@@ -100,10 +100,6 @@ class ApplicationsController extends Controller
 	}
 	 
 	 
-	public function detail(){
-		return view('Admin.applications.detail');
-	}
-	
 	public function getapplicationdetail(Request $request){
 		$fetchData = Application::find($request->id);
 		return view('Admin.clients.applicationdetail', compact(['fetchData']));

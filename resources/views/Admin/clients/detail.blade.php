@@ -934,9 +934,6 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="checkinlogs-tab" href="#checkinlogs" role="tab" aria-controls="checkinlogs" aria-selected="false">Check-In Logs</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="prevvisa-tab" href="#prevvisa" role="tab" aria-controls="prevvisa" aria-selected="false">Previous History</a>
-								</li>
 							</ul>
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
 								<div class="tab-pane fade <?php if(!isset($_GET['tab']) ){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
@@ -2440,117 +2437,6 @@ use App\Http\Controllers\Controller;
 											</tbody>-->
 										</table>
 									</div>
-								</div>
-								<div class="tab-pane fade" id="prevvisa" role="tabpanel" aria-labelledby="prevvisa-tab">
-									<div class="agreement_info">
-										<h4>Previous Visa Information</h4>
-										<form method="post"  action="{{URL::to('/saveprevvisa')}}" autocomplete="off" name="saveprevvisa" id="saveprevvisa" enctype="multipart/form-data">
-										@csrf
-										<?php
-										$prev_visa = array();
-										if($fetchedData->prev_visa != ''){
-								        	$prev_visa = json_decode($fetchedData->prev_visa);
-										}
-										?>
-										<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
-										@if(empty($prev_visa))
-									<div class="multiplevisa">
-											<div class="row">
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="contract_expiry">Visa</label>
-													{!! Form::text('prev_visa[name][]', '', array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Visa' ))  !!}
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="">Start Date</label>
-
-													<input type="date" name="prev_visa[start_date][]" data-valid="required" class="form-control visadatesse" autocomplete="off" value="" placeholder="">
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="">End Date</label>
-
-													<input type="date" name="prev_visa[end_date][]" data-valid="required" class="form-control visadatesse" autocomplete="off" value="" placeholder="">
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="place_apply">Place of Apply</label>
-													{!! Form::text('prev_visa[place][]', '', array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Place of Apply' ))  !!}
-													</div>
-												</div>
-												<div class="col-md-4 lastfiledcol">
-													<div class="form-group">
-														<label for="person_applies">Person who applies</label>
-													{!! Form::text('prev_visa[person][]', '', array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Person who applies' ))  !!}
-													</div>
-												</div>
-											</div>
-											</div>
-
-											@else
-											<?php $visai = 0; ?>
-												@foreach($prev_visa as $prev)
-												<div class="multiplevisa">
-											<div class="row">
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="contract_expiry">Visa</label>
-													{!! Form::text('prev_visa[name][]', @$prev->name, array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Visa' ))  !!}
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="contract_expiry">Start Date</label>
-
-													<input type="date" name="prev_visa[start_date][]" data-valid="required" class="form-control visadatesse" autocomplete="off" value="{{@$prev->start_date}}" placeholder="">
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="contract_expiry">End Date</label>
-
-													<input type="date" name="prev_visa[end_date][]" data-valid="required" class="form-control visadatesse" autocomplete="off" value="{{@$prev->end_date}}" placeholder="">
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="place_apply">Place of Apply</label>
-													{!! Form::text('prev_visa[place][]', @$prev->place, array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Place of Apply' ))  !!}
-													</div>
-												</div>
-												<div class="col-md-4 lastfiledcol">
-													<div class="form-group">
-														<label for="person_applies">Person who applies</label>
-													{!! Form::text('prev_visa[person][]', @$prev->person, array('class' => 'form-control ', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Person who applies' ))  !!}
-													</div>
-												</div>
-												@if($visai != 0)
-												<div class="col-md-4"><a href="javascript:;" class="removenewprevvisa btn btn-danger btn-sm">Remove</a></div>
-												@endif
-											</div>
-											</div>
-											<?php $visai++; ?>
-											@endforeach
-											@endif
-											<div class="row">
-												<div class="col-12 col-md-12 col-lg-12">
-													<a href="javascript:;" class="addnewprevvisa btn btn-info btn-sm">Add New</a>
-
-												</div>
-												<div class="col-12 col-md-12 col-lg-12">
-													<div class="form-group float-end">
-														<button onclick="customValidate('saveprevvisa')" type="button" class="btn btn-primary">Save Changes</button>
-													</div>
-												</div>
-											</div>
-										</form>
-									</div>
-
-									<div class="clearfix"></div>
 								</div>
 </section>
 </div>

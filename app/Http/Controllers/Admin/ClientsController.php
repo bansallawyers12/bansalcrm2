@@ -3287,38 +3287,6 @@ class ClientsController extends Controller
     		echo json_encode($response);
     	}
 
-    	public function saveprevvisa(Request $request){
-    	    $requestData 		= 	$request->all();
-    	     $obj = Admin::find($requestData['client_id']);
-    	    $pr = array();
-    	    $i = 0;
-    	  $start_date =  $requestData['prev_visa']['start_date'];
-    	   $end_date =  $requestData['prev_visa']['end_date'];
-    	    $place =  $requestData['prev_visa']['place'];
-    	     $person =  $requestData['prev_visa']['person'];
-
-    	    foreach($requestData['prev_visa']['name'] as  $prev_visa){
-
-    	       $pr[] = array(
-    	                'name' => $prev_visa,
-    	                'start_date' => $start_date[$i],
-    	                'end_date' =>$end_date[$i],
-    	                'place' =>$place[$i],
-    	                'person' =>$person[$i],
-    	            );
-    	            $i++;
-    	    }
-
-    	     $obj->prev_visa = json_encode($pr);
-
-    	     $save = $obj->save();
-    	     if($save){
-    	         return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$requestData['client_id'])))->with('success', 'Previous Visa Updated Successfully');
-    	     }else{
-    	         return redirect()->back()->with('error', Config::get('constants.server_error'));
-    	     }
-    	}
-
     	public function removetag(Request $request){
     	    $objs = Admin::find($request->c);
     	    $itag = $request->rem_id;
@@ -3794,16 +3762,6 @@ class ClientsController extends Controller
                         'client_id' => $request->merge_into,
                         'updated_at' => now()
                     ]);
-                }
-            }
-
-
-            //Previous History
-            $prevHis = DB::table('admins')->where('id', $request->merge_from)->select('id','prev_visa')->get(); //dd($prevHis);
-            if(!empty($prevHis)){
-                $prevHis_exist = DB::table('admins')->where('id', $request->merge_into)->select('id','prev_visa')->first();
-                if( empty($prevHis_exist) ){
-                    DB::table('admins')->where('id',$request->merge_into)->update( array('prev_visa'=>$prevHis[0]->prev_visa) );
                 }
             }
 

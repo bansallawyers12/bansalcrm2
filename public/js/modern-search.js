@@ -225,7 +225,8 @@
                 url = siteUrl + '/products/detail/' + id;
                 break;
             case 'Application':
-                url = siteUrl + '/applications/detail/' + id;
+                // Redirect to applications list (applications detail page removed - use client detail page instead)
+                url = siteUrl + '/applications';
                 break;
             default:
                 console.warn('Unknown result type:', type);

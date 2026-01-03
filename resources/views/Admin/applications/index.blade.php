@@ -174,7 +174,7 @@
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 												<div class="dropdown-menu">
-													<a class="dropdown-item has-icon" href="{{URL::to('/applications/detail/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-eye"></i> View Detail</a>
+													<a class="dropdown-item has-icon" href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$list->id}}"><i class="far fa-eye"></i> View Detail</a>
 													<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'applications')"><i class="fas fa-trash"></i> Delete</a>
 												</div>
 											</div>								  

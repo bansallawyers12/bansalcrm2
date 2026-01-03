@@ -360,7 +360,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		//General Invoice Start 
 		Route::get('/invoice/general-invoice', [InvoiceController::class, 'general_invoice'])->name('invoice.general-invoice'); 
 		
-		Route::get('/applications/detail/{id}', [ApplicationsController::class, 'detail'])->name('applications.detail'); 	 
 		Route::post('/interested-service', [ClientsController::class, 'interestedService']); 	 
 		Route::post('/edit-interested-service', [ClientsController::class, 'editinterestedService']); 	 
 		Route::get('/get-services', [ClientsController::class, 'getServices']); 	 
