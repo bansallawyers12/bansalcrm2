@@ -1024,7 +1024,7 @@ class ClientsController extends Controller
                   }
               }
               
-              return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$requestData['id'])))->with('success', 'Clients Edited Successfully');
+              return redirect()->route('clients.detail', $this->encodeString(@$requestData['id']))->with('success', 'Clients Edited Successfully');
 			}
 		}
 
