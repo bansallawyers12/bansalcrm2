@@ -60,7 +60,7 @@
 				<a href="{{route('action.index')}}" class="nav-link">
                   <i class="fas fa-check"></i>
                   <span>Action
-                    <span class="countTotalActivityAction" style="background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $assigneesCount }}</span>
+                    <span class="countTotalActivityAction" style="background: #0066cc;padding: 0px 5px;border-radius: 50%;color: #ffffff !important;margin-left: 5px;">{{ $assigneesCount }}</span>
                   </span>
               </a>
 			</li>
@@ -99,8 +99,8 @@
             }*/
 			?>
 			<li class="dropdown {{@$checlasstype}}">
-				<a href="{{route('officevisits.waiting')}}" class="nav-link"><i class="fas fa-check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #1f1655;
-                    padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $InPersonwaitingCount }}</span></span></a>
+				<a href="{{route('officevisits.waiting')}}" class="nav-link"><i class="fas fa-check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #0066cc;
+                    padding: 0px 5px;border-radius: 50%;color: #ffffff !important;margin-left: 5px;">{{ $InPersonwaitingCount }}</span></span></a>
 			</li>
 
 			<!-- PEOPLE MANAGEMENT -->

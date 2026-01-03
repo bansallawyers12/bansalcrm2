@@ -3130,6 +3130,7 @@ class PartnersController extends Controller
         } else {
             $obj->description = '<span class="text-semi-bold">'.$title.'</span><p>'.$request->description.'</p>';
         }
+        $obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
         $saved = $obj->save();
 		if($saved){
             //In Partner activity log
