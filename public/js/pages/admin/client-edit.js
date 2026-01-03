@@ -32,7 +32,7 @@
                 if (typeof $ !== 'undefined' && 
                     typeof $.fn.select2 === 'function' &&
                     typeof flatpickr !== 'undefined' &&
-                    typeof intlTelInput !== 'undefined') {
+                    typeof $.fn.intlTelInput === 'function') {
                     console.log('[client-edit.js] All vendor libraries detected!');
                     resolve();
                 } else {
@@ -72,7 +72,7 @@ jQuery(document).ready(function($){
 
     $('.addclientphone').on('shown.bs.modal', function () {
         // Initialize intlTelInput when modal is shown
-        if ($(".telephone").length > 0 && typeof intlTelInput !== 'undefined') {
+        if ($(".telephone").length > 0 && typeof $.fn.intlTelInput === 'function') {
             $(".telephone").intlTelInput();
         }
     });
@@ -160,7 +160,9 @@ jQuery(document).ready(function($){
             $('.clientphonedata').append(html);
             $('#clientphoneform')[0].reset();
             // Re-initialize intlTelInput after reset
-            $(".telephone").intlTelInput();
+            if (typeof $.fn.intlTelInput === 'function') {
+                $(".telephone").intlTelInput();
+            }
             $('.addclientphone').modal('hide');
             itag_phone++;
         }

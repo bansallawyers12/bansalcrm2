@@ -26,13 +26,16 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 // Import intl-tel-input
-import intlTelInput from 'intl-tel-input';
+// Note: The npm package 'intl-tel-input' is an ES module and doesn't automatically register as a jQuery plugin
+// The old jQuery plugin version is in public/js/intlTelInput.js and is loaded separately in the layout
+// We'll still import the CSS from the npm package, but the JS will come from the old jQuery plugin
 import 'intl-tel-input/build/css/intlTelInput.css';
+// import intlTelInput from 'intl-tel-input'; // Not used - using old jQuery plugin version instead
 
 // Expose libraries globally for legacy scripts
 window.flatpickr = flatpickr;
 window.iziToast = iziToast;
-window.intlTelInput = intlTelInput;
+// window.intlTelInput is not set here - it comes from the old jQuery plugin loaded in the layout
 
 // DataTables and select2 are jQuery plugins, so they're automatically available via $
 // But we can also expose them explicitly if needed
@@ -54,7 +57,7 @@ const waitForPlugins = () => {
             // Note: select2 and DataTables are loaded from CDN, so we check them but don't require them from Vite
             const select2Ready = jQueryAvailable && typeof $.fn.select2 === 'function';
             const dataTableReady = jQueryAvailable && typeof $.fn.DataTable === 'function';
-            const intlTelReady = typeof window.intlTelInput === 'function';
+            const intlTelReady = jQueryAvailable && typeof $.fn.intlTelInput === 'function';
             const flatpickrReady = typeof window.flatpickr !== 'undefined';
             const iziToastReady = typeof window.iziToast !== 'undefined';
             
@@ -71,10 +74,10 @@ const waitForPlugins = () => {
                 });
             }
             
-            // Note: select2 and DataTables are loaded from CDN, so we don't require them to be ready from Vite
-            // We only check Vite-loaded libraries
-            if (intlTelReady && flatpickrReady && iziToastReady) {
-                console.log('✅ All vendor libraries loaded: flatpickr, iziToast, intl-tel-input');
+            // Note: select2, DataTables, and intlTelInput are loaded from CDN/public, so we don't require them to be ready from Vite
+            // We only check Vite-loaded libraries (flatpickr, iziToast)
+            if (flatpickrReady && iziToastReady) {
+                console.log('✅ All Vite vendor libraries loaded: flatpickr, iziToast');
                 if (select2Ready) {
                     console.log('✅ Select2 available from CDN');
                 } else {
@@ -85,12 +88,17 @@ const waitForPlugins = () => {
                 } else {
                     console.warn('⚠️ DataTables not yet available (loading from CDN)');
                 }
+                if (intlTelReady) {
+                    console.log('✅ intlTelInput jQuery plugin available');
+                } else {
+                    console.warn('⚠️ intlTelInput jQuery plugin not yet available');
+                }
                 resolve();
             } else if (attempts >= maxAttempts) {
                 // Timeout - log what's missing
                 const missing = [];
                 if (!jQueryAvailable) missing.push('jQuery');
-                if (!intlTelReady) missing.push('intl-tel-input');
+                if (!intlTelReady) missing.push('intlTelInput (jQuery plugin)');
                 if (!flatpickrReady) missing.push('flatpickr');
                 if (!iziToastReady) missing.push('iziToast');
                 if (!select2Ready) missing.push('select2 (CDN)');

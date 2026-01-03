@@ -24,6 +24,10 @@
 	<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 	
+	<!-- Load intlTelInput jQuery plugin (old version - jQuery plugin, not ES module) -->
+	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
+	<script src="{{asset('js/intlTelInput.js')}}"></script>
+	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
  	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, intlTelInput -->
  	<!-- Note: select2 and DataTables are loaded from CDN above to avoid ES module issues -->
