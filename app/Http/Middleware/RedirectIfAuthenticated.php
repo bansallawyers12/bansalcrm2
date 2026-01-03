@@ -20,17 +20,19 @@ class RedirectIfAuthenticated
 			switch ($guard) {
 				case 'admin' :
 					if (Auth::guard($guard)->check()) {	
-						return redirect()->route('admin.dashboard');
+						return redirect()->route('dashboard');
 					}
 					break;
 				case 'agents' :
+					// Agents don't have login access (routes disabled)
+					// Redirect to admin dashboard if somehow authenticated
 					if (Auth::guard($guard)->check()) {	
-						return redirect()->route('agent.dashboard');
+						return redirect()->route('dashboard');
 					}
 					break;
 				default:
 					if (Auth::guard($guard)->check()) {
-						return redirect()->route('dashboard.index');
+						return redirect()->route('dashboard');
 					}
 					break;
 			}
