@@ -40,16 +40,16 @@ return Application::configure(basePath: dirname(__DIR__))
         // CSRF Token Exceptions for AJAX routes
         $middleware->validateCsrfTokens(except: [
             'api/*',
-            'admin/update_visit_purpose',
-            'admin/update_visit_comment',
-            'admin/attend_session',
-            'admin/complete_session',
-            'admin/update_task_comment',
-            'admin/update_task_description',
-            'admin/update_task_status',
-            'admin/update_task_priority',
-            'admin/updateduedate',
-            'admin/application/checklistupload',
+            'update_visit_purpose',
+            'update_visit_comment',
+            'attend_session',
+            'complete_session',
+            'update_task_comment',
+            'update_task_description',
+            'update_task_status',
+            'update_task_priority',
+            'updateduedate',
+            'application/checklistupload',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

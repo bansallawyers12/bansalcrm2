@@ -16,26 +16,26 @@
 		?>
 			<li class="menu-header">Main</li>
 			<?php
-			if(Route::currentRouteName() == 'admin.dashboard'){
+			if(Route::currentRouteName() == 'dashboard'){
 				$dashclasstype = 'active';
 			}
 			?> 
 			<li class="dropdown {{@$dashclasstype}}">
-				<a href="{{route('admin.dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
+				<a href="{{route('dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
 			</li>
 			<!-- <li class="dropdown">
-				<a href="{{URL::to('/admin/appointments-cal')}}" class="nav-link"><i class="fas fa-calendar"></i><span>Appointment</span></a>
+				<a href="{{URL::to('/appointments-cal')}}" class="nav-link"><i class="fas fa-calendar"></i><span>Appointment</span></a>
 			</li> -->
 			
             
 				<?php
-			if(Route::currentRouteName() == 'admin.leads.index' || Route::currentRouteName() == 'admin.leads.create' || Route::currentRouteName() == 'admin.leads.detail' || Route::currentRouteName() == 'admin.leads.history'){
+			if(Route::currentRouteName() == 'leads.index' || Route::currentRouteName() == 'leads.create' || Route::currentRouteName() == 'leads.detail' || Route::currentRouteName() == 'leads.history'){
 				$leadstype = 'active'; 
 			}
 			?>
 		<!-- LEAD & PROSPECT MANAGEMENT -->
 		<li class="dropdown {{@$leadstype}}">
-			<a href="{{route('admin.leads.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Lead Manager</span></a>
+			<a href="{{route('leads.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Lead Manager</span></a>
 		</li>
 
 			<?php
@@ -75,13 +75,13 @@
                 <!--<ul class="dropdown-menu">-->
                     <?php //echo "@@@".Route::currentRouteName();?>
                     <!--<li class="{{-- (Route::currentRouteName()=='assignee.index')?'active':'' --}}">
-                        <a class="nav-link" href="{{-- URL::to('/admin/assignee') --}}">Assignee</a>
+                        <a class="nav-link" href="{{-- URL::to('/assignee') --}}">Assignee</a>
                     </li>-->
                      <!--<li class="{{-- (Route::currentRouteName()=='assignee.assigned_by_me')?'active':'' --}}">
-                        <a class="nav-link" id="assigned_by_me"  href="{{URL::to('/admin/assigned_by_me')}}">Assigned by me</a>
+                        <a class="nav-link" id="assigned_by_me"  href="{{URL::to('/assigned_by_me')}}">Assigned by me</a>
                     </li>
                     <li class="{{-- (Route::currentRouteName()=='assignee.assigned_to_me')?'active':'' --}}">
-                        <a class="nav-link" id="assigned_to_me" href="{{URL::to('/admin/assigned_to_me')}}">Assigned to me</a>
+                        <a class="nav-link" id="assigned_to_me" href="{{URL::to('/assigned_to_me')}}">Assigned to me</a>
                     </li>-->
                  <!--</ul>
 			</li>-->
@@ -89,7 +89,7 @@
 			
           <?php
             
-			if(Route::currentRouteName() == 'admin.officevisits.index' || Route::currentRouteName() == 'admin.officevisits.waiting' || Route::currentRouteName() == 'admin.officevisits.attending' || Route::currentRouteName() == 'admin.officevisits.completed' || Route::currentRouteName() == 'admin.officevisits.archived'){
+			if(Route::currentRouteName() == 'officevisits.index' || Route::currentRouteName() == 'officevisits.waiting' || Route::currentRouteName() == 'officevisits.attending' || Route::currentRouteName() == 'officevisits.completed' || Route::currentRouteName() == 'officevisits.archived'){
 				$checlasstype = 'active'; 
 			}
 			 //if(\Auth::user()->role == 1){
@@ -99,7 +99,7 @@
             }*/
 			?>
 			<li class="dropdown {{@$checlasstype}}">
-				<a href="{{route('admin.officevisits.waiting')}}" class="nav-link"><i class="fas fa-check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #1f1655;
+				<a href="{{route('officevisits.waiting')}}" class="nav-link"><i class="fas fa-check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #1f1655;
                     padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;">{{ $InPersonwaitingCount }}</span></span></a>
 			</li>
 
@@ -135,15 +135,15 @@
                             <a href="{{route('clients.clientreceiptlist')}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Clients Receipts</span></a>
                         </li>
                       
-                        <!--<li class="{{--(Route::currentRouteName() == 'admin.commissionreport') ? 'active' : ''--}}">
-                            <a href="{{--route('admin.commissionreport')--}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Commission Report</span></a>
+                        <!--<li class="{{--(Route::currentRouteName() == 'commissionreport') ? 'active' : ''--}}">
+                            <a href="{{--route('commissionreport')--}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Commission Report</span></a>
                         </li>-->
                     </ul>
                 </li>
                 <?php
                // }
 
-			if(Route::currentRouteName() == 'admin.partners.index' || Route::currentRouteName() == 'admin.partners.create' || Route::currentRouteName() == 'admin.partners.edit' || Route::currentRouteName() == 'admin.partners.detail'){
+			if(Route::currentRouteName() == 'partners.index' || Route::currentRouteName() == 'partners.create' || Route::currentRouteName() == 'partners.edit' || Route::currentRouteName() == 'partners.detail'){
 				$partnerclasstype = 'active';
 			}
 			?> 
@@ -151,11 +151,11 @@
 				if(array_key_exists('7',  $module_access)) {
 			?>
 			<li class="dropdown {{@$partnerclasstype}}">
-				<a href="{{route('admin.partners.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Partners Manager</span></a>  
+				<a href="{{route('partners.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Partners Manager</span></a>  
 			</li>
 			<?php
 				}
-			if(Route::currentRouteName() == 'admin.agents.active' || Route::currentRouteName() == 'admin.agents.inactive' || Route::currentRouteName() == 'admin.agents.create' || Route::currentRouteName() == 'admin.agents.edit' || Route::currentRouteName() == 'admin.agents.detail'){
+			if(Route::currentRouteName() == 'agents.active' || Route::currentRouteName() == 'agents.inactive' || Route::currentRouteName() == 'agents.create' || Route::currentRouteName() == 'agents.edit' || Route::currentRouteName() == 'agents.detail'){
 				$agentclasstype = 'active';
 			}
 			?> 
@@ -163,7 +163,7 @@
 				if(array_key_exists('15',  $module_access)) {
 			?>
 			<li class="dropdown {{@$agentclasstype}}">
-				<a href="{{route('admin.agents.active')}}" class="nav-link"><i class="fas fa-users"></i><span>Agents Manager</span></a>  
+				<a href="{{route('agents.active')}}" class="nav-link"><i class="fas fa-users"></i><span>Agents Manager</span></a>  
 			</li>
 			<?php
 				}
@@ -171,7 +171,7 @@
 
 			<!-- BUSINESS OPERATIONS -->
 			<?php
-			if(Route::currentRouteName() == 'admin.applications.index'){
+			if(Route::currentRouteName() == 'applications.index'){
 				$applicationclasstype = 'active';
 			} 
 			?> 
@@ -179,12 +179,12 @@
 				if(array_key_exists('34',  $module_access)) {
 			?>
 			<li class="dropdown {{@$applicationclasstype}}">
-				<a href="{{route('admin.applications.index')}}" class="nav-link"><i class="fas fa-server"></i><span>Applications Manager</span></a>  
+				<a href="{{route('applications.index')}}" class="nav-link"><i class="fas fa-server"></i><span>Applications Manager</span></a>  
 			</li>
 			<?php
 			}  
 			
-			if(Route::currentRouteName() == 'admin.services.index'){
+			if(Route::currentRouteName() == 'services.index'){
 				$serviceclasstype = 'active';
 			}
 		
@@ -197,7 +197,7 @@
 	
 									?>
 			<!--<li class="dropdown {{--@$clientclasstype--}}">
-				<a href="{{--URL::to('/admin/followup-dates/')--}}" class="nav-link"><i class="fas fa-user"></i><span>Today Followup <span class="countfollowup" style="background: #1f1655;
+				<a href="{{--URL::to('/followup-dates/')--}}" class="nav-link"><i class="fas fa-user"></i><span>Today Followup <span class="countfollowup" style="background: #1f1655;
     padding: 0px 5px;
     border-radius: 50%;
     color: #fff;">{{--$countfollowup--}}</span></span></a>
@@ -206,13 +206,13 @@
 				if(array_key_exists('5',  $module_access)) {
 			?>
 			<li class="dropdown {{@$serviceclasstype}}">
-				<a href="{{route('admin.services.index')}}" class="nav-link"><i class="fa fa-cogs"></i><span>Services</span></a>
+				<a href="{{route('services.index')}}" class="nav-link"><i class="fa fa-cogs"></i><span>Services</span></a>
 			</li>
 			<?php
 				}
 			?>
 			<?php
-			if(Route::currentRouteName() == 'admin.products.index' || Route::currentRouteName() == 'admin.products.create' || Route::currentRouteName() == 'admin.products.edit' || Route::currentRouteName() == 'admin.products.detail'){
+			if(Route::currentRouteName() == 'products.index' || Route::currentRouteName() == 'products.create' || Route::currentRouteName() == 'products.edit' || Route::currentRouteName() == 'products.detail'){
 				$productclasstype = 'active';
 			}
 			?>
@@ -220,7 +220,7 @@
 				if(array_key_exists('12',  $module_access)) {
 			?>
 			<li class="dropdown {{@$productclasstype}}">
-				<a href="{{route('admin.products.index')}}" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Products Manager</span></a>
+				<a href="{{route('products.index')}}" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Products Manager</span></a>
 			</li>
 			<?php
 				}
@@ -229,7 +229,7 @@
 			<!-- FINANCIAL MANAGEMENT -->
 			
 			<?php
-			if(Route::currentRouteName() == 'admin.invoice.unpaid' || Route::currentRouteName() == 'admin.invoice.paid' || Route::currentRouteName() == 'admin.account.payment' || Route::currentRouteName() == 'admin.invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'admin.invoice.paidgroupinvoice' || Route::currentRouteName() == 'admin.invoice.invoiceschedules' || Route::currentRouteName() == 'admin.account.payableunpaid' || Route::currentRouteName() == 'admin.account.payablepaid' || Route::currentRouteName() == 'admin.account.receivableunpaid' || Route::currentRouteName() == 'admin.account.receivablepaid'){
+			if(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid' || Route::currentRouteName() == 'account.payment' || Route::currentRouteName() == 'invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'invoice.paidgroupinvoice' || Route::currentRouteName() == 'invoice.invoiceschedules' || Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid'){
 				$accountclasstype = 'active';
 			}
 			?> 	
@@ -240,25 +240,25 @@
 				<?php
 					if(array_key_exists('46',  $module_access)) {
 					?>
-					<li class="{{(Route::currentRouteName() == 'admin.invoice.unpaid' || Route::currentRouteName() == 'admin.invoice.paid') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.invoice.unpaid')}}">Invoices</a></li>
+					<li class="{{(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.unpaid')}}">Invoices</a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('47',  $module_access)) {
 					?>
-					<li class="{{(Route::currentRouteName() == 'admin.account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.account.payment')}}">Payment</a></li>
+					<li class="{{(Route::currentRouteName() == 'account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payment')}}">Payment</a></li>
 					<?php } ?>
 					
-					<li class="{{(Route::currentRouteName() == 'admin.invoice.invoiceschedules') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.invoice.invoiceschedules')}}">Invoice Schedule</a></li> 
-					<li class="{{(Route::currentRouteName() == 'admin.account.payableunpaid' || Route::currentRouteName() == 'admin.account.payablepaid' || Route::currentRouteName() == 'admin.account.receivableunpaid' || Route::currentRouteName() == 'admin.account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.account.payableunpaid')}}">Income Sharing</a></li> 
+					<li class="{{(Route::currentRouteName() == 'invoice.invoiceschedules') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.invoiceschedules')}}">Invoice Schedule</a></li> 
+					<li class="{{(Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payableunpaid')}}">Income Sharing</a></li> 
 				</ul>
 			</li> 
 			<?php
-			/*if(Route::currentRouteName() == 'admin.tasks.index'){
+			/*if(Route::currentRouteName() == 'tasks.index'){
 				$taskclasstype = 'active';
 			}*/
 			?> 
 		<!--<liclass="dropdown@$taskclasstype">
-				<a href="{{-- route('admin.tasks.index') --}}" class="nav-link"><i class="fas fa-list"></i><span>To Do Lists</span></a>
+				<a href="{{-- route('tasks.index') --}}" class="nav-link"><i class="fas fa-list"></i><span>To Do Lists</span></a>
 			</li>-->
 			
 			<!-- REPORTS & ANALYTICS -->
@@ -272,34 +272,34 @@
 				<?php
 					if(array_key_exists('62',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.client')}}">Client</a></li>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.application')}}">Applications</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.client')}}">Client</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.application')}}">Applications</a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('63',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.invoice')}}">Invoice</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.invoice')}}">Invoice</a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('64',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.office-visit')}}">Office Check-In</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.office-visit')}}">Office Check-In</a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('65',  $module_access)) {
 					?>
-					<li class=""><a class="nav-link" href="{{route('admin.reports.saleforecast-application')}}">Sale Forecast</a></li>
+					<li class=""><a class="nav-link" href="{{route('reports.saleforecast-application')}}">Sale Forecast</a></li>
 					<?php } ?>
 					<?php
 					if(array_key_exists('68',  $module_access)) {
 					?>
 					{{-- Task system removed - December 2025 --}}
 					<?php } ?>
-					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/visaexpires')}}">Visa Expires</a></li>
-					<li class=""><a class="nav-link" href="{{URL::to('/admin/reports/agreementexpires')}}">Agreement Expires</a></li>
+					<li class=""><a class="nav-link" href="{{URL::to('/reports/visaexpires')}}">Visa Expires</a></li>
+					<li class=""><a class="nav-link" href="{{URL::to('/reports/agreementexpires')}}">Agreement Expires</a></li>
 					
 					@if(Auth::user()->role ===1)
-                    <li class=""><a class="nav-link" href="{{route('admin.reports.noofpersonofficevisit')}}">Office Visit Report Date wise</a></li>
+                    <li class=""><a class="nav-link" href="{{route('reports.noofpersonofficevisit')}}">Office Visit Report Date wise</a></li>
                     @endif
                     
 				</ul> 
@@ -307,18 +307,18 @@
 			<?php
             }
             
-			if(Route::currentRouteName() == 'admin.auditlogs.index'){
+			if(Route::currentRouteName() == 'auditlogs.index'){
 				$auditlogsclasstype = 'active';
 			}
 			?> 
 
 			@if(Auth::user()->role ===1)
 			<li class="dropdown {{@$auditlogsclasstype}}">
-				<a href="{{route('admin.auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Login Report</span></a>  
+				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Login Report</span></a>  
 			</li>
 			@endif
 			<?php
-			/* if(Route::currentRouteName() == 'admin.users.index' || Route::currentRouteName() == 'admin.users.create' || Route::currentRouteName() == 'admin.users.edit' || Route::currentRouteName() == 'admin.users.clientlist' || Route::currentRouteName() == 'admin.users.createclient' || Route::currentRouteName() == 'admin.users.editclient' || Route::currentRouteName() == 'admin.usertype.index' || Route::currentRouteName() == 'admin.usertype.create' || Route::currentRouteName() == 'admin.usertype.edit' || Route::currentRouteName() == 'admin.userrole.index' || Route::currentRouteName() == 'admin.userrole.create' || Route::currentRouteName() == 'admin.userrole.edit'){
+			/* if(Route::currentRouteName() == 'users.index' || Route::currentRouteName() == 'users.create' || Route::currentRouteName() == 'users.edit' || Route::currentRouteName() == 'users.clientlist' || Route::currentRouteName() == 'users.createclient' || Route::currentRouteName() == 'users.editclient' || Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){
 				$userclasstype = 'active';
 			}
 			?> 			
@@ -326,14 +326,14 @@
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
 				class="fas fa-user"></i><span>User Management</span></a>
 				<ul class="dropdown-menu">
-					<li class="{{(Route::currentRouteName() == 'admin.users.index' || Route::currentRouteName() == 'admin.users.create' || Route::currentRouteName() == 'admin.users.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.users.index')}}">Users</a></li>
-					<li class="{{(Route::currentRouteName() == 'admin.users.clientlist' || Route::currentRouteName() == 'admin.users.createclient' || Route::currentRouteName() == 'admin.users.editclient') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.users.clientlist')}}">Create Client</a></li>
-					<li class="{{(Route::currentRouteName() == 'admin.usertype.index' || Route::currentRouteName() == 'admin.usertype.create' || Route::currentRouteName() == 'admin.usertype.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.usertype.index')}}">User Type</a></li>
-					<li class="{{(Route::currentRouteName() == 'admin.userrole.index' || Route::currentRouteName() == 'admin.userrole.create' || Route::currentRouteName() == 'admin.userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.userrole.index')}}">User Role</a></li>
+					<li class="{{(Route::currentRouteName() == 'users.index' || Route::currentRouteName() == 'users.create' || Route::currentRouteName() == 'users.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.index')}}">Users</a></li>
+					<li class="{{(Route::currentRouteName() == 'users.clientlist' || Route::currentRouteName() == 'users.createclient' || Route::currentRouteName() == 'users.editclient') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.clientlist')}}">Create Client</a></li>
+					<li class="{{(Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('usertype.index')}}">User Type</a></li>
+					<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">User Role</a></li>
 				</ul>
 			</li>
 			<?php 
-			if(Route::currentRouteName() == 'admin.services.index' || Route::currentRouteName() == 'admin.services.create' || Route::currentRouteName() == 'admin.services.edit'){
+			if(Route::currentRouteName() == 'services.index' || Route::currentRouteName() == 'services.create' || Route::currentRouteName() == 'services.edit'){
 				$servclasstype = 'active';
 			}
 			?> 
@@ -341,11 +341,11 @@
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
 				class="fas fa-user"></i><span>Services</span></a>
 				<ul class="dropdown-menu"> 
-					<li class="{{(Route::currentRouteName() == 'admin.services.index' || Route::currentRouteName() == 'admin.services.create' || Route::currentRouteName() == 'admin.services.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.services.index')}}">Services List</a></li>
+					<li class="{{(Route::currentRouteName() == 'services.index' || Route::currentRouteName() == 'services.create' || Route::currentRouteName() == 'services.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('services.index')}}">Services List</a></li>
 				</ul>
 			</li>
 			<?php
-			 if(Route::currentRouteName() == 'admin.providers.index' || Route::currentRouteName() == 'admin.providers.create' || Route::currentRouteName() == 'admin.providers.edit'){
+			 if(Route::currentRouteName() == 'providers.index' || Route::currentRouteName() == 'providers.create' || Route::currentRouteName() == 'providers.edit'){
 				$provclasstype = 'active';
 			}
 			?> 
@@ -353,19 +353,19 @@
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
 				class="fas fa-user"></i><span>Providers</span></a>
 				<ul class="dropdown-menu">
-					<li class="{{(Route::currentRouteName() == 'admin.providers.index' || Route::currentRouteName() == 'admin.providers.create' || Route::currentRouteName() == 'admin.providers.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.providers.index')}}">Providers List</a></li>
+					<li class="{{(Route::currentRouteName() == 'providers.index' || Route::currentRouteName() == 'providers.create' || Route::currentRouteName() == 'providers.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('providers.index')}}">Providers List</a></li>
 				</ul>
 			</li>
 			<?php
-			if(Route::currentRouteName() == 'admin.leads.index'){
+			if(Route::currentRouteName() == 'leads.index'){
 				$leadclasstype = 'active';
 			}
 			?> 
 			<li class="dropdown {{@$leadclasstype}}">
-				<a href="{{route('admin.leads.index')}}" class="nav-link"><i class="fas fa-briefcase"></i><span>Leads</span></a>
+				<a href="{{route('leads.index')}}" class="nav-link"><i class="fas fa-briefcase"></i><span>Leads</span></a>
 			</li>
 			<?php
-			if(Route::currentRouteName() == 'admin.invoice.index'){
+			if(Route::currentRouteName() == 'invoice.index'){
 				$invclasstype = 'active';
 			}
 			?> 
@@ -373,36 +373,36 @@
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
 				class="fas fa-briefcase"></i><span>Invoices</span></a>
 				<ul class="dropdown-menu">
-					<li class="{{(Route::currentRouteName() == 'admin.invoice.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.invoice.index')}}">Invoices</a></li>
+					<li class="{{(Route::currentRouteName() == 'invoice.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.index')}}">Invoices</a></li>
 					<li><a class="nav-link" href="#">Payment Received</a></li>
 				</ul>
 			</li>
 			<?php
-			if(Route::currentRouteName() == 'admin.managecontact.index' || Route::currentRouteName() == 'admin.managecontact.create' || Route::currentRouteName() == 'admin.managecontact.edit'){
+			if(Route::currentRouteName() == 'managecontact.index' || Route::currentRouteName() == 'managecontact.create' || Route::currentRouteName() == 'managecontact.edit'){
 				$contclasstype = 'active';
 			}
 		?>
 	<li class="dropdown {{@$contclasstype}}">
-		<a href="{{route('admin.managecontact.index')}}" class="nav-link"><i class="fas fa-phone"></i><span>Manage Contacts</span></a>
+		<a href="{{route('managecontact.index')}}" class="nav-link"><i class="fas fa-phone"></i><span>Manage Contacts</span></a>
 	</li>
 	<?php
-	if(Route::currentRouteName() == 'admin.staff.index'){
+	if(Route::currentRouteName() == 'staff.index'){
 		$staffclasstype = 'active';
 	}
 	?>
 		<li class="dropdown {{@$staffclasstype}}">
-			<a href="{{route('admin.staff.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Staffs</span></a>
+			<a href="{{route('staff.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Staffs</span></a>
 		</li>
 		<?php
-		if(Route::currentRouteName() == 'admin.email.index'){
+		if(Route::currentRouteName() == 'email.index'){
 			$emtemclasstype = 'active';
 		}
 		?>
 			<li class="dropdown {{@$emtemclasstype}}">
-				<a href="{{route('admin.email.index')}}" class="nav-link"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+				<a href="{{route('email.index')}}" class="nav-link"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
 			</li>
 			<?php
-			if(Route::currentRouteName() == 'admin.my_profile' || Route::currentRouteName() == 'admin.change_password' || Route::currentRouteName() == 'admin.edit_api'){
+			if(Route::currentRouteName() == 'my_profile' || Route::currentRouteName() == 'change_password' || Route::currentRouteName() == 'edit_api'){
 				$actsetclasstype = 'active';
 			}*/ 
 			?> 
@@ -410,9 +410,9 @@
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
 				class="fas fa-cog"></i><span>My Account & Settings</span></a>
 				<ul class="dropdown-menu">
-					<li class="{{(Route::currentRouteName() == 'admin.my_profile') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.my_profile')}}">Manage Profile</a></li>
-					<li class="{{(Route::currentRouteName() == 'admin.change_password') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.change_password')}}">Change Password</a></li>
-					<li class="{{(Route::currentRouteName() == 'admin.edit_api') ? 'active' : ''}}"><a class="nav-link" href="{{route('admin.edit_api')}}">Api Key</a></li>
+					<li class="{{(Route::currentRouteName() == 'my_profile') ? 'active' : ''}}"><a class="nav-link" href="{{route('my_profile')}}">Manage Profile</a></li>
+					<li class="{{(Route::currentRouteName() == 'change_password') ? 'active' : ''}}"><a class="nav-link" href="{{route('change_password')}}">Change Password</a></li>
+					<li class="{{(Route::currentRouteName() == 'edit_api') ? 'active' : ''}}"><a class="nav-link" href="{{route('edit_api')}}">Api Key</a></li>
 				</ul> 
 			</li>-->
 			<li class="dropdown">

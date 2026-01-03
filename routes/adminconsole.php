@@ -12,124 +12,140 @@
 */
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminConsole\ProductTypeController;
+use App\Http\Controllers\AdminConsole\ProfileController;
+use App\Http\Controllers\AdminConsole\PartnerTypeController;
+use App\Http\Controllers\AdminConsole\VisaTypeController;
+use App\Http\Controllers\AdminConsole\MasterCategoryController;
+use App\Http\Controllers\AdminConsole\LeadServiceController;
+use App\Http\Controllers\AdminConsole\SubjectAreaController;
+use App\Http\Controllers\AdminConsole\SubjectController;
+use App\Http\Controllers\AdminConsole\SourceController;
+use App\Http\Controllers\AdminConsole\TagController;
+use App\Http\Controllers\AdminConsole\ChecklistController;
+use App\Http\Controllers\AdminConsole\FeeTypeController;
+use App\Http\Controllers\AdminConsole\WorkflowController;
+use App\Http\Controllers\AdminConsole\EmailController;
+use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
+use App\Http\Controllers\AdminConsole\DocumentChecklistController;
 
 Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
     //Product Type Routes
-    Route::get('/product-type', 'AdminConsole\ProductTypeController@index')->name('adminconsole.producttype.index');  
-    Route::get('/product-type/create', 'AdminConsole\ProductTypeController@create')->name('adminconsole.producttype.create');  
-    Route::post('/product-type/store', 'AdminConsole\ProductTypeController@store')->name('adminconsole.producttype.store');   
-    Route::get('/product-type/edit/{id}', 'AdminConsole\ProductTypeController@edit')->name('adminconsole.producttype.edit');
-    Route::post('/product-type/edit', 'AdminConsole\ProductTypeController@edit');
+    Route::get('/product-type', [ProductTypeController::class, 'index'])->name('adminconsole.producttype.index');  
+    Route::get('/product-type/create', [ProductTypeController::class, 'create'])->name('adminconsole.producttype.create');  
+    Route::post('/product-type/store', [ProductTypeController::class, 'store'])->name('adminconsole.producttype.store');   
+    Route::get('/product-type/edit/{id}', [ProductTypeController::class, 'edit'])->name('adminconsole.producttype.edit');
+    Route::post('/product-type/edit', [ProductTypeController::class, 'edit'])->name('adminconsole.producttype.update');
     
     //Profile Routes
-    Route::get('/profiles', 'AdminConsole\ProfileController@index')->name('adminconsole.profiles.index');  
-    Route::get('/profiles/create', 'AdminConsole\ProfileController@create')->name('adminconsole.profiles.create');  
-    Route::post('/profiles/store', 'AdminConsole\ProfileController@store')->name('adminconsole.profiles.store');  
-    Route::get('/profiles/edit/{id}', 'AdminConsole\ProfileController@edit')->name('adminconsole.profiles.edit');
-    Route::post('/profiles/edit', 'AdminConsole\ProfileController@edit');
+    Route::get('/profiles', [ProfileController::class, 'index'])->name('adminconsole.profiles.index');  
+    Route::get('/profiles/create', [ProfileController::class, 'create'])->name('adminconsole.profiles.create');  
+    Route::post('/profiles/store', [ProfileController::class, 'store'])->name('adminconsole.profiles.store');  
+    Route::get('/profiles/edit/{id}', [ProfileController::class, 'edit'])->name('adminconsole.profiles.edit');
+    Route::post('/profiles/edit', [ProfileController::class, 'edit'])->name('adminconsole.profiles.update');
     
     //Partner Type Routes
-    Route::get('/partner-type', 'AdminConsole\PartnerTypeController@index')->name('adminconsole.partnertype.index');  
-    Route::get('/partner-type/create', 'AdminConsole\PartnerTypeController@create')->name('adminconsole.partnertype.create');  
-    Route::post('/partner-type/store', 'AdminConsole\PartnerTypeController@store')->name('adminconsole.partnertype.store');   
-    Route::get('/partner-type/edit/{id}', 'AdminConsole\PartnerTypeController@edit')->name('adminconsole.partnertype.edit');
-    Route::post('/partner-type/edit', 'AdminConsole\PartnerTypeController@edit');
+    Route::get('/partner-type', [PartnerTypeController::class, 'index'])->name('adminconsole.partnertype.index');  
+    Route::get('/partner-type/create', [PartnerTypeController::class, 'create'])->name('adminconsole.partnertype.create');  
+    Route::post('/partner-type/store', [PartnerTypeController::class, 'store'])->name('adminconsole.partnertype.store');   
+    Route::get('/partner-type/edit/{id}', [PartnerTypeController::class, 'edit'])->name('adminconsole.partnertype.edit');
+    Route::post('/partner-type/edit', [PartnerTypeController::class, 'edit'])->name('adminconsole.partnertype.update');
     
     //Visa Type Routes
-    Route::get('/visa-type', 'AdminConsole\VisaTypeController@index')->name('adminconsole.visatype.index');  
-    Route::get('/visa-type/create', 'AdminConsole\VisaTypeController@create')->name('adminconsole.visatype.create');  
-    Route::post('/visa-type/store', 'AdminConsole\VisaTypeController@store')->name('adminconsole.visatype.store');     
-    Route::get('/visa-type/edit/{id}', 'AdminConsole\VisaTypeController@edit')->name('adminconsole.visatype.edit');
-    Route::post('/visa-type/edit', 'AdminConsole\VisaTypeController@edit');
+    Route::get('/visa-type', [VisaTypeController::class, 'index'])->name('adminconsole.visatype.index');  
+    Route::get('/visa-type/create', [VisaTypeController::class, 'create'])->name('adminconsole.visatype.create');  
+    Route::post('/visa-type/store', [VisaTypeController::class, 'store'])->name('adminconsole.visatype.store');     
+    Route::get('/visa-type/edit/{id}', [VisaTypeController::class, 'edit'])->name('adminconsole.visatype.edit');
+    Route::post('/visa-type/edit', [VisaTypeController::class, 'edit'])->name('adminconsole.visatype.update');
     
     //Master Category Routes
-    Route::get('/master-category', 'AdminConsole\MasterCategoryController@index')->name('adminconsole.mastercategory.index');  
-    Route::get('/master-category/create', 'AdminConsole\MasterCategoryController@create')->name('adminconsole.mastercategory.create');  
-    Route::post('/master-category/store', 'AdminConsole\MasterCategoryController@store')->name('adminconsole.mastercategory.store');     
-    Route::get('/master-category/edit/{id}', 'AdminConsole\MasterCategoryController@edit')->name('adminconsole.mastercategory.edit');
-    Route::post('/master-category/edit', 'AdminConsole\MasterCategoryController@edit');
+    Route::get('/master-category', [MasterCategoryController::class, 'index'])->name('adminconsole.mastercategory.index');  
+    Route::get('/master-category/create', [MasterCategoryController::class, 'create'])->name('adminconsole.mastercategory.create');  
+    Route::post('/master-category/store', [MasterCategoryController::class, 'store'])->name('adminconsole.mastercategory.store');     
+    Route::get('/master-category/edit/{id}', [MasterCategoryController::class, 'edit'])->name('adminconsole.mastercategory.edit');
+    Route::post('/master-category/edit', [MasterCategoryController::class, 'edit'])->name('adminconsole.mastercategory.update');
     
     //Lead Service Routes
-    Route::get('/lead-service', 'AdminConsole\LeadServiceController@index')->name('adminconsole.leadservice.index');  
-    Route::get('/lead-service/create', 'AdminConsole\LeadServiceController@create')->name('adminconsole.leadservice.create');  
-    Route::post('/lead-service/store', 'AdminConsole\LeadServiceController@store')->name('adminconsole.leadservice.store');     
-    Route::get('/lead-service/edit/{id}', 'AdminConsole\LeadServiceController@edit')->name('adminconsole.leadservice.edit');
-    Route::post('/lead-service/edit', 'AdminConsole\LeadServiceController@edit');
+    Route::get('/lead-service', [LeadServiceController::class, 'index'])->name('adminconsole.leadservice.index');  
+    Route::get('/lead-service/create', [LeadServiceController::class, 'create'])->name('adminconsole.leadservice.create');  
+    Route::post('/lead-service/store', [LeadServiceController::class, 'store'])->name('adminconsole.leadservice.store');     
+    Route::get('/lead-service/edit/{id}', [LeadServiceController::class, 'edit'])->name('adminconsole.leadservice.edit');
+    Route::post('/lead-service/edit', [LeadServiceController::class, 'edit'])->name('adminconsole.leadservice.update');
     
     // NOTE: Tax routes have been removed
     // TaxController and taxes table have been dropped
     
     //Subject Area Routes
-    Route::get('/subjectarea', 'AdminConsole\SubjectAreaController@index')->name('adminconsole.subjectarea.index');  
-    Route::get('/subjectarea/create', 'AdminConsole\SubjectAreaController@create')->name('adminconsole.subjectarea.create');  
-    Route::post('/subjectarea/store', 'AdminConsole\SubjectAreaController@store')->name('adminconsole.subjectarea.store');  
-    Route::get('/subjectarea/edit/{id}', 'AdminConsole\SubjectAreaController@edit')->name('adminconsole.subjectarea.edit');
-    Route::post('/subjectarea/edit', 'AdminConsole\SubjectAreaController@edit');
+    Route::get('/subjectarea', [SubjectAreaController::class, 'index'])->name('adminconsole.subjectarea.index');  
+    Route::get('/subjectarea/create', [SubjectAreaController::class, 'create'])->name('adminconsole.subjectarea.create');  
+    Route::post('/subjectarea/store', [SubjectAreaController::class, 'store'])->name('adminconsole.subjectarea.store');  
+    Route::get('/subjectarea/edit/{id}', [SubjectAreaController::class, 'edit'])->name('adminconsole.subjectarea.edit');
+    Route::post('/subjectarea/edit', [SubjectAreaController::class, 'edit'])->name('adminconsole.subjectarea.update');
     
     //Subject Routes
-    Route::get('/subject', 'AdminConsole\SubjectController@index')->name('adminconsole.subject.index');
-    Route::get('/subject/create', 'AdminConsole\SubjectController@create')->name('adminconsole.subject.create');  
-    Route::post('/subject/store', 'AdminConsole\SubjectController@store')->name('adminconsole.subject.store');  
-    Route::get('/subject/edit/{id}', 'AdminConsole\SubjectController@edit')->name('adminconsole.subject.edit');
-    Route::post('/subject/edit', 'AdminConsole\SubjectController@edit');
+    Route::get('/subject', [SubjectController::class, 'index'])->name('adminconsole.subject.index');
+    Route::get('/subject/create', [SubjectController::class, 'create'])->name('adminconsole.subject.create');  
+    Route::post('/subject/store', [SubjectController::class, 'store'])->name('adminconsole.subject.store');  
+    Route::get('/subject/edit/{id}', [SubjectController::class, 'edit'])->name('adminconsole.subject.edit');
+    Route::post('/subject/edit', [SubjectController::class, 'edit'])->name('adminconsole.subject.update');
     
     //Source Routes
-    Route::get('/source', 'AdminConsole\SourceController@index')->name('adminconsole.source.index');  
-    Route::get('/source/create', 'AdminConsole\SourceController@create')->name('adminconsole.source.create');  
-    Route::post('source/store', 'AdminConsole\SourceController@store')->name('adminconsole.source.store');     
-    Route::get('/source/edit/{id}', 'AdminConsole\SourceController@edit')->name('adminconsole.source.edit');
-    Route::post('/source/edit', 'AdminConsole\SourceController@edit');
+    Route::get('/source', [SourceController::class, 'index'])->name('adminconsole.source.index');  
+    Route::get('/source/create', [SourceController::class, 'create'])->name('adminconsole.source.create');  
+    Route::post('/source/store', [SourceController::class, 'store'])->name('adminconsole.source.store');     
+    Route::get('/source/edit/{id}', [SourceController::class, 'edit'])->name('adminconsole.source.edit');
+    Route::post('/source/edit', [SourceController::class, 'edit'])->name('adminconsole.source.update');
     
     //Tags Routes
-    Route::get('/tags', 'AdminConsole\TagController@index')->name('adminconsole.tags.index');  
-    Route::get('/tags/create', 'AdminConsole\TagController@create')->name('adminconsole.tags.create');  
-    Route::post('tags/store', 'AdminConsole\TagController@store')->name('adminconsole.tags.store');     
-    Route::get('/tags/edit/{id}', 'AdminConsole\TagController@edit')->name('adminconsole.tags.edit');
-    Route::post('/tags/edit', 'AdminConsole\TagController@edit');
+    Route::get('/tags', [TagController::class, 'index'])->name('adminconsole.tags.index');  
+    Route::get('/tags/create', [TagController::class, 'create'])->name('adminconsole.tags.create');  
+    Route::post('/tags/store', [TagController::class, 'store'])->name('adminconsole.tags.store');     
+    Route::get('/tags/edit/{id}', [TagController::class, 'edit'])->name('adminconsole.tags.edit');
+    Route::post('/tags/edit', [TagController::class, 'edit'])->name('adminconsole.tags.update');
     
     //Checklist Routes
-    Route::get('/checklist', 'AdminConsole\ChecklistController@index')->name('adminconsole.checklist.index');  
-    Route::get('/checklist/create', 'AdminConsole\ChecklistController@create')->name('adminconsole.checklist.create');  
-    Route::post('checklist/store', 'AdminConsole\ChecklistController@store')->name('adminconsole.checklist.store');     
-    Route::get('/checklist/edit/{id}', 'AdminConsole\ChecklistController@edit')->name('adminconsole.checklist.edit');
-    Route::post('/checklist/edit', 'AdminConsole\ChecklistController@edit')->name('adminconsole.checklist.update');
+    Route::get('/checklist', [ChecklistController::class, 'index'])->name('adminconsole.checklist.index');  
+    Route::get('/checklist/create', [ChecklistController::class, 'create'])->name('adminconsole.checklist.create');  
+    Route::post('/checklist/store', [ChecklistController::class, 'store'])->name('adminconsole.checklist.store');     
+    Route::get('/checklist/edit/{id}', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.edit');
+    Route::post('/checklist/edit', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.update');
     
     //FeeType Routes
-    Route::get('/feetype', 'AdminConsole\FeeTypeController@index')->name('adminconsole.feetype.index');  
-    Route::get('/feetype/create', 'AdminConsole\FeeTypeController@create')->name('adminconsole.feetype.create');  
-    Route::post('feetype/store', 'AdminConsole\FeeTypeController@store')->name('adminconsole.feetype.store');     
-    Route::get('/feetype/edit/{id}', 'AdminConsole\FeeTypeController@edit')->name('adminconsole.feetype.edit');
-    Route::post('/feetype/edit', 'AdminConsole\FeeTypeController@edit')->name('adminconsole.feetype.update');
+    Route::get('/feetype', [FeeTypeController::class, 'index'])->name('adminconsole.feetype.index');  
+    Route::get('/feetype/create', [FeeTypeController::class, 'create'])->name('adminconsole.feetype.create');  
+    Route::post('/feetype/store', [FeeTypeController::class, 'store'])->name('adminconsole.feetype.store');     
+    Route::get('/feetype/edit/{id}', [FeeTypeController::class, 'edit'])->name('adminconsole.feetype.edit');
+    Route::post('/feetype/edit', [FeeTypeController::class, 'edit'])->name('adminconsole.feetype.update');
     
     //Workflow Routes
-    Route::get('/workflow', 'AdminConsole\WorkflowController@index')->name('adminconsole.workflow.index');  
-    Route::get('/workflow/create', 'AdminConsole\WorkflowController@create')->name('adminconsole.workflow.create');  
-    Route::post('workflow/store', 'AdminConsole\WorkflowController@store')->name('adminconsole.workflow.store');     
-    Route::get('/workflow/edit/{id}', 'AdminConsole\WorkflowController@edit')->name('adminconsole.workflow.edit');
-    Route::get('/workflow/deactivate-workflow/{id}', 'AdminConsole\WorkflowController@deactivateWorkflow')->name('adminconsole.workflow.deactivate');
-    Route::get('/workflow/activate-workflow/{id}', 'AdminConsole\WorkflowController@activateWorkflow')->name('adminconsole.workflow.activate');
-    Route::post('/workflow/edit', 'AdminConsole\WorkflowController@edit')->name('adminconsole.workflow.update');
+    Route::get('/workflow', [WorkflowController::class, 'index'])->name('adminconsole.workflow.index');  
+    Route::get('/workflow/create', [WorkflowController::class, 'create'])->name('adminconsole.workflow.create');  
+    Route::post('/workflow/store', [WorkflowController::class, 'store'])->name('adminconsole.workflow.store');     
+    Route::get('/workflow/edit/{id}', [WorkflowController::class, 'edit'])->name('adminconsole.workflow.edit');
+    Route::get('/workflow/deactivate-workflow/{id}', [WorkflowController::class, 'deactivateWorkflow'])->name('adminconsole.workflow.deactivate');
+    Route::get('/workflow/activate-workflow/{id}', [WorkflowController::class, 'activateWorkflow'])->name('adminconsole.workflow.activate');
+    Route::post('/workflow/edit', [WorkflowController::class, 'edit'])->name('adminconsole.workflow.update');
     
     //Email Routes
-    Route::get('/emails', 'AdminConsole\EmailController@index')->name('adminconsole.emails.index');  
-    Route::get('/emails/create', 'AdminConsole\EmailController@create')->name('adminconsole.emails.create');  
-    Route::post('emails/store', 'AdminConsole\EmailController@store')->name('adminconsole.emails.store');     
-    Route::get('/emails/edit/{id}', 'AdminConsole\EmailController@edit')->name('adminconsole.emails.edit');
-    Route::post('/emails/edit', 'AdminConsole\EmailController@edit')->name('adminconsole.emails.update');
+    Route::get('/emails', [EmailController::class, 'index'])->name('adminconsole.emails.index');  
+    Route::get('/emails/create', [EmailController::class, 'create'])->name('adminconsole.emails.create');  
+    Route::post('/emails/store', [EmailController::class, 'store'])->name('adminconsole.emails.store');     
+    Route::get('/emails/edit/{id}', [EmailController::class, 'edit'])->name('adminconsole.emails.edit');
+    Route::post('/emails/edit', [EmailController::class, 'edit'])->name('adminconsole.emails.update');
     
     //Crm Email Template Routes
-    Route::get('/crm_email_template', 'AdminConsole\CrmEmailTemplateController@index')->name('adminconsole.crmemailtemplate.index');  
-    Route::get('/crm_email_template/create', 'AdminConsole\CrmEmailTemplateController@create')->name('adminconsole.crmemailtemplate.create');  
-    Route::post('crm_email_template/store', 'AdminConsole\CrmEmailTemplateController@store')->name('adminconsole.crmemailtemplate.store');     
-    Route::get('/crm_email_template/edit/{id}', 'AdminConsole\CrmEmailTemplateController@edit')->name('adminconsole.crmemailtemplate.edit');
-    Route::post('/crm_email_template/edit', 'AdminConsole\CrmEmailTemplateController@edit')->name('adminconsole.crmemailtemplate.update');
+    Route::get('/crm_email_template', [CrmEmailTemplateController::class, 'index'])->name('adminconsole.crmemailtemplate.index');  
+    Route::get('/crm_email_template/create', [CrmEmailTemplateController::class, 'create'])->name('adminconsole.crmemailtemplate.create');  
+    Route::post('/crm_email_template/store', [CrmEmailTemplateController::class, 'store'])->name('adminconsole.crmemailtemplate.store');     
+    Route::get('/crm_email_template/edit/{id}', [CrmEmailTemplateController::class, 'edit'])->name('adminconsole.crmemailtemplate.edit');
+    Route::post('/crm_email_template/edit', [CrmEmailTemplateController::class, 'edit'])->name('adminconsole.crmemailtemplate.update');
     
     //Document Checklist Routes
-    Route::get('/documentchecklist', 'AdminConsole\DocumentChecklistController@index')->name('adminconsole.documentchecklist.index');
-    Route::get('/documentchecklist/create', 'AdminConsole\DocumentChecklistController@create')->name('adminconsole.documentchecklist.create');
-    Route::post('/documentchecklist/store', 'AdminConsole\DocumentChecklistController@store')->name('adminconsole.documentchecklist.store');
-    Route::get('/documentchecklist/edit/{id}', 'AdminConsole\DocumentChecklistController@edit')->name('adminconsole.documentchecklist.edit');
-    Route::post('/documentchecklist/edit', 'AdminConsole\DocumentChecklistController@edit')->name('adminconsole.documentchecklist.update');
+    Route::get('/documentchecklist', [DocumentChecklistController::class, 'index'])->name('adminconsole.documentchecklist.index');
+    Route::get('/documentchecklist/create', [DocumentChecklistController::class, 'create'])->name('adminconsole.documentchecklist.create');
+    Route::post('/documentchecklist/store', [DocumentChecklistController::class, 'store'])->name('adminconsole.documentchecklist.store');
+    Route::get('/documentchecklist/edit/{id}', [DocumentChecklistController::class, 'edit'])->name('adminconsole.documentchecklist.edit');
+    Route::post('/documentchecklist/edit', [DocumentChecklistController::class, 'edit'])->name('adminconsole.documentchecklist.update');
     
 });

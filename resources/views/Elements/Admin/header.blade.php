@@ -50,16 +50,16 @@
     					<a href="#" class="dropdown-item">
     						Appointment
     					</a>
-    					<a href="{{URL::to('/admin/partners')}}" class="dropdown-item">
+    					<a href="{{URL::to('/partners')}}" class="dropdown-item">
     						Partner
     					</a>
-    					<a href="{{URL::to('/admin/products')}}" class="dropdown-item">
+    					<a href="{{URL::to('/products')}}" class="dropdown-item">
     						Product
     					</a>
     					<a href="#" class="dropdown-item">
     						Workflow
     					</a>
-    					<a href="{{URL::to('/admin/users/active')}}" class="dropdown-item">
+    					<a href="{{URL::to('/users/active')}}" class="dropdown-item">
     						User
     					</a>
     				</div>
@@ -168,7 +168,7 @@
 			</a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
 				<div class="dropdown-title">{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}</div>
-				<a href="{{route('admin.my_profile')}}" class="dropdown-item has-icon">
+				<a href="{{route('my_profile')}}" class="dropdown-item has-icon">
 					<i class="far fa-user"></i> Profile
 				</a>
 				@if(@Auth::user()->role == 1)

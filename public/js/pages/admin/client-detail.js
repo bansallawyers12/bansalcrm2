@@ -1024,7 +1024,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/' + verify_doc_href,
+            url: baseUrl + '/' + verify_doc_href,
             type:'POST',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             datatype:'json',
@@ -1059,7 +1059,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/' + notuse_doc_href,
+            url: baseUrl + '/' + notuse_doc_href,
             type:'POST',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             datatype:'json',
@@ -1104,7 +1104,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/' + backto_doc_href,
+            url: baseUrl + '/' + backto_doc_href,
             type:'POST',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             datatype:'json',
@@ -1139,7 +1139,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/' + delhref,
+            url: baseUrl + '/' + delhref,
             type:'GET',
             datatype:'json',
             data:{note_id:notid},
@@ -1221,7 +1221,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/' + delloghref,
+            url: baseUrl + '/' + delloghref,
             type:'GET',
             datatype:'json',
             data:{activitylogid:activitylogid},
@@ -1282,7 +1282,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/application/publishdoc',
+            url: baseUrl + '/application/publishdoc',
             type:'GET',
             datatype:'json',
             data:{appid:appcid,status:'1'},
@@ -2741,7 +2741,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var baseUrl = App.getUrl('siteUrl') || '';
         $.ajax({
-            url: baseUrl + '/admin/delete-education',
+            url: baseUrl + '/delete-education',
             type:'GET',
             datatype:'json',
             data:{edu_id:eduid},

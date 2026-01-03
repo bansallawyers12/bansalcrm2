@@ -216,16 +216,16 @@
                  break;
             case 'Lead':
                 // Both clients and leads (old and new) route to client detail page
-                url = siteUrl + '/admin/leads/detail/' + id;
+                url = siteUrl + '/leads/detail/' + id;
                 break;
             case 'Partner':
-                url = siteUrl + '/admin/partners/detail/' + id;
+                url = siteUrl + '/partners/detail/' + id;
                 break;
             case 'Product':
-                url = siteUrl + '/admin/products/detail/' + id;
+                url = siteUrl + '/products/detail/' + id;
                 break;
             case 'Application':
-                url = siteUrl + '/admin/applications/detail/' + id;
+                url = siteUrl + '/applications/detail/' + id;
                 break;
             default:
                 console.warn('Unknown result type:', type);
