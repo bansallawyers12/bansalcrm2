@@ -229,7 +229,7 @@
 			<!-- FINANCIAL MANAGEMENT -->
 			
 			<?php
-			if(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid' || Route::currentRouteName() == 'account.payment' || Route::currentRouteName() == 'invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'invoice.paidgroupinvoice' || Route::currentRouteName() == 'invoice.invoiceschedules' || Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid'){
+			if(Route::currentRouteName() == 'invoice.unpaid' || Route::currentRouteName() == 'invoice.paid' || Route::currentRouteName() == 'account.payment' || Route::currentRouteName() == 'invoice.unpaidgroupinvoice' || Route::currentRouteName() == 'invoice.paidgroupinvoice' || Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid'){
 				$accountclasstype = 'active';
 			}
 			?> 	
@@ -248,7 +248,7 @@
 					<li class="{{(Route::currentRouteName() == 'account.payment') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payment')}}">Payment</a></li>
 					<?php } ?>
 					
-					<li class="{{(Route::currentRouteName() == 'invoice.invoiceschedules') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.invoiceschedules')}}">Invoice Schedule</a></li> 
+					<!-- NOTE: Invoice Schedule menu item removed - Invoice Schedule feature has been removed -->
 					<li class="{{(Route::currentRouteName() == 'account.payableunpaid' || Route::currentRouteName() == 'account.payablepaid' || Route::currentRouteName() == 'account.receivableunpaid' || Route::currentRouteName() == 'account.receivablepaid') ? 'active' : ''}}"><a class="nav-link" href="{{route('account.payableunpaid')}}">Income Sharing</a></li> 
 				</ul>
 			</li> 

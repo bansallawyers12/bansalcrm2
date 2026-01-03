@@ -40,7 +40,7 @@ This document contains a complete list of all database tables in the Bansal CRM 
 | 30 | interested_services | Client interested services |
 | 31 | invoice_details | Invoice detail line items |
 | 32 | invoice_payments | Invoice payment records |
-| 33 | invoice_schedules | Invoice schedule records |
+| 33 | invoice_schedules | ~~Removed - Invoice Schedule feature has been removed~~ |
 | 34 | invoices | Invoice records |
 | 35 | lead_services | Lead service records |
 | 36 | leads | Lead records |
@@ -58,7 +58,7 @@ This document contains a complete list of all database tables in the Bansal CRM 
 | 48 | products | Product records |
 | 49 | profiles | User profiles |
 | 50 | promotions | Promotion records |
-| 51 | schedule_items | Schedule item records |
+| 51 | schedule_items | ~~Removed - Invoice Schedule feature has been removed~~ |
 | 52 | sessions | Laravel session storage |
 | 53 | share_invoices | Shared invoice records |
 | 54 | sources | Lead/client sources |
@@ -149,7 +149,7 @@ This document contains a complete list of all database tables in the Bansal CRM 
 - `workflow_stages` - Workflow stages
 - `followups` - Follow-up records
 - `notes` - Note records
-- `schedule_items` - Schedule items
+- ~~`schedule_items` - Schedule items~~ (Removed - Invoice Schedule feature has been removed)
 
 ### Products & Services
 - `products` - Product records

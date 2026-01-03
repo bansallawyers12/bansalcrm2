@@ -211,7 +211,7 @@
 												<li><label><input type="checkbox" name="module_access[46]" class="accounts"> Can create invoices of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[47]" class="accounts"> Can add, edit, delete and make/revert payments of clients invoices of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[48]" class="accounts"> Can add, edit, delete and make/revert payments of invoices of only assigned clients.</label></li>
-												<li><label><input type="checkbox" name="module_access[49]" class="accounts"> Can view invoices of only assigned clients. schedule.</label></li>
+												<!-- NOTE: module_access[49] removed - Invoice Schedule feature has been removed -->
 												<li><label><input type="checkbox" name="module_access[50]" class="accounts"> Can view invoices of all the clients of associated offices and shared applications.</label></li>
 												<li><label><input type="checkbox" name="module_access[51]" class="accounts">  Can view income shared receivables of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[52]" class="accounts"> Can make payments, revert and delete payables of income shared offices and agents.</label></li>

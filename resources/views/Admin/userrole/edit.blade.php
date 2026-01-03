@@ -217,7 +217,7 @@
 												<li><label><input type="checkbox" name="module_access[46]" <?php if(array_key_exists('46',  $module_access)) { echo "checked"; } ?> class="accounts"> Can list and create invoices.</label></li>
 												<li><label><input type="checkbox" name="module_access[47]" <?php if(array_key_exists('47',  $module_access)) { echo "checked"; } ?> class="accounts"> Can list, add, edit, delete and make/revert payments .</label></li>
 												<li><label><input type="checkbox" name="module_access[48]" <?php if(array_key_exists('48',  $module_access)) { echo "checked"; } ?> class="accounts"> Can add, edit, delete and make/revert payments of invoices.</label></li>
-												<li><label><input type="checkbox" name="module_access[49]" <?php if(array_key_exists('49',  $module_access)) { echo "checked"; } ?> class="accounts"> Can view invoices of only assigned clients. schedule.</label></li>
+												<!-- NOTE: module_access[49] removed - Invoice Schedule feature has been removed -->
 												<li><label><input type="checkbox" name="module_access[50]" <?php if(array_key_exists('50',  $module_access)) { echo "checked"; } ?> class="accounts"> Can view invoices of all the clients of associated offices and shared applications.</label></li>
 												<li><label><input type="checkbox" name="module_access[51]" <?php if(array_key_exists('51',  $module_access)) { echo "checked"; } ?> class="accounts">  Can view income shared receivables of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[52]" <?php if(array_key_exists('52',  $module_access)) { echo "checked"; } ?> class="accounts"> Can make payments, revert and delete payables of income shared offices and agents.</label></li>

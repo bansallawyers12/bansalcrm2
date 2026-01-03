@@ -3210,7 +3210,7 @@ if($fetchedData->tagname != ''){
         getSubjects: '{{ url("/getsubjects") }}',
         sendMail: '{{ url("/sendmail") }}',
         clientGetReceiptInfo: '{{ url("/clients/getClientReceiptInfoById") }}',
-        addScheduleInvoiceDetail: '{{ url("/addscheduleinvoicedetail") }}',
+        // NOTE: addScheduleInvoiceDetail removed - Invoice Schedule feature has been removed
         applicationChecklistUpload: '{{ url("/application/checklistupload") }}',
         getApplicationsLogs: '{{ url("/get-applications-logs") }}',
         getApplicationDetail: '{{ url("/getapplicationdetail") }}',

@@ -1618,9 +1618,6 @@ $(document).delegate('.openchecklist', 'click', function(){
 	$('#create_checklist #checklistid').val(id);
 	$('#create_checklist').modal('show');
 });
-$(document).delegate('.openpaymentschedule', 'click', function(){
-	$('#create_paymentschedule').modal('show');
-});
 
 $(document).delegate('.createaddapointment', 'click', function(){
 	$('#create_appoint').modal('show');

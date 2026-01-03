@@ -146,9 +146,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				<!--<li class="nav-item">
 					<a class="nav-link" id="tasks-tab" data-bs-toggle="tab" href="#tasks">Tasks</a>
 				</li> -->
-				<li class="nav-item">
-					<a class="nav-link" id="paymentschedule-tab" data-bs-toggle="tab" href="#paymentschedule">Payment Schedule</a>
-				</li>
+				<!-- NOTE: Payment Schedule tab removed - Invoice Schedule feature has been removed -->
 			</ul> 
 			<div class="tab-content" id="applicationContent">
 				<div class="tab-pane fade show active" id="applicate_activities" role="tabpanel" aria-labelledby="applicate_activities-tab">
@@ -382,122 +380,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 					<?php } ?>
 					</div>
 				</div>-->
-				<div class="tab-pane fade" id="paymentschedule" role="tabpanel" aria-labelledby="paymentschedule-tab">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="schedule_box">
-								<div class="schedule_col">
-									<span>Scheduled</span>
-									<h4>0.00</h4>
-								</div>
-								<div class="schedule_col">
-									<span>Invoiced</span>
-									<h4>0.00</h4>
-								</div>
-								<div class="schedule_col">
-									<span>Pending</span>
-									<h4>0.00</h4>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="schedule_btns">
-								<a class="openpaymentschedule btn btn-primary" data-id="{{$fetchData->id}}" href="javascript:;" ><i class="fa fa-plus"></i> Add Schedule</a>
-								<div class="dropdown d-inline">
-									<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Schedule</button>
-									<div class="dropdown-menu">
-										<a class="dropdown-item" href="javascript:;">Email Schedule</a>
-										<a target="_blank" class="dropdown-item" href="{{URL::to('/applications/preview-schedules/')}}/{{$fetchData->id}}">Preview Schedule</a>
-									</div> 
-								</div>
-							</div>
-						</div>
-					</div> 
-					<div class="table-responsive"> 
-						<table class="table text_wrap">
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Installment</th>
-									<th>Fee Type</th>
-									<th>Fee</th>
-									<th>Total Fees</th>
-									<th>Discounts</th>
-									<th>Invoicing</th>
-									<th>Status</th>
-									<th></th>
-								</tr> 
-							</thead>
-							<tbody class="tdata showpaymentscheduledata">	
-							<?php
-							// Use eager loading to prevent N+1 queries
-							$invoiceschedules = \App\Models\InvoiceSchedule::with('scheduleItems')
-								->where('application_id', $fetchData->id)
-								->get();
-							
-							foreach($invoiceschedules as $invoiceschedule){
-								// Use the eager-loaded relationship
-								$scheduleitem = $invoiceschedule->scheduleItems;
-							?>
-								<tr id="{{@$invoiceschedule->id}}">
-									<td>{{@$invoiceschedule->id}}</td> 
-									<td >
-										<div style="flex-direction: column;display: flex;">
-										<span style="line-height: 23px;" class="text-info">{{@$invoiceschedule->installment_name}}</span>
-										<span style="line-height: 16px;" class="">{{@$invoiceschedule->installment_date}}</span>
-										<span style="line-height: 14px;" title="Non-Claimable" style="background-color: #2185d0!important;border-color: #2185d0!important;color: #fff!important; cursor: auto;font-size: 10px;padding: 3px;border-radius: 5px;">Non-Claimable</span>
-										</div>
-									</td>
-									<td >
-									<div style="flex-direction: column;display: flex;">
-									<?php
-									foreach($scheduleitem as $scheduleite){
-										?>
-										<span style="line-height: 23px;" class="">{{@$scheduleite->fee_type}}</span>
-										<?php
-									}
-									?>
-									</div>
-									</td>
-									<td >
-									<div style="flex-direction: column;display: flex;">
-									<?php
-									$totlfee = $scheduleitem->sum('fee_amount');
-									foreach($scheduleitem as $scheduleite){
-										?>
-										<span style="line-height: 23px;" class="">{{@$scheduleite->fee_amount}}</span>
-										<?php
-									}
-									?>
-									</div>
-									</td>
-									<td>{{$totlfee}}</td>
-									<td>{{@$invoiceschedule->discount}}</td>
-									<td>-</td>
-									<td><span title="Non Claimable" class="ui alignMiddle ag-label--circular truncate text-info">Non Claimable</span></td>
-									<td>
-										<div class="dropdown d-inline">
-											<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-											<div class="dropdown-menu">
-												<a class="dropdown-item editpaymentschedule" data-id="{{$invoiceschedule->id}}" href="javascript:;">Edit</a>
-												<a class="dropdown-item deletenote" data-id="{{$invoiceschedule->id}}" data-href="deletepaymentschedule" href="javascript:;" >Delete</a>
-												<a  data-cid="<?php echo $invoiceschedule->client_id; ?>" data-app-id="<?php echo @$invoiceschedule->application_id; ?>" data-id="<?php echo @$invoiceschedule->id; ?>" class="dropdown-item createapplicationnewinvoice" href="javascript:;" >Create Invoice</a>
-											</div>
-										</div>
-									</td>
-								</tr>
-							<?php } ?>
-							</tbody>
-							<!--<tbody>
-								<tr>
-									<td style="text-align:center;" colspan="10">
-										No Record found
-									</td>
-								</tr>
-							</tbody>-->
-						</table> 
-					</div>
-				</div> 
+				<!-- NOTE: Payment Schedule tab content removed - Invoice Schedule feature has been removed --> 
 			</div>
 		</div>
 	</div>
@@ -565,10 +448,8 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				$discount = @$appfeeoption->total_discount;
 			}
 			$net = $totl -  $discount;
-			// Check if invoice schedule exists (already loaded above with eager loading)
-			$invoiceschedule = \App\Models\InvoiceSchedule::where('application_id', $fetchData->id)->first();
+			// NOTE: Invoice Schedule setup button removed - Invoice Schedule feature has been removed
 			?>
-				<a style="<?php if($invoiceschedule){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}"  class="btn btn-outline-primary openpaymentschedule"><i class="fa fa-plus"></i> Setup Payment Schedule</a>
 			</div>
           
           	<div class="divider"></div>

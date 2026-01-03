@@ -440,15 +440,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/group-invoice/unpaid', [InvoiceController::class, 'unpaidgroupinvoice'])->name('invoice.unpaidgroupinvoice');
 		Route::get('/group-invoice/paid', [InvoiceController::class, 'paidgroupinvoice'])->name('invoice.paidgroupinvoice');
 		Route::get('/group-invoice/create', [InvoiceController::class, 'creategroupinvoice'])->name('invoice.creategroupinvoice'); 
-		Route::get('/invoice-schedules', [InvoiceController::class, 'invoiceschedules'])->name('invoice.invoiceschedules'); 
-		Route::post('/paymentschedule', [InvoiceController::class, 'paymentschedule'])->name('invoice.paymentschedule'); 
-		Route::post('/setup-paymentschedule', [InvoiceController::class, 'setuppaymentschedule']); 
-		Route::post('/editpaymentschedule', [InvoiceController::class, 'editpaymentschedule'])->name('invoice.editpaymentschedule'); 
-		Route::get('/scheduleinvoicedetail', [InvoiceController::class, 'scheduleinvoicedetail']); 
-		Route::get('/addscheduleinvoicedetail', [InvoiceController::class, 'addscheduleinvoicedetail']); 
-		Route::get('/get-all-paymentschedules', [InvoiceController::class, 'getallpaymentschedules']); 
-		Route::get('/deletepaymentschedule', [InvoiceController::class, 'deletepaymentschedule']); 
-		Route::get('/applications/preview-schedules/{id}', [InvoiceController::class, 'apppreviewschedules']); 
+		// NOTE: Invoice Schedule routes removed - Invoice Schedule feature has been removed
 		
 		// NOTE: Feature configuration routes (Product Type, Partner Type, Visa Type, etc.) have been moved to routes/adminconsole.php
 		// Those routes now use the AdminConsole namespace and are accessible at /adminconsole/* paths

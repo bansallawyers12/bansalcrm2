@@ -1198,16 +1198,7 @@ Bansal Immigration`;
                                 $('.interest_serv_list').html(responses);
                             }
                         });
-                    }else if(delhref == 'deletepaymentschedule'){
-                        var url = App.getUrl('getAllPaymentSchedules') || App.getUrl('siteUrl') + '/admin/get-all-paymentschedules';
-                        $.ajax({
-                            url: url,
-                            type:'GET',
-                            data:{client_id: App.getPageConfig('clientId'), appid:res.application_id},
-                            success: function(responses){
-                                $('.showpaymentscheduledata').html(responses);
-                            }
-                        });
+                    // NOTE: deletepaymentschedule handler removed - Invoice Schedule feature has been removed
                     }else if(delhref == 'deleteapplicationdocs'){
                         $('.mychecklistdocdata').html(res.doclistdata);
                         $('.checklistuploadcount').html(res.applicationuploadcount);
@@ -1332,15 +1323,7 @@ Bansal Immigration`;
     // NOTE CREATION HANDLERS
     // ============================================================================
     
-    $(document).on('click', '.createapplicationnewinvoice', function(){
-        $('#opencreateinvoiceform').modal('show');
-        var sid = $(this).attr('data-id');
-        var cid = $(this).attr('data-cid');
-        var aid = $(this).attr('data-app-id');
-        $('#opencreateinvoiceform #invoice_client_id').val(cid);
-        $('#app_id').val(aid);
-        $('#schedule_id').val(sid);
-    });
+    // NOTE: createapplicationnewinvoice handler removed - Invoice Schedule feature has been removed
 
     $(document).on('click', '.create_note_d', function(){
         $('#create_note_d input[name="mailid"]').val(0);
@@ -2232,28 +2215,7 @@ Bansal Immigration`;
         $('#create_checklist').modal('show');
     });
 
-    $(document).on('click', '.openpaymentschedule', function(){
-        var id = $(this).attr('data-id');
-        $('#addpaymentschedule').modal('show');
-        $('.popuploader').show();
-        var url = App.getUrl('addScheduleInvoiceDetail') || App.getUrl('siteUrl') + '/admin/addscheduleinvoicedetail';
-        $.ajax({
-            url: url,
-            type: 'GET',
-            data: {id: $(this).attr('data-id')},
-            success: function(res){
-                $('.popuploader').hide();
-                $('.showpoppaymentscheduledata').html(res);
-                
-                if (typeof flatpickr !== 'undefined') {
-                    flatpickr(".datepicker", {
-                        dateFormat: "Y-m-d",
-                        allowInput: true
-                    });
-                }
-            }
-        });
-    });
+    // NOTE: openpaymentschedule handler removed - Invoice Schedule feature has been removed
 
     $(document).on('click', '.addfee', function(){
         var clonedval = $('.feetypecopy').html();

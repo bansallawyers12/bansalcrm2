@@ -72,7 +72,7 @@ Click each link and verify it works:
 #### Test 7: Accounts Dropdown
 - ✅ Invoices → `/invoice/unpaid`
 - ✅ Payment → `/account/payment`
-- ✅ Invoice Schedule → `/invoice/invoiceschedules`
+- ~~✅ Invoice Schedule → `/invoice/invoiceschedules`~~ (Removed - Invoice Schedule feature has been removed)
 - ✅ Income Sharing → `/account/payableunpaid`
 
 #### Test 8: Reports Dropdown

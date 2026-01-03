@@ -1452,7 +1452,8 @@
 	</div>
 </div>
 
-<!-- Payment Schedule Modal -->
+<!-- NOTE: Payment Schedule modals removed - Invoice Schedule feature has been removed -->
+<!--
 <div class="modal fade custom_modal paymentschedule" id="create_paymentschedule" tabindex="-1" role="dialog" aria-labelledby="create_paymentscheduleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -1769,7 +1770,8 @@
 </div>
 
 
-<!-- Payment Schedule Modal -->
+<!-- NOTE: Payment Schedule modals removed - Invoice Schedule feature has been removed -->
+<!--
 <div class="modal fade custom_modal paymentschedule" id="create_apppaymentschedule" tabindex="-1" role="dialog" aria-labelledby="create_paymentscheduleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -1863,9 +1865,11 @@
 		</div>
 	</div>
 </div>
+-->
 
 
-<!-- Payment Schedule Modal -->
+<!-- NOTE: Payment Schedule modals removed - Invoice Schedule feature has been removed -->
+<!--
 <div class="modal fade custom_modal" id="editpaymentschedule" tabindex="-1" role="dialog" aria-labelledby="paymentscheModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -1881,9 +1885,11 @@
 		</div>
 	</div>
 </div>
+-->
 
 
-<!-- Payment Schedule Modal -->
+<!-- NOTE: Payment Schedule modals removed - Invoice Schedule feature has been removed -->
+<!--
 <div class="modal fade add_payment_schedule custom_modal" id="addpaymentschedule" tabindex="-1" role="dialog" aria-labelledby="paymentscheModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -1899,7 +1905,10 @@
 		</div>
 	</div>
 </div>
+-->
 
+<!-- NOTE: opencreateinvoiceform modal removed - Invoice Schedule feature has been removed -->
+<!--
 <div class="modal fade custom_modal" id="opencreateinvoiceform" tabindex="-1" role="dialog" aria-labelledby="paymentscheModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">

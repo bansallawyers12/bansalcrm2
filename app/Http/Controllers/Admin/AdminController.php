@@ -846,20 +846,7 @@ class AdminController extends Controller
 									$message = 'ID does not exist, please check it once again.';
 								}
 							}else
-							if($requestData['table'] == 'invoice_schedules'){
-								$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->delete();
-								DB::table('schedule_items')->where('schedule_id', @$requestData['id'])->delete();
-
-								if($response)
-									{
-										$status = 1;
-										$message = 'Record has been deleted successfully.';
-									}
-									else
-									{
-										$message = Config::get('constants.server_error');
-									}
-							}else
+							// NOTE: invoice_schedules table deletion handler removed - Invoice Schedule feature has been removed
 							if($requestData['table'] == 'agents'){
 								$response	=	DB::table($requestData['table'])->where('id', @$requestData['id'])->update(['is_acrchived' => 1]);
 

@@ -679,10 +679,9 @@ function customValidate(formName, savetype = '')
 									$('#create_apppaymentschedule').modal('hide');
 								var obj = $.parseJSON(response);
 							
-								if(obj.status){
-									
+							if(obj.status){
+								
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									$('.openpaymentschedule').hide();
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									

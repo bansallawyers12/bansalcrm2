@@ -5113,10 +5113,6 @@ $(document).delegate('.openchecklist', 'click', function(){
 	$('#create_checklist #checklistid').val(id);
 	$('#create_checklist').modal('show');
 });
-$(document).delegate('.openpaymentschedule', 'click', function(){
-	$('#create_paymentschedule').modal('show');
-});
-
 
 $(document).delegate('.due_date_sec a.due_date_btn', 'click', function(){
 	$('.due_date_sec .due_date_col').show();
