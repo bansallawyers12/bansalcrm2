@@ -13,7 +13,7 @@
 						<div class="card-header">
 							<h4>Client List</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.users.createclient')}}" class="btn btn-primary">Create Client</a>
+								<a href="{{route('users.createclient')}}" class="btn btn-primary">Create Client</a>
 							</div>
 						</div>
 						<div class="card-body">

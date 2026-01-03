@@ -47,7 +47,7 @@
 					<div class="card"> 
 						<div class="card-header">   
 							<div class="card-title">
-								<a href="{{route('admin.email.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Email Templates</a>
+								<a href="{{route('email.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Email Templates</a>
 								<a style="display:none;" class="btn btn-primary displayifselected" href="javascript:;" onClick="deleteAllAction('email_templates')"><i class="fa fa-trash"></i> Delete</a> 
 							</div> 
 							<div class="card-tools card_tools">

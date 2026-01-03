@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Add New Contacts</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.managecontact.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('managecontact.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

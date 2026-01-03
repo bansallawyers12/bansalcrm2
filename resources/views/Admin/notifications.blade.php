@@ -25,26 +25,26 @@
 							<ul class="nav nav-tabs mb-3" id="notificationTabs" role="tablist">
 								<li class="nav-item">
 									<a class="nav-link {{!request('filter') || request('filter') == 'all' ? 'active' : ''}}" 
-									   href="{{route('admin.notifications.index', ['filter' => 'all', 'search' => request('search')])}}">
+									   href="{{route('notifications.index', ['filter' => 'all', 'search' => request('search')])}}">
 										All <span class="badge badge-secondary">{{isset($totalCount) ? $totalCount : 0}}</span>
 									</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{request('filter') == 'unread' ? 'active' : ''}}" 
-									   href="{{route('admin.notifications.index', ['filter' => 'unread', 'search' => request('search')])}}">
+									   href="{{route('notifications.index', ['filter' => 'unread', 'search' => request('search')])}}">
 										Unread <span class="badge badge-danger">{{isset($unreadCount) ? $unreadCount : 0}}</span>
 									</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{request('filter') == 'read' ? 'active' : ''}}" 
-									   href="{{route('admin.notifications.index', ['filter' => 'read', 'search' => request('search')])}}">
+									   href="{{route('notifications.index', ['filter' => 'read', 'search' => request('search')])}}">
 										Read <span class="badge badge-success">{{isset($readCount) ? $readCount : 0}}</span>
 									</a>
 								</li>
 							</ul>
 
 							<!-- Search Bar -->
-							<form method="GET" action="{{route('admin.notifications.index')}}" class="mb-3">
+							<form method="GET" action="{{route('notifications.index')}}" class="mb-3">
 								<div class="input-group">
 									<input type="text" name="search" class="form-control" 
 										   placeholder="Search notifications..." 
@@ -57,7 +57,7 @@
 											<i class="fas fa-search"></i>
 										</button>
 										@if(request('search'))
-										<a href="{{route('admin.notifications.index', ['filter' => request('filter')])}}" 
+										<a href="{{route('notifications.index', ['filter' => request('filter')])}}" 
 										   class="btn btn-secondary">
 											<i class="fas fa-times"></i>
 										</a>
@@ -166,7 +166,7 @@
 								<i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
 								<p class="text-muted">No notifications found.</p>
 								@if(request('search') || request('filter'))
-								<a href="{{route('admin.notifications.index')}}" class="btn btn-sm btn-primary">
+								<a href="{{route('notifications.index')}}" class="btn btn-sm btn-primary">
 									View All Notifications
 								</a>
 								@endif
@@ -226,7 +226,7 @@ $(document).ready(function(){
 		var btn = $(this);
 		
 		$.ajax({
-			url: "{{route('admin.notifications.mark-read')}}",
+			url: "{{route('notifications.mark-read')}}",
 			method: 'POST',
 			data: {
 				id: notificationId,
@@ -287,7 +287,7 @@ $(document).ready(function(){
 		btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 		
 		$.ajax({
-			url: "{{route('admin.notifications.mark-all-read')}}",
+			url: "{{route('notifications.mark-all-read')}}",
 			method: 'POST',
 			data: {
 				_token: '{{csrf_token()}}'

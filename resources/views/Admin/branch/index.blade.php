@@ -18,7 +18,7 @@
 						<div class="card-header">
 							<h4>All Branches</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.branch.create')}}" class="btn btn-primary">Create Branch</a>
+								<a href="{{route('branch.create')}}" class="btn btn-primary">Create Branch</a>
 							</div>
 						</div>
 						<div class="card-body">

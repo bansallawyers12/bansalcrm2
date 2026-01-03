@@ -52,7 +52,7 @@
 					   
 						<div class="card-body">
 							<div class="form-group" style="text-align:right;">
-								<a style="margin-right:5px;" href="{{route('admin.email.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>  
+								<a style="margin-right:5px;" href="{{route('email.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>  
 								{!! Form::button('<i class="fa fa-save"></i> Save Template', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-template")' ])  !!}
 							</div>
 							<div class="form-group row"> 

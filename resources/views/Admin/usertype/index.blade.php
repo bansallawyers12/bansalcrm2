@@ -13,7 +13,7 @@
 						<div class="card-header">
 							<h4>User Type</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.usertype.create')}}" class="btn btn-primary">Create User Type</a>
+								<a href="{{route('usertype.create')}}" class="btn btn-primary">Create User Type</a>
 							</div>
 						</div>
 						<div class="card-body">

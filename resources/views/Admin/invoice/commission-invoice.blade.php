@@ -476,9 +476,9 @@
 												<div class="income_col">
 													<select class="form-control" id="share_user" name="share_user">
 													<option value="no">Select a receiver</option>
-													<?php
-													$branches = \App\Models\Agent::where('id','!=', '')->get();
-													foreach($branches as $branch){
+												<?php
+												$branches = \App\Models\Agent::all();
+												foreach($branches as $branch){
 													?>
 														<option data-v="{{$branch->income_sharing}}"  value="{{$branch->id}}">{{$branch->full_name}}</option>
 													<?php } ?>

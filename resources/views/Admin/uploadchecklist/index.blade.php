@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Checklists</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.checklist.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.checklist.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

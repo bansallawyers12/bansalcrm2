@@ -13,7 +13,7 @@
 						<div class="card-header">
 							<h4>Manage Contacts</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.managecontact.create')}}" class="btn btn-primary">New Contacts</a>
+								<a href="{{route('managecontact.create')}}" class="btn btn-primary">New Contacts</a>
 								<a href="javascript:;" data-bs-toggle="modal" data-bs-target="#amnetsearch_modal" class="btn btn-primary"><i class="fas fa-search"></i></a>
 							</div>
 						</div>
@@ -89,7 +89,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form action="{{route('admin.managecontact.index')}}" method="get"> 
+				<form action="{{route('managecontact.index')}}" method="get"> 
 					<div class="row">
 						<div class="col-md-6">
 							<div class="form-group">
@@ -123,7 +123,7 @@
 						</div>
 					</div>
 					<div class="justify-content-between">
-						<a href="{{route('admin.managecontact.index')}}" class="btn btn-secondary" >Reset</a>
+						<a href="{{route('managecontact.index')}}" class="btn btn-secondary" >Reset</a>
 						<button type="submit" class="btn btn-primary">Search</button>
 					</div>
 				</form>

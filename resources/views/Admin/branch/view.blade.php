@@ -18,7 +18,7 @@
 						<div class="card-header">
 							<h4>Offices</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.branch.index')}}" class="btn btn-primary">Office List</a>
+								<a href="{{route('branch.index')}}" class="btn btn-primary">Office List</a>
 							</div>
 						</div>
 						<div class="card-body">

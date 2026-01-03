@@ -13,7 +13,7 @@
 						<div class="card-header">
 							<h4>Roles and Permissions</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.userrole.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+								<a href="{{route('userrole.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 							</div>
 						</div>
 						<div class="card-body">

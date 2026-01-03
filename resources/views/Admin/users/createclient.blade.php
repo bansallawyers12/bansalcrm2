@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Add Client</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.users.clientlist')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('users.clientlist')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

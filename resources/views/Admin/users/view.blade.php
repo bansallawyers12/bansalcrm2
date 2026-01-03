@@ -43,7 +43,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<h4>User</h4>
 							<div class="card-header-action">
-								<a href="{{route('admin.users.index')}}" class="btn btn-primary">Users</a>
+								<a href="{{route('users.index')}}" class="btn btn-primary">Users</a>
 							</div>
 						</div>
 					</div>
@@ -73,9 +73,9 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix"> 
 								<span class="float-start">Offices:</span>
 								<span class="float-end text-muted"></span>
-								<?php
-								$branches = \App\Models\Branch::where('id', '!=', '')->get();
-								?>
+							<?php
+							$branches = \App\Models\Branch::all();
+							?>
 								@foreach($branches as $branch)
 								{{$branch->office_name}} @if($branch->id == $fetchedData->office_id)(Primary) @endif<br>
 								@endforeach
@@ -299,7 +299,7 @@ use App\Http\Controllers\Controller;
                                         $allleads = \App\Models\Lead::where('assign_to', $fetchedData->id)->get();
                                         $userarray = array();
                  foreach($allleads as $alllead){
-                     	$userarray[] = \App\Models\Followup::whereDate('followup_date', date('Y-m-d'))->whereDate('id', $alllead->id)->first();
+                     	$userarray[] = \App\Models\Followup::whereDate('followup_date', date('Y-m-d'))->where('lead_id', $alllead->id)->first();
                  }                       
 	
 									?>

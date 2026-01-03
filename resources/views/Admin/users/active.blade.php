@@ -29,7 +29,7 @@
 									<a class="nav-link" id="invited-tab"  href="{{URL::to('/users/invited')}}" >Invited</a>
 								</li>
 								
-								<form action="{{ route('admin.users.active') }}" method="get">
+								<form action="{{ route('users.active') }}" method="get">
                                     <div class="" style="display: inline-flex;float: right;margin-left:540px;">
                                         <input id="search-input" type="search" name="search_by"  class="form-control" value="<?php  if(isset($_GET['search_by']) &&  $_GET['search_by'] != "") { echo $_GET['search_by'];} else { echo "";}?>" />
                                         <button id="search-button" type="submit" class="btn btn-primary">

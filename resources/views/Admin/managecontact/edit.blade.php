@@ -54,7 +54,7 @@
 						  <!-- /.card-header --> 
 							<div class="card-body">
 								<div class="form-group" style="text-align:right;">
-									<a style="margin-right:5px;" href="{{route('admin.managecontact.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
+									<a style="margin-right:5px;" href="{{route('managecontact.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
 									{!! Form::button('<i class="fa fa-edit"></i> Update Contact', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-contacts")' ])  !!}
 								</div> 	 
 								<div class="form-group row">  

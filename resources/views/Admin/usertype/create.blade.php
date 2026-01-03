@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Add User Type</h4>
 								<div class="card-header-action">
-									<a href="{{route('admin.usertype.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('usertype.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

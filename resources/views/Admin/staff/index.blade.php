@@ -45,7 +45,7 @@
 					<div class="card">
 						<div class="card-header">
 							<div class="float-end">
-								<a href="{{route('admin.staff.create')}}" class="btn btn-primary">Create Staff</a>
+								<a href="{{route('staff.create')}}" class="btn btn-primary">Create Staff</a>
 							</div>
 						</div>
 						<div class="card-body table-responsive p-0">

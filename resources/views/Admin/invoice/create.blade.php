@@ -53,7 +53,7 @@
 							<!-- form start -->
 							{!! Form::open(array('url' => 'invoice/store', 'name'=>"add-invoice", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 								<div class="form-group" style="text-align:right;">
-									<a style="margin-right:5px;" href="{{route('admin.invoice.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
+									<a style="margin-right:5px;" href="{{route('invoice.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a> 
 									{!! Form::button('<i class="fa fa-save"></i> Save Invoice', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-invoice")' ])  !!}
 								</div> 	 
 								<div class="row"> 
