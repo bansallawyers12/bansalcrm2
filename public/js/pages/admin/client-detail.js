@@ -885,6 +885,47 @@ Bansal Immigration`;
         $('#uploadmail').modal('show');
     });
 
+    // Create Client Receipt modal handler
+    $(document).on('click', '.createclientreceipt', function(){
+        // Reset form for new receipt
+        if ($('#create_client_receipt').length) {
+            $('#function_type').val('add');
+            $('#top_value_db').val('');
+            // Clear any existing rows from previous edits
+            // Remove only dynamically added rows, keep the template clonedrow
+            $('.productitem tr.product_field_clone').remove();
+            // Remove all but the first clonedrow (keep template row)
+            var clonedRows = $('.productitem tr.clonedrow');
+            if (clonedRows.length > 1) {
+                clonedRows.not(':first').remove();
+            }
+            // Clear all input values in the remaining clonedrow
+            $('.productitem tr.clonedrow:first').find('input[type="text"], select').val('');
+            $('.productitem tr.clonedrow:first').find('input[type="hidden"]').not('[name="trans_no[]"]').val('');
+            $('.total_deposit_amount_all_rows').text('');
+        }
+        $('#createclientreceiptmodal').modal('show');
+    });
+
+    // Commission Invoice modal handler
+    $(document).on('click', '.opencommissioninvoice', function(){
+        $('#opencommissionmodal').modal('show');
+    });
+
+    // General Invoice modal handler
+    $(document).on('click', '.opengeneralinvoice', function(){
+        $('#opengeneralinvoice').modal('show');
+    });
+
+    // Tags popup modal handler
+    $(document).on('click', '.opentagspopup', function(){
+        var clientId = $(this).attr('data-id');
+        if (clientId) {
+            $('#tags_client_id').val(clientId);
+        }
+        $('#tags_clients').modal('show');
+    });
+
     $(document).on('click', '.addnewprevvisa', function(){
         var $clone = $('.multiplevisa:eq(0)').clone(true,true);
         $clone.find('.lastfiledcol').after('<div class="col-md-4"><a href="javascript:;" class="removenewprevvisa btn btn-danger btn-sm">Remove</a></div>');
@@ -2103,6 +2144,50 @@ Bansal Immigration`;
         localStorage.removeItem('activeTab');
         localStorage.removeItem('appliid');
     }
+
+    // Handle clicking on application/course name to view details
+    $(document).on('click', '.openapplicationdetail', function(){
+        var appliid = $(this).attr('data-id');
+        $('.if_applicationdetail').hide();
+        $('.ifapplicationdetailnot').show();
+        $('.popuploader').show();
+        
+        var url = App.getUrl('getApplicationDetail') || App.getUrl('siteUrl') + '/getapplicationdetail';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {id: appliid},
+            success: function(response){
+                $('.popuploader').hide();
+                $('.ifapplicationdetailnot').html(response);
+                
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr('.datepicker', {
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        onChange: function(selectedDates, dateStr, instance) {
+                            if (selectedDates.length > 0) {
+                                $.ajax({
+                                    url: App.getUrl('siteUrl') + '/application/updateintake',
+                                    method: "GET",
+                                    dataType: "json",
+                                    data: {from: dateStr, appid: appliid},
+                                    success: function(result) {
+                                        console.log("Intake date updated");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                $('.popuploader').hide();
+                console.error('Error loading application detail:', error);
+                $('.ifapplicationdetailnot').html('<h4>Error loading application details. Please try again.</h4>');
+            }
+        });
+    });
 
     $(document).on('click', '#application-tab', function(){
         $('.if_applicationdetail').show();

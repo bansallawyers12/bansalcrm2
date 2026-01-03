@@ -2182,7 +2182,7 @@
 
 <!-- Create Client Receipt Modal -->
 <div class="modal fade custom_modal" id="createclientreceiptmodal" tabindex="-1" role="dialog" aria-labelledby="create_noteModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientReceiptModalLabel">Create Client Receipt</h5>
@@ -2191,7 +2191,7 @@
 				</button>
 			</div>
 			<div class="modal-body">
-                <input type="hidden"  id="top_value_db" value="">
+                <input type="hidden" id="top_value_db" value="">
 				<form method="post" action="{{URL::to('/clients/saveaccountreport')}}" name="create_client_receipt" autocomplete="off" id="create_client_receipt" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
@@ -2199,7 +2199,7 @@
                 <input type="hidden" name="receipt_type" value="1">
                 <input type="hidden" name="function_type" id="function_type" value="">
 					<div class="row">
-						<div class="col-6 col-md-6 col-lg-6">
+						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="client">Client <span class="span_req">*</span></label>
 								{!! Form::text('client', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
@@ -2223,86 +2223,91 @@
 
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
-                                <table border="1" style="margin-bottom:0rem !important;" class="table text_wrap table-striped table-hover table-md vertical_align">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:15%;">Trans. Date</th>
-                                            <th style="width:15%;">Entry Date</th>
-                                            <th style="width:15%;">Trans. No</th>
-                                            <th style="width:5%;">Payment Method</th>
-                                            <th style="width:35%;">Description</th>
-                                            <th style="width:14%;">Deposit</th>
-                                            <th style="width:1%;"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="productitem">
-                                        <tr class="clonedrow">
-                                            <td>
-                                                <input data-valid="required"  class="form-control report_date_fields" name="trans_date[]" type="text" value="" />
-                                            </td>
-                                            <td>
-                                                <input data-valid="required" class="form-control report_entry_date_fields" name="entry_date[]" type="text" value="" />
-                                            </td>
-                                            <td>
-                                                <input class="form-control unique_trans_no" type="text" value="" readonly/>
-                                                <input class="unique_trans_no_hidden" name="trans_no[]" type="hidden" value="" />
-                                            </td>
-                                            <td>
-                                                <select data-valid="required" class="form-control" name="payment_method[]">
-                                                    <option value="">Select</option>
-                                                    <option value="Cash">Cash</option>
-                                                    <option value="Bank transfer">Bank transfer</option>
-                                                    <option value="EFTPOS">EFTPOS</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <input data-valid="required" class="form-control" name="description[]" type="text" value="" />
-                                            </td>
-
-                                            <td>
-                                                <span class="currencyinput" style="display: inline-block;">$</span>
-                                                <input data-valid="required" style="display: inline-block;" class="form-control deposit_amount_per_row" name="deposit_amount[]" type="text" value="" />
-                                            </td>
-
-                                            <td>
-                                                <a class="removeitems" href="javascript:;"><i class="fa fa-times"></i></a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <table border="1" class="table text_wrap table-striped table-hover table-md vertical_align">
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="5" style="width:83.6%;text-align:right;">Totals</td>
-                                            <td colspan="2">
-                                                <span class="total_deposit_amount_all_rows"></span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+								<label class="mb-2">Receipt Details</label>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text_wrap table-striped table-hover table-md vertical_align client-receipt-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:14%;">Trans. Date</th>
+                                                <th style="width:14%;">Entry Date</th>
+                                                <th style="width:13%;">Trans. No</th>
+                                                <th style="width:14%;">Payment Method</th>
+                                                <th style="width:30%;">Description</th>
+                                                <th style="width:12%;">Deposit</th>
+                                                <th style="width:3%; text-align:center;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="productitem">
+                                            <tr class="clonedrow">
+                                                <td>
+                                                    <input data-valid="required" class="form-control report_date_fields" name="trans_date[]" type="text" value="" />
+                                                </td>
+                                                <td>
+                                                    <input data-valid="required" class="form-control report_entry_date_fields" name="entry_date[]" type="text" value="" />
+                                                </td>
+                                                <td>
+                                                    <input class="form-control unique_trans_no" type="text" value="" readonly/>
+                                                    <input class="unique_trans_no_hidden" name="trans_no[]" type="hidden" value="" />
+                                                </td>
+                                                <td>
+                                                    <select data-valid="required" class="form-control" name="payment_method[]">
+                                                        <option value="">Select</option>
+                                                        <option value="Cash">Cash</option>
+                                                        <option value="Bank transfer">Bank transfer</option>
+                                                        <option value="EFTPOS">EFTPOS</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input data-valid="required" class="form-control" name="description[]" type="text" value="" />
+                                                </td>
+                                                <td>
+                                                    <div class="currencyinput">
+                                                        <span>$</span>
+                                                        <input data-valid="required" class="form-control deposit_amount_per_row" name="deposit_amount[]" type="text" value="" />
+                                                    </div>
+                                                </td>
+                                                <td style="text-align:center;">
+                                                    <a class="removeitems text-danger" href="javascript:;" title="Remove row">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="receipt-totals-row">
+                                                <td colspan="5" style="text-align:right; font-weight:600; padding-right:15px;">Totals</td>
+                                                <td colspan="2" style="font-weight:600;">
+                                                    <span class="total_deposit_amount_all_rows"></span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+								<div class="mt-2">
+									<a href="javascript:;" class="openproductrinfo btn btn-sm btn-outline-primary">
+										<i class="fa fa-plus"></i> Add New Line
+									</a>
+								</div>
                             </div>
 						</div>
 
-                        <div class="col-3 col-md-3 col-lg-3">
-                            <!--<a href="javascript:;" class="openproductrinfo"><i class="fa fa-plus"></i> Add New Line</a>-->
-                        </div>
-
-						<div class="col-9 col-md-9 col-lg-9 text-end">
-
-                            <div class="upload_client_receipt_document" style="display:inline-block;">
-                                <input type="hidden" name="type" value="client">
-                                <input type="hidden" name="doctype" value="client_receipt">
-                                <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
-                                <input class="docclientreceiptupload" type="file" name="document_upload[]"/>
-                            </div>
-
-                            <button onclick="customValidate('create_client_receipt')" type="button" class="btn btn-primary">Save Receipt</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<div class="col-12 col-md-12 col-lg-12 mt-3">
+							<div class="upload_client_receipt_document" style="display:inline-block;">
+								<input type="hidden" name="type" value="client">
+								<input type="hidden" name="doctype" value="client_receipt">
+								<a href="javascript:;" class="btn btn-outline-primary">
+									<i class="fa fa-plus"></i> Add Document
+								</a>
+								<input class="docclientreceiptupload d-none" type="file" name="document_upload[]"/>
+							</div>
 						</div>
                     </div>
 				</form>
             </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button onclick="customValidate('create_client_receipt')" type="button" class="btn btn-primary">Save Receipt</button>
+			</div>
 		</div>
 	</div>
 </div>

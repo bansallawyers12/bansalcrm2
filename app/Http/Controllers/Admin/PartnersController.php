@@ -1790,7 +1790,7 @@ class PartnersController extends Controller
                     $insertedDocId = $obj->id;
                 }  //end foreach
             } else {
-                $insertedDocId = "";
+                $insertedDocId = null;
                 $doc_saved = "";
             }
 
@@ -1920,7 +1920,7 @@ class PartnersController extends Controller
                     $insertedDocId2 = $obj2->id;
                 }  //end foreach
             } else {
-                $insertedDocId2 = "";
+                $insertedDocId2 = null;
                 $doc_saved2 = "";
             }
 
@@ -2178,7 +2178,7 @@ class PartnersController extends Controller
                     $insertedDocId = $obj->id;
                 }  //end foreach
             } else {
-                $insertedDocId = "";
+                $insertedDocId = null;
                 $doc_saved = "";
             }
 
@@ -2329,7 +2329,7 @@ class PartnersController extends Controller
                     $insertedDocId = $obj->id;
                 }  //end foreach
             } else {
-                $insertedDocId = "";
+                $insertedDocId = null;
                 $doc_saved = "";
             }
 

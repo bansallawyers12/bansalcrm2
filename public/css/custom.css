@@ -434,6 +434,56 @@ padding: 5px 10px;width:100%;background-color: #fdfdff;}
 .new_fee_option .modal-body table thead tr th{height:auto!important;padding:0px 5px!important;}
 .new_fee_option .modal-body table tbody tr td{height:auto!important;padding:0px!important;}
 .new_fee_option .modal-body table tbody tr td .form-control{height:auto;padding:6px;border-radius:0px;}
+
+/* Client Receipt Modal Styling */
+.client-receipt-table {
+	margin-bottom: 0 !important;
+}
+.client-receipt-table thead th {
+	background-color: #f8f9fa;
+	font-weight: 600;
+	vertical-align: middle;
+}
+.client-receipt-table tbody td {
+	vertical-align: middle;
+	padding: 8px;
+}
+.client-receipt-table tbody td input,
+.client-receipt-table tbody td select {
+	margin: 0;
+}
+.client-receipt-table .removeitems {
+	cursor: pointer;
+	font-size: 16px;
+	transition: color 0.2s;
+}
+.client-receipt-table .removeitems:hover {
+	color: #dc3545 !important;
+}
+.client-receipt-table tfoot .receipt-totals-row {
+	background-color: #f8f9fa;
+	border-top: 2px solid #dee2e6;
+}
+.client-receipt-table tfoot .receipt-totals-row td {
+	padding: 12px 8px;
+	font-size: 15px;
+}
+.client-receipt-table tfoot .total_deposit_amount_all_rows {
+	font-weight: 600;
+	color: #6777ef;
+	font-size: 16px;
+}
+.client-receipt-table .currencyinput {
+	display: flex;
+	align-items: center;
+}
+.client-receipt-table .currencyinput span {
+	margin-right: 5px;
+	font-weight: 500;
+}
+.client-receipt-table .currencyinput input {
+	flex: 1;
+}
 .new_fee_option .modal-body .select2-container--default{min-width: 120px}
 .new_fee_option .modal-body .select2-container--default .select2-selection--single .select2-selection__rendered{min-height:35px;line-height: 35px;padding-left: 5px;padding-right: 5px;}
 .new_fee_option .modal-body .select2-container .select2-selection--single{min-height: 35px;}

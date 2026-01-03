@@ -4124,7 +4124,7 @@ class ClientsController extends Controller
 
                
             } else {
-                $insertedDocId = "";
+                $insertedDocId = null;
                 $doc_saved = "";
             }
 
@@ -4272,10 +4272,10 @@ class ClientsController extends Controller
                 }  //end foreach
             } else {
                 $uploaded_doc_Info1 = DB::table('account_client_receipts')->select('uploaded_doc_id')->where('id',$requestData['id'][0])->first();
-                if($uploaded_doc_Info1){
+                if($uploaded_doc_Info1 && $uploaded_doc_Info1->uploaded_doc_id){
                     $insertedDocIdL = $uploaded_doc_Info1->uploaded_doc_id;
                 } else {
-                    $insertedDocIdL = "";
+                    $insertedDocIdL = null;
                 }
                 $doc_savedL = "";
             }
