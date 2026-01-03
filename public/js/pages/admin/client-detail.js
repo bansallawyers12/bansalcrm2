@@ -1949,6 +1949,12 @@ Bansal Immigration`;
         $("#checklist").select2({dropdownParent: $(".create_alldocument_docs")});
     });
 
+    // Trigger file input when "Add Document" button is clicked
+    $(document).on('click', '.allupload_document .btn-primary', function(e) {
+        e.preventDefault();
+        $(this).closest('form').find('.alldocupload').click();
+    });
+
     $(document).on('click', '.alldocupload', function() {
         $(this).attr("value", "");
     });
