@@ -284,7 +284,7 @@ class EducationController extends Controller
 		$obj = Education::find($request->id);
 		if($obj){
 			?>
-			<form method="post" action="<?php echo \URL::to('/admin/editeducation'); ?>" name="editeducationform" id="editeducationform" autocomplete="off" enctype="multipart/form-data">
+			<form method="post" action="<?php echo \URL::to('/editeducation'); ?>" name="editeducationform" id="editeducationform" autocomplete="off" enctype="multipart/form-data">
 				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 				<input type="hidden" name="client_id" value="<?php echo $obj->client_id; ?>">
 				<input type="hidden" name="id" value="<?php echo $obj->id; ?>">

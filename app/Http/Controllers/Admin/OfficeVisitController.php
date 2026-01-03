@@ -53,7 +53,7 @@ class OfficeVisitController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = $requestData['assignee'];
 	    	$o->module_id = $obj->id;
-	    	$o->url = \URL::to('/admin/office-visits/waiting');
+	    	$o->url = \URL::to('/office-visits/waiting');
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -132,7 +132,7 @@ class OfficeVisitController extends Controller
 						<?php
 						$checkin = \App\Models\Branch::where('id', $CheckinLog->office)->first();
 						if($checkin){
-						echo '<a target="_blank" href="'.\URL::to('/admin/branch/view/'.@$checkin->id).'">'.@$checkin->office_name.'</a>';
+						echo '<a target="_blank" href="'.\URL::to('/branch/view/'.@$checkin->id).'">'.@$checkin->office_name.'</a>';
 						}
 						?>
 						
@@ -362,7 +362,7 @@ class OfficeVisitController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = $request->assinee;
 	    	$o->module_id = $request->id;
-	    	$o->url = \URL::to('/admin/office-visits/'.$t);
+	    	$o->url = \URL::to('/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -421,7 +421,7 @@ class OfficeVisitController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = 22136;
 	    	$o->module_id = $request->id;
-	    	$o->url = \URL::to('/admin/office-visits/'.$t);
+	    	$o->url = \URL::to('/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications

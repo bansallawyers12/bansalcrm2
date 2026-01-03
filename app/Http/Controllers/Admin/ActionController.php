@@ -1140,7 +1140,7 @@ public function change_assignee(Request $request){
         $o->sender_id = \Auth::user()->id;
         $o->receiver_id = $request->assinee;
         $o->module_id = $request->id;
-        $o->url = \URL::to('/admin/appointments');
+        $o->url = \URL::to('/appointments');
         $o->notification_type = 'appointment';
         $o->message = $objs->title.' Appointments Assigned by '.\Auth::user()->first_name.' '.\Auth::user()->last_name;
         $o->seen = 0; // Set seen to 0 (unseen) for new notifications

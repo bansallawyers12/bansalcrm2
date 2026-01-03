@@ -1268,7 +1268,7 @@ class InvoiceController extends Controller
 		$application = \App\Models\Application::where('id',$request->id)->first();
 		$cleintname = \App\Models\Admin::where('role',7)->where('id',$application->client_id)->first();
 		?>
-		<form method="post" action="<?php echo \URL::to('/admin/paymentschedule'); ?>" name="addinvpaymentschedule"  id="addinvpaymentschedule" autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="<?php echo \URL::to('/paymentschedule'); ?>" name="addinvpaymentschedule"  id="addinvpaymentschedule" autocomplete="off" enctype="multipart/form-data">
 			<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 			<input type="hidden" name="is_ajax" value="true">
 			<div class="row">
@@ -1423,7 +1423,7 @@ class InvoiceController extends Controller
 		}
 		ob_start();
 		?>
-		<form method="post" action="<?php echo \URL::to('/admin/editpaymentschedule'); ?>" name="editinvpaymentschedule"  id="editinvpaymentschedule" autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="<?php echo \URL::to('/editpaymentschedule'); ?>" name="editinvpaymentschedule"  id="editinvpaymentschedule" autocomplete="off" enctype="multipart/form-data">
 				
 			<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 			<input type="hidden" name="id" value="<?php echo $fetchedData->id; ?>">

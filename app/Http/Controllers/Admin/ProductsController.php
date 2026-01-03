@@ -423,7 +423,7 @@ return ob_get_clean();
 		if($fetchedData){
 			ob_start();
 			?>
-			<form method="post" action="<?php echo \URL::to('/admin/editfee'); ?>" name="editfeeform" id="editfeeform" autocomplete="off" enctype="multipart/form-data">
+			<form method="post" action="<?php echo \URL::to('/editfee'); ?>" name="editfeeform" id="editfeeform" autocomplete="off" enctype="multipart/form-data">
 				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 				<input type="hidden" name="id" value="<?php echo $fetchedData->id; ?>">
 				<input type="hidden" name="product_id" value="<?php echo $fetchedData->product_id; ?>">

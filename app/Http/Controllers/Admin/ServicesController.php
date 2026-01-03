@@ -225,7 +225,7 @@ class ServicesController extends Controller
 	public function servicemodal(Request $request){
 		ob_start();
 		?>
-		<form method="post" action="<?php echo \URL::to('/admin/interested-service'); ?>" name="inter_servform_serv" autocomplete="off" id="inter_servform_serv" enctype="multipart/form-data">
+		<form method="post" action="<?php echo \URL::to('/interested-service'); ?>" name="inter_servform_serv" autocomplete="off" id="inter_servform_serv" enctype="multipart/form-data">
 				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 				<div class="row">
 						<div class="col-12 col-md-12 col-lg-12">

@@ -20,7 +20,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/declined_action',
+					url:site_url+'/declined_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -61,7 +61,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/approved_action',
+					url:site_url+'/approved_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -104,7 +104,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/process_action',
+					url:site_url+'/process_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -148,7 +148,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/archive_action',
+					url:site_url+'/archive_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -191,7 +191,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/partner_change_to_inactive',
+					url:site_url+'/partner_change_to_inactive',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -232,7 +232,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/partner_change_to_active',
+					url:site_url+'/partner_change_to_active',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						var obj = $.parseJSON(resp);
@@ -273,7 +273,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/delete_action',
+					url:site_url+'/delete_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						$('.popuploader').hide();
@@ -330,7 +330,7 @@
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:site_url+'/admin/move_action',
+					url:site_url+'/move_action',
 					data:{'id': id, 'table' : table, 'col' : col},
 					success:function(resp) {
 						$('.popuploader').hide();
@@ -380,7 +380,7 @@
 		$.ajax({
 			type:'post',
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-			url:site_url+'/admin/update_action',
+			url:site_url+'/update_action',
 			data:{'id': id, 'current_status' : current_status, 'table': table, 'colname':col},
 			success:function(resp) {
 				var obj = $.parseJSON(resp);

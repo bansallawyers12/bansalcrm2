@@ -1865,7 +1865,7 @@ class PartnersController extends Controller
                     $response['awsUrl'] =  "";
                     $subject = 'added student invoice with invoice No-'.$requestData['invoice_no'];
                 }
-                $printUrl = \URL::to('/admin/partners/printpreviewcreateinvoice').'/'.$invoice_id;
+                $printUrl = \URL::to('/partners/printpreviewcreateinvoice').'/'.$invoice_id;
                 $response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -2042,7 +2042,7 @@ class PartnersController extends Controller
                     $response['awsUrl2'] =  "";
                     $subject = 'added student invoice with invoice No-'.$requestData['invoice_no'];
                 }
-                $printUrl2 = \URL::to('/admin/partners/printpreviewcreateinvoice').'/'.$requestData['invoice_id'];
+                $printUrl2 = \URL::to('/partners/printpreviewcreateinvoice').'/'.$requestData['invoice_id'];
                 $response['printUrl2'] = $printUrl2;
 
                 $response['status'] 	= 	true;
@@ -2239,7 +2239,7 @@ class PartnersController extends Controller
                     $subject = 'added record invoice with Receipt No-'.$invoice_id;
                 }
 
-                //$printUrl = \URL::to('/admin/partners/printpreviewrecordinvoice').'/'.$invoice_id;
+                //$printUrl = \URL::to('/partners/printpreviewrecordinvoice').'/'.$invoice_id;
                 //$response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -2394,7 +2394,7 @@ class PartnersController extends Controller
                     $subject = 'added record payment with Receipt No-'.$invoice_id;
                 }
 
-                $printUrl = \URL::to('/admin/partners/printpreview').'/'.$invoice_id;
+                $printUrl = \URL::to('/partners/printpreview').'/'.$invoice_id;
                 $response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -3541,7 +3541,7 @@ class PartnersController extends Controller
 
 					<!--<div class="left">
 						<div class="author">
-							<a href="<?php //echo \URL::to('/admin/users/view/'.$admin->id); ?>"><?php //echo substr($admin->first_name, 0, 1); ?></a>
+							<a href="<?php //echo \URL::to('/users/view/'.$admin->id); ?>"><?php //echo substr($admin->first_name, 0, 1); ?></a>
 						</div>
 						<div class="note_modify">
 							<small>Last Modified <span><?php //echo date('d/m/Y h:i A', strtotime($list->updated_at)); ?></span></small>
@@ -3662,7 +3662,7 @@ class PartnersController extends Controller
                                             <?php
                                             $explodeimg = explode('.',$fetch->myfile);
                                             if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){ ?>
-                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
                                             <?php } ?>
                                             <a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
                                         <?php

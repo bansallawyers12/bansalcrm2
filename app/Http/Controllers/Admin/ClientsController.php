@@ -426,7 +426,7 @@ class ClientsController extends Controller
 			{
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-             else  if($route==url('/admin/action')){
+             else  if($route==url('/action')){
 				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. \Auth::user()->first_name;
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
@@ -905,7 +905,7 @@ class ClientsController extends Controller
 			{
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-             else  if($route==url('/admin/action')){
+             else  if($route==url('/action')){
 				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. \Auth::user()->first_name;
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
@@ -1883,7 +1883,7 @@ class ClientsController extends Controller
                   
 					<div class="left">
 						<div class="author">
-							<a href="<?php echo \URL::to('/admin/users/view/'.$admin->id); ?>"><?php echo substr($admin->first_name, 0, 1); ?></a>
+							<a href="<?php echo \URL::to('/users/view/'.$admin->id); ?>"><?php echo substr($admin->first_name, 0, 1); ?></a>
 						</div>
 						<div class="note_modify">
 							<small>Last Modified <span><?php echo date('d/m/Y h:i A', strtotime($list->updated_at)); ?></span></small>
@@ -2173,7 +2173,7 @@ class ClientsController extends Controller
 																$explodeimg = explode('.',$fetch->myfile);
 										if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 																?>
-																	<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+																	<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
 																	<?php } ?>
 									<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 
@@ -2490,7 +2490,7 @@ class ClientsController extends Controller
 		$obj = \App\Models\InterestedService::find($request->id);
 		if($obj){
 			?>
-			<form method="post" action="<?php echo \URL::to('/admin/edit-interested-service'); ?>" name="editinter_servform" autocomplete="off" id="editinter_servform" enctype="multipart/form-data">
+			<form method="post" action="<?php echo \URL::to('/edit-interested-service'); ?>" name="editinter_servform" autocomplete="off" id="editinter_servform" enctype="multipart/form-data">
 				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 				<input type="hidden" name="client_id" value="<?php echo $obj->client_id; ?>">
 				<input type="hidden" name="id" value="<?php echo $obj->id; ?>">
@@ -3146,7 +3146,7 @@ class ClientsController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat'];
 	    	$o->module_id = '';//$this->decodeString(@$requestData['client_id']);
-	    	$o->url = '';//\URL::to('/admin/clients/detail/'.@$requestData['client_id']);
+	    	$o->url = '';//\URL::to('/clients/detail/'.@$requestData['client_id']);
 	    	$o->notification_type = 'client';
 	    	$o->message = 'Personal Task Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($requestData['followup_datetime']));
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
@@ -4197,7 +4197,7 @@ class ClientsController extends Controller
                     $subject = 'added client receipt with Receipt Id-'.$receipt_id.' and Trans. No	-'.$requestData['trans_no'][0];
                 }
 
-                $printUrl = \URL::to('/admin/clients/printpreview').'/'.$receipt_id;
+                $printUrl = \URL::to('/clients/printpreview').'/'.$receipt_id;
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
@@ -4352,7 +4352,7 @@ class ClientsController extends Controller
                     }
                 }
 
-                $printUrl = \URL::to('/admin/clients/printpreview').'/'.$requestData['id'][0];
+                $printUrl = \URL::to('/clients/printpreview').'/'.$requestData['id'][0];
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
@@ -4917,7 +4917,7 @@ class ClientsController extends Controller
                                             $explodeimg = explode('.',$fetch->myfile);
                                             if(strtolower($explodeimg[1]) == 'jpg'|| strtolower($explodeimg[1]) == 'png'|| strtolower($explodeimg[1]) == 'jpeg'){
                                             ?>
-                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
                                             <?php } ?>
 
                                             <!--<a download class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Download</a>-->
@@ -5154,7 +5154,7 @@ class ClientsController extends Controller
                                         $explodeimg = explode('.',$fetch->myfile);
                                         if(strtolower($explodeimg[1]) == 'jpg'|| strtolower($explodeimg[1]) == 'png'|| strtolower($explodeimg[1]) == 'jpeg'){
                                         ?>
-                                            <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/admin/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+                                            <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
                                         <?php } ?>
                                         <!--<a download class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Download</a>-->
                                         <!--<a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->

@@ -786,7 +786,7 @@ class ApplicationsController extends Controller
         ->select('applications.product_id','applications.partner_id','partners.commission_percentage','partners.partner_name','products.name as coursename')
         ->where('applications.id', $id)->first(); //dd($appInfo);
         ?>
-		<form method="post" action="<?php echo \URL::to('/admin/applicationsavefee'); ?>" name="applicationfeeform" id="applicationfeeform" autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="<?php echo \URL::to('/applicationsavefee'); ?>" name="applicationfeeform" id="applicationfeeform" autocomplete="off" enctype="multipart/form-data">
 				<input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
 				<input type="hidden" name="id" value="<?php echo $id; ?>">
 					<div class="row">
@@ -1654,7 +1654,7 @@ class ApplicationsController extends Controller
         ->where('applications.id', $id)->first();
         //dd($appInfo);
         ?>
-		<form method="post" action="<?php echo \URL::to('/admin/applicationsavefeelatest'); ?>" name="applicationfeeformlatest" id="applicationfeeformlatest" autocomplete="off" enctype="multipart/form-data">
+		<form method="post" action="<?php echo \URL::to('/applicationsavefeelatest'); ?>" name="applicationfeeformlatest" id="applicationfeeformlatest" autocomplete="off" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
             <input type="hidden" name="id" value="<?php echo $id; ?>">
             <?php

@@ -327,7 +327,7 @@ function customValidate(formName, savetype = '')
 								if(obj.status){
 									$('#create_applicationnote').modal('hide');
 									$.ajax({
-										url: site_url+'/admin/get-applications-logs',
+										url: site_url+'/get-applications-logs',
 										type:'GET',
 										data:{id: noteid},
 										success: function(responses){
@@ -362,7 +362,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-									url: site_url+'/admin/get-partner-notes',
+									url: site_url+'/get-partner-notes',
 									type:'GET',
 									data:{clientid:client_id,type:'partner'},
 									success: function(responses){
@@ -399,7 +399,7 @@ function customValidate(formName, savetype = '')
                                     $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
                                     //Get Partner all activity logs
                                     $.ajax({
-                                        url: site_url+'/admin/get-partner-activities',
+                                        url: site_url+'/get-partner-activities',
                                         type:'GET',
                                         datatype:'json',
                                         data:{partner_id:partner_id},
@@ -466,7 +466,7 @@ function customValidate(formName, savetype = '')
 									$('#add_clientcontact').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-									url: site_url+'/admin/get-contacts',
+									url: site_url+'/get-contacts',
 									type:'GET',
 									data:{clientid:client_id,type:'partner'},
 									success: function(responses){
@@ -501,7 +501,7 @@ function customValidate(formName, savetype = '')
 									$('#add_clientbranch').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-									url: site_url+'/admin/get-branches',
+									url: site_url+'/get-branches',
 									type:'GET',
 									data:{clientid:client_id,type:'partner'},
 									success: function(responses){
@@ -534,7 +534,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-tasks',
+										url: site_url+'/get-tasks',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -958,7 +958,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/partner/get-tasks',
+										url: site_url+'/partner/get-tasks',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1002,7 +1002,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-educations',
+										url: site_url+'/get-educations',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1011,7 +1011,7 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									/* $.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -1052,7 +1052,7 @@ function customValidate(formName, savetype = '')
 									$('#new_fee_option').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-all-fees',
+										url: site_url+'/get-all-fees',
 										type:'GET',
 										data:{clientid:product_id},
 										success: function(responses){
@@ -1159,7 +1159,7 @@ function customValidate(formName, savetype = '')
 									var t = parseFloat(obj.totalfee) - parseFloat(obj.discount);
 									$('.productfeedata .client_totl').html(t);
 									$.ajax({
-										url: site_url+'/admin/get-services',
+										url: site_url+'/get-services',
 										type:'GET',
 										data:{clientid:obj.client_id},
 										success: function(responses){
@@ -1217,7 +1217,7 @@ function customValidate(formName, savetype = '')
 									
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-all-paymentschedules',
+										url: site_url+'/get-all-paymentschedules',
 										type:'GET',
 										data:{appid:obj.application_id, client_id:obj.client_id},
 										success: function(responses){
@@ -1282,7 +1282,7 @@ function customValidate(formName, savetype = '')
 									
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-all-paymentschedules',
+										url: site_url+'/get-all-paymentschedules',
 										type:'GET',
 										data:{appid:obj.application_id, client_id:obj.client_id},
 										success: function(responses){
@@ -1315,7 +1315,7 @@ function customValidate(formName, savetype = '')
 									$('#editfeeoption').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-all-fees',
+										url: site_url+'/get-all-fees',
 										type:'GET',
 										data:{clientid:product_id},
 										success: function(responses){
@@ -1348,7 +1348,7 @@ function customValidate(formName, savetype = '')
 									$('#create_promotion').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-promotions',
+										url: site_url+'/get-promotions',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1381,7 +1381,7 @@ function customValidate(formName, savetype = '')
 									$('#edit_promotion').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-promotions',
+										url: site_url+'/get-promotions',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1414,7 +1414,7 @@ function customValidate(formName, savetype = '')
 									$('#edit_education').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-educations',
+										url: site_url+'/get-educations',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1423,7 +1423,7 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									/* $.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -1601,7 +1601,7 @@ function customValidate(formName, savetype = '')
 								if(obj.status){
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									 $.ajax({
-										url: site_url+'/admin/get-invoices',
+										url: site_url+'/get-invoices',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1713,7 +1713,7 @@ function customValidate(formName, savetype = '')
 								if(obj.status){
 									
 									$.ajax({
-										url: site_url+'/admin/get-applications-logs',
+										url: site_url+'/get-applications-logs',
 										type:'GET',
 										data:{id: appliid},
 										success: function(responses){
@@ -1883,7 +1883,7 @@ function customValidate(formName, savetype = '')
 									var t = parseFloat(obj.client_revenue) + parseFloat(obj.partner_revenue) - parseFloat(obj.discounts);
 									$('.appsaleforcastserv .netrevenue').html(t);	
 									$.ajax({
-										url: site_url+'/admin/get-services',
+										url: site_url+'/get-services',
 										type:'GET',
 										data:{clientid:obj.client_id},
 										success: function(responses){
@@ -1916,7 +1916,7 @@ function customValidate(formName, savetype = '')
 									$('.add_interested_service').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-services',
+										url: site_url+'/get-services',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1925,7 +1925,7 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									$.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -1990,7 +1990,7 @@ function customValidate(formName, savetype = '')
 									
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-services',
+										url: site_url+'/get-services',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -1999,7 +1999,7 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									$.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -2052,7 +2052,7 @@ function customValidate(formName, savetype = '')
                                         $('.add_appointment').modal('hide');
                                         $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
                                         $.ajax({
-                                            url: site_url+'/admin/get-appointments',
+                                            url: site_url+'/get-appointments',
                                             type:'GET',
                                             data:{clientid:client_id},
                                             success: function(responses){
@@ -2061,7 +2061,7 @@ function customValidate(formName, savetype = '')
                                             }
                                         });
                                         $.ajax({
-                                            url: site_url+'/admin/get-activities',
+                                            url: site_url+'/get-activities',
                                             type:'GET',
                                             datatype:'json',
                                             data:{id:client_id},
@@ -2105,7 +2105,7 @@ function customValidate(formName, savetype = '')
 									$('#create_appoint').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/partner/get-appointments',
+										url: site_url+'/partner/get-appointments',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -2140,7 +2140,7 @@ function customValidate(formName, savetype = '')
 									$('.add_appointment').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-appointments',
+										url: site_url+'/get-appointments',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -2150,7 +2150,7 @@ function customValidate(formName, savetype = '')
 									});
 									
 									$.ajax({
-										url: site_url+'/admin/get-applications-logs',
+										url: site_url+'/get-applications-logs',
 										type:'GET',
 										data:{id: noteid},
 										success: function(responses){
@@ -2187,7 +2187,7 @@ function customValidate(formName, savetype = '')
 
 									if(obj.application_id){
                                         $.ajax({
-                                            url: site_url+'/admin/get-applications-logs',
+                                            url: site_url+'/get-applications-logs',
                                             type:'GET',
                                             data:{id: obj.application_id},
                                             success: function(responses){
@@ -2221,7 +2221,7 @@ function customValidate(formName, savetype = '')
 									$('#create_partneraction').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
                                     $.ajax({
-                                        url: site_url+'/admin/get-partner-activities',
+                                        url: site_url+'/get-partner-activities',
                                         type:'GET',
                                         datatype:'json',
                                         data:{partner_id:obj.partner_id},
@@ -2270,7 +2270,7 @@ function customValidate(formName, savetype = '')
 									$('#applicationemailmodal').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-appointments',
+										url: site_url+'/get-appointments',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -2280,7 +2280,7 @@ function customValidate(formName, savetype = '')
 									});
 									
 									$.ajax({
-										url: site_url+'/admin/get-applications-logs',
+										url: site_url+'/get-applications-logs',
 										type:'GET',
 										data:{id: noteid},
 										success: function(responses){
@@ -2313,7 +2313,7 @@ function customValidate(formName, savetype = '')
                                 if(obj.status){
 									$('#sendmsgmodal').modal('hide');
                                     $.ajax({
-                                        url: site_url+'/admin/get-notes',
+                                        url: site_url+'/get-notes',
                                         type:'GET',
                                         data:{clientid:client_id,type:'client'},
                                         success: function(responses){
@@ -2321,7 +2321,7 @@ function customValidate(formName, savetype = '')
                                         }
                                     });
                                     $.ajax({
-                                        url: site_url+'/admin/get-activities',
+                                        url: site_url+'/get-activities',
                                         type:'GET',
                                         datatype:'json',
                                         data:{id:client_id},
@@ -2365,7 +2365,7 @@ function customValidate(formName, savetype = '')
 									$('#edit_appointment').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/get-appointments',
+										url: site_url+'/get-appointments',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -2374,7 +2374,7 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									$.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -2415,7 +2415,7 @@ function customValidate(formName, savetype = '')
 									$('#edit_appointment').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$.ajax({
-										url: site_url+'/admin/partner/get-appointments',
+										url: site_url+'/partner/get-appointments',
 										type:'GET',
 										data:{clientid:client_id},
 										success: function(responses){
@@ -2451,7 +2451,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-		url: site_url+'/admin/get-notes',
+		url: site_url+'/get-notes',
 		type:'GET',
 		data:{clientid:client_id,type:'client'},
 		success: function(responses){
@@ -2460,7 +2460,7 @@ function customValidate(formName, savetype = '')
 		}
 	});
 									$.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -2518,7 +2518,7 @@ function customValidate(formName, savetype = '')
 									$('#create_note_d').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-		url: site_url+'/admin/get-notes',
+		url: site_url+'/get-notes',
 		type:'GET',
 		data:{clientid:client_id,type:'client'},
 		success: function(responses){
@@ -2527,7 +2527,7 @@ function customValidate(formName, savetype = '')
 		}
 	});
 									$.ajax({
-										url: site_url+'/admin/get-activities',
+										url: site_url+'/get-activities',
 										type:'GET',
 										datatype:'json',
 										data:{id:client_id},
@@ -2622,7 +2622,7 @@ $('#add_application').modal('hide');
 									$('.add_appliation').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({
-					url: site_url+'/admin/get-application-lists',
+					url: site_url+'/get-application-lists',
 					type:'GET',
 					datatype:'json',
 					data:{id:client_id},
@@ -2631,7 +2631,7 @@ $('#add_application').modal('hide');
 					}
 				});
 									$.ajax({
-					url: site_url+'/admin/get-activities',
+					url: site_url+'/get-activities',
 					type:'GET',
 					datatype:'json',
 					data:{id:client_id},
