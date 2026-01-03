@@ -951,9 +951,9 @@
     // API URLs
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
-        getTagData: '{{ url("/admin/gettagdata") }}',
+        getTagData: '{{ url("/gettagdata") }}',
         getRecipients: '{{ url("/clients/get-recipients") }}',
-        checkClientExist: '{{ url("/admin/checkclientexist") }}'
+        checkClientExist: '{{ url("/checkclientexist") }}'
     };
     
     // Page-specific data for create

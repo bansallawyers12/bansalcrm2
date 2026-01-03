@@ -1534,14 +1534,14 @@ if($fetchedData->tagname != ''){
     // API URLs
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
-        getTagData: '{{ url("/admin/gettagdata") }}',
+        getTagData: '{{ url("/gettagdata") }}',
         verifyEmail: '{{ route("verify.send-code") }}',
         checkCode: '{{ route("verify.check-code") }}',
         getRecipients: '{{ url("/clients/get-recipients") }}',
-        checkClientExist: '{{ url("/admin/checkclientexist") }}',
-        getServiceTaken: '{{ url("/admin/client/getservicetaken") }}',
-        createServiceTaken: '{{ url("/admin/client/createservicetaken") }}',
-        removeServiceTaken: '{{ url("/admin/client/removeservicetaken") }}',
+        checkClientExist: '{{ url("/checkclientexist") }}',
+        getServiceTaken: '{{ url("/client/getservicetaken") }}',
+        createServiceTaken: '{{ url("/client/createservicetaken") }}',
+        removeServiceTaken: '{{ url("/client/removeservicetaken") }}',
         emailVerify: '{{ url("/email-verify") }}',
         verifySendCode: '{{ route("verify.send-code") }}',
         verifyCheckCode: '{{ route("verify.check-code") }}'

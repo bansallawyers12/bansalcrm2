@@ -154,7 +154,7 @@
 
 													{{-- <a class="btn btn-info" href="{{ route('assignees.show',$list->id) }}">Show</a> --}}
 
-													{{--<a class="btn btn-primary" href="{{ url('/admin/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}">Edit</a>--}}
+													{{--<a class="btn btn-primary" href="{{ url('/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}">Edit</a>--}}
 
 													@csrf
 													@method('DELETE')
@@ -330,7 +330,7 @@
 
 													{{-- <a class="btn btn-info" href="{{ route('assignees.show',$listC->id) }}">Show</a> --}}
 
-													{{--<a class="btn btn-primary" href="{{ url('/admin/clients/edit/'.base64_encode(convert_uuencode(@$listC->client_id)).'') }}">Edit</a>--}}
+													{{--<a class="btn btn-primary" href="{{ url('/clients/edit/'.base64_encode(convert_uuencode(@$listC->client_id)).'') }}">Edit</a>--}}
 
                                                     @csrf
 													@method('DELETE')
