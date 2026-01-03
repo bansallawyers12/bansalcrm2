@@ -119,18 +119,6 @@ use App\Http\Controllers\Controller;
 									<a class="nav-link active" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="fees-tab" href="#fees" role="tab" aria-controls="fees" aria-selected="false">Fees</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="requirements-tab" href="#requirements" role="tab" aria-controls="requirements" aria-selected="false">Requirements</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
-								</li>
-								<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
 								</li>
 							</ul> 
@@ -195,261 +183,6 @@ use App\Http\Controllers\Controller;
 										</table> 
 									</div>
 									
-								</div>
-								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<div class="document_layout_type">
-											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
-											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
-										</div>
-										<div class="upload_document" style="display:inline-block;">
-										<form method="POST" enctype="multipart/form-data" id="upload_form">
-											@csrf
-											<input type="hidden" name="clientid" value="{{$fetchedData->id}}">
-											<input type="hidden" name="type" value="product">
-											<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
-											
-											<input type="file" name="document_upload"/>
-											</form>
-										</div>
-									</div>
-									<div class="list_data"> 
-										<div class="table-responsive"> 
-											<table class="table text_wrap">
-												<thead>
-													<tr>
-														<th>File Name</th>
-														<th>Added By</th>
-													
-														<th>Added Date</th>
-														<th></th>
-													</tr> 
-												</thead>
-												<tbody class="tdata documnetlist">
-										<?php 
-										$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->where('type','product')->orderby('created_at', 'DESC')->get();
-										foreach($fetchd as $fetch){ 
-										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-										?>												
-													<tr class="drow" id="id_{{$fetch->id}}">
-													<td  >
-														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name; ?><?php echo '.'.$fetch->filetype; ?></span>
-														</div>
-													</td> 
-													<td><?php echo $admin->first_name; ?></td>
-													
-													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-															</div>
-														</div>								  
-													</td>
-												</tr>
-												<?php } ?>
-												</tbody>
-												
-											</table> 
-										</div>
-									</div>
-									<div class="grid_data griddata">
-									<?php
-									foreach($fetchd as $fetch){ 
-										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-									?>
-										<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
-											<div class="grid_col"> 
-												<div class="grid_icon">
-													<i class="fas fa-file-image"></i>
-												</div> 
-												<div class="grid_content">
-													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-														
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php } ?>
-										<div class="clearfix"></div>
-									</div>
-								</div>
-								<div class="tab-pane fade" id="fees" role="tabpanel" aria-labelledby="fees-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;"  class="btn btn-primary new_fee_option"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="feeslist">
-									<?php
-									// FeeOption table dropped
-									$feeoptions = collect([]);
-									
-									foreach($feeoptions as $feeoption){
-									?>
-										<div class="feeitem">
-											<div class="row">
-												<div class="col-md-10">
-													<h4 class="text-info"><?php echo $feeoption->name; ?></h4>
-												</div>
-												<div class="col-md-2">
-													<a href="javascript:;" class="editfeeoption" data-id="<?php echo $feeoption->id; ?>"><i class="fa fa-edit"></i></a>
-													<a href="javascript:;" class="deletenote" data-href="deletefee" data-id="<?php echo $feeoption->id; ?>"><i class="fa fa-trash"></i></a>
-												</div>
-												<div class="col-md-2">
-													<div class="validfor">
-														<span>Valid For</span><br>
-														<div class=""><b><?php echo $feeoption->country; ?></b></div>
-													</div>
-													<div class="installmenttype">
-														<span>Installment Type</span><br>
-														<div class=""><b><?php echo $feeoption->installment_type; ?></b></div>
-													</div>
-												</div>
-												<?php
-												// FeeOptionType table dropped
-												$feeoptiontype = collect([]);
-												
-												?>
-												<div class="col-md-8">
-													<div class="validfor">
-														<span>Fee Breakdown</span><br>
-													<?php $totlfee = 0; foreach($feeoptiontype as $feeoptiontyp){
-														$totlfee += $feeoptiontyp->total_fee;
-														?>
-														<div class="">
-															<span><b><?php echo $feeoptiontyp->fee_type; ?></b></span><span> <?php echo $feeoptiontyp->installment; ?> Per Month @ AUD <?php echo $feeoptiontyp->inst_amt; ?></span><span style="margin-left: 24px;"><b>AUD <?php echo $feeoptiontyp->total_fee; ?></b></span>
-														
-														</div>
-													<?php } ?>
-													</div>
-													
-												</div>
-												
-												<div class="col-md-2">
-													<div class="validfor">
-														<span>Total Fees</span><br>
-														<div class="text-info"><h4>AUD</h4></div>
-													
-														<div class="text-info"><h4><?php echo number_format($totlfee,2,'.',''); ?></h4></div>
-													</div>
-													
-												</div>
-											</div>
-											<hr>
-										</div>
-									<?php } ?>
-									</div>
-								</div>
-								<div class="tab-pane fade" id="requirements" role="tabpanel" aria-labelledby="requirements-tab">
-									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-start">
-											<h5>English Test Scores</h5> 
-										</div>
-										<div class="float-end">
-											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="edu_test_score edu_english_score">
-										<div class="edu_test_row" style="text-align:center;">
-											<div class="edu_test_col">&nbsp;</div>
-											<div class="edu_test_col"><span>Listening</span></div>
-											<div class="edu_test_col"><span>Reading</span></div>
-											<div class="edu_test_col"><span>Writing</span></div>
-											<div class="edu_test_col"><span>Speaking</span></div>
-											<div class="edu_test_col"><span>Overall Scores</span></div>
-											<div class="edu_test_col"><span>Date</span></div>
-										</div>
-										<?php
-										$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'product')->first();
-										?>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>TOEFL</span></div>
-											<div class="edu_test_col"><strong class="tofl_lis"><?php if(@$testscores->toefl_Listening != ''){ echo @$testscores->toefl_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_reading"><?php if(@$testscores->toefl_Reading != ''){ echo @$testscores->toefl_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_writing"><?php if(isset($testscores->toefl_Writing) && $testscores->toefl_Writing != ''){ echo $testscores->toefl_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_speaking"><?php if(@$testscores->toefl_Speaking != ''){ echo @$testscores->toefl_Speaking; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="tofl_score"><?php if(@$testscores->score_1 != ''){ echo @$testscores->score_1; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="toefl_date"><?php if(@$testscores->toefl_Date != ''){ echo @$testscores->toefl_Date; }else{ echo '-'; } ?></strong></div> 
-										</div>  
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>IELTS</span></div>
-											<div class="edu_test_col"><strong class="ilets_Listening"><?php if(@$testscores->ilets_Listening != ''){ echo @$testscores->ilets_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_Reading"><?php if(@$testscores->ilets_Reading != ''){ echo @$testscores->ilets_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_Writing"><?php if(@$testscores->ilets_Writing != ''){ echo @$testscores->ilets_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_speaking"><?php if(@$testscores->ilets_Speaking != ''){ echo $testscores->ilets_Speaking; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="ilets_score"><?php if(@$testscores->score_2 != ''){ echo @$testscores->score_2; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_date"><?php if(@$testscores->ilets_Date != ''){ echo $testscores->ilets_Date; }else{ echo '-'; } ?></strong></div>
-										</div>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>PTE</span></div>
-											<div class="edu_test_col"><strong class="pte_Listening"><?php if(@$testscores->pte_Listening != ''){ echo @$testscores->pte_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Reading"><?php if(@$testscores->pte_Reading != ''){ echo @$testscores->pte_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Writing"><?php if(@$testscores->pte_Writing != ''){ echo @$testscores->pte_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Speaking"><?php if(@$testscores->pte_Speaking != ''){ echo @$testscores->pte_Speaking; }else{ echo '-'; } ?></strong></div> 
-											<div class="edu_test_col overal_block"><strong class="pte_score"><?php if(@$testscores->score_3 != ''){ echo @$testscores->score_3; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_date"><?php if(@$testscores->pte_Date != ''){ echo @$testscores->pte_Date; }else{ echo '-'; } ?></strong></div>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-start">
-											<h5>Other Test Scores</h5> 
-										</div>
-										<div class="float-end">
-											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="edu_test_score edu_othertest_score">
-										<div class="edu_test_row" style="text-align:center;">
-											<div class="edu_test_col"></div>
-											<div class="edu_test_col"><span>SAT I</span></div>
-											<div class="edu_test_col"><span>SAT II</span></div>
-											<div class="edu_test_col"><span>GRE</span></div>
-											<div class="edu_test_col"><span>GMAT</span></div>
-										</div> 
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col">Overall Scores</div>
-											<div class="edu_test_col overal_block"><strong class="sat_i"><?php if(@$testscores->sat_i != ''){ echo @$testscores->sat_i; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="sat_ii"><?php if(@$testscores->sat_ii != ''){ echo @$testscores->sat_ii; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="gre"><?php if(@$testscores->gre != ''){ echo @$testscores->gre; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="gmat"><?php if(@$testscores->gmat != ''){ echo @$testscores->gmat; }else{ echo '-'; } ?></strong></div>
-										</div>
-									</div>
-								</div>
-								<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
-								<?php
-								// ProductAreaLevel table dropped
-								$subjectareadata = null;
-								?>
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" <?php if($subjectareadata){ ?>style="display:none;"<?php }else{ ?><?php } ?> class="btn btn-primary other_info_add"><i class="fa fa-plus"></i> Add</a>
-										<a href="javascript:;" <?php if($subjectareadata){ ?><?php }else{ ?>style="display:none;"<?php } ?> class="btn btn-primary other_info_edit"><i class="fa fa-plus"></i> Edit</a>
-									</div>
-									<div class="otherinfolist">
-										<?php 
-										
-										if($subjectareadata){ 
-										$subjectarea = \App\Models\SubjectArea::where('id', $subjectareadata->subject_area)->first();
-				$subject = \App\Models\Subject::where('id', $subjectareadata->subject)->first();
-				echo '<div class="row"><div class="col-md-4"><strong>Subject Area</strong><p>'.$subjectarea->name.'</p></div><div class="col-md-4"><strong>Subject</strong><p>'.$subject->name.'</p></div><div class="col-md-4"><strong>Degree Level</strong><p>'.$subjectareadata->degree.'</p></div></div>';
-									} ?>
-									</div>
 								</div>
 								<div class="tab-pane fade" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
 									<div class="promotionlists"> 
@@ -730,9 +463,6 @@ function getallactivities(){
 				$('#confirmModal').modal('hide');
 				if(res.status){
 					$('#note_id_'+notid).remove();
-					if(delhref == 'deletedocs'){
-						$('.documnetlist #id_'+notid).remove();
-					}
 					if(delhref == 'deleteservices'){
 						$.ajax({
 						url: site_url+'/get-services',
@@ -751,16 +481,6 @@ function getallactivities(){
 						success: function(responses){
 							
 							$('.appointmentlist').html(responses);
-						}
-					});
-					}if(delhref == 'deletefee'){
-						$.ajax({
-						url: site_url+'/get-all-fees',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.feeslist').html(responses);
 						}
 					});
 					}else{
@@ -1210,34 +930,6 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		});
 		}
 	}); 
-	$(document).delegate('input[name=document_upload]', 'click', function() {
-    $(this).attr("value", "");
-})  
-	$(document).delegate('input[name=document_upload]', 'change', function() {
-		$('.popuploader').show();	
-var formData = new FormData($('#upload_form')[0]);		
-		$.ajax({
-			url: site_url+'/upload-document',
-			type:'POST',
-			datatype:'json',
-			 data: formData,
-			contentType: false,
-			processData: false,
-			
-			success: function(responses){
-					$('.popuploader').hide();
-var ress = JSON.parse(responses);
-if(ress.status){
-	$('.custom-error-msg').html('<span class="alert alert-success">'+ress.message+'</span>');
-	$('.documnetlist').html(ress.data);
-	$('.griddata').html(ress.griddata);
-}else{
-$('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</span>');	
-}	
-				
-			}
-		});
-	});
 	
 	$(document).delegate('.converttoapplication','click', function(){
 		
@@ -1264,75 +956,6 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 		});
 		}
 	});
-
-	$(document).on('click', '.documnetlist .renamedoc', function () {
-			var parent = $(this).closest('.drow').find('.doc-row');
-
-			parent.data('current-html', parent.html());
-			var opentime = parent.data('name');
-
-			parent.empty().append(
-				$('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
-				
-				$('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
-				$('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
-			);
-
-			return false;
-	
-	});
-	
-	$(document).on('click', '.documnetlist .drow .btn-danger', function () {
-			var parent = $(this).closest('.drow').find('.doc-row');
-			var hourid = parent.data('id');
-			if (hourid) {
-				parent.html(parent.data('current-html'));
-			} else {
-				parent.remove();
-				
-			}
-		});
-		
-	$(document).delegate('.documnetlist .drow .btn-primary', 'click', function () {
-		
-			var parent = $(this).closest('.drow').find('.doc-row');
-			parent.find('.opentime').removeClass('is-invalid');
-			parent.find('.invalid-feedback').remove();
-
-			var opentime = parent.find('.opentime').val();
-
-
-			if (!opentime) {
-				parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
-				parent.append($("<div class='invalid-feedback'>This field is required</div>"));
-				return false;
-			}
-			
-			$.ajax({
-			   type: "POST",
-			   data: {"_token": $('meta[name="csrf-token"]').attr('content'),"filename": opentime, "id": parent.data('id')},
-			   url: '{{URL::to('/renamedoc')}}',
-			   success: function(result){
-				   var obj = JSON.parse(result);
-				 if (obj.status) {
-						parent.empty()
-							.data('id', obj.Id)
-							.data('name', opentime)
-							.append(
-								$('<span>').html('<i class="fas fa-file-image"></i> '+obj.filename+'.'+obj.filetype)
-							);
-							$('#grid_'+obj.Id).html(obj.filename+'.'+obj.filetype);
-					} else {
-						parent.find('.opentime').addClass('is-invalid').css({ 'background-image': 'none', 'padding-right': '0.75em' });
-						parent.append($('<div class="invalid-feedback">' + obj.message + '</div>'));
-					}
-			   }
-			});
-			
-
-			return false;
-		});
-		
 
 // Task system removed - December 2025 (dead code - modal is commented out)
 /*$(document).delegate('.opencreate_task', 'click', function () {
@@ -1370,26 +993,6 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 			}
 		});
 	});
-    $(document).delegate('#other_info_add #subjectlist', 'change', function(){
-	
-				var v = $('#other_info_add #subjectlist option:selected').val();
-				if(v != ''){
-						$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getsubjects')}}',
-			type:'GET',
-			data:{cat_id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('#other_info_add #subject').html(response);
-				
-				$("#other_info_add #subject").val('').trigger('change');
-			
-			}
-		});
-				}
-	});
-	
 	$(document).delegate('.edit_appointment', 'click', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
@@ -1524,10 +1127,6 @@ $(document).delegate('.paymentAmount','keyup', function(){
 		var clonedval = $('.payment_field .payment_field_row .payment_first_step').html();
 		$('.payment_field .payment_field_row').append('<div class="payment_field_col payment_field_clone">'+clonedval+'</div>');
 	}); 
-	$('.add_fee_type a.fee_type_btn').on('click', function(){ 
-		var clonedval = $('.fees_type_sec .fee_type_row .fees_type_col').html();
-		$('.fees_type_sec .fee_type_row').append('<div class="custom_type_col fees_type_clone">'+clonedval+'</div>');
-	});
 	$(document).delegate('.payment_field_col .field_remove_col a.remove_col', 'click', function(){ 
 		var $tr    = $(this).closest('.payment_field_clone');
 		var trclone = $('.payment_field_clone').length;		
@@ -1536,14 +1135,6 @@ $(document).delegate('.paymentAmount','keyup', function(){
 			grandtotal();
 		} 
 	});
-	$(document).delegate('.fees_type_sec .fee_type_row .fees_type_clone a.remove_btn', 'click', function(){ 
-		var $tr    = $(this).closest('.fees_type_clone');
-		var trclone = $('.fees_type_clone').length;		
-		if(trclone > 0){
-			$tr.remove();
-			grandtotal();
-		} 
-	});	
 	
 	
 $(document).delegate('.openapplicationdetail', 'click', function(){
@@ -1694,31 +1285,6 @@ $(document).delegate('.backstage', 'click', function(){
 });
 
 
-$(document).delegate('.other_info_add', 'click', function(){
-	$('#other_info_add').modal('show');
-	$('#other_info_add #academiModalLabel').html('Add Subject Area & Level');
-
-});
-
-$(document).delegate('.new_fee_option', 'click', function(){
-	$('#new_fee_option').modal('show');
-});
-
-$(document).delegate('.other_info_edit', 'click', function(){
-	$('#other_info_edit').modal('show');
-	$('#other_info_edit #academiModalLabel').html('Edit Subject Area & Level');
-	$.ajax({
-			url: '{{URL::to('/product/getotherinfo')}}',
-			type:'GET',
-			data:{id:'{{$fetchedData->id}}'},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showsubjecthtml').html(response);
-				
-			}
-		});
-});
-
 $(document).delegate('#notes-tab', 'click', function(){
 		var appliid = $(this).attr('data-id');
 		$('.if_applicationdetail').hide();
@@ -1738,9 +1304,6 @@ $(document).delegate('#notes-tab', 'click', function(){
 	$(".timezoneselect2").select2({
 		dropdownParent: $("#create_appoint .modal-content")
 	});
-	$(".installment_type, .residencyelect2").select2({
-		dropdownParent: $("#new_fee_option .modal-content")
-	});
 	
   
   $('#attachments').on('change',function(){
@@ -1753,149 +1316,6 @@ $(document).delegate('#notes-tab', 'click', function(){
 
        $('.showattachment').html(filename);
     });
-	
-	$(document).delegate('#new_fee_option .installment_amount','keyup', function(){
-		var installment_amount = $(this).val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-		
-		var installment = $(this).parent().parent().find('.installment').val();
-		
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#new_fee_option .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#new_fee_option .net_totl').html(price.toFixed(2));
-	});
-	
-	$(document).delegate('#new_fee_option .installment','keyup', function(){
-		var installment = $(this).val();
-		
-		
-		var installment_amount = $(this).parent().parent().find('.installment_amount').val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#new_fee_option .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#new_fee_option .net_totl').html(price.toFixed(2));
-	});
-	
-	$(document).delegate('.editfeeoption', 'click', function(){
-		var appliid = $(this).attr('data-id');
-		$('#editfeeoption').modal('show');
-		$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getfeeoptionedit')}}',
-			type:'GET',
-			data:{id:appliid},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showfeeoptionedit').html(response);
-				$(".edit_installment_type, .residencyelect2").select2({ 
-					dropdownParent: $("#editfeeoption .modal-content")
-				});
-			}
-		});
-	});
-	
-	
-	$(document).delegate('#editfeeoption .installment_amount','keyup', function(){
-		var installment_amount = $(this).val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-		
-		var installment = $(this).parent().parent().find('.installment').val();
-		
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#editfeeoption .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#editfeeoption .net_totl').html(price.toFixed(2));
-	});
-	
-	$(document).delegate('#editfeeoption .installment','keyup', function(){
-		var installment = $(this).val();
-		
-		
-		var installment_amount = $(this).parent().parent().find('.installment_amount').val();
-		var cserv = 0.00;
-		if(installment_amount != ''){
-			cserv = installment_amount;
-		}
-		var totalamount = parseFloat(cserv) * parseInt(installment);
-		$(this).parent().parent().find('.total_fee span').html(totalamount.toFixed(2));
-		$(this).parent().parent().find('.total_fee_am').val(totalamount.toFixed(2));
-		var price = 0;
-		$('#editfeeoption .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#editfeeoption .net_totl').html(price.toFixed(2));
-	});
-	
-	
-	$(document).delegate('#new_fee_option .fee_option_addbtn a', 'click', function(){
-	var htmldd = '';
-	<?php foreach(\App\Models\FeeType::all() as $feetypes){ ?>
-			htmldd +='<option @if($feetypes->name == 'Tution fees') selected @endif value="{{$feetypes->name}}">{{$feetypes->name}}</option>';
-	<?php } ?>
-		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option>'+htmldd+'</select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype"><i class="fa fa-trash"></i></a></td></tr>';
-		$('#new_fee_option #productitemview tbody').append(html);
-				
-			}); 
-			
-	$(document).delegate('#new_fee_option .removefeetype', 'click', function(){
-		$(this).parent().parent().remove();
-		
-		var price = 0;
-		$('#new_fee_option .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#new_fee_option .net_totl').html(price.toFixed(2));
-	});
-	
-	$(document).delegate('#editfeeoption .fee_option_addbtn a', 'click', function(){
-		var html = '<tr class="add_fee_option cus_fee_option"><td><select data-valid="required" class="form-control course_fee_type" name="course_fee_type[]"><option value="">Select Type</option><option value="Accommodation Fee">Accommodation Fee</option><option value="Administration Fee">Administration Fee</option><option value="Airline Ticket">Airline Ticket</option><option value="Airport Transfer Fee">Airport Transfer Fee</option><option value="Application Fee">Application Fee</option><option value="Bond">Bond</option></select></td><td><input type="number" value="0" class="form-control installment_amount" name="installment_amount[]"></td><td><input type="number" value="1" class="form-control installment" name="installment[]"></td><td class="total_fee"><span>0.00</span><input type="hidden"  class="form-control total_fee_am" value="0" name="total_fee[]"></td><td><input type="number" value="1" class="form-control claimable_terms" name="claimable_terms[]"></td><td><input type="number" class="form-control commission" name="commission[]"></td><td><input value="1" class="add_quotation" type="checkbox" name="add_quotation[]"> <a href="javascript:;" class="removefeetype"><i class="fa fa-trash"></i></a></td></tr>';
-		$('#editfeeoption #productitemview tbody').append(html);
-				
-			}); 
-			
-	$(document).delegate('#editfeeoption .removefeetype', 'click', function(){
-		$(this).parent().parent().remove();
-		
-		var price = 0;
-		$('#editfeeoption .total_fee_am').each(function(){
-			price += parseFloat($(this).val());
-		});
-		
-		$('#editfeeoption .net_totl').html(price.toFixed(2));
-	});
-	
-	
-	
-	
-
 	
 });
 </script>
