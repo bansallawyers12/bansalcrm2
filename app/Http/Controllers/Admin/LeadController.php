@@ -271,7 +271,12 @@ class LeadController extends Controller
 			$obj->passport_no		=	@$requestData['passport_no'];
 			$obj->visa_type			=	@$requestData['visa_type'];
 			$obj->visa_expiry_date		=	($visa_expiry_date != '') ? $visa_expiry_date : null;
-			$obj->tags_label		=	@$requestData['tags_label'];
+			// Handle tags_label - convert array to comma-separated string
+			if(isset($requestData['tagname']) && !empty($requestData['tagname']) && is_array($requestData['tagname'])){
+				$obj->tags_label = implode(',', $requestData['tagname']);
+			} else {
+				$obj->tags_label = '';
+			}
 			$obj->contact_type		=	@$requestData['contact_type'];
 			$obj->country_code		=	@$requestData['country_code'];
 			$obj->phone		=	@$requestData['phone'];
@@ -311,10 +316,15 @@ class LeadController extends Controller
     		$obj->skill_assessment			=	@$requestData['skill_assessment'];
     		$obj->high_quali_aus			=	@$requestData['high_quali_aus'];
     		$obj->high_quali_overseas			=	@$requestData['high_quali_overseas'];
-    		$obj->relevant_work_exp_aus			=	@$requestData['relevant_work_exp_aus'];
-    		$obj->relevant_work_exp_over			=	@$requestData['relevant_work_exp_over'];
-    		$obj->naati_py			=	@$requestData['naati_py'];
-    		$obj->married_partner			=	@$requestData['married_partner'];
+			$obj->relevant_work_exp_aus			=	@$requestData['relevant_work_exp_aus'];
+			$obj->relevant_work_exp_over			=	@$requestData['relevant_work_exp_over'];
+			// Handle naati_py - convert array to comma-separated string
+			if(isset($requestData['naati_py']) && !empty($requestData['naati_py']) && is_array($requestData['naati_py'])){
+				$obj->naati_py = implode(',', $requestData['naati_py']);
+			} else {
+				$obj->naati_py = '';
+			}
+			$obj->married_partner			=	@$requestData['married_partner'];
     		$obj->total_points			=	@$requestData['total_points'];
     		$obj->start_process			=	@$requestData['start_process'];
     		/* Profile Image Upload Function End */	
