@@ -669,12 +669,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 
   
   
-        //Update student application commission percentage
-        Route::get('/partners/updatecommissionpercentage/{partner_id}', [PartnersController::class, 'updatecommissionpercentage'])->name('partners.updatecommissionpercentage');
-
-        //Update student application commission claimed and other
-        Route::get('/partners/updatecommissionclaimed/{partner_id}', [PartnersController::class, 'updatecommissionclaimed'])->name('partners.updatecommissionclaimed');
-  
         //Note deadline task complete
         Route::post('/update-note-deadline-completed', [AdminController::class, 'updatenotedeadlinecompleted']);
         //Note deadline extend

@@ -926,18 +926,6 @@ Bansal Immigration`;
         $('#tags_clients').modal('show');
     });
 
-    $(document).on('click', '.addnewprevvisa', function(){
-        var $clone = $('.multiplevisa:eq(0)').clone(true,true);
-        $clone.find('.lastfiledcol').after('<div class="col-md-4"><a href="javascript:;" class="removenewprevvisa btn btn-danger btn-sm">Remove</a></div>');
-        $clone.find("input:text").val("");
-        $clone.find("input.visadatesse").val("");
-        $('.multiplevisa:last').after($clone);
-    });
-
-    $(document).on('click', '.removenewprevvisa', function(){
-        $(this).parent().parent().parent().remove();
-    });
-
     // ============================================================================
     // ASSIGN USER HANDLER
     // ============================================================================
@@ -2810,55 +2798,6 @@ Bansal Immigration`;
             }
         });
         return false;
-    });
-
-    // ============================================================================
-    // EDUCATION HANDLERS
-    // ============================================================================
-    
-    var eduid = '';
-    $(document).on('click', '.deleteeducation', function(){
-        eduid = $(this).attr('data-id');
-        $('#confirmEducationModal').modal('show');
-    });
-
-    $(document).on('click', '#confirmEducationModal .accepteducation', function(){
-        $('.popuploader').show();
-        var baseUrl = App.getUrl('siteUrl') || '';
-        $.ajax({
-            url: baseUrl + '/delete-education',
-            type:'GET',
-            datatype:'json',
-            data:{edu_id:eduid},
-            success:function(response){
-                $('.popuploader').hide();
-                var res = typeof response === 'string' ? JSON.parse(response) : response;
-                $('#confirmEducationModal').modal('hide');
-                if(res.status){
-                    $('#edu_id_'+eduid).remove();
-                }else{
-                    alert('Please try again');
-                }
-            }
-        });
-    });
-
-    $(document).on('change', '#educationform #subjectlist', function(){
-        var v = $('#educationform #subjectlist option:selected').val();
-        if(v != ''){
-            $('.popuploader').show();
-            var url = App.getUrl('getSubjects') || App.getUrl('siteUrl') + '/admin/getsubjects';
-            $.ajax({
-                url: url,
-                type:'GET',
-                data:{cat_id:v},
-                success:function(response){
-                    $('.popuploader').hide();
-                    $('#educationform #subject').html(response);
-                    $("#add_appliation #subject").val('').trigger('change');
-                }
-            });
-        }
     });
 
     // ============================================================================

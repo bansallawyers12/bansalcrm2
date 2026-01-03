@@ -49,7 +49,6 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::get('/clients/removetag', [ClientsController::class, 'removetag'])->name('clients.removetag');
     Route::get('/clients/change_assignee', [ClientsController::class, 'change_assignee'])->name('clients.change_assignee');
     Route::get('/change-client-status', [ClientsController::class, 'updateclientstatus'])->name('clients.updateclientstatus');
-    Route::post('/saveprevvisa', [ClientsController::class, 'saveprevvisa'])->name('clients.saveprevvisa');
     Route::post('/save_tag', [ClientsController::class, 'save_tag'])->name('clients.save_tag');
     
     // AJAX routes - recipient/search

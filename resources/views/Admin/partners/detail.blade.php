@@ -44,10 +44,6 @@ use App\Http\Controllers\Controller;
 							<h4>Partner Detail</h4>
 							<div class="card-header-action">
                               
-                                <a target="_blank" href="{{URL::to('/partners/updatecommissionpercentage/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Percentage</a>
-
-                                <a target="_blank" href="{{URL::to('/partners/updatecommissionclaimed/'.$fetchedData->id) }}" class="btn btn-primary">Update Commission Claimed</a>
-
 								<a href="{{route('partners.index')}}" class="btn btn-primary">Partner List</a>
 							</div>
 						</div>

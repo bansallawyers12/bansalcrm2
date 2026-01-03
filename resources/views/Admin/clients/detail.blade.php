@@ -925,9 +925,6 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="education-tab" href="#education" role="tab" aria-controls="education" aria-selected="false">Education</a>
-								</li>
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>-->
@@ -2240,144 +2237,6 @@ use App\Http\Controllers\Controller;
 										</div>
 									</div>
 								</div>
-								<div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
-									<div class="card-header-action" style="padding-bottom:15px;">
-										<div class="float-start">
-											<h5>Education Background</h5>
-										</div>
-										<div class="float-end">
-											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".create_education" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-
-									<div class="education_list">
-									<?php
-									$totalecount = \App\Models\Education::where('client_id', $fetchedData->id)->orderby('created_at','DESC')->count();
-									if($totalecount == 0){
-									?>
-									<div class="edu_note">
-										<span>* Click add button to fill education background </span>
-									</div>
-									<?php } ?>
-										<?php
-										$edulists = \App\Models\Education::where('client_id', $fetchedData->id)->orderby('created_at','DESC')->get();
-
-										foreach($edulists as $edulist){
-											$subjectdetail = \App\Models\Subject::where('id',$edulist->subject)->first();
-											$subjectareadetail = \App\Models\SubjectArea::where('id',$edulist->subject_area)->first();
-											?>
-											<div class="education_item" id="edu_id_<?php echo $edulist->id; ?>">
-										<div class="row">
-											<div class="col-md-5">
-												<div class="title_desc">
-													<h6>{{@$edulist->degree_title}}</h6>
-													<p>{{@$edulist->institution}}</p>
-												</div>
-											</div>
-											<div class="col-md-7">
-												<div class="education_info">
-													<div class="edu_date"><?php echo date('M Y',strtotime(@$edulist->course_start)); ?><span>-</span><?php echo date('M Y',strtotime(@$edulist->course_end)); ?></div>
-													<div class="edu_score"><span>Score: {{@$edulist->score}} {{@$edulist->ac_score}} </span></div>
-													<div class="edu_study_area">
-														<span>{{@$edulist->degree_level}}</span>
-														<span>{{@$subjectareadetail->name}}</span>
-														<span>{{@$subjectdetail->name}}</span>
-													</div>
-												</div>
-												<div class="education_action">
-													<a class="editeducation" data-id="<?php echo @$edulist->id; ?>" href="javascript:;"><i class="fa fa-edit"></i></a>
-													<a href="javascript:;" data-id="<?php echo @$edulist->id; ?>" class="deleteeducation"><i class="fa fa-trash"></i></a>
-												</div>
-											</div>
-										</div>
-									</div>
-											<?php
-										}
-										?>
-									</div>
-									<div class="divider"></div>
-									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-start">
-											<h5>English Test Scores</h5>
-										</div>
-										<div class="float-end">
-											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_english_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="edu_test_score edu_english_score">
-										<div class="edu_test_row" style="text-align:center;">
-											<div class="edu_test_col">&nbsp;</div>
-											<div class="edu_test_col"><span>Listening</span></div>
-											<div class="edu_test_col"><span>Reading</span></div>
-											<div class="edu_test_col"><span>Writing</span></div>
-											<div class="edu_test_col"><span>Speaking</span></div>
-											<div class="edu_test_col"><span>Overall Scores</span></div>
-											<div class="edu_test_col"><span>Date</span></div>
-										</div>
-										<?php
-										$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
-										?>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>TOEFL</span></div>
-											<div class="edu_test_col"><strong class="tofl_lis"><?php if(@$testscores->toefl_Listening != ''){ echo @$testscores->toefl_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_reading"><?php if(@$testscores->toefl_Reading != ''){ echo @$testscores->toefl_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_writing"><?php if(isset($testscores->toefl_Writing) && $testscores->toefl_Writing != ''){ echo $testscores->toefl_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="tofl_speaking"><?php if(@$testscores->toefl_Speaking != ''){ echo @$testscores->toefl_Speaking; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="tofl_score"><?php if(@$testscores->score_1 != ''){ echo @$testscores->score_1; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="toefl_date"><?php if(@$testscores->toefl_Date != ''){ echo @$testscores->toefl_Date; }else{ echo '-'; } ?></strong></div>
-										</div>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>IELTS</span></div>
-											<div class="edu_test_col"><strong class="ilets_Listening"><?php if(@$testscores->ilets_Listening != ''){ echo @$testscores->ilets_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_Reading"><?php if(@$testscores->ilets_Reading != ''){ echo @$testscores->ilets_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_Writing"><?php if(@$testscores->ilets_Writing != ''){ echo @$testscores->ilets_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_speaking"><?php if(@$testscores->ilets_Speaking != ''){ echo $testscores->ilets_Speaking; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="ilets_score"><?php if(@$testscores->score_2 != ''){ echo @$testscores->score_2; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="ilets_date"><?php if(@$testscores->ilets_Date != ''){ echo $testscores->ilets_Date; }else{ echo '-'; } ?></strong></div>
-										</div>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col"><span>PTE</span></div>
-											<div class="edu_test_col"><strong class="pte_Listening"><?php if(@$testscores->pte_Listening != ''){ echo @$testscores->pte_Listening; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Reading"><?php if(@$testscores->pte_Reading != ''){ echo @$testscores->pte_Reading; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Writing"><?php if(@$testscores->pte_Writing != ''){ echo @$testscores->pte_Writing; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_Speaking"><?php if(@$testscores->pte_Speaking != ''){ echo @$testscores->pte_Speaking; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="pte_score"><?php if(@$testscores->score_3 != ''){ echo @$testscores->score_3; }else{ echo '0'; } ?></strong></div>
-											<div class="edu_test_col"><strong class="pte_date"><?php if(@$testscores->pte_Date != ''){ echo @$testscores->pte_Date; }else{ echo '-'; } ?></strong></div>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="card-header-action" style="padding-top:15px;padding-bottom:10px;">
-										<div class="float-start">
-											<h5>Other Test Scores</h5>
-										</div>
-										<div class="float-end">
-											<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".edit_other_test" class="btn btn-primary"><i class="fa fa-plus"></i> Edit</a>
-										</div>
-										<div class="clearfix"></div>
-									</div>
-									<div class="divider"></div>
-									<div class="edu_test_score edu_othertest_score">
-										<div class="edu_test_row" style="text-align:center;">
-											<div class="edu_test_col"></div>
-											<div class="edu_test_col"><span>SAT I</span></div>
-											<div class="edu_test_col"><span>SAT II</span></div>
-											<div class="edu_test_col"><span>GRE</span></div>
-											<div class="edu_test_col"><span>GMAT</span></div>
-										</div>
-										<div class="edu_test_row flex_row">
-											<div class="edu_test_col">Overall Scores</div>
-											<div class="edu_test_col overal_block"><strong class="sat_i"><?php if(@$testscores->sat_i != ''){ echo @$testscores->sat_i; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="sat_ii"><?php if(@$testscores->sat_ii != ''){ echo @$testscores->sat_ii; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="gre"><?php if(@$testscores->gre != ''){ echo @$testscores->gre; }else{ echo '-'; } ?></strong></div>
-											<div class="edu_test_col overal_block"><strong class="gmat"><?php if(@$testscores->gmat != ''){ echo @$testscores->gmat; }else{ echo '-'; } ?></strong></div>
-										</div>
-									</div>
-								</div>
 								<!--<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
 									<span>other_info</span>
 								</div>-->
@@ -2824,18 +2683,6 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
-<div id="confirmEducationModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
-	<div class="modal-dialog">
-		<div class="modal-content popUp">
-			<div class="modal-body text-center">
-				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
-				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4>
-				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button>
-				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div>
 <div id="confirmcompleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">

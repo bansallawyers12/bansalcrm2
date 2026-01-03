@@ -1,7 +1,7 @@
 # Bansal CRM2 - Recent Changes Documentation
 
 **Period:** December 13, 2025 - January 3, 2026 (Past 3 Weeks)  
-**Last Updated:** January 3, 2026 (Updated with latest commits)
+**Last Updated:** January 3, 2026 19:44 (Updated with latest commits)
 
 ---
 
@@ -31,14 +31,17 @@ Over the past three weeks, the Bansal CRM2 has undergone significant modernizati
 - **UI Modernization:** Updated datepickers, improved responsive design, enhanced client management
 - **Code Quality:** Fixed PHP 8.2 deprecation warnings, improved error handling, refactored models
 
-**Total Commits:** 103+ commits  
-**Files Modified:** 500+ files  
-**Lines Changed:** ~50,000+ lines
+**Total Commits:** 107+ commits  
+**Files Modified:** 520+ files  
+**Lines Changed:** ~52,000+ lines
 
 **Latest Updates (January 3, 2026):**
 - Enhanced Client Receipt Modal with improved UI/UX
 - Improved document ID handling for better type consistency
 - Enhanced email and phone uniqueness validation across models
+- Removed Previous Visa History functionality from Clients and Applications
+- Removed SMS tab from Applications, Clients, and Partners detail views
+- Removed import functionality from Applications, Partners, and Products controllers
 
 ---
 
@@ -246,6 +249,126 @@ Complete migration from MySQL to PostgreSQL with comprehensive syntax updates an
 - Unused API controllers
 - Unused authentication controllers
 
+### 15. Previous Visa History Tab (January 3, 2026)
+**Removed:**
+- 'Previous History' tab from Clients detail view
+- Previous History form elements and functionality
+- Applications detail page (`detail.blade.php` - 1408 lines removed)
+- `detail` method from ApplicationsController
+- Updated routes to redirect to Clients detail view instead
+- Cleaned up related JavaScript and controller code
+
+**Files Removed/Modified:**
+- `resources/views/Admin/applications/detail.blade.php` - Deleted entire file
+- `app/Http/Controllers/Admin/ApplicationsController.php` - Removed detail method
+- `app/Http/Controllers/Admin/ClientsController.php` - Cleaned up related code
+- `resources/views/Admin/clients/detail.blade.php` - Removed Previous History tab
+- `public/js/modern-search.js` - Updated redirects
+- `routes/web.php` - Updated routes
+
+**Documentation Created:**
+- `PLAN_REMOVE_APPLICATIONS_DETAIL_PAGE.md` - Planning document for Applications detail page removal (✅ Implemented)
+- `PLAN_REMOVE_EDUCATION_TAB_CLIENT.md` - Planning document for Education tab removal (✅ Implemented)
+- `PLAN_REMOVE_PREVIOUS_HISTORY_TAB.md` - Planning document for Previous History tab removal (✅ Implemented)
+- `PLAN_REMOVE_COMMISSION_BUTTONS.md` - Planning document for Commission buttons removal (⏳ Planned)
+- `PLAN_REMOVE_EMAIL_OPTION_PARTNERS.md` - Planning document for Email option removal (⏳ Planned)
+
+### 16. SMS Tab Removal (January 3, 2026)
+**Removed:**
+- SMS tab from Applications detail view
+- SMS tab from Clients detail view
+- SMS tab from Partners detail view
+- Related SMS content and functionality
+
+**Files Modified:**
+- `resources/views/Admin/applications/detail.blade.php`
+- `resources/views/Admin/clients/detail.blade.php`
+- `resources/views/Admin/partners/detail.blade.php`
+
+### 17. Education Tab Removal (January 3, 2026)
+**Removed:**
+- Education tab from Client Detail page
+- Education tab navigation link
+- Education tab content panel (Education Background, English Test Scores, Other Test Scores)
+- confirmEducationModal from client detail view
+- Education-related JavaScript handlers
+
+**Files Modified:**
+- `resources/views/Admin/clients/detail.blade.php` - Removed Education tab and modal
+- `public/js/pages/admin/client-detail.js` - Removed education event handlers
+- `public/js/custom-form-validation.js` - Removed education form validation
+
+**Note:** Education routes and controller methods were preserved as they may be used by Applications detail page. Education Documents tab (separate feature) was not affected.
+
+### 18. Import Functionality Removal (January 3, 2026)
+**Removed:**
+- Import functionality from ApplicationsController
+- Import functionality from PartnersController
+- Import functionality from ProductsController
+- Import views and buttons from index pages
+- Import routes
+- `ImportPartner` import class
+
+**Files Removed/Modified:**
+- `app/Http/Controllers/Admin/ApplicationsController.php` - Removed import methods (52 lines)
+- `app/Http/Controllers/Admin/PartnersController.php` - Removed import methods (130 lines)
+- `app/Http/Controllers/Admin/ProductsController.php` - Removed import methods (41 lines)
+- `app/Imports/ImportPartner.php` - Deleted entire file
+- `resources/views/Admin/applications/index.blade.php` - Removed import buttons
+- `resources/views/Admin/applications/finalize.blade.php` - Removed import UI
+- `resources/views/Admin/applications/overdue.blade.php` - Removed import UI
+- `resources/views/Admin/partners/index.blade.php` - Removed import buttons
+- `resources/views/Admin/partners/inactive.blade.php` - Removed import UI
+- `resources/views/Admin/partners/detail.blade.php` - Cleaned up import references
+- `resources/views/Admin/products/index.blade.php` - Removed import buttons
+- `routes/web.php` - Removed import routes
+
+**Impact:**
+- Streamlined codebase by eliminating unused import features
+- Improved maintainability
+- Reduced code complexity
+
+### 19. Planned Feature Removals (Documented)
+
+**Note:** The following features have detailed removal plans documented but are not yet implemented:
+
+#### A. Commission Buttons Removal (Planned)
+**Plan Document:** `PLAN_REMOVE_COMMISSION_BUTTONS.md`
+
+**Features to Remove:**
+- "Update Commission Percentage" button from Partner Detail page
+- "Update Commission Claimed" button from Partner Detail page
+- Associated controller methods: `updatecommissionpercentage()` and `updatecommissionclaimed()`
+- Related routes in `routes/web.php`
+
+**Impact:**
+- Removes utility/admin functions for batch commission updates
+- Simplifies Partner Detail page UI
+- No breaking changes expected (utility functions only)
+
+**Files to Modify:**
+- `resources/views/Admin/partners/detail.blade.php` - Remove buttons (lines 47, 49)
+- `routes/web.php` - Remove routes (lines 672-676)
+- `app/Http/Controllers/Admin/PartnersController.php` - Remove methods (lines 3205-3335)
+
+#### B. Email Option Removal from Partners (Planned)
+**Plan Document:** `PLAN_REMOVE_EMAIL_OPTION_PARTNERS.md`
+
+**Features to Remove:**
+- "Email" option from Action dropdown in Partners Manager (Active and Inactive tabs)
+- JavaScript event handler for `.partneremail` class
+
+**Note:** Bulk email functionality (via checkboxes) will be preserved as it's a separate feature.
+
+**Files to Modify:**
+- `resources/views/Admin/partners/index.blade.php` - Remove Email menu item and handler
+- `resources/views/Admin/partners/inactive.blade.php` - Remove Email menu item and handler
+
+**Impact:**
+- Removes individual email option from action dropdown
+- Preserves bulk email functionality
+- UI-only change, no database or controller modifications needed
+
 ---
 
 ## UI/UX Enhancements
@@ -328,6 +451,25 @@ Complete migration from MySQL to PostgreSQL with comprehensive syntax updates an
 - `resources/views/Admin/clients/addclientmodal.blade.php` - Modal redesign
 - `public/js/pages/admin/client-detail.js` - New JavaScript functionality
 - `public/css/custom.css` - Enhanced styling
+
+### 9. Applications Detail Page Removal (January 3, 2026)
+- Removed entire Applications detail page (1408 lines removed)
+- Users now redirected to Clients detail view instead
+- Streamlined navigation and user interface
+- Removed duplicate functionality between Applications and Clients
+- Updated JavaScript to handle redirects properly
+
+**Impact:**
+- Simplified application structure
+- Reduced code duplication
+- Improved maintainability
+- Better user experience with unified detail view
+
+### 10. UI Streamlining - Tab Removals (January 3, 2026)
+- Removed SMS tab from Applications, Clients, and Partners detail views
+- Removed Previous Visa History tab from Clients detail view
+- Cleaned up unused UI elements
+- Streamlined user interface
 
 ---
 
@@ -829,8 +971,8 @@ The system is now more maintainable, performant, and user-friendly. All changes 
 ---
 
 **Document Generated:** January 3, 2026  
-**Last Updated:** January 3, 2026 16:12  
-**Last Commit:** 44d2da0  
-**Total Commits Reviewed:** 103+  
+**Last Updated:** January 3, 2026 19:44  
+**Last Commit:** 3cd4cdb  
+**Total Commits Reviewed:** 107+  
 **Status:** ✅ Complete (Updated with latest changes)
 

@@ -212,7 +212,6 @@
 												<div class="dropdown d-inline">
 													<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 													<div class="dropdown-menu"> 
-														<a class="dropdown-item has-icon partneremail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->partner_name}}" href="javascript:;" ><i class="far fa-envelope"></i> Email</a>
 														<a class="dropdown-item has-icon" href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$list->id)))}}"><i class="far fa-edit"></i> Edit</a>
 														<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$list->id}}, 'partners')"><i class="fas fa-trash"></i> Delete</a>
                                                       <a class="dropdown-item has-icon" href="javascript:;" onclick="partnerchangetoinactive({{$list->id}}, 'partners')"><i class="fas fa-trash"></i> Inactive</a>
@@ -514,56 +513,6 @@ $(document).delegate('.emailmodal', 'click', function(){
 	
 });
 
-$(document).delegate('.partneremail', 'click', function(){
-
-	$('#emailmodal').modal('show');
-	var array = [];
-	var data = [];
-
-		
-			var id = $(this).attr('data-id');
-			 array.push(id);
-			var email = $(this).attr('data-email');
-			var name = $(this).attr('data-name');
-			var status = 'Partner';
-			
-			data.push({
-				id: id,
-  text: name,
-  html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-
-      "<div  class='ag-flex ag-align-start'>" +
-        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+name+"</span>&nbsp;</div>" +
-        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+email+"</small ></div>" +
-      
-      "</div>" +
-      "</div>" +
-	   "<div class='ag-flex ag-flex-column ag-align-end'>" +
-        
-        "<span class='ui label yellow select2-result-repository__statistics'>"+ status +
-          
-        "</span>" +
-      "</div>" +
-    "</div>",
-  title: name
-				});
-	
-	$(".js-data-example-ajax").select2({
-  data: data,
-  escapeMarkup: function(markup) {
-    return markup;
-  },
-  templateResult: function(data) {
-    return data.html;
-  },
-  templateSelection: function(data) {
-    return data.text;
-  }
-})
-	$('.js-data-example-ajax').val(array);
-		$('.js-data-example-ajax').trigger('change');
-	
-}); 
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
 	$.ajax({
