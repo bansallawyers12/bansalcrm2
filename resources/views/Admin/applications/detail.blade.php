@@ -1150,9 +1150,6 @@
 											<li class="nav-item">
 												<a class="nav-link active" data-bs-toggle="tab" id="email-tab" href="#email" role="tab" aria-controls="email" aria-selected="true">Email</a>
 											</li>
-											<li class="nav-item">
-												<a class="nav-link" data-bs-toggle="tab" id="sms-tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">SMS</a>
-											</li>
 										</ul>
 										<div class="tab-content" id="conversationContent">
 											<div class="tab-pane fade show active" id="email" role="tabpanel" aria-labelledby="email-tab">
@@ -1205,9 +1202,6 @@
 														</div>
 													</div>
 												</div>
-											</div>
-											<div class="tab-pane fade" id="sms" role="tabpanel" aria-labelledby="sms-tab">
-												<span>sms</span>
 											</div>
 										</div>
 									</div>
