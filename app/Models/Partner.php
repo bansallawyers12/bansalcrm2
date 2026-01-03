@@ -30,5 +30,10 @@ class Partner extends Model
     {
         return $this->hasMany(Application::class, 'partner_id');
     }
+    
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'partner', 'id');
+    }
 }
 

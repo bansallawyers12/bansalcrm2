@@ -39,7 +39,8 @@
 												<select data-valid="required" id="getpartnertype" class="form-control servselect2" name="cat">
 												<?php
 												try {
-													$servicecat = \App\Models\Partner::select('master_category')->distinct()->get()->pluck('master_category')->filter()->values()->toArray();
+													// Optimize: Use pluck directly instead of get()->pluck() to avoid loading all records
+													$servicecat = \App\Models\Partner::select('master_category')->distinct()->pluck('master_category')->filter()->values()->toArray();
 													$catid = array();
 													if(!empty($servicecat)){
 														$categories = \App\Models\Category::whereIn('id', $servicecat)->get();
@@ -72,7 +73,12 @@
 													}else{
 														$c = @$catid[0];
 													}
-												$serviceccat = \App\Models\SubCategory::where('cat_id', $c)->get();
+												// Only query if category is set
+												if(!empty($c)){
+													$serviceccat = \App\Models\SubCategory::where('cat_id', $c)->get();
+												} else {
+													$serviceccat = collect([]);
+												}
 												?>
 													@foreach($serviceccat as $cslist)
 														<option <?php if(isset($_GET['sf']) && $_GET['sf'] == 1){ echo 'selected'; } ?> value="{{$cslist->sub_id}}">{{$cslist->name}}</option>
@@ -94,8 +100,10 @@
 								if(!empty($lists)){
 								if(isset($_GET['sf']) && $_GET['sf'] == '1'){
 									foreach ($lists as $servlist){
-										$PartnerBranch = \App\Models\PartnerBranch::select('name')->where('partner_id', $servlist->id)->where('is_headoffice', 1)->get()->first();	
-										$workflow = \App\Models\Workflow::where('id', $servlist->service_workflow)->first(); 
+										// Use eager loaded relationship instead of querying
+										$workflow = $servlist->workflow;
+										// Still need to query PartnerBranch and PartnerType as they're not eager loaded
+										$PartnerBranch = \App\Models\PartnerBranch::select('name')->where('partner_id', $servlist->id)->where('is_headoffice', 1)->first();	
 										$PartnerType = \App\Models\PartnerType::where('id', $servlist->partner_type)->first(); 
 										
 										?>
@@ -159,7 +167,7 @@
 														$subcat = \App\Models\SubCategory::where('cat_id',@$_GET['cat'])->where('sub_id','=','0')->first();
 														?>
 															<h5 class="text-info">Total {{@$subcat->name}}</h5>
-															<h4><?php echo \App\Models\Product::where('partner', $servlist->id)->count(); ?></h4>
+															<h4><?php echo $servlist->products_count ?? 0; ?></h4>
 														</div>
 														<div class="">
 															<a href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}?tab=product">View All {{@$subcat->name}}</a>
@@ -181,9 +189,10 @@
 									}
 								}else{
 									foreach ($lists as $servlist){
-										$partnerdetail = \App\Models\Partner::where('id', $servlist->partner)->first();								
-										$PartnerBranch = \App\Models\PartnerBranch::where('id', $servlist->branches)->first();	
-										$workflow = \App\Models\Workflow::where('id', $partnerdetail->service_workflow)->first();  
+										// Use eager loaded relationships instead of querying
+										$partnerdetail = $servlist->partnerdetail;
+										$PartnerBranch = $servlist->branchdetail;
+										$workflow = $partnerdetail ? $partnerdetail->workflow : null;  
 								?>
 											<div class="service_column">
 												<div class="service_left">
@@ -220,7 +229,7 @@
 																</div>
 																<div class="course_column">
 																	<span class="label">Workflow</span>
-																	<span class="value"><?php echo $workflow->name; ?></span>
+																	<span class="value"><?php echo $workflow ? $workflow->name : '-'; ?></span>
 																</div>
 															</div>
 															<div class="clearfix"></div>
@@ -293,7 +302,7 @@
 													<div class="serv_action_btns">
 														<a target="_blank" href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$servlist->id)))}}" class="btn btn-outline-secondary view_full_detail">View Full Details</a>
 														<a servicetype="product" data-partner-name="{{@$partnerdetail->partner_name}}" data-partner-id="{{@$partnerdetail->id}}" href="javascript:;" data-product-name="{{@$servlist->name}}" data-product-id="{{@$servlist->id}}" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo @$workflow->name; ?>" data-workflow-id="<?php echo @$workflow->id; ?>" href="javascript:;" class="btn btn-outline-secondary interest_btn add_interested_service">Add To Interested Services</a>
-														<a data-partner-name="{{@$partnerdetail->partner_name}}" data-partner-id="{{@$partnerdetail->id}}" href="javascript:;" data-product-name="{{@$servlist->name}}" data-product-id="{{$servlist->id}}" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo @$workflow->name; ?>" data-workflow-id="<?php echo $workflow->id; ?>" href="javascript:;" class="btn btn-primary add_application">Add To Application</a>
+														<a data-partner-name="{{@$partnerdetail->partner_name}}" data-partner-id="{{@$partnerdetail->id}}" href="javascript:;" data-product-name="{{@$servlist->name}}" data-product-id="{{$servlist->id}}" data-branch-name="<?php echo @$PartnerBranch->name; ?>" data-branch-id="<?php echo @$PartnerBranch->id; ?>" data-workflow-name="<?php echo $workflow ? @$workflow->name : ''; ?>" data-workflow-id="<?php echo $workflow ? $workflow->id : ''; ?>" href="javascript:;" class="btn btn-primary add_application">Add To Application</a>
 														
 													</div>
 													<div class="clearfix"></div>
@@ -462,7 +471,7 @@
 								<label for="contact">Select Contact <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control contact contactselect2" id="contact" name="contact">
 									<option value="">Please Select Contact</option>
-									@foreach(\App\Models\Admin::where('role',7)->get() as $wlist)
+									@foreach(\App\Models\Admin::where('role',7)->limit(100)->get() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->first_name}} {{$wlist->last_name}}
 											({{$wlist->email}} {{$wlist->phone}})</option>
 									@endforeach

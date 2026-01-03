@@ -40,18 +40,18 @@ class ServicesController extends Controller
 			$cat 		= 	$request->input('cat');
 			if(trim($search_term_first) == '1')	
 			{
-				$query 		= Partner::where('master_category', '=', $cat); 
+				// Eager load relationships to avoid N+1 queries
+				// Use withCount to efficiently get product count
+				$query 		= Partner::where('master_category', '=', $cat)->with('workflow')->withCount('products'); 
 				if($request->has('s')){
 					$s 		= 	$request->input('s');
 					$query->where('partner_name','LIKE','%'.$s.'%'); 
 				}
 			}else{
-				$partnerids 		= Partner::where('master_category', '=', $cat)->get(); 
-				$ids = array();
-				foreach($partnerids as $id){
-					$ids[] = $id->id;
-				}
-				$query 		= Product::whereIn('partner', $ids); 
+				// Optimize: Use pluck instead of get() to avoid loading all records into memory
+				$ids = Partner::where('master_category', '=', $cat)->pluck('id')->toArray();
+				// Eager load relationships to avoid N+1 queries
+				$query 		= Product::whereIn('partner', $ids)->with(['partnerdetail.workflow', 'branchdetail']); 
 				if($request->has('s')){
 					$s 		= 	$request->input('s');
 					$query->where('name','LIKE','%'.$s.'%'); 

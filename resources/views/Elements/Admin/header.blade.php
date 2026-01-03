@@ -43,21 +43,11 @@
     					<a href="{{URL::to('/clients')}}" class="dropdown-item">
     						Client
     					</a>
-    					<!-- Task system removed - December 2025 -->
-    					<!-- <a href="{{URL::to('/tasks')}}" class="dropdown-item">
-    						Task
-    					</a> -->
-    					<a href="#" class="dropdown-item">
-    						Appointment
-    					</a>
     					<a href="{{URL::to('/partners')}}" class="dropdown-item">
     						Partner
     					</a>
     					<a href="{{URL::to('/products')}}" class="dropdown-item">
     						Product
-    					</a>
-    					<a href="#" class="dropdown-item">
-    						Workflow
     					</a>
     					<a href="{{URL::to('/users/active')}}" class="dropdown-item">
     						User
