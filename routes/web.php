@@ -143,6 +143,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	
 	//General
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::post('/admin/complete-action', [AdminController::class, 'completeAction'])->name('admin.complete-action');
 		Route::get('/get_customer_detail', [AdminController::class, 'CustomerDetail'])->name('get_customer_detail');
 		Route::get('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile');
 		Route::post('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile.update');
@@ -562,6 +563,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 
         Route::post('/action/task-complete', [ActionController::class, 'markComplete']); //update task to be completed
         Route::post('/action/task-incomplete', [ActionController::class, 'markIncomplete']); //update task to be not completed
+        Route::get('/action/get-note-data', [ActionController::class, 'getNoteData']); //get note data for completion modal
 
         Route::delete('/action/destroy-by-me/{note_id}', [ActionController::class, 'destroyByMe'])->name('action.destroy_by_me'); //delete assigned by me
         Route::delete('/action/destroy-to-me/{note_id}', [ActionController::class, 'destroyToMe'])->name('action.destroy_to_me'); //delete assigned to me

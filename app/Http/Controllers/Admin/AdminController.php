@@ -1985,7 +1985,74 @@ class AdminController extends Controller
                  }
              }
          }
-         echo json_encode(array('success' => true, 'message' => 'successfully updated', 'clientID' => $note_info['client_id'] ));
-         exit;
-     }
+        echo json_encode(array('success' => true, 'message' => 'successfully updated', 'clientID' => $note_info['client_id'] ));
+        exit;
+    }
+
+    /**
+     * Complete an action (Note) with a completion message
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function completeAction(Request $request)
+    {
+        try {
+            $request->validate([
+                'action_id' => 'required|integer|exists:notes,id',
+                'client_id' => 'required|integer',
+                'completion_message' => 'required|string|min:1'
+            ]);
+
+            $note = Note::find($request->action_id);
+            
+            if (!$note) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Action not found'
+                ], 404);
+            }
+
+            // Check if already completed
+            if ($note->status == 1) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This action is already completed'
+                ], 400);
+            }
+
+            // Update note status to completed
+            $note->status = 1;
+            $note->save();
+
+            // Create activity log entry
+            $activity = new ActivitiesLog();
+            $activity->client_id = $request->client_id;
+            $activity->created_by = Auth::user()->id;
+            $activity->subject = 'Completed action';
+            $activity->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($request->completion_message) . '</p>';
+            $activity->task_status = 0; // Activity, not task
+            $activity->pin = 0;
+            $activity->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Action completed successfully!'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->errors())
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error completing action: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while completing the action. Please try again.'
+            ], 500);
+        }
+    }
 }

@@ -67,7 +67,7 @@ class DashboardService
                 ->whereNotNull('followup_date');
 
             // Filter by assigned user (unless super admin - role == 1)
-            // Super admin sees all actions
+            // Super admin sees all actions (including unassigned)
             // Regular users see only actions assigned to them (assigned_to must match their ID)
             if ($user->role != 1) {
                 $query->where(function($q) use ($user) {
@@ -78,6 +78,8 @@ class DashboardService
             // For super admin (role == 1), no additional filter - shows all actions
 
             // Apply date filter based on followup_date
+            // Note: Removed strict date filtering to show all pending actions
+            // If you want to filter by date, uncomment the switch statement below
             switch ($dateFilter) {
                 case 'week':
                     $startDate = Carbon::now()->startOfWeek();
@@ -91,9 +93,9 @@ class DashboardService
                     break;
                 case 'today':
                 default:
-                    $startOfDay = Carbon::today()->startOfDay();
-                    $endOfDay = Carbon::today()->endOfDay();
-                    $query->whereBetween('followup_date', [$startOfDay, $endOfDay]);
+                    // Show all pending actions regardless of date
+                    // This includes overdue, today, and future actions
+                    // No date filter applied - shows all actions with followup_date set
                     break;
             }
 
@@ -405,8 +407,8 @@ class DashboardService
                 return collect([]);
             }
 
-            // Get recent activities (last 7 days)
-            $recentDate = Carbon::now()->subDays(7);
+            // Get recent activities (last 30 days to show more clients)
+            $recentDate = Carbon::now()->subDays(30);
             
             $query = ActivitiesLog::with(['client' => function($q) {
                 $q->select('id', 'first_name', 'last_name', 'email', 'phone', 'role');

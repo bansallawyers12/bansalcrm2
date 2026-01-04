@@ -149,6 +149,19 @@
         padding: 1rem;
     }
     
+    .card_body .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .card_body table tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .card_body table tbody tr:last-child {
+        border-bottom: none;
+    }
+    
     .card_body .text-muted {
         color: #9ca3af;
         font-size: 0.875rem;
@@ -523,6 +536,41 @@
     .activity-item:hover .activity-icon {
         transform: scale(1.1);
     }
+    
+    /* Action Row Styling */
+    .action-row {
+        transition: background-color 0.2s;
+    }
+    
+    .action-row:hover {
+        background-color: #f9fafb;
+    }
+    
+    .action-row td {
+        padding: 0.5rem 0.5rem;
+        vertical-align: top;
+        font-size: 0.8125rem;
+    }
+    
+    .action-row .round {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid #6777ef;
+        display: inline-block;
+        margin-top: 0.15rem;
+    }
+    
+    .action-row small {
+        display: block;
+        line-height: 1.4;
+    }
+    
+    .action-row small i {
+        margin-right: 0.25rem;
+        color: #6b7280;
+        font-size: 0.7rem;
+    }
 </style>
 
 <!-- Main Content -->
@@ -609,22 +657,44 @@
                                                     // Get action title or description snippet
                                                     $actionTitle = $alist->title ?? 'Action';
                                                     if(empty($actionTitle) && !empty($alist->description)) {
-                                                        $actionTitle = \Illuminate\Support\Str::limit(strip_tags($alist->description), 30);
+                                                        $actionTitle = \Illuminate\Support\Str::limit(strip_tags($alist->description), 50);
                                                     }
                                                     // Client/partner name is now available directly from the service
                                                     $clientName = $alist->client_name ?? 'N/A';
+                                                    // Get message preview
+                                                    $messagePreview = '';
+                                                    if(!empty($alist->description)) {
+                                                        $messagePreview = \Illuminate\Support\Str::limit(strip_tags($alist->description), 60);
+                                                    }
                                                 @endphp
-                                                <tr style="cursor:pointer;" id="{{$alist->id}}">
+                                                <tr style="cursor:pointer;" class="action-row" data-action-id="{{$alist->id}}" 
+                                                    data-title="{{$actionTitle}}" 
+                                                    data-client="{{$clientName}}"
+                                                    data-message="{{htmlspecialchars($alist->description ?? '', ENT_QUOTES)}}"
+                                                    data-date="{{$alist->formatted_due_date ?? 'N/A'}}"
+                                                    data-type="{{$alist->type ?? 'client'}}">
                                                     <td>
                                                         <span class='round'></span>
                                                     </td>
-                                                    <td>
-                                                        <strong>{{$actionTitle}}</strong><br>
-                                                        <small class="text-muted">{{$clientName}}</small><br>
-                                                        <i class="fa fa-clock"></i> {{$alist->formatted_due_date ?? 'N/A'}}
+                                                    <td style="font-size: 0.8125rem;">
+                                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                                            <i class="fa fa-user"></i> {{$clientName}}
+                                                        </small>
+                                                        @if($messagePreview)
+                                                        <br>
+                                                        <small class="text-muted" style="font-size: 0.75rem; line-height: 1.4;">
+                                                            {{$messagePreview}}
+                                                        </small>
+                                                        @endif
                                                     </td>
                                                     <td>
-                                                        <span class="task-status-todo">Active</span>
+                                                        <button class="btn btn-sm btn-success complete-action-btn" 
+                                                                data-action-id="{{$alist->id}}"
+                                                                data-client-id="{{$alist->client_id}}"
+                                                                data-client-name="{{$clientName}}"
+                                                                style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+                                                            <i class="fa fa-check"></i> Complete
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -835,6 +905,91 @@
 	</section>
 </div>
 
+<!-- Complete Action Modal -->
+<div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+                <h5 class="modal-title" id="completeActionModalLabel">
+                    <i class="fa fa-check-circle"></i> Complete Action
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="completeActionForm">
+                    <input type="hidden" id="complete_action_id" name="action_id">
+                    <input type="hidden" id="complete_client_id" name="client_id">
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Client/Partner</label>
+                        <p id="complete-action-client" style="color: #4b5563; margin: 0; font-weight: 500;">
+                            <i class="fa fa-user"></i> <span></span>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="completion_message" class="form-label">
+                            Completion Message <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="completion_message" name="completion_message" rows="4" 
+                                  placeholder="Enter completion message..." required></textarea>
+                        <small class="text-muted">This message will be recorded in the activities section.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="submitCompleteAction">
+                    <i class="fa fa-check"></i> Complete Action
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Detail Modal -->
+<div class="modal fade" id="actionDetailModal" tabindex="-1" role="dialog" aria-labelledby="actionDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
+                <h5 class="modal-title" id="actionDetailModalLabel">
+                    <i class="fa fa-tasks"></i> Action Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="text-muted small">Title</label>
+                    <h6 id="modal-action-title" style="color: #1f2937; font-weight: 600;"></h6>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Client/Partner</label>
+                    <p id="modal-action-client" style="color: #4b5563; margin: 0;">
+                        <i class="fa fa-user"></i> <span></span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Due Date</label>
+                    <p id="modal-action-date" style="color: #4b5563; margin: 0;">
+                        <i class="fa fa-clock"></i> <span></span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Message</label>
+                    <div id="modal-action-message" style="color: #4b5563; padding: 1rem; background: #f9fafb; border-radius: 8px; min-height: 100px; white-space: pre-wrap; word-wrap: break-word;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -882,6 +1037,140 @@ $(document).ready(function() {
     
     // Update session duration once when page loads
     updateSessionDuration();
+    
+    // Handle complete action button click
+    $(document).on('click', '.complete-action-btn', function(e) {
+        e.stopPropagation(); // Prevent row click event
+        
+        var actionId = $(this).data('action-id');
+        var clientId = $(this).data('client-id');
+        var clientName = $(this).data('client-name');
+        
+        // Set form values
+        $('#complete_action_id').val(actionId);
+        $('#complete_client_id').val(clientId);
+        $('#complete-action-client span').text(clientName || 'N/A');
+        $('#completion_message').val('');
+        
+        // Show modal
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalElement = document.getElementById('completeActionModal');
+            var modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            $('#completeActionModal').modal('show');
+        }
+    });
+    
+    // Handle complete action form submission
+    $('#submitCompleteAction').on('click', function() {
+        var actionId = $('#complete_action_id').val();
+        var clientId = $('#complete_client_id').val();
+        var message = $('#completion_message').val().trim();
+        
+        if (!message) {
+            alert('Please enter a completion message.');
+            return;
+        }
+        
+        // Disable button during submission
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Completing...');
+        
+        $.ajax({
+            url: '{{ route("admin.complete-action") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                action_id: actionId,
+                client_id: clientId,
+                completion_message: message
+            },
+            success: function(response) {
+                if (response.status) {
+                    // Close modal
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var modalElement = document.getElementById('completeActionModal');
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        modal.hide();
+                    } else {
+                        $('#completeActionModal').modal('hide');
+                    }
+                    
+                    // Remove the action row
+                    $('tr[data-action-id="' + actionId + '"]').fadeOut(300, function() {
+                        $(this).remove();
+                        // Check if no more actions
+                        if ($('.action-row').length === 0) {
+                            $('.taskdata_list').html('<div class="text-center py-2"><p class="text-muted mb-0">No actions at the moment.</p><small class="text-muted">All caught up!</small></div>');
+                        }
+                    });
+                    
+                    // Show success message
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: response.message || 'Action completed successfully!'
+                        });
+                    } else {
+                        alert(response.message || 'Action completed successfully!');
+                    }
+                } else {
+                    alert(response.message || 'Failed to complete action. Please try again.');
+                }
+            },
+            error: function(xhr) {
+                var errorMsg = 'An error occurred. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                alert(errorMsg);
+            },
+            complete: function() {
+                // Re-enable button
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+            }
+        });
+    });
+    
+    // Handle action row clicks to show modal
+    $(document).on('click', '.action-row', function(e) {
+        // Don't trigger if clicking the complete button
+        if ($(e.target).closest('.complete-action-btn').length) {
+            return;
+        }
+        var actionId = $(this).data('action-id');
+        var title = $(this).data('title');
+        var client = $(this).data('client');
+        var message = $(this).data('message');
+        var date = $(this).data('date');
+        
+        // Populate modal
+        $('#modal-action-title').text(title || 'Action');
+        $('#modal-action-client span').text(client || 'N/A');
+        $('#modal-action-date span').text(date || 'N/A');
+        
+        // Format and display message (handle HTML if present)
+        var messageHtml = message || 'No message available';
+        // Decode HTML entities and handle HTML content
+        var tempDiv = $('<div>').html(messageHtml);
+        var decodedMessage = tempDiv.text();
+        
+        // If original message had HTML tags, display as HTML; otherwise as plain text
+        if (messageHtml !== decodedMessage || messageHtml.indexOf('<') !== -1) {
+            $('#modal-action-message').html(messageHtml);
+        } else {
+            $('#modal-action-message').text(messageHtml);
+        }
+        
+        // Show modal - try Bootstrap 5 first, fallback to jQuery
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalElement = document.getElementById('actionDetailModal');
+            var modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            $('#actionDetailModal').modal('show');
+        }
+    });
 });
 </script>
 @endsection

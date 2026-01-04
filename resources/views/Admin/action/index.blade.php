@@ -246,6 +246,50 @@
 		</div>
 	</div>
 </div>
+
+<!-- Complete Action Modal -->
+<div class="modal fade" id="completeActionModal" tabindex="-1" role="dialog" aria-labelledby="completeActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+                <h5 class="modal-title" id="completeActionModalLabel">
+                    <i class="fa fa-check-circle"></i> Complete Action
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="completeActionForm">
+                    <input type="hidden" id="complete_action_id" name="action_id">
+                    <input type="hidden" id="complete_client_id" name="client_id">
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Client/Partner</label>
+                        <p id="complete-action-client" style="color: #4b5563; margin: 0; font-weight: 500;">
+                            <i class="fa fa-user"></i> <span></span>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="completion_message" class="form-label">
+                            Completion Message <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="completion_message" name="completion_message" rows="4" 
+                                  placeholder="Enter completion message..." required></textarea>
+                        <small class="text-muted">This message will be recorded in the activities section.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="submitCompleteAction">
+                    <i class="fa fa-check"></i> Complete Action
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
 
@@ -578,23 +622,134 @@ jQuery(document).ready(function($){
 	});
 
     //Function is used for complete the task
-	$(document).delegate('.complete_task', 'click', function(){
-		var row_id = $(this).attr('data-id'); //alert(row_id);
-        if(row_id !=""){ //&& confirm('Are you sure want to complete the task?')
+	$(document).delegate('.complete_task', 'click', function(e){
+		e.preventDefault();
+		var row_id = $(this).attr('data-id');
+        if(row_id !=""){
+            // Get row data from DataTable
+            var table = $('.yajra-datatable').DataTable();
+            var rowData = table.row($(this).closest('tr')).data();
+            
+            // Get client ID and name from the row
+            var clientId = '';
+            var clientName = 'N/A';
+            
+            // Try to extract client info from the row
+            if (rowData && rowData.client_reference) {
+                // Extract client name from the HTML (first line before <br>)
+                var tempDiv = $('<div>').html(rowData.client_reference);
+                clientName = tempDiv.text().split('\n')[0].trim() || 'N/A';
+            }
+            
+            // Get client_id from the note data if available
             $.ajax({
-				type:'post',
-                url:"{{URL::to('/')}}/action/task-complete",
+                type: 'GET',
+                url: "{{URL::to('/')}}/action/get-note-data",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {id:row_id },
-                success: function(response){
-                    //console.log(response);
-                    //var obj = $.parseJSON(response);
-                    //location.reload();
-                    $('.yajra-datatable').DataTable().draw(false);
+                data: {id: row_id},
+                success: function(noteData){
+                    if(noteData && noteData.client_id){
+                        clientId = noteData.client_id;
+                        if(noteData.client_name){
+                            clientName = noteData.client_name;
+                        }
+                    }
+                    
+                    // Set form values
+                    $('#complete_action_id').val(row_id);
+                    $('#complete_client_id').val(clientId);
+                    $('#complete-action-client span').text(clientName);
+                    $('#completion_message').val('');
+                    
+                    // Show modal
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var modalElement = document.getElementById('completeActionModal');
+                        var modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                    } else {
+                        $('#completeActionModal').modal('show');
+                    }
+                },
+                error: function(){
+                    // Fallback if note data fetch fails
+                    $('#complete_action_id').val(row_id);
+                    $('#complete_client_id').val('');
+                    $('#complete-action-client span').text(clientName);
+                    $('#completion_message').val('');
+                    
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var modalElement = document.getElementById('completeActionModal');
+                        var modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                    } else {
+                        $('#completeActionModal').modal('show');
+                    }
                 }
-			});
+            });
         }
 	});
+    
+    // Handle complete action form submission
+    $('#submitCompleteAction').on('click', function() {
+        var actionId = $('#complete_action_id').val();
+        var clientId = $('#complete_client_id').val();
+        var message = $('#completion_message').val().trim();
+        
+        if (!message) {
+            alert('Please enter a completion message.');
+            return;
+        }
+        
+        // Disable button during submission
+        $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Completing...');
+        
+        $.ajax({
+            url: "{{URL::to('/')}}/action/task-complete",
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: actionId,
+                client_id: clientId,
+                completion_message: message
+            },
+            success: function(response) {
+                // Re-enable button
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                
+                // Close modal
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modalElement = document.getElementById('completeActionModal');
+                    var modal = bootstrap.Modal.getInstance(modalElement);
+                    modal.hide();
+                } else {
+                    $('#completeActionModal').modal('hide');
+                }
+                
+                // Refresh DataTable
+                $('.yajra-datatable').DataTable().draw(false);
+                
+                // Show success message
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.success({
+                        title: 'Success',
+                        message: 'Action completed successfully!'
+                    });
+                } else {
+                    alert('Action completed successfully!');
+                }
+            },
+            error: function(xhr) {
+                // Re-enable button
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                
+                var errorMsg = 'An error occurred. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                alert(errorMsg);
+            }
+        });
+    });
 
     //re-assign task or update task
     $(document).delegate('#assignUser','click', function(){

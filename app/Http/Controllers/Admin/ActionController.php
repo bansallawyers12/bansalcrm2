@@ -33,45 +33,134 @@ class ActionController extends Controller
     //Update task to be complete
     public function markComplete(Request $request,Note $note)
     {
-        $data = $request->all(); //dd($data['id']);
-        $note = Note::where('id',$data['id'])->update(['status'=>'1']);
-        //$note = 1;
-        if($note){
-            $note_data = Note::where('id',$data['id'])->first(); //dd($note_data);
-            if($note_data){
-                $admin_data = Admin::where('id',$note_data['assigned_to'])->first(); //dd($admin_data);
-                if($admin_data){
-                    $assignee_name = $admin_data['first_name']." ".$admin_data['last_name'];
-                } else {
-                    $assignee_name = 'N/A';
-                }
-                $objs = new ActivitiesLog;
-                $objs->client_id = $note_data['client_id'];
-                $objs->created_by = Auth::user()->id;
-                $objs->subject = 'assigned task for '.@$assignee_name;
-                $objs->description = '<p>'.@$note_data['description'].'</p>';
-                if(Auth::user()->id != @$note_data['assigned_to']){
-                    $objs->use_for = @$note_data['assigned_to'];
-                } else {
-                    $objs->use_for = null; // Use null instead of empty string for PostgreSQL
-                }
-
-                $objs->followup_date = @$note_data['updated_at'];
-                $objs->task_group = @$note_data['task_group'];
-                $objs->task_status = 1; //maked completed
-                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
-                $objs->save();
+        try {
+            $data = $request->all();
+            $noteId = $data['id'] ?? null;
+            
+            if (!$noteId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Action ID is required'
+                ], 400);
+            }
+            
+            $note = Note::find($noteId);
+            
+            if (!$note) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Action not found'
+                ], 404);
+            }
+            
+            // Check if already completed
+            if ($note->status == 1) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This action is already completed'
+                ], 400);
+            }
+            
+            // Update note status to completed
+            $note->status = 1;
+            $note->save();
+            
+            // Get completion message from request
+            $completionMessage = $request->input('completion_message', '');
+            
+            // Create activity log entry
+            $admin_data = Admin::where('id', $note->assigned_to)->first();
+            if($admin_data){
+                $assignee_name = $admin_data->first_name." ".$admin_data->last_name;
+            } else {
+                $assignee_name = 'N/A';
+            }
+            
+            $objs = new ActivitiesLog;
+            $objs->client_id = $note->client_id;
+            $objs->created_by = Auth::user()->id;
+            $objs->subject = 'Completed action';
+            
+            // Include completion message if provided
+            if (!empty($completionMessage)) {
+                $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
+            } else {
+                $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . @$note->description . '</p>';
+            }
+            
+            if(Auth::user()->id != @$note->assigned_to){
+                $objs->use_for = @$note->assigned_to;
+            } else {
+                $objs->use_for = null;
             }
 
+            $objs->followup_date = @$note->updated_at;
+            $objs->task_group = @$note->task_group;
+            $objs->task_status = 0; // Activity, not task
+            $objs->pin = 0;
+            $objs->save();
 
-
-            $response['status'] 	= 	true;
-            $response['message']	=	'Task updated successfully';
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'Please try again';
+            return response()->json([
+                'status' => true,
+                'message' => 'Action completed successfully!'
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error completing action: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while completing the action. Please try again.'
+            ], 500);
         }
-        echo json_encode($response);
+    }
+    
+    // Get note data for completion modal
+    public function getNoteData(Request $request)
+    {
+        try {
+            $noteId = $request->input('id');
+            
+            if (!$noteId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Note ID is required'
+                ], 400);
+            }
+            
+            $note = Note::with(['noteClient'])->find($noteId);
+            
+            if (!$note) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Note not found'
+                ], 404);
+            }
+            
+            $clientName = 'N/A';
+            if ($note->type == 'client' && $note->noteClient) {
+                $clientName = trim(($note->noteClient->first_name ?? '') . ' ' . ($note->noteClient->last_name ?? ''));
+            } elseif ($note->type == 'partner') {
+                $partner = \App\Models\Partner::find($note->client_id);
+                if ($partner) {
+                    $clientName = $partner->partner_name ?? 'N/A';
+                }
+            }
+            
+            return response()->json([
+                'status' => true,
+                'client_id' => $note->client_id,
+                'client_name' => $clientName
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error getting note data: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving note data'
+            ], 500);
+        }
     }
 
     //Update task to be not complete
