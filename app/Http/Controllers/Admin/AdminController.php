@@ -59,17 +59,17 @@ class AdminController extends Controller
             $dateFilter = request()->get('task_filter', 'today');
             
             // Get dashboard data using service
-            $todayFollowupCount = $this->dashboardService->getTodayFollowupCount();
             $todayTasks = $this->dashboardService->getTodayTasks($dateFilter);
             $checkInQueue = $this->dashboardService->getCheckInQueue();
             $notesData = $this->dashboardService->getNotesWithDeadlines();
+            $loginStats = $this->dashboardService->getLoginStatistics();
             
             return view('Admin.dashboard', compact([
-                'todayFollowupCount',
                 'todayTasks',
                 'checkInQueue',
                 'notesData',
-                'dateFilter'
+                'dateFilter',
+                'loginStats'
             ]));
         } catch (\Exception $e) {
             \Log::error('Dashboard error: ' . $e->getMessage());
@@ -77,11 +77,11 @@ class AdminController extends Controller
             
             // Return view with empty data on error
             return view('Admin.dashboard', [
-                'todayFollowupCount' => 0,
                 'todayTasks' => collect([]),
                 'checkInQueue' => ['total' => 0, 'items' => collect([])],
                 'notesData' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, config('constants.limit', 10)),
-                'dateFilter' => 'today'
+                'dateFilter' => 'today',
+                'loginStats' => $this->dashboardService->getLoginStatistics()
             ])->with('error', 'An error occurred while loading the dashboard. Some data may not be available.');
         }
     }

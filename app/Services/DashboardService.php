@@ -8,8 +8,10 @@ use App\Models\CheckinLog;
 use App\Models\Contact;
 use App\Models\Partner;
 use App\Models\Admin;
+use App\Models\UserLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
 class DashboardService
@@ -40,80 +42,95 @@ class DashboardService
     }
 
     /**
-     * Get today's tasks for the user
-     *
+     * Get actions (Notes) assigned to the user
+     * 
+     * For super admin (role == 1), shows all actions.
+     * For other users, shows only actions assigned to them.
+     * 
      * @param string $dateFilter Optional date filter (today, week, month)
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    // Task system removed - December 2025 (database tables preserved)
     public function getTodayTasks($dateFilter = 'today')
     {
-        // Task system removed - returning empty collection
-        return collect([]);
-        /*
         try {
-            $query = Task::query();
-            
-            // Apply date filter
+            $user = Auth::user();
+            if (!$user) {
+                \Log::error('No authenticated user found in getTodayTasks');
+                return collect([]);
+            }
+
+            $query = Note::with(['noteUser', 'noteClient', 'assigned_user'])
+                ->where('status', '<>', 1) // Not completed
+                ->whereIn('type', ['client', 'partner'])
+                ->where('folloup', 1) // Active followup
+                ->whereNotNull('followup_date');
+
+            // Filter by assigned user (unless super admin - role == 1)
+            if ($user->role != 1) {
+                $query->where('assigned_to', $user->id);
+            }
+
+            // Apply date filter based on followup_date
             switch ($dateFilter) {
                 case 'week':
                     $startDate = Carbon::now()->startOfWeek();
                     $endDate = Carbon::now()->endOfWeek();
-                    $query->whereBetween('due_date', [$startDate, $endDate]);
+                    $query->whereBetween('followup_date', [$startDate, $endDate]);
                     break;
                 case 'month':
-                    $query->whereMonth('due_date', Carbon::now()->month)
-                          ->whereYear('due_date', Carbon::now()->year);
+                    $startDate = Carbon::now()->startOfMonth();
+                    $endDate = Carbon::now()->endOfMonth();
+                    $query->whereBetween('followup_date', [$startDate, $endDate]);
                     break;
                 case 'today':
                 default:
-                    // Use whereBetween for better index usage
                     $startOfDay = Carbon::today()->startOfDay();
                     $endOfDay = Carbon::today()->endOfDay();
-                    $query->whereBetween('due_date', [$startOfDay, $endOfDay]);
+                    $query->whereBetween('followup_date', [$startOfDay, $endOfDay]);
                     break;
             }
 
-            // Apply role-based filtering and eager load user relationship
-            if (Auth::user()->role == 1) {
-                $tasks = $query->select('id', 'user_id', 'status', 'due_date', 'due_time')
-                    ->with(['user' => function($q) {
-                        $q->select('id', 'first_name', 'last_name');
-                    }])
-                    ->orderBy('created_at', 'DESC')
-                    ->limit(20) // Limit to 20 tasks for performance
-                    ->get();
-            } else {
-                $tasks = $query->where(function($q) {
-                    $q->where('assignee', Auth::user()->id)
-                      ->orWhere('followers', Auth::user()->id);
-                })
-                ->select('id', 'user_id', 'status', 'due_date', 'due_time')
-                ->with(['user' => function($q) {
-                    $q->select('id', 'first_name', 'last_name');
-                }])
-                ->orderBy('created_at', 'DESC')
-                ->limit(20) // Limit to 20 tasks for performance
+            $actions = $query->orderBy('followup_date', 'ASC')
+                ->limit(50) // Limit to 50 actions for performance
                 ->get();
+
+            // Get partner IDs for partner-type actions
+            $partnerIds = $actions->where('type', 'partner')->pluck('client_id')->unique()->filter();
+            
+            // Load partners in bulk to avoid N+1 queries
+            $partners = [];
+            if ($partnerIds->count() > 0) {
+                $partnerModels = Partner::whereIn('id', $partnerIds)->get()->keyBy('id');
+                $partners = $partnerModels->toArray();
             }
 
-            // Pre-format dates to avoid date() calls in view
-            $tasks->transform(function($task) {
-                if ($task->due_date && $task->due_time) {
-                    $task->formatted_due_date = Carbon::parse($task->due_date . ' ' . $task->due_time)
-                        ->format('d/m/Y h:i A');
+            // Format dates and add partner/client name for display
+            $actions->transform(function($action) use ($partners) {
+                $action->formatted_due_date = $action->followup_date 
+                    ? Carbon::parse($action->followup_date)->format('d/m/Y h:i A') 
+                    : 'N/A';
+                
+                // Add user relationship alias for backward compatibility with view
+                $action->user = $action->assigned_user;
+                
+                // Add client/partner name for easy access in view
+                if ($action->type == 'client' && $action->noteClient) {
+                    $action->client_name = trim(($action->noteClient->first_name ?? '') . ' ' . ($action->noteClient->last_name ?? ''));
+                } elseif ($action->type == 'partner' && isset($partners[$action->client_id])) {
+                    $action->client_name = $partners[$action->client_id]['partner_name'] ?? 'N/A';
                 } else {
-                    $task->formatted_due_date = $task->due_date ? Carbon::parse($task->due_date)->format('d/m/Y') : 'N/A';
+                    $action->client_name = 'N/A';
                 }
-                return $task;
+                
+                return $action;
             });
 
-            return $tasks;
+            return $actions;
         } catch (\Exception $e) {
-            \Log::error('Error getting today tasks: ' . $e->getMessage());
+            \Log::error('Error getting actions: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
             return collect([]);
         }
-        */
     }
 
     /**
@@ -200,6 +217,171 @@ class DashboardService
             \Log::error('Error getting notes with deadlines: ' . $e->getMessage());
             return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage);
         }
+    }
+
+    /**
+     * Get login statistics for the current user
+     *
+     * @return array
+     */
+    public function getLoginStatistics()
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return $this->getEmptyLoginStats();
+            }
+
+            // Get current login (most recent "Logged in successfully" entry)
+            $currentLoginLog = UserLog::where('user_id', $user->id)
+                ->where('message', 'Logged in successfully')
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            // Get previous login (second most recent "Logged in successfully" entry)
+            $lastLoginLog = UserLog::where('user_id', $user->id)
+                ->where('message', 'Logged in successfully')
+                ->orderBy('created_at', 'DESC')
+                ->skip(1)
+                ->first();
+
+            $currentLoginTime = $currentLoginLog ? Carbon::parse($currentLoginLog->created_at) : null;
+            $lastLoginTime = $lastLoginLog ? Carbon::parse($lastLoginLog->created_at) : null;
+
+            // Get current session activity from sessions table
+            $sessionId = Session::getId();
+            $currentSession = DB::table('sessions')
+                ->where('id', $sessionId)
+                ->first();
+
+            $currentActivityTime = $currentSession ? Carbon::createFromTimestamp($currentSession->last_activity) : Carbon::now();
+
+            // Calculate time since last login
+            $timeSinceLastLogin = null;
+            $timeSinceLastLoginFormatted = 'Never';
+            if ($lastLoginTime) {
+                $timeSinceLastLogin = Carbon::now()->diffInSeconds($lastLoginTime);
+                $timeSinceLastLoginFormatted = $this->formatTimeDifference($lastLoginTime);
+            }
+
+            // Calculate current session duration (time since current login)
+            $currentSessionDuration = $currentLoginTime ? Carbon::now()->diffInSeconds($currentLoginTime) : 0;
+            $currentSessionDurationFormatted = $this->formatDuration($currentSessionDuration);
+
+            // Calculate inactivity period (if last activity was more than 5 minutes ago)
+            $inactivityPeriod = null;
+            $inactivityFormatted = 'Active';
+            $inactivitySeconds = Carbon::now()->diffInSeconds($currentActivityTime);
+            
+            if ($inactivitySeconds > 300) { // More than 5 minutes
+                $inactivityPeriod = $inactivitySeconds;
+                $inactivityFormatted = $this->formatTimeDifference($currentActivityTime);
+            }
+
+            return [
+                'last_login_time' => $lastLoginTime,
+                'last_login_formatted' => $lastLoginTime ? $lastLoginTime->format('d/m/Y h:i A') : 'Never',
+                'time_since_last_login' => $timeSinceLastLogin,
+                'time_since_last_login_formatted' => $timeSinceLastLoginFormatted,
+                'current_login_time' => $currentLoginTime,
+                'current_login_formatted' => $currentLoginTime ? $currentLoginTime->format('d/m/Y h:i A') : 'Never',
+                'current_activity_time' => $currentActivityTime,
+                'current_activity_formatted' => $currentActivityTime->format('d/m/Y h:i A'),
+                'current_session_duration' => $currentSessionDuration,
+                'current_session_duration_formatted' => $currentSessionDurationFormatted,
+                'inactivity_period' => $inactivityPeriod,
+                'inactivity_formatted' => $inactivityFormatted,
+                'is_active' => $inactivitySeconds <= 300, // Active if last activity within 5 minutes
+                'last_login_ip' => $lastLoginLog ? $lastLoginLog->ip_address : null,
+                'current_login_ip' => $currentLoginLog ? $currentLoginLog->ip_address : null,
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error getting login statistics: ' . $e->getMessage());
+            return $this->getEmptyLoginStats();
+        }
+    }
+
+    /**
+     * Format time difference in human readable format
+     *
+     * @param Carbon $time
+     * @return string
+     */
+    private function formatTimeDifference($time)
+    {
+        if (!$time) {
+            return 'Never';
+        }
+
+        $diff = Carbon::now()->diff($time);
+        
+        if ($diff->days > 0) {
+            return $diff->days . ' day' . ($diff->days > 1 ? 's' : '') . ' ago';
+        } elseif ($diff->h > 0) {
+            return $diff->h . ' hour' . ($diff->h > 1 ? 's' : '') . ' ago';
+        } elseif ($diff->i > 0) {
+            return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '') . ' ago';
+        } else {
+            return 'Just now';
+        }
+    }
+
+    /**
+     * Format duration in seconds to human readable format
+     *
+     * @param int $seconds
+     * @return string
+     */
+    private function formatDuration($seconds)
+    {
+        if ($seconds < 60) {
+            return $seconds . ' second' . ($seconds != 1 ? 's' : '');
+        } elseif ($seconds < 3600) {
+            $minutes = floor($seconds / 60);
+            return $minutes . ' minute' . ($minutes != 1 ? 's' : '');
+        } elseif ($seconds < 86400) {
+            $hours = floor($seconds / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+            $result = $hours . ' hour' . ($hours != 1 ? 's' : '');
+            if ($minutes > 0) {
+                $result .= ' ' . $minutes . ' minute' . ($minutes != 1 ? 's' : '');
+            }
+            return $result;
+        } else {
+            $days = floor($seconds / 86400);
+            $hours = floor(($seconds % 86400) / 3600);
+            $result = $days . ' day' . ($days != 1 ? 's' : '');
+            if ($hours > 0) {
+                $result .= ' ' . $hours . ' hour' . ($hours != 1 ? 's' : '');
+            }
+            return $result;
+        }
+    }
+
+    /**
+     * Get empty login statistics structure
+     *
+     * @return array
+     */
+    private function getEmptyLoginStats()
+    {
+        return [
+            'last_login_time' => null,
+            'last_login_formatted' => 'Never',
+            'time_since_last_login' => null,
+            'time_since_last_login_formatted' => 'Never',
+            'current_login_time' => null,
+            'current_login_formatted' => 'Never',
+            'current_activity_time' => Carbon::now(),
+            'current_activity_formatted' => Carbon::now()->format('d/m/Y h:i A'),
+            'current_session_duration' => 0,
+            'current_session_duration_formatted' => '0 seconds',
+            'inactivity_period' => null,
+            'inactivity_formatted' => 'Active',
+            'is_active' => true,
+            'last_login_ip' => null,
+            'current_login_ip' => null,
+        ];
     }
 
 }
