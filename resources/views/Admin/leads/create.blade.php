@@ -1115,7 +1115,7 @@ jQuery(document).ready(function($){
         var email = $.trim($(this).val());
         $.ajax({
 			type:'post',
-            url:"{{URL::to('/')}}/admin/is_email_unique",
+            url:"{{URL::to('/')}}/is_email_unique",
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data: {email:email},
             success: function(response){
@@ -1140,7 +1140,7 @@ jQuery(document).ready(function($){
         var contact = $.trim($(this).val());
         $.ajax({
 			type:'post',
-            url:"{{URL::to('/')}}/admin/is_contactno_unique",
+            url:"{{URL::to('/')}}/is_contactno_unique",
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data: {contact:contact},
             success: function(response){

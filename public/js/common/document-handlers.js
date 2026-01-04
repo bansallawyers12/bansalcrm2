@@ -96,7 +96,7 @@ function uploadFormData(formData) {
             
             // Refresh application logs if application_id exists
             if (obj.application_id) {
-                var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/admin/get-applications-logs';
+                var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/get-applications-logs';
                 if (logsUrl) {
                     $.ajax({
                         url: logsUrl,

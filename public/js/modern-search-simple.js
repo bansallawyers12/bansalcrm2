@@ -139,7 +139,7 @@ function initSearch() {
                 if (type === 'Client') {
                     url = baseUrl + '/clients/detail/' + id;
                 } else if (type === 'Lead') {
-                    url = baseUrl + '/admin/leads/detail/' + id;
+                    url = baseUrl + '/leads/detail/' + id;
                 }
                 
                 console.log('[Search] Navigating to:', url);

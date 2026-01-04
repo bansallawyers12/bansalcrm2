@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create and submit a hidden form
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/admin/download-document';
+        form.action = App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/download-document';
         form.target = '_blank';
 
         // CSRF token
@@ -117,7 +117,7 @@ if (enhanceMessageBtn) {
             return;
         }
 
-        var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/admin/mail/enhance';
+        var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/mail/enhance';
         
         fetch(enhanceUrl, {
             method: "POST",
@@ -202,7 +202,7 @@ jQuery(document).ready(function($){
         var conf = confirm('Do you want to sent google review link in email?');
         //If review email not sent till now
         if(conf && is_greview_mail_sent != 1 ){
-            var url = App.getUrl('isGReviewMailSent') || App.getUrl('siteUrl') + '/admin/is_greview_mail_sent';
+            var url = App.getUrl('isGReviewMailSent') || App.getUrl('siteUrl') + '/is_greview_mail_sent';
             $.ajax({
                 url: url,
                 headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -356,7 +356,7 @@ jQuery(document).ready(function($){
 
     $('#tag').select2({
         ajax: {
-            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/admin/gettagdata',
+            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/gettagdata',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             delay: 250,
@@ -457,7 +457,7 @@ Bansal Immigration`;
         $('.sendMessage').off('click').on('click', function () {
             var message = $('#messageText').val();
             var not_picked_call = 1;
-            var url = App.getUrl('notPickedCall') || App.getUrl('siteUrl') + '/admin/not-picked-call';
+            var url = App.getUrl('notPickedCall') || App.getUrl('siteUrl') + '/not-picked-call';
             $.ajax({
                 url: url,
                 headers: { 'X-CSRF-TOKEN': App.getCsrf() },
@@ -1189,7 +1189,7 @@ Bansal Immigration`;
                         $('.alldocumnetlist #id_'+notid).remove();
                     }
                     if(delhref == 'deleteservices'){
-                        var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/admin/get-services';
+                        var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
                         $.ajax({
                             url: url,
                             type:'GET',
@@ -1205,7 +1205,7 @@ Bansal Immigration`;
                         $('.'+res.type+'_checklists').html(res.checklistdata);
 
                         if(res.application_id){
-                            var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/admin/get-applications-logs';
+                            var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/get-applications-logs';
                             $.ajax({
                                 url: logsUrl,
                                 type:'GET',
@@ -1264,7 +1264,7 @@ Bansal Immigration`;
     
     $(document).on('click', '.pinnote', function(){
         $('.popuploader').show();
-        var url = App.getUrl('pinNote') || App.getUrl('siteUrl') + '/admin/pinnote';
+        var url = App.getUrl('pinNote') || App.getUrl('siteUrl') + '/pinnote';
         $.ajax({
             url: url + '/',
             type:'GET',
@@ -1280,7 +1280,7 @@ Bansal Immigration`;
 
     $(document).on('click', '.pinactivitylog', function(){
         $('.popuploader').show();
-        var url = App.getUrl('pinActivityLog') || App.getUrl('siteUrl') + '/admin/pinactivitylog';
+        var url = App.getUrl('pinActivityLog') || App.getUrl('siteUrl') + '/pinactivitylog';
         $.ajax({
             url: url + '/',
             type:'GET',
@@ -1530,7 +1530,7 @@ Bansal Immigration`;
         var v = $(this).attr('data-id');
         $('#create_note input[name="noteid"]').val(v);
         $('.popuploader').show();
-        var url = App.getUrl('getNoteDetail') || App.getUrl('siteUrl') + '/admin/getnotedetail';
+        var url = App.getUrl('getNoteDetail') || App.getUrl('siteUrl') + '/getnotedetail';
         $.ajax({
             url: url,
             type:'GET',
@@ -1557,7 +1557,7 @@ Bansal Immigration`;
         var v = $(this).attr('data-id');
         $('#view_note input[name="noteid"]').val(v);
         $('.popuploader').show();
-        var url = App.getUrl('viewNoteDetail') || App.getUrl('siteUrl') + '/admin/viewnotedetail';
+        var url = App.getUrl('viewNoteDetail') || App.getUrl('siteUrl') + '/viewnotedetail';
         $.ajax({
             url: url,
             type:'GET',
@@ -1580,7 +1580,7 @@ Bansal Immigration`;
         var v = $(this).attr('data-id');
         $('#view_application_note input[name="noteid"]').val(v);
         $('.popuploader').show();
-        var url = App.getUrl('viewApplicationNote') || App.getUrl('siteUrl') + '/admin/viewapplicationnote';
+        var url = App.getUrl('viewApplicationNote') || App.getUrl('siteUrl') + '/viewapplicationnote';
         $.ajax({
             url: url,
             type:'GET',
@@ -1715,7 +1715,7 @@ Bansal Immigration`;
         $('.change_client_status').removeClass('active');
         $(this).addClass('active');
 
-        var url = App.getUrl('changeClientStatus') || App.getUrl('siteUrl') + '/admin/change-client-status';
+            var url = App.getUrl('changeClientStatus') || App.getUrl('siteUrl') + '/change-client-status';
         $.ajax({
             url: url,
             type:'GET',
@@ -1762,7 +1762,7 @@ Bansal Immigration`;
         }
 
         var v = $(this).val();
-        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/admin/get-templates';
+        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/get-templates';
         $.ajax({
             url: url,
             type:'GET',
@@ -1795,7 +1795,7 @@ Bansal Immigration`;
 
     $(document).on('change', '.selectapplicationtemplate', function(){
         var v = $(this).val();
-        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/admin/get-templates';
+        var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/get-templates';
         $.ajax({
             url: url,
             type:'GET',
@@ -1860,7 +1860,7 @@ Bansal Immigration`;
         var v = $('#intrested_product option:selected').val();
         if(v != ''){
             $('.popuploader').show();
-            var url = App.getUrl('getBranch') || App.getUrl('siteUrl') + '/admin/getbranch';
+            var url = App.getUrl('getBranch') || App.getUrl('siteUrl') + '/get-branches';
             $.ajax({
                 url: url,
                 type:'GET',
@@ -1885,7 +1885,7 @@ Bansal Immigration`;
     $(document).on('change', '.docupload', function() {
         $('.popuploader').show();
         var formData = new FormData($('#upload_form')[0]);
-        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/admin/upload-document';
+        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/upload-document';
         $.ajax({
             url: url,
             type:'POST',
@@ -1918,7 +1918,7 @@ Bansal Immigration`;
     $(document).on('change', '.migdocupload', function() {
         $('.popuploader').show();
         var formData = new FormData($('#mig_upload_form')[0]);
-        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/admin/upload-document';
+        var url = App.getUrl('uploadDocument') || App.getUrl('siteUrl') + '/upload-document';
         $.ajax({
             url: url,
             type:'POST',
@@ -1963,7 +1963,7 @@ Bansal Immigration`;
         $('.popuploader').show();
         var fileidL = $(this).attr("data-fileid");
         var formData = new FormData($('#upload_form_'+fileidL)[0]);
-        var url = App.getUrl('uploadAllDocument') || App.getUrl('siteUrl') + '/admin/upload-alldocument';
+        var url = App.getUrl('uploadAllDocument') || App.getUrl('siteUrl') + '/upload-alldocument';
         $.ajax({
             url: url,
             type:'POST',
@@ -1997,13 +1997,13 @@ Bansal Immigration`;
         var v = $(this).attr('data-id');
         if(v != ''){
             $('.popuploader').show();
-            var url = App.getUrl('convertApplication') || App.getUrl('siteUrl') + '/admin/convertapplication';
+            var url = App.getUrl('convertApplication') || App.getUrl('siteUrl') + '/convertapplication';
             $.ajax({
                 url: url,
                 type:'GET',
                 data:{cat_id:v, clientid: App.getPageConfig('clientId')},
                 success:function(response){
-                    var servicesUrl = App.getUrl('getServices') || App.getUrl('siteUrl') + '/admin/get-services';
+                    var servicesUrl = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
                     $.ajax({
                         url: servicesUrl,
                         type:'GET',
@@ -2012,7 +2012,7 @@ Bansal Immigration`;
                             $('.interest_serv_list').html(responses);
                         }
                     });
-                    var appListsUrl = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/admin/get-application-lists';
+                    var appListsUrl = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
                     $.ajax({
                         url: appListsUrl,
                         type:'GET',
@@ -2030,7 +2030,7 @@ Bansal Immigration`;
 
     $(document).on('click', '#application-tab', function () {
         $('.popuploader').show();
-        var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/admin/get-application-lists';
+        var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
         $.ajax({
             url: url,
             type:'GET',
@@ -2524,7 +2524,7 @@ Bansal Immigration`;
     // Page-specific upload function for application checklist uploads
     function applicationUploadFormData(form_data) {
         $('.popuploader').show();
-        var url = App.getUrl('applicationChecklistUpload') || App.getUrl('siteUrl') + '/admin/application/checklistupload';
+        var url = App.getUrl('applicationChecklistUpload') || App.getUrl('siteUrl') + '/application/checklistupload';
         $.ajax({
             url: url,
             method: "POST",
@@ -2546,7 +2546,7 @@ Bansal Immigration`;
                 }
 
                 if(obj.application_id){
-                    var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/admin/get-applications-logs';
+                    var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/get-applications-logs';
                     $.ajax({
                         url: logsUrl,
                         type:'GET',
@@ -2603,7 +2603,7 @@ Bansal Immigration`;
             return false;
         }
 
-        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/admin/renamedoc';
+        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/renamedoc';
         $.ajax({
             type: "POST",
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -2641,7 +2641,7 @@ Bansal Immigration`;
             return false;
         }
 
-        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/admin/renamedoc';
+        var url = App.getUrl('renameDoc') || App.getUrl('siteUrl') + '/renamedoc';
         $.ajax({
             type: "POST",
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -2699,7 +2699,7 @@ Bansal Immigration`;
             parent.append($("<div class='invalid-feedback'>This field is required</div>"));
             return false;
         }
-        var url = App.getUrl('renameAllDoc') || App.getUrl('siteUrl') + '/admin/renamealldoc';
+        var url = App.getUrl('renameAllDoc') || App.getUrl('siteUrl') + '/renamealldoc';
         $.ajax({
             type: "POST",
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -2757,7 +2757,7 @@ Bansal Immigration`;
             parent.append($("<div class='invalid-feedback'>This field is required</div>"));
             return false;
         }
-        var url = App.getUrl('renameChecklistDoc') || App.getUrl('siteUrl') + '/admin/renamechecklistdoc';
+        var url = App.getUrl('renameChecklistDoc') || App.getUrl('siteUrl') + '/renamechecklistdoc';
         $.ajax({
             type: "POST",
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
@@ -3076,7 +3076,7 @@ Bansal Immigration`;
     $('form[name="sendmail"]').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
-        var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/admin/sendmail';
+        var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/sendmsg';
         
         // Get summernote content if available
         var emailContent = '';
@@ -3210,7 +3210,7 @@ function showContextMenu(event, row) {
             // PDF (only for images)
             if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
                 menu.appendChild(createMenuItem('PDF', function() {
-                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/admin/document/download/pdf/' + docId;
+                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
                     window.open(pdfUrl, '_blank');
                     hideContextMenu();
                 }));
@@ -3226,7 +3226,7 @@ function showContextMenu(event, row) {
                         // Create and trigger download
                         const form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/admin/download-document');
+                        form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/download-document');
                         form.target = '_blank';
                         form.innerHTML = `
                             <input type="hidden" name="_token" value="${App.getCsrf()}">
@@ -3302,7 +3302,7 @@ function showContextMenu(event, row) {
             // PDF (only for images)
             if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
                 menu.appendChild(createMenuItem('PDF', function() {
-                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/admin/document/download/pdf/' + docId;
+                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
                     window.open(pdfUrl, '_blank');
                     hideContextMenu();
                 }));

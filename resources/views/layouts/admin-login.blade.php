@@ -8,6 +8,8 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<meta name="description" content="">
 	<meta name="author" content="Bansal CRM">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 http://localhost:5173 http://127.0.0.1:5173 https://maps.googleapis.com https://www.google.com https://www.gstatic.com; worker-src 'self' https://www.google.com https://www.gstatic.com; frame-src 'self' https://www.google.com https://www.gstatic.com;">
+	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<link rel="shortcut icon" type="image/png" href="{{asset('img/favicon.png')}}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	

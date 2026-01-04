@@ -7,7 +7,7 @@
     'use strict';
 
     // Get URLs from data attributes or use defaults
-    const checkClientExistUrl = $('#create-client-form').data('check-url') || '/admin/checkclientexist';
+    const checkClientExistUrl = $('#create-client-form').data('check-url') || '/checkclientexist';
     const getRecipientsUrl = $('#create-client-form').data('recipients-url') || '/clients/get-recipients';
 
     /**

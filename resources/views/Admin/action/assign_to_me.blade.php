@@ -454,7 +454,7 @@
         if(row_id !=""){
             $.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/update-task-not-completed",
+                url:"{{URL::to('/')}}/action/task-incomplete",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {id:row_id },
                 success: function(response){
@@ -473,7 +473,7 @@
         if(row_id !=""){ //&& confirm('Are you sure want to complete the task?')
             $.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/update-task-completed",
+                url:"{{URL::to('/')}}/action/task-complete",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {id:row_id },
                 success: function(response){
@@ -518,7 +518,7 @@
 		if(flag){
 			$.ajax({
 				type:'post',
-					url:"{{URL::to('/')}}/admin/clients/followup/store",
+					url:"{{URL::to('/')}}/clients/followup/store",
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 
 					data: {note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},

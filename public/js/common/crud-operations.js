@@ -30,7 +30,7 @@ function arcivedAction(id, table) {
         $(".server-error").html(''); // Remove server error
         $(".custom-error-msg").html(''); // Remove custom error
         
-        var deleteUrl = App.getUrl('deleteAction') || App.getUrl('siteUrl') + '/admin/delete_action';
+        var deleteUrl = App.getUrl('deleteAction') || App.getUrl('siteUrl') + '/delete_action';
         
         $.ajax({
             type: 'post',

@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\Partner;
 use App\Models\Admin;
 use App\Models\UserLog;
+use App\Models\ActivitiesLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -66,9 +67,15 @@ class DashboardService
                 ->whereNotNull('followup_date');
 
             // Filter by assigned user (unless super admin - role == 1)
+            // Super admin sees all actions
+            // Regular users see only actions assigned to them (assigned_to must match their ID)
             if ($user->role != 1) {
-                $query->where('assigned_to', $user->id);
+                $query->where(function($q) use ($user) {
+                    $q->where('assigned_to', $user->id)
+                      ->whereNotNull('assigned_to'); // Ensure assigned_to is not null
+                });
             }
+            // For super admin (role == 1), no additional filter - shows all actions
 
             // Apply date filter based on followup_date
             switch ($dateFilter) {
@@ -382,6 +389,197 @@ class DashboardService
             'last_login_ip' => null,
             'current_login_ip' => null,
         ];
+    }
+
+    /**
+     * Get clients with recent activities
+     *
+     * @param int $limit
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getClientsWithRecentActivities($limit = 10)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return collect([]);
+            }
+
+            // Get recent activities (last 7 days)
+            $recentDate = Carbon::now()->subDays(7);
+            
+            $query = ActivitiesLog::with(['client' => function($q) {
+                $q->select('id', 'first_name', 'last_name', 'email', 'phone', 'role');
+            }])
+            ->where('task_status', 0) // Only activities, not tasks
+            ->whereNotNull('client_id')
+            ->where('created_at', '>=', $recentDate)
+            ->orderBy('created_at', 'DESC');
+
+            // Filter by user role - super admin sees all, others see their own activities
+            if ($user->role != 1) {
+                $query->where('created_by', $user->id);
+            }
+
+            $activities = $query->get();
+
+            // Get unique clients with their most recent activity
+            $clientsWithActivities = $activities->groupBy('client_id')->map(function($clientActivities) {
+                $mostRecent = $clientActivities->first();
+                $client = $mostRecent->client;
+                
+                if (!$client) {
+                    return null;
+                }
+                
+                return (object)[
+                    'client_id' => $client->id,
+                    'client_role' => $client->role ?? null,
+                    'client_name' => trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')),
+                    'client_email' => $client->email ?? '',
+                    'client_phone' => $client->phone ?? '',
+                    'last_activity' => $mostRecent->created_at,
+                    'last_activity_formatted' => Carbon::parse($mostRecent->created_at)->format('d/m/Y h:i A'),
+                    'last_activity_time' => $this->formatActivityTime($mostRecent->created_at),
+                    'activity_count' => $clientActivities->count(),
+                    'last_activity_subject' => $mostRecent->subject ?? 'Activity',
+                    'activity_type' => $this->extractActivityType($mostRecent->subject, $mostRecent->description)
+                ];
+            })->filter()->take($limit)->values();
+
+            return $clientsWithActivities;
+        } catch (\Exception $e) {
+            \Log::error('Error getting clients with recent activities: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
+     * Get recent activities for the dashboard
+     *
+     * @param int $limit
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getRecentActivities($limit = 10)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return collect([]);
+            }
+
+            $query = ActivitiesLog::with(['client' => function($q) {
+                $q->select('id', 'first_name', 'last_name');
+            }, 'createdBy' => function($q) {
+                $q->select('id', 'first_name', 'last_name');
+            }])
+            ->where('task_status', 0) // Only activities, not tasks
+            ->orderBy('created_at', 'DESC')
+            ->limit($limit);
+
+            // Filter by user role - super admin sees all, others see their own activities
+            if ($user->role != 1) {
+                $query->where('created_by', $user->id);
+            }
+
+            $activities = $query->get();
+
+            // Format activities for display
+            $activities->transform(function($activity) {
+                $activity->formatted_time = $this->formatActivityTime($activity->created_at);
+                $activity->formatted_date = Carbon::parse($activity->created_at)->format('d/m/Y h:i A');
+                
+                // Extract activity type and details from subject/description
+                $activity->activity_type = $this->extractActivityType($activity->subject, $activity->description);
+                $activity->activity_details = $this->extractActivityDetails($activity->subject, $activity->description);
+                
+                return $activity;
+            });
+
+            return $activities;
+        } catch (\Exception $e) {
+            \Log::error('Error getting recent activities: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
+     * Format activity time for display
+     *
+     * @param string $datetime
+     * @return string
+     */
+    private function formatActivityTime($datetime)
+    {
+        if (!$datetime) {
+            return 'N/A';
+        }
+
+        $activityTime = Carbon::parse($datetime);
+        $now = Carbon::now();
+        
+        if ($activityTime->isToday()) {
+            return $activityTime->format('h:i A');
+        } elseif ($activityTime->isYesterday()) {
+            return 'Yesterday, ' . $activityTime->format('h:i A');
+        } elseif ($activityTime->diffInDays($now) <= 7) {
+            return $activityTime->format('D, h:i A');
+        } else {
+            return $activityTime->format('d/m/Y, h:i A');
+        }
+    }
+
+    /**
+     * Extract activity type from subject/description
+     *
+     * @param string $subject
+     * @param string $description
+     * @return string
+     */
+    private function extractActivityType($subject, $description)
+    {
+        $subjectLower = strtolower($subject ?? '');
+        $descLower = strtolower($description ?? '');
+        
+        if (strpos($subjectLower, 'email') !== false || strpos($descLower, 'email sent') !== false) {
+            return 'email';
+        } elseif (strpos($subjectLower, 'file') !== false || strpos($descLower, 'uploaded') !== false || strpos($descLower, '.pdf') !== false || strpos($descLower, '.doc') !== false) {
+            return 'file';
+        } elseif (strpos($subjectLower, 'note') !== false || strpos($descLower, 'note added') !== false) {
+            return 'note';
+        } else {
+            return 'activity';
+        }
+    }
+
+    /**
+     * Extract activity details for display
+     *
+     * @param string $subject
+     * @param string $description
+     * @return string
+     */
+    private function extractActivityDetails($subject, $description)
+    {
+        // Try to extract meaningful information from description
+        if (!empty($description)) {
+            // Remove HTML tags and get first meaningful sentence
+            $cleanDesc = strip_tags($description);
+            $cleanDesc = preg_replace('/\s+/', ' ', $cleanDesc);
+            $cleanDesc = trim($cleanDesc);
+            
+            // Limit to reasonable length
+            if (strlen($cleanDesc) > 100) {
+                $cleanDesc = substr($cleanDesc, 0, 100) . '...';
+            }
+            
+            if (!empty($cleanDesc)) {
+                return $cleanDesc;
+            }
+        }
+        
+        // Fallback to subject
+        return $subject ?? 'Activity';
     }
 
 }

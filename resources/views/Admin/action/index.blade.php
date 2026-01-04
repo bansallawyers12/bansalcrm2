@@ -424,7 +424,7 @@ jQuery(document).ready(function($){
                 // Load assignee list via AJAX and set in popover
                 $.ajax({
                     type:'post',
-                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    url:"{{URL::to('/')}}/action/assignee-list",
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: {assignedto:assignedto},
                     success: function(response){
@@ -448,7 +448,7 @@ jQuery(document).ready(function($){
                 // Load assignee list
                 $.ajax({
                     type:'post',
-                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    url:"{{URL::to('/')}}/action/assignee-list",
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: {assignedto:assignedto},
                     success: function(response){
@@ -514,7 +514,7 @@ jQuery(document).ready(function($){
                     // Load assignee list via AJAX
                     $.ajax({
                         type:'post',
-                        url:"{{URL::to('/')}}/admin/action/assignee-list",
+                        url:"{{URL::to('/')}}/action/assignee-list",
                         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         data: {assignedto:assignedto},
                         success: function(response){
@@ -539,7 +539,7 @@ jQuery(document).ready(function($){
                 // Load assignee list
                 $.ajax({
                     type:'post',
-                    url:"{{URL::to('/')}}/admin/action/assignee-list",
+                    url:"{{URL::to('/')}}/action/assignee-list",
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: {assignedto:assignedto},
                     success: function(response){
@@ -564,7 +564,7 @@ jQuery(document).ready(function($){
         if(row_id !=""){
             $.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/action/task-incomplete",
+                url:"{{URL::to('/')}}/action/task-incomplete",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {id:row_id },
                 success: function(response){
@@ -583,7 +583,7 @@ jQuery(document).ready(function($){
         if(row_id !=""){ //&& confirm('Are you sure want to complete the task?')
             $.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/action/task-complete",
+                url:"{{URL::to('/')}}/action/task-complete",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {id:row_id },
                 success: function(response){
@@ -661,7 +661,7 @@ jQuery(document).ready(function($){
 			
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/clients/reassignfollowup/store",
+                url:"{{URL::to('/')}}/clients/reassignfollowup/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {
 					note_id: noteId,
@@ -731,7 +731,7 @@ jQuery(document).ready(function($){
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/clients/updatefollowup/store",
+                url:"{{URL::to('/')}}/clients/updatefollowup/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {note_id:$('#assign_note_id').val(),note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
                 success: function(response){
@@ -779,7 +779,7 @@ jQuery(document).ready(function($){
         if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/admin/clients/personalfollowup/store",
+                url:"{{URL::to('/')}}/clients/personalfollowup/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group').val()},
                 success: function(response){

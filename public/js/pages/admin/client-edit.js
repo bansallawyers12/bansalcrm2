@@ -302,7 +302,7 @@ jQuery(document).ready(function($){
     // Initialize tags Select2 with AJAX
     $('#tag').select2({
         ajax: {
-            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/admin/gettagdata',
+            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/gettagdata',
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             delay: 250,
@@ -387,7 +387,7 @@ jQuery(document).ready(function($){
         $('#entity_id').val(sel_service_taken_id);
         
         AjaxHelper.post(
-            App.getUrl('getServiceTaken') || App.getUrl('siteUrl') + '/admin/client/getservicetaken',
+            App.getUrl('getServiceTaken') || App.getUrl('siteUrl') + '/client/getservicetaken',
             {sel_service_taken_id: sel_service_taken_id},
             function(response){
                 var obj = typeof response === 'string' ? $.parseJSON(response) : response;
@@ -461,7 +461,7 @@ jQuery(document).ready(function($){
         var formData = $(this).serialize();
         
         AjaxHelper.post(
-            App.getUrl('createServiceTaken') || App.getUrl('siteUrl') + '/admin/client/createservicetaken',
+            App.getUrl('createServiceTaken') || App.getUrl('siteUrl') + '/client/createservicetaken',
             formData,
             function(response) {
                 var res = response.user_rec;
@@ -513,7 +513,7 @@ jQuery(document).ready(function($){
             var sel_service_taken_id = $(this).attr('id');
             
             AjaxHelper.post(
-                App.getUrl('removeServiceTaken') || App.getUrl('siteUrl') + '/admin/client/removeservicetaken',
+                App.getUrl('removeServiceTaken') || App.getUrl('siteUrl') + '/client/removeservicetaken',
                 {sel_service_taken_id: sel_service_taken_id},
                 function(response){
                     var obj = typeof response === 'string' ? $.parseJSON(response) : response;
@@ -653,7 +653,7 @@ jQuery(document).ready(function($){
         var v = $(this).val();
         if(v != ''){
             AjaxHelper.get(
-                App.getUrl('checkClientExist') || App.getUrl('siteUrl') + '/admin/checkclientexist',
+                App.getUrl('checkClientExist') || App.getUrl('siteUrl') + '/checkclientexist',
                 {vl: v, type: 'clientid'},
                 function(res){
                     if(res == 1){

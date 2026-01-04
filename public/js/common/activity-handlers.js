@@ -26,7 +26,7 @@ function getallactivities() {
         return;
     }
     
-    var url = App.getUrl('getActivities') || App.getUrl('siteUrl') + '/admin/get-activities';
+    var url = App.getUrl('getActivities') || App.getUrl('siteUrl') + '/get-activities';
     if (!url) {
         console.error('getActivities URL not configured');
         return;
@@ -67,7 +67,7 @@ function getallnotes() {
         return;
     }
     
-    var url = App.getUrl('getNotes') || App.getUrl('siteUrl') + '/admin/get-notes';
+    var url = App.getUrl('getNotes') || App.getUrl('siteUrl') + '/get-notes';
     if (!url) {
         console.error('getNotes URL not configured');
         return;

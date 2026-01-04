@@ -480,7 +480,7 @@ jQuery(document).ready(function($){
             var merge_record_ids = array.join(",");
             $.ajax({
                 type:'post',
-                url:"{{URL::to('/')}}/admin/merge_records",
+                url:"{{URL::to('/')}}/merge_records",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {merge_record_ids:merge_record_ids},
                 success: function(response){
@@ -523,7 +523,7 @@ jQuery(document).ready(function($){
             if (confirm(mergeStr)) {
                 $.ajax({
                     type:'post',
-                    url:"{{URL::to('/')}}/admin/merge_records",
+                    url:"{{URL::to('/')}}/merge_records",
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: {merge_from:clickedIds[0],merge_into:clickedIds[1]},
                     success: function(response){

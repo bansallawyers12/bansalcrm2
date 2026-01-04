@@ -4547,7 +4547,7 @@ $(document).on('change', '.note-field', function () {
     var studentid = $(this).attr('data-studentid');
     let newValue = textarea.val();
     $.ajax({
-        url: '/admin/partners/save-student-note',
+        url: '/partners/save-student-note',
         method: 'POST',
         data: { rowId: studentid, note: newValue},
         success: function (response) {
@@ -4636,7 +4636,7 @@ $(document).on('change', '.note-field1', function () {
     var studentid = $(this).attr('data-studentid');
     let newValue = textarea.val();
     $.ajax({
-        url: '/admin/partners/save-student-note',
+        url: '/partners/save-student-note',
         method: 'POST',
         data: { rowId: studentid, note: newValue},
         success: function (response) {
@@ -5407,7 +5407,7 @@ function arcivedAction( id, table ) {
 				$.ajax({
 					type:'post',
 					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url:'{{URL::to('/')}}/admin/delete_action',
+					url:'{{URL::to('/')}}/delete_action',
 					data:{'id': id, 'table' : table},
 					success:function(resp) {
 						$('#popuploader').hide();

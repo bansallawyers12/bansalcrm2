@@ -223,7 +223,7 @@ $( ".agent_company_name" ).autocomplete({
 	source : function(request, response) {
     $.ajax({
         type: "GET",
-        url: "{{URL::to('/')}}/admin/getpartnerajax",
+        url: "{{URL::to('/')}}/getpartnerajax",
         dataType : "json",
         cache : false,
         data: {likewith : 'agent_company_name', likevalue: inputString},
@@ -255,7 +255,7 @@ $( ".assignee" ).autocomplete({
 	source : function(request, response) {
     $.ajax({
         type: "GET",
-        url: "{{URL::to('/')}}/admin/getassigneeajax",
+        url: "{{URL::to('/')}}/getassigneeajax",
         dataType : "json",
         cache : false,
         data: {likewith : 'assignee', likevalue: inputString},

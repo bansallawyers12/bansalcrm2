@@ -55,21 +55,19 @@ class AdminController extends Controller
     public function dashboard()
     {
         try {
-            // Get date filter from request (default to 'today')
-            $dateFilter = request()->get('task_filter', 'today');
-            
-            // Get dashboard data using service
-            $todayTasks = $this->dashboardService->getTodayTasks($dateFilter);
+            // Get dashboard data using service (always show today's actions)
+            $todayTasks = $this->dashboardService->getTodayTasks('today');
             $checkInQueue = $this->dashboardService->getCheckInQueue();
-            $notesData = $this->dashboardService->getNotesWithDeadlines();
+            $clientsWithRecentActivities = $this->dashboardService->getClientsWithRecentActivities(10);
             $loginStats = $this->dashboardService->getLoginStatistics();
+            $recentActivities = $this->dashboardService->getRecentActivities(10);
             
             return view('Admin.dashboard', compact([
                 'todayTasks',
                 'checkInQueue',
-                'notesData',
-                'dateFilter',
-                'loginStats'
+                'clientsWithRecentActivities',
+                'loginStats',
+                'recentActivities'
             ]));
         } catch (\Exception $e) {
             \Log::error('Dashboard error: ' . $e->getMessage());
@@ -79,9 +77,9 @@ class AdminController extends Controller
             return view('Admin.dashboard', [
                 'todayTasks' => collect([]),
                 'checkInQueue' => ['total' => 0, 'items' => collect([])],
-                'notesData' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, config('constants.limit', 10)),
-                'dateFilter' => 'today',
-                'loginStats' => $this->dashboardService->getLoginStatistics()
+                'clientsWithRecentActivities' => collect([]),
+                'loginStats' => $this->dashboardService->getLoginStatistics(),
+                'recentActivities' => collect([])
             ])->with('error', 'An error occurred while loading the dashboard. Some data may not be available.');
         }
     }
