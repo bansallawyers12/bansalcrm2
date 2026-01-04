@@ -28,6 +28,7 @@ use App\Models\Note;
 
 use App\Services\EmailService;
 use App\Services\DashboardService;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -1255,9 +1256,24 @@ class AdminController extends Controller
             ])->loadView('emails.reciept', compact('fetchedData'));
             $output = $pdf->output();
             $invoicefilename = 'receipt_'.$reciept_id.'.pdf';
-            file_put_contents('/home/bansaledu/public/invoices/'.$invoicefilename, $output);
-            $array['file'] = '/home/bansaledu/public/invoices/'.$invoicefilename;
+            
+            // Get client_id from invoice relationship for S3 path structure
+            $invoice = $fetchedData->invoice;
+            $client_id = $invoice ? $invoice->client_id : 'general';
+            $client_info = \App\Models\Admin::select('client_id')->where('id', $client_id)->first();
+            $client_unique_id = $client_info ? $client_info->client_id : 'general';
+            
+            // Upload to S3
+            $filePath = $client_unique_id.'/invoices/receipts/'.$invoicefilename;
+            Storage::disk('s3')->put($filePath, $output);
+            
+            // Download to temp location for email attachment
+            $tempPath = sys_get_temp_dir() . '/' . $invoicefilename;
+            file_put_contents($tempPath, $output);
+            
+            $array['file'] = $tempPath;
             $array['file_name'] = $invoicefilename;
+            $array['s3_path'] = $filePath; // Store S3 path for potential cleanup if needed
         }
 
         if(isset($requestData['invreceipt'])){
@@ -1288,11 +1304,22 @@ class AdminController extends Controller
 
             $output = $pdf->output();
             $invoicefilename = 'invoice_'.$reciept_id.'.pdf';
-            file_put_contents(public_path('invoices/'.$invoicefilename), $output);
-
-
-            $array['file'] = public_path() . '/' .'invoices/'.$invoicefilename;
+            
+            // Get client unique ID for S3 path structure
+            $client_info = \App\Models\Admin::select('client_id')->where('id', $invoicedetail->client_id)->first();
+            $client_unique_id = $client_info ? $client_info->client_id : 'general';
+            
+            // Upload to S3
+            $filePath = $client_unique_id.'/invoices/'.$invoicefilename;
+            Storage::disk('s3')->put($filePath, $output);
+            
+            // Download to temp location for email attachment
+            $tempPath = sys_get_temp_dir() . '/' . $invoicefilename;
+            file_put_contents($tempPath, $output);
+            
+            $array['file'] = $tempPath;
             $array['file_name'] = $invoicefilename;
+            $array['s3_path'] = $filePath; // Store S3 path for potential cleanup if needed
         }
 
 		$obj = new \App\Models\MailReport;
@@ -1496,6 +1523,11 @@ class AdminController extends Controller
                     $attachments,
                     $ccarray
                 );
+                
+                // Clean up temp files after email is sent
+                if(isset($array['file']) && file_exists($array['file'])){
+                    @unlink($array['file']);
+                }
 
                 return redirect()->back()->with('success', 'Email sent successfully!');
             } catch (\Exception $e) {

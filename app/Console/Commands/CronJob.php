@@ -20,6 +20,7 @@ use App\Models\ShareInvoice;
 use App\Mail\InvoiceEmailManager;
 use Mail;
 use Config;
+use Illuminate\Support\Facades\Storage;
 class CronJob extends Command
 {
     /**
@@ -89,15 +90,31 @@ class CronJob extends Command
 					])->loadView('invoices.invoice', compact('invoicedetail'));
 					$output = $pdf->output();
 
-					file_put_contents('public/invoices/'.$invoicefilename, $output);
+					// Get client unique ID for S3 path structure
+					$client_unique_id = 'general';
+					if($invoice->customer && $invoice->customer->client_id){
+						$client_unique_id = $invoice->customer->client_id;
+					}
+					
+					// Upload to S3
+					$filePath = $client_unique_id.'/invoices/'.$invoicefilename;
+					Storage::disk('s3')->put($filePath, $output);
+					
+					// Download to temp location for email attachment
+					$tempPath = sys_get_temp_dir() . '/' . $invoicefilename;
+					file_put_contents($tempPath, $output);
 
 					$array['view'] = 'emails.invoice';
-					$array['file'] = 'public/invoices/'.$invoicefilename;
+					$array['file'] = $tempPath;
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
 					$issuccess = $this->send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
-					unlink($array['file']);
+					
+					// Clean up temp file after email is sent
+					if(file_exists($tempPath)){
+						@unlink($tempPath);
+					}
 					$objf				= 	new InvoiceFollowup;
 				$objf->invoice_id	=	$invoice->id;
 				$objf->user_id	=	$invoice->user_id;
@@ -128,15 +145,31 @@ class CronJob extends Command
 					])->loadView('invoices.invoice', compact('invoicedetail'));
 					$output = $pdf->output();
 
-					file_put_contents('public/invoices/'.$invoicefilename, $output);
+					// Get client unique ID for S3 path structure
+					$client_unique_id = 'general';
+					if($invoice->customer && $invoice->customer->client_id){
+						$client_unique_id = $invoice->customer->client_id;
+					}
+					
+					// Upload to S3
+					$filePath = $client_unique_id.'/invoices/'.$invoicefilename;
+					Storage::disk('s3')->put($filePath, $output);
+					
+					// Download to temp location for email attachment
+					$tempPath = sys_get_temp_dir() . '/' . $invoicefilename;
+					file_put_contents($tempPath, $output);
 
 					$array['view'] = 'emails.invoice';
-					$array['file'] = 'public/invoices/'.$invoicefilename;
+					$array['file'] = $tempPath;
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
 					$issuccess = self::send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
-					unlink($array['file']);
+					
+					// Clean up temp file after email is sent
+					if(file_exists($tempPath)){
+						@unlink($tempPath);
+					}
 					$objf				= 	new InvoiceFollowup;
 				$objf->invoice_id	=	$invoice->id;
 				$objf->user_id	=	$invoice->user_id;

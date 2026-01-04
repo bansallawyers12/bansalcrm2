@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Admin;
 use App\Models\CheckinLog;
 use App\Models\CheckinHistory;
+use App\Models\ActivitiesLog;
  
 use Auth;
 use Config;
@@ -63,6 +64,19 @@ class OfficeVisitController extends Controller
 			$objs->created_by = Auth::user()->id;
 			$objs->checkin_id = $obj->id;
 			$objs->save();
+			
+			// Create activity log for clients (not leads)
+			if($requestData['utype'] == 'Client') {
+				$activityLog = new ActivitiesLog;
+				$activityLog->client_id = $requestData['contact'];
+				$activityLog->created_by = Auth::user()->id;
+				$activityLog->subject = 'has created check-in';
+				$activityLog->description = !empty($requestData['message']) ? 'Visit Purpose: ' . $requestData['message'] : '';
+				$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+				$activityLog->save();
+			}
+			
 			return redirect()->back()->with('success', 'Checkin updated successfully');
 		}	
 	}
@@ -435,6 +449,19 @@ class OfficeVisitController extends Controller
 		$objs->created_by = Auth::user()->id;
 		$objs->checkin_id = $request->id;
 		$saved = $objs->save();
+		
+		// Create activity log for clients
+		if($obj->contact_type == 'Client') {
+			$activityLog = new ActivitiesLog;
+			$activityLog->client_id = $obj->client_id;
+			$activityLog->created_by = Auth::user()->id;
+			$activityLog->subject = 'has started check-in session';
+			$activityLog->description = !empty($obj->visit_purpose) ? 'Visit Purpose: ' . $obj->visit_purpose : '';
+			$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+			$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+			$activityLog->save();
+		}
+		
 		if($saved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';
@@ -457,6 +484,23 @@ class OfficeVisitController extends Controller
 		$objs->created_by = Auth::user()->id;
 		$objs->checkin_id = $request->id;
 		$saved = $objs->save();
+		
+		// Create activity log for clients
+		if($obj->contact_type == 'Client') {
+			$activityLog = new ActivitiesLog;
+			$activityLog->client_id = $obj->client_id;
+			$activityLog->created_by = Auth::user()->id;
+			$activityLog->subject = 'has completed check-in session';
+			$description = !empty($obj->visit_purpose) ? 'Visit Purpose: ' . $obj->visit_purpose : '';
+			if(!empty($obj->attend_time)) {
+				$description .= ($description ? ' | ' : '') . 'Session Duration: ' . $obj->attend_time;
+			}
+			$activityLog->description = $description;
+			$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+			$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+			$activityLog->save();
+		}
+		
 		if($saved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';

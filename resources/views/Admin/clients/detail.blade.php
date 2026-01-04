@@ -3,6 +3,524 @@
 
 @section('content')
 <style>
+/* Modern Design CSS Variables */
+:root {
+	--primary-color: #6366f1;
+	--primary-hover: #4f46e5;
+	--secondary-color: #06b6d4;
+	--success-color: #10b981;
+	--background-color: #f8fafc;
+	--card-background: #ffffff;
+	--text-primary: #0f172a;
+	--text-secondary: #64748b;
+	--border-color: #e2e8f0;
+	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 16px;
+	--radius-full: 9999px;
+}
+
+/* Client Detail Container - Pure Flexbox Layout */
+.client-detail-container {
+	display: flex;
+	gap: 24px;
+	width: 100%;
+	align-items: flex-start;
+}
+
+/* Left Sidebar - Fixed Width */
+.left_section {
+	width: 330px;
+	min-width: 330px;
+	max-width: 330px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* Right Section - Takes Remaining Space */
+.right_section {
+	flex: 1;
+	min-width: 0;
+}
+
+/* Ensure cards inside sidebar don't overflow */
+.left_section .card {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+/* Modern Profile Card Styles */
+.author-box.left_section_upper {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
+	border: none;
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 0;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.author-box.left_section_upper::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	right: -50%;
+	width: 200px;
+	height: 200px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+}
+
+.author-box.left_section_upper .card-body {
+	padding: 20px;
+	color: white;
+	position: relative;
+	z-index: 1;
+}
+
+.author-box-center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.author-avtar {
+	width: 70px !important;
+	height: 70px !important;
+	border-radius: var(--radius-full) !important;
+	background: linear-gradient(135deg, var(--secondary-color), #0891b2) !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28px !important;
+	font-weight: 700 !important;
+	color: white !important;
+	margin-bottom: 12px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+	border: 3px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.author-box-name {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.author-box-name a {
+	color: white !important;
+	font-size: 18px;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.author-box-name span {
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.5px;
+	display: block;
+	margin-top: 6px;
+}
+
+.author-mail_sms {
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	margin: 20px 0;
+	flex-wrap: wrap;
+}
+
+.author-mail_sms > a,
+.author-mail_sms > span {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	background: rgba(255, 255, 255, 0.15);
+	backdrop-filter: blur(10px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white !important;
+	text-decoration: none;
+}
+
+.author-mail_sms > a:hover {
+	background: rgba(255, 255, 255, 0.25);
+	transform: translateY(-2px);
+}
+
+.author-mail_sms > a i {
+	font-size: 14px;
+	color: white;
+}
+
+.author-box.left_section_upper p:has(.badge-outline) {
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	margin-bottom: 18px;
+	flex-wrap: wrap;
+}
+
+.author-box.left_section_upper .badge-outline,
+.author-box.left_section_upper p a.badge-outline {
+	padding: 6px 16px;
+	border-radius: var(--radius-full);
+	font-size: 12px;
+	font-weight: 600;
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	background: rgba(255, 255, 255, 0.2) !important;
+	color: white !important;
+	text-decoration: none;
+}
+
+.author-box.left_section_upper .badge-outline.active,
+.author-box.left_section_upper p a.badge-outline.active {
+	background: var(--success-color) !important;
+	color: white !important;
+	box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.author-box.left_section_upper .btn-primary.btn-block {
+	width: 100%;
+	padding: 12px;
+	background: rgba(255, 255, 255, 0.95);
+	color: var(--primary-color);
+	border: none;
+	border-radius: var(--radius-md);
+	font-weight: 600;
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.author-box.left_section_upper .btn-primary.btn-block:hover {
+	background: white;
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Modern Personal Details Card */
+.card.left_section_lower {
+	background: var(--card-background);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-sm);
+	border: 1px solid var(--border-color);
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.card.left_section_lower .card-header {
+	background: transparent;
+	border-bottom: 2px solid var(--background-color);
+	padding: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.card.left_section_lower .card-header h4 {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--text-primary);
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.card.left_section_lower .card-body {
+	padding: 16px;
+}
+
+.card.left_section_lower .card-body p.clearfix {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--background-color);
+}
+
+.card.left_section_lower .card-body p.clearfix:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.card.left_section_lower .card-body .float-start {
+	font-size: 11px;
+	color: var(--text-secondary);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.card.left_section_lower .card-body .float-end {
+	font-size: 12px;
+	color: var(--text-primary);
+	font-weight: 500;
+	word-break: break-word;
+}
+
+.add_note {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.add_note .not_picked_call,
+.add_note .create_note_d {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	padding: 3px 10px;
+	border-radius: var(--radius-sm);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+	border: none;
+}
+
+.add_note .create_note_d {
+	font-size: 12px;
+	color: var(--primary-color);
+	background: transparent;
+	padding: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.add_note .create_note_d:hover {
+	color: var(--primary-hover);
+	transform: translateX(2px);
+}
+
+/* Modern Tab Navigation */
+.card.right_section .nav-pills {
+	background: var(--background-color);
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border-color);
+	gap: 4px;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.card.right_section .nav-pills .nav-link {
+	padding: 10px 20px;
+	background: transparent;
+	border: none;
+	color: var(--text-secondary);
+	font-weight: 500;
+	font-size: 13px;
+	border-radius: var(--radius-md);
+	transition: all 0.3s ease;
+	white-space: nowrap;
+}
+
+.card.right_section .nav-pills .nav-link:hover {
+	background: rgba(99, 102, 241, 0.08);
+	color: var(--primary-color);
+}
+
+.card.right_section .nav-pills .nav-link.active {
+	background: var(--primary-color);
+	color: white;
+	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* Modern Filter Section */
+.activities-filter-bar {
+	background: var(--background-color);
+	padding: 24px;
+	border-radius: var(--radius-md);
+	margin-bottom: 28px;
+	border: 1px solid var(--border-color);
+}
+
+.activities-filter-bar .form-control {
+	padding: 10px 16px;
+	border: 1.5px solid var(--border-color);
+	border-radius: var(--radius-md);
+	font-size: 14px;
+	transition: all 0.3s ease;
+	background: white;
+}
+
+.activities-filter-bar .form-control:focus {
+	outline: none;
+	border-color: var(--primary-color);
+	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.activities-filter-bar .activity-type-btn {
+	border: 1.5px solid var(--border-color);
+	background: white;
+	border-radius: var(--radius-md);
+	font-size: 13px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+	color: var(--text-secondary);
+}
+
+.activities-filter-bar .activity-type-btn:hover {
+	border-color: var(--primary-color);
+	color: var(--primary-color);
+}
+
+.activities-filter-bar .activity-type-btn.active {
+	background: var(--primary-color);
+	color: white;
+	border-color: var(--primary-color);
+}
+
+.activities-filter-bar .btn-primary {
+	background: var(--primary-color);
+	color: white;
+	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+	border-radius: var(--radius-md);
+	padding: 10px 24px;
+	font-weight: 600;
+	font-size: 13px;
+	border: none;
+	transition: all 0.3s ease;
+}
+
+.activities-filter-bar .btn-primary:hover {
+	background: var(--primary-hover);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+.activities-filter-bar .btn-secondary {
+	background: white;
+	color: var(--text-secondary);
+	border: 1.5px solid var(--border-color);
+	border-radius: var(--radius-md);
+	padding: 10px 24px;
+	font-weight: 600;
+	font-size: 13px;
+}
+
+.activities-filter-bar .btn-secondary:hover {
+	background: var(--background-color);
+	border-color: var(--text-secondary);
+}
+
+/* Modern Timeline/Activities */
+.activity {
+	position: relative;
+	padding-left: 60px;
+	margin-bottom: 24px;
+}
+
+.activity::before {
+	content: '';
+	position: absolute;
+	left: 14px;
+	top: 0;
+	bottom: -24px;
+	width: 2px;
+	background: linear-gradient(180deg, var(--primary-color) 0%, rgba(99, 102, 241, 0.1) 100%);
+}
+
+.activity:last-child::before {
+	display: none;
+}
+
+.activity-icon {
+	position: absolute;
+	left: 0;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	background: var(--primary-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-weight: 700;
+	font-size: 14px;
+	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+	border: 3px solid var(--card-background);
+	z-index: 1;
+}
+
+.activity-detail {
+	background: white !important;
+	border-radius: var(--radius-md);
+	padding: 20px;
+	box-shadow: var(--shadow-sm);
+	border: 1px solid var(--border-color) !important;
+	transition: all 0.3s ease;
+}
+
+.activity-detail:hover {
+	box-shadow: var(--shadow-md);
+	transform: translateX(4px);
+}
+
+.activity-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: start;
+	margin-bottom: 12px;
+}
+
+.activity-title {
+	font-size: 14px;
+	color: var(--text-primary);
+	font-weight: 600;
+	flex: 1;
+}
+
+.activity-title b {
+	color: var(--primary-color);
+	font-weight: 700;
+}
+
+.activity-date {
+	font-size: 12px;
+	color: var(--text-secondary);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.activity-detail p {
+	color: var(--text-secondary);
+	font-size: 13px;
+	line-height: 1.6;
+	margin-top: 8px;
+	margin-bottom: 0;
+}
+
+.verified-icon {
+	color: var(--success-color);
+	font-size: 14px;
+}
+
+.unverified-icon {
+	color: var(--text-secondary);
+	font-size: 14px;
+}
+
 .popover {max-width:700px;}
 .ag-space-between {justify-content: space-between;}
 .ag-align-center {align-items: center;}
@@ -286,6 +804,66 @@ td .dropdown-menu {
 
   .filter_panel {background: #f7f7f7;margin: 10px 10px 10px 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
+
+/* Activities Filter Bar Styles */
+.activities-filter-bar {
+	background: #f8f9fa;
+	padding: 15px;
+	border-radius: 5px;
+	margin-bottom: 20px;
+	border: 1px solid #e0e0e0;
+}
+
+.activity-type-btn {
+	border: 1px solid #ddd;
+	background: #fff;
+	padding: 5px 12px;
+	font-size: 12px;
+	border-radius: 4px;
+	white-space: nowrap;
+	transition: all 0.2s;
+	cursor: pointer;
+}
+
+.activity-type-btn:hover {
+	background: #f0f0f0;
+	border-color: #bbb;
+}
+
+.activity-type-btn.active {
+	background: #6777ef;
+	color: #fff;
+	border-color: #6777ef;
+	font-weight: 600;
+}
+
+.activity-type-btn.active:hover {
+	background: #5568d3;
+	border-color: #5568d3;
+}
+
+.activity-type-btn.dropdown-toggle.active {
+	background: #6777ef;
+	color: #fff;
+	border-color: #6777ef;
+}
+
+.activity-type-dropdown-item.active {
+	background-color: #6777ef;
+	color: #fff;
+}
+
+.activity-type-dropdown-item:hover {
+	background-color: #f0f0f0;
+}
+
+.activity-type-dropdown-item.active:hover {
+	background-color: #5568d3;
+}
+
+.date-filter {
+	font-size: 12px;
+}
 </style>
 <?php
 use App\Http\Controllers\Controller;
@@ -301,104 +879,49 @@ use App\Http\Controllers\Controller;
 			<div class="custom-error-msg">
 			</div>
 
-			<div class="row">
-				<div class="col-12 col-md-12 col-lg-12">
-					<div class="card">
-						<div class="card-header">
-							<h4>Client Detail </h4>
-							<div class="card-header-action">
-							    <a href="{{route('clients.index')}}" class="btn btn-primary">Client List</a>
-							</div>
+			<?php
+            //List if any attending inperssion session
+            $attendingSessionExist = \App\Models\CheckinLog::where('client_id', '=', $fetchedData->id)->where('status', '=', '2')->orderBy('id', 'DESC')->get();
+            if(!empty($attendingSessionExist) && count($attendingSessionExist) >0){?>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <a href="javascript:void(0);" class="btn btn-primary complete_session" data-clientid="<?php echo $fetchedData->id;?>">Complete Session</a>
+                    </div>
+                </div>
+            <?php }?>
 
-							<?php
-                            //List if any attending inperssion session
-                            $attendingSessionExist = \App\Models\CheckinLog::where('client_id', '=', $fetchedData->id)->where('status', '=', '2')->orderBy('id', 'DESC')->get();
-                            //dd(count($attendingSessionExist));
-                            if(!empty($attendingSessionExist) && count($attendingSessionExist) >0){?>
-                                <div class="card-header-action">
-                                    <a href="javascript:void(0);" class="btn btn-primary complete_session" style="margin-left:5px;" data-clientid="<?php echo $fetchedData->id;?>">Complete Session</a>
-                                </div>
-                            <?php }?>
-
-                           <a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
-						</div>
-
-                         <div class="filter_panel">
-                            <?php //echo $encodeId;?>
-                            <form action="{{URL::to('/clients/detail/'.$encodeId)}}" method="get">
-                                <div class="row" style="padding-left: 10px;">
-
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="user" class="col-form-label">Search By User</label>
-                                            {!! Form::text('user', Request::get('user'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter user', 'id' => 'user' ))  !!}
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="keyword" class="col-form-label">Search By keyword</label>
-                                            {!! Form::text('keyword', Request::get('keyword'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter any keyword', 'id' => 'keyword' ))  !!}
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4" style="padding-top: 35px;">
-                                        {!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
-                                        <a class="btn btn-info" href="{{URL::to('/clients/detail/'.$encodeId)}}">Reset</a>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
-
-					</div>
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class="col-4 col-md-4 col-lg-4 left_section">
+		<div class="client-detail-container">
+			<div class="left_section">
 					<div class="card author-box left_section_upper">
 						<div class="card-body">
 							<div class="author-box-center">
-							<span class="author-avtar" style="background: rgb(68, 182, 174);"><b>{{substr($fetchedData->first_name, 0, 1)}}{{substr($fetchedData->last_name, 0, 1)}}</b></span>
-								<div class="clearfix"></div>
+								<span class="author-avtar"><b>{{substr($fetchedData->first_name, 0, 1)}}{{substr($fetchedData->last_name, 0, 1)}}</b></span>
 								<div class="author-box-name">
 									<a href="#">{{$fetchedData->first_name}} {{$fetchedData->last_name}}</a>
-										<span style="display:block;">{{$fetchedData->client_id}}</span>
+									<span>{{$fetchedData->client_id}}</span>
 								</div>
-							<?php /*	<div class="author-rating">
-									<a href="javascript:;" rating="Lost" class="change_client_status lost <?php if($fetchedData->rating == 'Lost'){ echo 'active'; } ?>" style=""><i class="fas fa-exclamation-triangle"></i> Lost</a>
-									<a href="javascript:;" rating="Cold" class="change_client_status cold <?php if($fetchedData->rating == 'Cold'){ echo 'active'; } ?>" style=""><i class="fas fa-snowflake"></i> Cold</a>
-									<a href="javascript:;" rating="Warm" class="change_client_status warm <?php if($fetchedData->rating == 'Warm'){ echo 'active'; } ?>" style=""><i class="fas fa-mug-hot" ></i> Warm</a>
-									<a href="javascript:;" rating="Hot" class="change_client_status hot <?php if($fetchedData->rating == 'Hot'){ echo 'active'; } ?>" style=""><i class="fas fa-fire"></i> Hot</a>
-								</div> */ ?>
+							</div>
 								
-                                    <div class="author-mail_sms">
-                                      <!--<a href="#" title="Compose SMS"><i class="fas fa-comment-alt"></i></a>-->
-                                      <a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="sendmsg" title="Send Message"><i class="fas fa-comment-alt"></i></a>
-
-                                      <a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
-                                      <a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
-                                      @if($fetchedData->is_archived == 0)
-                                          <a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
-                                      @else
-                                          <a class="arcivedval" style="background-color:red;" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="UnArchive"><i style="color: #fff;" class="fas fa-archive"></i></a>
-                                      @endif
-
-                                      @if($fetchedData->is_greview_mail_sent == 1)
-                                          <span style="display: block;color:#4caf50;">Google review invitation already Sent</span>
-                                      @else
-                                          <a class="googleReviewBtn" href="javascript:;" data-is_greview_mail_sent="{{@$fetchedData->is_greview_mail_sent}}" title="Google Review"><i class="fab fa-google"></i></a>
-                                      @endif
-                                  </div>
-                              
-                              
-									<p>
-									<a  onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
-								    <a  onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
-
-								</p>
-								<p><button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+							<div class="author-mail_sms">
+								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="sendmsg" title="Send Message"><i class="fas fa-comment-alt"></i></a>
+								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
+								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+								@if($fetchedData->is_greview_mail_sent == 0)
+									<a class="googleReviewBtn" href="javascript:;" data-is_greview_mail_sent="{{@$fetchedData->is_greview_mail_sent}}" title="Google Review"><i class="fab fa-google"></i></a>
+								@endif
+								@if($fetchedData->is_archived == 0)
+									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
+								@else
+									<a class="arcivedval" style="background-color:rgba(239, 68, 68, 0.8);" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="UnArchive"><i class="fas fa-archive"></i></a>
+								@endif
+							</div>
+							
+							<div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;">
+								<a onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
+								<a onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
+							</div>
+							
+							<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
 									<h4 class=&quot;text-center&quot;>Assign User</h4>
 									<div class=&quot;clearfix&quot;></div>
 
@@ -495,37 +1018,28 @@ use App\Http\Controllers\Controller;
 						</div>
 					</div>
 
-				<!--</div>
-				<div class="col-8 col-md-8 col-lg-8">-->
-                  
 					<div class="card left_section_lower">
 						<div class="card-header">
-						    <div class="float-start">
+							<div style="display: flex; align-items: center; gap: 8px;">
 								<h4>Personal Details</h4>
-                                <div style="width: 170px;color: #212529;">
-                                    Last Updated:
-                                    <?php
-                                    if( isset($fetchedData->updated_at) && $fetchedData->updated_at != "" ){
-                                        echo date('d/m/Y',   strtotime('-5 hours 30 minute', strtotime($fetchedData->updated_at)));
-                                    } ?>
-                                </div>
-                            </div>
-
-                            <div class="add_note" style="text-align: right;width:155px;margin-top:-40px;">
-
-                                 <!--<input type="checkbox" class="not_picked_call" name="not_picked_call" value="<?php //echo $fetchedData->not_picked_call;?>" <?php //if( isset($fetchedData->not_picked_call) && $fetchedData->not_picked_call == '1' ) { echo 'checked';}?>> NP -->
-                                <a href="javascript:;" style="border-radius: 0px;padding: 2px 5px;" datatype="not_picked_call" class="not_picked_call btn btn-primary btn-sm">NP</a>
-
-
-
-                                <a href="javascript:;" style="border-radius: 0px;padding: 2px 5px;" datatype="note" class="create_note_d btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Notes</a>
-                            </div>
-
-
+								<a href="javascript:;" datatype="not_picked_call" class="not_picked_call" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-decoration: none;">NP</a>
+							</div>
+							<a href="javascript:;" datatype="note" class="create_note_d"><i class="fa fa-plus"></i> Add Notes</a>
 						</div>
 						<div class="card-body">
+							<p class="clearfix">
+								<span class="float-start">Last Updated</span>
+								<span class="float-end text-muted">
+									<?php
+									if( isset($fetchedData->updated_at) && $fetchedData->updated_at != "" ){
+										echo date('d/m/Y', strtotime('-5 hours 30 minute', strtotime($fetchedData->updated_at)));
+									} else {
+										echo '—';
+									} ?>
+								</span>
+							</p>
 						    <p class="clearfix">
-								<span class="float-start">Date Of Birth / Age:</span>
+								<span class="float-start">Date Of Birth / Age</span>
 								<span class="float-end text-muted">
 									<?php
 										if($fetchedData->dob != '' && $fetchedData->dob != '0000-00-00'){
@@ -873,13 +1387,13 @@ use App\Http\Controllers\Controller;
 							</p>
 						</div>
 					</div>
-				</div>
+			</div>
 
-				<!--<div class="col-12 col-md-12 col-lg-12">-->
+			<!--<div class="col-12 col-md-12 col-lg-12">-->
               
              
-                <div class="col-8 col-md-8 col-lg-8 ">
-				<div class="card right_section">
+			<div class="right_section">
+				<div class="card">
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
@@ -928,74 +1442,255 @@ use App\Http\Controllers\Controller;
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>-->
-								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="checkinlogs-tab" href="#checkinlogs" role="tab" aria-controls="checkinlogs" aria-selected="false">Check-In Logs</a>
-								</li>
 							</ul>
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
 								<div class="tab-pane fade <?php if(!isset($_GET['tab']) ){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
 
+								<!-- Activities Filter Bar - Permanently Visible -->
+								<div class="activities-filter-bar">
+									<form action="{{URL::to('/clients/detail/'.$encodeId)}}" method="get" id="activitiesFilterForm">
+										<input type="hidden" name="tab" value="{{ Request::get('tab', '') }}">
+										
+										<div class="row align-items-end">
+											<!-- Search Box -->
+											<div class="col-md-3 col-lg-2">
+												<div class="form-group mb-0">
+													<label for="activity_search" class="form-label small text-muted mb-1">Search</label>
+													<input type="text" 
+														   class="form-control form-control-sm" 
+														   id="activity_search" 
+														   name="keyword" 
+														   value="{{ Request::get('keyword', '') }}" 
+														   placeholder="Search activities...">
+												</div>
+											</div>
+
+											<!-- Activity Type Filters -->
+											<div class="col-md-6 col-lg-7">
+												<div class="form-group mb-0">
+													<label class="form-label small text-muted mb-1 d-block">Type</label>
+													<div class="activity-type-filters" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+										<?php
+														// Main filter buttons (always visible)
+														$mainTypes = [
+															'all' => 'All',
+															'notes' => 'Notes'
+														];
+														
+														// Dropdown types (all other types)
+														$dropdownTypes = [
+															'documents' => 'Documents',
+															'action' => 'Action',
+															'accounting' => 'Accounting',
+															'messages' => 'Messages',
+															'calls' => 'Calls',
+															'reviews' => 'Reviews',
+															'applications' => 'Applications',
+															'services' => 'Services',
+															'status' => 'Status',
+															'checkins' => 'Check-ins',
+															'other' => 'Other'
+														];
+														
+														$selectedType = Request::get('activity_type', 'all');
+														
+														// Display main buttons
+														foreach($mainTypes as $key => $label) {
+															$active = ($selectedType == $key) ? 'active' : '';
+															echo '<button type="button" class="btn btn-sm activity-type-btn ' . $active . '" data-type="' . $key . '" style="border: 1px solid #ddd; background: #fff; padding: 5px 12px; font-size: 12px; border-radius: 4px; white-space: nowrap;">' . $label . '</button>';
+														}
+														
+														// Display dropdown for additional types
+														$dropdownActive = in_array($selectedType, array_keys($dropdownTypes));
+														$dropdownLabel = $dropdownActive ? $dropdownTypes[$selectedType] : 'More...';
+														?>
+														<div class="dropdown d-inline-block">
+															<button type="button" 
+																	class="btn btn-sm activity-type-btn dropdown-toggle <?php echo $dropdownActive ? 'active' : ''; ?>" 
+																	data-bs-toggle="dropdown" 
+																	aria-expanded="false"
+																	style="border: 1px solid #ddd; background: <?php echo $dropdownActive ? '#6777ef' : '#fff'; ?>; color: <?php echo $dropdownActive ? '#fff' : '#000'; ?>; padding: 5px 12px; font-size: 12px; border-radius: 4px; white-space: nowrap;">
+																<?php echo $dropdownLabel; ?>
+															</button>
+															<ul class="dropdown-menu" style="font-size: 12px;">
+																<?php foreach($dropdownTypes as $key => $label): ?>
+																	<li>
+																		<a class="dropdown-item activity-type-dropdown-item <?php echo ($selectedType == $key) ? 'active' : ''; ?>" 
+																		   href="javascript:;" 
+																		   data-type="<?php echo $key; ?>"
+																		   style="<?php echo ($selectedType == $key) ? 'background-color: #6777ef; color: #fff;' : ''; ?>">
+																			<?php echo $label; ?>
+																		</a>
+																	</li>
+																<?php endforeach; ?>
+															</ul>
+														</div>
+														<input type="hidden" name="activity_type" id="activity_type_input" value="{{ $selectedType }}">
+													</div>
+												</div>
+											</div>
+
+											<!-- Date Range Filter -->
+											<div class="col-md-3 col-lg-3">
+												<div class="form-group mb-0">
+													<label for="date_from" class="form-label small text-muted mb-1">Date Range</label>
+													<div class="d-flex gap-2">
+														<input type="text" 
+															   class="form-control form-control-sm date-filter" 
+															   id="date_from" 
+															   name="date_from" 
+															   value="{{ Request::get('date_from', '') }}" 
+															   placeholder="From" 
+															   autocomplete="off"
+															   style="flex: 1;">
+														<input type="text" 
+															   class="form-control form-control-sm date-filter" 
+															   id="date_to" 
+															   name="date_to" 
+															   value="{{ Request::get('date_to', '') }}" 
+															   placeholder="To" 
+															   autocomplete="off"
+															   style="flex: 1;">
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- Action Buttons -->
+										<div class="row mt-2">
+											<div class="col-12">
+												<button type="submit" class="btn btn-primary btn-sm" style="margin-right: 8px;">
+													<i class="fas fa-search"></i> Apply Filters
+												</button>
+												<a href="{{URL::to('/clients/detail/'.$encodeId)}}" class="btn btn-secondary btn-sm">
+													<i class="fas fa-redo"></i> Reset
+												</a>
+												<?php if(Request::get('keyword') || Request::get('activity_type') != 'all' || Request::get('date_from') || Request::get('date_to')): ?>
+													<span class="badge bg-info ms-2" style="vertical-align: middle; padding: 6px 10px;">
+														Filters Active
+													</span>
+												<?php endif; ?>
+											</div>
+										</div>
+									</form>
+								</div>
+
 								<div class="activities">
 										<?php
-										//$activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)->orderby('created_at', 'DESC')->get();
-										//->where('subject', '<>','added a note')
-
-										if(
-                                            ( isset($_REQUEST['user']) && $_REQUEST['user'] != "" )
-                                            ||
-                                            ( isset($_REQUEST['keyword']) && $_REQUEST['keyword'] != "" )
-                                        ){ //dd('ifff');
-											$user_search = $_REQUEST['user'];
-											$keyword_search = $_REQUEST['keyword'];
-
-											if($user_search != "" && $keyword_search != "") { //dd('ifff111');
-												$activities = \App\Models\ActivitiesLog::select('activities_logs.*','admins.first_name')
-                                                ->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id')
-												->where('activities_logs.client_id', $fetchedData->id)
-												->where(function($query) use ($user_search) {
-													$query->where('admins.first_name', 'like', '%'.$user_search.'%');
-												})
-												->where(function($query) use ($keyword_search) {
-													$query->where('activities_logs.description', 'like', '%'.$keyword_search.'%');
-													$query->orWhere('activities_logs.subject', 'like', '%'.$keyword_search.'%');
-												})
-												->orderby('activities_logs.created_at', 'DESC')
-												->get();
+										// Build query with filters
+										$query = \App\Models\ActivitiesLog::where('activities_logs.client_id', $fetchedData->id);
+										
+										// Keyword search filter
+										$keyword_search = Request::get('keyword', '');
+										if($keyword_search != "") {
+											$query->where(function($q) use ($keyword_search) {
+												$q->where('activities_logs.description', 'like', '%'.$keyword_search.'%')
+												  ->orWhere('activities_logs.subject', 'like', '%'.$keyword_search.'%');
+											});
+										}
+										
+										// Activity type filter
+										$activity_type = Request::get('activity_type', 'all');
+										if($activity_type != 'all') {
+											switch($activity_type) {
+												case 'notes':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%added a note%')
+														  ->orWhere('activities_logs.subject', 'like', '%updated a note%')
+														  ->orWhere('activities_logs.subject', 'like', '%deleted a note%');
+													});
+													break;
+												case 'messages':
+													$query->where('activities_logs.subject', 'like', '%sent a message%');
+													break;
+												case 'calls':
+													$query->where(function($q) {
+														$q->where('activities_logs.description', 'like', '%Call not picked%')
+														  ->orWhere('activities_logs.subject', 'like', '%call%');
+													});
+													break;
+												case 'reviews':
+													$query->where('activities_logs.subject', 'like', '%review%');
+													break;
+												case 'documents':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%document%')
+														  ->orWhere('activities_logs.subject', 'like', '%uploaded%')
+														  ->orWhere('activities_logs.subject', 'like', '%verified%');
+													});
+													break;
+												case 'action':
+													// Renamed from 'tasks' - Groups: Tasks, Actions
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%action%')
+														  ->orWhere('activities_logs.subject', 'like', '%task%')
+														  ->orWhere('activities_logs.subject', 'like', '%Completed action%')
+														  ->orWhere('activities_logs.task_status', '=', 1);
+													});
+													break;
+												case 'accounting':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%receipt%')
+														  ->orWhere('activities_logs.subject', 'like', '%invoice%')
+														  ->orWhere('activities_logs.subject', 'like', '%payment%');
+													});
+													break;
+												case 'applications':
+													$query->where('activities_logs.subject', 'like', '%started an application%');
+													break;
+												case 'services':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%interested service%')
+														  ->orWhere('activities_logs.subject', 'like', '%service%');
+													});
+													break;
+												case 'status':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%status%')
+														  ->orWhere('activities_logs.subject', 'like', '%rated%')
+														  ->orWhere('activities_logs.subject', 'like', '%rating%');
+													});
+													break;
+												case 'checkins':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%check-in%')
+														  ->orWhere('activities_logs.subject', 'like', '%session%')
+														  ->orWhere('activities_logs.subject', 'like', '%commented%');
+													});
+													break;
+												case 'other':
+													// Exclude all known types
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'not like', '%note%')
+														  ->where('activities_logs.subject', 'not like', '%document%')
+														  ->where('activities_logs.subject', 'not like', '%action%')
+														  ->where('activities_logs.subject', 'not like', '%task%')
+														  ->where('activities_logs.subject', 'not like', '%receipt%')
+														  ->where('activities_logs.subject', 'not like', '%application%')
+														  ->where('activities_logs.subject', 'not like', '%message%')
+														  ->where('activities_logs.subject', 'not like', '%call%')
+														  ->where('activities_logs.subject', 'not like', '%service%')
+														  ->where('activities_logs.subject', 'not like', '%status%')
+														  ->where('activities_logs.subject', 'not like', '%check-in%')
+														  ->where('activities_logs.subject', 'not like', '%session%')
+														  ->where('activities_logs.subject', 'not like', '%review%');
+													});
+													break;
 											}
-											else if($user_search == "" && $keyword_search != "") { //dd('ifff2222');
-												$activities = \App\Models\ActivitiesLog::select('activities_logs.*')
-												->where('activities_logs.client_id', $fetchedData->id)
-												->where(function($query) use ($keyword_search) {
-													$query->where('activities_logs.description', 'like', '%'.$keyword_search.'%');
-													$query->orWhere('activities_logs.subject', 'like', '%'.$keyword_search.'%');
-												})
-												->orderby('activities_logs.created_at', 'DESC')
-												->get();
-											}
-											else if($user_search != "" && $keyword_search == "") { //dd('ifff333');
-												$activities = \App\Models\ActivitiesLog::select('activities_logs.*','admins.first_name')
-												->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id')
-												->where('activities_logs.client_id', $fetchedData->id)
-												->where(function($query) use ($user_search) {
-													$query->where('admins.first_name', 'like', '%'.$user_search.'%');
-												})
-												->orderby('activities_logs.created_at', 'DESC')
-												->get();
-											}
-										} else { //dd('elsee');
-                                            /*if($fetchedData->id == 934){
-                                              $activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)
-                                                ->where('task_status',0)
-                                              ->orderby('created_at', 'DESC')
-                                              ->get(); //->where('subject', '<>','added a note')
-                                              
-                                            } else {*/
-                                               $activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)
-                                              ->orderby('created_at', 'DESC')
-                                              ->get(); //->where('subject', '<>','added a note')
-                                           // }
-                                           
-                                        }
+										}
+										
+										// Date range filter
+										$date_from = Request::get('date_from', '');
+										$date_to = Request::get('date_to', '');
+										if($date_from != "") {
+											$query->whereDate('activities_logs.created_at', '>=', date('Y-m-d', strtotime($date_from)));
+										}
+										if($date_to != "") {
+											$query->whereDate('activities_logs.created_at', '<=', date('Y-m-d', strtotime($date_to)));
+										}
+										
+										// Execute query
+										$activities = $query->orderby('activities_logs.created_at', 'DESC')->get();
 
 										//dd($activities);
                                         foreach($activities as $activit){
@@ -1016,7 +1711,7 @@ use App\Http\Controllers\Controller;
 												<div class="activity-icon bg-primary text-white">
 													<span>{{substr($admin->first_name, 0, 1)}}</span>
 												</div>
-												<div class="activity-detail" style="border: 1px solid #dbdbdb;background-color: #dbdbdb;">
+												<div class="activity-detail">
 												    <div class="activity-head">
 												    	<div class="activity-title">
 															<p><b>{{$admin->first_name}}</b>  <?php echo @$activit->subject; ?></p>
@@ -1297,17 +1992,16 @@ use App\Http\Controllers\Controller;
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
 										</div>
-										<div class="upload_document" style="display:inline-block;">
+										<!-- Upload disabled for Education Documents tab -->
+										{{-- <div class="upload_document" style="display:inline-block;">
 										<form method="POST" enctype="multipart/form-data" id="upload_form">
 											@csrf
 											<input type="hidden" name="clientid" value="{{$fetchedData->id}}">
 											<input type="hidden" name="type" value="client">
 												<input type="hidden" name="doctype" value="education">
-											<!--<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>-->
-
 											<input class="docupload" multiple type="file" name="document_upload[]"/>
 											</form>
-										</div>
+										</div> --}}
 									</div>
 									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
 										<div class="">
@@ -1388,17 +2082,16 @@ use App\Http\Controllers\Controller;
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
 										</div>
-										<div class="migration_upload_document" style="display:inline-block;">
+										<!-- Upload disabled for Migration Documents tab -->
+										{{-- <div class="migration_upload_document" style="display:inline-block;">
                                               <form method="POST" enctype="multipart/form-data" id="mig_upload_form">
                                                   @csrf
                                                   <input type="hidden" name="clientid" value="{{$fetchedData->id}}">
                                                   <input type="hidden" name="type" value="client">
                                                   <input type="hidden" name="doctype" value="migration">
-                                                  <!--<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>-->
-
                                                   <input class="migdocupload" multiple type="file" name="document_upload[]"/>
 											</form>
-										</div>
+										</div> --}}
 									</div>
 									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
 										<div class="">
@@ -2237,68 +2930,17 @@ use App\Http\Controllers\Controller;
 										</div>
 									</div>
 								</div>
-								<!--<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
-									<span>other_info</span>
-								</div>-->
-								<div class="tab-pane fade" id="checkinlogs" role="tabpanel" aria-labelledby="checkinlogs-tab">
-									<div class="table-responsive">
-										<table class="table text_wrap">
-											<thead>
-												<tr>
-													<th>ID</th>
-													<th>Date</th>
-													<th>Start</th>
-													<th>End</th>
-													<th>Session Time</th>
-													<th>Visit Purpose</th>
-													<th>Assignee</th>
-													<th>Status</th>
-
-												</tr>
-											</thead>
-											<tbody class="tdata checindata">
-											<?php
-											$checkins = \App\Models\CheckinLog::where('client_id', $fetchedData->id)->orderby('created_at','DESC')->get();
-											foreach($checkins as $checkin){
-											?>
-												<tr did="{{@$checkin->id}}" id="id_{{$checkin->id}}">
-													<td><a id="{{@$checkin->id}}" href="javascript:;" class="opencheckindetail">#{{$checkin->id}}</a></td>
-													<td>{{date('l',strtotime($checkin->date))}}<br>{{$checkin->date}}</td>
-													<td><?php if($checkin->sesion_start != ''){ echo date('h:i A',strtotime($checkin->sesion_start)); }else{ echo '-'; } ?></td>
-													<td><?php if($checkin->sesion_end != ''){ echo date('h:i A',strtotime($checkin->sesion_end)); }else{ echo '-'; } ?></td>
-													<td>{{$checkin->attend_time}}</td>
-													<td>{{$checkin->visit_purpose}}</td>
-													<td>
-													<?php
-													$ad = \App\Models\Admin::select('id', 'first_name','email')->where('id', $checkin->user_id)->first();
-													echo @$ad->first_name.' <br>'.@$ad->email;
-													?>
-													</td>
-													<td>
-													<?php
-													if($checkin->status == 1){
-														echo '<span class="badge badge-success">Completed</span>';
-													}else{
-														echo '<span class="badge btn-warning">Waiting</span>';
-													}
-													?>
-													</td>
-
-												</tr>
-											<?php } ?>
-											</tbody>
-											<!--<tbody>
-												<tr>
-													<td style="text-align:center;" colspan="10">
-														No Record found
-													</td>
-												</tr>
-											</tbody>-->
-										</table>
-									</div>
-								</div>
+							<!--<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
+								<span>other_info</span>
+							</div>-->
+						</div> <!-- end tab-content -->
+					</div> <!-- end card-body -->
+				</div> <!-- end card -->
+			</div> <!-- end right_section -->
+		</div> <!-- end client-detail-container -->
+	</div> <!-- end section-body -->
 </section>
-</div>
+</div> <!-- end main-content -->
 
 @include('Admin/clients/addclientmodal')
 @include('Admin/clients/editclientmodal')
@@ -3336,6 +3978,72 @@ if($fetchedData->tagname != ''){
             }
         });
     })();
+
+    // Activities Filter Functionality
+    $(document).ready(function() {
+        // Activity Type Button Click Handler (main buttons)
+        $('.activity-type-btn:not(.dropdown-toggle)').on('click', function() {
+            var type = $(this).data('type');
+            
+            // Remove active class from all buttons and dropdown items
+            $('.activity-type-btn').removeClass('active');
+            $('.activity-type-dropdown-item').removeClass('active');
+            
+            // Add active class to clicked button
+            $(this).addClass('active');
+            
+            // Reset dropdown button text
+            $('.activity-type-btn.dropdown-toggle').text('More...').removeClass('active');
+            
+            // Update hidden input
+            $('#activity_type_input').val(type);
+        });
+
+        // Activity Type Dropdown Item Click Handler
+        $(document).on('click', '.activity-type-dropdown-item', function(e) {
+            e.preventDefault();
+            var type = $(this).data('type');
+            var label = $(this).text();
+            
+            // Remove active class from all buttons and dropdown items
+            $('.activity-type-btn').removeClass('active');
+            $('.activity-type-dropdown-item').removeClass('active');
+            
+            // Add active class to clicked dropdown item
+            $(this).addClass('active');
+            
+            // Update dropdown button
+            var $dropdownBtn = $('.activity-type-btn.dropdown-toggle');
+            $dropdownBtn.text(label).addClass('active');
+            
+            // Update hidden input
+            $('#activity_type_input').val(type);
+        });
+
+        // Initialize Date Pickers
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.date-filter', {
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                altInput: false
+            });
+        } else if (typeof jQuery !== 'undefined' && jQuery.fn.datetimepicker) {
+            // Fallback to datetimepicker if flatpickr not available
+            $('.date-filter').datetimepicker({
+                format: 'Y-m-d',
+                timepicker: false,
+                datepicker: true
+            });
+        }
+
+        // Auto-submit form on Enter key in search box
+        $('#activity_search').on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                $('#activitiesFilterForm').submit();
+            }
+        });
+    });
 </script>
 
 @push('tinymce-scripts')
