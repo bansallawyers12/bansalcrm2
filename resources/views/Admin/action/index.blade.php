@@ -648,7 +648,14 @@ jQuery(document).ready(function($){
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {id: row_id},
                 success: function(noteData){
-                    if(noteData && noteData.client_id){
+                    // Handle response structure
+                    if(noteData && noteData.status && noteData.client_id){
+                        clientId = noteData.client_id;
+                        if(noteData.client_name){
+                            clientName = noteData.client_name;
+                        }
+                    } else if(noteData && noteData.client_id){
+                        // Fallback for different response structure
                         clientId = noteData.client_id;
                         if(noteData.client_name){
                             clientName = noteData.client_name;
@@ -658,7 +665,7 @@ jQuery(document).ready(function($){
                     // Set form values
                     $('#complete_action_id').val(row_id);
                     $('#complete_client_id').val(clientId);
-                    $('#complete-action-client span').text(clientName);
+                    $('#complete-action-client span').text(clientName || 'N/A');
                     $('#completion_message').val('');
                     
                     // Show modal
@@ -670,11 +677,14 @@ jQuery(document).ready(function($){
                         $('#completeActionModal').modal('show');
                     }
                 },
-                error: function(){
-                    // Fallback if note data fetch fails
+                error: function(xhr){
+                    // Fallback if note data fetch fails - try to get from note directly
+                    console.warn('Failed to fetch note data, using fallback');
+                    
+                    // Set form values with available data
                     $('#complete_action_id').val(row_id);
-                    $('#complete_client_id').val('');
-                    $('#complete-action-client span').text(clientName);
+                    $('#complete_client_id').val(''); // Will be fetched from note on backend
+                    $('#complete-action-client span').text(clientName || 'N/A');
                     $('#completion_message').val('');
                     
                     if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -716,26 +726,34 @@ jQuery(document).ready(function($){
                 // Re-enable button
                 $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
                 
-                // Close modal
-                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    var modalElement = document.getElementById('completeActionModal');
-                    var modal = bootstrap.Modal.getInstance(modalElement);
-                    modal.hide();
+                // Check response status
+                if (response && response.status) {
+                    // Close modal
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var modalElement = document.getElementById('completeActionModal');
+                        var modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    } else {
+                        $('#completeActionModal').modal('hide');
+                    }
+                    
+                    // Refresh DataTable
+                    $('.yajra-datatable').DataTable().draw(false);
+                    
+                    // Show success message
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: response.message || 'Action completed successfully!'
+                        });
+                    } else {
+                        alert(response.message || 'Action completed successfully!');
+                    }
                 } else {
-                    $('#completeActionModal').modal('hide');
-                }
-                
-                // Refresh DataTable
-                $('.yajra-datatable').DataTable().draw(false);
-                
-                // Show success message
-                if (typeof iziToast !== 'undefined') {
-                    iziToast.success({
-                        title: 'Success',
-                        message: 'Action completed successfully!'
-                    });
-                } else {
-                    alert('Action completed successfully!');
+                    // Handle error response
+                    alert(response.message || 'Failed to complete action. Please try again.');
                 }
             },
             error: function(xhr) {

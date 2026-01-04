@@ -2000,7 +2000,6 @@ class AdminController extends Controller
         try {
             $request->validate([
                 'action_id' => 'required|integer|exists:notes,id',
-                'client_id' => 'required|integer',
                 'completion_message' => 'required|string|min:1'
             ]);
 
@@ -2021,13 +2020,23 @@ class AdminController extends Controller
                 ], 400);
             }
 
+            // Get client_id from request or note
+            $clientId = $request->input('client_id', $note->client_id);
+            
+            if (!$clientId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Client ID is required'
+                ], 400);
+            }
+
             // Update note status to completed
             $note->status = 1;
             $note->save();
 
             // Create activity log entry
             $activity = new ActivitiesLog();
-            $activity->client_id = $request->client_id;
+            $activity->client_id = $clientId;
             $activity->created_by = Auth::user()->id;
             $activity->subject = 'Completed action';
             $activity->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($request->completion_message) . '</p>';
@@ -2043,7 +2052,9 @@ class AdminController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Validation failed: ' . implode(', ', $e->errors())
+                'message' => 'Validation failed: ' . implode(', ', array_map(function($errors) {
+                    return is_array($errors) ? implode(', ', $errors) : $errors;
+                }, $e->errors()))
             ], 422);
         } catch (\Exception $e) {
             \Log::error('Error completing action: ' . $e->getMessage());

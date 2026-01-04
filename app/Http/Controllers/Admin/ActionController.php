@@ -34,8 +34,7 @@ class ActionController extends Controller
     public function markComplete(Request $request,Note $note)
     {
         try {
-            $data = $request->all();
-            $noteId = $data['id'] ?? null;
+            $noteId = $request->input('id');
             
             if (!$noteId) {
                 return response()->json([
@@ -61,12 +60,29 @@ class ActionController extends Controller
                 ], 400);
             }
             
+            // Get client_id from request or note
+            $clientId = $request->input('client_id', $note->client_id);
+            
+            if (!$clientId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Client ID is required'
+                ], 400);
+            }
+            
+            // Get completion message from request (required)
+            $completionMessage = $request->input('completion_message', '');
+            
+            if (empty($completionMessage)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Completion message is required'
+                ], 400);
+            }
+            
             // Update note status to completed
             $note->status = 1;
             $note->save();
-            
-            // Get completion message from request
-            $completionMessage = $request->input('completion_message', '');
             
             // Create activity log entry
             $admin_data = Admin::where('id', $note->assigned_to)->first();
@@ -77,16 +93,10 @@ class ActionController extends Controller
             }
             
             $objs = new ActivitiesLog;
-            $objs->client_id = $note->client_id;
+            $objs->client_id = $clientId;
             $objs->created_by = Auth::user()->id;
             $objs->subject = 'Completed action';
-            
-            // Include completion message if provided
-            if (!empty($completionMessage)) {
-                $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
-            } else {
-                $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . @$note->description . '</p>';
-            }
+            $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
             
             if(Auth::user()->id != @$note->assigned_to){
                 $objs->use_for = @$note->assigned_to;

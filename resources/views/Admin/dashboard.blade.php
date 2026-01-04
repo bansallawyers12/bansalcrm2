@@ -690,7 +690,7 @@
                                                     <td>
                                                         <button class="btn btn-sm btn-success complete-action-btn" 
                                                                 data-action-id="{{$alist->id}}"
-                                                                data-client-id="{{$alist->client_id}}"
+                                                                data-client-id="{{$alist->client_id ?? ''}}"
                                                                 data-client-name="{{$clientName}}"
                                                                 style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
                                                             <i class="fa fa-check"></i> Complete
@@ -1043,13 +1043,19 @@ $(document).ready(function() {
         e.stopPropagation(); // Prevent row click event
         
         var actionId = $(this).data('action-id');
-        var clientId = $(this).data('client-id');
-        var clientName = $(this).data('client-name');
+        var clientId = $(this).data('client-id') || '';
+        var clientName = $(this).data('client-name') || 'N/A';
+        
+        // Validate action ID
+        if (!actionId) {
+            alert('Action ID is missing. Please refresh the page and try again.');
+            return;
+        }
         
         // Set form values
         $('#complete_action_id').val(actionId);
         $('#complete_client_id').val(clientId);
-        $('#complete-action-client span').text(clientName || 'N/A');
+        $('#complete-action-client span').text(clientName);
         $('#completion_message').val('');
         
         // Show modal
@@ -1086,12 +1092,18 @@ $(document).ready(function() {
                 completion_message: message
             },
             success: function(response) {
-                if (response.status) {
+                // Re-enable button
+                $('#submitCompleteAction').prop('disabled', false).html('<i class="fa fa-check"></i> Complete Action');
+                
+                // Check response status
+                if (response && response.status) {
                     // Close modal
                     if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         var modalElement = document.getElementById('completeActionModal');
                         var modal = bootstrap.Modal.getInstance(modalElement);
-                        modal.hide();
+                        if (modal) {
+                            modal.hide();
+                        }
                     } else {
                         $('#completeActionModal').modal('hide');
                     }
@@ -1115,6 +1127,7 @@ $(document).ready(function() {
                         alert(response.message || 'Action completed successfully!');
                     }
                 } else {
+                    // Handle error response
                     alert(response.message || 'Failed to complete action. Please try again.');
                 }
             },
