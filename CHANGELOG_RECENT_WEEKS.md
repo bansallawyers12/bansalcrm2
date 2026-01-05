@@ -367,6 +367,22 @@ Complete migration from MySQL to PostgreSQL with comprehensive syntax updates an
 - `public/js/pages/admin/client-detail.js` - Removed schedule handlers
 - `public/js/custom-form-validation.js` - Removed schedule form validation
 - `routes/web.php` - Removed 9 schedule routes
+
+### 20. Unused Tables Removal (January 5, 2026)
+**Removed:**
+- Database tables: `suburbs` (18,530 rows) and `checkin_histories` (unused)
+- CheckinHistory model and all references
+- Check-in history logging functionality from OfficeVisitController
+
+**Files Removed/Modified:**
+- `app/Models/CheckinHistory.php` - Deleted
+- `app/Http/Controllers/Admin/OfficeVisitController.php` - Removed CheckinHistory references (commented out functionality)
+- `database/migrations/2026_01_05_202353_drop_suburbs_and_checkin_histories_tables.php` - Migration created
+- `database/migrations/2025_12_28_091723_fix_all_primary_keys_and_sequences.php` - Removed suburbs and checkin_histories from primary key fix list
+
+**Impact:**
+- Office visit check-in history logs are no longer stored (functionality disabled)
+- Suburbs table removed (was not actively used in codebase)
 - Multiple view files - Removed schedule modals and references
 
 **Impact:**
