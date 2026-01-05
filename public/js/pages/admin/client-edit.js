@@ -408,19 +408,6 @@ jQuery(document).ready(function($){
                         $('#edu_service_start_date').val("");
                         $('#edu_notes').val("");
 
-                    } else if(obj.user_rec.service_type == 'Education') {
-                        $('#Eductaion_inv').prop('checked', true);
-                        $('#Migration_inv').prop('checked', false);
-                        $('#Eductaion_inv').trigger('change');
-
-                        $('#edu_course').val(obj.user_rec.edu_course);
-                        $('#edu_college').val(obj.user_rec.edu_college);
-                        $('#edu_service_start_date').val(obj.user_rec.edu_service_start_date);
-                        $('#edu_notes').val(obj.user_rec.edu_notes);
-
-                        $('#mig_ref_no').val("");
-                        $('#mig_service').val("");
-                        $('#mig_notes').val("");
                     }
                 } else {
                     alert(obj.message);
@@ -489,11 +476,6 @@ jQuery(document).ready(function($){
                         cardHtml += '<div class="service-detail"><span class="detail-label">Reference No:</span><span class="detail-value">' + value.mig_ref_no + '</span></div>';
                         cardHtml += '<div class="service-detail"><span class="detail-label">Service:</span><span class="detail-value">' + value.mig_service + '</span></div>';
                         cardHtml += '<div class="service-detail"><span class="detail-label">Notes:</span><span class="detail-value">' + value.mig_notes + '</span></div>';
-                    } else if(value.service_type == 'Education') {
-                        cardHtml += '<div class="service-detail"><span class="detail-label">Course:</span><span class="detail-value">' + value.edu_course + '</span></div>';
-                        cardHtml += '<div class="service-detail"><span class="detail-label">College:</span><span class="detail-value">' + value.edu_college + '</span></div>';
-                        cardHtml += '<div class="service-detail"><span class="detail-label">Start Date:</span><span class="detail-value">' + value.edu_service_start_date + '</span></div>';
-                        cardHtml += '<div class="service-detail"><span class="detail-label">Notes:</span><span class="detail-value">' + value.edu_notes + '</span></div>';
                     }
                     
                     cardHtml += '</div></div>';

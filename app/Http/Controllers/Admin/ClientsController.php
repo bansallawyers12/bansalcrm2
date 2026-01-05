@@ -3742,19 +3742,6 @@ class ClientsController extends Controller
                 }
             }
 
-            //Education
-            $educations = DB::table('education')->where('client_id', $request->merge_from)->get(); //dd($educations);
-            if(!empty($educations)){
-                foreach($educations as $edukey=>$eduval){
-                    DB::table('education')
-                    ->where('client_id', $request->merge_from)
-                    ->update([
-                        'client_id' => $request->merge_into,
-                        'updated_at' => now()
-                    ]);
-                }
-            }
-
             //CheckinLogs
             $checkinLogs = DB::table('checkin_logs')->where('client_id', $request->merge_from)->get(); //dd($checkinLogs);
             if(!empty($checkinLogs)){

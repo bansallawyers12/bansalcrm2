@@ -3849,7 +3849,6 @@ if($fetchedData->tagname != ''){
         getBranch: '{{ url("/getbranch") }}',
         clientUpdateSession: '{{ url("/clients/update-session-completed") }}',
         clientFetchContact: '{{ url("/clients/fetchClientContactNo") }}',
-        getSubjects: '{{ url("/getsubjects") }}',
         sendMail: '{{ url("/sendmail") }}',
         clientGetReceiptInfo: '{{ url("/clients/getClientReceiptInfoById") }}',
         // NOTE: addScheduleInvoiceDetail removed - Invoice Schedule feature has been removed

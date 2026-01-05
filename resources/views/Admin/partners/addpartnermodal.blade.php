@@ -687,13 +687,7 @@
 								<label for="subject_area">Subject Area</label> 	
 								<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
 									<option value="">Please Select Subject Area</option>
-									<?php
-									foreach(\App\Models\SubjectArea::all() as $sublist){
-										?>
-										<option value="{{$sublist->id}}">{{$sublist->name}}</option>
-										<?php
-									}
-									?>
+									<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
 								</select>
 								<span class="custom-error subject_area_error" role="alert">
 									<strong></strong>

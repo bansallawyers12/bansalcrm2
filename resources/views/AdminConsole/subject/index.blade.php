@@ -31,7 +31,6 @@
 									<tr>
 										
 										<th>Name</th>
-										<th>Subject Area</th>
 										<th></th>
 									</tr> 
 								</thead>
@@ -39,13 +38,9 @@
 								<?php $i=0; ?>
 								<tbody class="tdata">	
 								@foreach (@$lists as $list)
-								<?php
-								$SubjectArea = \App\Models\SubjectArea::where('id', '=', $list->subject_area)->first();
-								?>
 									<tr id="id_{{@$list->id}}">
 										
-										<td>{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '50', '...') }}</td> 	
-										<td>{{$SubjectArea->name}}</td>	
+										<td>{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, '50', '...') }}</td>	
 										<td>
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>

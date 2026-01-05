@@ -17,7 +17,6 @@ use App\Http\Controllers\Admin\BranchesController;
 use App\Http\Controllers\Admin\UsertypeController;
 use App\Http\Controllers\Admin\UserroleController;
 use App\Http\Controllers\Admin\EmailTemplateController;
-use App\Http\Controllers\Admin\EducationController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\OfficeVisitController;
 use App\Http\Controllers\Admin\ReportController;
@@ -373,16 +372,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
   
 		Route::get('/getintrestedservice', [ClientsController::class, 'getintrestedservice']); 	 
 		Route::post('/application/saleforcastservice', [ClientsController::class, 'saleforcastservice']);
-		Route::get('/getintrestedserviceedit', [ClientsController::class, 'getintrestedserviceedit']); 	 
-		Route::post('/saveeducation', [EducationController::class, 'store']); 	 
-		Route::post('/editeducation', [EducationController::class, 'edit']); 	 
-		Route::get('/get-educations', [EducationController::class, 'geteducations']); 	 
-		Route::get('/getEducationdetail', [EducationController::class, 'getEducationdetail']); 	 
-			 
-		Route::get('/delete-education', [EducationController::class, 'deleteeducation']); 	 
-		Route::post('/edit-test-scores', [EducationController::class, 'edittestscores']); 	 
-		Route::post('/other-test-scores', [EducationController::class, 'othertestscores']); 	 
-		Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']); 	 
+	Route::get('/getintrestedserviceedit', [ClientsController::class, 'getintrestedserviceedit']); 	 
+	Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
 		Route::get('/application/invoice/{client_id}/{application}/{invoice_type}', [InvoiceController::class, 'getInvoice']); 	 
 		Route::get('/invoice/view/{id}', [InvoiceController::class, 'show']); 	 
 		Route::get('/invoice/preview/{id}', [InvoiceController::class, 'getinvoicespdf']); 	 

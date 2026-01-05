@@ -30,7 +30,7 @@ return new class extends Migration
         'check_applications',
         'check_partners',
         'check_products',
-        'checkin_histories',
+        // 'checkin_histories', // Removed - table dropped
         'checkin_logs',
         'checklists',
         'cities',
@@ -42,7 +42,6 @@ return new class extends Migration
         'currencies',
         'document_checklists',
         'documents',
-        'education',
         'email_templates',
         'emails',
         // 'enquiries', // Removed - table dropped (enquiries feature removed)
@@ -89,9 +88,9 @@ return new class extends Migration
         'sources',
         'states',
         'sub_categories',
-        'subject_areas',
+        // 'subject_areas', // Removed - table dropped
         'subjects',
-        'suburbs',
+        // 'suburbs', // Removed - table dropped
         'tags',
         'task_logs',
         'tasks',

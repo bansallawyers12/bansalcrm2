@@ -516,18 +516,6 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
-<div id="confirmEducationModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
-	<div class="modal-dialog">
-		<div class="modal-content popUp">
-			<div class="modal-body text-center">
-				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
-				<h4 class="modal-title text-center message col-v-5">Do you want to delete this note?</h4> 
-				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Delete</button> 
-				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div>
 <div id="confirmcompleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
@@ -1095,53 +1083,6 @@ $(this).addClass('active');
 	$('.ifselecttask select').attr('data-valid', '');
 	
 });*/
-	 var eduid = '';
-    $(document).delegate('.deleteeducation', 'click', function(){
-		eduid = $(this).attr('data-id');
-		$('#confirmEducationModal').modal('show');
-		
-	});
-	
-	$(document).delegate('#confirmEducationModal .accepteducation', 'click', function(){
-	
-		$('.popuploader').show(); 
-		$.ajax({
-			url: '{{URL::to('/')}}/delete-education',
-			type:'GET',
-			datatype:'json',
-			data:{edu_id:eduid},
-			success:function(response){
-				$('.popuploader').hide(); 
-				var res = JSON.parse(response);
-				$('#confirmEducationModal').modal('hide');
-				if(res.status){
-					$('#edu_id_'+eduid).remove();
-				}else{
-					alert('Please try again')
-				}
-			}
-		});
-	});
-    $(document).delegate('#educationform #subjectlist', 'change', function(){
-	
-				var v = $('#educationform #subjectlist option:selected').val();
-				if(v != ''){
-						$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getsubjects')}}',
-			type:'GET',
-			data:{cat_id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('#educationform #subject').html(response);
-				
-				$(".add_appliation #subject").val('').trigger('change');
-			
-			}
-		});
-				}
-	});
-	
 	$(document).delegate('.edit_appointment', 'click', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
@@ -1170,29 +1111,6 @@ $(this).addClass('active');
 			}
 		});
 	});
-	
-	$(document).delegate('.editeducation', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#edit_education').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getEducationdetail')}}',
-			type:'GET',
-			data:{id:v},
-		success:function(response){
-			$('.popuploader').hide();
-			$('.showeducationdetail').html(response);
-			
-			if (typeof flatpickr !== 'undefined') {
-				flatpickr(".datepicker", {
-					dateFormat: "Y-m-d",
-					allowInput: true
-				});
-			}
-		
-		}
-	});
-});
 	
 	$(document).delegate('.interest_service_view', 'click', function(){
 		var v = $(this).attr('data-id');

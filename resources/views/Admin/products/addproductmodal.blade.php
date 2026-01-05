@@ -398,16 +398,10 @@
 				<div class="row">
 					<div class="col-12 col-md-6 col-lg-6">
 						<div class="form-group">
-							<label for="degree_level">Subject Area <span class="span_req">*</span></label> 	
+							<label for="degree_level">Subject Area</label> 	
 							<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
 									<option value="">Please Select Subject Area</option>
-									<?php
-									foreach(\App\Models\SubjectArea::all() as $sublist){
-										?>
-										<option value="{{$sublist->id}}">{{$sublist->name}}</option>
-										<?php
-									}
-									?>
+									<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
 								</select>
 							<span class="custom-error degree_level_error" role="alert">
 								<strong></strong>

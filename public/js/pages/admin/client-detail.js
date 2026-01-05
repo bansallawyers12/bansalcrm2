@@ -3160,18 +3160,13 @@ function showContextMenu(event, row) {
     const myfile = row.getAttribute('data-myfile') || '';
     const myfileKey = row.getAttribute('data-myfile-key') || '';
     const docType = row.getAttribute('data-doc-type') || '';
-    const isEducation = row.getAttribute('data-is-education') === 'true';
     const userRole = parseInt(row.getAttribute('data-user-role') || '0');
-    
-    console.log('Context menu triggered for doc:', docId, 'isEducation:', isEducation);
     
     // Clear existing menu items
     menu.innerHTML = '';
         
-        // Build menu items based on document type
-        if (!isEducation) {
-            // Documents section menu
-            if (checklistName) {
+        // Build menu items
+        if (checklistName) {
                 menu.appendChild(createMenuItem('Rename Checklist', function() {
                     const renameEl = document.querySelector(`.renamechecklist[data-id="${docId}"], .personalchecklist-row[data-id="${docId}"]`);
                     if (renameEl) renameEl.click();
@@ -3283,51 +3278,6 @@ function showContextMenu(event, row) {
             menu.appendChild(createMenuItem('Not Used', function() {
                 const notUsedEl = document.querySelector(`.notuseddoc[data-id="${docId}"]`);
                 if (notUsedEl) notUsedEl.click();
-                hideContextMenu();
-            }));
-        } else {
-            // Education documents section menu
-            menu.appendChild(createMenuItem('Rename', function() {
-                const renameEl = document.querySelector(`.renamedoc[data-id="${docId}"]`);
-                if (renameEl) renameEl.click();
-                hideContextMenu();
-            }));
-            
-            menu.appendChild(createMenuItem('Preview', function() {
-                const previewUrl = (App.getUrl('siteUrl') || window.location.origin) + '/img/documents/' + myfile;
-                window.open(previewUrl, '_blank');
-                hideContextMenu();
-            }));
-            
-            // PDF (only for images)
-            if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
-                menu.appendChild(createMenuItem('PDF', function() {
-                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
-                    window.open(pdfUrl, '_blank');
-                    hideContextMenu();
-                }));
-            }
-            
-            menu.appendChild(createMenuItem('Download', function() {
-                const downloadUrl = (App.getUrl('siteUrl') || window.location.origin) + '/img/documents/' + myfile;
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                a.download = fileName + '.' + fileType;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                hideContextMenu();
-            }));
-            
-            menu.appendChild(createDivider());
-            
-            menu.appendChild(createMenuItem('Delete', function() {
-                const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletedocs"]`);
-                if (deleteEl) {
-                    if (confirm('Are you sure you want to delete this document?')) {
-                        deleteEl.click();
-                    }
-                }
                 hideContextMenu();
             }));
         }

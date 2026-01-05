@@ -18,7 +18,6 @@ use App\Http\Controllers\AdminConsole\PartnerTypeController;
 use App\Http\Controllers\AdminConsole\VisaTypeController;
 use App\Http\Controllers\AdminConsole\MasterCategoryController;
 use App\Http\Controllers\AdminConsole\LeadServiceController;
-use App\Http\Controllers\AdminConsole\SubjectAreaController;
 use App\Http\Controllers\AdminConsole\SubjectController;
 use App\Http\Controllers\AdminConsole\SourceController;
 use App\Http\Controllers\AdminConsole\TagController;
@@ -76,12 +75,8 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     // NOTE: Tax routes have been removed
     // TaxController and taxes table have been dropped
     
-    //Subject Area Routes
-    Route::get('/subjectarea', [SubjectAreaController::class, 'index'])->name('adminconsole.subjectarea.index');  
-    Route::get('/subjectarea/create', [SubjectAreaController::class, 'create'])->name('adminconsole.subjectarea.create');  
-    Route::post('/subjectarea/store', [SubjectAreaController::class, 'store'])->name('adminconsole.subjectarea.store');  
-    Route::get('/subjectarea/edit/{id}', [SubjectAreaController::class, 'edit'])->name('adminconsole.subjectarea.edit');
-    Route::post('/subjectarea/edit', [SubjectAreaController::class, 'edit'])->name('adminconsole.subjectarea.update');
+    // NOTE: Subject Area routes have been removed
+    // SubjectAreaController and subject_areas table have been dropped
     
     //Subject Routes
     Route::get('/subject', [SubjectController::class, 'index'])->name('adminconsole.subject.index');

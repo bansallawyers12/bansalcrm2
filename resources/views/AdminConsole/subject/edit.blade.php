@@ -46,12 +46,10 @@
 												</div>
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
-														<label for="name">Subject Area <span class="span_req">*</span></label>
+														<label for="name">Subject Area</label>
 														<select class="form-control select2" name="subjectarea">
 															<option value=""></option>
-															@foreach(\App\Models\SubjectArea::all() as $alist)
-																<option @if($alist->id == $fetchedData->subject_area) selected @endif value="{{$alist->id}}">{{$alist->name}}</option>
-															@endforeach
+															<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
 														</select>
 														@if ($errors->has('name'))
 															<span class="custom-error" role="alert">
