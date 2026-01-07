@@ -3164,158 +3164,157 @@ function showContextMenu(event, row) {
     
     // Clear existing menu items
     menu.innerHTML = '';
-        
-        // Build menu items
-        if (checklistName) {
-                menu.appendChild(createMenuItem('Rename Checklist', function() {
-                    const renameEl = document.querySelector(`.renamechecklist[data-id="${docId}"], .personalchecklist-row[data-id="${docId}"]`);
-                    if (renameEl) renameEl.click();
-                    hideContextMenu();
-                }));
+    
+    // Build menu items
+    if (checklistName) {
+        menu.appendChild(createMenuItem('Rename Checklist', function() {
+            const renameEl = document.querySelector(`.renamechecklist[data-id="${docId}"], .personalchecklist-row[data-id="${docId}"]`);
+            if (renameEl) renameEl.click();
+            hideContextMenu();
+        }));
+    }
+    
+    if (fileName) {
+        menu.appendChild(createMenuItem('Rename File Name', function() {
+            const renameEl = document.querySelector(`.renamealldoc[data-id="${docId}"]`);
+            if (renameEl) renameEl.click();
+            hideContextMenu();
+        }));
+    }
+    
+    menu.appendChild(createDivider());
+    
+    // Preview
+    menu.appendChild(createMenuItem('Preview', function() {
+        if (myfileKey) {
+            // New file upload
+            if (typeof previewFile === 'function') {
+                const fileUrl = window.location.origin + '/' + myfile.replace(/^\//, '');
+                previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
             }
-            
-            if (fileName) {
-                menu.appendChild(createMenuItem('Rename File Name', function() {
-                    const renameEl = document.querySelector(`.renamealldoc[data-id="${docId}"]`);
-                    if (renameEl) renameEl.click();
-                    hideContextMenu();
-                }));
-            }
-            
-            menu.appendChild(createDivider());
-            
-            // Preview
-            menu.appendChild(createMenuItem('Preview', function() {
-                if (myfileKey) {
-                    // New file upload
-                    if (typeof previewFile === 'function') {
-                        const fileUrl = window.location.origin + '/' + myfile.replace(/^\//, '');
-                        previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
-                    }
-                } else {
-                    // Old file upload
-                    const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
-                    const clientId = window.PageConfig?.clientId || '';
-                    const fileUrl = url + clientId + '/' + docType + '/' + myfile;
-                    window.open(fileUrl, '_blank');
-                }
-                hideContextMenu();
-            }));
-            
-            // PDF (only for images)
-            if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
-                menu.appendChild(createMenuItem('PDF', function() {
-                    const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
-                    window.open(pdfUrl, '_blank');
-                    hideContextMenu();
-                }));
-            }
-            
-            // Download
-            menu.appendChild(createMenuItem('Download', function() {
-                if (myfileKey) {
-                    const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
-                    if (downloadEl) {
-                        downloadEl.click();
-                    } else {
-                        // Create and trigger download
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/download-document');
-                        form.target = '_blank';
-                        form.innerHTML = `
-                            <input type="hidden" name="_token" value="${App.getCsrf()}">
-                            <input type="hidden" name="filelink" value="${myfile}">
-                            <input type="hidden" name="filename" value="${myfileKey}">
-                        `;
-                        document.body.appendChild(form);
-                        form.submit();
-                        form.remove();
-                    }
-                } else {
-                    const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
-                    const clientId = window.PageConfig?.clientId || '';
-                    const fileUrl = url + clientId + '/' + docType + '/' + myfile;
-                    const downloadEl = document.querySelector(`.download-file[data-filelink*="${myfile}"]`);
-                    if (downloadEl) {
-                        downloadEl.click();
-                    } else {
-                        // Direct download
-                        const a = document.createElement('a');
-                        a.href = fileUrl;
-                        a.download = fileName + '.' + fileType;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                    }
-                }
-                hideContextMenu();
-            }));
-            
-            menu.appendChild(createDivider());
-            
-            // Delete (only for super admin)
-            if (userRole === 1) {
-                menu.appendChild(createMenuItem('Delete', function() {
-                    const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletealldocs"]`);
-                    if (deleteEl) {
-                        if (confirm('Are you sure you want to delete this document?')) {
-                            deleteEl.click();
-                        }
-                    }
-                    hideContextMenu();
-                }));
-            }
-            
-            // Verify
-            menu.appendChild(createMenuItem('Verify', function() {
-                const verifyEl = document.querySelector(`.verifydoc[data-id="${docId}"]`);
-                if (verifyEl) verifyEl.click();
-                hideContextMenu();
-            }));
-            
-            // Not Used
-            menu.appendChild(createMenuItem('Not Used', function() {
-                const notUsedEl = document.querySelector(`.notuseddoc[data-id="${docId}"]`);
-                if (notUsedEl) notUsedEl.click();
-                hideContextMenu();
-            }));
+        } else {
+            // Old file upload
+            const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
+            const clientId = window.PageConfig?.clientId || '';
+            const fileUrl = url + clientId + '/' + docType + '/' + myfile;
+            window.open(fileUrl, '_blank');
         }
-        
-        // Position menu
-        menu.style.left = event.pageX + 'px';
-        menu.style.top = event.pageY + 'px';
-        menu.classList.add('show');
-        
-        // Hide menu on outside click
-        setTimeout(() => {
-            document.addEventListener('click', hideContextMenu, { once: true });
-            document.addEventListener('contextmenu', hideContextMenu, { once: true });
-        }, 0);
+        hideContextMenu();
+    }));
+    
+    // PDF (only for images)
+    if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
+        menu.appendChild(createMenuItem('PDF', function() {
+            const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
+            window.open(pdfUrl, '_blank');
+            hideContextMenu();
+        }));
     }
     
-    function hideContextMenu() {
-        if (contextMenu) {
-            contextMenu.classList.remove('show');
+    // Download
+    menu.appendChild(createMenuItem('Download', function() {
+        if (myfileKey) {
+            const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
+            if (downloadEl) {
+                downloadEl.click();
+            } else {
+                // Create and trigger download
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/download-document');
+                form.target = '_blank';
+                form.innerHTML = `
+                    <input type="hidden" name="_token" value="${App.getCsrf()}">
+                    <input type="hidden" name="filelink" value="${myfile}">
+                    <input type="hidden" name="filename" value="${myfileKey}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+                form.remove();
+            }
+        } else {
+            const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
+            const clientId = window.PageConfig?.clientId || '';
+            const fileUrl = url + clientId + '/' + docType + '/' + myfile;
+            const downloadEl = document.querySelector(`.download-file[data-filelink*="${myfile}"]`);
+            if (downloadEl) {
+                downloadEl.click();
+            } else {
+                // Direct download
+                const a = document.createElement('a');
+                a.href = fileUrl;
+                a.download = fileName + '.' + fileType;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
-        currentDocumentRow = null;
+        hideContextMenu();
+    }));
+    
+    menu.appendChild(createDivider());
+    
+    // Delete (only for super admin)
+    if (userRole === 1) {
+        menu.appendChild(createMenuItem('Delete', function() {
+            const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletealldocs"]`);
+            if (deleteEl) {
+                if (confirm('Are you sure you want to delete this document?')) {
+                    deleteEl.click();
+                }
+            }
+            hideContextMenu();
+        }));
     }
     
-    function createMenuItem(text, onClick) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.textContent = text;
-        a.href = 'javascript:;';
-        a.addEventListener('click', onClick);
-        li.appendChild(a);
-        return li;
-    }
+    // Verify
+    menu.appendChild(createMenuItem('Verify', function() {
+        const verifyEl = document.querySelector(`.verifydoc[data-id="${docId}"]`);
+        if (verifyEl) verifyEl.click();
+        hideContextMenu();
+    }));
     
-    function createDivider() {
-        const li = document.createElement('li');
-        li.className = 'divider';
-        return li;
+    // Not Used
+    menu.appendChild(createMenuItem('Not Used', function() {
+        const notUsedEl = document.querySelector(`.notuseddoc[data-id="${docId}"]`);
+        if (notUsedEl) notUsedEl.click();
+        hideContextMenu();
+    }));
+    
+    // Position menu
+    menu.style.left = event.pageX + 'px';
+    menu.style.top = event.pageY + 'px';
+    menu.classList.add('show');
+    
+    // Hide menu on outside click
+    setTimeout(() => {
+        document.addEventListener('click', hideContextMenu, { once: true });
+        document.addEventListener('contextmenu', hideContextMenu, { once: true });
+    }, 0);
+}
+
+function hideContextMenu() {
+    if (contextMenu) {
+        contextMenu.classList.remove('show');
     }
+    currentDocumentRow = null;
+}
+
+function createMenuItem(text, onClick) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.textContent = text;
+    a.href = 'javascript:;';
+    a.addEventListener('click', onClick);
+    li.appendChild(a);
+    return li;
+}
+
+function createDivider() {
+    const li = document.createElement('li');
+    li.className = 'divider';
+    return li;
+}
     
 // Attach context menu to document rows
 document.addEventListener('DOMContentLoaded', function() {
