@@ -32,21 +32,13 @@
 	align-items: flex-start;
 }
 
-/* Left Sidebar - Fixed Width (Avatar Section) */
-.left_section {
-	width: 280px;
-	min-width: 280px;
-	max-width: 280px;
-	flex-shrink: 0;
-}
-
 /* Bottom Row Container - Holds Personal Details and Third Section */
 .bottom-row-container {
 	display: flex;
 	flex-direction: row;
 	gap: 24px;
 	width: 100%;
-	align-items: flex-start;
+	align-items: stretch;
 }
 
 /* Personal Details Container - Fixed Width */
@@ -64,7 +56,6 @@
 }
 
 /* Ensure cards inside containers don't overflow */
-.left_section .card,
 .personal-details-container .card {
 	margin-left: 0 !important;
 	margin-right: 0 !important;
@@ -910,14 +901,17 @@ use App\Http\Controllers\Controller;
             <?php }?>
 
 		<div class="client-detail-container">
-			<div class="left_section">
-					<div class="card author-box left_section_upper">
-						<div class="card-body">
+			<!-- Bottom Row: Personal Details (with Avatar) + Third Section -->
+			<div class="bottom-row-container">
+				<div class="personal-details-container">
+					<div class="card left_section_lower">
+						<!-- Avatar Section at Top -->
+						<div class="card-body" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; padding: 20px; color: white;">
 							<div class="author-box-center">
 								<span class="author-avtar"><b>{{substr($fetchedData->first_name, 0, 1)}}{{substr($fetchedData->last_name, 0, 1)}}</b></span>
 								<div class="author-box-name">
-									<a href="#">{{$fetchedData->first_name}} {{$fetchedData->last_name}}</a>
-									<span>{{$fetchedData->client_id}}</span>
+									<a href="#" style="color: white; text-decoration: none;">{{$fetchedData->first_name}} {{$fetchedData->last_name}}</a>
+									<span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">{{$fetchedData->client_id}}</span>
 								</div>
 							</div>
 								
@@ -935,7 +929,7 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 							
-							<div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;">
+							<div style="display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap;">
 								<a onclick="return confirm('Are you sure?')" class="badge-outline col-greenf <?php if($fetchedData->type == 'client'){ echo 'active'; } ?>" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/client')}}">Client</a>
 								<a onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
 							</div>
@@ -1007,8 +1001,7 @@ use App\Http\Controllers\Controller;
 									<button  class=&quot;btn btn-danger&quot; id=&quot;assignUser&quot;>Assign User</button>
 									</div>
 							    </div>
-					    </div>" data-original-title="" title=""> Action</button></p>
-							</div>
+					    </div>" data-original-title="" title="" style="background: rgba(255, 255, 255, 0.95); color: var(--primary-color); padding: 10px; font-size: 13px;"> Action</button>
 							<?php
 									// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 									$agent = null;
@@ -1017,7 +1010,7 @@ use App\Http\Controllers\Controller;
 									}
 									if($agent){
 										?>
-										<div class="client_assign client_info_tags">
+										<div class="client_assign client_info_tags" style="margin-top: 12px;">
 																<span class=""><b>Agent:</b></span>
 																@if($agent)
 																<div class="client_info">
@@ -1035,13 +1028,8 @@ use App\Http\Controllers\Controller;
 									}
 								?>
 						</div>
-					</div>
-			</div> <!-- end left_section (Avatar) -->
-
-			<!-- Bottom Row: Personal Details + Third Section -->
-			<div class="bottom-row-container">
-				<div class="personal-details-container">
-					<div class="card left_section_lower">
+						
+						<!-- Personal Details Section -->
 						<div class="card-header">
 							<div style="display: flex; align-items: center; gap: 8px;">
 								<h4>Personal Details</h4>
