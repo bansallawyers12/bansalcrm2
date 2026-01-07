@@ -701,6 +701,26 @@ $(function () {
       });
     }
 
+    // Start and End date pickers (for application detail)
+    if ($(".startdatepicker, .enddatepicker").length) {
+      $(".startdatepicker, .enddatepicker").each(function() {
+        flatpickr(this, {
+          dateFormat: "Y-m-d",
+          allowInput: true
+        });
+      });
+    }
+
+    // Datepicker input class (for partners detail)
+    if ($(".datepicker-input").length) {
+      $(".datepicker-input").each(function() {
+        flatpickr(this, {
+          dateFormat: "d/m/Y",
+          allowInput: true
+        });
+      });
+    }
+
     // Contract expiry
     if ($(".contract_expiry").length) {
       $(".contract_expiry").each(function() {

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\CheckinLog;
-use App\Models\CheckinHistory;
+// use App\Models\CheckinHistory; // Removed - table dropped
 use App\Models\ActivitiesLog;
  
 use Auth;
@@ -59,11 +59,12 @@ class OfficeVisitController extends Controller
 	    	$o->message = 'Office visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
-			$objs = new CheckinHistory;
-			$objs->subject = 'has created check-in';
-			$objs->created_by = Auth::user()->id;
-			$objs->checkin_id = $obj->id;
-			$objs->save();
+			// NOTE: CheckinHistory removed - table dropped
+			// $objs = new CheckinHistory;
+			// $objs->subject = 'has created check-in';
+			// $objs->created_by = Auth::user()->id;
+			// $objs->checkin_id = $obj->id;
+			// $objs->save();
 			
 			// Create activity log for clients (not leads)
 			if($requestData['utype'] == 'Client') {
@@ -246,27 +247,29 @@ class OfficeVisitController extends Controller
 						<h4>Logs</h4>
 						<div class="logsdata">
 						<?php
-						$logslist = CheckinHistory::where('checkin_id',$CheckinLog->id)->orderby('created_at', 'DESC')->get();						
-						foreach($logslist as $llist){
-							$admin = \App\Models\Admin::where('id', $llist->created_by)->first();
-						?>
-							<div class="logsitem">
-								<div class="row">
-									<div class="col-md-7">
-										<span class="ag-avatar"><?php echo substr($admin->first_name, 0, 1); ?></span>
-										<span class="text_info"><span><?php echo $admin->first_name; ?></span><?php echo $llist->subject; ?></span>
-									</div>
-									<div class="col-md-5">
-										<span class="logs_date"><?php echo date('d M Y h:i A', strtotime($llist->created_at)); ?></span>
-									</div>
-									<?php if($llist->description != ''){ ?>
-									<div class="col-md-12 logs_comment">
-										<p><?php echo $llist->description; ?></p>
-									</div>
-									<?php } ?>
-								</div>
-							</div>
-						<?php } ?> 
+						// NOTE: CheckinHistory removed - table dropped
+						// $logslist = CheckinHistory::where('checkin_id',$CheckinLog->id)->orderby('created_at', 'DESC')->get();						
+						// foreach($logslist as $llist){
+						// 	$admin = \App\Models\Admin::where('id', $llist->created_by)->first();
+						// ?>
+						// 	<div class="logsitem">
+						// 		<div class="row">
+						// 			<div class="col-md-7">
+						// 				<span class="ag-avatar"><?php echo substr($admin->first_name, 0, 1); ?></span>
+						// 				<span class="text_info"><span><?php echo $admin->first_name; ?></span><?php echo $llist->subject; ?></span>
+						// 			</div>
+						// 			<div class="col-md-5">
+						// 				<span class="logs_date"><?php echo date('d M Y h:i A', strtotime($llist->created_at)); ?></span>
+						// 			</div>
+						// 			<?php if($llist->description != ''){ ?>
+						// 			<div class="col-md-12 logs_comment">
+						// 				<p><?php echo $llist->description; ?></p>
+						// 			</div>
+						// 			<?php } ?>
+						// 		</div>
+						// 	</div>
+						// <?php } ?> 
+						<p class="text-muted">Check-in history logs have been removed.</p>
 						</div>
 					</div>
 				</div>
@@ -343,19 +346,22 @@ class OfficeVisitController extends Controller
 	}
 	
 	public function update_visit_comment(Request $request){
-		$objs = new CheckinHistory;
-		$objs->subject = 'has commented';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$objs->description = $request->visit_comment;
-		$saved = $objs->save();
-		if($saved){
-			$response['status'] 	= 	true;
-			$response['message']	=	'saved successfully';
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has commented';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $objs->description = $request->visit_comment;
+		// $saved = $objs->save();
+		// if($saved){
+		// 	$response['status'] 	= 	true;
+		// 	$response['message']	=	'saved successfully';
+		// }else{
+		// 	$response['status'] 	= 	false;
+		// 	$response['message']	=	'Please try again';
+		// }
+		$response['status'] 	= 	true;
+		$response['message']	=	'Comment feature disabled - CheckinHistory table removed';
 		echo json_encode($response);
 	}
 	
@@ -444,11 +450,13 @@ class OfficeVisitController extends Controller
 			//$response['message']	=	'Updated successfully';
 		}
 
-		$objs = new CheckinHistory;
-		$objs->subject = 'has started session';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has started session';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $saved = $objs->save();
+		$saved = true; // Set to true since we're not saving to CheckinHistory anymore
 		
 		// Create activity log for clients
 		if($obj->contact_type == 'Client') {
@@ -479,11 +487,12 @@ class OfficeVisitController extends Controller
 		$obj->status = 1;
 		$saved = $obj->save();
 		
-		$objs = new CheckinHistory;
-		$objs->subject = 'has completed session';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has completed session';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $saved = $objs->save();
 		
 		// Create activity log for clients
 		if($obj->contact_type == 'Client') {

@@ -96,7 +96,8 @@ function isNumberKey1(evt)
 console.log(timestring);
         document.getElementById("popoverdate").value = dateinput;
         document.getElementById("popovertime").value = timestring;
-        $('#embeddingDatePicker').datepicker('update' , datinput );
+        // Removed datepicker call - using Flatpickr/HTML5 date inputs now
+        // $('#embeddingDatePicker').datepicker('update' , datinput );
 		
         var d = new Date(datearray[2], datearray[1], datearray[0] , datearray[3] ,datearray[4] );
         var realdate = convertDateFormat(d , "yyyy-mm-dd");
@@ -146,7 +147,8 @@ console.log(timestring);
                          console.log("Date can not be less than today's date");
                         return false;
                     }
-                    $('#embeddingDatePicker').datepicker('update' , val );
+                    // Removed datepicker call - using Flatpickr/HTML5 date inputs now
+                    // $('#embeddingDatePicker').datepicker('update' , val );
 
 
                     var currentdateformt = convertDateFormat(updatedate , "yyyy-mm-dd");
@@ -202,7 +204,8 @@ console.log(timestring);
                         var realdatestring = convertDateFormat(updatedate , "yyyy-mm-dd");
                         var inputdateString = convertDateFormat(updatedate,"ddyyyy-mm-dd");
                         $("#popoverdate").val(inputdateString);
-                        $('#embeddingDatePicker').datepicker('update' , inputdateString );
+                        // Removed datepicker call - using Flatpickr/HTML5 date inputs now
+                        // $('#embeddingDatePicker').datepicker('update' , inputdateString );
                         var datevalue = realdatestring+" "+hours+":"+minutes+":00";
                         $("#popoverrealdate").val(datevalue);
                     }
@@ -303,8 +306,14 @@ console.log(timestring);
         $('.js-data-example-ajaxccsearch__addmytask').select2({
             closeOnSelect: true,
             ajax: {
-                url: '/clients/get-allclients',
+                url: '/clients/get-recipients',
                 dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page || 1
+                    };
+                },
                 processResults: function (data) {
                     // Transforms the top-level key of the response object from 'items' to 'results'
                     return {
@@ -340,35 +349,31 @@ console.log(timestring);
         $("#popovertime").val(timeformat);
         $("#popoverrealdate").val(realdateinput+" "+hoursval+":"+minutesval+":00");
 		
-        $('#embeddingDatePicker').datepicker('update' , popoverdatinput );
+        // Removed datepicker initialization - using Flatpickr/HTML5 date inputs now
+        // $('#embeddingDatePicker').datepicker('update' , popoverdatinput );
         $("#hrs2").wrap("<b></b>");
 		              
- var date = new Date();
-                    date.setDate(date.getDate() - 0);
-
-
-                    $('#embeddingDatePicker')
-                        .datepicker({
-
-                            startDate: date,
-                        })
-                        .on('changeDate', function(e) {
-                            // Set the value for the date input
-console.log(e);
-                            var datestring = $("#embeddingDatePicker").datepicker('getFormattedDate');
-							  datestring = datestring.split("/")
-                            $("#popoverdate").val(datestring[2]+"-"+datestring[0]+"-"+datestring[1]);
-                            var d = new Date();
-                            var realdate = convertDateFormat(e.date , "yyyy-mm-dd");
-                            var hours = d.getHours() ;
-                            var minutes = d.getMinutes();
-
-                            $("#popovertime").val(formatAMPM(hours,minutes));
-                            hours = hours < 10 ? '0'+hours : hours;
-                            minutes = minutes < 10 ? '0'+minutes : minutes;
-                            $("#popoverrealdate").val(realdate+" "+hours+":"+minutes+":00");
-
-                        });
+        // Removed datepicker initialization - migrated to Flatpickr
+        // The action page now uses HTML5 date input (popoverdatetime) instead
+        // var date = new Date();
+        // date.setDate(date.getDate() - 0);
+        // $('#embeddingDatePicker')
+        //     .datepicker({
+        //         startDate: date,
+        //     })
+        //     .on('changeDate', function(e) {
+        //         var datestring = $("#embeddingDatePicker").datepicker('getFormattedDate');
+        //         datestring = datestring.split("/")
+        //         $("#popoverdate").val(datestring[2]+"-"+datestring[0]+"-"+datestring[1]);
+        //         var d = new Date();
+        //         var realdate = convertDateFormat(e.date , "yyyy-mm-dd");
+        //         var hours = d.getHours() ;
+        //         var minutes = d.getMinutes();
+        //         $("#popovertime").val(formatAMPM(hours,minutes));
+        //         hours = hours < 10 ? '0'+hours : hours;
+        //         minutes = minutes < 10 ? '0'+minutes : minutes;
+        //         $("#popoverrealdate").val(realdate+" "+hours+":"+minutes+":00");
+        //     });
     });
     
     

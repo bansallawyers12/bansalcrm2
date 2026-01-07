@@ -33,6 +33,24 @@ class SearchService
     }
 
     /**
+     * Safely encode client/lead ID for URL
+     */
+    protected function encodeId($id)
+    {
+        if (empty($id) || !is_numeric($id)) {
+            return '';
+        }
+        
+        try {
+            $encoded = convert_uuencode((string)$id);
+            return base64_encode($encoded);
+        } catch (\Exception $e) {
+            // Fallback to simple base64 encoding if convert_uuencode fails
+            return base64_encode((string)$id);
+        }
+    }
+
+    /**
      * Main search method
      */
     public function search()
@@ -163,22 +181,31 @@ class SearchService
             ->get();
 
         return $clients->map(function ($client) {
-            $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
-            $badgeColor = $client->is_archived == 1 ? 'gray' : ($client->type == 'lead' ? 'blue' : 'yellow');
+            if (empty($client->id)) {
+                return null; // Skip records without ID
+            }
+            
+            $displayType = ($client->type ?? '') == 'lead' ? 'Lead' : 'Client';
+            $isArchived = ($client->is_archived ?? 0) == 1;
+            $badgeColor = $isArchived ? 'gray' : (($client->type ?? '') == 'lead' ? 'blue' : 'yellow');
+            
+            $firstName = $client->first_name ?? '';
+            $lastName = $client->last_name ?? '';
+            $fullName = trim($firstName . ' ' . $lastName);
             
             return [
-                'name' => $this->highlightMatch($client->first_name . ' ' . $client->last_name),
+                'name' => $this->highlightMatch($fullName ?: 'Unknown'),
                 'email' => $this->highlightMatch($client->email ?? ''),
                 'phone' => $this->highlightMatch($client->phone ?? ''),
-                'client_id' => $client->client_id,
-                'status' => $client->is_archived == 1 ? 'Archived' : $displayType,
+                'client_id' => $client->client_id ?? null,
+                'status' => $isArchived ? 'Archived' : $displayType,
                 'type' => 'Client', // Always route to client detail page
-                'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
+                'id' => $this->encodeId($client->id) . '/Client',
                 'raw_id' => $client->id,
                 'category' => 'clients',
                 'badge_color' => $badgeColor
             ];
-        })->toArray();
+        })->filter()->values()->toArray();
     }
 
     /**
@@ -244,19 +271,27 @@ class SearchService
             ->get();
 
         return $leads->map(function ($lead) {
+            if (empty($lead->id)) {
+                return null; // Skip records without ID
+            }
+            
+            $firstName = $lead->first_name ?? '';
+            $lastName = $lead->last_name ?? '';
+            $fullName = trim($firstName . ' ' . $lastName);
+            
             return [
-                'name' => $this->highlightMatch($lead->first_name . ' ' . $lead->last_name),
+                'name' => $this->highlightMatch($fullName ?: 'Unknown'),
                 'email' => $this->highlightMatch($lead->email ?? ''),
                 'phone' => $this->highlightMatch($lead->phone ?? ''),
                 'client_id' => null,
                 'status' => 'Lead',
                 'type' => 'Lead',
-                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
+                'id' => $this->encodeId($lead->id) . '/Lead',
                 'raw_id' => $lead->id,
                 'category' => 'leads',
                 'badge_color' => 'blue'
             ];
-        })->toArray();
+        })->filter()->values()->toArray();
     }
 
 

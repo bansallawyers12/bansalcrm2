@@ -950,6 +950,9 @@ jQuery(document).ready(function($){
 			flag = false;
 		}
         if(flag){
+			// Debug: Log the client_id value before sending
+			console.log('Client ID value:', $('#assign_client_id').val());
+			
 			$.ajax({
 				type:'post',
                 url:"{{URL::to('/')}}/clients/personalfollowup/store",
@@ -972,6 +975,21 @@ jQuery(document).ready(function($){
                         $('.yajra-datatable').DataTable().draw(false);
                         //location.reload();
                     }
+                },
+                error: function(xhr, status, error) {
+                    $('.popuploader').hide();
+                    console.error('AJAX Error:', error);
+                    console.error('Response:', xhr.responseText);
+                    var errorMessage = 'An error occurred. Please try again.';
+                    try {
+                        var errorObj = $.parseJSON(xhr.responseText);
+                        if(errorObj.message) {
+                            errorMessage = errorObj.message;
+                        }
+                    } catch(e) {
+                        errorMessage = xhr.responseText || error;
+                    }
+                    alert(errorMessage);
                 }
 			});
 		}else{

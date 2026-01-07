@@ -4019,20 +4019,15 @@ if($fetchedData->tagname != ''){
             $('#activity_type_input').val(type);
         });
 
-        // Initialize Date Pickers
+        // Initialize Date Pickers with Flatpickr
         if (typeof flatpickr !== 'undefined') {
             flatpickr('.date-filter', {
                 dateFormat: 'Y-m-d',
                 allowInput: true,
                 altInput: false
             });
-        } else if (typeof jQuery !== 'undefined' && jQuery.fn.datetimepicker) {
-            // Fallback to datetimepicker if flatpickr not available
-            $('.date-filter').datetimepicker({
-                format: 'Y-m-d',
-                timepicker: false,
-                datepicker: true
-            });
+        } else {
+            console.warn('Flatpickr is not available. Please ensure vendor-libs.js is loaded.');
         }
 
         // Auto-submit form on Enter key in search box

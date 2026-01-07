@@ -3107,20 +3107,48 @@ class ClientsController extends Controller
     //personal followup
     public function personalfollowup(Request $request){
 	    $requestData 		= 	$request->all();
-        //echo '<pre>'; print_r($requestData); die;
+        
+        // Debug logging (remove in production)
+        \Log::info('personalfollowup request data: ', $requestData);
 
-        if( isset($requestData['client_id']) && strpos($requestData['client_id'],"/")){
-            $req_client_arr = explode("/",$requestData['client_id']);
-            if(!empty($req_client_arr)){
-                $req_clientID = $req_client_arr[0];
-                $client_id = $this->decodeString($req_clientID );
-                //echo $req_clientID."====".$client_id;die;
+        $client_id = null;
+        $req_clientID = "";
+        
+        if( isset($requestData['client_id']) && $requestData['client_id'] != ''){
+            // Check if client_id contains "/" (encoded format)
+            if(strpos($requestData['client_id'],"/") !== false){
+                $req_client_arr = explode("/",$requestData['client_id']);
+                if(!empty($req_client_arr)){
+                    $req_clientID = $req_client_arr[0];
+                    $client_id = $this->decodeString($req_clientID);
+                    if($client_id === false){
+                        $client_id = null;
+                    }
+                }
+            } 
+            // Check if client_id is a raw integer (from Select2)
+            elseif(is_numeric($requestData['client_id'])){
+                $client_id = (int)$requestData['client_id'];
+                $req_clientID = $requestData['client_id'];
             }
-        } else {
-            $req_clientID = "";
-            $client_id = "";
+            // Try to decode if it's an encoded string without "/"
+            else {
+                $decoded = $this->decodeString($requestData['client_id']);
+                if($decoded !== false){
+                    $client_id = $decoded;
+                    $req_clientID = $requestData['client_id'];
+                }
+            }
         }
-        //echo "####".$this->decodeString(@$requestData['client_id']);die;
+        
+        \Log::info('personalfollowup parsed client_id: ' . $client_id);
+
+        // Validate that client_id was successfully parsed
+        if($client_id === null || $client_id === ''){
+            \Log::error('personalfollowup: Invalid client_id. Request: ' . json_encode($requestData));
+            echo json_encode(array('success' => false, 'message' => 'Invalid client ID. Please select a valid client.', 'clientID' => $req_clientID));
+            exit;
+        }
 
         /*if(\App\Models\Note::where('client_id',$requestData['client_id'])->where('assigned_to',$requestData['rem_cat'])->exists())
         {
@@ -3135,25 +3163,47 @@ class ClientsController extends Controller
 		$followup->folloup	= 1;
         $followup->task_group = @$requestData['task_group'];
 		$followup->assigned_to	= @$requestData['rem_cat'];
+		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		$followup->type = 'client'; // Required field - mark as client type
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
 		    $followup->followup_date	=  @$requestData['followup_datetime'];
 		}
-        $saved	=	$followup->save();
+        try {
+            $saved	=	$followup->save();
+        } catch (\Exception $e) {
+            \Log::error('Error saving followup in personalfollowup: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
+            echo json_encode(array('success' => false, 'message' => 'Error saving action: ' . $e->getMessage(), 'clientID' => $client_id));
+            exit;
+        }
+        
         if(!$saved)
 		{
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'clientID' => $client_id)); //$requestData['client_id']
 		}
 		else
 		{
-			$o = new \App\Models\Notification;
-	    	$o->sender_id = Auth::user()->id;
-	    	$o->receiver_id = @$requestData['rem_cat'];
-	    	$o->module_id = '';//$this->decodeString(@$requestData['client_id']);
-	    	$o->url = '';//\URL::to('/clients/detail/'.@$requestData['client_id']);
-	    	$o->notification_type = 'client';
-	    	$o->message = 'Personal Task Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($requestData['followup_datetime']));
-	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
-	    	$o->save();
+			// Validate receiver_id before creating notification
+			if(isset($requestData['rem_cat']) && $requestData['rem_cat'] != ''){
+				$o = new \App\Models\Notification;
+				$o->sender_id = Auth::user()->id;
+				$o->receiver_id = $requestData['rem_cat'];
+				$o->module_id = $client_id; // Use the parsed client_id (integer)
+				$o->url = route('clients.detail', base64_encode(convert_uuencode($client_id)));
+				$o->notification_type = 'client';
+				// Safely format date
+				$followupDateText = '';
+				if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
+					$timestamp = strtotime($requestData['followup_datetime']);
+					if($timestamp !== false){
+						$followupDateText = ' '.date('d/M/Y h:i A', $timestamp);
+					}
+				}
+				$o->message = 'Personal Task Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.$followupDateText;
+				$o->seen = 0; // Set seen to 0 (unseen) for new notifications
+				$o->save();
+			}
 
 			$objs = new ActivitiesLog;
             $objs->client_id = $client_id;//$this->decodeString(@$requestData['client_id']);
