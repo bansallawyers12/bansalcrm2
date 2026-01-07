@@ -26,20 +26,35 @@
 /* Client Detail Container - Pure Flexbox Layout */
 .client-detail-container {
 	display: flex;
+	flex-direction: column;
 	gap: 24px;
 	width: 100%;
 	align-items: flex-start;
 }
 
-/* Left Sidebar - Fixed Width */
+/* Left Sidebar - Fixed Width (Avatar Section) */
 .left_section {
-	width: 330px;
-	min-width: 330px;
-	max-width: 330px;
+	width: 280px;
+	min-width: 280px;
+	max-width: 280px;
 	flex-shrink: 0;
+}
+
+/* Bottom Row Container - Holds Personal Details and Third Section */
+.bottom-row-container {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	gap: 24px;
+	width: 100%;
+	align-items: flex-start;
+}
+
+/* Personal Details Container - Fixed Width */
+.personal-details-container {
+	width: 280px;
+	min-width: 280px;
+	max-width: 280px;
+	flex-shrink: 0;
 }
 
 /* Right Section - Takes Remaining Space */
@@ -48,8 +63,9 @@
 	min-width: 0;
 }
 
-/* Ensure cards inside sidebar don't overflow */
-.left_section .card {
+/* Ensure cards inside containers don't overflow */
+.left_section .card,
+.personal-details-container .card {
 	margin-left: 0 !important;
 	margin-right: 0 !important;
 }
@@ -79,7 +95,7 @@
 }
 
 .author-box.left_section_upper .card-body {
-	padding: 20px;
+	padding: 14px;
 	color: white;
 	position: relative;
 	z-index: 1;
@@ -89,58 +105,58 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: 20px;
+	margin-bottom: 12px;
 }
 
 .author-avtar {
-	width: 70px !important;
-	height: 70px !important;
+	width: 55px !important;
+	height: 55px !important;
 	border-radius: var(--radius-full) !important;
 	background: linear-gradient(135deg, var(--secondary-color), #0891b2) !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 28px !important;
+	font-size: 22px !important;
 	font-weight: 700 !important;
 	color: white !important;
-	margin-bottom: 12px;
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-	border: 3px solid rgba(255, 255, 255, 0.2) !important;
+	margin-bottom: 8px;
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+	border: 2px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .author-box-name {
 	text-align: center;
-	margin-bottom: 20px;
+	margin-bottom: 12px;
 }
 
 .author-box-name a {
 	color: white !important;
-	font-size: 18px;
+	font-size: 15px;
 	font-weight: 700;
 	text-decoration: none;
 }
 
 .author-box-name span {
 	color: rgba(255, 255, 255, 0.9);
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 500;
 	letter-spacing: 0.5px;
 	display: block;
-	margin-top: 6px;
+	margin-top: 4px;
 }
 
 .author-mail_sms {
 	display: flex;
-	gap: 10px;
+	gap: 8px;
 	justify-content: center;
-	margin: 20px 0;
+	margin: 12px 0;
 	flex-wrap: wrap;
 }
 
 .author-mail_sms > a,
 .author-mail_sms > span {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	border-radius: var(--radius-full);
 	background: rgba(255, 255, 255, 0.15);
 	backdrop-filter: blur(10px);
@@ -160,23 +176,23 @@
 }
 
 .author-mail_sms > a i {
-	font-size: 14px;
+	font-size: 12px;
 	color: white;
 }
 
 .author-box.left_section_upper p:has(.badge-outline) {
 	display: flex;
-	gap: 10px;
+	gap: 8px;
 	justify-content: center;
-	margin-bottom: 18px;
+	margin-bottom: 12px;
 	flex-wrap: wrap;
 }
 
 .author-box.left_section_upper .badge-outline,
 .author-box.left_section_upper p a.badge-outline {
-	padding: 6px 16px;
+	padding: 5px 12px;
 	border-radius: var(--radius-full);
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 600;
 	backdrop-filter: blur(10px);
 	border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -194,13 +210,13 @@
 
 .author-box.left_section_upper .btn-primary.btn-block {
 	width: 100%;
-	padding: 12px;
+	padding: 10px;
 	background: rgba(255, 255, 255, 0.95);
 	color: var(--primary-color);
 	border: none;
 	border-radius: var(--radius-md);
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 13px;
 	cursor: pointer;
 	transition: all 0.3s ease;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -225,7 +241,7 @@
 .card.left_section_lower .card-header {
 	background: transparent;
 	border-bottom: 2px solid var(--background-color);
-	padding: 16px;
+	padding: 12px 16px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -233,7 +249,7 @@
 }
 
 .card.left_section_lower .card-header h4 {
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 700;
 	color: var(--text-primary);
 	margin: 0;
@@ -243,16 +259,17 @@
 }
 
 .card.left_section_lower .card-body {
-	padding: 16px;
+	padding: 12px 16px;
 }
 
 .card.left_section_lower .card-body p.clearfix {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	margin-bottom: 12px;
-	padding-bottom: 12px;
+	gap: 3px;
+	margin-bottom: 8px;
+	padding-bottom: 8px;
 	border-bottom: 1px solid var(--background-color);
+	line-height: 1.4;
 }
 
 .card.left_section_lower .card-body p.clearfix:last-child {
@@ -262,18 +279,20 @@
 }
 
 .card.left_section_lower .card-body .float-start {
-	font-size: 11px;
+	font-size: 10px;
 	color: var(--text-secondary);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
+	line-height: 1.3;
 }
 
 .card.left_section_lower .card-body .float-end {
-	font-size: 12px;
+	font-size: 11px;
 	color: var(--text-primary);
 	font-weight: 500;
 	word-break: break-word;
+	line-height: 1.4;
 }
 
 .add_note {
@@ -1017,7 +1036,11 @@ use App\Http\Controllers\Controller;
 								?>
 						</div>
 					</div>
+			</div> <!-- end left_section (Avatar) -->
 
+			<!-- Bottom Row: Personal Details + Third Section -->
+			<div class="bottom-row-container">
+				<div class="personal-details-container">
 					<div class="card left_section_lower">
 						<div class="card-header">
 							<div style="display: flex; align-items: center; gap: 8px;">
@@ -1387,7 +1410,7 @@ use App\Http\Controllers\Controller;
 							</p>
 						</div>
 					</div>
-			</div>
+				</div> <!-- end personal-details-container -->
 
 			<!--<div class="col-12 col-md-12 col-lg-12">-->
               
@@ -2937,7 +2960,8 @@ use App\Http\Controllers\Controller;
 					</div> <!-- end card-body -->
 				</div> <!-- end card -->
 			</div> <!-- end right_section -->
-		</div> <!-- end client-detail-container -->
+		</div> <!-- end bottom-row-container -->
+	</div> <!-- end client-detail-container -->
 	</div> <!-- end section-body -->
 </section>
 </div> <!-- end main-content -->
