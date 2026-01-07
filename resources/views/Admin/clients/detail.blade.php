@@ -122,14 +122,14 @@
 
 .author-box-name a {
 	color: white !important;
-	font-size: 15px;
+	font-size: 17px;
 	font-weight: 700;
 	text-decoration: none;
 }
 
 .author-box-name span {
 	color: rgba(255, 255, 255, 0.9);
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: 500;
 	letter-spacing: 0.5px;
 	display: block;
@@ -240,7 +240,7 @@
 }
 
 .card.left_section_lower .card-header h4 {
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: 700;
 	color: var(--text-primary);
 	margin: 0;
@@ -250,17 +250,17 @@
 }
 
 .card.left_section_lower .card-body {
-	padding: 12px 16px;
+	padding: 14px 18px;
 }
 
 .card.left_section_lower .card-body p.clearfix {
 	display: flex;
 	flex-direction: column;
-	gap: 3px;
-	margin-bottom: 8px;
-	padding-bottom: 8px;
+	gap: 4px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
 	border-bottom: 1px solid var(--background-color);
-	line-height: 1.4;
+	line-height: 1.5;
 }
 
 .card.left_section_lower .card-body p.clearfix:last-child {
@@ -270,20 +270,20 @@
 }
 
 .card.left_section_lower .card-body .float-start {
-	font-size: 10px;
+	font-size: 11px;
 	color: var(--text-secondary);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
-	line-height: 1.3;
+	line-height: 1.4;
 }
 
 .card.left_section_lower .card-body .float-end {
-	font-size: 11px;
+	font-size: 13px;
 	color: var(--text-primary);
 	font-weight: 500;
 	word-break: break-word;
-	line-height: 1.4;
+	line-height: 1.5;
 }
 
 .add_note {
@@ -338,7 +338,7 @@
 	border: none;
 	color: var(--text-secondary);
 	font-weight: 500;
-	font-size: 13px;
+	font-size: 14px;
 	border-radius: var(--radius-md);
 	transition: all 0.3s ease;
 	white-space: nowrap;
@@ -494,10 +494,11 @@
 }
 
 .activity-title {
-	font-size: 14px;
+	font-size: 15px;
 	color: var(--text-primary);
 	font-weight: 600;
 	flex: 1;
+	line-height: 1.5;
 }
 
 .activity-title b {
@@ -506,7 +507,7 @@
 }
 
 .activity-date {
-	font-size: 12px;
+	font-size: 13px;
 	color: var(--text-secondary);
 	display: flex;
 	align-items: center;
@@ -515,7 +516,7 @@
 
 .activity-detail p {
 	color: var(--text-secondary);
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 1.6;
 	margin-top: 8px;
 	margin-bottom: 0;
