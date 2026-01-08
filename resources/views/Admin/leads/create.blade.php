@@ -93,17 +93,19 @@
 												<?php $oldgender = old('gender');?>
 												<div class="form-group">
 													<label style="display:block;" for="gender">Gender <span class="span_req">*</span></label>
-													<div class="form-check form-check-inline">
-														<input <?php if($oldgender == 'Male'){ echo 'checked'; } ?> class="form-check-input" type="radio" id="male" value="Male" name="gender" checked>
-														<label class="form-check-label" for="male">Male</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" <?php if($oldgender == 'Female'){ echo 'checked'; } ?> type="radio" id="female" value="Female" name="gender">
-														<label class="form-check-label" for="female">Female</label>
-													</div>
-													<div class="form-check form-check-inline">
-														<input class="form-check-input" <?php if($oldgender == 'Other'){ echo 'checked'; } ?> type="radio" id="other" value="Other" name="gender">
-														<label class="form-check-label" for="other">Other</label>
+													<div class="gender-radio-group">
+														<div class="form-check form-check-inline">
+															<input class="form-check-input" type="radio" id="male" value="Male" name="gender" <?php if($oldgender == 'Male' || $oldgender == ''){ echo 'checked'; } ?>>
+															<label class="form-check-label" for="male">Male</label>
+														</div>
+														<div class="form-check form-check-inline">
+															<input class="form-check-input" type="radio" id="female" value="Female" name="gender" <?php if($oldgender == 'Female'){ echo 'checked'; } ?>>
+															<label class="form-check-label" for="female">Female</label>
+														</div>
+														<div class="form-check form-check-inline">
+															<input class="form-check-input" type="radio" id="other" value="Other" name="gender" <?php if($oldgender == 'Other'){ echo 'checked'; } ?>>
+															<label class="form-check-label" for="other">Other</label>
+														</div>
 													</div>
 													@if ($errors->has('gender'))
 														<span class="custom-error" role="alert">

@@ -17,7 +17,7 @@
             const check = () => {
                 if (typeof window.$ !== 'undefined' &&
                     typeof window.$.fn.select2 === 'function' &&
-                    typeof window.intlTelInput === 'function') {
+                    typeof window.$.fn.intlTelInput === 'function') {
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -190,11 +190,11 @@
             });
             
             // Initialize intlTelInput if available
-            // Note: intlTelInput is NOT a jQuery plugin - it's a standalone function
-            if (typeof window.intlTelInput === 'function') {
+            // Note: intlTelInput is a jQuery plugin, use $.fn.intlTelInput
+            if (typeof $.fn.intlTelInput === 'function') {
                 $(".telephone").each(function() {
                     try {
-                        window.intlTelInput(this);
+                        $(this).intlTelInput();
                     } catch (e) {
                         console.warn('Error initializing intlTelInput:', e);
                     }

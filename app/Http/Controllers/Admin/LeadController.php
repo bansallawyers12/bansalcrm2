@@ -287,6 +287,7 @@ class LeadController extends Controller
 			$obj->service		=	@$requestData['service'];			
 			$obj->assign_to		=	@$requestData['assign_to'];				 
 			$obj->status		=	@$requestData['status'];				 
+			$obj->converted		=	0; // New leads are not converted yet
 			$obj->lead_quality		=	@$requestData['lead_quality'];		
 			$obj->att_country_code		=	@$requestData['att_country_code'];
 			$obj->att_phone		=	@$requestData['att_phone'];
@@ -336,7 +337,7 @@ class LeadController extends Controller
 			}
 			else
 			{ 
-				return Redirect::to('/admin/leads')->with('success', 'Lead added Successfully');
+				return redirect()->route('leads.index')->with('success', 'Lead added Successfully');
 			} 				
 		}	
 	} 
@@ -363,9 +364,9 @@ class LeadController extends Controller
 	        }
 	        $save = $a->save();
 	        if($save){
-	            return Redirect::to('/admin/leads')->with('success', 'Record Updated successfully');
+	            return redirect()->route('leads.index')->with('success', 'Record Updated successfully');
 	        }else{
-	            return Redirect::to('/admin/leads')->with('error', 'Please try again');
+	            return redirect()->route('leads.index')->with('error', 'Please try again');
 	        }
 	    }
 	}
@@ -440,7 +441,7 @@ class LeadController extends Controller
 				{
 					$response['status'] 	= 	false;
 					$response['message']	=	'Please try again';
-					return Redirect::to('/admin/leads')->with('error', 'Please try again');
+					return redirect()->route('leads.index')->with('error', 'Please try again');
 				}
 				else
 				{
@@ -497,19 +498,19 @@ class LeadController extends Controller
 			    $leadid = Followup::where('id', '=', $id)->first()->lead_id;
 			    $res = Followup::where('id', '=', $id)->delete();
 				if($res){
-				    return Redirect::to('/admin/leads')->with('success', 'Record deleted successfully');
+				    return redirect()->route('leads.index')->with('success', 'Record deleted successfully');
 				}else{
-				    return Redirect::to('/admin/leads')->with('error', 'Lead Not Exist');
+				    return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
 				}
 				}
 				else
 				{
-					return Redirect::to('/admin/leads/')->with('error', 'Lead Not Exist');
+					return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/leads/')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('leads.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}
 	

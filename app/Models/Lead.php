@@ -34,6 +34,31 @@ class Lead extends Model
     public function likes()
     {
         return $this->hasMany('App\Models\Followup','id');
-    } 
+    }
+    
+    /**
+     * Get the preferredIntake attribute (maps to preferredintake column)
+     *
+     * @param  mixed  $value
+     * @return mixed
+     */
+    public function getPreferredIntakeAttribute($value)
+    {
+        // Map preferredIntake to preferredintake column
+        return $this->attributes['preferredintake'] ?? null;
+    }
+    
+    /**
+     * Set the preferredIntake attribute (maps to preferredintake column)
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+    public function setPreferredIntakeAttribute($value)
+    {
+        // Map preferredIntake to preferredintake column
+        // PostgreSQL doesn't accept empty strings for date columns - convert to NULL
+        $this->attributes['preferredintake'] = ($value === '' || $value === null) ? null : $value;
+    }
    
 }

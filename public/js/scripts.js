@@ -53,15 +53,35 @@ $(function () {
     }, 600);
   };
 
+  // Helper function to wait for niceScroll plugin to be available
+  var waitForNiceScroll = function(callback, maxAttempts) {
+    maxAttempts = maxAttempts || 50; // Default 50 attempts (2.5 seconds at 50ms intervals)
+    var attempts = 0;
+    
+    var check = function() {
+      attempts++;
+      if (typeof $.fn.niceScroll === 'function') {
+        callback();
+      } else if (attempts < maxAttempts) {
+        setTimeout(check, 50);
+      } else {
+        // Plugin not available after max attempts - silent fail (no warning)
+        // This allows the page to function normally without custom scrollbars
+      }
+    };
+    
+    check();
+  };
+
   var sidebar_dropdown = function () {
     if ($(".main-sidebar").length) {
-      // Check if niceScroll is available
-      if (typeof $.fn.niceScroll === 'function') {
-        $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
-        sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
-      } else {
-        console.warn('jQuery niceScroll plugin not loaded');
-      }
+      // Wait for niceScroll plugin to be available before initializing
+      waitForNiceScroll(function() {
+        if (typeof $.fn.niceScroll === 'function') {
+          $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
+          sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
+        }
+      });
 
       $(".main-sidebar .sidebar-menu li a.has-dropdown")
         .off("click")
