@@ -171,6 +171,29 @@ if (enhanceMessageBtn) {
 
 jQuery(document).ready(function($){
   
+    // Ensure Activities tab is active when filter parameters are present
+    // This fixes the issue where filters are applied but tab doesn't show
+    var urlParams = new URLSearchParams(window.location.search);
+    var hasFilters = urlParams.has('keyword') || 
+                     (urlParams.has('activity_type') && urlParams.get('activity_type') !== 'all') ||
+                     urlParams.has('date_from') || 
+                     urlParams.has('date_to');
+    var tabParam = urlParams.get('tab');
+    
+    // If filters are present and tab is empty/not set, activate Activities tab
+    if (hasFilters && (!tabParam || tabParam === '')) {
+        var activitiesTab = $('#activities-tab');
+        var activitiesPane = $('#activities');
+        
+        // Remove active class from all tabs and panes
+        $('#client_tabs .nav-link').removeClass('active');
+        $('#clientContent .tab-pane').removeClass('show active');
+        
+        // Activate Activities tab and pane
+        activitiesTab.addClass('active').attr('aria-selected', 'true');
+        activitiesPane.addClass('show active');
+    }
+  
     // Tab click handler
     $(document).on('click', '#client_tabs a', function(){
         // Get the target tab's href

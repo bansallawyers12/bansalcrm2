@@ -1417,7 +1417,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link <?php if(!isset($_GET['tab'])){ echo 'active'; } ?>" data-bs-toggle="tab" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="true">Activities</a>
+									<a class="nav-link <?php if(!isset($_GET['tab']) || (isset($_GET['tab']) && $_GET['tab'] == '')){ echo 'active'; } ?>" data-bs-toggle="tab" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="true">Activities</a>
 								</li>
 
 								<li class="nav-item">
@@ -1464,12 +1464,14 @@ use App\Http\Controllers\Controller;
 								</li>-->
 							</ul>
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
-								<div class="tab-pane fade <?php if(!isset($_GET['tab']) ){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
+								<div class="tab-pane fade <?php if(!isset($_GET['tab']) || (isset($_GET['tab']) && $_GET['tab'] == '')){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
 
 								<!-- Activities Filter Bar - Permanently Visible -->
 								<div class="activities-filter-bar">
 									<form action="{{URL::to('/clients/detail/'.$encodeId)}}" method="get" id="activitiesFilterForm">
-										<input type="hidden" name="tab" value="{{ Request::get('tab', '') }}">
+										@if(Request::get('tab') && Request::get('tab') != '')
+											<input type="hidden" name="tab" value="{{ Request::get('tab') }}">
+										@endif
 										
 										<div class="row align-items-end">
 											<!-- Search Box -->
