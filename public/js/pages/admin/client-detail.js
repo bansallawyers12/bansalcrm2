@@ -3172,7 +3172,6 @@ function showContextMenu(event, row) {
             if (renameEl) renameEl.click();
             hideContextMenu();
         }));
-<<<<<<< Updated upstream
     }
     
     if (fileName) {
