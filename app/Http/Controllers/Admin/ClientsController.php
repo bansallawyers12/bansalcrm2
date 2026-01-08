@@ -2367,17 +2367,17 @@ class ClientsController extends Controller
 
 		        }
 		    }
-			$obj = \App\Models\Admin::find($id);
-			$obj->tagname = implode(',', $tag);
-			$saved = $obj->save();
-			if($saved){
-				return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$id)))->with('success', 'Tags addes successfully');
-			}else{
-				return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$id)))->with('error', 'Please try again');
-			}
+		$obj = \App\Models\Admin::find($id);
+		$obj->tagname = implode(',', $tag);
+		$saved = $obj->save();
+		if($saved){
+			return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('success', 'Tags addes successfully');
 		}else{
-			return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+			return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('error', 'Please try again');
 		}
+	}else{
+		return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+	}
 
 	}
 
@@ -4044,11 +4044,17 @@ class ClientsController extends Controller
   
     public function gettagdata(Request $request){ //dd( $request->all() );
         $squery = $request->q;
-        if($squery != ''){
+        
+        // Initialize default response
+        $items = array();
+        $per_page = 20;
+        $tags_total = 0;
+        
+        // Only search if query is provided and not empty
+        if($squery != '' && trim($squery) != ''){
             $tags_total = \App\Models\Tag::select('id','name')->where('name', 'LIKE', '%'.$squery.'%')->count();
             $tags = \App\Models\Tag::select('id','name')->where('name', 'LIKE', '%'.$squery.'%')->paginate(20);
 
-            $items = array();
             //$total_count = count($tags);
             /*if(count($tags) >=20){
                 $per_page = 20;
@@ -4059,8 +4065,10 @@ class ClientsController extends Controller
             foreach($tags as $tag){
                 $items[] = array('id'=>$tag->id,'text' => $tag->name);
             }
-            echo json_encode(array('items'=>$items,'per_page'=>$per_page,'total_count'=>$tags_total));
         }
+        
+        // Always return a proper JSON response
+        return response()->json(array('items'=>$items,'per_page'=>$per_page,'total_count'=>$tags_total));
     }
   
     

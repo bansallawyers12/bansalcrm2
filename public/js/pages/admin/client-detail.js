@@ -336,37 +336,48 @@ jQuery(document).ready(function($){
         });
     });
 
+    // Pre-populate select element with existing tags as option elements
+    // This ensures Select2 can display them even when using AJAX
     if(data1.length > 0) {
-        $("#tag").select2({
-            data: data1,
-            escapeMarkup: function(markup) {
-                return markup;
-            },
-            templateResult: function(data1) {
-                return data1.html;
-            },
-            templateSelection: function(data1) {
-                return data1.text;
+        var $tagSelect = $('#tag');
+        data1.forEach(function(tag) {
+            // Check if option already exists to avoid duplicates
+            if ($tagSelect.find('option[value="' + tag.id + '"]').length === 0) {
+                $tagSelect.append(new Option(tag.text, tag.id, true, true));
             }
         });
-
-        $('#tag').val(array1);
-        $('#tag').trigger('change');
     }
 
-    $('#tag').select2({
+    // Build Select2 configuration
+    // Construct URL - prefer configured URL, fallback to siteUrl + path, or absolute path
+    var tagAjaxUrl = App.getUrl('getTagData');
+    if (!tagAjaxUrl || tagAjaxUrl === '') {
+        var siteUrl = App.getUrl('siteUrl') || (typeof AppConfig !== 'undefined' && AppConfig.siteUrl) || '';
+        tagAjaxUrl = siteUrl + '/gettagdata';
+    }
+    
+    var tagSelect2Config = {
         ajax: {
-            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/gettagdata',
+            url: tagAjaxUrl,
             headers: { 'X-CSRF-TOKEN': App.getCsrf()},
             dataType: 'json',
             delay: 250,
             data: function(params) {
                 return {
-                    q: params.term,
+                    q: params.term || '',
                     page: params.page || 1
                 };
             },
             processResults: function(data, params) {
+                // Handle case where data might be null or undefined
+                if (!data || !data.items) {
+                    return {
+                        results: [],
+                        pagination: {
+                            more: false
+                        }
+                    };
+                }
                 params.page = params.page || 1;
                 return {
                     results: data.items.map(item => ({
@@ -378,13 +389,33 @@ jQuery(document).ready(function($){
                     }
                 };
             },
-            cache: true
+            cache: true,
+            error: function(xhr, status, error) {
+                // Log error for debugging but don't break the UI
+                console.error('Tag search error:', error);
+                return {
+                    results: []
+                };
+            }
         },
+        dropdownParent: $('#tags_clients'),
         placeholder: 'Search & Select tag',
         minimumInputLength: 1,
         templateResult: formatItem,
-        templateSelection: formatItemSelection
-    });
+        templateSelection: formatItemSelection,
+        escapeMarkup: function(markup) {
+            return markup;
+        }
+    };
+
+    // Initialize Select2 with configuration
+    $('#tag').select2(tagSelect2Config);
+
+    // Set initial values if tags exist (this will use the pre-populated options)
+    if(array1.length > 0) {
+        $('#tag').val(array1);
+        $('#tag').trigger('change');
+    }
 
     function formatItem(item) {
         if (item.loading) {
