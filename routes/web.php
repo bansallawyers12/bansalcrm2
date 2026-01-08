@@ -175,6 +175,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/getpartner', [AdminController::class, 'getpartner']);
 		Route::get('/getproduct', [AdminController::class, 'getproduct']);
 		Route::get('/getbranch', [AdminController::class, 'getbranch']);
+		Route::get('/getpartnerbranch', [AdminController::class, 'getpartnerbranch']);
+		Route::get('/getbranchproduct', [AdminController::class, 'getbranchproduct']);
 		Route::get('/getservicemodal', [ServicesController::class, 'servicemodal']);
 		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);

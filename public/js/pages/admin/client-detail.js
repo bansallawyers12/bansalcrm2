@@ -2297,6 +2297,118 @@ Bansal Immigration`;
         $('#create_checklist').modal('show');
     });
 
+    // Handler for "Proceed to Next Stage" button
+    $(document).on('click', '.nextstage', function(){
+        var appliid = $(this).attr('data-id');
+        var stage = $(this).attr('data-stage');
+        var clientId = PageConfig.clientId;
+        
+        if (!appliid) {
+            console.error('Application ID is missing');
+            return;
+        }
+        
+        if (!clientId) {
+            console.error('Client ID is missing');
+            return;
+        }
+        
+        $('.popuploader').show();
+        
+        var url = App.getUrl('siteUrl') + '/updatestage';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                id: appliid,
+                client_id: clientId
+            },
+            success: function(response){
+                $('.popuploader').hide();
+                
+                // Handle both string and object responses
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                
+                if(obj.status){
+                    // Show success message
+                    if($('.custom-error-msg').length){
+                        $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+                    } else {
+                        // Create message container if it doesn't exist
+                        $('.ifapplicationdetailnot').prepend('<div class="custom-error-msg"><span class="alert alert-success">'+obj.message+'</span></div>');
+                    }
+                    
+                    // Update current stage text
+                    $('.curerentstage').text(obj.stage);
+                    
+                    // Update progress bar if it exists
+                    if(obj.width !== undefined){
+                        var progressWidth = obj.width;
+                        var over = progressWidth > 50 ? '50' : '';
+                        var $progressCir = $('#progresscir');
+                        if($progressCir.length){
+                            // Remove old progress classes
+                            $progressCir.removeClass(function(index, className) {
+                                return (className.match(/(^|\s)prgs_\S+/g) || []).join(' ');
+                            });
+                            $progressCir.removeClass(function(index, className) {
+                                return (className.match(/(^|\s)over_\S+/g) || []).join(' ');
+                            });
+                            // Add new progress classes
+                            if(over){
+                                $progressCir.addClass('over_' + over);
+                            }
+                            $progressCir.addClass('prgs_' + progressWidth);
+                            // Update progress text
+                            $progressCir.find('span').text(progressWidth + ' %');
+                        }
+                    }
+                    
+                    // Reload application activities log
+                    var logsUrl = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/get-applications-logs';
+                    $.ajax({
+                        url: logsUrl,
+                        type: 'GET',
+                        data: {
+                            clientid: clientId,
+                            id: appliid
+                        },
+                        success: function(responses){
+                            $('#accordion').html(responses);
+                        },
+                        error: function(xhr, status, error){
+                            console.error('Error loading application logs:', error);
+                        }
+                    });
+                    
+                    // Update button visibility - hide "Proceed to Next Stage" if at last stage
+                    if(obj.displaycomplete){
+                        $('.nextstage').hide();
+                        $('.completestage').show();
+                    }
+                } else {
+                    // Show error message
+                    if($('.custom-error-msg').length){
+                        $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+                    } else {
+                        $('.ifapplicationdetailnot').prepend('<div class="custom-error-msg"><span class="alert alert-danger">'+obj.message+'</span></div>');
+                    }
+                }
+            },
+            error: function(xhr, status, error){
+                $('.popuploader').hide();
+                console.error('Error updating stage:', error);
+                var errorMsg = 'An error occurred while updating the stage. Please try again.';
+                if($('.custom-error-msg').length){
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+errorMsg+'</span>');
+                } else {
+                    $('.ifapplicationdetailnot').prepend('<div class="custom-error-msg"><span class="alert alert-danger">'+errorMsg+'</span></div>');
+                }
+            }
+        });
+    });
+
     // NOTE: openpaymentschedule handler removed - Invoice Schedule feature has been removed
 
     $(document).on('click', '.addfee', function(){
@@ -2862,11 +2974,17 @@ Bansal Immigration`;
     // SELECT2 INITIALIZATION FOR APPLICATION FORMS
     // ============================================================================
     
+    // Fix for Add Application modal - ensure dropdown appears above modal
     $(".applicationselect2").select2({
         dropdownParent: $(".add_appliation")
     });
 
     $(".partner_branchselect2").select2({
+        dropdownParent: $(".add_appliation")
+    });
+    
+    // Initialize product select2 if it exists
+    $(".approductselect2").select2({
         dropdownParent: $(".add_appliation")
     });
 

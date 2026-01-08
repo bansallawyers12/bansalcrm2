@@ -597,6 +597,20 @@
 	z-index: 9999 !important;
 }
 
+/* Add Application Modal Select2 Dropdown Styles - Fix dropdown appearing below modal */
+.add_appliation .select2-container {
+	z-index: 9999 !important;
+}
+.add_appliation .select2-dropdown {
+	z-index: 9999 !important;
+}
+.add_appliation .modal-body {
+	overflow: visible !important;
+}
+.add_appliation .modal-content {
+	overflow: visible !important;
+}
+
  .file-preview-container {
     border: 1px solid #ddd;
     padding: 10px;
