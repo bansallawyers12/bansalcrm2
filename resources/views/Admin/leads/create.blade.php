@@ -206,7 +206,7 @@
 											<label for="phone">Contact No.<span style="color:#ff0000;">*</span></label>
 											<div class="cus_field_input">
 												<div class="country_code">
-													<input style="width:50px;padding-left:2px;" class="telephone" id="telephone" type="tel" name="country_code" readonly >
+													<input style="width:50px !important;padding-left:2px !important;" class="telephone" id="telephone" type="tel" name="country_code" readonly >
 												</div>
 											<input type="text" name="phone" value="{{ old('phone') }}" class="form-control tel_input contactno_unique {{ $errors->has('phone') ? 'is-invalid' : '' }}" data-valid="required" autocomplete="off" placeholder="">
 												@if ($errors->has('phone'))
