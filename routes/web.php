@@ -172,6 +172,9 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		// These routes were related to the tax_rates table which has been dropped
 		Route::get('/getsubcategories', [AdminController::class, 'getsubcategories']);
 		Route::get('/getproductbranch', [AdminController::class, 'getproductbranch']);
+		Route::get('/getpartner', [AdminController::class, 'getpartner']);
+		Route::get('/getproduct', [AdminController::class, 'getproduct']);
+		Route::get('/getbranch', [AdminController::class, 'getbranch']);
 		Route::get('/getservicemodal', [ServicesController::class, 'servicemodal']);
 		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);
