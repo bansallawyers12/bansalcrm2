@@ -875,6 +875,14 @@ td .dropdown-menu {
 .date-filter {
 	font-size: 12px;
 }
+
+.btn-assignaction:hover {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+	color: #fff !important;
+}
+#assignUser {
+	color: #fff !important;
+}
 </style>
 <?php
 use App\Http\Controllers\Controller;
@@ -935,7 +943,7 @@ use App\Http\Controllers\Controller;
 								<a onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
 							</div>
 							
-							<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+							<button type="button" class="btn btn-primary btn-block btn-assignaction" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="<div id=&quot;popover-content&quot;>
 									<h4 class=&quot;text-center&quot;>Assign User</h4>
 									<div class=&quot;clearfix&quot;></div>
 
@@ -1002,7 +1010,7 @@ use App\Http\Controllers\Controller;
 									<button  class=&quot;btn btn-danger&quot; id=&quot;assignUser&quot;>Assign User</button>
 									</div>
 							    </div>
-					    </div>" data-original-title="" title="" style="background: rgba(255, 255, 255, 0.95); color: var(--primary-color); padding: 10px; font-size: 13px;"> Action</button>
+					    </div>" data-original-title="" title="" style="background: rgba(255, 255, 255, 0.95); color: var(--primary-color); padding: 10px; font-size: 13px;width:100% !important;"> Action</button>
 							<?php
 									// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 									$agent = null;

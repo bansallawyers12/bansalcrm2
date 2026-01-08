@@ -2897,6 +2897,9 @@ class ClientsController extends Controller
 		$followup->folloup	= 1;
         $followup->task_group = @$requestData['task_group'];
 		$followup->assigned_to	= @$requestData['rem_cat'];
+		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		$followup->type = 'client'; // Required field - mark as client type for Action page filtering
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
 		    //	$followup->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
 			$followup->followup_date	=  @$requestData['followup_datetime'];
@@ -3239,6 +3242,9 @@ class ClientsController extends Controller
 		$followup->title			= '';
 		$followup->folloup	        = 1;
 		$followup->assigned_to	    = @$requestData['changeassignee'];
+		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		$followup->type = 'client'; // Required field - mark as client type for Action page filtering
 		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
 
 				$followup->followup_date	=  $requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
@@ -5517,6 +5523,9 @@ class ClientsController extends Controller
 		$followup->assigned_to	    = @$requestData['rem_cat11'];
 		$followup->followup_date	=  date('Y-m-d H:i:s');
         $followup->application_id	= $requestData['application_id'];
+		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		$followup->type = 'client'; // Required field - mark as client type for Action page filtering
         $saved				        =  $followup->save();
         if(!$saved) {
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'clientID' => $client_decode_id));

@@ -2959,6 +2959,8 @@ class PartnersController extends Controller
             $followup->note_deadline = NULL;
             $followup->deadline_recurring_type = NULL;
         }
+		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 
         $saved	=  $followup->save();
         if(!$saved) {
