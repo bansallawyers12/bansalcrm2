@@ -194,19 +194,41 @@ jQuery(document).ready(function($){
         activitiesPane.addClass('show active');
     }
   
-    // Tab click handler
-    $(document).on('click', '#client_tabs a', function(){
-        // Get the target tab's href
-        var target = $(this).attr('href');
-
-        if (target === '#documents' || target === '#migrationdocuments' || target === '#alldocuments' || target === '#notuseddocuments' ) {
-           // Reset the visibility and classes
-            $('.left_section').hide(); // Hide the left section by default
-            $('.right_section').parent().removeClass('col-8 col-md-8 col-lg-8').addClass('col-12 col-md-12 col-lg-12');
-        }  else {
-            $('.left_section').show(); // Show the left section for Activities tab
-            $('.right_section').parent().removeClass('col-12 col-md-12 col-lg-12').addClass('col-8 col-md-8 col-lg-8');
+    // Function to handle personal-details-container visibility based on active tab
+    function handlePersonalDetailsVisibility() {
+        // Get the currently active tab
+        var activeTab = $('#client_tabs .nav-link.active');
+        var targetHref = activeTab.attr('href') || '';
+        
+        // Document-related tabs
+        var documentTabs = ['#documents', '#migrationdocuments', '#alldocuments', '#notuseddocuments'];
+        
+        if (documentTabs.indexOf(targetHref) !== -1) {
+            // Hide personal-details-container for document tabs (right_section takes full width)
+            $('.personal-details-container').hide();
+        } else {
+            // Show personal-details-container for other tabs (right_section takes remaining space)
+            $('.personal-details-container').show();
         }
+    }
+  
+    // Set initial visibility on page load based on active tab
+    // Use setTimeout to ensure DOM is fully ready and active tab is set
+    setTimeout(function() {
+        handlePersonalDetailsVisibility();
+    }, 50);
+  
+    // Tab click handler - update visibility when tabs are clicked
+    $(document).on('click', '#client_tabs a', function(){
+        // Use setTimeout to ensure Bootstrap tab switching completes first
+        setTimeout(function() {
+            handlePersonalDetailsVisibility();
+        }, 10);
+    });
+    
+    // Also listen to Bootstrap's shown.bs.tab event for more reliable handling
+    $('#client_tabs a').on('shown.bs.tab', function (e) {
+        handlePersonalDetailsVisibility();
     });
   
     $('.selecttemplate').select2({dropdownParent: $('#emailmodal')});
