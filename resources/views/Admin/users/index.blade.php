@@ -18,8 +18,6 @@
 							<div class="card-header-action">
 								@if(isset($viewType) && $viewType == 'active')
 								<a href="{{URL::to('users/create')}}" class="btn btn-primary">Add User</a>
-								@else
-								<a href="javascript:;" class="btn btn-primary">Invite User</a>
 								@endif
 							</div>
 						</div>

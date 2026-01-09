@@ -25,37 +25,6 @@ class UserController extends Controller
     {
         $this->middleware('auth:admin');
     }
-	/**
-     * All Vendors.
-     *
-     * @return \Illuminate\Http\Response
-     */
-	public function index(Request $request)
-	{
-		$req_data = $request->all();
-		if( isset($req_data['search_by'])  && $req_data['search_by'] != ""){
-			$search_by = $req_data['search_by'];
-		} else {
-			$search_by = "";
-		}
-		
-		if($search_by) { //if search string is present
-			$query 		= Admin::Where('role', '!=', '7')
-			->Where('status', '=', 1)
-			->where(function($q) use($search_by) {
-				$q->where('first_name', 'LIKE', '%'.$search_by.'%')
-				->orWhere('last_name', 'LIKE', '%'.$search_by.'%');
-			})->with(['usertype']);
-		} else {
-			$query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 1)->with(['usertype']);
-		}
-		
-		$totalData 	= $query->count();	//for all data
-		$lists		= $query->orderby('first_name','ASC')->paginate(config('constants.limit'));		
-		$viewType = 'active';
-		return view('Admin.users.index',compact(['lists', 'totalData', 'viewType']));	
-	}
-	
 	public function create(Request $request)
 	{
 			//check authorization start	
@@ -218,12 +187,12 @@ class UserController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/users')->with('error', 'User Not Exist');
+					return Redirect::to('/admin/users/active')->with('error', 'User Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/users')->with('error', Config::get('constants.unauthorized'));
+				return Redirect::to('/admin/users/active')->with('error', Config::get('constants.unauthorized'));
 			}		
 		}	
 		
