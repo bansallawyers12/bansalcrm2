@@ -330,7 +330,8 @@ class OfficeVisitController extends Controller
 			return ob_get_clean();
 		}
 		 
-	}
+	
+	
 	public function update_visit_purpose(Request $request){
 		$obj = CheckinLog::find($request->id);
 		$obj->visit_purpose = $request->visit_purpose;

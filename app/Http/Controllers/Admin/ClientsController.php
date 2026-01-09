@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Http;
 use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
 use App\Traits\ClientHelpers;
+use App\Mail\ClientVerifyMail;
 
 class ClientsController extends Controller
 {
@@ -3840,6 +3841,103 @@ class ClientsController extends Controller
              $response['message']	=	'Please try again';
          }
          echo json_encode($response);
+    }
+    
+    //Send email verification email to client
+    public function emailVerify(Request $request)
+    {
+        try {
+            // Validate input
+            $request->validate([
+                'client_email' => 'required|email',
+                'client_id' => 'required|integer',
+                'client_fname' => 'required|string'
+            ]);
+            
+            // Verify client exists
+            $client = Admin::find($request->client_id);
+            if (!$client) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Client not found.'
+                ], 404);
+            }
+            
+            // Prepare email details
+            $details = [
+                'fullname' => $request->client_fname,
+                'title' => 'Please verify your email address by clicking the button below.',
+                'client_id' => $request->client_id
+            ];
+            
+            // Send verification email
+            Mail::to($request->client_email)->send(new ClientVerifyMail($details));
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Verification email sent successfully.'
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->errors();
+            $errorMessages = [];
+            foreach ($errors as $field => $messages) {
+                $errorMessages[] = implode(', ', $messages);
+            }
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed: ' . implode(' ', $errorMessages)
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to send verification email. Please try again.'
+            ], 500);
+        }
+    }
+    
+    //Process email verification token from email link
+    public function emailVerifyToken($token)
+    {
+        try {
+            // Decode token with error handling for PHP 8.x compatibility
+            $base64_decoded = base64_decode($token);
+            if ($base64_decoded === false) {
+                return redirect('/')->withErrors(['error' => 'Invalid verification link.']);
+            }
+            
+            $client_id = @convert_uudecode($base64_decoded);
+            if ($client_id === false || $client_id === '' || !is_numeric($client_id)) {
+                return redirect('/')->withErrors(['error' => 'Invalid verification link.']);
+            }
+            
+            // Convert to integer for safety
+            $client_id = (int)$client_id;
+            
+            // Find client
+            $client = Admin::find($client_id);
+            if (!$client) {
+                return redirect('/')->withErrors(['error' => 'Client not found.']);
+            }
+            
+            // Update verification status (using update() to avoid mass assignment issues)
+            Admin::where('id', $client_id)->update([
+                'manual_email_phone_verified' => 1,
+                'email_verified_at' => now()
+            ]);
+            
+            // Redirect to thank you page
+            return redirect()->route('emailVerify.thankyou')->with('success', 'Email verified successfully!');
+            
+        } catch (\Throwable $e) {
+            return redirect('/')->withErrors(['error' => 'Invalid verification link.']);
+        }
+    }
+    
+    //Thank you page after email verification
+    public function thankyou()
+    {
+        return view('thankyou');
     }
     
     

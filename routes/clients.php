@@ -101,6 +101,9 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Email/Contact routes
     Route::post('/clients/update-email-verified', [ClientsController::class, 'updateemailverified'])->name('clients.updateemailverified');
+    Route::post('/email-verify', [ClientsController::class, 'emailVerify'])->name('emailVerify');
+    Route::get('/email-verify-token/{token}', [ClientsController::class, 'emailVerifyToken'])->name('emailVerifyToken');
+    Route::get('/thankyou', [ClientsController::class, 'thankyou'])->name('emailVerify.thankyou');
     Route::post('/clients/fetchClientContactNo', [ClientsController::class, 'fetchClientContactNo'])->name('clients.fetchClientContactNo');
     Route::post('/sendmsg', [ClientsController::class, 'sendmsg'])->name('clients.sendmsg');
     Route::post('/is_greview_mail_sent', [ClientsController::class, 'isgreviewmailsent'])->name('clients.isgreviewmailsent');
