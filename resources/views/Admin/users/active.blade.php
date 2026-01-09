@@ -25,9 +25,6 @@
 								<li class="nav-item">
 									<a class="nav-link" id="inactive-tab"  href="{{URL::to('/users/inactive')}}" >Inactive</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="invited-tab"  href="{{URL::to('/users/invited')}}" >Invited</a>
-								</li>
 								
 								<form action="{{ route('users.active') }}" method="get">
                                     <div class="" style="display: inline-flex;float: right;margin-left:540px;">

@@ -28,7 +28,7 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.crmemailtemplate.index' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.create' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.crmemailtemplate.index')}}">Crm Email Template</a></li> 
 		
 		<?php
-			if(Route::currentRouteName() == 'branch.index' || Route::currentRouteName() == 'branch.create' || Route::currentRouteName() == 'branch.edit' || Route::currentRouteName() == 'branch.userview' || Route::currentRouteName() == 'branch.clientview' || Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive' || Route::currentRouteName() == 'users.invited' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){ 
+			if(Route::currentRouteName() == 'branch.index' || Route::currentRouteName() == 'branch.create' || Route::currentRouteName() == 'branch.edit' || Route::currentRouteName() == 'branch.userview' || Route::currentRouteName() == 'branch.clientview' || Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){ 
 				$teamclasstype = 'active';
 			}  
 		?> 
@@ -40,7 +40,7 @@
 			<?php
 			if(array_key_exists('4',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive' || Route::currentRouteName() == 'users.invited') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.active')}}">Users</a></li>
+			<li class="{{(Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.active')}}">Users</a></li>
 			<li class="{{(Route::currentRouteName() == 'teams.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('teams.index')}}">Teams</a></li>
 			<?php } ?>
 			<?php

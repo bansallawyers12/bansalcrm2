@@ -291,12 +291,4 @@ class UserController extends Controller
 		$lists		= $query->orderby('first_name','ASC')->paginate(config('constants.limit'));		
 		return view('Admin.users.inactive',compact(['lists', 'totalData']));	
 	}
-	
-	public function invited(Request $request)
-	{	
-		$query 		= Admin::Where('role', '!=', '7')->with(['usertype']); 		  
-		$totalData 	= $query->count();	//for all data
-		$lists		= $query->orderby('first_name','ASC')->paginate(config('constants.limit'));		
-		return view('Admin.users.invited',compact(['lists', 'totalData']));	
-	}
 }

@@ -24,9 +24,6 @@
 								</li>
 								<li class="nav-item">
 									<a class="nav-link active" id="inactive-tab"  href="{{URL::to('/users/inactive')}}" >Inactive</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="invited-tab"  href="{{URL::to('/users/invited')}}" >Invited</a>
 								</li>								
 							</ul>
 							<div class="tab-content" id="checkinContent">
