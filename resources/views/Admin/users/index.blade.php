@@ -31,14 +31,11 @@
 								<li class="nav-item">
 									<a class="nav-link {{ (isset($viewType) && $viewType == 'inactive') ? 'active' : '' }}" id="inactive-tab"  href="{{URL::to('/users/inactive')}}" >Inactive</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ (isset($viewType) && $viewType == 'invited') ? 'active' : '' }}" id="invited-tab"  href="{{URL::to('/users/invited')}}" >Invited</a>
-								</li>
 								
 								@if(isset($viewType) && $viewType == 'active')
 								<form action="{{ route('users.active') }}" method="get">
 									<div class="" style="display: inline-flex;float: right;margin-left:540px;">
-										<input id="search-input" type="search" name="search_by"  class="form-control" value="<?php  if(isset($_GET['search_by']) &&  $_GET['search_by'] != "") { echo $_GET['search_by'];} else { echo "";}?>" />
+										<input id="search-input" type="search" name="search_by"  class="form-control" value="{{ isset($_GET['search_by']) && $_GET['search_by'] != '' ? $_GET['search_by'] : '' }}" />
 										<button id="search-button" type="submit" class="btn btn-primary">
 										<i class="fas fa-search"></i>
 										</button>
@@ -65,19 +62,15 @@
 												</tr> 
 											</thead>
 											@if(@$totalData !== 0)
+											<tbody class="tdata">
 											@foreach (@$lists as $list)
-										<?php
-										$b = \App\Models\Branch::where('id', $list->office_id)->first();
-										?>
-											<tbody class="tdata">	
+											@php
+											$b = \App\Models\Branch::where('id', $list->office_id)->first();
+											@endphp
 												<tr id="id_{{@$list->id}}"> 
 													<td><a href="{{URL::to('/users/view')}}/{{$list->id}}">{{@$list->first_name}}</a><br>{{@$list->email}}</td> 
 													<td>{{@$list->position}}</td>
-													@if(isset($viewType) && $viewType == 'invited')
-													<td><a href="{{URL::to('/branch/view/')}}/{{$b->id ?? '#'}}">{{$b->office_name ?? ''}}</a></td> 
-													@else
-													<td><a href="{{URL::to('/branch/view/')}}/{{@$b->id}}">{{@$b->office_name}}</a></td> 
-													@endif
+													<td><a href="{{URL::to('/branch/view/')}}/{{@$b->id}}">{{@$b->office_name}}</a></td>
 													
 													
 													<td>{{ @$list->usertype->name == "" ? config('constants.empty') : str_limit(@$list->usertype->name, '50', '...') }}</td>  
@@ -94,23 +87,20 @@
 													
 													@if(isset($viewType) && $viewType == 'active')
 													<td>
-														<?php
-														if(\Auth::user()->id != $list->id) //if loggedin user is not same
-														{?>
-															<div class="card-header-action">
-																<a href="{{URL::to('users/edit/'.$list->id)}}" class="btn btn-primary">Edit User</a>
-															</div>
-														<?php
-														} ?>
+														@if(\Auth::user()->id != $list->id)
+														<div class="card-header-action">
+															<a href="{{URL::to('users/edit/'.$list->id)}}" class="btn btn-primary">Edit User</a>
+														</div>
+														@endif
 													</td>
 													@endif
 												</tr>	
-											@endforeach	
+											@endforeach
 											</tbody>
 											@else
 											<tbody>
 												<tr>
-													<td style="text-align:center;" colspan="{{ isset($viewType) && $viewType == 'active' ? '6' : (isset($viewType) && $viewType == 'inactive' ? '5' : (isset($viewType) && $viewType == 'invited' ? '4' : '6')) }}">
+													<td style="text-align:center;" colspan="{{ isset($viewType) && $viewType == 'active' ? '6' : '5' }}">
 														No Record found
 													</td>
 												</tr>

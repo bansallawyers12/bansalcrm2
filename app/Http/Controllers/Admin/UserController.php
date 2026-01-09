@@ -328,29 +328,4 @@ class UserController extends Controller
 		$viewType = 'inactive';
 		return view('Admin.users.index',compact(['lists', 'totalData', 'viewType']));	
 	}
-	
-	public function invited(Request $request)
-	{	
-		$req_data = $request->all();
-		if( isset($req_data['search_by'])  && $req_data['search_by'] != ""){
-			$search_by = $req_data['search_by'];
-		} else {
-			$search_by = "";
-		}
-		
-		if($search_by) { //if search string is present
-			$query 		= Admin::Where('role', '!=', '7')
-			->where(function($q) use($search_by) {
-				$q->where('first_name', 'LIKE', '%'.$search_by.'%')
-				->orWhere('last_name', 'LIKE', '%'.$search_by.'%');
-			})->with(['usertype']);
-		} else {
-			$query 		= Admin::Where('role', '!=', '7')->with(['usertype']);
-		}
-		
-		$totalData 	= $query->count();	//for all data
-		$lists		= $query->orderby('first_name','ASC')->paginate(config('constants.limit'));		
-		$viewType = 'invited';
-		return view('Admin.users.index',compact(['lists', 'totalData', 'viewType']));	
-	}
 }
