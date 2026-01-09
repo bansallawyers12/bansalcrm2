@@ -316,9 +316,9 @@
 											<label for="gender">Gender <span class="span_req">*</span></label>
 											<select name="gender" id="gender" class="form-control" data-valid="required">
 												<option value="">Select Gender</option>
-												<option value="Male">Male</option>
-												<option value="Female">Female</option>
-												<option value="Other">Other</option>
+												<option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+												<option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
+												<option value="Other" {{ old('gender') == 'Other' ? 'selected' : '' }}>Other</option>
 											</select>
 											@if ($errors->has('gender'))
 												<span class="custom-error" role="alert">
@@ -368,14 +368,14 @@
 											<label for="martial_status">Marital Status</label>
 											<select name="martial_status" id="martial_status" class="form-control">
 												<option value="">Select Marital Status</option>
-												<option value="Married">Married</option>
-												<option value="Never Married">Never Married</option>
-												<option value="Engaged">Engaged</option>
-												<option value="Divorced">Divorced</option>
-												<option value="Separated">Separated</option>
-												<option value="De facto">De facto</option>
-												<option value="Widowed">Widowed</option>
-												<option value="Others">Others</option>
+												<option value="Married" {{ old('martial_status') == 'Married' ? 'selected' : '' }}>Married</option>
+												<option value="Never Married" {{ old('martial_status') == 'Never Married' ? 'selected' : '' }}>Never Married</option>
+												<option value="Engaged" {{ old('martial_status') == 'Engaged' ? 'selected' : '' }}>Engaged</option>
+												<option value="Divorced" {{ old('martial_status') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
+												<option value="Separated" {{ old('martial_status') == 'Separated' ? 'selected' : '' }}>Separated</option>
+												<option value="De facto" {{ old('martial_status') == 'De facto' ? 'selected' : '' }}>De facto</option>
+												<option value="Widowed" {{ old('martial_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
+												<option value="Others" {{ old('martial_status') == 'Others' ? 'selected' : '' }}>Others</option>
 											</select>
 											@if ($errors->has('martial_status'))
 												<span class="custom-error" role="alert">
@@ -525,7 +525,7 @@
 												<select class="form-control select2" name="visa_type" id="visa_type">
 													<option value="">- Select Visa Type -</option>
 													@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
-														<option value="{{$visalist->name}}">{{$visalist->name}}</option>
+														<option value="{{$visalist->name}}" {{ old('visa_type') == $visalist->name ? 'selected' : '' }}>{{$visalist->name}}</option>
 													@endforeach
 												</select>
 												@if ($errors->has('visa_type'))
@@ -584,11 +584,12 @@
 													<option value="">- Select Country -</option>
 												<?php
 													foreach(\App\Models\Country::all() as $list){
+														$selected = old('country_passport') == $list->sortname ? 'selected' : '';
 														?>
-														<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+														<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
 														<?php
 													}
-												?>
+													?>
 												</select>
 												@if ($errors->has('country_passport'))
 													<span class="custom-error" role="alert">
@@ -651,14 +652,14 @@
 									<label for="state">State</label>
 									<select class="form-control" name="state">
 										<option value="">- Select State -</option>	
-										<option value="Australian Capital Territory">Australian Capital Territory</option>
-										<option value="New South Wales">New South Wales</option>
-										<option value="Northern Territory">Northern Territory</option>
-										<option value="Queensland">Queensland</option>
-										<option value="South Australia">South Australia</option>
-										<option value="Tasmania">Tasmania</option>
-										<option value="Victoria">Victoria</option>
-										<option value="Western Australia">Western Australia</option>
+										<option value="Australian Capital Territory" {{ old('state') == 'Australian Capital Territory' ? 'selected' : '' }}>Australian Capital Territory</option>
+										<option value="New South Wales" {{ old('state') == 'New South Wales' ? 'selected' : '' }}>New South Wales</option>
+										<option value="Northern Territory" {{ old('state') == 'Northern Territory' ? 'selected' : '' }}>Northern Territory</option>
+										<option value="Queensland" {{ old('state') == 'Queensland' ? 'selected' : '' }}>Queensland</option>
+										<option value="South Australia" {{ old('state') == 'South Australia' ? 'selected' : '' }}>South Australia</option>
+										<option value="Tasmania" {{ old('state') == 'Tasmania' ? 'selected' : '' }}>Tasmania</option>
+										<option value="Victoria" {{ old('state') == 'Victoria' ? 'selected' : '' }}>Victoria</option>
+										<option value="Western Australia" {{ old('state') == 'Western Australia' ? 'selected' : '' }}>Western Australia</option>
 									</select>
 									@if ($errors->has('state'))
 										<span class="text-danger">{{ @$errors->first('state') }}</span>
@@ -671,11 +672,12 @@
 										<option value="">- Select Country -</option>
 									<?php
 										foreach(\App\Models\Country::all() as $list){
+											$selected = old('country') == $list->sortname ? 'selected' : '';
 											?>
-											<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+											<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
 											<?php
 										}
-									?>
+										?>
 									</select>
 									@if ($errors->has('country'))
 										<span class="text-danger">{{ @$errors->first('country') }}</span>
@@ -715,8 +717,8 @@
 									<label for="skill_assessment">Skill Assessment</label>
 									<select class="form-control" name="skill_assessment">
 										<option value="">Select</option>
-										<option value="Yes">Yes</option>
-										<option value="No">No</option>
+										<option value="Yes" {{ old('skill_assessment') == 'Yes' ? 'selected' : '' }}>Yes</option>
+										<option value="No" {{ old('skill_assessment') == 'No' ? 'selected' : '' }}>No</option>
 									</select>
 									@if ($errors->has('skill_assessment'))
 										<span class="text-danger">{{ @$errors->first('skill_assessment') }}</span>
@@ -762,9 +764,9 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl">TOEFL</option>
-															<option value="ilets">IELTS</option>
-															<option value="pte">PTE</option>
+															<option value="toefl" {{ old('test_type') == 'toefl' ? 'selected' : '' }}>TOEFL</option>
+															<option value="ilets" {{ old('test_type') == 'ilets' ? 'selected' : '' }}>IELTS</option>
+															<option value="pte" {{ old('test_type') == 'pte' ? 'selected' : '' }}>PTE</option>
 														</select>
 													</div>
 												</div>
@@ -835,10 +837,10 @@
 												<label for="start_process">When You want to start Process</label>
 												<select class="form-control" name="start_process">
 													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
+													<option value="As soon As Possible" {{ old('start_process') == 'As soon As Possible' ? 'selected' : '' }}>As soon As Possible</option>
+													<option value="In Next 3 Months" {{ old('start_process') == 'In Next 3 Months' ? 'selected' : '' }}>In Next 3 Months</option>
+													<option value="In Next 6 Months" {{ old('start_process') == 'In Next 6 Months' ? 'selected' : '' }}>In Next 6 Months</option>
+													<option value="Advise Only" {{ old('start_process') == 'Advise Only' ? 'selected' : '' }}>Advise Only</option>
 												</select>
 												@if ($errors->has('start_process'))
 													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
@@ -862,7 +864,7 @@
 											<select class="form-control select2" name="service" data-valid="required">
 												<option value="">- Select Lead Service -</option>
 												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
-												<option value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
+												<option value="{{$leadservlist->name}}" {{ old('service') == $leadservlist->name ? 'selected' : '' }}>{{$leadservlist->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('service'))
@@ -879,10 +881,12 @@
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
 											<?php
                                                 $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $oldAssignTo = old('assign_to', []);
                                                 foreach($admins as $admin){
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+                                                    $selected = in_array($admin->id, (array)$oldAssignTo) ? 'selected' : '';
                                                 ?>
-                                                <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                                <option value="<?php echo $admin->id; ?>" <?php echo $selected; ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                             <?php
                                                 }
                                             ?>
@@ -900,10 +904,10 @@
 											<label for="status">Status</label>
 											<select style="padding: 0px 5px;" name="status" id="status" class="form-control" data-valid="">
 												<option value="">Select Status</option>
-												<option value="Unassigned">Unassigned</option>
-												<option value="Assigned">Assigned</option>
-												<option value="In-Progress">In-Progress</option>
-												<option value="Closed">Closed</option>
+												<option value="Unassigned" {{ old('status') == 'Unassigned' ? 'selected' : '' }}>Unassigned</option>
+												<option value="Assigned" {{ old('status') == 'Assigned' ? 'selected' : '' }}>Assigned</option>
+												<option value="In-Progress" {{ old('status') == 'In-Progress' ? 'selected' : '' }}>In-Progress</option>
+												<option value="Closed" {{ old('status') == 'Closed' ? 'selected' : '' }}>Closed</option>
 											</select>
 											@if ($errors->has('status'))
 												<span class="custom-error" role="alert">
@@ -916,11 +920,11 @@
 										<div class="form-group">
 											<label for="lead_quality">Quality <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control" data-valid="required">
-												<option value="1">1</option>
-												<option value="2">2</option>
-												<option value="3">3</option>
-												<option value="4">4</option>
-												<option value="5">5</option>
+												<option value="1" {{ old('lead_quality') == '1' ? 'selected' : '' }}>1</option>
+												<option value="2" {{ old('lead_quality') == '2' ? 'selected' : '' }}>2</option>
+												<option value="3" {{ old('lead_quality') == '3' ? 'selected' : '' }}>3</option>
+												<option value="4" {{ old('lead_quality') == '4' ? 'selected' : '' }}>4</option>
+												<option value="5" {{ old('lead_quality') == '5' ? 'selected' : '' }}>5</option>
 											</select>
 											@if ($errors->has('lead_quality'))
 												<span class="custom-error" role="alert">
@@ -934,9 +938,9 @@
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
 												<option value="">- Source -</option>
-												<option value="Sub Agent">Sub Agent</option>
+												<option value="Sub Agent" {{ old('source') == 'Sub Agent' ? 'selected' : '' }}>Sub Agent</option>
 												@foreach(\App\Models\Source::all() as $sources)
-													<option value="{{$sources->name}}">{{$sources->name}}</option>
+													<option value="{{$sources->name}}" {{ old('source') == $sources->name ? 'selected' : '' }}>{{$sources->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('lead_source'))
@@ -950,9 +954,9 @@
 										<div class="form-group"> 
 											<label for="subagent">Sub Agent <span class="span_req">*</span></label>
 											<select class="form-control select2" name="subagent">  
-												<option>-- Choose a sub agent --</option>
+												<option value="">-- Choose a sub agent --</option>
 												@foreach(\App\Models\Agent::all() as $agentlist)
-													<option value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
+													<option value="{{$agentlist->id}}" {{ old('subagent') == $agentlist->id ? 'selected' : '' }}>{{$agentlist->full_name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('subagent'))

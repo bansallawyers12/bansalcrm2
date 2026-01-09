@@ -235,9 +235,10 @@ class LeadController extends Controller
 										'email_type' => 'required|max:255',
 										'email' => 'required|max:255|unique:admins,email|unique:leads,email',
 										'service' => 'required',
-										'assign_to' => 'required',
+										'assign_to' => 'required|array|min:1',
+										'assign_to.*' => 'required|integer',
 										'lead_quality' => 'required',
-										'lead_source' => 'required',
+										'source' => 'required',
 									
 									  ]);
 			
@@ -266,7 +267,7 @@ class LeadController extends Controller
 			$obj->last_name		=	@$requestData['last_name'];
 			$obj->gender		=	@$requestData['gender'];
 			$obj->dob		=	($dob != '') ? $dob : null;
-			$obj->age		=	@$requestData['$age'];
+			$obj->age		=	@$requestData['age'];
 			$obj->martial_status		=	@$requestData['martial_status'];
 			$obj->passport_no		=	@$requestData['passport_no'];
 			$obj->visa_type			=	@$requestData['visa_type'];
@@ -285,14 +286,19 @@ class LeadController extends Controller
 		    //$obj->social_type		=	@$requestData['social_type'];			
 			//$obj->social_link		=	@$requestData['social_link'];			
 			$obj->service		=	@$requestData['service'];			
-			$obj->assign_to		=	@$requestData['assign_to'];				 
+			// Handle assign_to - convert array to single value (take first selected admin)
+			if(isset($requestData['assign_to']) && is_array($requestData['assign_to'])){
+				$obj->assign_to = $requestData['assign_to'][0]; // Take first value
+			} else {
+				$obj->assign_to = @$requestData['assign_to'];
+			}
 			$obj->status		=	@$requestData['status'];				 
 			$obj->converted		=	0; // New leads are not converted yet
 			$obj->lead_quality		=	@$requestData['lead_quality'];		
 			$obj->att_country_code		=	@$requestData['att_country_code'];
 			$obj->att_phone		=	@$requestData['att_phone'];
 				$obj->att_email		=	@$requestData['att_email'];
-			$obj->lead_source		=	@$requestData['lead_source'];	
+			$obj->lead_source		=	@$requestData['source'];	
 			$obj->related_files	=	rtrim($related_files,',');
 		//	$obj->advertisements_name		=	@$requestData['advertisements_name'];
 			$obj->comments_note		=	@$requestData['comments_note'];				 
