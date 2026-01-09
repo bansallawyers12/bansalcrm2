@@ -17,8 +17,9 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Main CRUD routes
     Route::get('/clients', [ClientsController::class, 'index'])->name('clients.index');
-    Route::get('/clients/create', [ClientsController::class, 'create'])->name('clients.create');
-    Route::post('/clients/store', [ClientsController::class, 'store'])->name('clients.store');
+    // REMOVED: Direct client creation - clients must be created via lead conversion
+    // Route::get('/clients/create', [ClientsController::class, 'create'])->name('clients.create');
+    // Route::post('/clients/store', [ClientsController::class, 'store'])->name('clients.store');
     Route::get('/clients/edit/{id}', [ClientsController::class, 'edit'])->name('clients.edit');
     Route::post('/clients/edit', [ClientsController::class, 'edit'])->name('clients.update');
     

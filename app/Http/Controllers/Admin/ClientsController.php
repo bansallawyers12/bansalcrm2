@@ -112,12 +112,20 @@ class ClientsController extends Controller
 
 	public function create(Request $request)
 	{
-		// Return appropriate view based on context
-		return view($this->getClientViewPath('clients.create'));
+		// REMOVED: Direct client creation is disabled
+		// Clients must be created by converting leads first
+		return redirect()->route('clients.index')
+			->with('error', 'Direct client creation is disabled. Please create a lead first and then convert it to a client.');
 	}
 
 	public function store(Request $request)
 	{
+		// REMOVED: Direct client creation is disabled
+		// Clients must be created by converting leads first
+		return redirect()->route('clients.index')
+			->with('error', 'Direct client creation is disabled. Please create a lead first and then convert it to a client.');
+			
+		/* DISABLED: Direct client creation - uncomment below if needed to re-enable
 		if ($request->isMethod('post'))
 		{
 			// Use trait method for validation rules
@@ -239,6 +247,7 @@ class ClientsController extends Controller
 		}
 
 		return view($this->getClientViewPath('clients.create'));
+		*/
 	}
 
 	public function downloadpdf(Request $request, $id = NULL){
