@@ -202,14 +202,9 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	Route::post('/staff/edit', [StaffController::class, 'edit'])->name('staff.update');
 	
 	// Customer routes removed - legacy travel system feature
+	// Company client creation routes removed - feature deleted
 	
-	Route::get('/users/clientlist', [UserController::class, 'clientlist'])->name('users.clientlist');
-		Route::get('/users/createclient', [UserController::class, 'createclient'])->name('users.createclient'); 
-		Route::post('/users/storeclient', [UserController::class, 'storeclient'])->name('users.storeclient'); 
-		Route::get('/users/editclient/{id}', [UserController::class, 'editclient'])->name('users.editclient');
-		Route::post('/users/editclient', [UserController::class, 'editclient'])->name('users.editclient.update'); 
-		
-		Route::post('/followup/store', [FollowupController::class, 'store'])->name('followup.store'); 
+	Route::post('/followup/store', [FollowupController::class, 'store'])->name('followup.store'); 
 		Route::get('/followup/list', [FollowupController::class, 'index'])->name('followup.index'); 
 		Route::post('/followup/compose', [FollowupController::class, 'compose'])->name('followup.compose'); 
 		 

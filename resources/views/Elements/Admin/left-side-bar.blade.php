@@ -318,7 +318,7 @@
 			</li>
 			@endif
 			<?php
-			/* if(Route::currentRouteName() == 'users.index' || Route::currentRouteName() == 'users.create' || Route::currentRouteName() == 'users.edit' || Route::currentRouteName() == 'users.clientlist' || Route::currentRouteName() == 'users.createclient' || Route::currentRouteName() == 'users.editclient' || Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){
+			/* if(Route::currentRouteName() == 'users.index' || Route::currentRouteName() == 'users.create' || Route::currentRouteName() == 'users.edit' || Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){
 				$userclasstype = 'active';
 			}
 			?> 			
@@ -327,7 +327,6 @@
 				class="fas fa-user"></i><span>User Management</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'users.index' || Route::currentRouteName() == 'users.create' || Route::currentRouteName() == 'users.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.index')}}">Users</a></li>
-					<li class="{{(Route::currentRouteName() == 'users.clientlist' || Route::currentRouteName() == 'users.createclient' || Route::currentRouteName() == 'users.editclient') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.clientlist')}}">Create Client</a></li>
 					<li class="{{(Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('usertype.index')}}">User Type</a></li>
 					<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">User Role</a></li>
 				</ul>
