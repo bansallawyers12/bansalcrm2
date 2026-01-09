@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class SmsService
@@ -32,7 +34,8 @@ class SmsService
 
             Log::info('Sending SMS', [
                 'url' => $this->apiUrl . '/send-sms',
-                'payload' => $payload
+                'to' => $numbers,
+                'message_length' => strlen($message)
             ]);
 
             $response = $this->client->post($this->apiUrl . '/send-sms', [
@@ -41,23 +44,67 @@ class SmsService
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ],
-                'json' => $payload
+                'json' => $payload,
+                'timeout' => 30
             ]);
 
             $result = json_decode($response->getBody(), true);
             Log::info('SMS API Response', ['response' => $result]);
 
-            //return $result;
-            return ['success' => true, 'message' => 'SMS sent successfully!'];
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Check if API returned success
+            if (isset($result['meta']['code']) && $result['meta']['code'] === 200) {
+                return [
+                    'success' => true,
+                    'message' => 'SMS sent successfully!',
+                    'meta' => $result['meta'] ?? [],
+                    'data' => $result['data'] ?? [],
+                    'message_id' => $result['data']['messages'][0]['message_id'] ?? null
+                ];
+            }
+
+            // API returned error
+            $errorMessage = $result['msg'] ?? 'Failed to send SMS';
+            Log::error('SMS API Error', ['error' => $errorMessage, 'response' => $result]);
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'meta' => $result['meta'] ?? [],
+                'msg' => $errorMessage
+            ];
+
+        } catch (ClientException $e) {
             $errorResponse = json_decode($e->getResponse()->getBody()->getContents(), true);
-            //Log::error('SMS API Error', ['error' => $errorResponse]);
-            //throw new \Exception($errorResponse['msg'] ?? 'Failed to send SMS');
-            return ['success' => false, 'message' => 'Failed to send SMS'];
+            $errorMessage = $errorResponse['msg'] ?? 'Failed to send SMS';
+            Log::error('SMS API Client Error', [
+                'error' => $errorMessage,
+                'status' => $e->getResponse()->getStatusCode(),
+                'response' => $errorResponse
+            ]);
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'msg' => $errorMessage
+            ];
+
+        } catch (RequestException $e) {
+            Log::error('SMS API Request Error', [
+                'error' => $e->getMessage(),
+                'url' => $this->apiUrl
+            ]);
+            return [
+                'success' => false,
+                'message' => 'Network error. Please check your connection and try again.'
+            ];
+
         } catch (\Exception $e) {
-            //Log::error('SMS Service Error', ['error' => $e->getMessage()]);
-            //throw $e;
-            return ['success' => false, 'message' => $e->getMessage()];
+            Log::error('SMS Service Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [
+                'success' => false,
+                'message' => 'An unexpected error occurred. Please try again.'
+            ];
         }
     }
 
@@ -112,12 +159,14 @@ class SmsService
             $numbers = is_array($to) ? $to : [$to];
             $payload = [
                 'sms_text' => $message,
-                'numbers' => $numbers
+                'numbers' => $numbers,
+                'from' => 'BANSALIMMI'
             ];
 
-            Log::info('Sending SMS', [
+            Log::info('Sending Verification SMS', [
                 'url' => $this->apiUrl . '/send-sms',
-                'payload' => $payload
+                'to' => $numbers,
+                'message_length' => strlen($message)
             ]);
 
             $response = $this->client->post($this->apiUrl . '/send-sms', [
@@ -126,31 +175,59 @@ class SmsService
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ],
-                'json' => $payload
+                'json' => $payload,
+                'timeout' => 30
             ]);
 
             $result = json_decode($response->getBody(), true);
             Log::info('SMS API Response', ['response' => $result]);
 
-            //return $result;
-            return ['success' => true, 'message' => 'SMS sent successfully!'];
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Check if API returned success
+            if (isset($result['meta']['code']) && $result['meta']['code'] === 200) {
+                return [
+                    'success' => true, 
+                    'message' => 'SMS sent successfully!',
+                    'message_id' => $result['data']['messages'][0]['message_id'] ?? null
+                ];
+            }
+
+            // API returned error
+            $errorMessage = $result['msg'] ?? 'Failed to send SMS';
+            Log::error('SMS API Error', ['error' => $errorMessage, 'response' => $result]);
+            return ['success' => false, 'message' => $errorMessage];
+
+        } catch (ClientException $e) {
             $errorResponse = json_decode($e->getResponse()->getBody()->getContents(), true);
-            //Log::error('SMS API Error', ['error' => $errorResponse]);
-            //throw new \Exception($errorResponse['msg'] ?? 'Failed to send SMS');
+            $errorMessage = $errorResponse['msg'] ?? 'Failed to send SMS';
+            Log::error('SMS API Client Error', [
+                'error' => $errorMessage,
+                'status' => $e->getResponse()->getStatusCode(),
+                'response' => $errorResponse
+            ]);
+            return ['success' => false, 'message' => $errorMessage];
 
-            return ['success' => false, 'message' => 'Failed to send SMS' ];
+        } catch (RequestException $e) {
+            Log::error('SMS API Request Error', [
+                'error' => $e->getMessage(),
+                'url' => $this->apiUrl
+            ]);
+            return ['success' => false, 'message' => 'Network error. Please check your connection and try again.'];
+
         } catch (\Exception $e) {
-            //Log::error('SMS Service Error', ['error' => $e->getMessage()]);
-            //throw $e;
-
-            return ['success' => false, 'message' => $e->getMessage()];
+            Log::error('SMS Service Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return ['success' => false, 'message' => 'An unexpected error occurred. Please try again.'];
         }
     }
 
-    //Send verification code
+    //Send verification code with formatted message
     public function sendVerificationCode($to, $code)
     {
-        return $this->sendVerificationCodeSMS($to, "Your verification code is: $code");
+        // Format message similar to migrationmanager2 style
+        $message = "BANSAL IMMIGRATION: Your phone verification code is {$code}. Please provide this code to our staff to verify your phone number. This code expires in 5 minutes.";
+        
+        return $this->sendVerificationCodeSMS($to, $message);
     }
 }

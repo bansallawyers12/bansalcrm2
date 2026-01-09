@@ -17,8 +17,9 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Main CRUD routes
     Route::get('/clients', [ClientsController::class, 'index'])->name('clients.index');
-    Route::get('/clients/create', [ClientsController::class, 'create'])->name('clients.create');
-    Route::post('/clients/store', [ClientsController::class, 'store'])->name('clients.store');
+    // REMOVED: Direct client creation - clients must be created via lead conversion
+    // Route::get('/clients/create', [ClientsController::class, 'create'])->name('clients.create');
+    // Route::post('/clients/store', [ClientsController::class, 'store'])->name('clients.store');
     Route::get('/clients/edit/{id}', [ClientsController::class, 'edit'])->name('clients.edit');
     Route::post('/clients/edit', [ClientsController::class, 'edit'])->name('clients.update');
     
@@ -100,6 +101,9 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Email/Contact routes
     Route::post('/clients/update-email-verified', [ClientsController::class, 'updateemailverified'])->name('clients.updateemailverified');
+    Route::post('/email-verify', [ClientsController::class, 'emailVerify'])->name('emailVerify');
+    Route::get('/email-verify-token/{token}', [ClientsController::class, 'emailVerifyToken'])->name('emailVerifyToken');
+    Route::get('/thankyou', [ClientsController::class, 'thankyou'])->name('emailVerify.thankyou');
     Route::post('/clients/fetchClientContactNo', [ClientsController::class, 'fetchClientContactNo'])->name('clients.fetchClientContactNo');
     Route::post('/sendmsg', [ClientsController::class, 'sendmsg'])->name('clients.sendmsg');
     Route::post('/is_greview_mail_sent', [ClientsController::class, 'isgreviewmailsent'])->name('clients.isgreviewmailsent');

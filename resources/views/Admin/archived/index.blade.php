@@ -31,7 +31,8 @@
 										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Added On</label>
 									</div>
 								</div>
-								<a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a>
+								<!-- REMOVED: Direct client creation - clients must be created via lead conversion -->
+								<!-- <a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a> -->
 							</div>
 						</div>
 						<div class="card-body">

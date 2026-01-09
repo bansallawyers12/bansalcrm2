@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Create Lead')
+@section('title', 'Create Client')
 
 @push('styles')
 <style>
@@ -228,8 +228,8 @@
 				@include('../Elements/flash-message')
 			</div>
 		<div class="section-body">
-			{!! Form::open(array('url' => route('leads.store'), 'name'=>"add-leads", 'id' => 'create-lead-form', 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-				<input type="hidden" name="type" value="lead"> 
+			{!! Form::open(array('url' => 'clients/store', 'name'=>"add-clients", 'id' => 'create-client-form', 'autocomplete'=>'off', "enctype"=>"multipart/form-data", 'data-check-url' => URL::to('checkclientexist'), 'data-recipients-url' => URL::to('/clients/get-recipients')))  !!}
+				<input type="hidden" name="type" value="client"> 
 				<!-- Page Header -->
 				<div class="row">   
 					<div class="col-12">
@@ -238,15 +238,15 @@
 								<div class="header-title-section">
 									<h4 class="mb-1">
 										<i class="fas fa-user-plus text-primary"></i> 
-										Create Lead
+										Create Client
 									</h4>
 								</div>
 								<div class="card-header-action">
-								    <a href="{{route('leads.index')}}" class="btn btn-outline-secondary me-2">
+								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
 								    	<i class="fa fa-arrow-left"></i> Back
 								    </a>
-								    <button type="submit" class="btn btn-primary" onclick="customValidate('add-leads')">
-								    	<i class="fas fa-save"></i> Create Lead
+								    <button type="submit" class="btn btn-primary" onclick="customValidate('add-clients')">
+								    	<i class="fas fa-save"></i> Create Client
 								    </button>
 								</div>
 							</div>
@@ -316,9 +316,9 @@
 											<label for="gender">Gender <span class="span_req">*</span></label>
 											<select name="gender" id="gender" class="form-control" data-valid="required">
 												<option value="">Select Gender</option>
-												<option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
-												<option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
-												<option value="Other" {{ old('gender') == 'Other' ? 'selected' : '' }}>Other</option>
+												<option value="Male">Male</option>
+												<option value="Female">Female</option>
+												<option value="Other">Other</option>
 											</select>
 											@if ($errors->has('gender'))
 												<span class="custom-error" role="alert">
@@ -364,18 +364,30 @@
 									</div>
 									
 									<div class="col-md-3 col-sm-12">
+										<div class="form-group"> 
+											<label for="client_id">Client ID</label>
+											{!! Form::text('client_id', '', array('class' => 'form-control bg-light', 'data-valid'=>'', 'autocomplete'=>'off', 'id' => 'checkclientid', 'placeholder'=>'Auto-generated' ,'readonly' => 'readonly' ))  !!}
+											@if ($errors->has('client_id'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('client_id') }}</strong>
+												</span> 
+											@endif
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
 											<label for="martial_status">Marital Status</label>
 											<select name="martial_status" id="martial_status" class="form-control">
 												<option value="">Select Marital Status</option>
-												<option value="Married" {{ old('martial_status') == 'Married' ? 'selected' : '' }}>Married</option>
-												<option value="Never Married" {{ old('martial_status') == 'Never Married' ? 'selected' : '' }}>Never Married</option>
-												<option value="Engaged" {{ old('martial_status') == 'Engaged' ? 'selected' : '' }}>Engaged</option>
-												<option value="Divorced" {{ old('martial_status') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
-												<option value="Separated" {{ old('martial_status') == 'Separated' ? 'selected' : '' }}>Separated</option>
-												<option value="De facto" {{ old('martial_status') == 'De facto' ? 'selected' : '' }}>De facto</option>
-												<option value="Widowed" {{ old('martial_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
-												<option value="Others" {{ old('martial_status') == 'Others' ? 'selected' : '' }}>Others</option>
+												<option value="Married">Married</option>
+												<option value="Never Married">Never Married</option>
+												<option value="Engaged">Engaged</option>
+												<option value="Divorced">Divorced</option>
+												<option value="Separated">Separated</option>
+												<option value="De facto">De facto</option>
+												<option value="Widowed">Widowed</option>
+												<option value="Others">Others</option>
 											</select>
 											@if ($errors->has('martial_status'))
 												<span class="custom-error" role="alert">
@@ -399,110 +411,34 @@
 								<section class="form-section" style="margin-bottom: 0;">
 									<h3><i class="fas fa-user"></i> Contact Information</h3>
 								<div class="row">
-									<!-- Contact Type -->
-									<div class="col-md-3 col-sm-12">
-										<div class="form-group">
-											<label for="contact_type">Contact Type <span class="span_req">*</span></label>
-											<select name="contact_type" id="contact_type" class="form-control" data-valid="required">
-												<option value="">Select Contact Type</option>
-												<option value="Personal" {{ old('contact_type') == 'Personal' ? 'selected' : '' }}>Personal</option>
-												<option value="Office" {{ old('contact_type') == 'Office' ? 'selected' : '' }}>Office</option>
-											</select>
-											@if ($errors->has('contact_type'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('contact_type') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-
 									<!-- Phone Number -->
-									<div class="col-md-3 col-sm-12">
+									<div class="col-md-6 col-sm-12">
 										<div class="form-group">
-											<label for="phone">Phone Number <span class="span_req">*</span></label>
+											<label for="client_phone">Phone Number <span class="span_req">*</span></label>
 											<div class="cus_field_input">
 												<div class="country_code">
-													<input class="telephone" id="telephone" type="tel" name="country_code" readonly style="width:50px !important;padding-left:2px !important;">
+													<input class="telephone" id="telephone" type="tel" name="client_country_code" readonly>
 												</div>
-												{!! Form::text('phone', old('phone'), array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
-												@if ($errors->has('phone'))
+												{!! Form::text('client_phone', old('client_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
+												@if ($errors->has('client_phone'))
 													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('phone') }}</strong>
+														<strong>{{ @$errors->first('client_phone') }}</strong>
 													</span> 
 												@endif
 											</div>
 										</div>
 									</div>
 
-									<!-- Email Type -->
-									<div class="col-md-3 col-sm-12">
-										<div class="form-group">
-											<label for="email_type">Email Type <span class="span_req">*</span></label>
-											<select name="email_type" id="email_type" class="form-control" data-valid="required">
-												<option value="">Select Email Type</option>
-												<option value="Personal" {{ old('email_type') == 'Personal' ? 'selected' : '' }}>Personal</option>
-												<option value="Business" {{ old('email_type') == 'Business' ? 'selected' : '' }}>Business</option>
-											</select>
-											@if ($errors->has('email_type'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('email_type') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-
 									<!-- Email Address -->
-									<div class="col-md-3 col-sm-12">
+									<div class="col-md-6 col-sm-12">
 										<div class="form-group">
 											<label for="email">Email Address <span class="span_req">*</span></label>
-											{!! Form::text('email', old('email'), array('class' => 'form-control email_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address', 'id'=>'checkemail' ))  !!}
+											{!! Form::text('email', old('email'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address', 'id'=>'checkemail' ))  !!}
 											@if ($errors->has('email'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('email') }}</strong>
 												</span> 
 											@endif
-										</div>
-									</div>
-								</div>
-								
-								<!-- Additional Contact Fields -->
-								<div class="row mt-2">
-									<div class="col-md-12">
-										<div class="form-group" style="margin-top: 10px;">
-											<label for="add_other_email_phone"></label>
-											<a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no">
-												<i class="fa fa-plus" aria-hidden="true"></i> Add Another Email & Phone
-											</a>
-										</div>
-									</div>
-								</div>
-								
-								<div class="row other_email_div" style="display:none;">
-									<div class="col-md-6 col-sm-12">
-										<div class="form-group">
-											<label for="att_email">Additional Email</label>
-											{!! Form::text('att_email', old('att_email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional email' ))  !!}
-											@if ($errors->has('att_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('att_email') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-12 other_phone_div" style="display:none;">
-										<div class="form-group">
-											<label for="att_phone">Additional Phone</label>
-											<div class="cus_field_input">
-												<div class="country_code">
-													<input class="telephone" id="telephone_att" type="tel" name="att_country_code" readonly style="width:50px;padding-left:2px;">
-												</div>
-												{!! Form::text('att_phone', old('att_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
-												@if ($errors->has('att_phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_phone') }}</strong>
-													</span> 
-												@endif
-											</div>
 										</div>
 									</div>
 								</div>
@@ -525,7 +461,7 @@
 												<select class="form-control select2" name="visa_type" id="visa_type">
 													<option value="">- Select Visa Type -</option>
 													@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
-														<option value="{{$visalist->name}}" {{ old('visa_type') == $visalist->name ? 'selected' : '' }}>{{$visalist->name}}</option>
+														<option value="{{$visalist->name}}">{{$visalist->name}}</option>
 													@endforeach
 												</select>
 												@if ($errors->has('visa_type'))
@@ -545,15 +481,15 @@
 										
 										<div class="col-md-4 col-sm-12 visa-expiry-field">
 											<div class="form-group"> 
-												<label for="visa_expiry_date">Visa Expiry Date</label>
+												<label for="visaExpiry">Visa Expiry Date</label>
 												<div class="input-group">
 													<span class="input-group-text">
 														<i class="fas fa-calendar-alt"></i>
 													</span>
-													{!! Form::text('visa_expiry_date', old('visa_expiry_date'), array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
-													@if ($errors->has('visa_expiry_date'))
+													{!! Form::text('visaExpiry', old('visaExpiry'), array('class' => 'form-control dobdatepicker', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'DD/MM/YYYY' ))  !!}
+													@if ($errors->has('visaExpiry'))
 														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('visa_expiry_date') }}</strong>
+															<strong>{{ @$errors->first('visaExpiry') }}</strong>
 														</span> 
 													@endif
 												</div>
@@ -584,12 +520,11 @@
 													<option value="">- Select Country -</option>
 												<?php
 													foreach(\App\Models\Country::all() as $list){
-														$selected = old('country_passport') == $list->sortname ? 'selected' : '';
 														?>
-														<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
+														<option value="{{@$list->sortname}}">{{@$list->name}}</option>
 														<?php
 													}
-													?>
+												?>
 												</select>
 												@if ($errors->has('country_passport'))
 													<span class="custom-error" role="alert">
@@ -601,11 +536,11 @@
 										
 										<div class="col-md-4 col-sm-12 visa-passport-field">
 											<div class="form-group"> 
-												<label for="passport_no">Passport Number</label>
-												{!! Form::text('passport_no', old('passport_no'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter passport number' ))  !!}
-												@if ($errors->has('passport_no'))
+												<label for="passport_number">Passport Number</label>
+												{!! Form::text('passport_number', old('passport_number'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter passport number' ))  !!}
+												@if ($errors->has('passport_number'))
 													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('passport_no') }}</strong>
+														<strong>{{ @$errors->first('passport_number') }}</strong>
 													</span> 
 												@endif
 											</div>
@@ -652,14 +587,14 @@
 									<label for="state">State</label>
 									<select class="form-control" name="state">
 										<option value="">- Select State -</option>	
-										<option value="Australian Capital Territory" {{ old('state') == 'Australian Capital Territory' ? 'selected' : '' }}>Australian Capital Territory</option>
-										<option value="New South Wales" {{ old('state') == 'New South Wales' ? 'selected' : '' }}>New South Wales</option>
-										<option value="Northern Territory" {{ old('state') == 'Northern Territory' ? 'selected' : '' }}>Northern Territory</option>
-										<option value="Queensland" {{ old('state') == 'Queensland' ? 'selected' : '' }}>Queensland</option>
-										<option value="South Australia" {{ old('state') == 'South Australia' ? 'selected' : '' }}>South Australia</option>
-										<option value="Tasmania" {{ old('state') == 'Tasmania' ? 'selected' : '' }}>Tasmania</option>
-										<option value="Victoria" {{ old('state') == 'Victoria' ? 'selected' : '' }}>Victoria</option>
-										<option value="Western Australia" {{ old('state') == 'Western Australia' ? 'selected' : '' }}>Western Australia</option>
+										<option value="Australian Capital Territory">Australian Capital Territory</option>
+										<option value="New South Wales">New South Wales</option>
+										<option value="Northern Territory">Northern Territory</option>
+										<option value="Queensland">Queensland</option>
+										<option value="South Australia">South Australia</option>
+										<option value="Tasmania">Tasmania</option>
+										<option value="Victoria">Victoria</option>
+										<option value="Western Australia">Western Australia</option>
 									</select>
 									@if ($errors->has('state'))
 										<span class="text-danger">{{ @$errors->first('state') }}</span>
@@ -672,12 +607,11 @@
 										<option value="">- Select Country -</option>
 									<?php
 										foreach(\App\Models\Country::all() as $list){
-											$selected = old('country') == $list->sortname ? 'selected' : '';
 											?>
-											<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
+											<option value="{{@$list->sortname}}">{{@$list->name}}</option>
 											<?php
 										}
-										?>
+									?>
 									</select>
 									@if ($errors->has('country'))
 										<span class="text-danger">{{ @$errors->first('country') }}</span>
@@ -717,8 +651,8 @@
 									<label for="skill_assessment">Skill Assessment</label>
 									<select class="form-control" name="skill_assessment">
 										<option value="">Select</option>
-										<option value="Yes" {{ old('skill_assessment') == 'Yes' ? 'selected' : '' }}>Yes</option>
-										<option value="No" {{ old('skill_assessment') == 'No' ? 'selected' : '' }}>No</option>
+										<option value="Yes">Yes</option>
+										<option value="No">No</option>
 									</select>
 									@if ($errors->has('skill_assessment'))
 										<span class="text-danger">{{ @$errors->first('skill_assessment') }}</span>
@@ -764,9 +698,9 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl" {{ old('test_type') == 'toefl' ? 'selected' : '' }}>TOEFL</option>
-															<option value="ilets" {{ old('test_type') == 'ilets' ? 'selected' : '' }}>IELTS</option>
-															<option value="pte" {{ old('test_type') == 'pte' ? 'selected' : '' }}>PTE</option>
+															<option value="toefl">TOEFL</option>
+															<option value="ilets">IELTS</option>
+															<option value="pte">PTE</option>
 														</select>
 													</div>
 												</div>
@@ -810,7 +744,7 @@
 												</div>
 											</div>
 										</div>
-										<input type="hidden" name="test_score_type" value="lead">
+										<input type="hidden" name="test_score_type" value="client">
 										
 										<div class="content-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; margin-top: 20px;">
 											<div class="form-group">
@@ -837,10 +771,10 @@
 												<label for="start_process">When You want to start Process</label>
 												<select class="form-control" name="start_process">
 													<option value="">Select</option>
-													<option value="As soon As Possible" {{ old('start_process') == 'As soon As Possible' ? 'selected' : '' }}>As soon As Possible</option>
-													<option value="In Next 3 Months" {{ old('start_process') == 'In Next 3 Months' ? 'selected' : '' }}>In Next 3 Months</option>
-													<option value="In Next 6 Months" {{ old('start_process') == 'In Next 6 Months' ? 'selected' : '' }}>In Next 6 Months</option>
-													<option value="Advise Only" {{ old('start_process') == 'Advise Only' ? 'selected' : '' }}>Advise Only</option>
+													<option value="As soon As Possible">As soon As Possible</option>
+													<option value="In Next 3 Months">In Next 3 Months</option>
+													<option value="In Next 6 Months">In Next 6 Months</option>
+													<option value="Advise Only">Advise Only</option>
 												</select>
 												@if ($errors->has('start_process'))
 													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
@@ -864,7 +798,7 @@
 											<select class="form-control select2" name="service" data-valid="required">
 												<option value="">- Select Lead Service -</option>
 												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
-												<option value="{{$leadservlist->name}}" {{ old('service') == $leadservlist->name ? 'selected' : '' }}>{{$leadservlist->name}}</option>
+												<option value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('service'))
@@ -881,12 +815,10 @@
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
 											<?php
                                                 $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
-                                                $oldAssignTo = old('assign_to', []);
                                                 foreach($admins as $admin){
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                    $selected = in_array($admin->id, (array)$oldAssignTo) ? 'selected' : '';
                                                 ?>
-                                                <option value="<?php echo $admin->id; ?>" <?php echo $selected; ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                                <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                             <?php
                                                 }
                                             ?>
@@ -904,10 +836,10 @@
 											<label for="status">Status</label>
 											<select style="padding: 0px 5px;" name="status" id="status" class="form-control" data-valid="">
 												<option value="">Select Status</option>
-												<option value="Unassigned" {{ old('status') == 'Unassigned' ? 'selected' : '' }}>Unassigned</option>
-												<option value="Assigned" {{ old('status') == 'Assigned' ? 'selected' : '' }}>Assigned</option>
-												<option value="In-Progress" {{ old('status') == 'In-Progress' ? 'selected' : '' }}>In-Progress</option>
-												<option value="Closed" {{ old('status') == 'Closed' ? 'selected' : '' }}>Closed</option>
+												<option value="Unassigned">Unassigned</option>
+												<option value="Assigned">Assigned</option>
+												<option value="In-Progress">In-Progress</option>
+												<option value="Closed">Closed</option>
 											</select>
 											@if ($errors->has('status'))
 												<span class="custom-error" role="alert">
@@ -920,11 +852,11 @@
 										<div class="form-group">
 											<label for="lead_quality">Quality <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="lead_quality" id="lead_quality" class="form-control" data-valid="required">
-												<option value="1" {{ old('lead_quality') == '1' ? 'selected' : '' }}>1</option>
-												<option value="2" {{ old('lead_quality') == '2' ? 'selected' : '' }}>2</option>
-												<option value="3" {{ old('lead_quality') == '3' ? 'selected' : '' }}>3</option>
-												<option value="4" {{ old('lead_quality') == '4' ? 'selected' : '' }}>4</option>
-												<option value="5" {{ old('lead_quality') == '5' ? 'selected' : '' }}>5</option>
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
 											</select>
 											@if ($errors->has('lead_quality'))
 												<span class="custom-error" role="alert">
@@ -938,9 +870,9 @@
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
 												<option value="">- Source -</option>
-												<option value="Sub Agent" {{ old('source') == 'Sub Agent' ? 'selected' : '' }}>Sub Agent</option>
+												<option value="Sub Agent">Sub Agent</option>
 												@foreach(\App\Models\Source::all() as $sources)
-													<option value="{{$sources->name}}" {{ old('source') == $sources->name ? 'selected' : '' }}>{{$sources->name}}</option>
+													<option value="{{$sources->name}}">{{$sources->name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('lead_source'))
@@ -954,9 +886,9 @@
 										<div class="form-group"> 
 											<label for="subagent">Sub Agent <span class="span_req">*</span></label>
 											<select class="form-control select2" name="subagent">  
-												<option value="">-- Choose a sub agent --</option>
+												<option>-- Choose a sub agent --</option>
 												@foreach(\App\Models\Agent::all() as $agentlist)
-													<option value="{{$agentlist->id}}" {{ old('subagent') == $agentlist->id ? 'selected' : '' }}>{{$agentlist->full_name}}</option>
+													<option value="{{$agentlist->id}}">{{$agentlist->full_name}}</option>
 												@endforeach
 											</select>
 											@if ($errors->has('subagent'))
@@ -990,7 +922,7 @@
 									</div>  
 									<div class="col-sm-12">
 										<div class="form-group float-end">
-											{!! Form::button('Create Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-leads")' ])  !!}
+											{!! Form::button('Create Client', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-clients")' ])  !!}
 										</div>
 									</div>
 								</div>
@@ -1020,8 +952,8 @@
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
         getTagData: '{{ url("/gettagdata") }}',
-        checkEmailUnique: '{{ url("/is_email_unique") }}',
-        checkContactUnique: '{{ url("/is_contactno_unique") }}'
+        getRecipients: '{{ url("/clients/get-recipients") }}',
+        checkClientExist: '{{ url("/checkclientexist") }}'
     };
     
     // Page-specific data for create
@@ -1095,73 +1027,7 @@
 </script>
 
 {{-- Page-Specific JavaScript --}}
-<script>
-// Handle additional email/phone toggle
-$(document).ready(function($){
-    $('.add_other_email_phone').on('click', function(){
-        if ($('.other_email_div').css('display') == 'none') {
-            $('.other_email_div').css('display','block');
-            $('.other_phone_div').css('display','block');
-            $('.add_other_email_phone').html('<i class="fa fa-minus" aria-hidden="true"></i> Hide Additional Email & Phone');
-        } else {
-            $('.other_email_div').css('display','none');
-            $('.other_phone_div').css('display','none');
-            $('.add_other_email_phone').html('<i class="fa fa-plus" aria-hidden="true"></i> Add Another Email & Phone');
-        }
-    });
-    
-    // Check email uniqueness
-    $(document).on('keyup blur', '.email_unique', function(){
-        var email = $(this).val();
-        if(email != '') {
-            $.ajax({
-                url: AppConfig.urls.checkEmailUnique,
-                type: 'POST',
-                data: {
-                    _token: AppConfig.csrf,
-                    email: email
-                },
-                success: function(response) {
-                    var data = JSON.parse(response);
-                    if(data.status == 1) {
-                        $('.email_unique').after('<span class="custom-error">' + data.message + '</span>');
-                    }
-                }
-            });
-        }
-    });
-    
-    // Check contact uniqueness
-    $(document).on('keyup blur', '.contactno_unique', function(){
-        var contact = $(this).val();
-        if(contact != '') {
-            $.ajax({
-                url: AppConfig.urls.checkContactUnique,
-                type: 'POST',
-                data: {
-                    _token: AppConfig.csrf,
-                    contact: contact
-                },
-                success: function(response) {
-                    var data = JSON.parse(response);
-                    if(data.status == 1) {
-                        $('.contactno_unique').after('<span class="custom-error">' + data.message + '</span>');
-                    }
-                }
-            });
-        }
-    });
-    
-    // Sub agent toggle
-    $('#lead_source').on('change', function(){
-        if($(this).val() == 'Sub Agent') {
-            $('.is_subagent').show();
-        } else {
-            $('.is_subagent').hide();
-        }
-    });
-});
-</script>
+<script src="{{ asset('js/pages/admin/client-create.js') }}"></script>
 
 <!-- Load Google Maps API -->
 <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY');?>&libraries=places&callback=initAutocomplete" async defer></script>

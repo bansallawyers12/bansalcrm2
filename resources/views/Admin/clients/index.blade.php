@@ -88,7 +88,6 @@
 										
 									</div>
 								</div>
-								<a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>

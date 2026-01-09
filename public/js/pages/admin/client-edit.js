@@ -567,13 +567,26 @@ jQuery(document).ready(function($){
                 function(response){
                     var obj = typeof response === 'string' ? $.parseJSON(response) : response;
                     alert(obj.message);
+                    // Reload page if successful to update verification status
+                    if(obj.status === true) {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    }
+                },
+                function(xhr, status, error) {
+                    var errorMsg = 'Failed to send verification email.';
+                    if(xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
                 }
             );
         }
     });
   
     // ============================================================================
-    // PHONE VERIFICATION (Twilio)
+    // PHONE VERIFICATION (Cellcast)
     // ============================================================================
     
     // Verify Phone
@@ -594,36 +607,52 @@ jQuery(document).ready(function($){
 
     $('#sendCodeBtn').click(function() {
         const phoneNumber = $('#verify_phone_number').val();
-        if (!phoneNumber) return;
+        if (!phoneNumber) {
+            alert('Please enter a phone number');
+            return;
+        }
 
         $.post(App.getUrl('verifySendCode') || App.getUrl('siteUrl') + '/verify/send-code', {
             phone_number: phoneNumber
         })
         .done(function(response) {
-            alert(response.message);
-            $('#verificationCodeSection').show();
+            if (response.success) {
+                alert(response.message || 'Verification code sent successfully');
+                $('#verificationCodeSection').show();
+            } else {
+                alert(response.message || 'Failed to send verification code');
+            }
         })
         .fail(function(xhr) {
-            alert('Failed to send verification code');
+            const errorMsg = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Failed to send verification code';
+            alert(errorMsg);
         });
     });
 
     $('#verifyCodeBtn').click(function() {
         const phoneNumber = $('#verify_phone_number').val();
         const code = $('#verification_code').val();
-        if (!phoneNumber || !code) return;
+        if (!phoneNumber || !code) {
+            alert('Please enter phone number and verification code');
+            return;
+        }
 
         $.post(App.getUrl('verifyCheckCode') || App.getUrl('siteUrl') + '/verify/check-code', {
             phone_number: phoneNumber,
             verification_code: code
         })
         .done(function(response) {
-            alert(response.message);
-            $('#verifyphonemodal').modal('hide');
-            location.reload(); // Reload to show updated verified numbers list
+            if (response.success) {
+                alert(response.message || 'Phone number verified successfully');
+                $('#verifyphonemodal').modal('hide');
+                location.reload(); // Reload to show updated verified numbers list
+            } else {
+                alert(response.message || 'Verification failed');
+            }
         })
         .fail(function(xhr) {
-            alert(xhr.responseJSON?.message || 'Verification failed');
+            const errorMsg = xhr.responseJSON?.message || xhr.responseJSON?.error || 'Verification failed';
+            alert(errorMsg);
         });
     });
 

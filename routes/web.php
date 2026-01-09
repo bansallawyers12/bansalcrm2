@@ -24,7 +24,6 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\UploadChecklistController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
-use App\Http\Controllers\Admin\SMSTwilioController;
 use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Auth\AdminLoginController;
@@ -670,12 +669,12 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
   
   
         //admin send msg
-        //Twilio api
-        Route::post('/verify/is-phone-verify-or-not', [SMSTwilioController::class, 'isPhoneVerifyOrNot'])->name('verify.is-phone-verify-or-not');
-        //Route::get('/show-form', [SMSTwilioController::class, 'showForm'])->name('sms.form');
-        //Route::post('/send-sms', [SMSTwilioController::class, 'sendSMS'])->name('send.sms');
-        Route::post('/verify/send-code', [SMSTwilioController::class, 'sendVerificationCode'])->name('verify.send-code');
-        Route::post('/verify/check-code', [SMSTwilioController::class, 'verifyCode'])->name('verify.check-code');
+        //Phone verification using Cellcast API
+        Route::post('/verify/is-phone-verify-or-not', [SmsController::class, 'isPhoneVerifyOrNot'])->name('verify.is-phone-verify-or-not');
+        //Route::get('/show-form', [SmsController::class, 'showForm'])->name('sms.form');
+        //Route::post('/send-sms', [SmsController::class, 'sendSMS'])->name('send.sms');
+        Route::post('/verify/send-code', [SmsController::class, 'sendVerificationCode'])->name('verify.send-code');
+        Route::post('/verify/check-code', [SmsController::class, 'verifyCode'])->name('verify.check-code');
 
 
 

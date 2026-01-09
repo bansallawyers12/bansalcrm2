@@ -37,14 +37,10 @@
                     <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">Dear {{ $details['fullname'] }} ,</p>
                     <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">{{$details['title']}} .</p>
                     <p style="margin:0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">
-                        <!--<a href="{{ url('/email-verify-token/'.base64_encode(convert_uuencode($details['client_id'])) ) }}" style="background-color: #4CAF50;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;margin: 4px 2px;cursor: pointer;border-radius: 4px;">Verify Email</a>-->
-                      
-                      <a href="https://www.bansalimmigration.com.au/email-verify-token/<?php echo base64_encode(convert_uuencode($details['client_id']));?>" style="background-color: #4CAF50;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;margin: 4px 2px;cursor: pointer;border-radius: 4px;">Verify Email</a>
+                      <a href="{{ url('/email-verify-token/'.base64_encode(convert_uuencode($details['client_id']))) }}" style="background-color: #4CAF50;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;margin: 4px 2px;cursor: pointer;border-radius: 4px;">Verify Email</a>
                     </p>
                     <p style="margin:0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">If you want to update your detail Please click at this link 
-                      <!--<a href="{{ url('/verify-dob/'.base64_encode(convert_uuencode($details['client_id'])) ) }}">Update Detail</a>-->
-                      
-                      <a href="https://www.bansalimmigration.com.au/verify-dob/<?php echo base64_encode(convert_uuencode($details['client_id']));?>">Update Detail</a>
+                      <a href="{{ url('/verify-dob/'.base64_encode(convert_uuencode($details['client_id']))) }}">Update Detail</a>
                     </p>
                   </td>
                 </tr>
