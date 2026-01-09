@@ -192,8 +192,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/users/savezone', [UserController::class, 'savezone']);
 		
 		Route::get('/users/active', [UserController::class, 'active'])->name('users.active');
-		Route::get('/users/inactive', [UserController::class, 'inactive'])->name('users.inactive'); 
-		Route::get('/users/invited', [UserController::class, 'invited'])->name('users.invited');  
+		Route::get('/users/inactive', [UserController::class, 'inactive'])->name('users.inactive');  
 		
 	Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
 	Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create'); 
