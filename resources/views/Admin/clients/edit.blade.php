@@ -658,66 +658,73 @@
 					<div class="form-content-section">
 						<section class="form-section">
 							<h3><i class="fas fa-map-marker-alt"></i> Address Information</h3>
-							<div class="content-grid">
-								<div class="form-group" style="grid-column: span 2;">
-									<label for="address">Address</label>
-									{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search address" , 'id'=>"pac-input" , 'class' => 'form-control controls', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
-									@if ($errors->has('address'))
-										<span class="text-danger">{{ @$errors->first('address') }}</span>
-									@endif
-									<small class="form-text text-muted">Start typing to search address</small>
-								</div>
+							{{-- Address Autocomplete Component --}}
+							<div id="addressAutocomplete" 
+								 data-search-route="{{ route('address.search') }}"
+								 data-details-route="{{ route('address.details') }}"
+								 data-csrf-token="{{ csrf_token() }}">
 								
-								<div id="map" style="display:none;"></div>
-								
-								<div class="form-group">
-									<label for="city">City</label>
-									{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
-									@if ($errors->has('city'))
-										<span class="text-danger">{{ @$errors->first('city') }}</span>
-									@endif
-								</div>
-								
-								<div class="form-group">
-									<label for="zip">Post Code</label>
-									{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
-									@if ($errors->has('zip'))
-										<span class="text-danger">{{ @$errors->first('zip') }}</span>
-									@endif
-								</div>
-								
-								<div class="form-group">
-									<label for="state">State</label>
-									<select class="form-control" name="state">
-										<option value="">- Select State -</option>	
-										<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
-										<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
-										<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
-										<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
-										<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
-										<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
-										<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
-										<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
-									</select>
-									@if ($errors->has('state'))
-										<span class="text-danger">{{ @$errors->first('state') }}</span>
-									@endif
-								</div>
-								
-								<div class="form-group">
-									<label for="country">Country</label>
-									<select class="form-control select2" id="country_select" name="country">
-									<?php
-										foreach(\App\Models\Country::all() as $list){
-											?>
-											<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+								<div class="address-wrapper">
+									<div class="content-grid">
+										<div class="form-group address-search-container" style="grid-column: span 2;">
+											<label for="address">Address</label>
+											{!! Form::text('address', @$fetchedData->address, array('placeholder'=>"Search address" , 'class' => 'form-control address-search-input', 'data-valid'=>'', 'autocomplete'=>'off' ))  !!}
+											@if ($errors->has('address'))
+												<span class="text-danger">{{ @$errors->first('address') }}</span>
+											@endif
+											<small class="form-text text-muted">Start typing to search address</small>
+										</div>
+										
+										<div class="form-group">
+											<label for="city">City</label>
+											{!! Form::text('city', @$fetchedData->city, array('id' => 'locality', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter city' ))  !!}
+											@if ($errors->has('city'))
+												<span class="text-danger">{{ @$errors->first('city') }}</span>
+											@endif
+										</div>
+										
+										<div class="form-group">
+											<label for="zip">Post Code</label>
+											{!! Form::text('zip', @$fetchedData->zip, array('id' => 'postal_code', 'class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter postcode' ))  !!}
+											@if ($errors->has('zip'))
+												<span class="text-danger">{{ @$errors->first('zip') }}</span>
+											@endif
+										</div>
+										
+										<div class="form-group">
+											<label for="state">State</label>
+											<select class="form-control" name="state">
+												<option value="">- Select State -</option>	
+												<option value="Australian Capital Territory" @if(@$fetchedData->state == "Australian Capital Territory") selected @endif>Australian Capital Territory</option>
+												<option value="New South Wales" @if(@$fetchedData->state == "New South Wales") selected @endif>New South Wales</option>
+												<option value="Northern Territory" @if(@$fetchedData->state == "Northern Territory") selected @endif>Northern Territory</option>
+												<option value="Queensland" @if(@$fetchedData->state == "Queensland") selected @endif>Queensland</option>
+												<option value="South Australia" @if(@$fetchedData->state == "South Australia") selected @endif>South Australia</option>
+												<option value="Tasmania" @if(@$fetchedData->state == "Tasmania") selected @endif>Tasmania</option>
+												<option value="Victoria" @if(@$fetchedData->state == "Victoria") selected @endif>Victoria</option>
+												<option value="Western Australia" @if(@$fetchedData->state == "Western Australia") selected @endif>Western Australia</option>
+											</select>
+											@if ($errors->has('state'))
+												<span class="text-danger">{{ @$errors->first('state') }}</span>
+											@endif
+										</div>
+										
+										<div class="form-group">
+											<label for="country">Country</label>
+											<select class="form-control select2" id="country_select" name="country">
 											<?php
-										}
-									?>
-									</select>
-									@if ($errors->has('country'))
-										<span class="text-danger">{{ @$errors->first('country') }}</span>
-									@endif
+												foreach(\App\Models\Country::all() as $list){
+													?>
+													<option <?php if(@$fetchedData->country == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+													<?php
+												}
+											?>
+											</select>
+											@if ($errors->has('country'))
+												<span class="text-danger">{{ @$errors->first('country') }}</span>
+											@endif
+										</div>
+									</div>
 								</div>
 							</div>
 						</section>
@@ -1581,36 +1588,15 @@ if($fetchedData->tagname != ''){
 {{-- Page-Specific JavaScript (load last) --}}
 <script src="{{ asset('js/pages/admin/client-edit.js') }}"></script>
 
-<!-- Load Google Maps API using the centralized module -->
-<script>
-// Load Google Maps API after the module is loaded
-(function() {
-  function loadGoogleMaps() {
-    // Only load if required elements exist
-    if (!document.getElementById("map") || !document.getElementById("pac-input")) {
-      console.warn("Google Maps: Required elements (map or pac-input) not found. Maps functionality disabled.");
-      return;
-    }
-    
-    // Check if GoogleMaps module is available
-    if (typeof GoogleMaps === 'undefined') {
-      console.error("GoogleMaps module not loaded. Make sure google-maps.js is loaded before this script.");
-      return;
-    }
-    
-    // Load Google Maps API using the centralized module (prevents duplicate loading)
-    GoogleMaps.loadGoogleMaps('<?php echo env('GOOGLE_MAPS_API_KEY');?>', 'initAutocomplete');
-  }
-  
-  // Load after modules are ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadGoogleMaps);
-  } else {
-    // Small delay to ensure google-maps.js is loaded
-    setTimeout(loadGoogleMaps, 50);
-  }
-})();
-</script>
+{{-- Address Autocomplete Styles --}}
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/address-autocomplete.css') }}">
+@endpush
+
+{{-- Address Autocomplete Scripts --}}
+@push('scripts')
+    <script src="{{ asset('js/address-autocomplete.js') }}"></script>
+@endpush
 
 <!-- Naati/PY Checkbox Handling -->
 <script>
