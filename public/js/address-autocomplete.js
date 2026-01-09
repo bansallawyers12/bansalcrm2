@@ -11,18 +11,32 @@
 (function() {
     'use strict';
     
-    $(document).ready(function() {
-        initAddressAutocomplete();
-    });
+    // Wait for jQuery to be available
+    function initWhenReady() {
+        if (typeof jQuery === 'undefined' || typeof $ === 'undefined') {
+            // Retry after a short delay if jQuery isn't loaded yet
+            setTimeout(initWhenReady, 100);
+            return;
+        }
+        
+        $(document).ready(function() {
+            console.log('Address autocomplete: Initializing...');
+            initAddressAutocomplete();
+        });
+    }
+    
+    // Start initialization
+    initWhenReady();
     
     function initAddressAutocomplete() {
         const config = getConfig();
         
         if (!config.isValid) {
-            console.error('Address autocomplete configuration missing!');
+            console.error('Address autocomplete configuration missing!', config);
             return;
         }
         
+        console.log('Address autocomplete: Configuration loaded', config);
         bindAddressSearch(config);
         bindAddressSelection(config);
         bindClickOutside();
