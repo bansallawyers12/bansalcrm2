@@ -3433,15 +3433,6 @@ function showContextMenu(event, row) {
         hideContextMenu();
     }));
     
-    // PDF (only for images)
-    if (fileType && ['jpg', 'jpeg', 'png'].includes(fileType.toLowerCase())) {
-        menu.appendChild(createMenuItem('PDF', function() {
-            const pdfUrl = (App.getUrl('siteUrl') || window.location.origin) + '/document/download/pdf/' + docId;
-            window.open(pdfUrl, '_blank');
-            hideContextMenu();
-        }));
-    }
-    
     // Download
     menu.appendChild(createMenuItem('Download', function() {
         if (myfileKey) {

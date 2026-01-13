@@ -4947,6 +4947,7 @@ class ClientsController extends Controller
                     foreach($fetchd as $docKey=>$fetch)
                     {
                         $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                        $addedByInfo = ($admin ? $admin->first_name : 'N/A') . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                         //Checklist verified by
                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
                             $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
@@ -4961,7 +4962,17 @@ class ClientsController extends Controller
                             $checklist_verified_at = 'N/A';
                         }*/
                         ?>
-                        <tr class="drow" id="id_<?php echo $fetch->id; ?>">
+                        <tr class="drow document-row" id="id_<?php echo $fetch->id; ?>"
+                            data-doc-id="<?php echo $fetch->id;?>"
+                            data-checklist-name="<?php echo htmlspecialchars($fetch->checklist, ENT_QUOTES, 'UTF-8'); ?>"
+                            data-file-name="<?php echo htmlspecialchars($fetch->file_name ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-file-type="<?php echo htmlspecialchars($fetch->filetype ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-myfile="<?php echo htmlspecialchars($fetch->myfile ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-myfile-key="<?php echo isset($fetch->myfile_key) ? htmlspecialchars($fetch->myfile_key, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                            data-doc-type="<?php echo htmlspecialchars($fetch->doc_type, ENT_QUOTES, 'UTF-8'); ?>"
+                            data-user-role="<?php echo Auth::user()->role; ?>"
+                            title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
+                            style="cursor: context-menu;">
                             <td><?php echo $docKey+1;?></td>
                             <td style="white-space: initial;">
                                 <div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $fetch->checklist; ?>" class="personalchecklist-row">
@@ -4982,13 +4993,18 @@ class ClientsController extends Controller
                                 <?php
                                 if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
                                     <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-                                        <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>" style="white-space: initial;">
-                                            <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
-                                        </a>-->
-                                      
-                                        <a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-                                            <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                        </a>
+                                        <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
+                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                            </a>
+                                        <?php } else {  //For old file upload
+                                            $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+                                            $myawsfile = $url.$client_unique_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
+                                            ?>
+                                            <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
+                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                            </a>
+                                        <?php } ?>
                                     </div>
                                 <?php
                                 }

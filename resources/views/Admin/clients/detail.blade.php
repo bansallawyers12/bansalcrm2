@@ -897,6 +897,77 @@ td .dropdown-menu {
 #assignUser {
 	color: #fff !important;
 }
+/* Bulk Upload Styles */
+.bulk-upload-dropzone {
+    transition: all 0.3s ease;
+}
+
+.bulk-upload-dropzone:hover {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+}
+
+.bulk-upload-dropzone.drag_over {
+    border-color: #10b981 !important;
+    background-color: #d1fae5 !important;
+    transform: scale(1.02);
+}
+
+.bulk-upload-file-item {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bulk-upload-file-item:last-child {
+    border-bottom: none;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.file-size {
+    font-size: 12px;
+    color: #666;
+}
+
+.checklist-select {
+    min-width: 200px;
+}
+
+.match-status {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.match-status.auto-matched {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.match-status.manual {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.match-status.new-checklist {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
 </style>
 <?php
 use App\Http\Controllers\Controller;
@@ -2226,7 +2297,26 @@ use App\Http\Controllers\Controller;
                                             <a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
                                         </div>
                                         <a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fa fa-plus"></i> Add Checklist</a>
+                                        <button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2"><i class="fas fa-upload"></i> Bulk Upload</button>
                                     </div>
+                                    
+                                    <!-- Bulk Upload Dropzone (Hidden by default) -->
+                                    <div class="bulk-upload-dropzone-container" id="bulk-upload-documents" style="display: none; margin-bottom: 20px; padding: 0 15px;">
+                                        <div class="bulk-upload-dropzone" 
+                                             style="border: 2px dashed #4a90e2; border-radius: 8px; padding: 40px; 
+                                                    text-align: center; background-color: #f8f9fa; cursor: pointer;">
+                                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #4a90e2; margin-bottom: 15px;"></i>
+                                            <h4 style="color: #333; margin-bottom: 10px;">Drop files here or click to browse</h4>
+                                            <p style="color: #666; margin-bottom: 0;">Supported: PDF, JPG, PNG, DOC, DOCX (Max 50MB per file)</p>
+                                            <input type="file" class="bulk-upload-file-input" multiple style="display: none;" 
+                                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                        </div>
+                                        <div class="bulk-upload-file-list" style="display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                            <strong style="color: #333;">Selected Files: <span class="file-count">0</span></strong>
+                                            <div class="bulk-upload-files-container"></div>
+                                        </div>
+                                    </div>
+                                    
                                     <div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
                                         <div class="">
                                             <table class="table text_wrap">
@@ -2380,6 +2470,33 @@ use App\Http\Controllers\Controller;
                                     <!-- Container for File Preview -->
                                     <div style="margin-left: 10px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist">
                                         <p style="color:#000;">Click on a file to preview it here.</p>
+                                    </div>
+                                    
+                                    <!-- Bulk Upload Mapping Modal -->
+                                    <div id="bulk-upload-mapping-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
+                                        <div style="margin: 50px auto; max-width: 1200px; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                                            <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                                                <h3 style="margin: 0; color: #333;">Map Files to Checklists</h3>
+                                                <button type="button" class="close-mapping-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                                            </div>
+                                            <div style="padding: 20px;">
+                                                <div id="bulk-upload-mapping-table"></div>
+                                            </div>
+                                            <div style="padding: 20px; border-top: 1px solid #e2e8f0;">
+                                                <div class="bulk-upload-progress" id="bulk-upload-progress" style="display: none; margin-bottom: 15px;">
+                                                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; height: 30px;">
+                                                        <div class="progress-bar" id="bulk-upload-progress-bar" 
+                                                             style="background: #4a90e2; height: 100%; color: white; display: flex; 
+                                                                    align-items: center; justify-content: center; font-weight: bold; 
+                                                                    transition: width 0.3s; width: 0%;">0%</div>
+                                                    </div>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <button type="button" class="btn btn-secondary" id="cancel-bulk-upload">Cancel</button>
+                                                    <button type="button" class="btn btn-primary" id="confirm-bulk-upload" style="margin-left: 10px;">Upload All</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -4262,5 +4379,389 @@ if($fetchedData->tagname != ''){
 @push('tinymce-scripts')
 @include('partials.tinymce')
 @endpush
+
+<script>
+    // ============================================================================
+    // BULK UPLOAD FUNCTIONALITY FOR DOCUMENTS TAB
+    // ============================================================================
+    
+    let bulkUploadFiles = [];
+    let currentClientId = {{$fetchedData->id}};
+    
+    // Toggle bulk upload dropzone
+    $(document).on('click', '.bulk-upload-toggle-btn', function() {
+        const dropzoneContainer = $('.bulk-upload-dropzone-container');
+        
+        if (dropzoneContainer.is(':visible')) {
+            dropzoneContainer.slideUp();
+            $(this).html('<i class="fas fa-upload"></i> Bulk Upload');
+            // Clear files
+            bulkUploadFiles = [];
+            dropzoneContainer.find('.bulk-upload-file-list').hide();
+            dropzoneContainer.find('.file-count').text('0');
+        } else {
+            dropzoneContainer.slideDown();
+            $(this).html('<i class="fas fa-times"></i> Close');
+        }
+    });
+    
+    // Click to browse files
+    $(document).on('click', '.bulk-upload-dropzone', function(e) {
+        if (!$(e.target).is('input')) {
+            $('.bulk-upload-file-input').click();
+        }
+    });
+    
+    // File input change
+    $(document).on('change', '.bulk-upload-file-input', function() {
+        const files = this.files;
+        if (files.length > 0) {
+            handleBulkFilesSelected(files);
+        }
+    });
+    
+    // Drag and drop handlers
+    $(document).on('dragover', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag_over');
+    });
+    
+    $(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag_over');
+    });
+    
+    $(document).on('drop', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag_over');
+        
+        const files = e.originalEvent.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleBulkFilesSelected(files);
+        }
+    });
+    
+    // Handle files selected
+    function handleBulkFilesSelected(files) {
+        bulkUploadFiles = [];
+        
+        const invalidFiles = [];
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        
+        Array.from(files).forEach(file => {
+            if (file.size > maxSize) {
+                invalidFiles.push(file.name + ' (exceeds 50MB)');
+                return;
+            }
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                invalidFiles.push(file.name + ' (invalid file type)');
+                return;
+            }
+            
+            bulkUploadFiles.push(file);
+        });
+        
+        if (invalidFiles.length > 0) {
+            alert('The following files were skipped:\n' + invalidFiles.join('\n'));
+        }
+        
+        if (bulkUploadFiles.length === 0) {
+            alert('No valid files selected. Please select PDF, JPG, PNG, DOC, or DOCX files under 50MB.');
+            return;
+        }
+        
+        // Show file list
+        $('.bulk-upload-file-list').show();
+        $('.file-count').text(bulkUploadFiles.length);
+        
+        // Show mapping interface
+        showBulkUploadMapping();
+    }
+    
+    // Show mapping interface
+    function showBulkUploadMapping() {
+        if (bulkUploadFiles.length === 0) return;
+        
+        // Get existing checklists
+        getExistingChecklists(function(checklists) {
+            // Call backend to get auto-matches
+            getAutoChecklistMatches(bulkUploadFiles, checklists, function(matches) {
+                displayMappingInterface(bulkUploadFiles, checklists, matches);
+            });
+        });
+    }
+    
+    // Get existing checklists from database
+    function getExistingChecklists(callback) {
+        $.ajax({
+            url: '{{ route("clients.documents.getAutoChecklistMatches") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                clientid: currentClientId,
+                files: [] // Empty array just to get checklists
+            },
+            success: function(response) {
+                if (response.status && response.checklists) {
+                    const checklists = response.checklists.map(name => ({ name: name }));
+                    callback(checklists);
+                } else {
+                    // Fallback: get from table
+                    const checklists = [];
+                    const checklistNames = new Set();
+                    
+                    $('.alldocumnetlist tr').each(function() {
+                        const checklistName = $(this).data('checklist-name');
+                        if (checklistName && !checklistNames.has(checklistName)) {
+                            checklistNames.add(checklistName);
+                            checklists.push({ name: checklistName });
+                        }
+                    });
+                    
+                    callback(checklists);
+                }
+            },
+            error: function() {
+                // Fallback: get from table
+                const checklists = [];
+                const checklistNames = new Set();
+                
+                $('.alldocumnetlist tr').each(function() {
+                    const checklistName = $(this).data('checklist-name');
+                    if (checklistName && !checklistNames.has(checklistName)) {
+                        checklistNames.add(checklistName);
+                        checklists.push({ name: checklistName });
+                    }
+                });
+                
+                callback(checklists);
+            }
+        });
+    }
+    
+    // Get auto-checklist matches from backend
+    function getAutoChecklistMatches(files, checklists, callback) {
+        const fileData = Array.from(files).map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type
+        }));
+        
+        const checklistNames = checklists.map(c => c.name);
+        
+        $.ajax({
+            url: '{{ route("clients.documents.getAutoChecklistMatches") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                clientid: currentClientId,
+                files: fileData,
+                checklists: checklistNames
+            },
+            success: function(response) {
+                if (response.status) {
+                    callback(response.matches || {});
+                } else {
+                    callback({});
+                }
+            },
+            error: function() {
+                callback({});
+            }
+        });
+    }
+    
+    // Display mapping interface
+    function displayMappingInterface(files, checklists, matches) {
+        const modal = $('#bulk-upload-mapping-modal');
+        const tableContainer = $('#bulk-upload-mapping-table');
+        
+        let html = '<table class="table table-bordered" style="width: 100%;">';
+        html += '<thead><tr><th style="width: 30%;">File Name</th><th style="width: 50%;">Checklist Assignment</th><th style="width: 20%;">Status</th></tr></thead>';
+        html += '<tbody>';
+        
+        Array.from(files).forEach((file, index) => {
+            const fileName = file.name;
+            const fileSize = formatFileSize(file.size);
+            const match = matches[fileName] || null;
+            
+            let selectedChecklist = '';
+            let statusClass = 'manual';
+            let statusText = 'Manual selection';
+            
+            if (match && match.checklist) {
+                selectedChecklist = match.checklist;
+                statusClass = match.confidence === 'high' ? 'auto-matched' : 'manual';
+                statusText = match.confidence === 'high' ? 'Auto-matched' : 'Suggested';
+            }
+            
+            html += '<tr class="bulk-upload-file-item">';
+            html += '<td><div class="file-info"><i class="fas fa-file" style="color: #4a90e2;"></i><div><div class="file-name">' + escapeHtml(fileName) + '</div><div class="file-size">' + fileSize + '</div></div></div></td>';
+            html += '<td>';
+            html += '<select class="form-control checklist-select" data-file-index="' + index + '">';
+            html += '<option value="">-- Select Checklist --</option>';
+            html += '<option value="__NEW__">+ Create New Checklist</option>';
+            checklists.forEach(checklist => {
+                const selected = selectedChecklist === checklist.name ? 'selected' : '';
+                html += '<option value="' + escapeHtml(checklist.name) + '" ' + selected + '>' + escapeHtml(checklist.name) + '</option>';
+            });
+            html += '</select>';
+            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none;">';
+            html += '</td>';
+            html += '<td><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table>';
+        tableContainer.html(html);
+        modal.show();
+    }
+    
+    // Handle new checklist option
+    $(document).on('change', '.checklist-select', function() {
+        const fileIndex = $(this).data('file-index');
+        const value = $(this).val();
+        const newInput = $('.new-checklist-input[data-file-index="' + fileIndex + '"]');
+        
+        if (value === '__NEW__') {
+            newInput.show();
+            $(this).closest('tr').find('.match-status').removeClass('auto-matched manual').addClass('new-checklist').text('New checklist');
+        } else {
+            newInput.hide();
+            if (value) {
+                $(this).closest('tr').find('.match-status').removeClass('new-checklist').addClass('manual').text('Manual selection');
+            }
+        }
+    });
+    
+    // Close modal
+    $(document).on('click', '.close-mapping-modal, #cancel-bulk-upload', function() {
+        $('#bulk-upload-mapping-modal').hide();
+        $('#bulk-upload-progress').hide();
+        $('#confirm-bulk-upload').prop('disabled', false);
+    });
+    
+    // Confirm bulk upload
+    $(document).on('click', '#confirm-bulk-upload', function() {
+        const mappings = [];
+        
+        // Collect mappings
+        bulkUploadFiles.forEach((file, index) => {
+            const selectElement = $('.checklist-select[data-file-index="' + index + '"]');
+            const checklist = selectElement.val();
+            
+            let mapping = null;
+            
+            if (checklist === '__NEW__') {
+                const newChecklistName = $('.new-checklist-input[data-file-index="' + index + '"]').val();
+                if (newChecklistName) {
+                    mapping = { type: 'new', name: newChecklistName.trim() };
+                }
+            } else if (checklist) {
+                mapping = { type: 'existing', name: checklist };
+            }
+            
+            mappings.push(mapping);
+        });
+        
+        // Validate all files have mappings
+        const unmappedFiles = [];
+        mappings.forEach((mapping, index) => {
+            if (!mapping || !mapping.name) {
+                unmappedFiles.push(bulkUploadFiles[index].name);
+            }
+        });
+        
+        if (unmappedFiles.length > 0) {
+            alert('Please map all files to checklists:\n' + unmappedFiles.join('\n'));
+            return;
+        }
+        
+        // Upload files
+        uploadBulkFiles(bulkUploadFiles, mappings);
+    });
+    
+    // Upload bulk files
+    function uploadBulkFiles(files, mappings) {
+        const formData = new FormData();
+        
+        files.forEach((file, index) => {
+            formData.append('files[]', file);
+            formData.append('mappings[]', JSON.stringify(mappings[index]));
+        });
+        
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('clientid', currentClientId);
+        formData.append('doctype', 'documents');
+        formData.append('type', 'client');
+        
+        $('#bulk-upload-progress').show();
+        $('#bulk-upload-progress-bar').css('width', '0%').text('0%');
+        $('#confirm-bulk-upload').prop('disabled', true);
+        
+        $.ajax({
+            url: '{{ route("clients.documents.bulkUpload") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                const xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        $('#bulk-upload-progress-bar').css('width', percentComplete + '%').text(Math.round(percentComplete) + '%');
+                    }
+                });
+                return xhr;
+            },
+            success: function(response) {
+                $('#bulk-upload-progress').hide();
+                $('#confirm-bulk-upload').prop('disabled', false);
+                
+                if (response.status) {
+                    alert(response.message);
+                    $('#bulk-upload-mapping-modal').hide();
+                    $('.bulk-upload-dropzone-container').hide();
+                    $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
+                    bulkUploadFiles = [];
+                    
+                    // Reload the page to show new documents
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                $('#bulk-upload-progress').hide();
+                $('#confirm-bulk-upload').prop('disabled', false);
+                let errorMsg = 'Upload failed. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                alert(errorMsg);
+            }
+        });
+    }
+    
+    // Helper functions
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
 
 @endsection

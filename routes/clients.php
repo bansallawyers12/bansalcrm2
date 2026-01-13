@@ -146,6 +146,10 @@ Route::middleware(['auth:admin'])->group(function() {
     // Download document
     Route::post('/download-document', [ClientsController::class, 'download_document'])->name('clients.download_document');
     
+    // Bulk upload routes for Documents tab
+    Route::post('/documents/bulk-upload', [ClientsController::class, 'bulkUploadDocuments'])->name('clients.documents.bulkUpload');
+    Route::post('/documents/get-auto-checklist-matches', [ClientsController::class, 'getAutoChecklistMatches'])->name('clients.documents.getAutoChecklistMatches');
+    
     // Merge records
     Route::post('/merge_records', [ClientsController::class, 'merge_records'])->name('clients.merge_records');
 });
