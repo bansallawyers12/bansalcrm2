@@ -873,18 +873,34 @@ jQuery(document).ready(function($){
 
 	console.log('Partner Create: Initializing Select2 v2');
 	
-	// Destroy existing Select2 instances if they exist
-	if ($(".addressselect2").hasClass("select2-hidden-accessible")) {
-		$(".addressselect2").select2('destroy');
-		console.log('Destroyed old Select2 instances');
-	}
+	// Destroy existing Select2 instances if they exist (check each element individually)
+	$(".addressselect2").each(function() {
+		if ($(this).hasClass("select2-hidden-accessible")) {
+			$(this).select2('destroy');
+			console.log('Destroyed old Select2 instance:', $(this).attr('id') || $(this).attr('name'));
+		}
+	});
 	
-	$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
-    $(".addressselect2").select2({
-        minimumResultsForSearch: Infinity,  // Disable search for small dropdown lists
-        width: '100%'
+	// Initialize .select2 elements in modal (only if modal exists)
+	if ($(".addbranch .modal-content").length > 0) {
+		$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
+	}
+    
+    // Initialize addressselect2 elements without search
+    $(".addressselect2").each(function() {
+        var $element = $(this);
+        try {
+            $element.select2({
+                minimumResultsForSearch: Infinity,  // Disable search
+                width: '100%'
+            });
+            console.log('Initialized Select2 on:', $element.attr('id') || $element.attr('name'), 'with', $element.find('option').length, 'options');
+        } catch (error) {
+            console.error('Failed to initialize Select2 on:', $element.attr('id') || $element.attr('name'), error);
+        }
     });
-	console.log('Partner Create: Select2 initialized with minimumResultsForSearch: Infinity');
+	
+	console.log('Partner Create: Select2 initialization complete');
 
 
     
