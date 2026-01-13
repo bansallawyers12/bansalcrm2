@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\FollowupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\StaffController;
-use App\Http\Controllers\Admin\ServicesController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ClientsController;
 use App\Http\Controllers\Admin\PartnersController;
@@ -178,7 +177,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/getpartnerbranch', [AdminController::class, 'getpartnerbranch']);
 		Route::get('/getbranchproduct', [AdminController::class, 'getbranchproduct']);
 		Route::get('/getnewPartnerbranch', [AdminController::class, 'getnewPartnerbranch']);
-		Route::get('/getservicemodal', [ServicesController::class, 'servicemodal']);
 		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);
 	Route::get('/checkclientexist', [AdminController::class, 'checkclientexist']);
@@ -225,14 +223,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('userrole.edit');
 		Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('userrole.update');
 		
-	//Services Start
-		Route::get('/services', [ServicesController::class, 'index'])->name('services.index');
-		Route::get('/services/create', [ServicesController::class, 'create'])->name('services.create'); 
-		Route::post('/services/store', [ServicesController::class, 'store'])->name('services.store');
-		Route::get('/services/edit/{id}', [ServicesController::class, 'edit'])->name('services.edit');
-		Route::post('/services/edit', [ServicesController::class, 'edit'])->name('services.update');
-			     
-	  //Manage Contacts Start   
+	//Leads Start - Updated to modern syntax   
 		Route::get('/contact', [ContactController::class, 'index'])->name('managecontact.index'); 
 		Route::get('/contact/create', [ContactController::class, 'create'])->name('managecontact.create');
 		Route::post('/managecontact/store', [ContactController::class, 'store'])->name('managecontact.store');

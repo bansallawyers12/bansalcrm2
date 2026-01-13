@@ -3362,16 +3362,40 @@ function showContextMenu(event, row) {
     // Build menu items
     if (checklistName) {
         menu.appendChild(createMenuItem('Rename Checklist', function() {
-            const renameEl = document.querySelector(`.renamechecklist[data-id="${docId}"], .personalchecklist-row[data-id="${docId}"]`);
-            if (renameEl) renameEl.click();
+            // Find the row and trigger rename directly
+            const row = document.querySelector(`.alldocumnetlist .drow[data-doc-id="${docId}"]`);
+            if (row) {
+                const parent = $(row).find('.personalchecklist-row');
+                if (parent.length) {
+                    parent.data('current-html', parent.html());
+                    const opentime = parent.data('personalchecklistname');
+                    parent.empty().append(
+                        $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+                        $('<button class="btn btn-personalprimary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+                        $('<button class="btn btn-personaldanger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+                    );
+                }
+            }
             hideContextMenu();
         }));
     }
     
     if (fileName) {
         menu.appendChild(createMenuItem('Rename File Name', function() {
-            const renameEl = document.querySelector(`.renamealldoc[data-id="${docId}"]`);
-            if (renameEl) renameEl.click();
+            // Find the row and trigger rename directly
+            const row = document.querySelector(`.alldocumnetlist .drow[data-doc-id="${docId}"]`);
+            if (row) {
+                const parent = $(row).find('.doc-row');
+                if (parent.length) {
+                    parent.data('current-html', parent.html());
+                    const opentime = parent.data('name');
+                    parent.empty().append(
+                        $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
+                        $('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
+                        $('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+                    );
+                }
+            }
             hideContextMenu();
         }));
     }
@@ -3381,17 +3405,46 @@ function showContextMenu(event, row) {
     // Preview
     menu.appendChild(createMenuItem('Preview', function() {
         if (myfileKey) {
-            // New file upload
+            // New file upload - myfile should be the path, need to construct full URL
             if (typeof previewFile === 'function') {
-                const fileUrl = window.location.origin + '/' + myfile.replace(/^\//, '');
+                let fileUrl = myfile;
+                // If myfile doesn't start with http, construct the full URL
+                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+                    // Ensure it starts with / for proper URL construction
+                    if (!fileUrl.startsWith('/')) {
+                        fileUrl = '/' + fileUrl;
+                    }
+                    fileUrl = window.location.origin + fileUrl;
+                }
                 previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
+            } else {
+                // Fallback to opening in new tab
+                let fileUrl = myfile;
+                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+                    if (!fileUrl.startsWith('/')) {
+                        fileUrl = '/' + fileUrl;
+                    }
+                    fileUrl = window.location.origin + fileUrl;
+                }
+                window.open(fileUrl, '_blank');
             }
         } else {
-            // Old file upload
-            const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
+            // Old file upload - construct AWS S3 URL
+            // Try to get AWS config from window or construct from known pattern
+            const awsBucket = window.awsBucket || '';
+            const awsRegion = window.awsRegion || '';
             const clientId = window.PageConfig?.clientId || '';
-            const fileUrl = url + clientId + '/' + docType + '/' + myfile;
-            window.open(fileUrl, '_blank');
+            
+            if (awsBucket && awsRegion && clientId && myfile) {
+                const fileUrl = `https://${awsBucket}.s3.${awsRegion}.amazonaws.com/${clientId}/${docType}/${myfile}`;
+                if (typeof previewFile === 'function') {
+                    previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
+                } else {
+                    window.open(fileUrl, '_blank');
+                }
+            } else {
+                console.error('Missing AWS configuration or file data for preview');
+            }
         }
         hideContextMenu();
     }));
@@ -3408,11 +3461,12 @@ function showContextMenu(event, row) {
     // Download
     menu.appendChild(createMenuItem('Download', function() {
         if (myfileKey) {
+            // New file upload - try to find download element first
             const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
             if (downloadEl) {
                 downloadEl.click();
             } else {
-                // Create and trigger download
+                // Create and trigger download via form
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = (App.getUrl('downloadDocument') || App.getUrl('siteUrl') + '/download-document');
@@ -3424,9 +3478,10 @@ function showContextMenu(event, row) {
                 `;
                 document.body.appendChild(form);
                 form.submit();
-                form.remove();
+                setTimeout(() => form.remove(), 100);
             }
         } else {
+            // Old file upload
             const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
             const clientId = window.PageConfig?.clientId || '';
             const fileUrl = url + clientId + '/' + docType + '/' + myfile;
@@ -3434,13 +3489,14 @@ function showContextMenu(event, row) {
             if (downloadEl) {
                 downloadEl.click();
             } else {
-                // Direct download
+                // Direct download via anchor
                 const a = document.createElement('a');
                 a.href = fileUrl;
                 a.download = fileName + '.' + fileType;
+                a.style.display = 'none';
                 document.body.appendChild(a);
                 a.click();
-                document.body.removeChild(a);
+                setTimeout(() => document.body.removeChild(a), 100);
             }
         }
         hideContextMenu();
@@ -3461,17 +3517,27 @@ function showContextMenu(event, row) {
         }));
     }
     
-    // Verify
-    menu.appendChild(createMenuItem('Verify', function() {
-        const verifyEl = document.querySelector(`.verifydoc[data-id="${docId}"]`);
-        if (verifyEl) verifyEl.click();
-        hideContextMenu();
-    }));
-    
     // Not Used
     menu.appendChild(createMenuItem('Not Used', function() {
-        const notUsedEl = document.querySelector(`.notuseddoc[data-id="${docId}"]`);
-        if (notUsedEl) notUsedEl.click();
+        // Create a temporary element to trigger the existing handler
+        const tempEl = document.createElement('a');
+        tempEl.className = 'dropdown-item notuseddoc';
+        tempEl.setAttribute('data-id', docId);
+        tempEl.setAttribute('data-href', 'notuseddoc');
+        tempEl.setAttribute('data-doctype', docType || 'documents');
+        tempEl.style.display = 'none';
+        document.body.appendChild(tempEl);
+        
+        // Trigger click to use existing handler
+        $(tempEl).trigger('click');
+        
+        // Clean up
+        setTimeout(() => {
+            if (tempEl.parentNode) {
+                tempEl.parentNode.removeChild(tempEl);
+            }
+        }, 100);
+        
         hideContextMenu();
     }));
     

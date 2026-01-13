@@ -184,10 +184,6 @@
 			<?php
 			}  
 			
-			if(Route::currentRouteName() == 'services.index'){
-				$serviceclasstype = 'active';
-			}
-		
 				/*	if(Auth::user()->role == 1){
 						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->count();					
 					}else{
@@ -202,15 +198,6 @@
     border-radius: 50%;
     color: #fff;">{{--$countfollowup--}}</span></span></a>
 			</li>-->
-			<?php
-				if(array_key_exists('5',  $module_access)) {
-			?>
-			<li class="dropdown {{@$serviceclasstype}}">
-				<a href="{{route('services.index')}}" class="nav-link"><i class="fa fa-cogs"></i><span>Services</span></a>
-			</li>
-			<?php
-				}
-			?>
 			<?php
 			if(Route::currentRouteName() == 'products.index' || Route::currentRouteName() == 'products.create' || Route::currentRouteName() == 'products.edit' || Route::currentRouteName() == 'products.detail'){
 				$productclasstype = 'active';
