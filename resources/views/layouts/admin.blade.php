@@ -446,6 +446,7 @@ i[style*="color:rgba"] {
 		</div>
 	</div>
 </div>
+@stack('scripts')
 @yield('scripts')	
 	<!--<script src="{{--asset('js/custom-chart.js')--}}"></script>-->  
 </body>

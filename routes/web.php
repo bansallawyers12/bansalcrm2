@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\ExceptionController;
+use App\Http\Controllers\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -180,6 +181,11 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);
 	Route::get('/checkclientexist', [AdminController::class, 'checkclientexist']);
+	
+	// Address Autocomplete Routes
+	Route::post('/address/search', [AddressController::class, 'searchAddress'])->name('address.search');
+	Route::post('/address/details', [AddressController::class, 'getPlaceDetails'])->name('address.details');
+	
 /*CRM route start*/
 	
 	Route::get('/users', [UserController::class, 'active'])->name('users.index');
