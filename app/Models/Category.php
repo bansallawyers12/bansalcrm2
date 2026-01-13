@@ -8,7 +8,7 @@ class Category extends Model
 {	use Sortable;
 
 	protected $fillable = [
-        'id', 'created_at', 'updated_at'
+        'id', 'category_name', 'created_at', 'updated_at'
     ];
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];

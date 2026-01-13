@@ -645,9 +645,9 @@
 
 
 
-@endsection
-@section('scripts')
+@section('scripts') 
 <script>
+// Cache buster: <?php echo time(); ?>
 
 jQuery(document).ready(function($){
 
@@ -871,8 +871,20 @@ jQuery(document).ready(function($){
 		$('#metatag_'+v).remove();
 	});
 
+	console.log('Partner Create: Initializing Select2 v2');
+	
+	// Destroy existing Select2 instances if they exist
+	if ($(".addressselect2").hasClass("select2-hidden-accessible")) {
+		$(".addressselect2").select2('destroy');
+		console.log('Destroyed old Select2 instances');
+	}
+	
 	$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
-    $(".addressselect2").select2();
+    $(".addressselect2").select2({
+        minimumResultsForSearch: Infinity,  // Disable search for small dropdown lists
+        width: '100%'
+    });
+	console.log('Partner Create: Select2 initialized with minimumResultsForSearch: Infinity');
 
 
     

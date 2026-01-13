@@ -3405,45 +3405,29 @@ function showContextMenu(event, row) {
     // Preview
     menu.appendChild(createMenuItem('Preview', function() {
         if (myfileKey) {
-            // New file upload - myfile should be the path, need to construct full URL
-            if (typeof previewFile === 'function') {
-                let fileUrl = myfile;
-                // If myfile doesn't start with http, construct the full URL
-                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
-                    // Ensure it starts with / for proper URL construction
-                    if (!fileUrl.startsWith('/')) {
-                        fileUrl = '/' + fileUrl;
-                    }
-                    fileUrl = window.location.origin + fileUrl;
+            // New file upload - open in new tab
+            let fileUrl = myfile;
+            // If myfile doesn't start with http, construct the full URL
+            if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+                // Ensure it starts with / for proper URL construction
+                if (!fileUrl.startsWith('/')) {
+                    fileUrl = '/' + fileUrl;
                 }
-                previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
-            } else {
-                // Fallback to opening in new tab
-                let fileUrl = myfile;
-                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
-                    if (!fileUrl.startsWith('/')) {
-                        fileUrl = '/' + fileUrl;
-                    }
-                    fileUrl = window.location.origin + fileUrl;
-                }
-                window.open(fileUrl, '_blank');
+                fileUrl = window.location.origin + fileUrl;
             }
+            window.open(fileUrl, '_blank');
         } else {
-            // Old file upload - construct AWS S3 URL
-            // Try to get AWS config from window or construct from known pattern
+            // Old file upload - construct AWS S3 URL and open in new tab
             const awsBucket = window.awsBucket || '';
             const awsRegion = window.awsRegion || '';
             const clientId = window.PageConfig?.clientId || '';
             
             if (awsBucket && awsRegion && clientId && myfile) {
                 const fileUrl = `https://${awsBucket}.s3.${awsRegion}.amazonaws.com/${clientId}/${docType}/${myfile}`;
-                if (typeof previewFile === 'function') {
-                    previewFile(fileType, fileUrl, 'preview-container-alldocumentlist');
-                } else {
-                    window.open(fileUrl, '_blank');
-                }
+                window.open(fileUrl, '_blank');
             } else {
                 console.error('Missing AWS configuration or file data for preview');
+                alert('Unable to preview file. Missing configuration.');
             }
         }
         hideContextMenu();

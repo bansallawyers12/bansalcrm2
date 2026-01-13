@@ -1010,7 +1010,9 @@ jQuery(document).ready(function($){
 	});
 
     $(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
-    $(".addressselect2").select2();
+    $(".addressselect2").select2({
+        minimumResultsForSearch: Infinity  // Disable search for small dropdown lists
+    });
 
 
     ////////////////////////////////////////
