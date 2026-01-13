@@ -61,15 +61,33 @@ class AgentController extends Controller
 		//check authorization end
 		if ($request->isMethod('post')) 
 		{
-			$this->validate($request, [										
-										'email' => 'required|email',
-										'related_office' => 'required'
-									  ]);
+			// Base validation rules
+			$validationRules = [
+				'email' => 'required|email',
+				'related_office' => 'required',
+				'agent_type' => 'required|array|min:1',
+				'agent_type.*' => 'in:Super Agent,Sub Agent',
+				'struture' => 'required|in:Individual,Business'
+			];
+			
+			// Conditional validation based on structure
+			if($request->input('struture') == 'Individual') {
+				$validationRules['full_name'] = 'required|string|max:255';
+			} else {
+				$validationRules['business_name'] = 'required|string|max:255';
+				$validationRules['c_name'] = 'required|string|max:255';
+			}
+			
+			$this->validate($request, $validationRules);
 			
 			$requestData 		= 	$request->all();
 			 
 			$obj				= 	new Agent; 
-			$obj->agent_type	=	implode(',',@$requestData['agent_type']);
+			// Safely handle agent_type - ensure it's an array before imploding
+			$agentType = isset($requestData['agent_type']) && is_array($requestData['agent_type']) 
+				? $requestData['agent_type'] 
+				: [];
+			$obj->agent_type	=	!empty($agentType) ? implode(',', $agentType) : null;
 			$obj->struture	=	@$requestData['struture'];
 			if(@$requestData['struture'] == 'Individual'){
 			$obj->full_name	=	@$requestData['full_name'];
@@ -128,14 +146,33 @@ class AgentController extends Controller
 		{
 			$requestData 		= 	$request->all();
 			
-			$this->validate($request, [										
-										'email' => 'required|email',
-										'related_office' => 'required'
-									  ]);
+			// Base validation rules
+			$validationRules = [
+				'email' => 'required|email',
+				'related_office' => 'required',
+				'id' => 'required|exists:agents,id',
+				'agent_type' => 'required|array|min:1',
+				'agent_type.*' => 'in:Super Agent,Sub Agent',
+				'struture' => 'required|in:Individual,Business'
+			];
+			
+			// Conditional validation based on structure
+			if($request->input('struture') == 'Individual') {
+				$validationRules['full_name'] = 'required|string|max:255';
+			} else {
+				$validationRules['business_name'] = 'required|string|max:255';
+				$validationRules['c_name'] = 'required|string|max:255';
+			}
+			
+			$this->validate($request, $validationRules);
 								  					  
 			$obj				= 	Agent::find(@$requestData['id']);
-						
-			$obj->agent_type	=	implode(',',@$requestData['agent_type']);
+			
+			// Safely handle agent_type - ensure it's an array before imploding
+			$agentType = isset($requestData['agent_type']) && is_array($requestData['agent_type']) 
+				? $requestData['agent_type'] 
+				: [];
+			$obj->agent_type	=	!empty($agentType) ? implode(',', $agentType) : null;
 			$obj->struture	=	@$requestData['struture'];
 			if(@$requestData['struture'] == 'Individual'){
 			$obj->full_name	=	@$requestData['full_name'];

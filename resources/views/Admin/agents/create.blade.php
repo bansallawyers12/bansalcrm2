@@ -353,5 +353,70 @@
 	  $('.if_image').hide();
     }
   };
+  
+  // Initialize intlTelInput for phone number field
+  $(document).ready(function() {
+    // Wait for intlTelInput plugin to be available
+    function initPhoneField() {
+      if (typeof $.fn.intlTelInput === 'function') {
+        var $telephone = $('#telephone');
+        if ($telephone.length > 0 && !$telephone.data('intlTelInput')) {
+          try {
+            // Initialize with default country (Australia)
+            $telephone.intlTelInput({
+              preferredCountries: ['au', 'gb'],
+              initialCountry: 'au',
+              initialDialCode: true
+            });
+            
+            // Get the dial code and set it in the readonly field
+            setTimeout(function() {
+              var countryData = $telephone.intlTelInput('getSelectedCountryData');
+              if (countryData) {
+                var dialCode = '+' + countryData.dialCode;
+                if (!$telephone.val() || $telephone.val().trim() === '') {
+                  $telephone.val(dialCode);
+                }
+              }
+            }, 100);
+            
+            // Update country_code field when country changes
+            $telephone.on('countrychange', function() {
+              var countryData = $telephone.intlTelInput('getSelectedCountryData');
+              if (countryData) {
+                $telephone.val('+' + countryData.dialCode);
+              }
+            });
+          } catch (e) {
+            console.warn('Error initializing intlTelInput:', e);
+          }
+        }
+      } else {
+        // Retry after a short delay if plugin not yet loaded
+        setTimeout(initPhoneField, 100);
+      }
+    }
+    
+    // Initialize immediately and also after a delay to handle async loading
+    initPhoneField();
+    setTimeout(initPhoneField, 500);
+    
+    // Ensure country_code is set before form submission
+    $('form[name="add-agents"]').on('submit', function(e) {
+      var $telephone = $('#telephone');
+      if ($telephone.length > 0 && typeof $.fn.intlTelInput === 'function') {
+        try {
+          var countryData = $telephone.intlTelInput('getSelectedCountryData');
+          if (countryData) {
+            var dialCode = '+' + countryData.dialCode;
+            // Always update to ensure it's set
+            $telephone.val(dialCode);
+          }
+        } catch (e) {
+          console.warn('Error getting country code on submit:', e);
+        }
+      }
+    });
+  });
 </script>
 @endsection

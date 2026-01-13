@@ -205,9 +205,30 @@ jQuery(document).ready(function($){
 				data:{cat_id:v},
 				success:function(response){
 					$('.popuploader').hide();
+					// Destroy existing Select2 instance if it exists
+					if($('#intrested_branch').hasClass('select2-hidden-accessible')){
+						$('#intrested_branch').select2('destroy');
+					}
+					// Update the HTML
 					$('#intrested_branch').html(response);
-				
+					// Re-initialize Select2 with search enabled
+					$('#intrested_branch').select2({
+						minimumResultsForSearch: 0
+					});
+				},
+				error:function(xhr, status, error){
+					$('.popuploader').hide();
+					console.error('Failed to load branches:', error);
 				}
+			});
+		} else {
+			// Clear branches dropdown when no partner is selected
+			if($('#intrested_branch').hasClass('select2-hidden-accessible')){
+				$('#intrested_branch').select2('destroy');
+			}
+			$('#intrested_branch').html('<option></option>');
+			$('#intrested_branch').select2({
+				minimumResultsForSearch: 0
 			});
 		}
 	});

@@ -202,7 +202,7 @@
 												<label for="phone">Phone</label>
 												<div class="cus_field_input">
 													<div class="country_code"> 
-														<input class="telephone" id="telephone" type="tel" name="country_code" readonly >
+														<input class="telephone" id="telephone" type="tel" name="country_code" readonly value="{{@$fetchedData->country_code}}">
 													</div>	
 													{!! Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 													@if ($errors->has('phone'))
@@ -378,6 +378,88 @@
 		$('#personal_details .is_business input').attr('data-valid', 'required');
 		$('#personal_details .is_individual input').attr('data-valid', '');
 	}
+	
+	// Initialize intlTelInput for phone number field
+	function initPhoneField() {
+		if (typeof $.fn.intlTelInput === 'function') {
+			var $telephone = $('#telephone');
+			if ($telephone.length > 0 && !$telephone.data('intlTelInput')) {
+				try {
+					// Get existing country code if available
+					var existingCode = $telephone.val() || '{{@$fetchedData->country_code}}';
+					var initialCountry = 'au';
+					
+					// Try to determine country from existing code
+					if (existingCode && existingCode.trim() !== '') {
+						// Extract dial code (e.g., "+61" -> "61")
+						var dialCode = existingCode.replace(/[^0-9]/g, '');
+						// Try to find country by dial code (simplified - defaults to au)
+						// The plugin will handle this better, so we'll let it initialize and then set the value
+					}
+					
+					// Initialize with default country
+					$telephone.intlTelInput({
+						preferredCountries: ['au', 'gb'],
+						initialCountry: initialCountry,
+						initialDialCode: true
+					});
+					
+					// Set existing value if available, otherwise set default
+					setTimeout(function() {
+						if (existingCode && existingCode.trim() !== '') {
+							$telephone.val(existingCode);
+							// Try to set the country based on the code
+							try {
+								$telephone.intlTelInput('setNumber', existingCode);
+							} catch(e) {
+								// If setNumber fails, just use the value as is
+							}
+						} else {
+							// Set initial country code
+							var countryData = $telephone.intlTelInput('getSelectedCountryData');
+							if (countryData) {
+								$telephone.val('+' + countryData.dialCode);
+							}
+						}
+					}, 100);
+					
+					// Update country_code field when country changes
+					$telephone.on('countrychange', function() {
+						var countryData = $telephone.intlTelInput('getSelectedCountryData');
+						if (countryData) {
+							$telephone.val('+' + countryData.dialCode);
+						}
+					});
+				} catch (e) {
+					console.warn('Error initializing intlTelInput:', e);
+				}
+			}
+		} else {
+			// Retry after a short delay if plugin not yet loaded
+			setTimeout(initPhoneField, 100);
+		}
+	}
+	
+	// Initialize immediately and also after a delay to handle async loading
+	initPhoneField();
+	setTimeout(initPhoneField, 500);
+	
+	// Ensure country_code is set before form submission
+	$('form[name="edit-agents"]').on('submit', function(e) {
+		var $telephone = $('#telephone');
+		if ($telephone.length > 0 && typeof $.fn.intlTelInput === 'function') {
+			try {
+				var countryData = $telephone.intlTelInput('getSelectedCountryData');
+				if (countryData) {
+					var dialCode = '+' + countryData.dialCode;
+					// Always update to ensure it's set
+					$telephone.val(dialCode);
+				}
+			} catch (e) {
+				console.warn('Error getting country code on submit:', e);
+			}
+		}
+	});
   });
 </script>
 @endsection
