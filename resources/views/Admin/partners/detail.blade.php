@@ -662,12 +662,22 @@ use App\Http\Controllers\Controller;
                                               
                                                 <?php
                                                 if( isset($fetchedData->file_upload ) && $fetchedData->file_upload != ""){
-                                                    $file_url = "https://bansalcrm.com/public/img/documents/".$fetchedData->file_upload;
+                                                    // Check if it's a full URL (S3) or just filename (old local)
+                                                    if(filter_var($fetchedData->file_upload, FILTER_VALIDATE_URL)){
+                                                        // It's a full S3 URL
+                                                        $file_url = $fetchedData->file_upload;
+                                                        $file_display_name = basename(parse_url($fetchedData->file_upload, PHP_URL_PATH));
+                                                    } else {
+                                                        // Old local file - backward compatibility
+                                                        $file_url = "https://bansalcrm.com/public/img/documents/".$fetchedData->file_upload;
+                                                        $file_display_name = $fetchedData->file_upload;
+                                                    }
                                                 ?>
-                                                    <a href="<?php echo $file_url;?>" target="_blank"><?php echo $fetchedData->file_upload;?></a>
+                                                    <a href="<?php echo $file_url;?>" target="_blank"><?php echo $file_display_name;?></a>
                                                 <?php
                                                 }
                                                 ?>
+
 											</div>
 										</div>
 										</form>

@@ -189,7 +189,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	
 /*CRM route start*/
 	
-	Route::get('/users', [UserController::class, 'index'])->name('users.index');
+	Route::get('/users', [UserController::class, 'active'])->name('users.index');
 		Route::get('/users/create', [UserController::class, 'create'])->name('users.create'); 
 		Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
 		Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
