@@ -838,25 +838,64 @@ class PartnersController extends Controller
 			$obj->default_super_agent = $request->default_super_agent;
           
             if ($request->hasfile('file_upload')) {
+                // Get partner info for S3 path structure
+                $partner_info = Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first();
+                if(!empty($partner_info) && !empty($partner_info->email)){
+                    $partner_unique_id = $partner_info->email;
+                } else {
+                    $partner_unique_id = "";
+                }
+                
+                // Handle old file deletion (S3 and local for backward compatibility)
+                if(!empty($obj->file_upload)){
+                    $old_file = $obj->file_upload;
+                    
+                    // Check if old file is S3 URL
+                    if(filter_var($old_file, FILTER_VALIDATE_URL) && strpos($old_file, 'amazonaws.com') !== false){
+                        // Extract S3 key from URL
+                        $parsedUrl = parse_url($old_file);
+                        if(isset($parsedUrl['path'])){
+                            $s3Key = ltrim($parsedUrl['path'], '/');
+                            // Delete from S3 if exists
+                            if(Storage::disk('s3')->exists($s3Key)){
+                                Storage::disk('s3')->delete($s3Key);
+                            }
+                        }
+                    } else {
+                        // Old local file - delete for backward compatibility
+                        $old_file_path = Config::get('constants.documents').'/'.$old_file;
+                        if(file_exists($old_file_path) && is_file($old_file_path)){
+                            unlink($old_file_path);
+                        }
+                    }
+                }
+                
                 if(!is_array($request->file('file_upload'))){
                     $files[] = $request->file('file_upload');
                 } else {
                     $files = $request->file('file_upload');
                 }
+                
                 foreach ($files as $file) {
                     $size = $file->getSize();
                     $fileName = $file->getClientOriginalName();
                     $explodeFileName = explode('.', $fileName);
-                    $document_upload = $this->uploadrenameFile($file, Config::get('constants.documents'));
-                    $exploadename = explode('.', $document_upload);
-                    $obj->file_upload = $document_upload; //$explodeFileName[0];
+                    
+                    // Upload to S3
+                    $name = time() . '_' . $file->getClientOriginalName();
+                    $filePath = $partner_unique_id.'/agreements/'. $name;
+                    Storage::disk('s3')->put($filePath, file_get_contents($file));
+                    
+                    // Get the full URL of the uploaded file
+                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $obj->file_upload = $fileUrl; // Store full S3 URL
                 }
             }
           
 			$saved = $obj->save();
 			if($saved){
 				$response['status'] 	= 	true;
-				$response['message']	=	'You’ve successfully saved your partner agreement’s information.';
+				$response['message']	=	'You\'ve successfully saved your partner agreement\'s information.';
 			}else{
 				$response['status'] 	= 	false;
 				$response['message']	=	'Please try again';

@@ -43,7 +43,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-header">
 							<h4>User</h4>
 							<div class="card-header-action">
-								<a href="{{route('users.index')}}" class="btn btn-primary">Users</a>
+								<a href="{{route('users.active')}}" class="btn btn-primary">Users</a>
 							</div>
 						</div>
 					</div>
