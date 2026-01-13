@@ -4973,21 +4973,10 @@ class ClientsController extends Controller
                             data-user-role="<?php echo Auth::user()->role; ?>"
                             title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
                             style="cursor: context-menu;">
-                            <td><?php echo $docKey+1;?></td>
                             <td style="white-space: initial;">
                                 <div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $fetch->checklist; ?>" class="personalchecklist-row">
                                     <span><?php echo $fetch->checklist; ?></span>
                                 </div>
-                            </td>
-                            <td style="white-space: initial;">
-                                <?php
-                                if($admin) {
-                                    echo $admin->first_name. "<br>";
-                                } else {
-                                    echo "N/A<br>";
-                                }
-                                echo date('d/m/Y', strtotime($fetch->created_at));
-                                ?>
                             </td>
                             <td style="white-space: initial;">
                                 <?php
@@ -5030,46 +5019,6 @@ class ClientsController extends Controller
                                 //echo $checklist_verified_at;
                                 ?>
                             </td>-->
-
-                            <td>
-                                <?php
-                                if( isset($fetch->file_name) && $fetch->file_name !="")
-                                { ?>
-                                    <div class="dropdown d-inline">
-                                        <button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item renamechecklist" href="javascript:;">Rename Checklist</a>
-                                            <a class="dropdown-item renamealldoc" href="javascript:;">Rename File Name</a>
-                                            <?php
-                                            //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                            ?>
-                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Preview</a>-->
-                                            <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Preview</a>-->
-                                          
-                                             <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-
-                                            <?php
-                                            $explodeimg = explode('.',$fetch->myfile);
-                                            if(strtolower($explodeimg[1]) == 'jpg'|| strtolower($explodeimg[1]) == 'png'|| strtolower($explodeimg[1]) == 'jpeg'){
-                                            ?>
-                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
-                                            <?php } ?>
-
-                                            <!--<a download class="dropdown-item" href="<?php //echo $url.$client_unique_id.'/'.$doctype.'/'.$fetch->myfile; ?>">Download</a>-->
-                                            <!--<a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
-                                            <a href="#" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>">Download</a>
-
-
-                                            <?php if( Auth::user()->role == 1 ){ //echo Auth::user()->role;//super admin ?>
-                                            <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletealldocs" href="javascript:;" >Delete</a>
-                                            <?php } ?>
-                                            <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item verifydoc" data-doctype="documents" data-href="verifydoc" href="javascript:;">Verify</a>
-                                            <a data-id="<?php echo $fetch->id; ?>" class="dropdown-item notuseddoc" data-doctype="documents" data-href="notuseddoc" href="javascript:;">Not Used</a>
-                                        </div>
-                                    </div>
-                                <?php
-                                }?>
-                            </td>
                         </tr>
 			        <?php
 			        } //end foreach
@@ -5918,6 +5867,430 @@ class ClientsController extends Controller
             \Log::error('S3 download error: ' . $e->getMessage());
             return abort(500, 'Error generating download link');
         }
+    }
+    
+    /**
+     * Get auto-checklist matches for bulk upload
+     */
+    public function getAutoChecklistMatches(Request $request) {
+        $response = ['status' => false, 'matches' => []];
+        
+        try {
+            $files = $request->input('files', []);
+            $clientid = $request->input('clientid');
+            
+            // Get all active checklists from DocumentChecklist table
+            $checklists = \App\Models\DocumentChecklist::where('status', 1)
+                ->pluck('name')
+                ->toArray();
+            
+            // If no files provided, just return checklists (for frontend to get checklist list)
+            if (empty($files)) {
+                $response['status'] = true;
+                $response['checklists'] = $checklists;
+                return response()->json($response);
+            }
+            
+            if (empty($checklists)) {
+                $response['status'] = true;
+                return response()->json($response);
+            }
+            
+            $matches = [];
+            
+            foreach ($files as $file) {
+                $fileName = $file['name'] ?? '';
+                $match = $this->findBestChecklistMatch($fileName, $checklists);
+                if ($match) {
+                    $matches[$fileName] = $match;
+                }
+            }
+            
+            $response['status'] = true;
+            $response['matches'] = $matches;
+            $response['checklists'] = $checklists;
+            
+        } catch (\Exception $e) {
+            \Log::error('Error getting auto-checklist matches', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+        
+        return response()->json($response);
+    }
+    
+    /**
+     * Find best checklist match for a filename
+     */
+    private function findBestChecklistMatch($fileName, $checklists) {
+        if (empty($fileName) || empty($checklists)) {
+            return null;
+        }
+        
+        // Clean filename
+        $cleanFileName = $this->cleanFileName($fileName);
+        $fileNameLower = strtolower($cleanFileName);
+        $fileNameWords = $this->extractKeywords($cleanFileName);
+        
+        $bestMatch = null;
+        $bestScore = 0;
+        $bestConfidence = 'low';
+        
+        foreach ($checklists as $checklist) {
+            $checklistLower = strtolower($checklist);
+            $checklistWords = $this->extractKeywords($checklist);
+            
+            // Strategy 1: Exact match (after cleaning)
+            if ($fileNameLower === $checklistLower) {
+                return [
+                    'checklist' => $checklist,
+                    'confidence' => 'high',
+                    'score' => 100,
+                    'method' => 'exact'
+                ];
+            }
+            
+            // Strategy 2: Fuzzy matching
+            $similarity = $this->calculateSimilarity($fileNameLower, $checklistLower);
+            if ($similarity > 85) {
+                return [
+                    'checklist' => $checklist,
+                    'confidence' => 'high',
+                    'score' => $similarity,
+                    'method' => 'fuzzy'
+                ];
+            } elseif ($similarity > 70 && $similarity > $bestScore) {
+                $bestMatch = $checklist;
+                $bestScore = $similarity;
+                $bestConfidence = 'medium';
+            }
+            
+            // Strategy 3: Pattern matching
+            $patternMatch = $this->checkPatternMatch($fileNameWords, $checklistWords);
+            if ($patternMatch['matched'] && $patternMatch['score'] > $bestScore) {
+                $bestMatch = $checklist;
+                $bestScore = $patternMatch['score'];
+                $bestConfidence = $patternMatch['score'] > 80 ? 'high' : 'medium';
+            }
+            
+            // Strategy 4: Abbreviation matching
+            $abbrevMatch = $this->checkAbbreviationMatch($cleanFileName, $checklist);
+            if ($abbrevMatch && $abbrevMatch > $bestScore) {
+                $bestMatch = $checklist;
+                $bestScore = $abbrevMatch;
+                $bestConfidence = 'high';
+            }
+            
+            // Strategy 5: Partial word matching
+            $partialMatch = $this->checkPartialMatch($fileNameWords, $checklistWords);
+            if ($partialMatch && $partialMatch > $bestScore) {
+                $bestMatch = $checklist;
+                $bestScore = $partialMatch;
+                $bestConfidence = 'low';
+            }
+        }
+        
+        if ($bestMatch && $bestScore > 50) {
+            return [
+                'checklist' => $bestMatch,
+                'confidence' => $bestConfidence,
+                'score' => $bestScore,
+                'method' => 'combined'
+            ];
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Clean filename for matching
+     */
+    private function cleanFileName($fileName) {
+        // Remove extension
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
+        // Remove common prefixes (client name, timestamps)
+        $name = preg_replace('/^[^_]+_/', '', $name); // Remove prefix before first underscore
+        $name = preg_replace('/_\d{10,}$/', '', $name); // Remove timestamps
+        $name = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $name); // Replace special chars with spaces
+        return trim($name);
+    }
+    
+    /**
+     * Extract keywords from text
+     */
+    private function extractKeywords($text) {
+        $text = strtolower($text);
+        $words = preg_split('/[\s_\-]+/', $text);
+        $stopWords = ['the', 'of', 'and', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'is', 'are', 'was', 'were'];
+        return array_filter($words, function($word) use ($stopWords) {
+            return strlen($word) > 2 && !in_array($word, $stopWords);
+        });
+    }
+    
+    /**
+     * Calculate similarity between two strings (Levenshtein-based)
+     */
+    private function calculateSimilarity($str1, $str2) {
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
+        
+        if ($len1 === 0 || $len2 === 0) {
+            return 0;
+        }
+        
+        $maxLen = max($len1, $len2);
+        $distance = levenshtein($str1, $str2);
+        
+        return (1 - ($distance / $maxLen)) * 100;
+    }
+    
+    /**
+     * Check pattern match
+     */
+    private function checkPatternMatch($fileNameWords, $checklistWords) {
+        $patterns = [
+            'passport' => ['passport', 'pass', 'pp'],
+            'visa' => ['visa', 'grant', 'vg'],
+            'identity' => ['id', 'identity', 'aadhar', 'aadhaar', 'national'],
+            'birth' => ['birth', 'certificate', 'bc'],
+            'marriage' => ['marriage', 'certificate', 'mc'],
+            'education' => ['education', 'degree', 'diploma', 'certificate'],
+            'employment' => ['employment', 'experience', 'work', 'job']
+        ];
+        
+        $matched = false;
+        $score = 0;
+        
+        foreach ($patterns as $key => $keywords) {
+            $fileHasKeyword = false;
+            $checklistHasKeyword = false;
+            
+            foreach ($keywords as $keyword) {
+                if (in_array($keyword, $fileNameWords)) {
+                    $fileHasKeyword = true;
+                }
+                if (in_array($keyword, $checklistWords)) {
+                    $checklistHasKeyword = true;
+                }
+            }
+            
+            if ($fileHasKeyword && $checklistHasKeyword) {
+                $matched = true;
+                $score = 90; // High score for pattern match
+                break;
+            }
+        }
+        
+        return ['matched' => $matched, 'score' => $score];
+    }
+    
+    /**
+     * Check abbreviation match
+     */
+    private function checkAbbreviationMatch($fileName, $checklist) {
+        $abbreviations = [
+            'pp' => 'passport',
+            'vg' => 'visa grant',
+            'nic' => 'national identity',
+            'dob' => 'birth',
+            'bc' => 'birth certificate',
+            'mc' => 'marriage certificate'
+        ];
+        
+        $fileNameLower = strtolower($fileName);
+        $checklistLower = strtolower($checklist);
+        
+        foreach ($abbreviations as $abbrev => $full) {
+            if (strpos($fileNameLower, $abbrev) !== false && strpos($checklistLower, $full) !== false) {
+                return 85;
+            }
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Check partial word match
+     */
+    private function checkPartialMatch($fileNameWords, $checklistWords) {
+        $matches = 0;
+        $total = count($checklistWords);
+        
+        if ($total === 0) {
+            return 0;
+        }
+        
+        foreach ($checklistWords as $checklistWord) {
+            foreach ($fileNameWords as $fileNameWord) {
+                if (strpos($fileNameWord, $checklistWord) !== false || strpos($checklistWord, $fileNameWord) !== false) {
+                    $matches++;
+                    break;
+                }
+            }
+        }
+        
+        return ($matches / $total) * 100;
+    }
+    
+    /**
+     * Bulk upload documents
+     */
+    public function bulkUploadDocuments(Request $request) {
+        $response = ['status' => false, 'message' => 'Please try again'];
+        
+        try {
+            $clientid = $request->clientid;
+            $doctype = $request->doctype ?? 'documents';
+            $type = $request->type ?? 'client';
+            
+            if (!$request->hasFile('files')) {
+                $response['message'] = 'No files uploaded';
+                return response()->json($response);
+            }
+            
+            $files = $request->file('files');
+            $mappingsInput = $request->input('mappings', []);
+            
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+            
+            // Parse mappings JSON strings
+            $mappings = [];
+            foreach ($mappingsInput as $mappingStr) {
+                $mapping = json_decode($mappingStr, true);
+                if ($mapping) {
+                    $mappings[] = $mapping;
+                }
+            }
+            
+            $uploadedCount = 0;
+            $errors = [];
+            
+            foreach ($files as $index => $file) {
+                try {
+                    $fileName = $file->getClientOriginalName();
+                    $size = $file->getSize();
+                    
+                    // Validate filename
+                    if (!preg_match('/^[a-zA-Z0-9_\-\.\s\$]+$/', $fileName)) {
+                        $errors[] = "File '{$fileName}' has invalid characters in name";
+                        continue;
+                    }
+                    
+                    // Get mapping for this file
+                    $mapping = isset($mappings[$index]) ? $mappings[$index] : null;
+                    if (!$mapping || !isset($mapping['name'])) {
+                        $errors[] = "No mapping found for file '{$fileName}'";
+                        continue;
+                    }
+                    
+                    $checklistName = $mapping['name'] ?? null;
+                    if (!$checklistName) {
+                        $errors[] = "No checklist name specified for file '{$fileName}'";
+                        continue;
+                    }
+                    
+                    // Check if checklist exists in DocumentChecklist table
+                    $checklistExists = \App\Models\DocumentChecklist::where('name', $checklistName)
+                        ->where('status', 1)
+                        ->exists();
+                    
+                    // If mapping type is 'new' and checklist doesn't exist, create it
+                    if ($mapping['type'] === 'new' && !$checklistExists) {
+                        // Create new checklist in DocumentChecklist table
+                        $newChecklist = new \App\Models\DocumentChecklist();
+                        $newChecklist->name = $checklistName;
+                        $newChecklist->doc_type = 1; // Default doc_type, adjust if needed
+                        $newChecklist->status = 1;
+                        $newChecklist->save();
+                    }
+                    
+                    // Check if document record exists (checklist without file)
+                    $document = \App\Models\Document::where('client_id', $clientid)
+                        ->where('doc_type', $doctype)
+                        ->where('checklist', $checklistName)
+                        ->where('type', $type)
+                        ->whereNull('not_used_doc')
+                        ->whereNull('file_name') // Only get checklists without files
+                        ->first();
+                    
+                    // If checklist doesn't exist, create it
+                    if (!$document) {
+                        $document = new \App\Models\Document();
+                        $document->user_id = Auth::user()->id;
+                        $document->client_id = $clientid;
+                        $document->type = $type;
+                        $document->doc_type = $doctype;
+                        $document->checklist = $checklistName;
+                        $document->save();
+                    }
+                    
+                    // Upload file using local storage
+                    $document_upload = $this->uploadrenameFile($file, Config::get('constants.documents'));
+                    
+                    if (!$document_upload) {
+                        $errors[] = "Failed to upload file '{$fileName}'";
+                        continue;
+                    }
+                    
+                    // Update document with file info
+                    $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+                    $fileExtension = $file->getClientOriginalExtension();
+                    
+                    // Store full path for local files (matches view expectation when myfile_key is set)
+                    $document->file_name = $nameWithoutExtension;
+                    $document->filetype = $fileExtension;
+                    $document->user_id = Auth::user()->id;
+                    $document->myfile = 'img/documents/' . $document_upload; // Full path for local files
+                    $document->myfile_key = $document_upload; // Store just filename to indicate new local file
+                    $document->file_size = $size;
+                    $document->save();
+                    
+                    $uploadedCount++;
+                    
+                } catch (\Exception $e) {
+                    $errors[] = "Error uploading '{$fileName}': " . $e->getMessage();
+                    \Log::error('Bulk upload error for file', [
+                        'file' => $fileName,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            if ($uploadedCount > 0) {
+                // Log activity
+                $subject = "bulk uploaded {$uploadedCount} documents";
+                $description = "<p>Bulk uploaded {$uploadedCount} documents</p>";
+                
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $clientid;
+                $objs->created_by = Auth::user()->id;
+                $objs->description = $description;
+                $objs->subject = $subject;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+                
+                $response['status'] = true;
+                $response['message'] = "Successfully uploaded {$uploadedCount} file(s)";
+                $response['uploaded'] = $uploadedCount;
+                $response['errors'] = $errors;
+            } else {
+                $response['message'] = 'No files were uploaded. ' . implode('; ', $errors);
+                $response['errors'] = $errors;
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in bulk upload', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            $response['message'] = 'An error occurred: ' . $e->getMessage();
+        }
+        
+        return response()->json($response);
     }
     
 }
