@@ -269,7 +269,9 @@ class LeadController extends Controller
 			$obj->last_name		=	@$requestData['last_name'];
 			$obj->gender		=	@$requestData['gender'];
 			$obj->dob		=	($dob != '') ? $dob : null;
-			$obj->age		=	@$requestData['age'];
+			// Extract numeric value from age field (handles cases like "13 years" -> 13)
+			$age = isset($requestData['age']) && $requestData['age'] != '' ? preg_replace('/[^0-9]/', '', $requestData['age']) : null;
+			$obj->age		=	($age != '' && is_numeric($age)) ? (int)$age : null;
 			$obj->martial_status		=	@$requestData['martial_status'];
 			$obj->passport_no		=	@$requestData['passport_no'];
 			$obj->visa_type			=	@$requestData['visa_type'];
