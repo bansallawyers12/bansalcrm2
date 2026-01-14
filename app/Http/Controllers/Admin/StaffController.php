@@ -35,7 +35,7 @@ class StaffController extends Controller
 			$check = $this->checkAuthorizationAction('staff', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 	
@@ -57,7 +57,7 @@ class StaffController extends Controller
 			$check = $this->checkAuthorizationAction('staff', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 		return view('Admin.staff.create');	
@@ -69,7 +69,7 @@ class StaffController extends Controller
 			$check = $this->checkAuthorizationAction('staff', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end 
 		if ($request->isMethod('post')) 
@@ -122,7 +122,7 @@ class StaffController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/staff')->with('success', 'User added Successfully');
+				return redirect()->route('staff.index')->with('success', 'User added Successfully');
 			}				
 		}	
 
@@ -135,7 +135,7 @@ class StaffController extends Controller
 			$check = $this->checkAuthorizationAction('staff', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 		
@@ -194,7 +194,7 @@ class StaffController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/staff')->with('success', 'User Edited Successfully');
+				return redirect()->route('staff.index')->with('success', 'User Edited Successfully');
 			}				
 		}
 
@@ -211,12 +211,12 @@ class StaffController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/staff')->with('error', 'User Not Exist');
+					return redirect()->route('staff.index')->with('error', 'User Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/staff')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('staff.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		}	
 		

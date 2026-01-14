@@ -35,7 +35,7 @@ class UsertypeController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 	//check authorization end
 	$query 		= UserType::query();
@@ -55,7 +55,7 @@ class UsertypeController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 
@@ -68,7 +68,7 @@ class UsertypeController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 		if ($request->isMethod('post')) 
@@ -90,7 +90,7 @@ class UsertypeController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/usertype')->with('success', 'User Type added Successfully');
+				return redirect()->route('usertype.index')->with('success', 'User Type added Successfully');
 			}				
 		}	
 
@@ -103,7 +103,7 @@ class UsertypeController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 	
@@ -127,7 +127,7 @@ class UsertypeController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/usertype')->with('success', 'User Type Edited Successfully');
+				return redirect()->route('usertype.index')->with('success', 'User Type Edited Successfully');
 			}				
 		}
 		else
@@ -142,12 +142,12 @@ class UsertypeController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/usertype')->with('error', 'User Not Exist');
+					return redirect()->route('usertype.index')->with('error', 'User Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/usertype')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('usertype.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		}				
 	}

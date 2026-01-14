@@ -32,7 +32,7 @@ class UserController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 		$usertype 		= UserRole::all();
@@ -45,7 +45,7 @@ class UserController extends Controller
 			$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
 		if ($request->isMethod('post')) 
@@ -111,7 +111,7 @@ class UserController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/users/active')->with('success', 'User added Successfully');
+				return redirect()->route('users.active')->with('success', 'User added Successfully');
 			}				
 		}	
 
@@ -124,7 +124,7 @@ class UserController extends Controller
 		$check = $this->checkAuthorizationAction('user_management', $request->route()->getActionMethod(), Auth::user()->role);
 		if($check)
 		{
-			return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+			return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 		}	
 		//check authorization end
 		$usertype 		= UserRole::all();
@@ -179,7 +179,7 @@ class UserController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/users/view/'.@$requestData['id'])->with('success', 'User Edited Successfully');
+				return redirect()->route('users.view', ['id' => @$requestData['id']])->with('success', 'User Edited Successfully');
 			}				
 		}
 
@@ -195,12 +195,12 @@ class UserController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/users/active')->with('error', 'User Not Exist');
+					return redirect()->route('users.active')->with('error', 'User Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/users/active')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('users.active')->with('error', Config::get('constants.unauthorized'));
 			}		
 		}	
 		
@@ -226,7 +226,7 @@ class UserController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/users/view/'.@$requestData['user_id'])->with('success', 'User Edited Successfully');
+				return redirect()->route('users.view', ['id' => @$requestData['user_id']])->with('success', 'User Edited Successfully');
 			}				
 		}
 	
@@ -247,7 +247,7 @@ class UserController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/users/active')->with('error', 'User Not Exist');
+					return redirect()->route('users.active')->with('error', 'User Not Exist');
 				}	
 			}
 	}

@@ -43,6 +43,7 @@ class PromotionController extends Controller
 			$obj->selectproduct	=	implode(',',@$requestData['selectproduct']);
 			$obj->user_id	=	Auth::user()->id;
 			$obj->partner_id	=	@$requestData['client_id'];
+			$obj->status	=	0; // Set status to 0 (inactive) for new promotions
 			
 			$saved				=	$obj->save();  
 			

@@ -165,7 +165,7 @@ class AdminController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/settings/taxes/returnsetting')->with('success', 'Your Profile has been edited successfully.');
+				return redirect()->route('returnsetting')->with('success', 'Your Profile has been edited successfully.');
 			}
 		}else{
 			//return view('Admin.my_profile', compact(['fetchedData', 'countries']));
@@ -239,7 +239,7 @@ class AdminController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/my_profile')->with('success', 'Your Profile has been edited successfully.');
+				return redirect()->route('my_profile')->with('success', 'Your Profile has been edited successfully.');
 			}
 		}
 		else
@@ -261,7 +261,7 @@ class AdminController extends Controller
 			/* $check = $this->checkAuthorizationAction('Admin', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			} */
 		//check authorization end
 
@@ -331,7 +331,7 @@ class AdminController extends Controller
 	{
 		// website_settings table has been removed
 		// Redirect to dashboard with message
-		return Redirect::to('/admin/dashboard')->with('error', 'Website Settings feature has been removed. The website_settings table no longer exists.');
+		return redirect()->route('dashboard')->with('error', 'Website Settings feature has been removed. The website_settings table no longer exists.');
 	}
 
 
@@ -341,7 +341,7 @@ class AdminController extends Controller
 			$check = $this->checkAuthorizationAction('api_key', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}
 		//check authorization end
 		if ($request->isMethod('post'))
@@ -355,7 +355,7 @@ class AdminController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/api-key')->with('success', 'Api Key'.Config::get('constants.edited'));
+				return redirect()->route('edit_api')->with('success', 'Api Key'.Config::get('constants.edited'));
 			}
 		}else{
 			return view('Admin.apikey');
@@ -1699,7 +1699,7 @@ class AdminController extends Controller
 
     public function gensettingsupdate(Request $request){
         // Settings table has been removed - return success message
-        return Redirect::to('/admin/dashboard')->with('info', 'General settings feature has been deprecated.');
+        return redirect()->route('dashboard')->with('info', 'General settings feature has been deprecated.');
         
         // OLD CODE - Settings table removed
         /*
@@ -1717,7 +1717,7 @@ class AdminController extends Controller
             $objs->save();
         }
 
-        return Redirect::to('/admin/gen-settings')->with('success', 'Record updated successfully');
+        return redirect()->route('gensettings.index')->with('success', 'Record updated successfully');
         */
     }
 

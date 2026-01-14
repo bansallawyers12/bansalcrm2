@@ -600,7 +600,7 @@ class ClientsController extends Controller
                   $objTest->save();
               }
               
-              return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$requestData['id'])))->with('success', 'Clients Edited Successfully');
+              return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$requestData['id']))])->with('success', 'Clients Edited Successfully');
 			}
 		}
 
@@ -617,12 +617,12 @@ class ClientsController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Clients Not Exist');
+					return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
 				}
 			}
 			else
 			{
-				return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
 			}
 		}
 
@@ -1099,12 +1099,12 @@ class ClientsController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Clients Not Exist');
+					return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
 				}
 			}
 			else
 			{
-				return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
 			}
 		}
 
@@ -1129,7 +1129,7 @@ class ClientsController extends Controller
 				// Check if decodeString returned false (invalid encoded string)
 				if($id === false || empty($id))
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Invalid Client ID');
+					return redirect()->route('clients.index')->with('error', 'Invalid Client ID');
 				}
 				
 				// Check if this is a lead from the separate leads table by checking the original encoded ID
@@ -1213,7 +1213,7 @@ class ClientsController extends Controller
 					// Double check that fetchedData exists
 					if(empty($fetchedData))
 					{
-						return Redirect::to('/admin/clients')->with('error', 'Client data not found');
+						return redirect()->route('clients.index')->with('error', 'Client data not found');
 					}
                   
                     if(!empty($fetchedData) && $fetchedData->dob != ""){
@@ -1285,12 +1285,12 @@ class ClientsController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Client or Lead Not Found');
+					return redirect()->route('clients.index')->with('error', 'Client or Lead Not Found');
 				}
 			}
 			else
 			{
-				return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}*/
 
@@ -1374,7 +1374,7 @@ class ClientsController extends Controller
             // Check if decodeString returned false (invalid encoded string)
             if($id === false || empty($id))
             {
-                return Redirect::to('/admin/leads')->with('error', 'Invalid Lead ID');
+                return redirect()->route('leads.index')->with('error', 'Invalid Lead ID');
             }
             
             // If not in admins table, check if it's a new lead in the leads table
@@ -2883,16 +2883,16 @@ class ClientsController extends Controller
 					$obj->type = $slug;
 					$saved = $obj->save();
 
-					return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$id)))->with('success', 'Record Updated successfully');
+					return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$id))])->with('success', 'Record Updated successfully');
 				}
 				else
 				{
-					return Redirect::to('/admin/clients')->with('error', 'Clients Not Exist');
+					return redirect()->route('clients.index')->with('error', 'Clients Not Exist');
 				}
 			}
 			else
 			{
-				return Redirect::to('/admin/clients')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}
 
@@ -3273,7 +3273,7 @@ class ClientsController extends Controller
 
 		if(!$saved)
 		{
-		return Redirect::to('/admin/followup-dates')->with('error', 'Please try again');
+		return redirect()->route('followup.index')->with('error', 'Please try again');
 		}
 		else
 		{
@@ -3299,7 +3299,7 @@ class ClientsController extends Controller
 				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
-		return Redirect::to('/admin/followup-dates')->with('success', 'Record Updated successfully');
+		return redirect()->route('followup.index')->with('success', 'Record Updated successfully');
 		}
 	}
 
@@ -3378,7 +3378,7 @@ class ClientsController extends Controller
 			    $objs->tagname = 	implode(',',@$rs);
 			    $objs->save();
     	    	}
-    	   return Redirect::to('/admin/clients/detail/'.base64_encode(convert_uuencode(@$objs->id)))->with('success', 'Record Updated successfully');
+    	   return redirect()->route('clients.detail', ['id' => base64_encode(convert_uuencode(@$objs->id))])->with('success', 'Record Updated successfully');
     	}
 
 

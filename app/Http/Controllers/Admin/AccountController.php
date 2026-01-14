@@ -60,10 +60,10 @@ class AccountController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/payment')->with('error', 'Not Exist');
+					return redirect()->route('account.payment')->with('error', 'Not Exist');
 				}	
 		}else{
-			return Redirect::to('/admin/payment')->with('error', 'Not Exist');
+			return redirect()->route('account.payment')->with('error', 'Not Exist');
 		}
 			
 	} 
@@ -92,7 +92,7 @@ class AccountController extends Controller
 		}
 		else
 		{
-			return Redirect::to('/admin/income-sharing/payables/unpaid')->with('success', 'Payment for this payable has been added successfully');			
+			return redirect()->route('account.payableunpaid')->with('success', 'Payment for this payable has been added successfully');			
 		}	
 	}
 	

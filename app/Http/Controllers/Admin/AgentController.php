@@ -122,6 +122,7 @@ class AgentController extends Controller
 				}		 
 			/* Profile Image Upload Function End */
 			$obj->profile_img			=	@$profile_img;
+			$obj->is_acrchived	=	0; // Set is_acrchived to 0 (not archived) for new agents
 			
 			$saved				=	$obj->save();  
 			
@@ -131,7 +132,7 @@ class AgentController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/agents/active')->with('success', 'Agents Added Successfully');
+				return redirect()->route('agents.active')->with('success', 'Agents Added Successfully');
 			}				
 		}	
 
@@ -223,7 +224,7 @@ class AgentController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/agents/active')->with('success', 'Agents Edited Successfully');
+				return redirect()->route('agents.active')->with('success', 'Agents Edited Successfully');
 			}				
 		}
 
@@ -240,12 +241,12 @@ class AgentController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/agents/active')->with('error', 'Agents Not Exist');
+					return redirect()->route('agents.active')->with('error', 'Agents Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/agents/active')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('agents.active')->with('error', Config::get('constants.unauthorized'));
 			}		
 		} 	
 		
@@ -263,12 +264,12 @@ class AgentController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/agents/index')->with('error', 'Agent Not Exist');
+					return redirect()->route('agents.active')->with('error', 'Agent Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/agents/index')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('agents.active')->with('error', Config::get('constants.unauthorized'));
 			}
 	} */ 
  
@@ -282,12 +283,12 @@ class AgentController extends Controller
 			}
 			else 
 			{
-				return Redirect::to('/admin/agents/active')->with('error', 'Agents Not Exist');
+				return redirect()->route('agents.active')->with('error', 'Agents Not Exist');
 			}	
 		}
 		else
 		{
-			return Redirect::to('/admin/agents/active')->with('error', Config::get('constants.unauthorized'));
+			return redirect()->route('agents.active')->with('error', Config::get('constants.unauthorized'));
 		}
 	}
 	
@@ -313,7 +314,7 @@ class AgentController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/agent/detail/'.base64_encode(convert_uuencode(@$requestData['client_id'])))->with('success', 'Partner Added Successfully');
+				return redirect()->route('agents.detail', ['id' => base64_encode(convert_uuencode(@$requestData['client_id']))])->with('success', 'Partner Added Successfully');
 			}				
 		}*/	 
 	}

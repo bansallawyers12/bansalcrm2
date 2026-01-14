@@ -255,7 +255,7 @@ class PartnersController extends Controller
                     $oe = new \App\Models\PartnerEmail;
                     $oe->user_id = @Auth::user()->id;
                     $oe->partner_id = @$obj->id;
-                    $oe->partner_email_type = @$partner_email_type[$ii];
+                    $oe->partner_email_type = isset($partner_email_type[$ii]) && $partner_email_type[$ii] != '' ? $partner_email_type[$ii] : 'Personal'; // Default to 'Personal' if not set
                     $oe->partner_email = @$partner_email[$ii];
                     $oe->created_at = date('Y-m-d H:i:s');
                     $oe->updated_at = date('Y-m-d H:i:s');
@@ -284,7 +284,7 @@ class PartnersController extends Controller
                     $oe1 = new \App\Models\PartnerPhone;
                     $oe1->user_id = @Auth::user()->id;
                     $oe1->partner_id = @$obj->id;
-                    $oe1->partner_phone_type = @$partner_phone_type[$iii];
+                    $oe1->partner_phone_type = isset($partner_phone_type[$iii]) && $partner_phone_type[$iii] != '' ? $partner_phone_type[$iii] : 'Personal'; // Default to 'Personal' if not set
                     $oe1->partner_country_code = @$partner_country_code[$iii];
                     $oe1->partner_phone = @$partner_phone[$iii];
                     $oe1->created_at = date('Y-m-d H:i:s');
@@ -340,7 +340,7 @@ class PartnersController extends Controller
                     $o->zip = @$branchzip[$i];
                     $o->country_code = @$branchcountry_code[$i];
                     $o->phone = @$branchphone[$i];
-                    $o->is_regional = @$branchreg[$i];
+                    $o->is_regional = isset($branchreg[$i]) ? $branchreg[$i] : 1; // Default to 1 (Regional) if not set
                     $o->is_headoffice = $is_headoffice;
                     $o->save();
                 }
@@ -358,7 +358,7 @@ class PartnersController extends Controller
 				$o->zip = @$requestData['zip'];
 				$o->country_code = PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 				$o->phone =@$requestData['phone'];
-				$o->is_regional =@$requestData['is_regional'];
+				$o->is_regional = isset($requestData['is_regional']) ? $requestData['is_regional'] : 1; // Default to 1 (Regional) if not set
 				$o->is_headoffice = $is_headoffice;
 				$o->save();
 		    }
@@ -472,7 +472,7 @@ class PartnersController extends Controller
                         $oe = new \App\Models\PartnerEmail;
                         $oe->user_id = @Auth::user()->id;
                         $oe->partner_id = @$obj->id;
-                        $oe->partner_email_type = @$partner_email_type[$ii];
+                        $oe->partner_email_type = isset($partner_email_type[$ii]) && $partner_email_type[$ii] != '' ? $partner_email_type[$ii] : 'Personal'; // Default to 'Personal' if not set
                         $oe->partner_email = @$partner_email[$ii];
                         $oe->created_at = date('Y-m-d H:i:s');
                         $oe->updated_at = date('Y-m-d H:i:s');
@@ -546,7 +546,7 @@ class PartnersController extends Controller
                         $oe1 = new \App\Models\PartnerPhone;
                         $oe1->user_id = @Auth::user()->id;
                         $oe1->partner_id = @$obj->id;
-                        $oe1->partner_phone_type = @$partner_phone_type[$iii];
+                        $oe1->partner_phone_type = isset($partner_phone_type[$iii]) && $partner_phone_type[$iii] != '' ? $partner_phone_type[$iii] : 'Personal'; // Default to 'Personal' if not set
                         $oe1->partner_country_code = @$partner_country_code[$iii];
                         $oe1->partner_phone = @$partner_phone[$iii];
                         $oe1->created_at = date('Y-m-d H:i:s');
@@ -664,7 +664,7 @@ class PartnersController extends Controller
                         $o->zip = @$branchzip[$i];
                         $o->country_code = @$branchcountry_code[$i];
                         $o->phone = @$branchphone[$i];
-                        $o->is_regional = @$branchreg[$i];
+                        $o->is_regional = isset($branchreg[$i]) ? $branchreg[$i] : 1; // Default to 1 (Regional) if not set
                         $o->is_headoffice = $is_headoffice;
                         $o->save();
                     }
@@ -1044,7 +1044,8 @@ class PartnersController extends Controller
 		$obj->street 			= $request->street;
 		$obj->country_code 	= $request->country_code;
 		$obj->phone 			= $request->phone;
-		$obj->is_headoffice 		= $request->head_office;
+		$obj->is_headoffice 		= isset($request->head_office) ? $request->head_office : 0; // Default to 0 if not set
+		$obj->is_regional 		= isset($request->is_regional) ? $request->is_regional : 1; // Default to 1 (Regional) if not set
 		$obj->zip 		= $request->zip_code;
 		$saved = $obj->save();
 		

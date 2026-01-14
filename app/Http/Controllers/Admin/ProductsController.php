@@ -36,7 +36,7 @@ class ProductsController extends Controller
 			
 			/* if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			} */	
 	//check authorization end
 	
@@ -133,7 +133,7 @@ class ProductsController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/products')->with('success', 'Products Added Successfully');
+				return redirect()->route('products.index')->with('success', 'Products Added Successfully');
 			}				
 		}	
 
@@ -174,7 +174,7 @@ class ProductsController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/products')->with('success', 'Products Edited Successfully');
+				return redirect()->route('products.index')->with('success', 'Products Edited Successfully');
 			}				
 		}
 
@@ -191,12 +191,12 @@ class ProductsController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/products')->with('error', 'Products Not Exist');
+					return redirect()->route('products.index')->with('error', 'Products Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/products')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('products.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		} 	
 		
@@ -213,12 +213,12 @@ class ProductsController extends Controller
 				}
 				else 
 				{  
-					return Redirect::to('/admin/products')->with('error', 'Products Not Exist');
+					return redirect()->route('products.index')->with('error', 'Products Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/products')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('products.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}
 	

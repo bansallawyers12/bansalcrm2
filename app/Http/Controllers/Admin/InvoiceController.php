@@ -47,7 +47,7 @@ class InvoiceController extends Controller
      */
 	public function createInvoice(Request $request){
 		// NOTE: schedule_id parameter removed - Invoice Schedule feature has been removed
-		return Redirect::to('/admin/application/invoice/'.$request->client_id.'/'.$request->application.'/'.$request->invoice_type);
+		return redirect()->to('/application/invoice/'.$request->client_id.'/'.$request->application.'/'.$request->invoice_type);
 	} 
 	public function getInvoice(Request $request, $clientid, $applicationid, $type){
 		//dd($type);
@@ -466,10 +466,10 @@ class InvoiceController extends Controller
 		}
 		
 			if(@$requestData['btn'] == 'savepreview'){
-				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
+				return redirect()->to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
-				return Redirect::to('/admin/invoice/unpaid/')->with('success', 'Invoice saved Successfully');
+				return redirect()->route('invoice.unpaid')->with('success', 'Invoice saved Successfully');
 				
 			}
 		} 
@@ -641,7 +641,7 @@ class InvoiceController extends Controller
 				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
-				return Redirect::to('/admin/invoice/unpaid/')->with('success', 'Invoice updated Successfully');
+				return redirect()->route('invoice.unpaid')->with('success', 'Invoice updated Successfully');
 			}
 		} 
 	}
@@ -737,7 +737,7 @@ class InvoiceController extends Controller
 				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
-				return Redirect::to('/admin/invoice/unpaid/')->with('success', 'Invoice updated Successfully');
+				return redirect()->route('invoice.unpaid')->with('success', 'Invoice updated Successfully');
 			}
 		} 
 	}

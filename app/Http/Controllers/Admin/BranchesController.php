@@ -35,7 +35,7 @@ class BranchesController extends Controller
 			
 			/* if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			} */	
 		//check authorization end
 	
@@ -92,7 +92,7 @@ class BranchesController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/branch')->with('success', 'Branch Added Successfully');
+				return redirect()->route('branch.index')->with('success', 'Branch Added Successfully');
 			}				
 		}	
 
@@ -137,7 +137,7 @@ class BranchesController extends Controller
 			
 			else
 			{
-				return Redirect::to('/admin/branch')->with('success', 'Branch Edited Successfully');
+				return redirect()->route('branch.index')->with('success', 'Branch Edited Successfully');
 			}				
 		}
 
@@ -154,12 +154,12 @@ class BranchesController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/branch')->with('error', 'Branch Not Exist');
+					return redirect()->route('branch.index')->with('error', 'Branch Not Exist');
 				}	
 			} 
 			else
 			{
-				return Redirect::to('/admin/branch')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('branch.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		} 	
 		
@@ -179,12 +179,12 @@ class BranchesController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/branch')->with('error', 'Branch Not Exist');
+					return redirect()->route('branch.index')->with('error', 'Branch Not Exist');
 				}	
 			} 
 			else
 			{
-				return Redirect::to('/admin/branch')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('branch.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		 	
 		
@@ -204,12 +204,12 @@ class BranchesController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/admin/branch')->with('error', 'Branch Not Exist');
+					return redirect()->route('branch.index')->with('error', 'Branch Not Exist');
 				}	
 			} 
 			else
 			{
-				return Redirect::to('/admin/branch')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('branch.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		 	
 		

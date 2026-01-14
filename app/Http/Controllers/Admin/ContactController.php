@@ -35,7 +35,7 @@ class ContactController extends Controller
 			/*  $check = $this->checkAuthorizationAction('holiday_package', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	 */
 		//check authorization end
 		
@@ -104,7 +104,7 @@ class ContactController extends Controller
 			/* $check = $this->checkAuthorizationAction('holiday_package', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	 
 		//check authorization end
 		
@@ -151,7 +151,7 @@ class ContactController extends Controller
 			/* $check = $this->checkAuthorizationAction('holiday_package', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}	 */
 		//check authorization end
 		if ($request->isMethod('post')) 
@@ -203,7 +203,7 @@ class ContactController extends Controller
 			}
 			else
 			{ 
-				return Redirect::to('/admin/contact')->with('success', 'Contacts added Successfully');
+				return redirect()->route('managecontact.index')->with('success', 'Contacts added Successfully');
 			} 				
 		}	 
 	} 
@@ -237,7 +237,7 @@ class ContactController extends Controller
 			/* $check = $this->checkAuthorizationAction('holiday_package', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			} */	
 		//check authorization end
 		if ($request->isMethod('post')) 
@@ -291,7 +291,7 @@ class ContactController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/contact')->with('success', 'Contact Edited Successfully');
+				return redirect()->route('managecontact.index')->with('success', 'Contact Edited Successfully');
 			}				
 		}
 		else
@@ -306,12 +306,12 @@ class ContactController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/contact')->with('error', 'Contact Not Exist');
+					return redirect()->route('managecontact.index')->with('error', 'Contact Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/contact')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('managecontact.index')->with('error', Config::get('constants.unauthorized'));
 			}		
 		}				
 	} 

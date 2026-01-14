@@ -21,7 +21,18 @@
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
 .accordion .accordion-header.app_blue{background-color: rgba(3,169,244,.1);color: #03a9f4;}
-  .buttons-excel {margin-top: 28px;}
+.buttons-excel {margin-top: 28px;}
+/* Export buttons styling */
+.dt-buttons {
+    margin-bottom: 15px;
+}
+.dt-buttons .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+.dt-buttons .btn i {
+    margin-right: 5px;
+}
 </style>
 <?php
 use App\Http\Controllers\Controller;
@@ -4464,9 +4475,61 @@ var table33 = $(".table-3").DataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            text: 'Excel',
+            text: '<i class="fas fa-file-excel"></i> Excel',
+            className: 'btn btn-success btn-sm',
             exportOptions: {
-                columns: ':visible' // Default: exports only visible columns
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21], // Export all data columns, exclude Add Note (23) and Action (24)
+                format: {
+                    body: function (data, row, column, node) {
+                        // Remove HTML tags and get clean text
+                        if (typeof data === 'string') {
+                            // Remove HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            // Decode HTML entities
+                            var txt = document.createElement('textarea');
+                            txt.innerHTML = data;
+                            data = txt.value;
+                        }
+                        return data || '';
+                    }
+                }
+            },
+            filename: function() {
+                var partnerName = '{{ $fetchedData->partner_name ?? "Partner" }}';
+                return 'Partner_Student_Data_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+            },
+            title: 'Partner Student Data - {{ $fetchedData->partner_name ?? "Partner" }}',
+            messageTop: 'Partner: {{ $fetchedData->partner_name ?? "N/A" }}\nExport Date: ' + new Date().toLocaleString(),
+            customize: function(xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                // Auto-size columns
+                $('row c', sheet).attr('s', '50');
+            }
+        },
+        {
+            extend: 'csvHtml5',
+            text: '<i class="fas fa-file-csv"></i> CSV',
+            className: 'btn btn-info btn-sm',
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21], // Export all data columns, exclude Add Note (23) and Action (24)
+                format: {
+                    body: function (data, row, column, node) {
+                        // Remove HTML tags and get clean text
+                        if (typeof data === 'string') {
+                            // Remove HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            // Decode HTML entities
+                            var txt = document.createElement('textarea');
+                            txt.innerHTML = data;
+                            data = txt.value;
+                        }
+                        return data || '';
+                    }
+                }
+            },
+            filename: function() {
+                var partnerName = '{{ $fetchedData->partner_name ?? "Partner" }}';
+                return 'Partner_Student_Data_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
             }
         }
     ],
@@ -4594,9 +4657,61 @@ var table331 = $(".table-31").dataTable({
     buttons: [
         {
             extend: 'excelHtml5',
-            text: 'Excel',
+            text: '<i class="fas fa-file-excel"></i> Excel',
+            className: 'btn btn-success btn-sm',
             exportOptions: {
-                columns: ':visible' // Default: exports only visible columns
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21], // Export all data columns, exclude Add Note (23) and Action (24)
+                format: {
+                    body: function (data, row, column, node) {
+                        // Remove HTML tags and get clean text
+                        if (typeof data === 'string') {
+                            // Remove HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            // Decode HTML entities
+                            var txt = document.createElement('textarea');
+                            txt.innerHTML = data;
+                            data = txt.value;
+                        }
+                        return data || '';
+                    }
+                }
+            },
+            filename: function() {
+                var partnerName = '{{ $fetchedData->partner_name ?? "Partner" }}';
+                return 'Partner_Student_Data_Inactive_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+            },
+            title: 'Partner Student Data (Inactive) - {{ $fetchedData->partner_name ?? "Partner" }}',
+            messageTop: 'Partner: {{ $fetchedData->partner_name ?? "N/A" }}\nExport Date: ' + new Date().toLocaleString(),
+            customize: function(xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                // Auto-size columns
+                $('row c', sheet).attr('s', '50');
+            }
+        },
+        {
+            extend: 'csvHtml5',
+            text: '<i class="fas fa-file-csv"></i> CSV',
+            className: 'btn btn-info btn-sm',
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21], // Export all data columns, exclude Add Note (23) and Action (24)
+                format: {
+                    body: function (data, row, column, node) {
+                        // Remove HTML tags and get clean text
+                        if (typeof data === 'string') {
+                            // Remove HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            // Decode HTML entities
+                            var txt = document.createElement('textarea');
+                            txt.innerHTML = data;
+                            data = txt.value;
+                        }
+                        return data || '';
+                    }
+                }
+            },
+            filename: function() {
+                var partnerName = '{{ $fetchedData->partner_name ?? "Partner" }}';
+                return 'Partner_Student_Data_Inactive_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
             }
         }
     ],
@@ -5375,5 +5490,15 @@ function arcivedAction( id, table ) {
 @push('tinymce-scripts')
 @include('partials.tinymce')
 @endpush
+
+<!-- DataTables Buttons Extension for Export Functionality -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
 @endsection

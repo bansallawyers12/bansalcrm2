@@ -84,7 +84,7 @@ class UploadChecklistController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/upload-checklists')->with('success', 'Record Added Successfully');
+				return redirect()->route('upload_checklists.index')->with('success', 'Record Added Successfully');
 			}				
 		}	
 
