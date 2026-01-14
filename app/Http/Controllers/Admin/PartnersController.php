@@ -349,7 +349,7 @@ class PartnersController extends Controller
 				$o->state = @$requestData['state'];
 				$o->street = @$requestData['address'];
 				$o->zip = @$requestData['zip'];
-				$o->country_code = @$requestData['country_code'];
+				$o->country_code = PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 				$o->phone =@$requestData['phone'];
 				$o->is_regional =@$requestData['is_regional'];
 				$o->is_headoffice = $is_headoffice;
@@ -614,7 +614,9 @@ class PartnersController extends Controller
             }
 
             if(isset($requestData['branchcountry_code'])){
-                $branchcountry_code =  $requestData['branchcountry_code'];
+                $branchcountry_code = array_map(function($code) {
+                    return PhoneHelper::normalizeCountryCode($code);
+                }, (array)$requestData['branchcountry_code']);
             }
 
             if(isset($requestData['branchphone'])){
@@ -930,7 +932,7 @@ class PartnersController extends Controller
 		$obj->position 			= $request->position;
 		$obj->primary_contact 	= $request->primary_contact;
 		$obj->user_id 			= $request->client_id;
-		$obj->countrycode 		= $request->country_code;
+		$obj->countrycode 		= PhoneHelper::normalizeCountryCode($request->country_code);
 		$saved = $obj->save();
 		
 		if($saved){

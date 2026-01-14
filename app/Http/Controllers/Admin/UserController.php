@@ -13,6 +13,7 @@ use App\Models\UserType;
  
 use Auth;
 use Config;
+use App\Helpers\PhoneHelper;
 
 class UserController extends Controller
 {
@@ -68,14 +69,14 @@ class UserController extends Controller
 			$obj->first_name	=	@$requestData['first_name'];
 			$obj->last_name		=	@$requestData['last_name'];
 			$obj->email		=	@$requestData['email'];
-			$obj->telephone		=	@$requestData['country_code'];
+			$obj->telephone		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->position		=	@$requestData['position'];
 			$obj->password		=	Hash::make(@$requestData['password']);
 			
 			$obj->phone			=	@$requestData['phone'];
 			$obj->role			=	@$requestData['role'];
 			$obj->office_id		=	@$requestData['office'];
-			$obj->telephone		=	@$requestData['country_code'];
+			$obj->telephone		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->team		    =	@$requestData['team'];
 			if(isset($requestData['show_dashboard_per'])){
 			    $obj->show_dashboard_per		=	1;
@@ -135,13 +136,13 @@ class UserController extends Controller
 			$obj->first_name	=	@$requestData['first_name'];
 			$obj->last_name		=	@$requestData['last_name'];
 			$obj->email		=	@$requestData['email'];
-			$obj->telephone		=	@$requestData['country_code'];
+			$obj->telephone		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->position		=	@$requestData['position'];
 			
 			$obj->phone			=	@$requestData['phone'];
 			$obj->role			=	@$requestData['role'];
 			$obj->office_id		=	@$requestData['office'];
-			$obj->telephone		=	@$requestData['country_code'];
+			$obj->telephone		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->team		    =	@$requestData['team'];
 			
 			if( isset($requestData['permission']) && $requestData['permission'] !="" ){

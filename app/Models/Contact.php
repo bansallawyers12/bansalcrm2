@@ -23,6 +23,41 @@ protected $fillable = [
     {
         return $this->belongsTo('App\Models\Admin','user_id','id');
     }
+    
+    /**
+     * =========================================
+     * PHONE COUNTRY CODE ACCESSORS/MUTATORS
+     * =========================================
+     */
+    
+    /**
+     * Mutator: Normalize countrycode when saving
+     */
+    public function setCountrycodeAttribute($value)
+    {
+        $this->attributes['countrycode'] = \App\Helpers\PhoneHelper::normalizeCountryCode($value);
+    }
+    
+    /**
+     * Accessor: Always return normalized countrycode when reading
+     */
+    public function getCountrycodeAttribute($value)
+    {
+        return \App\Helpers\PhoneHelper::normalizeCountryCode($value);
+    }
+    
+    /**
+     * Accessor: Get formatted phone number for display
+     * Usage: $contact->formatted_phone
+     * Returns: "+61 412345678"
+     */
+    public function getFormattedPhoneAttribute()
+    {
+        return \App\Helpers\PhoneHelper::formatPhoneNumber(
+            $this->attributes['countrycode'] ?? '',
+            $this->attributes['contact_phone'] ?? ''
+        );
+    }
 	
 	/*public function desmedia() 
     {

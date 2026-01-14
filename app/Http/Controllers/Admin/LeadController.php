@@ -281,7 +281,7 @@ class LeadController extends Controller
 				$obj->tags_label = '';
 			}
 			$obj->contact_type		=	@$requestData['contact_type'];
-			$obj->country_code		=	@$requestData['country_code'];
+			$obj->country_code		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->phone		=	@$requestData['phone'];
 			$obj->email_type		=	@$requestData['email_type'];
 			$obj->email		=	@$requestData['email'];			
