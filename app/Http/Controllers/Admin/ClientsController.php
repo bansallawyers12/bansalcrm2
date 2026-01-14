@@ -4192,6 +4192,15 @@ class ClientsController extends Controller
 	{
 		$requestData = $request->all();
         //echo '<pre>'; print_r($requestData); die;
+        
+        // Validate function_type is set
+        if(!isset($requestData['function_type']) || empty($requestData['function_type'])) {
+            $response['status'] = false;
+            $response['message'] = 'Invalid request: function_type not specified';
+            echo json_encode($response);
+            return;
+        }
+        
         if( $requestData['function_type'] == 'add')
         {
             if ($request->hasfile('document_upload'))
@@ -4497,6 +4506,12 @@ class ClientsController extends Controller
                 $response['validate_receipt'] = "";
                 $response['awsUrl'] =  "";
             }
+        }
+        else {
+            // Handle invalid function_type values
+            $response['status'] = false;
+            $response['message'] = 'Invalid operation type: ' . ($requestData['function_type'] ?? 'not specified');
+            $response['function_type'] = $requestData['function_type'] ?? '';
         }
         echo json_encode($response);
     }

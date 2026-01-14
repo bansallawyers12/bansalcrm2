@@ -4762,6 +4762,204 @@ if($fetchedData->tagname != ''){
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // ============================================
+    // Client Receipt Modal Handlers (FIX)
+    // ============================================
+    
+    // Handle "Create Client Receipt" button click
+    $(document).on('click', '.createclientreceipt', function() {
+        // Reset form
+        $('#create_client_receipt')[0].reset();
+        
+        // Set function_type to 'add' for new receipt
+        $('#function_type').val('add');
+        
+        // Clear any existing rows except the first one
+        $('.productitem tr.clonedrow:not(:first)').remove();
+        
+        // Clear the first row values
+        $('.productitem tr.clonedrow:first').find('input, select').val('');
+        $('.productitem tr.clonedrow:first').find('.unique_trans_no').val('');
+        
+        // Reset totals
+        $('.total_deposit_amount_all_rows').html('');
+        
+        // Clear any error messages
+        $('.custom-error-msg').html('');
+        
+        // Initialize flatpickr for date fields if not already initialized
+        if (typeof flatpickr !== 'undefined') {
+            $('.report_date_fields, .report_entry_date_fields').each(function() {
+                if (!this._flatpickr) {
+                    flatpickr(this, {
+                        dateFormat: 'd/m/Y',
+                        allowInput: true
+                    });
+                }
+            });
+        }
+        
+        // Open the modal
+        $('#createclientreceiptmodal').modal('show');
+    });
+    
+    // Handle "Edit Client Receipt" button click (from the pencil icon)
+    $(document).on('click', '.updateclientreceipt', function() {
+        var receipt_id = $(this).attr('data-id');
+        
+        // Set function_type to 'edit' for updating receipt
+        $('#function_type').val('edit');
+        
+        // Clear any error messages
+        $('.custom-error-msg').html('');
+        
+        // Show loader
+        if ($('.popuploader').length) {
+            $('.popuploader').show();
+        }
+        
+        // Fetch receipt data from server
+        $.ajax({
+            url: '{{ url("/clients/getClientReceiptInfoById") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: receipt_id
+            },
+            success: function(response) {
+                if ($('.popuploader').length) {
+                    $('.popuploader').hide();
+                }
+                
+                var obj = JSON.parse(response);
+                
+                if (obj.status) {
+                    // Clear existing rows
+                    $('.productitem').html('');
+                    
+                    // Populate form with fetched data
+                    $.each(obj.requestData, function(index, data) {
+                        var clonedRow = `
+                            <tr class="clonedrow">
+                                <td>
+                                    <input data-valid="required" class="form-control report_date_fields" name="trans_date[]" type="text" value="${data.trans_date}" />
+                                </td>
+                                <td>
+                                    <input data-valid="required" class="form-control report_entry_date_fields" name="entry_date[]" type="text" value="${data.entry_date}" />
+                                </td>
+                                <td>
+                                    <input class="form-control unique_trans_no" type="text" value="${data.trans_no}" readonly/>
+                                    <input class="unique_trans_no_hidden" name="trans_no[]" type="hidden" value="${data.trans_no}" />
+                                    <input name="id[]" type="hidden" value="${data.id}" />
+                                </td>
+                                <td>
+                                    <select data-valid="required" class="form-control" name="payment_method[]">
+                                        <option value="">Select</option>
+                                        <option value="Cash" ${data.payment_method == 'Cash' ? 'selected' : ''}>Cash</option>
+                                        <option value="Bank transfer" ${data.payment_method == 'Bank transfer' ? 'selected' : ''}>Bank transfer</option>
+                                        <option value="EFTPOS" ${data.payment_method == 'EFTPOS' ? 'selected' : ''}>EFTPOS</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input data-valid="required" class="form-control" name="description[]" type="text" value="${data.description}" />
+                                </td>
+                                <td>
+                                    <div class="currencyinput">
+                                        <span>$</span>
+                                        <input data-valid="required" class="form-control deposit_amount_per_row" name="deposit_amount[]" type="text" value="${data.deposit_amount}" />
+                                    </div>
+                                </td>
+                                <td style="text-align:center;">
+                                    <a class="removeitems text-danger" href="javascript:;" title="Remove row">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                        $('.productitem').append(clonedRow);
+                    });
+                    
+                    // Re-initialize flatpickr for date fields
+                    if (typeof flatpickr !== 'undefined') {
+                        $('.report_date_fields, .report_entry_date_fields').each(function() {
+                            if (!this._flatpickr) {
+                                flatpickr(this, {
+                                    dateFormat: 'd/m/Y',
+                                    allowInput: true
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Calculate and display total
+                    calculateReceiptTotal();
+                    
+                    // Open the modal
+                    $('#createclientreceiptmodal').modal('show');
+                } else {
+                    alert('Error loading receipt data: ' + obj.message);
+                }
+            },
+            error: function() {
+                if ($('.popuploader').length) {
+                    $('.popuploader').hide();
+                }
+                alert('Error loading receipt data. Please try again.');
+            }
+        });
+    });
+    
+    // Calculate total deposit amount
+    function calculateReceiptTotal() {
+        var total = 0;
+        $('.deposit_amount_per_row').each(function() {
+            var amount = parseFloat($(this).val()) || 0;
+            total += amount;
+        });
+        $('.total_deposit_amount_all_rows').html('$' + total.toFixed(2));
+    }
+    
+    // Update total when deposit amount changes
+    $(document).on('keyup change', '.deposit_amount_per_row', function() {
+        calculateReceiptTotal();
+    });
+    
+    // Add new line functionality (already in modal)
+    $(document).on('click', '.openproductrinfo', function() {
+        var clonedRow = $('.productitem tr.clonedrow:first').clone();
+        clonedRow.find('input, select').val('');
+        clonedRow.find('.unique_trans_no').val('');
+        $('.productitem').append(clonedRow);
+        
+        // Re-initialize flatpickr for new row
+        if (typeof flatpickr !== 'undefined') {
+            clonedRow.find('.report_date_fields, .report_entry_date_fields').each(function() {
+                flatpickr(this, {
+                    dateFormat: 'd/m/Y',
+                    allowInput: true
+                });
+            });
+        }
+        
+        calculateReceiptTotal();
+    });
+    
+    // Remove row functionality
+    $(document).on('click', '.removeitems', function() {
+        if ($('.productitem tr.clonedrow').length > 1) {
+            $(this).closest('tr').remove();
+            calculateReceiptTotal();
+        } else {
+            alert('At least one row is required.');
+        }
+    });
+    
+    // Document upload for receipt
+    $(document).on('click', '.upload_client_receipt_document a', function() {
+        $('.docclientreceiptupload').trigger('click');
+    });
+    
 </script>
 
 @endsection
