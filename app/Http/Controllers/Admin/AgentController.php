@@ -14,6 +14,7 @@ use App\Models\Agent;
  
 use Auth;
 use Config;
+use App\Helpers\PhoneHelper;
 
 class AgentController extends Controller
 {
@@ -99,7 +100,7 @@ class AgentController extends Controller
 			}
 		
 			$obj->email	=	@$requestData['email'];
-			$obj->country_code	=	@$requestData['country_code'];
+			$obj->country_code	=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->phone	=	@$requestData['phone'];
 			$obj->address	=	@$requestData['address'];
 			$obj->city	=	@$requestData['city'];
@@ -184,7 +185,7 @@ class AgentController extends Controller
 			}
 			
 			$obj->email	=	@$requestData['email'];
-			$obj->country_code	=	@$requestData['country_code'];
+			$obj->country_code	=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			$obj->phone	=	@$requestData['phone'];
 			$obj->address	=	@$requestData['address'];
 			$obj->city	=	@$requestData['city'];

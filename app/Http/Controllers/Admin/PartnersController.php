@@ -30,6 +30,7 @@ use DateTimeZone;
 use App\Models\ActivitiesLog;
 use App\Models\PartnerEmail;
 use App\Models\PartnerPhone;
+use App\Helpers\PhoneHelper;
 
 class PartnersController extends Controller
 {
@@ -269,7 +270,9 @@ class PartnersController extends Controller
             if(isset($requestData['partner_phone']) && $requestData['partner_phone'] != ''){
                 $partner_phone_type =  $requestData['partner_phone_type'];
                 $partner_phone =  $requestData['partner_phone'];
-                $partner_country_code =  $requestData['partner_country_code'];
+                $partner_country_code = array_map(function($code) {
+                    return PhoneHelper::normalizeCountryCode($code);
+                }, (array)$requestData['partner_country_code']);
                 for($iii=0; $iii< count($partner_phone); $iii++){
                     $oe1 = new \App\Models\PartnerPhone;
                     $oe1->user_id = @Auth::user()->id;
@@ -309,7 +312,9 @@ class PartnersController extends Controller
                 $branchaddress =  $requestData['branchaddress'];
                 $branchzip =  $requestData['branchzip'];
                 $branchreg =  $requestData['branchreg'];
-                $branchcountry_code =  $requestData['branchcountry_code'];
+                $branchcountry_code = array_map(function($code) {
+                    return PhoneHelper::normalizeCountryCode($code);
+                }, (array)$requestData['branchcountry_code']);
                 $branchphone =  $requestData['branchphone'];
                 for($i=0; $i< count($branchname); $i++){
                     $is_headoffice = 0;
@@ -511,7 +516,9 @@ class PartnersController extends Controller
             }
 
             if(isset($requestData['partner_country_code'])){
-                $partner_country_code =  $requestData['partner_country_code'];
+                $partner_country_code = array_map(function($code) {
+                    return PhoneHelper::normalizeCountryCode($code);
+                }, (array)$requestData['partner_country_code']);
             } else {
                 $partner_country_code = array();
             }

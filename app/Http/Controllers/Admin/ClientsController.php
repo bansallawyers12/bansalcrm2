@@ -42,6 +42,8 @@ use App\Traits\ClientAuthorization;
 use App\Traits\ClientHelpers;
 use App\Mail\ClientVerifyMail;
 
+use App\Helpers\PhoneHelper;
+
 class ClientsController extends Controller
 {
     use ClientQueries, ClientAuthorization, ClientHelpers;
@@ -179,7 +181,7 @@ class ClientsController extends Controller
 			$obj->status = $requestData['status'] ?? 1;
 			$obj->lead_quality = @$requestData['lead_quality'];
 			$obj->att_phone = @$requestData['att_phone'];
-			$obj->att_country_code = @$requestData['att_country_code'];
+			$obj->att_country_code = PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
 			$obj->att_email = @$requestData['att_email'];
 			$obj->nomi_occupation = @$requestData['nomi_occupation'];
 			$obj->skill_assessment = @$requestData['skill_assessment'];
@@ -212,7 +214,7 @@ class ClientsController extends Controller
 			}
 			
 			$obj->role = 7; // Client role
-			$obj->country_code = @$requestData['country_code'];
+			$obj->country_code = PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
 			
 			// Profile image upload using trait helper
 			if ($request->hasfile('profile_img')) {
@@ -354,7 +356,7 @@ class ClientsController extends Controller
 			$obj->status	=	@$requestData['status'];
 			$obj->lead_quality	=	@$requestData['lead_quality'];
 			$obj->att_phone	=	@$requestData['att_phone'];
-			$obj->att_country_code	=	@$requestData['att_country_code'];
+			$obj->att_country_code	=	PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
 			$obj->att_email	=	@$requestData['att_email'];
 			$obj->nomi_occupation	=	@$requestData['nomi_occupation'];
 			$obj->skill_assessment	=	@$requestData['skill_assessment'];
@@ -754,7 +756,7 @@ class ClientsController extends Controller
 			$obj->status	=	@$requestData['status'];
 			$obj->lead_quality	=	@$requestData['lead_quality'];
 			$obj->att_phone	=	@$requestData['att_phone'];
-			$obj->att_country_code	=	@$requestData['att_country_code'];
+			$obj->att_country_code	=	PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
 			$obj->att_email	=	@$requestData['att_email'];
 			$obj->nomi_occupation	=	@$requestData['nomi_occupation'];
 			$obj->skill_assessment	=	@$requestData['skill_assessment'];
@@ -839,7 +841,9 @@ class ClientsController extends Controller
             }
 
             if(isset($requestData['client_country_code'])){
-                $client_country_code =  $requestData['client_country_code'];
+                $client_country_code = array_map(function($code) {
+                    return PhoneHelper::normalizeCountryCode($code);
+                }, (array)$requestData['client_country_code']);
             } else {
                 $client_country_code = array();
             }

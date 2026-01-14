@@ -509,7 +509,7 @@
 								<label for="branch_phone">Phone</label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" value="+61" name="brnch_country_code" readonly >
+										<input class="telephone" id="telephone" type="tel" value="{{ config('phone.default_country_code', '+61') }}" name="brnch_country_code" readonly >
 									</div>
 									{!! Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('branch_phone'))

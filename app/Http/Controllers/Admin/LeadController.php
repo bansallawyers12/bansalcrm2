@@ -15,6 +15,8 @@ use App\Models\Followup;
 use Auth; 
 use Config;
 use Carbon\Carbon;
+use App\Helpers\PhoneHelper;
+
 class LeadController extends Controller
 {
     /**
@@ -295,7 +297,7 @@ class LeadController extends Controller
 			$obj->status		=	@$requestData['status'];				 
 			$obj->converted		=	0; // New leads are not converted yet
 			$obj->lead_quality		=	@$requestData['lead_quality'];		
-			$obj->att_country_code		=	@$requestData['att_country_code'];
+			$obj->att_country_code		=	PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
 			$obj->att_phone		=	@$requestData['att_phone'];
 				$obj->att_email		=	@$requestData['att_email'];
 			$obj->lead_source		=	@$requestData['source'];	

@@ -34,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $loader->alias('Excel', \Maatwebsite\Excel\Facades\Excel::class);
         $loader->alias('Settings', \App\Helpers\Settings::class);
         $loader->alias('Helper', \App\Helpers\Helper::class);
+        $loader->alias('PhoneHelper', \App\Helpers\PhoneHelper::class);
         $loader->alias('DataTables', \Yajra\DataTables\Facades\DataTables::class);
     }
 }
