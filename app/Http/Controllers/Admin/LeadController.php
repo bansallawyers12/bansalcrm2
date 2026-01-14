@@ -479,7 +479,11 @@ class LeadController extends Controller
 		        	    $objn->description = $r;
 		        	    $objn->mail_id = 0;
 		        	    $objn->type = 'client';
-		        	      $objn->save();
+		        	    // Set required NOT NULL fields for PostgreSQL
+		        	    $objn->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		        	    $objn->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+		        	    $objn->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		        	    $objn->save();
 				    }
 			
     				$enq = new Followup;

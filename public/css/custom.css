@@ -1042,6 +1042,22 @@ form[name="add-leads"] select:invalid {
 	color: #ffffff;
 }
 
+.btn-edit {
+	color: #3b82f6;
+	background: transparent;
+	border: none;
+	padding: 0.25rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 14px;
+	margin-right: 5px;
+}
+
+.btn-edit:hover {
+	color: #2563eb;
+	transform: scale(1.1);
+}
+
 .btn-delete {
 	color: #ef4444;
 	background: transparent;

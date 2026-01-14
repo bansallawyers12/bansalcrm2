@@ -681,6 +681,15 @@ jQuery(document).ready(function($){
 			success:function(response){
 				$('.popuploader').hide();
 				$('#partner_type').html(response);
+				
+				// Re-initialize Partner Type dropdown after AJAX load
+				console.log('Partner Type: Re-initializing after AJAX with', $('#partner_type option').length, 'options');
+				$('#partner_type').select2('destroy');
+				$('#partner_type').select2({
+					minimumResultsForSearch: Infinity,
+					width: '100%'
+				});
+				console.log('Partner Type: Re-initialization complete');
 			}
 		});
 	});
@@ -902,6 +911,45 @@ jQuery(document).ready(function($){
 	
 	console.log('Partner Create: Select2 initialization complete');
 
+	// Force re-initialize after a short delay to override any other scripts
+	setTimeout(function() {
+		console.log('Partner Create: Force re-initializing Master Category dropdown');
+		$('#getpartnertype').select2('destroy');
+		$('#getpartnertype').select2({
+			minimumResultsForSearch: Infinity,
+			width: '100%',
+			data: $('#getpartnertype option').map(function() {
+				return {
+					id: $(this).val(),
+					text: $(this).text()
+				};
+			}).get()
+		});
+		console.log('Partner Create: Force re-initialization complete with', $('#getpartnertype option').length, 'options');
+		
+		// Also force re-initialize Partner Type dropdown
+		if ($('#partner_type').length > 0) {
+			console.log('Partner Type: Force re-initializing');
+			$('#partner_type').select2('destroy');
+			$('#partner_type').select2({
+				minimumResultsForSearch: Infinity,
+				width: '100%'
+			});
+			console.log('Partner Type: Force re-initialization complete with', $('#partner_type option').length, 'options');
+		}
+		
+		// Force re-initialize all other addressselect2 dropdowns
+		$('.addressselect2').not('#getpartnertype').not('#partner_type').each(function() {
+			var $elem = $(this);
+			var elemId = $elem.attr('id') || $elem.attr('name');
+			console.log('Force re-initializing:', elemId, 'with', $elem.find('option').length, 'options');
+			$elem.select2('destroy');
+			$elem.select2({
+				minimumResultsForSearch: Infinity,
+				width: '100%'
+			});
+		});
+	}, 500);
 
     
     ////////////////////////////////////////

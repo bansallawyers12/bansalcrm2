@@ -222,7 +222,7 @@ class PartnersController extends Controller
 			$obj->zip	=	@$requestData['zip'];
 			$obj->country	=	@$requestData['country'];
 			//$obj->country_code	=	@$requestData['country_code'];
-			$obj->is_regional	=	@$requestData['is_regional'];
+			$obj->is_regional	=	isset($requestData['is_regional']) ? $requestData['is_regional'] : 1; // Default to 1 (Regional) if not set
 			//$obj->phone	=	@$requestData['phone'];
 			//$obj->email	=	@$requestData['email'];
 			$obj->fax	=	@$requestData['fax'];
@@ -237,6 +237,13 @@ class PartnersController extends Controller
             }
 			/* Profile Image Upload Function End */
 			$obj->profile_img	=	@$profile_img;
+			$obj->status	=	0; // Set status to 0 (active) for new partners
+			$obj->is_archived	=	0; // Set is_archived to 0 (not archived) for new partners
+			if(isset($requestData['gst'])){
+				$obj->gst = 1;
+			}else{
+				$obj->gst = 0;
+			}
 			$saved				=	$obj->save();
 
             
@@ -358,7 +365,7 @@ class PartnersController extends Controller
 			if(!$saved) {
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			} else {
-                return Redirect::to('/admin/partners')->with('success', 'Partners Added Successfully');
+                return redirect()->route('partners.index')->with('success', 'Partners Added Successfully');
 			}
 		}
         return view('Admin.partners.create');
@@ -671,7 +678,7 @@ class PartnersController extends Controller
 
 			else
 			{
-				return Redirect::to('/admin/partners')->with('success', 'Partners Edited Successfully');
+				return redirect()->route('partners.index')->with('success', 'Partners Edited Successfully');
 			}
 		}
 
@@ -710,12 +717,12 @@ class PartnersController extends Controller
 				}
 				else
 				{
-					return Redirect::to('/admin/partners')->with('error', 'Partners Not Exist');
+					return redirect()->route('partners.index')->with('error', 'Partners Not Exist');
 				}
 			}
 			else
 			{
-				return Redirect::to('/admin/partners')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('partners.index')->with('error', Config::get('constants.unauthorized'));
 			}
 		}
 
@@ -773,12 +780,12 @@ class PartnersController extends Controller
 				}
 				else 
 				{  
-					return Redirect::to('/admin/partners')->with('error', 'Partners Not Exist');
+					return redirect()->route('partners.index')->with('error', 'Partners Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/partners')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('partners.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}
 	

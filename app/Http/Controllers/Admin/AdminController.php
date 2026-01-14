@@ -187,6 +187,7 @@ class AdminController extends Controller
 			$this->validate($request, [
 										'first_name' => 'required',
 										'last_name' => 'nullable',
+										'email' => 'required|email|unique:admins,email,'.Auth::user()->id,
 										'country' => 'required',
 										'phone' => 'required',
 										'state' => 'required',
@@ -218,6 +219,7 @@ class AdminController extends Controller
 
 		$obj->first_name				=	@$requestData['first_name'];
 			$obj->last_name					=	@$requestData['last_name'];
+			$obj->email						=	@$requestData['email'];
 			$obj->phone						=	@$requestData['phone'];
 			$obj->country					=	@$requestData['country'];
 			$obj->state						=	@$requestData['state'];

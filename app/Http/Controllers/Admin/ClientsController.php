@@ -1428,6 +1428,13 @@ class ClientsController extends Controller
                     if(!empty($lead->dob)){
                         $obj->age = $this->calculateAge($lead->dob);
                     }
+                    // Set required NOT NULL fields for PostgreSQL
+                    $obj->password = Hash::make('LEAD_PLACEHOLDER'); // Required NOT NULL - placeholder for leads
+                    $obj->cp_status = 0; // Required NOT NULL field (0 = client portal not activated)
+                    $obj->cp_code_verify = 0; // Required NOT NULL field (0 = not verified)
+                    $obj->australian_study = 0; // Required NOT NULL field (default: 0)
+                    $obj->specialist_education = 0; // Required NOT NULL field (default: 0)
+                    $obj->regional_study = 0; // Required NOT NULL field (default: 0)
                     $obj->save();
 
                     $fetchedData = Admin::find($obj->id);

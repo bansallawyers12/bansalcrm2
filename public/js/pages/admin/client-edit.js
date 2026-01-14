@@ -181,6 +181,130 @@ jQuery(document).ready(function($){
         }
     });
 
+    // Edit client phone
+    $(document).delegate('.editclientphone','click', function(){
+        $('#clientPhoneModalLabel').html('Edit Phone Number');
+        $('.saveclientphone').hide();
+        $('#update_clientphone').show();
+        
+        // Get data from clicked element
+        var phone_id = $(this).data('id');
+        var phone_index = $(this).data('index');
+        var contact_type = $(this).data('type');
+        var country_code = $(this).data('country');
+        var phone_number = $(this).data('phone');
+        
+        // Store edit mode data
+        $('#edit_phone_mode').val('1');
+        $('#edit_phone_id').val(phone_id);
+        $('#edit_phone_index').val(phone_index);
+        
+        // Clear errors
+        $('.client_phone_error').html('');
+        $('.contact_type_error').html('');
+        $('input[name="client_phone"]').parent().removeClass('error');
+        $('#contact_type').parent().removeClass('error');
+        
+        // Populate form
+        $('#contact_type').val(contact_type);
+        $('input[name="client_phone"]').val(phone_number);
+        
+        // Set country code in intlTelInput
+        if ($(".telephone").length > 0 && typeof $.fn.intlTelInput === 'function') {
+            $(".telephone").val(country_code);
+        }
+        
+        $('.addclientphone').modal('show');
+    });
+
+    // Update client phone
+    $(document).delegate('#update_clientphone','click', function() {
+        // Clear previous errors
+        $('.client_phone_error').html('');
+        $('.contact_type_error').html('');
+        $('input[name="client_phone"]').parent().removeClass('error');
+        $('#contact_type').parent().removeClass('error');
+        
+        // Get form values
+        var contact_type = $('#contact_type').val();
+        var client_phone = $('input[name="client_phone"]').val();
+        var phone_index = $('#edit_phone_index').val();
+        
+        // Get country code from intlTelInput
+        var country_code_input = $('.telephone').val();
+        var country_code = '';
+        if (country_code_input) {
+            var match = country_code_input.match(/^\+?(\d+)/);
+            if (match) {
+                country_code = '+' + match[1];
+            }
+        }
+        
+        console.log('Update Phone - Index:', phone_index);
+        console.log('Update Phone - Type:', contact_type);
+        console.log('Update Phone - Country:', country_code);
+        console.log('Update Phone - Number:', client_phone);
+        
+        // Validate
+        var flag = false;
+        if(contact_type == '' || contact_type == null){
+            $('.contact_type_error').html('The Contact Type field is required.');
+            $('#contact_type').parent().addClass('error');
+            flag = true;
+        }
+        if(client_phone == ''){
+            $('.client_phone_error').html('The Phone field is required.');
+            $('input[name="client_phone"]').parent().addClass('error');
+            flag = true;
+        }
+        if(country_code == ''){
+            $('.client_phone_error').html('Please select a valid country code.');
+            $('.telephone').parent().addClass('error');
+            flag = true;
+        }
+
+        if(!flag){
+            // Find the phone item
+            var $phoneItem = $('#metatag2_' + phone_index);
+            
+            if($phoneItem.length > 0) {
+                console.log('Found phone item, updating...');
+                
+                // Update the display
+                $phoneItem.find('.contact-type-tag').text(contact_type);
+                $phoneItem.find('.contact-phone').text(country_code + ' ' + client_phone);
+                
+                // Update hidden fields - CRITICAL for form submission
+                $phoneItem.find('input[name="contact_type[]"]').val(contact_type);
+                $phoneItem.find('input[name="client_country_code[]"]').val(country_code);
+                $phoneItem.find('input[name="client_phone[]"]').val(client_phone);
+                
+                // Update data attributes for future edits
+                $phoneItem.find('.editclientphone').attr('data-type', contact_type);
+                $phoneItem.find('.editclientphone').attr('data-country', country_code);
+                $phoneItem.find('.editclientphone').attr('data-phone', client_phone);
+                
+                console.log('Updated hidden input values:', {
+                    type: $phoneItem.find('input[name="contact_type[]"]').val(),
+                    country: $phoneItem.find('input[name="client_country_code[]"]').val(),
+                    phone: $phoneItem.find('input[name="client_phone[]"]').val()
+                });
+                
+                // Clear form and close modal
+                $('#clientphoneform')[0].reset();
+                $('#edit_phone_mode').val('0');
+                $('#edit_phone_id').val('');
+                $('#edit_phone_index').val('');
+                $('.addclientphone').modal('hide');
+                
+                alert('Phone number updated successfully! Remember to save the form.');
+            } else {
+                console.error('Could not find phone item with index:', phone_index);
+                alert('Error: Could not find the phone item to update.');
+            }
+        }
+    });
+
     // ============================================================================
     // EMAIL MANAGEMENT
     // ============================================================================
@@ -261,6 +385,106 @@ jQuery(document).ready(function($){
         var emailId = $(this).attr('data-email');
         if (confirm('Are you sure you want to delete this email?')) {
             $('#'+emailId).remove();
+        }
+    });
+
+    // Edit client email
+    $(document).delegate('.editclientemail','click', function(){
+        $('#clientEmailModalLabel').html('Edit Email Address');
+        $('.saveclientemail').hide();
+        $('#update_clientemail').show();
+        
+        // Get data from clicked element
+        var email_id = $(this).data('email-id');
+        var email_type = $(this).data('type');
+        var email_address = $(this).data('email');
+        
+        // Store edit mode data
+        $('#edit_email_mode').val('1');
+        $('#edit_email_id').val(email_id);
+        
+        // Clear errors
+        $('.client_email_error').html('');
+        $('input[name="client_email"]').parent().removeClass('error');
+        
+        // Populate form
+        $('#email_type_modal').val(email_type);
+        $('input[name="client_email"]').val(email_address);
+        
+        $('.addclientemail').modal('show');
+    });
+
+    // Update client email
+    $(document).delegate('#update_clientemail','click', function(){
+        // Clear previous errors
+        $('.client_email_error').html('');
+        $('input[name="client_email"]').parent().removeClass('error');
+        
+        // Get form values
+        var client_email = $('input[name="client_email"]').val();
+        var email_type = $('select[name="email_type_modal"]').val();
+        var email_id = $('#edit_email_id').val();
+        
+        console.log('Update Email - ID:', email_id);
+        console.log('Update Email - Type:', email_type);
+        console.log('Update Email - Address:', client_email);
+        
+        // Validate
+        var flag = false;
+        if(client_email == ''){
+            $('.client_email_error').html('The Email field is required.');
+            $('input[name="client_email"]').parent().addClass('error');
+            flag = true;
+        }
+        if(email_type == ''){
+            alert('Please select email type.');
+            flag = true;
+        }
+
+        if(!flag){
+            var $emailItem = null;
+            
+            if(email_id == 'main'){
+                $emailItem = $('#email_main');
+            } else if(email_id == 'additional'){
+                $emailItem = $('#email_additional');
+            }
+            
+            if($emailItem && $emailItem.length > 0){
+                console.log('Found email item, updating...');
+                
+                // Update the display
+                $emailItem.find('.contact-type-tag').text(email_type);
+                $emailItem.find('.contact-email').text(client_email);
+                
+                // Update hidden fields - CRITICAL for form submission
+                if(email_id == 'main'){
+                    $emailItem.find('input[name="email"]').val(client_email);
+                    $emailItem.find('input[name="email_type"]').val(email_type);
+                    console.log('Updated main email:', {
+                        email: $emailItem.find('input[name="email"]').val(),
+                        type: $emailItem.find('input[name="email_type"]').val()
+                    });
+                } else {
+                    $emailItem.find('input[name="att_email"]').val(client_email);
+                    console.log('Updated additional email:', $emailItem.find('input[name="att_email"]').val());
+                }
+                
+                // Update data attributes for future edits
+                $emailItem.find('.editclientemail').attr('data-type', email_type);
+                $emailItem.find('.editclientemail').attr('data-email', client_email);
+                
+                // Clear form and close modal
+                $('#clientemailform')[0].reset();
+                $('#edit_email_mode').val('0');
+                $('#edit_email_id').val('');
+                $('.addclientemail').modal('hide');
+                
+                alert('Email updated successfully! Remember to save the form.');
+            } else {
+                console.error('Could not find email item with id:', email_id);
+                alert('Error: Could not find the email item to update.');
+            }
         }
     });
 

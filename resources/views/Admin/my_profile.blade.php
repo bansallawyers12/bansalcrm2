@@ -69,9 +69,9 @@
 											@endif
 										</div>
 									@endif
-										<div class="form-group">
-											<label for="email">Company Email <span style="color:#ff0000;">*</span></label>
-												{!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required email', 'disabled'=>'disabled'))  !!}
+									<div class="form-group">
+										<label for="email">Company Email <span style="color:#ff0000;">*</span></label>
+											{!! Form::text('email', @$fetchedData->email, array('class' => 'form-control', 'data-valid'=>'required email', 'autocomplete'=>'off','placeholder'=>'Enter email address'))  !!}
 										
 											@if ($errors->has('email'))
 												<span class="custom-error" role="alert">

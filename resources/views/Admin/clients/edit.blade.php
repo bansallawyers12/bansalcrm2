@@ -449,6 +449,16 @@
 														<span class="contact-type-tag">{{ $clientphone->contact_type }}</span>
 														<span class="contact-phone">{{$clientphone->client_country_code}} {{$clientphone->client_phone}}</span>
 														<div class="contact-actions">
+															<a href="javascript:;" 
+																class="editclientphone btn-edit" 
+																data-index="{{$iii}}" 
+																data-id="{{$clientphone->id}}"
+																data-type="{{$clientphone->contact_type}}"
+																data-country="{{$clientphone->client_country_code}}"
+																data-phone="{{$clientphone->client_phone}}"
+																title="Edit">
+																<i class="fa fa-edit"></i>
+															</a>
 															<?php if( isset($clientphone->contact_type) && $clientphone->contact_type == "Personal" ) {
 																$check_verified_phoneno = $clientphone->client_country_code."".$clientphone->client_phone;
 																$verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
@@ -503,6 +513,14 @@
 													<span class="contact-type-tag">{{ $email_type }}</span>
 													<span class="contact-email">{{ $fetchedData->email }}</span>
 													<div class="contact-actions">
+														<a href="javascript:;" 
+															class="editclientemail btn-edit" 
+															data-email-id="main"
+															data-type="{{ $email_type }}"
+															data-email="{{ $fetchedData->email }}"
+															title="Edit">
+															<i class="fa fa-edit"></i>
+														</a>
 														<?php if($email_verified) { ?>
 															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
 														<?php } else { ?>
@@ -525,6 +543,14 @@
 													<span class="contact-type-tag">Additional</span>
 													<span class="contact-email">{{ $fetchedData->att_email }}</span>
 													<div class="contact-actions">
+														<a href="javascript:;" 
+															class="editclientemail btn-edit" 
+															data-email-id="additional"
+															data-type="Additional"
+															data-email="{{ $fetchedData->att_email }}"
+															title="Edit">
+															<i class="fa fa-edit"></i>
+														</a>
 														<a href="javascript:;" class="deleteemail btn-delete" data-email="email_additional">
 															<i class="fa fa-trash"></i>
 														</a>
@@ -1383,6 +1409,9 @@ if($fetchedData->tagname != ''){
 			</div>
 			<div class="modal-body">
 				<form method="post" id="clientphoneform" autocomplete="off" enctype="multipart/form-data">
+					<input type="hidden" id="edit_phone_mode" value="0">
+					<input type="hidden" id="edit_phone_id" value="">
+					<input type="hidden" id="edit_phone_index" value="">
 					<div class="row">
                         <div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
@@ -1488,10 +1517,11 @@ if($fetchedData->tagname != ''){
 							</div>
 						</div>
 
-						<div class="col-12 col-md-12 col-lg-12">
-							<button type="button" class="btn btn-primary saveclientemail">Save</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
+					<div class="col-12 col-md-12 col-lg-12">
+						<button type="button" class="btn btn-primary saveclientemail">Save</button>
+						<button type="button" id="update_clientemail" style="display:none" class="btn btn-primary">Update</button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
 					</div>
 				</form>
 			</div>
