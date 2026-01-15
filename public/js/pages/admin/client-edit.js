@@ -229,6 +229,7 @@ jQuery(document).ready(function($){
         var contact_type = $('#contact_type').val();
         var client_phone = $('input[name="client_phone"]').val();
         var phone_index = $('#edit_phone_index').val();
+        var phone_id = $('#edit_phone_id').val();
         
         // Get country code from intlTelInput
         var country_code_input = $('.telephone').val();
@@ -241,6 +242,7 @@ jQuery(document).ready(function($){
         }
         
         console.log('Update Phone - Index:', phone_index);
+        console.log('Update Phone - ID:', phone_id);
         console.log('Update Phone - Type:', contact_type);
         console.log('Update Phone - Country:', country_code);
         console.log('Update Phone - Number:', client_phone);
@@ -265,7 +267,13 @@ jQuery(document).ready(function($){
 
         if(!flag){
             // Find the phone item
-            var $phoneItem = $('#metatag2_' + phone_index);
+            var $phoneItem = null;
+            if (phone_id) {
+                $phoneItem = $('.clientphonedata input[name="clientphoneid[]"][value="' + phone_id + '"]').closest('.compact-contact-item');
+            }
+            if (!$phoneItem || $phoneItem.length === 0) {
+                $phoneItem = $('#metatag2_' + phone_index);
+            }
             
             if($phoneItem.length > 0) {
                 console.log('Found phone item, updating...');

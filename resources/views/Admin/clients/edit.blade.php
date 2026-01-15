@@ -1486,6 +1486,8 @@ if($fetchedData->tagname != ''){
 			</div>
 			<div class="modal-body">
 				<form method="post" id="clientemailform" autocomplete="off" enctype="multipart/form-data">
+					<input type="hidden" id="edit_email_mode" value="0">
+					<input type="hidden" id="edit_email_id" value="">
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
