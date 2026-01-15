@@ -4583,7 +4583,7 @@ if($fetchedData->tagname != ''){
         const tableContainer = $('#bulk-upload-mapping-table');
         
         let html = '<table class="table table-bordered" style="width: 100%;">';
-        html += '<thead><tr><th style="width: 30%;">File Name</th><th style="width: 50%;">Checklist Assignment</th><th style="width: 20%;">Status</th></tr></thead>';
+        html += '<thead><tr><th style="width: 30%;">File Name</th><th style="width: 45%;">Checklist Assignment</th><th style="width: 15%;">Status</th><th style="width: 10%;">Action</th></tr></thead>';
         html += '<tbody>';
         
         Array.from(files).forEach((file, index) => {
@@ -4615,6 +4615,7 @@ if($fetchedData->tagname != ''){
             html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none;">';
             html += '</td>';
             html += '<td><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
+            html += '<td><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
             html += '</tr>';
         });
         
@@ -4645,6 +4646,22 @@ if($fetchedData->tagname != ''){
         $('#bulk-upload-mapping-modal').hide();
         $('#bulk-upload-progress').hide();
         $('#confirm-bulk-upload').prop('disabled', false);
+    });
+
+    // Remove a file from bulk upload
+    $(document).on('click', '.bulk-upload-remove-file', function() {
+        const index = parseInt($(this).data('file-index'), 10);
+        if (Number.isNaN(index)) {
+            return;
+        }
+        bulkUploadFiles.splice(index, 1);
+        $('.file-count').text(bulkUploadFiles.length);
+        if (bulkUploadFiles.length === 0) {
+            $('#bulk-upload-mapping-modal').hide();
+            $('.bulk-upload-file-list').hide();
+            return;
+        }
+        showBulkUploadMapping();
     });
     
     // Confirm bulk upload
