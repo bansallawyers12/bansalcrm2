@@ -120,7 +120,42 @@ jQuery(document).ready(function($){
     $('.addclientphone').on('shown.bs.modal', function () {
         // Initialize intlTelInput when modal is shown
         if ($(".telephone").length > 0 && typeof $.fn.intlTelInput === 'function') {
-            $(".telephone").intlTelInput();
+            // Check if countries data is available before initializing
+            if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
+                try {
+                    $(".telephone").intlTelInput();
+                } catch (e) {
+                    console.warn('Error initializing intlTelInput in modal, retrying...', e);
+                    // Retry after a short delay
+                    setTimeout(function() {
+                        if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
+                            try {
+                                $(".telephone").intlTelInput();
+                            } catch (retryError) {
+                                console.error('intlTelInput initialization failed in modal after retry:', retryError);
+                            }
+                        }
+                    }, 100);
+                }
+            } else {
+                // Wait for countries data to be available
+                var retryCount = 0;
+                var maxRetries = 10;
+                var checkInterval = setInterval(function() {
+                    retryCount++;
+                    if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
+                        clearInterval(checkInterval);
+                        try {
+                            $(".telephone").intlTelInput();
+                        } catch (e) {
+                            console.error('Error initializing intlTelInput in modal:', e);
+                        }
+                    } else if (retryCount >= maxRetries) {
+                        clearInterval(checkInterval);
+                        console.error('intlTelInput countries data not available after retries');
+                    }
+                }, 50);
+            }
         }
     });
   
@@ -208,7 +243,13 @@ jQuery(document).ready(function($){
             $('#clientphoneform')[0].reset();
             // Re-initialize intlTelInput after reset
             if (typeof $.fn.intlTelInput === 'function') {
-                $(".telephone").intlTelInput();
+                if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
+                    try {
+                        $(".telephone").intlTelInput();
+                    } catch (e) {
+                        console.warn('Error re-initializing intlTelInput after reset:', e);
+                    }
+                }
             }
             $('.addclientphone').modal('hide');
             itag_phone++;
@@ -258,7 +299,23 @@ jQuery(document).ready(function($){
         
         // Set country code in intlTelInput
         if ($(".telephone").length > 0 && typeof $.fn.intlTelInput === 'function') {
-            $(".telephone").val(country_code);
+            // Ensure intlTelInput is initialized before setting value
+            if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
+                try {
+                    // Check if already initialized, if not initialize it
+                    if (!$(".telephone").data('intlTelInput')) {
+                        $(".telephone").intlTelInput();
+                    }
+                    $(".telephone").val(country_code);
+                } catch (e) {
+                    console.warn('Error setting country code in intlTelInput:', e);
+                    // Fallback: just set the value directly
+                    $(".telephone").val(country_code);
+                }
+            } else {
+                // Fallback: set value directly if intlTelInput not ready
+                $(".telephone").val(country_code);
+            }
         }
         
         $('.addclientphone').modal('show');

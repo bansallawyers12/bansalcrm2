@@ -61,6 +61,20 @@
                 }
                 
                 try {
+                    // Check if intlTelInput countries data is available
+                    if (!window.intlTelInput || !window.intlTelInput.countries || !Array.isArray(window.intlTelInput.countries) || window.intlTelInput.countries.length === 0) {
+                        if (self.config.debug) {
+                            console.warn('intlTelInput countries not yet available, retrying in 100ms...');
+                        }
+                        // Retry initialization after a short delay
+                        setTimeout(function() {
+                            if (!$input.data('phone-initialized')) {
+                                self.init(selector, options);
+                            }
+                        }, 100);
+                        return;
+                    }
+                    
                     // Get existing value or use default
                     let existingValue = $input.val() || '';
                     const isReadonly = $input.prop('readonly') || $input.attr('readonly');
@@ -73,8 +87,26 @@
                         existingValue = self.config.defaultCode;
                     }
                     
-                    // Initialize intlTelInput
-                    $input.intlTelInput(settings);
+                    // Initialize intlTelInput with error handling
+                    try {
+                        $input.intlTelInput(settings);
+                    } catch (initError) {
+                        if (self.config.debug) {
+                            console.warn('intlTelInput initialization error, retrying...', initError);
+                        }
+                        // Retry once after delay
+                        setTimeout(function() {
+                            if (!$input.data('phone-initialized')) {
+                                try {
+                                    $input.intlTelInput(settings);
+                                } catch (retryError) {
+                                    console.error('intlTelInput initialization failed after retry:', retryError);
+                                    return;
+                                }
+                            }
+                        }, 150);
+                        return;
+                    }
                     
                     // Set normalized value
                     if (existingValue) {
@@ -103,7 +135,8 @@
                     }
                     
                 } catch (error) {
-                    console.warn('Error initializing phone input:', error);
+                    console.error('Error initializing phone input:', error);
+                    // Don't mark as initialized if there was an error, so it can retry
                 }
             });
             

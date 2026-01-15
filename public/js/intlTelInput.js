@@ -24,6 +24,22 @@ author: Jack O'Connor (http://jackocnr.com)
     Plugin.prototype = {
         init: function() {
             var that = this;
+            
+            // Safety check: ensure countries array is initialized before proceeding
+            if (!intlTelInput || !intlTelInput.countries || !Array.isArray(intlTelInput.countries) || intlTelInput.countries.length === 0) {
+                console.warn('intlTelInput: countries array not yet initialized, deferring initialization...');
+                // Retry initialization after a short delay
+                var self = this;
+                setTimeout(function() {
+                    if (intlTelInput && intlTelInput.countries && Array.isArray(intlTelInput.countries) && intlTelInput.countries.length > 0) {
+                        self.init();
+                    } else {
+                        console.error('intlTelInput: Failed to initialize - countries array still not available');
+                    }
+                }, 50);
+                return;
+            }
+            
             // process onlyCountries array and update intlTelInput.countries
             // and intlTelInput.countryCodes accordingly
             if (this.options.onlyCountries.length > 0) {
@@ -53,7 +69,15 @@ author: Jack O'Connor (http://jackocnr.com)
                     preferredCountries.push(countryData);
                 }
             });
-            this.defaultCountry = preferredCountries.length ? preferredCountries[0] : intlTelInput.countries[0];
+            // Safety check before accessing countries array
+            if (preferredCountries.length > 0) {
+                this.defaultCountry = preferredCountries[0];
+            } else if (intlTelInput.countries && intlTelInput.countries.length > 0) {
+                this.defaultCountry = intlTelInput.countries[0];
+            } else {
+                console.error('intlTelInput: No countries available for default country selection');
+                return; // Exit initialization if no countries available
+            }
             // telephone input
             this.telInput = $(this.element);
             // if initialDialCode is enabled, insert the default dial code
@@ -200,11 +224,17 @@ author: Jack O'Connor (http://jackocnr.com)
         },
         // find the country data for the given country code
         _getCountryData: function(countryCode) {
+            // Safety check: ensure countries array exists and is initialized
+            if (!intlTelInput || !intlTelInput.countries || !Array.isArray(intlTelInput.countries) || intlTelInput.countries.length === 0) {
+                console.warn('intlTelInput: countries array not yet initialized, retrying...');
+                return null;
+            }
             for (var i = 0; i < intlTelInput.countries.length; i++) {
                 if (intlTelInput.countries[i].cca2 == countryCode) {
                     return intlTelInput.countries[i];
                 }
             }
+            return null;
         },
         // update the selected flag and the active list item
         _selectFlag: function(countryCode) {
