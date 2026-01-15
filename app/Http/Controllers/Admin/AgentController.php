@@ -92,6 +92,8 @@ class AgentController extends Controller
 			$obj->struture	=	@$requestData['struture'];
 			if(@$requestData['struture'] == 'Individual'){
 			$obj->full_name	=	@$requestData['full_name'];
+			// Set contract_expiry_date for Individual agents - use provided value or default to far future date
+			$obj->contract_expiry_date	=	!empty(@$requestData['contract_expiry_date']) ? @$requestData['contract_expiry_date'] : '2099-12-31';
 			}else{
 				$obj->full_name	=	@$requestData['c_name'];
 				$obj->business_name	=	@$requestData['business_name'];
@@ -178,6 +180,8 @@ class AgentController extends Controller
 			$obj->struture	=	@$requestData['struture'];
 			if(@$requestData['struture'] == 'Individual'){
 			$obj->full_name	=	@$requestData['full_name'];
+			// Set contract_expiry_date for Individual agents - use provided value or default to far future date
+			$obj->contract_expiry_date	=	!empty(@$requestData['contract_expiry_date']) ? @$requestData['contract_expiry_date'] : '2099-12-31';
 			}else{
 				$obj->full_name	=	@$requestData['c_name'];
 				$obj->business_name	=	@$requestData['business_name'];

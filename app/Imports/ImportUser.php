@@ -21,7 +21,8 @@ class ImportUser implements ToModel
             $full_name = $row[0];
             $business_name = '';
             $tax_number = '';
-            $contract_expiry_date = '';
+            // Set default contract_expiry_date for Individual agents (not in import data)
+            $contract_expiry_date = '2099-12-31';
             $country_code = $row[2];
             $phone = $row[3];
             $email = $row[1];

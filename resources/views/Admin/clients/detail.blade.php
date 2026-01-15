@@ -4726,7 +4726,11 @@ if($fetchedData->tagname != ''){
                 $('#confirm-bulk-upload').prop('disabled', false);
                 
                 if (response.status) {
-                    alert(response.message);
+                    let message = response.message || 'Upload completed.';
+                    if (response.errors && response.errors.length > 0) {
+                        message += '\n\nSome files failed:\n' + response.errors.join('\n');
+                    }
+                    alert(message);
                     $('#bulk-upload-mapping-modal').hide();
                     $('.bulk-upload-dropzone-container').hide();
                     $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
@@ -4735,7 +4739,11 @@ if($fetchedData->tagname != ''){
                     // Reload the page to show new documents
                     location.reload();
                 } else {
-                    alert('Error: ' + response.message);
+                    let errorMsg = 'Error: ' + (response.message || 'Upload failed.');
+                    if (response.errors && response.errors.length > 0) {
+                        errorMsg += '\n\nDetails:\n' + response.errors.join('\n');
+                    }
+                    alert(errorMsg);
                 }
             },
             error: function(xhr) {
