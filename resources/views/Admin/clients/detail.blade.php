@@ -2478,13 +2478,13 @@ use App\Http\Controllers\Controller;
                                     </div>
                                     
                                     <!-- Bulk Upload Mapping Modal -->
-                                    <div id="bulk-upload-mapping-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
-                                        <div style="margin: 50px auto; max-width: 1200px; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                                    <div id="bulk-upload-mapping-modal" class="bulk-upload-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
+                                        <div class="bulk-upload-modal-content">
                                             <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                                                 <h3 style="margin: 0; color: #333;">Map Files to Checklists</h3>
                                                 <button type="button" class="close-mapping-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
                                             </div>
-                                            <div style="padding: 20px;">
+                                            <div style="padding: 20px; overflow-x: auto;">
                                                 <div id="bulk-upload-mapping-table"></div>
                                             </div>
                                             <div style="padding: 20px; border-top: 1px solid #e2e8f0;">
@@ -4572,8 +4572,9 @@ use App\Http\Controllers\Controller;
         const modal = $('#bulk-upload-mapping-modal');
         const tableContainer = $('#bulk-upload-mapping-table');
         
-        let html = '<table class="table table-bordered" style="width: 100%;">';
-        html += '<thead><tr><th style="width: 30%;">File Name</th><th style="width: 45%;">Checklist Assignment</th><th style="width: 15%;">Status</th><th style="width: 10%;">Action</th></tr></thead>';
+        let html = '<div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">';
+        html += '<table class="table table-bordered bulk-upload-table" style="width: 100%; min-width: 600px; margin-bottom: 0;">';
+        html += '<thead><tr><th style="min-width: 150px;">File Name</th><th style="min-width: 200px;">Checklist Assignment</th><th style="min-width: 100px;">Status</th><th style="min-width: 80px;">Action</th></tr></thead>';
         html += '<tbody>';
         
         Array.from(files).forEach((file, index) => {
@@ -4592,9 +4593,9 @@ use App\Http\Controllers\Controller;
             }
             
             html += '<tr class="bulk-upload-file-item">';
-            html += '<td><div class="file-info"><i class="fas fa-file" style="color: #4a90e2;"></i><div><div class="file-name">' + escapeHtml(fileName) + '</div><div class="file-size">' + fileSize + '</div></div></div></td>';
-            html += '<td>';
-            html += '<select class="form-control checklist-select" data-file-index="' + index + '">';
+            html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name" style="word-break: break-word; overflow-wrap: break-word;">' + escapeHtml(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666;">' + fileSize + '</div></div></div></td>';
+            html += '<td style="min-width: 200px;">';
+            html += '<select class="form-control checklist-select" data-file-index="' + index + '" style="width: 100%;">';
             html += '<option value="">-- Select Checklist --</option>';
             html += '<option value="__NEW__">+ Create New Checklist</option>';
             checklists.forEach(checklist => {
@@ -4602,14 +4603,15 @@ use App\Http\Controllers\Controller;
                 html += '<option value="' + escapeHtml(checklist.name) + '" ' + selected + '>' + escapeHtml(checklist.name) + '</option>';
             });
             html += '</select>';
-            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none;">';
+            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none; width: 100%;">';
             html += '</td>';
-            html += '<td><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
-            html += '<td><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
+            html += '<td style="white-space: nowrap;"><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
+            html += '<td style="white-space: nowrap;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
             html += '</tr>';
         });
         
         html += '</tbody></table>';
+        html += '</div>';
         tableContainer.html(html);
         modal.show();
     }
