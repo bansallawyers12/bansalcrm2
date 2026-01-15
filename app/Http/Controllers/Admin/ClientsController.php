@@ -5076,7 +5076,7 @@ class ClientsController extends Controller
                                             <a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
                                           
                                             <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-                                            <a href="#" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>">Download</a>
+                                            <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($fetch->myfile_key); ?>" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>" target="_blank" rel="noopener">Download</a>
 
 
                                             <?php if( Auth::user()->role == 1 ){ //echo Auth::user()->role;//super admin ?>
@@ -5263,7 +5263,7 @@ class ClientsController extends Controller
                                       
                                         <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
 
-                                        <a href="#" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>">Download</a>
+                                        <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($fetch->myfile_key); ?>" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>" target="_blank" rel="noopener">Download</a>
 
 
 
@@ -6170,6 +6170,9 @@ class ClientsController extends Controller
             $doctype = $request->doctype ?? 'documents';
             $type = $request->type ?? 'client';
             
+            $adminInfo = \App\Models\Admin::select('client_id')->where('id', $clientid)->first();
+            $client_unique_id = $adminInfo ? $adminInfo->client_id : '';
+            
             if (!$request->hasFile('files')) {
                 $response['message'] = 'No files uploaded';
                 return response()->json($response);
@@ -6253,24 +6256,21 @@ class ClientsController extends Controller
                         $document->save();
                     }
                     
-                    // Upload file using local storage
-                    $document_upload = $this->uploadrenameFile($file, Config::get('constants.documents'));
-                    
-                    if (!$document_upload) {
-                        $errors[] = "Failed to upload file '{$fileName}'";
-                        continue;
-                    }
-                    
-                    // Update document with file info
+                    // Upload file using S3 (same as checklist upload flow)
                     $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
                     $fileExtension = $file->getClientOriginalExtension();
+                    $name = time() . $file->getClientOriginalName();
+                    $filePath = $client_unique_id . '/' . $doctype . '/' . $name;
                     
-                    // Store full path for local files (matches view expectation when myfile_key is set)
+                    Storage::disk('s3')->put($filePath, file_get_contents($file));
+                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    
+                    // Update document with file info
                     $document->file_name = $nameWithoutExtension;
                     $document->filetype = $fileExtension;
                     $document->user_id = Auth::user()->id;
-                    $document->myfile = 'img/documents/' . $document_upload; // Full path for local files
-                    $document->myfile_key = $document_upload; // Store just filename to indicate new local file
+                    $document->myfile = $fileUrl;
+                    $document->myfile_key = $name;
                     $document->file_size = $size;
                     $document->save();
                     

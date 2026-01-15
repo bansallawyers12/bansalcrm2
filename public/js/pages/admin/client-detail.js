@@ -57,6 +57,11 @@ document.addEventListener('DOMContentLoaded', function () {
         // If it's not a .download-file anchor, do nothing
         if (!target) return;
 
+        // If the link already points to a download URL, let the browser handle it
+        if (target.getAttribute('href') && target.getAttribute('href') !== '#' && target.getAttribute('href').includes('/download-document')) {
+            return;
+        }
+
         e.preventDefault();
 
         const filelink = target.dataset.filelink;

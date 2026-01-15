@@ -143,8 +143,9 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/renamealldoc', [ClientsController::class, 'renamealldoc'])->name('clients.renamealldoc');
     Route::post('/backtodoc', [ClientsController::class, 'backtodoc'])->name('clients.backtodoc');
     
-    // Download document
-    Route::post('/download-document', [ClientsController::class, 'download_document'])->name('clients.download_document');
+    // Download document (allow GET fallback for non-JS links)
+    Route::match(['get', 'post'], '/download-document', [ClientsController::class, 'download_document'])
+        ->name('clients.download_document');
     
     // Bulk upload routes for Documents tab
     Route::post('/documents/bulk-upload', [ClientsController::class, 'bulkUploadDocuments'])->name('clients.documents.bulkUpload');
