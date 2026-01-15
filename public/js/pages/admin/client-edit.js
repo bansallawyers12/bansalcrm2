@@ -120,17 +120,65 @@ jQuery(document).ready(function($){
     $('.addclientphone').on('shown.bs.modal', function () {
         // Initialize intlTelInput when modal is shown
         if ($(".telephone").length > 0 && typeof $.fn.intlTelInput === 'function') {
+            var $telephone = $(".telephone");
+            var currentValue = $telephone.val() || '';
+            var isEmpty = currentValue.trim() === '';
+            
             // Check if countries data is available before initializing
             if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
                 try {
-                    $(".telephone").intlTelInput();
+                    // Initialize with initialDialCode enabled
+                    $telephone.intlTelInput({
+                        initialDialCode: true,
+                        preferredCountries: window.PREFERRED_COUNTRIES ? window.PREFERRED_COUNTRIES.split(',') : ['au', 'in', 'pk', 'np', 'gb', 'ca'],
+                        initialCountry: window.DEFAULT_COUNTRY || 'au'
+                    });
+                    
+                    // Set value only if there was an existing value
+                    if (currentValue && !isEmpty) {
+                        try {
+                            $telephone.intlTelInput('setNumber', currentValue);
+                        } catch (e) {
+                            $telephone.val(currentValue);
+                        }
+                    } else if (isEmpty) {
+                        // Ensure default dial code is set if empty
+                        setTimeout(function() {
+                            const val = $telephone.val() || '';
+                            if (val.trim() === '') {
+                                try {
+                                    const countryData = $telephone.intlTelInput('getSelectedCountryData');
+                                    if (countryData && countryData.dialCode) {
+                                        $telephone.val('+' + countryData.dialCode);
+                                    } else {
+                                        $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                    }
+                                } catch (e) {
+                                    $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                }
+                            }
+                        }, 50);
+                    }
                 } catch (e) {
                     console.warn('Error initializing intlTelInput in modal, retrying...', e);
                     // Retry after a short delay
                     setTimeout(function() {
                         if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
                             try {
-                                $(".telephone").intlTelInput();
+                                $telephone.intlTelInput({
+                                    initialDialCode: true,
+                                    preferredCountries: window.PREFERRED_COUNTRIES ? window.PREFERRED_COUNTRIES.split(',') : ['au', 'in', 'pk', 'np', 'gb', 'ca'],
+                                    initialCountry: window.DEFAULT_COUNTRY || 'au'
+                                });
+                                // Set default if empty
+                                if (isEmpty) {
+                                    setTimeout(function() {
+                                        const val = $telephone.val() || '';
+                                        if (val.trim() === '') {
+                                            $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                        }
+                                    }, 50);
+                                }
                             } catch (retryError) {
                                 console.error('intlTelInput initialization failed in modal after retry:', retryError);
                             }
@@ -146,7 +194,20 @@ jQuery(document).ready(function($){
                     if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
                         clearInterval(checkInterval);
                         try {
-                            $(".telephone").intlTelInput();
+                            $telephone.intlTelInput({
+                                initialDialCode: true,
+                                preferredCountries: window.PREFERRED_COUNTRIES ? window.PREFERRED_COUNTRIES.split(',') : ['au', 'in', 'pk', 'np', 'gb', 'ca'],
+                                initialCountry: window.DEFAULT_COUNTRY || 'au'
+                            });
+                            // Set default if empty
+                            if (isEmpty) {
+                                setTimeout(function() {
+                                    const val = $telephone.val() || '';
+                                    if (val.trim() === '') {
+                                        $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                    }
+                                }, 50);
+                            }
                         } catch (e) {
                             console.error('Error initializing intlTelInput in modal:', e);
                         }
@@ -245,7 +306,33 @@ jQuery(document).ready(function($){
             if (typeof $.fn.intlTelInput === 'function') {
                 if (window.intlTelInput && window.intlTelInput.countries && Array.isArray(window.intlTelInput.countries) && window.intlTelInput.countries.length > 0) {
                     try {
-                        $(".telephone").intlTelInput();
+                        var $telephone = $(".telephone");
+                        // Destroy existing instance if any
+                        if ($telephone.data('intlTelInput')) {
+                            $telephone.intlTelInput('destroy');
+                        }
+                        // Re-initialize with initialDialCode
+                        $telephone.intlTelInput({
+                            initialDialCode: true,
+                            preferredCountries: window.PREFERRED_COUNTRIES ? window.PREFERRED_COUNTRIES.split(',') : ['au', 'in', 'pk', 'np', 'gb', 'ca'],
+                            initialCountry: window.DEFAULT_COUNTRY || 'au'
+                        });
+                        // Ensure default dial code is set
+                        setTimeout(function() {
+                            const val = $telephone.val() || '';
+                            if (val.trim() === '') {
+                                try {
+                                    const countryData = $telephone.intlTelInput('getSelectedCountryData');
+                                    if (countryData && countryData.dialCode) {
+                                        $telephone.val('+' + countryData.dialCode);
+                                    } else {
+                                        $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                    }
+                                } catch (e) {
+                                    $telephone.val(window.DEFAULT_COUNTRY_CODE || '+61');
+                                }
+                            }
+                        }, 50);
                     } catch (e) {
                         console.warn('Error re-initializing intlTelInput after reset:', e);
                     }

@@ -35,6 +35,7 @@
             const settings = $.extend({}, {
                 preferredCountries: this.config.preferredCountries,
                 initialCountry: this.config.defaultCountry,
+                initialDialCode: true,  // Explicitly enable initial dial code
                 separateDialCode: false,
                 autoFormat: false
             }, options || {});
@@ -75,16 +76,14 @@
                         return;
                     }
                     
-                    // Get existing value or use default
+                    // Get existing value before initialization
                     let existingValue = $input.val() || '';
                     const isReadonly = $input.prop('readonly') || $input.attr('readonly');
+                    const isEmpty = existingValue.trim() === '';
                     
-                    // Normalize existing value
-                    if (existingValue) {
+                    // Normalize existing value if it exists
+                    if (existingValue && !isEmpty) {
                         existingValue = self.normalizeCode(existingValue);
-                    } else if (!isReadonly) {
-                        // Set default only if not readonly and empty
-                        existingValue = self.config.defaultCode;
                     }
                     
                     // Initialize intlTelInput with error handling
@@ -99,6 +98,15 @@
                             if (!$input.data('phone-initialized')) {
                                 try {
                                     $input.intlTelInput(settings);
+                                    // After successful retry, set value if needed
+                                    if (existingValue && !isEmpty) {
+                                        // Use setNumber if available, otherwise set val
+                                        try {
+                                            $input.intlTelInput('setNumber', existingValue);
+                                        } catch (e) {
+                                            $input.val(existingValue);
+                                        }
+                                    }
                                 } catch (retryError) {
                                     console.error('intlTelInput initialization failed after retry:', retryError);
                                     return;
@@ -108,9 +116,33 @@
                         return;
                     }
                     
-                    // Set normalized value
-                    if (existingValue) {
-                        $input.val(existingValue);
+                    // Set value only if there was an existing value (don't overwrite initialDialCode)
+                    // If input was empty, intlTelInput will set the dial code automatically via initialDialCode
+                    if (existingValue && !isEmpty) {
+                        // Use setNumber method if available for proper formatting
+                        try {
+                            $input.intlTelInput('setNumber', existingValue);
+                        } catch (e) {
+                            // Fallback to direct value setting if setNumber not available
+                            $input.val(existingValue);
+                        }
+                    } else if (isEmpty && !isReadonly) {
+                        // If empty and not readonly, ensure default dial code is set
+                        // This is a fallback in case initialDialCode didn't work
+                        setTimeout(function() {
+                            const currentVal = $input.val() || '';
+                            if (currentVal.trim() === '') {
+                                try {
+                                    const countryData = $input.intlTelInput('getSelectedCountryData');
+                                    if (countryData && countryData.dialCode) {
+                                        $input.val('+' + countryData.dialCode);
+                                    }
+                                } catch (e) {
+                                    // If getSelectedCountryData fails, use config default
+                                    $input.val(self.config.defaultCode);
+                                }
+                            }
+                        }, 50);
                     }
                     
                     // Handle country change event
