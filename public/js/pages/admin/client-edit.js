@@ -48,6 +48,53 @@
 // ============================================================================
 
 jQuery(document).ready(function($){
+    function autoSaveClientEditForm(successMessage) {
+        if (window.__clientEditAutoSaveInProgress) {
+            return;
+        }
+        window.__clientEditAutoSaveInProgress = true;
+        
+        if (successMessage) {
+            if (typeof iziToast !== 'undefined') {
+                iziToast.success({
+                    title: 'Success',
+                    message: successMessage,
+                    position: 'topRight'
+                });
+            } else {
+                alert(successMessage);
+            }
+        }
+        
+        var $form = $('form[name="edit-clients"]');
+        if ($form.length > 0) {
+            var formEl = $form[0];
+            var formData = new FormData(formEl);
+            
+            $.ajax({
+                url: $form.attr('action'),
+                method: ($form.attr('method') || 'POST').toUpperCase(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': App.getCsrf()
+                }
+            }).done(function() {
+                // No redirect; keep user on edit page
+            }).fail(function(xhr) {
+                var errorMsg = 'Failed to save changes.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                alert(errorMsg);
+            }).always(function() {
+                window.__clientEditAutoSaveInProgress = false;
+            });
+        } else {
+            window.__clientEditAutoSaveInProgress = false;
+        }
+    }
   
     // ============================================================================
     // PHONE MANAGEMENT
@@ -305,7 +352,7 @@ jQuery(document).ready(function($){
                 $('#edit_phone_index').val('');
                 $('.addclientphone').modal('hide');
                 
-                alert('Phone number updated successfully! Remember to save the form.');
+                autoSaveClientEditForm('Phone number updated successfully.');
             } else {
                 console.error('Could not find phone item with index:', phone_index);
                 alert('Error: Could not find the phone item to update.');
@@ -488,92 +535,13 @@ jQuery(document).ready(function($){
                 $('#edit_email_id').val('');
                 $('.addclientemail').modal('hide');
                 
-                alert('Email updated successfully! Remember to save the form.');
+                autoSaveClientEditForm('Email updated successfully.');
             } else {
                 console.error('Could not find email item with id:', email_id);
                 alert('Error: Could not find the email item to update.');
             }
         }
     });
-
-    // ============================================================================
-    // TAG MANAGEMENT (Select2)
-    // ============================================================================
-    
-    // Initialize tags Select2 if tags exist
-    var tagInitialData = App.getPageConfig('tagInitialData');
-    if (tagInitialData && tagInitialData.length > 0) {
-        var array1 = [];
-        var data1 = [];
-        
-        tagInitialData.forEach(function(tag) {
-            array1.push(tag.id);
-            data1.push({
-                id: tag.id,
-                text: tag.name,
-            });
-        });
-
-        $("#tag").select2({
-            data: data1,
-            escapeMarkup: function(markup) {
-                return markup;
-            },
-            templateResult: function(data1) {
-                return data1.html;
-            },
-            templateSelection: function(data1) {
-                return data1.text;
-            }
-        });
-
-        $('#tag').val(array1);
-        $('#tag').trigger('change');
-    }
-
-    // Initialize tags Select2 with AJAX
-    $('#tag').select2({
-        ajax: {
-            url: App.getUrl('getTagData') || App.getUrl('siteUrl') + '/gettagdata',
-            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1
-                };
-            },
-            processResults: function(data, params) {
-                params.page = params.page || 1;
-                return {
-                    results: data.items.map(item => ({
-                        id: item.id,
-                        text: item.text
-                    })),
-                    pagination: {
-                        more: (params.page * data.per_page) < data.total_count
-                    }
-                };
-            },
-            cache: true
-        },
-        placeholder: 'Search & Select tag',
-        minimumInputLength: 1,
-        templateResult: formatItem,
-        templateSelection: formatItemSelection
-    });
-
-    function formatItem(item) {
-        if (item.loading) {
-            return item.text;
-        }
-        return item.text;
-    }
-
-    function formatItemSelection(item) {
-        return item.text || item.id;
-    }
 
     // ============================================================================
     // SOURCE FIELD HANDLING
@@ -912,6 +880,22 @@ jQuery(document).ready(function($){
     // ============================================================================
     
     var relatedFilesData = App.getPageConfig('relatedFilesData');
+    if (!relatedFilesData || relatedFilesData.length === 0) {
+        relatedFilesData = [];
+        $('.relatedfile').each(function() {
+            var $item = $(this);
+            var id = $item.data('id');
+            var name = $item.data('name');
+            var email = $item.data('email');
+            if (id) {
+                relatedFilesData.push({
+                    id: id,
+                    name: name || '',
+                    email: email || ''
+                });
+            }
+        });
+    }
     if (relatedFilesData && relatedFilesData.length > 0) {
         var array = [];
         var data = [];

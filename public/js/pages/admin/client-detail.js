@@ -371,113 +371,8 @@ jQuery(document).ready(function($){
     }
 
     // ============================================================================
-    // TAG HANDLERS
+    // TAG HANDLERS (Client-only tags)
     // ============================================================================
-    
-    // Initialize tags if they exist
-    var array1 = [];
-    var data1 = [];
-    $('.relatedtag').each(function(){
-        var id1 = $(this).attr('data-id');
-        array1.push(id1);
-        var name1 = $(this).attr('data-name');
-        data1.push({
-            id: id1,
-            text: name1,
-        });
-    });
-
-    // Pre-populate select element with existing tags as option elements
-    // This ensures Select2 can display them even when using AJAX
-    if(data1.length > 0) {
-        var $tagSelect = $('#tag');
-        data1.forEach(function(tag) {
-            // Check if option already exists to avoid duplicates
-            if ($tagSelect.find('option[value="' + tag.id + '"]').length === 0) {
-                $tagSelect.append(new Option(tag.text, tag.id, true, true));
-            }
-        });
-    }
-
-    // Build Select2 configuration
-    // Construct URL - prefer configured URL, fallback to siteUrl + path, or absolute path
-    var tagAjaxUrl = App.getUrl('getTagData');
-    if (!tagAjaxUrl || tagAjaxUrl === '') {
-        var siteUrl = App.getUrl('siteUrl') || (typeof AppConfig !== 'undefined' && AppConfig.siteUrl) || '';
-        tagAjaxUrl = siteUrl + '/gettagdata';
-    }
-    
-    var tagSelect2Config = {
-        ajax: {
-            url: tagAjaxUrl,
-            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {
-                    q: params.term || '',
-                    page: params.page || 1
-                };
-            },
-            processResults: function(data, params) {
-                // Handle case where data might be null or undefined
-                if (!data || !data.items) {
-                    return {
-                        results: [],
-                        pagination: {
-                            more: false
-                        }
-                    };
-                }
-                params.page = params.page || 1;
-                return {
-                    results: data.items.map(item => ({
-                        id: item.id,
-                        text: item.text
-                    })),
-                    pagination: {
-                        more: (params.page * data.per_page) < data.total_count
-                    }
-                };
-            },
-            cache: true,
-            error: function(xhr, status, error) {
-                // Log error for debugging but don't break the UI
-                console.error('Tag search error:', error);
-                return {
-                    results: []
-                };
-            }
-        },
-        dropdownParent: $('#tags_clients'),
-        placeholder: 'Search & Select tag',
-        minimumInputLength: 1,
-        templateResult: formatItem,
-        templateSelection: formatItemSelection,
-        escapeMarkup: function(markup) {
-            return markup;
-        }
-    };
-
-    // Initialize Select2 with configuration
-    $('#tag').select2(tagSelect2Config);
-
-    // Set initial values if tags exist (this will use the pre-populated options)
-    if(array1.length > 0) {
-        $('#tag').val(array1);
-        $('#tag').trigger('change');
-    }
-
-    function formatItem(item) {
-        if (item.loading) {
-            return item.text;
-        }
-        return item.text;
-    }
-
-    function formatItemSelection(item) {
-        return item.text || item.id;
-    }
 
     // ============================================================================
     // UI INITIALIZATION
@@ -1005,7 +900,14 @@ Bansal Immigration`;
         if (clientId) {
             $('#tags_client_id').val(clientId);
         }
-        $('#tags_clients').modal('show');
+        var modalEl = document.getElementById('tags_clients');
+        if (modalEl) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                $(modalEl).modal('show');
+            }
+        }
     });
 
     // ============================================================================

@@ -465,7 +465,7 @@
 																if ($verifiedNumber) {
 																	echo '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>';
 																} else {
-																	echo '<button type="button" class="btn-verify phone_verified" data-fname="'.$fetchedData->first_name.'" data-phone="'.$check_verified_phoneno.'" data-clientid="'.$fetchedData->id.'"><i class="fas fa-check"></i></button>';
+																	echo '<button type="button" class="btn-verify phone_verified" data-fname="'.$fetchedData->first_name.'" data-phone="'.$check_verified_phoneno.'" data-clientid="'.$fetchedData->id.'"><i class="fas fa-paper-plane"></i></button>';
 																}
 															} ?>
 															<?php if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" ) { ?>
@@ -525,7 +525,7 @@
 															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
 														<?php } else { ?>
 															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>">
-																<i class="fas fa-check"></i>
+																<i class="fas fa-paper-plane"></i>
 															</button>
 														<?php } ?>
 													</div>
@@ -1161,27 +1161,15 @@
 									<div class="col-sm-3">
 										<div class="form-group"> 
 											<label for="tags_label">Tags/Label </label>
-											<?php
-											/*$explodee = array();
-                                            if($fetchedData->tagname != ''){
-                                                $explodee = explode(',', $fetchedData->tagname);
-                                            } */
-											?>
-											<!--<select multiple class="form-control select2" name="tagname[]">
-												<option value="">-- Search & Select tag --</option>-->
-												<?php
-												//foreach(\App\Models\Tag::all() as $tags){
-                                                 //foreach(\App\Models\Tag::select('id', 'name')->paginate(50) as $tags){
-												?>
-										<!--<option <?php //if(in_array($tags->id, $explodee)){ echo 'selected'; } ?>  value="{{--$tags->id--}}">{{--$tags->name--}}</option>-->
-												<?php
-												//}
-												?>	 
-											<!--</select>-->
-                                          
-                                            <select multiple class="form-control select2"  id="tag"  name="tagname[]">
-
-											</select>
+											<input
+												type="text"
+												id="tagname_input"
+												name="tagname"
+												class="form-control"
+												placeholder="e.g. VIP, Follow up, IELTS"
+												value="{{ trim($fetchedData->tagname ?? '') }}"
+											/>
+											<small class="form-text text-muted">Separate tags with commas.</small>
 										</div>
 									</div>
                                   
@@ -1579,7 +1567,6 @@ if($fetchedData->tagname != ''){
     // API URLs
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
-        getTagData: '{{ url("/gettagdata") }}',
         verifyEmail: '{{ route("verify.send-code") }}',
         checkCode: '{{ route("verify.check-code") }}',
         getRecipients: '{{ url("/clients/get-recipients") }}',
@@ -1596,12 +1583,6 @@ if($fetchedData->tagname != ''){
     PageConfig.clientId = {{ $fetchedData->id }};
     PageConfig.clientFirstName = '{{ $fetchedData->first_name }}';
     PageConfig.source = '{{ $fetchedData->source ?? "" }}';
-    
-    @if(isset($tagdata) && !empty($tagdata))
-    PageConfig.tagInitialData = {!! json_encode($tagdata) !!};
-    @else
-    PageConfig.tagInitialData = [];
-    @endif
     
     @if(isset($relatedfiles) && !empty($relatedfiles))
     PageConfig.relatedFilesData = {!! json_encode($relatedfiles) !!};

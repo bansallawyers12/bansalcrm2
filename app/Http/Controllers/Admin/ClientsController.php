@@ -378,8 +378,8 @@ class ClientsController extends Controller
 			}
 			$obj->followers	=	rtrim($followers,',');
 			$obj->source	=	@$requestData['source'];
-			if(isset($requestData['tagname']) && !empty($requestData['tagname'])){
-			$obj->tagname	=	implode(',',@$requestData['tagname']);
+			if(isset($requestData['tagname'])){
+				$obj->tagname = $this->normalizeTags($requestData['tagname']);
 			}
 
 				if(isset($requestData['naati_py']) && !empty($requestData['naati_py'])){
@@ -778,8 +778,8 @@ class ClientsController extends Controller
 			}
 			$obj->followers	=	rtrim($followers,',');
 			$obj->source	=	@$requestData['source'];
-			if(isset($requestData['tagname']) && !empty($requestData['tagname'])){
-			$obj->tagname	=	implode(',',@$requestData['tagname']);
+			if(isset($requestData['tagname'])){
+				$obj->tagname = $this->normalizeTags($requestData['tagname']);
 			}
 
 				if(isset($requestData['naati_py']) && !empty($requestData['naati_py'])){
@@ -2369,28 +2369,10 @@ class ClientsController extends Controller
 		 $id = $request->client_id;
 
 		if(\App\Models\Admin::where('id',$id)->exists()){
-		    $tagg = $request->tag;
-		    $tag = array();
-		    foreach($tagg as $tg){
-		        $stagd = \App\Models\Tag::where('name','=',$tg)->first();
-		        if($stagd){
-
-		        }else{
-		            $stagds = \App\Models\Tag::where('id','=',$tg)->first();
-		            if($stagds){
-		                $tag[] = $stagds->id;
-		            }else{
-		                $o = new \App\Models\Tag;
-		                $o->name = $tg;
-		                $o->save();
-		                $tag[] = $o->id;
-		            }
-
-		        }
-		    }
-		$obj = \App\Models\Admin::find($id);
-		$obj->tagname = implode(',', $tag);
-		$saved = $obj->save();
+		    $rawTags = $request->input('tagname', '');
+			$obj = \App\Models\Admin::find($id);
+			$obj->tagname = $this->normalizeTags($rawTags);
+			$saved = $obj->save();
 		if($saved){
 			return redirect()->route('clients.detail', base64_encode(convert_uuencode(@$id)))->with('success', 'Tags addes successfully');
 		}else{

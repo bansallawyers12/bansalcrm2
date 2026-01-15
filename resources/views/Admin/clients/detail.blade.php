@@ -1473,22 +1473,27 @@ use App\Http\Controllers\Controller;
 								</span>
 							</p>
 							<p>
-								<?php $tags = '';
-									if($fetchedData->tagname != ''){
-										$rs = explode(',', $fetchedData->tagname);
-
-										foreach($rs as $key=>$r){
-											$stagd = \App\Models\Tag::where('id','=',$r)->first();
-											if($stagd){
-											?>
-												<span class="ui label ag-flex ag-align-center ag-space-between" style="display: inline-flex;">
-													<span class="col-hr-1" style="font-size: 12px;">{{@$stagd->name}} <!--<a href="{{--URL::to('/clients/removetag?rem_id='.$key.'&c='.$fetchedData->id)--}}" class="removetag" ><i class="fa fa-times"></i></a>--></span>
-												</span>
-											<?php
+								<?php
+									$tagList = array();
+									if(!empty($fetchedData->tagname)){
+										$rawTags = explode(',', $fetchedData->tagname);
+										foreach($rawTags as $rawTag){
+											$cleanTag = trim($rawTag);
+											if($cleanTag !== ''){
+												$tagList[] = $cleanTag;
 											}
 										}
 									}
 								?>
+								@if(!empty($tagList))
+									@foreach($tagList as $tagLabel)
+										<span class="ui label ag-flex ag-align-center ag-space-between" style="display: inline-flex;">
+											<span class="col-hr-1" style="font-size: 12px;">{{ $tagLabel }}</span>
+										</span>
+									@endforeach
+								@else
+									<span class="text-muted">No tags added</span>
+								@endif
 							</p>
 						</div>
 					</div>
@@ -3688,20 +3693,17 @@ use App\Http\Controllers\Controller;
 					<div class="row">
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
-								<label for="super_agent">Tags <span class="span_req">*</span></label>
-									<!--<select data-valid="required" multiple class="tagsselec form-control super_tag" id="tag" name="tag[]">-->
-                                  <select data-valid="required" multiple  id="tag" class="tagsselec form-control super_tag" name="tag[]">
-                                    <?php /*$r = array();
-                                    if($fetchedData->tagname != ''){
-                                        $r = explode(',', $fetchedData->tagname);
-                                    }*/
-                                    ?>
-									<!--<option value="">Please Select</option>-->
-									<?php //$stagd = \App\Models\Tag::where('id','!=','')->paginate(5); ?>
-									{{--@foreach($stagd as $sa)--}}
-										<!--<option <?php //if(in_array($sa->id, $r)){ echo 'selected'; } ?> value="{{--$sa->id--}}">{{--$sa->name--}}</option>-->
-									{{--@endforeach--}}
-								</select>
+								<label for="tagname_input">Tags <span class="span_req">*</span></label>
+								<input
+									type="text"
+									id="tagname_input"
+									name="tagname"
+									class="form-control"
+									data-valid="required"
+									placeholder="e.g. VIP, Follow up, IELTS"
+									value="{{ trim($fetchedData->tagname ?? '') }}"
+								/>
+								<small class="form-text text-muted">Separate tags with commas.</small>
                             </div>
 						</div>
 
@@ -3934,17 +3936,6 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
-<?php
-if($fetchedData->tagname != ''){
-   $tagnameArr = explode(',', $fetchedData->tagname);
-   foreach($tagnameArr AS $tag1){
-       $tagWord = \App\Models\Tag::where('id', $tag1)->first();
-   ?>
-<input type="hidden" class="relatedtag" data-name="<?php echo $tagWord->name; ?>" data-id="<?php echo $tagWord->id; ?>">
-<?php
-   }
-} ?>
-
 @endsection
 @section('scripts')
 <script src="{{asset('js/popover.js')}}"></script>
@@ -3973,7 +3964,6 @@ if($fetchedData->tagname != ''){
         mailEnhance: '{{ route("clients.enhanceMessage") }}',
         isGReviewMailSent: '{{ url("/is_greview_mail_sent") }}',
         clientGetTopReceipt: '{{ url("/clients/getTopReceiptValInDB") }}',
-        getTagData: '{{ url("/gettagdata") }}',
         notPickedCall: '{{ url("/not-picked-call") }}',
         getDateTimeBackend: '{{ url("/getdatetimebackend") }}',
         getDisabledDateTime: '{{ url("/getdisableddatetime") }}',

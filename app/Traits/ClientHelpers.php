@@ -146,15 +146,50 @@ trait ClientHelpers
     }
     
     /**
-     * Process tags array from request
+     * Normalize tag input into a comma-separated string
+     *
+     * @param mixed $rawTags
+     * @return string
+     */
+    protected function normalizeTags($rawTags): string
+    {
+        if (is_string($rawTags)) {
+            $tags = explode(',', $rawTags);
+        } elseif (is_array($rawTags)) {
+            $tags = $rawTags;
+        } else {
+            return '';
+        }
+
+        $normalized = [];
+        $seen = [];
+
+        foreach ($tags as $tag) {
+            $clean = trim((string) $tag);
+            if ($clean === '') {
+                continue;
+            }
+            $key = strtolower($clean);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $normalized[] = $clean;
+        }
+
+        return implode(',', $normalized);
+    }
+
+    /**
+     * Process tags from request
      * 
      * @param Request $request
      * @return string Comma-separated string of tag names
      */
     protected function processTags(Request $request): string
     {
-        if ($request->has('tagname') && is_array($request->input('tagname'))) {
-            return implode(',', $request->input('tagname'));
+        if ($request->has('tagname')) {
+            return $this->normalizeTags($request->input('tagname'));
         }
         
         return '';
