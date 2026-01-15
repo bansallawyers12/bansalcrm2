@@ -57,6 +57,7 @@ class ImportUser implements ToModel
             'business_name' => $business_name,
             'tax_number' => $tax_number,
             'contract_expiry_date' => $contract_expiry_date,
+            'status' => 1,
             'country_code' => $country_code,
             'phone' => $phone,
             'email' => $email,

@@ -124,6 +124,7 @@ class AgentController extends Controller
 				}		 
 			/* Profile Image Upload Function End */
 			$obj->profile_img			=	@$profile_img;
+			$obj->status				=	1;
 			$obj->is_acrchived	=	0; // Set is_acrchived to 0 (not archived) for new agents
 			
 			$saved				=	$obj->save();  
