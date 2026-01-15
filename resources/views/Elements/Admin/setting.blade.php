@@ -48,7 +48,8 @@
 			?>
 			<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">Roles</a></li>
 			<?php } ?>
-			<li class="{{(Route::currentRouteName() == 'gensettings.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('gensettings.index')}}">Gen Settings</a></li>
+			<!-- Gen Settings removed - feature has been deprecated -->
+			<!-- <li class="{{(Route::currentRouteName() == 'gensettings.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('gensettings.index')}}">Gen Settings</a></li> -->
 			<li class="{{(Route::currentRouteName() == 'upload_checklists.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('upload_checklists.index')}}">Upload Checklists</a></li>
             
             <!--<li class="{{--(Route::currentRouteName() == 'admin.feature.appointmentdisabledate.index' ) ? 'active' : ''--}}"><a class="nav-link" href="{{--route('admin.feature.appointmentdisabledate.index')--}}">Block Slot</a></li>-->
