@@ -20,6 +20,16 @@ export default defineConfig({
             '@': '/resources/js',
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: undefined, // Let Vite handle chunking automatically
+            },
+        },
+        commonjsOptions: {
+            include: [/node_modules/],
+        },
+    },
     server: {
         host: '127.0.0.1',  // Force IPv4 to prevent IPv6 binding issues with CSP
         port: 5173,
