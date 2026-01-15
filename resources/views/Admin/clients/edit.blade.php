@@ -1298,10 +1298,12 @@
 if($fetchedData->tagname != ''){
    $tagnameArr = explode(',', $fetchedData->tagname);
    foreach($tagnameArr AS $tag1){
-       $tagWord = \App\Models\Tag::where('id', $tag1)->first();
+       $tagWord = \App\Models\Tag::where('name', trim($tag1))->first();
+       if($tagWord){
    ?>
 <input type="hidden" class="relatedtag" data-name="<?php echo $tagWord->name; ?>" data-id="<?php echo $tagWord->id; ?>">
 <?php
+       }
    }
 } ?>
 
