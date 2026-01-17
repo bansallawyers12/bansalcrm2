@@ -1579,6 +1579,9 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="conversations" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
 								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="email-v2" id="email-v2-tab" href="#email-v2" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
+								</li>
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>-->
@@ -3117,6 +3120,9 @@ use App\Http\Controllers\Controller;
 											</div>
 										</div>
 									</div>
+								</div>
+								<div class="tab-pane fade {{ $activeTab === 'email-v2' ? 'show active' : '' }}" id="email-v2" role="tabpanel" aria-labelledby="email-v2-tab">
+									@include('Admin.clients.tabs.emails_v2')
 								</div>
 							<!--<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
 								<span>other_info</span>
