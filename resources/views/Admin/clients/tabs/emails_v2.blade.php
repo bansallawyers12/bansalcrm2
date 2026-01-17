@@ -1,4 +1,8 @@
 <!-- Emails V2 Interface - Generic for Clients and Partners -->
+
+<!-- Email V2 Styles -->
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}">
+
 @php
     // Support both $client and $fetchedData variable names
     $entityData = $client ?? $partner ?? $fetchedData ?? null;
@@ -182,25 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Upload area found:', !!uploadArea);
     console.log('File status found:', !!fileStatus);
     
-    // Debug: Check if modules are available
-    console.log('initializeUploadV2 available:', typeof window.initializeUploadV2);
-    console.log('initializeSearchV2 available:', typeof window.initializeSearchV2);
+    // Debug: Check if modules are available (V2 module auto-initializes)
     console.log('loadEmailsV2 available:', typeof window.loadEmailsV2);
-    
-    // Initialize modules
-    if (typeof window.initializeUploadV2 === 'function') {
-        console.log('Initializing upload module V2...');
-        window.initializeUploadV2();
-    } else {
-        console.error('Upload module V2 not available!');
-    }
-    
-    if (typeof window.initializeSearchV2 === 'function') {
-        console.log('Initializing search module V2...');
-        window.initializeSearchV2();
-    } else {
-        console.error('Search module V2 not available!');
-    }
     
     // Load emails on page load
     if (typeof window.loadEmailsV2 === 'function') {
@@ -209,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.loadEmailsV2();
         }, 100);
     } else {
-        console.error('Load emails V2 function not available!');
+        console.log('Auto-loading emails from main module');
     }
 });
 </script>
