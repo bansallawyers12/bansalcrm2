@@ -1798,6 +1798,56 @@
 
 
 <!-- Create Client Receipt Modal -->
+<style>
+/* Reduce padding in client receipt table for better visibility */
+.client-receipt-table td {
+    padding: 0.2rem 0.35rem !important;
+    vertical-align: middle !important;
+}
+
+.client-receipt-table th {
+    padding: 0.3rem 0.35rem !important;
+    font-size: 0.813rem;
+    vertical-align: middle !important;
+    font-weight: 600;
+}
+
+.client-receipt-table .form-control {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.813rem;
+    height: auto !important;
+    min-height: 28px;
+    line-height: 1.2;
+}
+
+.client-receipt-table select.form-control {
+    padding: 0.15rem 0.4rem !important;
+}
+
+.client-receipt-table .currencyinput {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.client-receipt-table .currencyinput span {
+    font-size: 0.813rem;
+    padding: 0;
+    margin: 0;
+}
+
+.client-receipt-table .removeitems {
+    padding: 0.15rem;
+    display: inline-block;
+    font-size: 0.875rem;
+}
+
+.receipt-totals-row td {
+    padding: 0.3rem 0.35rem !important;
+    font-size: 0.875rem;
+}
+</style>
+
 <div class="modal fade custom_modal" id="createclientreceiptmodal" tabindex="-1" role="dialog" aria-labelledby="create_noteModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
