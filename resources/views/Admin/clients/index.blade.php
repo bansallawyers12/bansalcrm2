@@ -214,22 +214,42 @@
 													if($counttag > 1){
 														$tag = '';
 														foreach($rs as $r){
-															$stagds = \App\Models\Tag::where('id','=',$r)->first();
-															$tag .= '<li>'.@$stagds->name.'</li>';
+															$r = trim($r);
+															// Check if value is numeric (ID) or string (name)
+															if(is_numeric($r)){
+																$stagds = \App\Models\Tag::where('id','=',$r)->first();
+															} else {
+																$stagds = \App\Models\Tag::where('name','=',$r)->first();
+															}
+															if($stagds){
+																$tag .= '<li>'.@$stagds->name.'</li>';
+															}
 														}
-														$stagd = \App\Models\Tag::where('id','=',$rs[0])->first();
+														$firstTag = trim($rs[0]);
+														// Check if first value is numeric (ID) or string (name)
+														if(is_numeric($firstTag)){
+															$stagd = \App\Models\Tag::where('id','=',$firstTag)->first();
+														} else {
+															$stagd = \App\Models\Tag::where('name','=',$firstTag)->first();
+														}
 														?>
 														
 														<div tabindex="0" data-html="true" data-bs-toggle="popover" data-trigger="hover focus" title="Tags" data-content="<ul><?php echo @$tag; ?></ul>" class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd->name}}</span> 
+															<span  title="ff" class="col-hr-1 truncate">{{@$stagd ? $stagd->name : '-'}}</span> 
 															<span class="ui label counter">+ {{@$counttag - 1}}</span>
 														</div>
 														<?php
 													}else{
-														$stagd = \App\Models\Tag::where('id','=',$rs)->first();
+														$singleTag = trim($rs[0]);
+														// Check if value is numeric (ID) or string (name)
+														if(is_numeric($singleTag)){
+															$stagd = \App\Models\Tag::where('id','=',$singleTag)->first();
+														} else {
+															$stagd = \App\Models\Tag::where('name','=',$singleTag)->first();
+														}
 														?>
 														<div class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd->name}}</span> 
+															<span  title="ff" class="col-hr-1 truncate">{{@$stagd ? $stagd->name : '-'}}</span> 
 															
 														</div>
 														<?php

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
@@ -41,6 +42,7 @@ use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
 use App\Traits\ClientHelpers;
 use App\Mail\ClientVerifyMail;
+use App\Models\Email;
 
 use App\Helpers\PhoneHelper;
 
@@ -3856,6 +3858,27 @@ class ClientsController extends Controller
                 ], 404);
             }
             
+            // Get active email configuration from database
+            $emailConfig = Email::where('status', true)->first();
+            if (!$emailConfig) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No active email configuration found. Please configure an email in the system.'
+                ], 500);
+            }
+            
+            // Configure mail settings using database email configuration
+            config([
+                'mail.mailers.smtp.host' => 'smtp.zoho.com',
+                'mail.mailers.smtp.port' => 587,
+                'mail.mailers.smtp.encryption' => 'tls',
+                'mail.mailers.smtp.username' => $emailConfig->email,
+                'mail.mailers.smtp.password' => $emailConfig->password,
+                'mail.from.address' => $emailConfig->email,
+                'mail.from.name' => $emailConfig->display_name,
+                'mail.default' => 'smtp',
+            ]);
+            
             // Prepare email details
             $details = [
                 'fullname' => $request->client_fname,
@@ -3882,9 +3905,10 @@ class ClientsController extends Controller
                 'message' => 'Validation failed: ' . implode(' ', $errorMessages)
             ], 422);
         } catch (\Exception $e) {
+            Log::error('Verification email error: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to send verification email. Please try again.'
+                'message' => 'Failed to send verification email: ' . $e->getMessage()
             ], 500);
         }
     }
