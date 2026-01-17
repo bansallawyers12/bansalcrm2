@@ -659,6 +659,70 @@ jQuery(document).ready(function($){
             return false;
         }
     }
+
+	function whenVendorLibsReady(callback) {
+		if (typeof window.vendorLibsReady !== 'undefined' && typeof window.vendorLibsReady.then === 'function') {
+			window.vendorLibsReady.then(callback);
+			return;
+		}
+		if (typeof $.fn.select2 === 'function' || typeof $.fn.intlTelInput === 'function') {
+			callback();
+			return;
+		}
+		$(document).one('VendorLibsLoaded', callback);
+	}
+
+	function initPartnerSelect2() {
+		if (window.__partnerCreateSelect2Initialized) {
+			return;
+		}
+		if (typeof $.fn.select2 !== 'function') {
+			console.warn('Select2 not available yet, skipping init');
+			return;
+		}
+
+		console.log('Partner Create: Initializing Select2');
+
+		if ($(".addbranch .modal-content").length > 0) {
+			$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
+		}
+
+		$(".addressselect2").each(function() {
+			var $element = $(this);
+			if ($element.hasClass("select2-hidden-accessible")) {
+				$element.select2('destroy');
+			}
+			try {
+				$element.select2({
+					minimumResultsForSearch: Infinity,
+					width: '100%'
+				});
+				console.log('Initialized Select2 on:', $element.attr('id') || $element.attr('name'), 'with', $element.find('option').length, 'options');
+			} catch (error) {
+				console.error('Failed to initialize Select2 on:', $element.attr('id') || $element.attr('name'), error);
+			}
+		});
+
+		window.__partnerCreateSelect2Initialized = true;
+		console.log('Partner Create: Select2 initialization complete');
+	}
+
+	function initIntlTelInputs($scope) {
+		if (typeof $.fn.intlTelInput !== 'function') {
+			return;
+		}
+		var $inputs = $scope ? $scope.find('.telephone') : $('.telephone');
+		$inputs.each(function() {
+			if (window.intlTelInputGlobals && window.intlTelInputGlobals.getInstance(this)) {
+				return;
+			}
+			try {
+				$(this).intlTelInput();
+			} catch (error) {
+				console.warn('Error initializing intlTelInput:', error);
+			}
+		});
+	}
 	var branchdata = new Array();
     var itag = $('.branchdata .row').length;
 
@@ -880,28 +944,10 @@ jQuery(document).ready(function($){
 		$('#metatag_'+v).remove();
 	});
 
-	console.log('Partner Create: Initializing Select2');
-
-	// Initialize .select2 elements in modal (only if modal exists)
-	if ($(".addbranch .modal-content").length > 0) {
-		$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
-	}
-
-	// Initialize addressselect2 elements without search (single pass)
-	$(".addressselect2").each(function() {
-		var $element = $(this);
-		try {
-			$element.select2({
-				minimumResultsForSearch: Infinity,
-				width: '100%'
-			});
-			console.log('Initialized Select2 on:', $element.attr('id') || $element.attr('name'), 'with', $element.find('option').length, 'options');
-		} catch (error) {
-			console.error('Failed to initialize Select2 on:', $element.attr('id') || $element.attr('name'), error);
-		}
+	whenVendorLibsReady(function() {
+		initPartnerSelect2();
+		initIntlTelInputs();
 	});
-
-	console.log('Partner Create: Select2 initialization complete');
 
     
     ////////////////////////////////////////
@@ -1068,11 +1114,11 @@ jQuery(document).ready(function($){
         $('#update_partnerphone').hide();
         $('#partnerphoneform')[0].reset();
         $('.addpartnerphone').modal('show');
-        $(".telephone").intlTelInput();
+        initIntlTelInputs($('.addpartnerphone'));
     });
 
     $('.addpartnerphone').on('shown.bs.modal', function () {
-        $(".telephone").intlTelInput();
+        initIntlTelInputs($('.addpartnerphone'));
     });
 
     //Save partner phone
@@ -1142,7 +1188,7 @@ jQuery(document).ready(function($){
 
                     html += '</div></div>';
                 $('.partnerphonedata').append(html);
-                $(".telephone").intlTelInput();
+                initIntlTelInputs($('.partnerphonedata'));
                 $('#partnerphoneform')[0].reset();
                 $('.addpartnerphone').modal('hide');
                 itag_phone++;
