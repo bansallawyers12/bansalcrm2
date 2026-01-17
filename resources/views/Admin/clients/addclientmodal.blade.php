@@ -1780,6 +1780,7 @@
 
 							</a>
 						</div>
+                        <div id="uploadSummary" class="alert" style="display: none; margin-top: 12px;"></div>
 
 						<input type="file" class="d-none" id="selectfile" />
 					</div>

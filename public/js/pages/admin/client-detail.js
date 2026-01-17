@@ -2598,6 +2598,29 @@ Bansal Immigration`;
 
     // Page-specific upload function for application checklist uploads
     function applicationUploadFormData(form_data) {
+        function updateUploadSummary(type, message) {
+            var summaryEl = document.getElementById('uploadSummary');
+            if (!summaryEl) {
+                return;
+            }
+            summaryEl.className = 'alert alert-' + type;
+            summaryEl.textContent = message;
+            summaryEl.style.display = 'block';
+        }
+
+        function showUploadToast(type, title, message) {
+            if (typeof iziToast !== 'undefined') {
+                iziToast[type]({
+                    title: title,
+                    message: message,
+                    position: 'topRight',
+                    timeout: 8000
+                });
+            } else {
+                alert(title + ': ' + message);
+            }
+        }
+
         $('.popuploader').show();
         var url = App.getUrl('applicationChecklistUpload') || App.getUrl('siteUrl') + '/application/checklistupload';
         $.ajax({
@@ -2612,12 +2635,53 @@ Bansal Immigration`;
             success: function(response) {
                 var obj = typeof response === 'string' ? $.parseJSON(response) : response;
                 $('.popuploader').hide();
+
+                if (!obj) {
+                    showUploadToast('error', 'Upload failed', 'Unable to upload files.');
+                    updateUploadSummary('danger', 'Upload failed. Unable to upload files.');
+                    return;
+                }
+                if (obj.status === false && !obj.doclistdata) {
+                    showUploadToast('error', 'Upload failed', obj.message || 'Unable to upload files.');
+                    updateUploadSummary('danger', obj.message || 'Upload failed. Unable to upload files.');
+                    return;
+                }
+
                 $('#openfileuploadmodal').modal('hide');
-                $('.mychecklistdocdata').html(obj.doclistdata);
-                $('.checklistuploadcount').html(obj.applicationuploadcount);
-                $('.'+obj.type+'_checklists').html(obj.checklistdata);
+                $('.mychecklistdocdata').html(obj.doclistdata || '');
+                $('.checklistuploadcount').html(obj.applicationuploadcount || '');
+                if (obj.type && obj.checklistdata) {
+                    $('.'+obj.type+'_checklists').html(obj.checklistdata);
+                }
                 if ($('#selectfile').length) {
                     $('#selectfile').val('');
+                }
+
+                if (obj.status === false && obj.message) {
+                    showUploadToast('warning', 'Upload completed with errors', obj.message);
+                    updateUploadSummary('warning', obj.message);
+                }
+
+                if (obj.upload_summary) {
+                    var summary = obj.upload_summary;
+                    var failedFiles = summary.failed_files || [];
+                    if (summary.failed_count > 0) {
+                        var detailText = failedFiles.map(function(item) {
+                            return item.name + (item.reason ? ' (' + item.reason + ')' : '');
+                        }).join(', ');
+                        showUploadToast(
+                            'warning',
+                            'Upload completed with errors',
+                            'Uploaded ' + summary.uploaded_count + '/' + summary.total + '. Failed: ' + detailText
+                        );
+                        updateUploadSummary(
+                            'warning',
+                            'Uploaded ' + summary.uploaded_count + '/' + summary.total + '. Failed: ' + detailText
+                        );
+                    } else {
+                        showUploadToast('success', 'Upload completed', summary.uploaded_count + ' file(s) uploaded.');
+                        updateUploadSummary('success', summary.uploaded_count + ' file(s) uploaded.');
+                    }
                 }
 
                 if(obj.application_id){
@@ -2631,6 +2695,22 @@ Bansal Immigration`;
                         }
                     });
                 }
+            },
+            error: function(xhr) {
+                $('.popuploader').hide();
+                var message = 'Unable to upload files. Please try again.';
+                if (xhr && xhr.responseText) {
+                    try {
+                        var errObj = $.parseJSON(xhr.responseText);
+                        if (errObj && errObj.message) {
+                            message = errObj.message;
+                        }
+                    } catch (e) {
+                        // keep default message
+                    }
+                }
+                showUploadToast('error', 'Upload failed', message);
+                updateUploadSummary('danger', message);
             }
         });
     }

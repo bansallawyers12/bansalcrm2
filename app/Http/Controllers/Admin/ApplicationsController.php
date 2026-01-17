@@ -16,6 +16,7 @@ use Auth;
 use Config;
 use App\Models\Partner;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class ApplicationsController extends Controller
@@ -1221,10 +1222,14 @@ class ApplicationsController extends Controller
 		}
 		$application_id = $request->application_id;
 		$applicationuploadcount = DB::select("SELECT COUNT(DISTINCT list_id) AS cnt FROM application_documents where application_id = '$application_id'");
-		$response['status'] 	= 	true;
+		$response['status'] 	= 	$uploadSummary['failed_count'] === 0;
+        $response['message']    =   $uploadSummary['failed_count'] === 0
+            ? 'Documents uploaded successfully.'
+            : 'Some documents failed to upload.';
 		$response['imagedata']	=	$imageData;
 		$response['doclistdata']	=	$doclistdata;
 		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
+        $response['upload_summary'] = $uploadSummary;
 		
 		
 		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
@@ -1251,65 +1256,103 @@ class ApplicationsController extends Controller
   
     public function checklistupload(Request $request){ //dd($request->all());
         $imageData = "";
-        if ($request->hasfile('file'))  {
-            $client_id = $request->client_id;
-            $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $client_id)->first(); //dd($admin);
-            if(!empty($admin_info1)){
-                $client_unique_id = $admin_info1->client_id;
-            } else {
-                $client_unique_id = "";
-            }  //dd($client_unique_id);
+        $uploadSummary = [
+            'total' => 0,
+            'uploaded_count' => 0,
+            'failed_count' => 0,
+            'failed_files' => [],
+        ];
 
-            if(!is_array($request->file('file'))){
-				$files[] = $request->file('file');
-			}else{
-				$files = $request->file('file');
-			}
+        if (!$request->hasfile('file')) {
+            $response = [
+                'status' => false,
+                'message' => 'No files found in the upload.',
+                'upload_summary' => $uploadSummary,
+            ];
+            echo json_encode($response);
+            return;
+        }
 
-		    foreach ($files as $file) {
-                $size = $file->getSize();
-                $fileName = $file->getClientOriginalName();
-                $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-                $fileExtension = $file->getClientOriginalExtension();
-                //echo $nameWithoutExtension."===".$fileExtension;
-                //dd('test');
-                $explodeFileName = explode('.', $fileName);
-                $name = time() . $file->getClientOriginalName();
-                $filePath = $client_unique_id.'/application_documents/'.$name; //dd($filePath);
+        $client_id = $request->client_id;
+        $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $client_id)->first(); //dd($admin);
+        if(!empty($admin_info1)){
+            $client_unique_id = $admin_info1->client_id;
+        } else {
+            $client_unique_id = "";
+        }  //dd($client_unique_id);
+
+        if(!is_array($request->file('file'))){
+            $files[] = $request->file('file');
+        }else{
+            $files = $request->file('file');
+        }
+
+        foreach ($files as $file) {
+            $uploadSummary['total']++;
+
+            if (!$file->isValid()) {
+                $uploadSummary['failed_count']++;
+                $uploadSummary['failed_files'][] = [
+                    'name' => $file->getClientOriginalName(),
+                    'reason' => $file->getErrorMessage(),
+                ];
+                continue;
+            }
+
+            $size = $file->getSize();
+            $fileName = $file->getClientOriginalName();
+            $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+            $fileExtension = $file->getClientOriginalExtension();
+            $uniqueName = (string) Str::uuid();
+            $storageName = $uniqueName . ($fileExtension ? '.' . $fileExtension : '');
+            $filePath = $client_unique_id.'/application_documents/'.$storageName; //dd($filePath);
+
+            try {
                 Storage::disk('s3')->put($filePath, file_get_contents($file));
-                $exploadename = explode('.', $name);
+            } catch (\Throwable $e) {
+                $uploadSummary['failed_count']++;
+                $uploadSummary['failed_files'][] = [
+                    'name' => $fileName,
+                    'reason' => 'Upload failed: ' . $e->getMessage(),
+                ];
+                continue;
+            }
 
-                $obj = new \App\Models\ApplicationDocument;
-                $obj->type = $request->type;
-                //$typename = ucwords(str_replace("-", " ", $request->type));
-                $obj->typename = $request->typename;
+            $obj = new \App\Models\ApplicationDocument;
+            $obj->type = $request->type;
+            //$typename = ucwords(str_replace("-", " ", $request->type));
+            $obj->typename = $request->typename;
 
-                $obj->list_id = $request->id;
-                $obj->file_name = $nameWithoutExtension; //$explodeFileName[0];
-                $obj->file_type = $fileExtension; //$exploadename[1];
-                // Get the full URL of the uploaded file
-                $fileUrl = Storage::disk('s3')->url($filePath);
-                $obj->myfile = $fileUrl;
-                $obj->myfile_key = $name;
-                $obj->file_size = $size;
-                $obj->user_id = Auth::user()->id;
-                $obj->application_id = $request->application_id;
+            $obj->list_id = $request->id;
+            $obj->file_name = $nameWithoutExtension; //$explodeFileName[0];
+            $obj->file_type = $fileExtension; //$exploadename[1];
+            // Get the full URL of the uploaded file
+            $fileUrl = Storage::disk('s3')->url($filePath);
+            $obj->myfile = $fileUrl;
+            $obj->myfile_key = $storageName;
+            $obj->file_size = $size;
+            $obj->user_id = Auth::user()->id;
+            $obj->application_id = $request->application_id;
 
-                $save = $obj->save();
-                if($save){
-                    $obj1 = new \App\Models\ApplicationActivitiesLog;
-                    $obj1->stage = $request->typename;
-                    $obj1->type = 'document';
-                    $obj1->comment = 'added a document';
-                    $obj1->title =  '';
-                    $obj1->description =  '';
-                    $obj1->app_id = $request->application_id;
-                    $obj1->user_id = Auth::user()->id;
-                    $obj1->save();
-                }
-                //$imageData .= '<li><i class="fa fa-file"></i> '.$fileName.'</li>';
-                $imageData .= '<li><i class="fa fa-file"></i> '.$explodeFileName[0].'</li>';
-                //$imageData .= '<li><i class="fa fa-file"></i> ' . htmlspecialchars($explodeFileName[0]) . '</li>';
+            $save = $obj->save();
+            if($save){
+                $obj1 = new \App\Models\ApplicationActivitiesLog;
+                $obj1->stage = $request->typename;
+                $obj1->type = 'document';
+                $obj1->comment = 'added a document';
+                $obj1->title =  '';
+                $obj1->description =  '';
+                $obj1->app_id = $request->application_id;
+                $obj1->user_id = Auth::user()->id;
+                $obj1->save();
+                $uploadSummary['uploaded_count']++;
+                $imageData .= '<li><i class="fa fa-file"></i> '.htmlspecialchars($nameWithoutExtension, ENT_QUOTES, 'UTF-8').'</li>';
+            } else {
+                $uploadSummary['failed_count']++;
+                $uploadSummary['failed_files'][] = [
+                    'name' => $fileName,
+                    'reason' => 'Database save failed.',
+                ];
             }
         }
 
