@@ -298,29 +298,8 @@ jQuery(document).ready(function($){
         });
     }
 
-    $(document).on('click', '.openproductrinfo', function(){
-        var clonedval = $('.clonedrow').html();
-        $('.productitem').append('<tr class="product_field_clone">'+clonedval+'</tr>');
-        
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr('.report_date_fields:not(._flatpickr-initialized)', {
-                dateFormat: 'd/m/Y',
-                defaultDate: 'today',
-                allowInput: true,
-                onReady: function(selectedDates, dateStr, instance) {
-                    instance.element.classList.add('_flatpickr-initialized');
-                }
-            });
-            flatpickr('.report_entry_date_fields:not(._flatpickr-initialized)', {
-                dateFormat: 'd/m/Y',
-                defaultDate: 'today',
-                allowInput: true,
-                onReady: function(selectedDates, dateStr, instance) {
-                    instance.element.classList.add('_flatpickr-initialized');
-                }
-            });
-        }
-    });
+    // NOTE: .openproductrinfo handler has been moved to detail.blade.php inline script
+    // to avoid duplication and ensure calculateReceiptTotal() is called properly
 
     // ============================================================================
     // RECEIPT FUNCTIONS
@@ -2915,16 +2894,11 @@ Bansal Immigration`;
     // ADDITIONAL HANDLERS
     // ============================================================================
     
-    // Remove items handler for receipt
-    $(document).on('click', '.removeitems', function(){
-        $(this).parent().parent().remove();
-        grandtotalAccountTab();
-    });
+    // NOTE: .removeitems handler has been moved to detail.blade.php inline script
+    // to avoid duplication and ensure proper validation (at least one row required)
 
-    // Deposit amount per row keyup handler
-    $(document).on('keyup', '.deposit_amount_per_row', function(){
-        grandtotalAccountTab();
-    });
+    // NOTE: .deposit_amount_per_row handler has been moved to detail.blade.php inline script
+    // to avoid duplication and ensure calculateReceiptTotal() is called properly
 
     // ============================================================================
     // APPOINTMENT CONFIRMATION HANDLER

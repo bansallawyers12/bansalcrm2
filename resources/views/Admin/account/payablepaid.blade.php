@@ -134,6 +134,9 @@
 	</div>
 </div>
 @endsection
+@push('scripts')
+	@vite(['resources/js/pages/admin/account.js'])
+@endpush
 @section('scripts')
 
 <script>

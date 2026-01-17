@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/ui-libs.js',  // UI libraries (feather-icons, jquery.nicescroll)
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
                 'resources/js/app.js',
+                'resources/js/pages/admin/account.js',
             ],
             refresh: true,
         }),

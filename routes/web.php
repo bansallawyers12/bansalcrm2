@@ -40,6 +40,11 @@ use App\Http\Controllers\AddressController;
 |
 */
 
+//Email verification routes (public - no auth required)
+// These routes MUST be defined first to ensure they're publicly accessible
+Route::get('/email-verify-token/{token}', [ClientsController::class, 'emailVerifyToken'])->name('emailVerifyToken');
+Route::get('/thankyou', [ClientsController::class, 'thankyou'])->name('emailVerify.thankyou');
+
 /*********************General Function for Both (Front-end & Back-end) ***********************/
 /* Route::post('/get_states', 'HomeController@getStates');
 Route::post('/get_product_views', 'HomeController@getProductViews');
@@ -694,10 +699,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Include unified client routes (accessible by admin only)
 	// These routes use /clients/* instead of /admin/clients/*
 	require __DIR__ . '/clients.php';
-
-	//Email verify and client self-update routes - REMOVED (HomeController deleted, will be recreated in future)
-    //Route::post('email-verify', 'HomeController@emailVerify')->name('emailVerify');
-    //Route::get('email-verify-token/{token}', 'HomeController@emailVerifyToken')->name('emailVerifyToken');
 
     //Client edit form link in send email - REMOVED (HomeController deleted, will be recreated in future)
     //Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');

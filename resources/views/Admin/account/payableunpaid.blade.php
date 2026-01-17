@@ -201,19 +201,6 @@
 	</div>
 </div>
 @endsection
-@section('scripts')
-
-<script>
-jQuery(document).ready(function($){ 
-	$(document).delegate('.openpaymentform','click', function(){
-		var v = $(this).attr('data-invoiceid');
-		var netamount = $(this).attr('data-netamount');
-		$('#invoice_id').val(v);
-		$('.invoicenetamount').html(netamount+' AUD');
-		$('.totldueamount').html('0 AUD');
-		$('#addpaymentmodal').modal('show');
-		$('.paymentAmount').val(netamount);
-	});	
-});	
-</script>
-@endsection
+@push('scripts')
+	@vite(['resources/js/pages/admin/account.js'])
+@endpush
