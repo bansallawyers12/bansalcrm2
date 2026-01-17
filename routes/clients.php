@@ -151,5 +151,29 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Merge records
     Route::post('/merge_records', [ClientsController::class, 'merge_records'])->name('clients.merge_records');
+    
+    // Email V2 routes (separate from legacy email system)
+    Route::prefix('email-v2')->name('email-v2.')->group(function() {
+        Route::post('/upload-inbox', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'uploadInboxEmails'])->name('upload.inbox');
+        Route::post('/upload-sent', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'uploadSentEmails'])->name('upload.sent');
+        Route::get('/check-service', [\App\Http\Controllers\CRM\EmailUploadV2Controller::class, 'checkPythonService'])->name('check.service');
+        Route::post('/filter-emails', [\App\Http\Controllers\CRM\EmailQueryV2Controller::class, 'filterEmails'])->name('filter.emails');
+        Route::post('/filter-sentemails', [\App\Http\Controllers\CRM\EmailQueryV2Controller::class, 'filterSentEmails'])->name('filter.sentemails');
+        
+        // Email Labels routes
+        Route::prefix('labels')->name('labels.')->group(function() {
+            Route::get('/', [\App\Http\Controllers\CRM\EmailLabelV2Controller::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\CRM\EmailLabelV2Controller::class, 'store'])->name('store');
+            Route::post('/apply', [\App\Http\Controllers\CRM\EmailLabelV2Controller::class, 'apply'])->name('apply');
+            Route::delete('/remove', [\App\Http\Controllers\CRM\EmailLabelV2Controller::class, 'remove'])->name('remove');
+        });
+        
+        // Email Attachments routes
+        Route::prefix('attachments')->name('attachments.')->group(function() {
+            Route::get('/{id}/download', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'download'])->name('download');
+            Route::get('/{id}/preview', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'preview'])->name('preview');
+            Route::get('/email/{mailReportId}/download-all', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'downloadAll'])->name('download-all');
+        });
+    });
 });
 

@@ -13,7 +13,6 @@ use Illuminate\Database\QueryException;
 use App\Models\Document;
 use App\Models\MailReport;
 use App\Models\ActivitiesLog;
-use App\Models\ClientMatter;
 use App\Models\Admin;
 use App\Traits\LogsClientActivity;
 
@@ -51,7 +50,7 @@ class EmailUploadV2Controller extends Controller
                 'email_files' => 'required',
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
-                'type' => 'required|in:client,lead'
+                'type' => 'required|in:client,lead,partner'
             ]);
 
             if ($validator->fails()) {
@@ -63,8 +62,18 @@ class EmailUploadV2Controller extends Controller
             }
 
             $clientId = $request->client_id;
-            $clientInfo = Admin::select('client_id')->where('id', $clientId)->first();
-            $clientUniqueId = !empty($clientInfo) ? $clientInfo->client_id : "";
+            $entityType = $request->type;
+            
+            // Get unique ID based on entity type
+            $clientUniqueId = "";
+            if ($entityType === 'partner') {
+                $partnerInfo = \App\Models\Partner::select('id')->where('id', $clientId)->first();
+                $clientUniqueId = !empty($partnerInfo) ? (string)$partnerInfo->id : "";
+            } else {
+                // For client/lead, use Admin model
+                $clientInfo = Admin::select('client_id')->where('id', $clientId)->first();
+                $clientUniqueId = !empty($clientInfo) ? $clientInfo->client_id : "";
+            }
 
             if (!$request->hasfile('email_files')) {
                 return response()->json([
@@ -193,7 +202,7 @@ class EmailUploadV2Controller extends Controller
                 'email_files' => 'required',
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
-                'type' => 'required|in:client,lead'
+                'type' => 'required|in:client,lead,partner'
             ]);
 
             if ($validator->fails()) {
@@ -205,8 +214,18 @@ class EmailUploadV2Controller extends Controller
             }
 
             $clientId = $request->client_id;
-            $clientInfo = Admin::select('client_id')->where('id', $clientId)->first();
-            $clientUniqueId = !empty($clientInfo) ? $clientInfo->client_id : "";
+            $entityType = $request->type;
+            
+            // Get unique ID based on entity type
+            $clientUniqueId = "";
+            if ($entityType === 'partner') {
+                $partnerInfo = \App\Models\Partner::select('id')->where('id', $clientId)->first();
+                $clientUniqueId = !empty($partnerInfo) ? (string)$partnerInfo->id : "";
+            } else {
+                // For client/lead, use Admin model
+                $clientInfo = Admin::select('client_id')->where('id', $clientId)->first();
+                $clientUniqueId = !empty($clientInfo) ? $clientInfo->client_id : "";
+            }
 
             if (!$request->hasfile('email_files')) {
                 return response()->json([
@@ -330,7 +349,10 @@ class EmailUploadV2Controller extends Controller
             // Sanitize filename for S3 path to prevent 403 errors with special characters
             $sanitizedFileName = $this->sanitizeFilename($fileName);
             $uniqueFileName = time() . '-' . $sanitizedFileName;
-            $docType = 'conversion_email_fetch';
+            
+            // Set doc_type based on entity type
+            $entityType = $request->type;
+            $docType = ($entityType === 'partner') ? 'partner_email_fetch' : 'conversion_email_fetch';
             
             // 1. Upload file to S3 (use sanitized filename in path)
             // Ensure all path components are sanitized to prevent 403 errors
@@ -540,35 +562,51 @@ class EmailUploadV2Controller extends Controller
             // NEW: Auto-assign labels
             $this->autoAssignLabels($mailReport, $mailType);
 
-            // 5. Update client matter timestamp
+            // 5. Update client matter timestamp (only for clients, if ClientMatter exists)
             $matterId = $document->client_matter_id;
-            if (!empty($matterId)) {
-                $matter = ClientMatter::find($matterId);
-                if ($matter) {
-                    $matter->updated_at = now();
-                    $matter->save();
+            if (!empty($matterId) && $request->type !== 'partner') {
+                try {
+                    if (class_exists('App\Models\ClientMatter')) {
+                        $matter = \App\Models\ClientMatter::find($matterId);
+                        if ($matter) {
+                            $matter->updated_at = now();
+                            $matter->save();
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // ClientMatter model may not exist - silently skip
+                    Log::debug('ClientMatter update skipped', ['error' => $e->getMessage()]);
                 }
             }
 
             // 6. Create activity log
-            if ($request->type == 'client') {
-                // Get matter reference
+            $entityType = $request->type;
+            if ($entityType == 'client') {
+                // Get matter reference (if ClientMatter model exists)
                 $matterReference = '';
-                if ($matterId) {
-                    $matter = ClientMatter::find($matterId);
-                    if ($matter && $matter->client_unique_matter_no) {
-                        $matterReference = $matter->client_unique_matter_no;
+                if ($matterId && class_exists('App\Models\ClientMatter')) {
+                    try {
+                        $matter = \App\Models\ClientMatter::find($matterId);
+                        if ($matter && isset($matter->client_unique_matter_no)) {
+                            $matterReference = $matter->client_unique_matter_no;
+                        }
+                    } catch (\Exception $e) {
+                        // Skip if model doesn't exist
                     }
                 }
                 
                 // Fall back to latest active matter if none found
-                if (empty($matterReference)) {
-                    $latestMatter = ClientMatter::where('client_id', $clientId)
-                        ->where('matter_status', 1)
-                        ->orderBy('id', 'desc')
-                        ->first();
-                    if ($latestMatter && $latestMatter->client_unique_matter_no) {
-                        $matterReference = $latestMatter->client_unique_matter_no;
+                if (empty($matterReference) && class_exists('App\Models\ClientMatter')) {
+                    try {
+                        $latestMatter = \App\Models\ClientMatter::where('client_id', $clientId)
+                            ->where('matter_status', 1)
+                            ->orderBy('id', 'desc')
+                            ->first();
+                        if ($latestMatter && isset($latestMatter->client_unique_matter_no)) {
+                            $matterReference = $latestMatter->client_unique_matter_no;
+                        }
+                    } catch (\Exception $e) {
+                        // Skip if model doesn't exist
                     }
                 }
                 
@@ -592,6 +630,33 @@ class EmailUploadV2Controller extends Controller
                     $description,
                     'email'
                 );
+            } elseif ($entityType == 'partner') {
+                // Log partner activity (similar structure but for partners)
+                $emailSubject = $parsedData['subject'] ?? 'Email';
+                $subject = "uploaded Email: {$emailSubject}";
+                
+                // Truncate long subjects
+                if (strlen($subject) > 100) {
+                    $subject = substr($subject, 0, 97) . '...';
+                }
+                
+                $from = $parsedData['from'] ?? 'Unknown';
+                $description = "<p>From: {$from}</p>";
+                
+                // Use ActivitiesLog directly for partners (if it supports partner_id)
+                try {
+                    ActivitiesLog::create([
+                        'client_id' => $clientId, // Partners may use client_id field
+                        'created_by' => Auth::user()->id ?? Auth::id(),
+                        'subject' => $subject,
+                        'description' => $description,
+                        'activity_type' => 'email',
+                        'task_status' => 0,
+                        'pin' => 0,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to log partner email activity', ['error' => $e->getMessage()]);
+                }
             }
 
             return [

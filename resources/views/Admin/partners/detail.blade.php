@@ -272,6 +272,9 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="conversations" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
 								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="email-v2" id="email-v2-tab" href="#email-v2" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
+								</li>
 								{{-- Task system removed - December 2025 --}}
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
@@ -857,116 +860,202 @@ use App\Http\Controllers\Controller;
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
 										</div>
-										<div class="upload_document" style="display:inline-block;">
-										<form method="POST" enctype="multipart/form-data" id="upload_form">
-											@csrf
-											<input type="hidden" name="clientid" value="{{$fetchedData->id}}">
-											<input type="hidden" name="type" value="partner">
-											<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
-											
-											<input type="file" name="document_upload"/>
-											</form>
+										<a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fa fa-plus"></i> Add Checklist</a>
+										<button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2"><i class="fas fa-upload"></i> Bulk Upload</button>
+									</div>
+									
+									<!-- Bulk Upload Dropzone (Hidden by default) -->
+									<div class="bulk-upload-dropzone-container" id="bulk-upload-documents" style="display: none; margin-bottom: 20px; padding: 0 15px;">
+										<div class="bulk-upload-dropzone" 
+											 style="border: 2px dashed #4a90e2; border-radius: 8px; padding: 40px; 
+													text-align: center; background-color: #f8f9fa; cursor: pointer;">
+											<i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #4a90e2; margin-bottom: 15px;"></i>
+											<h4 style="color: #333; margin-bottom: 10px;">Drop files here or click to browse</h4>
+											<p style="color: #666; margin-bottom: 0;">Supported: PDF, JPG, PNG, DOC, DOCX (Max 50MB per file)</p>
+											<input type="file" class="bulk-upload-file-input" multiple style="display: none;" 
+												   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+										</div>
+										<div class="bulk-upload-file-list" style="display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;">
+											<strong style="color: #333;">Selected Files: <span class="file-count">0</span></strong>
+											<div class="bulk-upload-files-container"></div>
 										</div>
 									</div>
-									<div class="list_data"> 
-										<div class="table-responsive"> 
+									
+									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
+										<div class="">
 											<table class="table text_wrap">
 												<thead>
 													<tr>
+														<th>Checklist</th>
 														<th>File Name</th>
-														<th>Added By</th>
-													
-														<th>Added Date</th>
-														<th></th>
-													</tr> 
+														<!--<th>Verified By</th>-->
+													</tr>
 												</thead>
-												<tbody class="tdata documnetlist">
-                                                <?php 
-                                                $fetchd = \App\Models\Document::where('client_id',$fetchedData->id)
-                                                  ->where('type','partner')
-                                                  ->where(function ($query) {
-                                                        $query->whereNull('doc_type')
-                                                        ->orWhere('doc_type', '');
-                                                  })->orderby('created_at', 'DESC')->get();
-                                                foreach($fetchd as $fetch){ 
-                                                	$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-                                                ?>												
-													<tr class="drow" id="id_{{$fetch->id}}">
-													<td  >
-														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name; ?><?php echo '.'.$fetch->filetype; ?></span>
-														</div>
-													</td> 
-													<td><?php echo $admin->first_name; ?></td>
-													
-													<td><?php echo date('Y-m-d', strtotime($fetch->created_at)); ?></td> 
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																
-                                                                <?php
-                                                                if( isset($fetch->myfile_key) && $fetch->myfile_key !="")
-                                                                { ?>
-                                                                    <a target="_blank" class="dropdown-item" href="<?php echo $fetch->myfile;?>">Preview</a>
-                                                                    <a download class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Download</a>
-                                                                <?php
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (filter_var($fetch->myfile, FILTER_VALIDATE_URL)) { //String is a valid URL
-                                                                    ?>
-                                                                        <a target="_blank" class="dropdown-item" href="<?php echo $fetch->myfile;?>">Preview</a>
-                                                                        <a download class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Download</a>
-                                                                    <?php
-                                                                    }
-                                                                    else
-                                                                    { //String is not a valid URL
-                                                                    ?>
-                                                                        <a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-                                                                        <a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-                                                                    <?php
-                                                                    }
-                                                                } ?>
-                                                              
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-															</div>
-														</div>								  
-													</td>
-												</tr>
-												<?php } ?>
+												<tbody class="tdata alldocumnetlist">
+													<?php
+													$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)
+														->where('type','partner')
+														->whereNull('not_used_doc')
+														->where(function ($query) {
+															$query->where('doc_type', 'documents')
+																->orWhere(function ($q) {
+																	$q->whereNull('doc_type')->orWhere('doc_type', '');
+																});
+														})->orderby('updated_at', 'DESC')->get();
+													foreach($fetchd as $docKey=>$fetch)
+													{
+														$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+														$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
+														// Handle checklist field - use existing checklist if available, otherwise use file_name as fallback for backward compatibility
+														$checklist = !empty($fetch->checklist) ? $fetch->checklist : (!empty($fetch->file_name) ? $fetch->file_name : 'N/A');
+														?>
+														<tr class="drow document-row" id="id_{{$fetch->id}}" 
+															data-doc-id="<?php echo $fetch->id;?>"
+															data-checklist-name="<?php echo htmlspecialchars($checklist, ENT_QUOTES, 'UTF-8'); ?>"
+															data-file-name="<?php echo htmlspecialchars($fetch->file_name, ENT_QUOTES, 'UTF-8'); ?>"
+															data-file-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
+															data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
+															data-myfile-key="<?php echo isset($fetch->myfile_key) ? htmlspecialchars($fetch->myfile_key, ENT_QUOTES, 'UTF-8') : ''; ?>"
+															data-doc-type="<?php echo htmlspecialchars($fetch->doc_type ? $fetch->doc_type : 'documents', ENT_QUOTES, 'UTF-8'); ?>"
+															data-user-role="<?php echo Auth::user()->role; ?>"
+															title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
+															style="cursor: context-menu;">
+															<td style="white-space: initial;">
+																<div data-id="<?php echo $fetch->id;?>" data-personalchecklistname="<?php echo $checklist; ?>" class="personalchecklist-row">
+																	<span><?php echo $checklist; ?></span>
+																</div>
+															</td>
+															<td style="white-space: initial;">
+																<?php
+																if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
+																	<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
+																		<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist-partner')">
+																				<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+																			</a>
+																		<?php } else {  //For old file upload
+																			$docType = $fetch->doc_type ? $fetch->doc_type : 'documents';
+																			if (filter_var($fetch->myfile, FILTER_VALIDATE_URL)) {
+																				// String is a valid URL
+																				$previewUrl = $fetch->myfile;
+																			} else {
+																				// Check if it's AWS path or local path
+																				$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+																				$previewUrl = $url.$fetchedData->id.'/'.$docType.'/'.$fetch->myfile;
+																			}
+																			?>
+																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($previewUrl); ?>','preview-container-alldocumentlist-partner')">
+																				<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+																			</a>
+																		<?php } ?>
+																	</div>
+																<?php
+																}
+																else
+																{?>
+																	<div class="allupload_document" style="display:inline-block;">
+																		<form method="POST" enctype="multipart/form-data" id="upload_form_<?php echo $fetch->id;?>">
+																			@csrf
+																			<input type="hidden" name="clientid" value="{{$fetchedData->id}}">
+																			<input type="hidden" name="fileid" value="{{$fetch->id}}">
+																			<input type="hidden" name="type" value="partner">
+																			<input type="hidden" name="doctype" value="documents">
+																			<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+																			<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
+																		</form>
+																	</div>
+																<?php
+																}?>
+															</td>
+														</tr>
+													<?php
+													} //end foreach?>
 												</tbody>
-												
-											</table> 
+											</table>
 										</div>
 									</div>
-									<div class="grid_data griddata">
-									<?php
-									foreach($fetchd as $fetch){ 
-										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-									?>
-										<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
-											<div class="grid_col"> 
-												<div class="grid_icon">
-													<i class="fas fa-file-image"></i>
-												</div> 
-												<div class="grid_content">
-													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-														
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-														</div>
+									<div class="grid_data allgriddata">
+										<?php
+										foreach($fetchd as $fetch)
+										{
+											$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+											?>
+											<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
+												<div class="grid_col">
+													<div class="grid_icon">
+														<i class="fas fa-file-image"></i>
 													</div>
+													<?php
+													if( isset($fetch->myfile) && $fetch->myfile != "")
+													{ ?>
+														<div class="grid_content">
+															<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
+															<div class="dropdown d-inline dropdown_ellipsis_icon">
+																<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																<div class="dropdown-menu">
+																	<?php $docType = $fetch->doc_type ? $fetch->doc_type : 'documents'; ?>
+																	<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+																		<a target="_blank" class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Preview</a>
+																		<a download class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Download</a>
+																	<?php } else {  //For old file upload
+																		if (filter_var($fetch->myfile, FILTER_VALIDATE_URL)) {
+																			$previewUrl = $fetch->myfile;
+																		} else {
+																			$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+																			$previewUrl = $url.$fetchedData->id.'/'.$docType.'/'.$fetch->myfile;
+																		}
+																	?>
+																		<a target="_blank" class="dropdown-item" href="<?php echo $previewUrl; ?>">Preview</a>
+																		<a download class="dropdown-item" href="<?php echo $previewUrl; ?>">Download</a>
+																	<?php } ?>
+
+																	<?php if( Auth::user()->role == 1 ){ //super admin ?>
+																	<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletealldocs" href="javascript:;">Delete</a>
+																	<?php } ?>
+																	<a data-id="{{$fetch->id}}" class="dropdown-item verifydoc" data-doctype="documents" data-href="verifydoc" href="javascript:;">Verify</a>
+																	<a data-id="{{$fetch->id}}" class="dropdown-item notuseddoc" data-doctype="documents" data-href="notuseddoc" href="javascript:;">Not Used</a>
+																</div>
+															</div>
+														</div>
+													<?php
+													}?>
+												</div>
+											</div>
+										<?php
+										} //end foreach ?>
+										<div class="clearfix"></div>
+									</div>
+								   
+									<!-- Container for File Preview -->
+									<div style="margin-left: 10px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist-partner">
+										<p style="color:#000;">Click on a file to preview it here.</p>
+									</div>
+									
+									<!-- Bulk Upload Mapping Modal -->
+									<div id="bulk-upload-mapping-modal-partner" class="bulk-upload-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
+										<div class="bulk-upload-modal-content">
+											<div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+												<h3 style="margin: 0; color: #333;">Map Files to Checklists</h3>
+												<button type="button" class="close-mapping-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+											</div>
+											<div style="padding: 20px; overflow-x: auto;">
+												<div id="bulk-upload-mapping-table-partner"></div>
+											</div>
+											<div style="padding: 20px; border-top: 1px solid #e2e8f0;">
+												<div class="bulk-upload-progress" id="bulk-upload-progress-partner" style="display: none; margin-bottom: 15px;">
+													<div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; height: 30px;">
+														<div class="progress-bar" id="bulk-upload-progress-bar-partner" 
+															 style="background: #4a90e2; height: 100%; color: white; display: flex; 
+																	align-items: center; justify-content: center; font-weight: bold; 
+																	transition: width 0.3s; width: 0%;">0%</div>
+													</div>
+												</div>
+												<div style="text-align: right;">
+													<button type="button" class="btn btn-secondary" id="cancel-bulk-upload-partner">Cancel</button>
+													<button type="button" class="btn btn-primary" id="confirm-bulk-upload-partner" style="margin-left: 10px;">Upload All</button>
 												</div>
 											</div>
 										</div>
-									<?php } ?>
-										<div class="clearfix"></div>
 									</div>
 								</div>
 								{{-- Appointments tab removed - Appointment model deleted --}}
@@ -1264,6 +1353,12 @@ use App\Http\Controllers\Controller;
                                             </div>
 										</div>
 									</div>
+								</div>
+								<div class="tab-pane fade <?php echo ($activeTab === 'email-v2') ? 'show active' : ''; ?>" id="email-v2" role="tabpanel" aria-labelledby="email-v2-tab">
+									@php
+										$partner = $fetchedData;
+									@endphp
+									@include('Admin.clients.tabs.emails_v2')
 								</div>
                       
                       
@@ -5517,6 +5612,361 @@ function arcivedAction( id, table ) {
 			$("#loader").hide();
 		}
 	}
+</script>
+
+<script>
+    // ============================================================================
+    // BULK UPLOAD AND CHECKLIST FUNCTIONALITY FOR PARTNERS DOCUMENTS TAB
+    // ============================================================================
+    
+    let bulkUploadFilesPartner = [];
+    let currentPartnerId = {{$fetchedData->id}};
+    
+    // Add Checklist handler
+    $(document).on('click', '.add_alldocument_doc', function() {
+        var checklistName = prompt('Enter checklist name:');
+        if (checklistName && checklistName.trim() !== '') {
+            $.ajax({
+                url: '{{URL::to('/partners/add-alldocchecklist')}}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    clientid: currentPartnerId,
+                    checklist: checklistName.trim(),
+                    type: 'partner',
+                    doctype: 'documents'
+                },
+                success: function(response) {
+                    var obj = JSON.parse(response);
+                    if (obj.status) {
+                        location.reload();
+                    } else {
+                        alert(obj.message || 'Error adding checklist');
+                    }
+                },
+                error: function() {
+                    alert('Error adding checklist. Please try again.');
+                }
+            });
+        }
+    });
+    
+    // Toggle bulk upload dropzone
+    $(document).on('click', '.bulk-upload-toggle-btn', function() {
+        const dropzoneContainer = $(this).closest('.card-header-action').next('.bulk-upload-dropzone-container');
+        
+        if (dropzoneContainer.length && dropzoneContainer.is(':visible')) {
+            dropzoneContainer.slideUp();
+            $(this).html('<i class="fas fa-upload"></i> Bulk Upload');
+            bulkUploadFilesPartner = [];
+            dropzoneContainer.find('.bulk-upload-file-list').hide();
+            dropzoneContainer.find('.file-count').text('0');
+        } else {
+            dropzoneContainer.slideDown();
+            $(this).html('<i class="fas fa-times"></i> Close');
+        }
+    });
+    
+    // Click to browse files
+    $(document).on('click', '.bulk-upload-dropzone', function(e) {
+        if (!$(e.target).is('input')) {
+            $(this).find('.bulk-upload-file-input').click();
+        }
+    });
+    
+    // File input change
+    $(document).on('change', '.bulk-upload-file-input', function() {
+        const files = this.files;
+        if (files.length > 0) {
+            handleBulkFilesSelectedPartner(files);
+        }
+    });
+    
+    // Drag and drop handlers
+    $(document).on('dragover', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag_over');
+    });
+    
+    $(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag_over');
+    });
+    
+    $(document).on('drop', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag_over');
+        
+        const files = e.originalEvent.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleBulkFilesSelectedPartner(files);
+        }
+    });
+    
+    // Handle files selected
+    function handleBulkFilesSelectedPartner(files) {
+        bulkUploadFilesPartner = [];
+        
+        const invalidFiles = [];
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        
+        Array.from(files).forEach(file => {
+            if (file.size > maxSize) {
+                invalidFiles.push(file.name + ' (exceeds 50MB)');
+                return;
+            }
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                invalidFiles.push(file.name + ' (invalid file type)');
+                return;
+            }
+            
+            bulkUploadFilesPartner.push(file);
+        });
+        
+        if (invalidFiles.length > 0) {
+            alert('The following files were skipped:\n' + invalidFiles.join('\n'));
+        }
+        
+        if (bulkUploadFilesPartner.length === 0) {
+            alert('No valid files selected. Please select PDF, JPG, PNG, DOC, or DOCX files under 50MB.');
+            return;
+        }
+        
+        // Show file list
+        $('.bulk-upload-file-list').show();
+        $('.file-count').text(bulkUploadFilesPartner.length);
+        
+        // Show mapping interface
+        showBulkUploadMappingPartner();
+    }
+    
+    // Show mapping interface
+    function showBulkUploadMappingPartner() {
+        if (bulkUploadFilesPartner.length === 0) return;
+        
+        // Get existing checklists
+        getExistingChecklistsPartner(function(checklists) {
+            displayMappingInterfacePartner(bulkUploadFilesPartner, checklists);
+        });
+    }
+    
+    // Get existing checklists from table
+    function getExistingChecklistsPartner(callback) {
+        const checklists = [];
+        const checklistNames = new Set();
+        
+        $('.alldocumnetlist tr').each(function() {
+            const checklistName = $(this).data('checklist-name');
+            if (checklistName && !checklistNames.has(checklistName)) {
+                checklistNames.add(checklistName);
+                checklists.push({ name: checklistName });
+            }
+        });
+        
+        callback(checklists);
+    }
+    
+    // Display mapping interface
+    function displayMappingInterfacePartner(files, checklists) {
+        const modal = $('#bulk-upload-mapping-modal-partner');
+        const tableContainer = $('#bulk-upload-mapping-table-partner');
+        
+        let html = '<div class="table-responsive" style="overflow-x: auto;">';
+        html += '<table class="table table-bordered" style="width: 100%; min-width: 600px; margin-bottom: 0;">';
+        html += '<thead><tr><th style="min-width: 150px;">File Name</th><th style="min-width: 200px;">Checklist Assignment</th><th style="min-width: 100px;">Status</th><th style="min-width: 80px;">Action</th></tr></thead>';
+        html += '<tbody>';
+        
+        Array.from(files).forEach((file, index) => {
+            const fileName = file.name;
+            const fileSize = formatFileSizePartner(file.size);
+            
+            html += '<tr class="bulk-upload-file-item">';
+            html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2;"></i><div><div class="file-name">' + escapeHtmlPartner(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666;">' + fileSize + '</div></div></div></td>';
+            html += '<td style="min-width: 200px;">';
+            html += '<select class="form-control checklist-select" data-file-index="' + index + '" style="width: 100%;">';
+            html += '<option value="">-- Select Checklist --</option>';
+            html += '<option value="__NEW__">+ Create New Checklist</option>';
+            checklists.forEach(checklist => {
+                html += '<option value="' + escapeHtmlPartner(checklist.name) + '">' + escapeHtmlPartner(checklist.name) + '</option>';
+            });
+            html += '</select>';
+            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none; width: 100%;">';
+            html += '</td>';
+            html += '<td style="white-space: nowrap;"><span class="match-status manual">Manual selection</span></td>';
+            html += '<td style="white-space: nowrap;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table>';
+        html += '</div>';
+        tableContainer.html(html);
+        modal.show();
+    }
+    
+    // Handle new checklist option
+    $(document).on('change', '#bulk-upload-mapping-modal-partner .checklist-select', function() {
+        const fileIndex = $(this).data('file-index');
+        const value = $(this).val();
+        const newInput = $('#bulk-upload-mapping-modal-partner .new-checklist-input[data-file-index="' + fileIndex + '"]');
+        
+        if (value === '__NEW__') {
+            newInput.show();
+            $(this).closest('tr').find('.match-status').removeClass('auto-matched manual').addClass('new-checklist').text('New checklist');
+        } else {
+            newInput.hide();
+            if (value) {
+                $(this).closest('tr').find('.match-status').removeClass('new-checklist').addClass('manual').text('Manual selection');
+            }
+        }
+    });
+    
+    // Close modal
+    $(document).on('click', '#bulk-upload-mapping-modal-partner .close-mapping-modal, #cancel-bulk-upload-partner', function() {
+        $('#bulk-upload-mapping-modal-partner').hide();
+        $('#bulk-upload-progress-partner').hide();
+        $('#confirm-bulk-upload-partner').prop('disabled', false);
+    });
+
+    // Remove a file from bulk upload
+    $(document).on('click', '#bulk-upload-mapping-modal-partner .bulk-upload-remove-file', function() {
+        const index = parseInt($(this).data('file-index'), 10);
+        if (Number.isNaN(index)) {
+            return;
+        }
+        bulkUploadFilesPartner.splice(index, 1);
+        $('.file-count').text(bulkUploadFilesPartner.length);
+        if (bulkUploadFilesPartner.length === 0) {
+            $('#bulk-upload-mapping-modal-partner').hide();
+            $('.bulk-upload-file-list').hide();
+            return;
+        }
+        showBulkUploadMappingPartner();
+    });
+    
+    // Confirm bulk upload
+    $(document).on('click', '#confirm-bulk-upload-partner', function() {
+        const mappings = [];
+        
+        // Collect mappings
+        bulkUploadFilesPartner.forEach((file, index) => {
+            const selectElement = $('#bulk-upload-mapping-modal-partner .checklist-select[data-file-index="' + index + '"]');
+            const checklist = selectElement.val();
+            
+            let mapping = null;
+            
+            if (checklist === '__NEW__') {
+                const newChecklistName = $('#bulk-upload-mapping-modal-partner .new-checklist-input[data-file-index="' + index + '"]').val();
+                if (newChecklistName) {
+                    mapping = { type: 'new', name: newChecklistName.trim() };
+                }
+            } else if (checklist) {
+                mapping = { type: 'existing', name: checklist };
+            }
+            
+            mappings.push(mapping);
+        });
+        
+        // Validate all files have mappings
+        const unmappedFiles = [];
+        mappings.forEach((mapping, index) => {
+            if (!mapping || !mapping.name) {
+                unmappedFiles.push(bulkUploadFilesPartner[index].name);
+            }
+        });
+        
+        if (unmappedFiles.length > 0) {
+            alert('Please map all files to checklists:\n' + unmappedFiles.join('\n'));
+            return;
+        }
+        
+        // Upload files one by one
+        uploadBulkFilesPartner(bulkUploadFilesPartner, mappings);
+    });
+    
+    // Upload bulk files
+    function uploadBulkFilesPartner(files, mappings) {
+        $('#bulk-upload-progress-partner').show();
+        $('#bulk-upload-progress-bar-partner').css('width', '0%').text('0%');
+        $('#confirm-bulk-upload-partner').prop('disabled', true);
+        
+        let uploadedCount = 0;
+        let failedFiles = [];
+        
+        // Upload files sequentially
+        function uploadNext(index) {
+            if (index >= files.length) {
+                // All uploads complete
+                $('#bulk-upload-progress-partner').hide();
+                $('#confirm-bulk-upload-partner').prop('disabled', false);
+                
+                let message = 'Upload completed: ' + uploadedCount + ' file(s) uploaded.';
+                if (failedFiles.length > 0) {
+                    message += '\n\nFailed files:\n' + failedFiles.join('\n');
+                }
+                alert(message);
+                $('#bulk-upload-mapping-modal-partner').hide();
+                $('.bulk-upload-dropzone-container').hide();
+                $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
+                bulkUploadFilesPartner = [];
+                
+                location.reload();
+                return;
+            }
+            
+            const file = files[index];
+            const mapping = mappings[index];
+            const formData = new FormData();
+            
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('clientid', currentPartnerId);
+            formData.append('type', 'partner');
+            formData.append('doctype', 'documents');
+            formData.append('document_upload', file);
+            formData.append('checklist', mapping.name);
+            formData.append('checklist_type', mapping.type);
+            
+            $.ajax({
+                url: '{{URL::to('/partners/upload-alldocument')}}',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    uploadedCount++;
+                    const percentComplete = ((uploadedCount / files.length) * 100);
+                    $('#bulk-upload-progress-bar-partner').css('width', percentComplete + '%').text(Math.round(percentComplete) + '%');
+                    uploadNext(index + 1);
+                },
+                error: function() {
+                    failedFiles.push(file.name);
+                    const percentComplete = ((uploadedCount / files.length) * 100);
+                    $('#bulk-upload-progress-bar-partner').css('width', percentComplete + '%').text(Math.round(percentComplete) + '%');
+                    uploadNext(index + 1);
+                }
+            });
+        }
+        
+        uploadNext(0);
+    }
+    
+    // Helper functions
+    function formatFileSizePartner(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+    
+    function escapeHtmlPartner(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 </script>
 
 @push('tinymce-scripts')

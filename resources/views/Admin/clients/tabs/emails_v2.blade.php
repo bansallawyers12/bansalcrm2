@@ -1,15 +1,41 @@
-<!-- Emails V2 Interface -->
+<!-- Emails V2 Interface - Generic for Clients and Partners -->
 @php
     // Support both $client and $fetchedData variable names
-    $clientData = $client ?? $fetchedData ?? null;
+    $entityData = $client ?? $partner ?? $fetchedData ?? null;
     
-    // Get the matter ID from URL or most recent matter
-    // Note: bansalcrm2 may not have ClientMatter model - adjust as needed
+    // Determine entity type (client or partner)
+    $entityType = 'client'; // default
+    if (isset($partner)) {
+        $entityType = 'partner';
+    } elseif (isset($fetchedData)) {
+        // Check if it's a Partner model by checking if it has partner_name attribute
+        if (isset($fetchedData->partner_name) || (method_exists($fetchedData, 'getTable') && $fetchedData->getTable() === 'partners')) {
+            $entityType = 'partner';
+        } else {
+            $entityType = 'client';
+        }
+    }
+    
+    // Get the matter ID from URL or most recent matter (only for clients)
     $matterId = null;
-    // TODO: Adjust matter ID logic based on bansalcrm2 structure if different
-    // For now, setting to null which will work without matter filtering
+    if ($entityType === 'client' && isset($id1) && $id1 != "") {
+        // Try to get matter ID if ClientMatter exists
+        if (class_exists('App\Models\ClientMatter')) {
+            try {
+                $clientMatter = \App\Models\ClientMatter::where('client_id', $entityData->id)
+                    ->where('client_unique_matter_no', $id1)
+                    ->first();
+                $matterId = $clientMatter ? $clientMatter->id : null;
+            } catch (\Exception $e) {
+                // ClientMatter may not exist
+            }
+        }
+    }
 @endphp
-<div class="email-v2-interface-container" data-client-id="{{ $clientData->id ?? '' }}" data-matter-id="{{ $matterId ?? '' }}">
+<div class="email-v2-interface-container" 
+     data-entity-id="{{ $entityData->id ?? '' }}" 
+     data-entity-type="{{ $entityType }}"
+     data-matter-id="{{ $matterId ?? '' }}">
     <!-- Top Control Bar (Search & Filters) -->
     <div class="email-v2-control-bar">
         <div class="control-section search-section">
