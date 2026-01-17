@@ -309,7 +309,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/products/edit', [ProductsController::class, 'edit'])->name('products.update');
 
 		
-		Route::get('/products/detail/{id}', [ProductsController::class, 'detail'])->name('products.detail');	 
+		Route::get('/products/detail/{id}/{tab?}', [ProductsController::class, 'detail'])->name('products.detail');	 
 		 Route::get('/products/get-recipients', [ProductsController::class, 'getrecipients'])->name('products.getrecipients');
 		Route::get('/products/get-allclients', [ProductsController::class, 'getallclients'])->name('products.getallclients');
 		
@@ -321,7 +321,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/partners/edit', [PartnersController::class, 'edit'])->name('partners.update');
 		Route::get('/getpaymenttype', [PartnersController::class, 'getpaymenttype'])->name('partners.getpaymenttype');
 		
-		Route::get('/partners/detail/{id}', [PartnersController::class, 'detail'])->name('partners.detail');	 
+		Route::get('/partners/detail/{id}/{tab?}', [PartnersController::class, 'detail'])->name('partners.detail');	 
 		 Route::get('/partners/get-recipients', [PartnersController::class, 'getrecipients'])->name('partners.getrecipients');
 		Route::get('/partners/get-allclients', [PartnersController::class, 'getallclients'])->name('partners.getallclients');
 	

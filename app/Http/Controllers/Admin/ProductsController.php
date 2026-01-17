@@ -202,7 +202,7 @@ class ProductsController extends Controller
 		
 	}
 	
-	public function detail(Request $request, $id = NULL){
+	public function detail(Request $request, $id = NULL, $tab = NULL){
 		if(isset($id) && !empty($id))  
 			{				
 				$id = $this->decodeString($id);	

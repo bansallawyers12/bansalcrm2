@@ -204,60 +204,92 @@ use App\Http\Controllers\Controller;
 				<div class="col-9 col-md-9 col-lg-9">
 					<div class="card">
 						<div class="card-body">
-							<ul class="nav nav-pills" id="client_tabs" role="tablist">
+							@php
+								$allowedTabs = [
+									'application',
+									'partner-activities',
+									'products',
+									'branches',
+									'agreements',
+									'contacts',
+									'noteterm',
+									'documents',
+									'accounts',
+									'conversations',
+									'promotions',
+									'student',
+									'invoice'
+								];
+								$tabAliases = [
+									'activities' => 'partner-activities',
+									'notestrm' => 'noteterm'
+								];
+								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
+								$requestedTab = Request::route('tab') ?? Request::get('tab');
+								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
+									$requestedTab = 'application';
+								}
+								$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
+								$activeTabSlug = array_search($activeTab, $tabAliases, true);
+								if ($activeTabSlug === false) {
+									$activeTabSlug = $requestedTab;
+								}
+								$detailBaseUrl = url('/partners/detail/'.Request::route('id'));
+							@endphp
+							<ul class="nav nav-pills" id="partner_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}">
 								<li class="nav-item">
-									<a class="nav-link <?php if(!isset($_GET['tab'])){ echo 'active'; } ?>" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="application" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="partner-activities-tab" href="#partner-activities" role="tab" aria-controls="partner-activities" aria-selected="true">Activities</a>
+									<a class="nav-link {{ $activeTab === 'partner-activities' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="activities" id="partner-activities-tab" href="#partner-activities" role="tab" aria-controls="partner-activities" aria-selected="{{ $activeTab === 'partner-activities' ? 'true' : 'false' }}">Activities</a>
                                 </li>
                               
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'active'; } ?>" data-bs-toggle="tab" id="products-tab" href="#products" role="tab" aria-controls="products" aria-selected="false">Products</a>
+									<a class="nav-link {{ $activeTab === 'products' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="products" id="products-tab" href="#products" role="tab" aria-controls="products" aria-selected="{{ $activeTab === 'products' ? 'true' : 'false' }}">Products</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="branches-tab" href="#branches" role="tab" aria-controls="branches" aria-selected="false">Branches</a>
+									<a class="nav-link {{ $activeTab === 'branches' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="branches" id="branches-tab" href="#branches" role="tab" aria-controls="branches" aria-selected="{{ $activeTab === 'branches' ? 'true' : 'false' }}">Branches</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="agreements-tab" href="#agreements" role="tab" aria-controls="agreements" aria-selected="false">Agreements</a>
+									<a class="nav-link {{ $activeTab === 'agreements' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="agreements" id="agreements-tab" href="#agreements" role="tab" aria-controls="agreements" aria-selected="{{ $activeTab === 'agreements' ? 'true' : 'false' }}">Agreements</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="contacts-tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="false">Contacts</a>
+									<a class="nav-link {{ $activeTab === 'contacts' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="contacts" id="contacts-tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="{{ $activeTab === 'contacts' ? 'true' : 'false' }}">Contacts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
+									<a class="nav-link {{ $activeTab === 'noteterm' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="notestrm" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="{{ $activeTab === 'noteterm' ? 'true' : 'false' }}">Notes & Terms</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="documents" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Documents</a>
 								</li>
 								<li class="nav-item">
 									{{-- <a class="nav-link" data-bs-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
+									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="accounts" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
+									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="conversations" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
 								</li>
 								{{-- Task system removed - December 2025 --}}
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
 								</li>-->
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
+									<a class="nav-link {{ $activeTab === 'promotions' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="promotions" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="{{ $activeTab === 'promotions' ? 'true' : 'false' }}">Promotions</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="student-tab" href="#student" role="tab" aria-controls="student" aria-selected="false">Student</a>
+									<a class="nav-link {{ $activeTab === 'student' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="student" id="student-tab" href="#student" role="tab" aria-controls="student" aria-selected="{{ $activeTab === 'student' ? 'true' : 'false' }}">Student</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="invoice-tab" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Invoice</a>
+									<a class="nav-link {{ $activeTab === 'invoice' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="invoice" id="invoice-tab" href="#invoice" role="tab" aria-controls="invoice" aria-selected="{{ $activeTab === 'invoice' ? 'true' : 'false' }}">Invoice</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="partnerContent" style="padding-top:15px;">
-								<div class="tab-pane fade  <?php if(!isset($_GET['tab']) ){ echo 'show active'; } ?>" id="application" role="tabpanel" aria-labelledby="application-tab">
+								<div class="tab-pane fade {{ $activeTab === 'application' ? 'show active' : '' }}" id="application" role="tabpanel" aria-labelledby="application-tab">
 									
 
 									<?php
@@ -402,7 +434,7 @@ use App\Http\Controllers\Controller;
 								</div>
                               
                               
-                                 <div class="tab-pane fade" id="partner-activities" role="tabpanel" aria-labelledby="partner-activities-tab">
+                                 <div class="tab-pane fade <?php echo ($activeTab === 'partner-activities') ? 'show active' : ''; ?>" id="partner-activities" role="tabpanel" aria-labelledby="partner-activities-tab">
                                     <div class="activities">
                                         <?php
                                         $activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
@@ -463,7 +495,7 @@ use App\Http\Controllers\Controller;
                                     </div>
                                 </div>
                               
-								<div class="tab-pane fade <?php if(isset($_GET['tab']) && $_GET['tab'] == 'product'){ echo 'show active'; } ?>" id="products" role="tabpanel" aria-labelledby="products-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'products') ? 'show active' : ''; ?>" id="products" role="tabpanel" aria-labelledby="products-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="{{route('products.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -518,7 +550,7 @@ use App\Http\Controllers\Controller;
 									</div>	
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="branches" role="tabpanel" aria-labelledby="branches-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'branches') ? 'show active' : ''; ?>" id="branches" role="tabpanel" aria-labelledby="branches-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" class="btn btn-primary openbranchnew"><i class="fa fa-plus"></i> Add</a> 
 									</div>
@@ -563,7 +595,7 @@ use App\Http\Controllers\Controller;
 									</div>	
 									<div class="clearfix"></div>
 								</div>	
-								<div class="tab-pane fade" id="agreements" role="tabpanel" aria-labelledby="agreements-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'agreements') ? 'show active' : ''; ?>" id="agreements" role="tabpanel" aria-labelledby="agreements-tab">
 									<div class="agreement_info">
 										<h4>Contact Information</h4>
 										<form method="post"  action="{{URL::to('/partner/saveagreement')}}" autocomplete="off" name="saveagreement" id="saveagreement" enctype="multipart/form-data">
@@ -696,7 +728,7 @@ use App\Http\Controllers\Controller;
 									
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">  
+								<div class="tab-pane fade <?php echo ($activeTab === 'contacts') ? 'show active' : ''; ?>" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">  
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary add_clientcontact"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -743,7 +775,7 @@ use App\Http\Controllers\Controller;
 									</div>									
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'noteterm') ? 'show active' : ''; ?>" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -819,7 +851,7 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'documents') ? 'show active' : ''; ?>" id="documents" role="tabpanel" aria-labelledby="documents-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -938,7 +970,7 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
 								{{-- Appointments tab removed - Appointment model deleted --}}
-								<div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'accounts') ? 'show active' : ''; ?>" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
 									
 									<div class="table-responsive"> 
 										<table class="table invoicetable text_wrap">
@@ -1038,7 +1070,7 @@ use App\Http\Controllers\Controller;
 								</div>
                       
                       
-								<div class="tab-pane fade" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'conversations') ? 'show active' : ''; ?>" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
 									<div class="conversation_tabs">
 										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
 										    <li class="nav-item">
@@ -1348,7 +1380,7 @@ use App\Http\Controllers\Controller;
                       
                       			
                       
-                                <div class="tab-pane fade" id="student" role="tabpanel" aria-labelledby="student-tab">
+                                <div class="tab-pane fade <?php echo ($activeTab === 'student') ? 'show active' : ''; ?>" id="student" role="tabpanel" aria-labelledby="student-tab">
                                     <div class="student_tabs">
                                         <ul class="nav nav-pills round_tabs" id="student_tabs" role="tablist">
                                             <li class="nav-item">
@@ -2104,7 +2136,7 @@ use App\Http\Controllers\Controller;
                                 </div>
                       
                       
-                                 <div class="tab-pane fade" id="invoice" role="tabpanel" aria-labelledby="invoice-tab">
+                                 <div class="tab-pane fade <?php echo ($activeTab === 'invoice') ? 'show active' : ''; ?>" id="invoice" role="tabpanel" aria-labelledby="invoice-tab">
                                     <div class="row">
 										<div class="col-md-12 mt-3 mb-3">
                                             <?php

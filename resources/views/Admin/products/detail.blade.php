@@ -114,16 +114,27 @@ use App\Http\Controllers\Controller;
 				<div class="col-9 col-md-9 col-lg-9">
 					<div class="card">
 						<div class="card-body">
+							<?php
+								// Define allowed tabs for products
+								$allowedTabs = [
+									'application',
+									'promotions'
+								];
+								$activeTab = Request::route('tab') ?? 'application';
+								if (!in_array($activeTab, $allowedTabs, true)) {
+									$activeTab = 'application';
+								}
+							?>
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link active" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link <?php echo ($activeTab === 'application') ? 'active' : ''; ?>" href="{{route('products.detail', ['id' => base64_encode(convert_uuencode($fetchedData->id))])}}" id="application-tab" role="tab" aria-controls="application" aria-selected="<?php echo ($activeTab === 'application') ? 'true' : 'false'; ?>">Applications</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="promotions-tab" href="#promotions" role="tab" aria-controls="promotions" aria-selected="false">Promotions</a>
+									<a class="nav-link <?php echo ($activeTab === 'promotions') ? 'active' : ''; ?>" href="{{route('products.detail', ['id' => base64_encode(convert_uuencode($fetchedData->id)), 'tab' => 'promotions'])}}" id="promotions-tab" role="tab" aria-controls="promotions" aria-selected="<?php echo ($activeTab === 'promotions') ? 'true' : 'false'; ?>">Promotions</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
-								<div class="tab-pane fade show active" id="application" role="tabpanel" aria-labelledby="application-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'application') ? 'show active' : ''; ?>" id="application" role="tabpanel" aria-labelledby="application-tab">
 																		
 									<div class="table-responsive if_applicationdetail"> 
 										<table class="table text_wrap table-2">
@@ -184,7 +195,7 @@ use App\Http\Controllers\Controller;
 									</div>
 									
 								</div>
-								<div class="tab-pane fade" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
+								<div class="tab-pane fade <?php echo ($activeTab === 'promotions') ? 'show active' : ''; ?>" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
 									<div class="promotionlists"> 
 									<?php
 									$promotionslist = \App\Models\Promotion::where('apply_to', 'All Products') ->orwhereRaw('? = ANY(string_to_array(selectproduct, \',\'))', [$fetchedData->id])->orderby('created_at','DESC')->get();
