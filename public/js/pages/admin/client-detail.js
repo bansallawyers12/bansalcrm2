@@ -2119,6 +2119,68 @@ Bansal Immigration`;
                             }
                         }
                     });
+                    
+                    // Initialize start date picker with save callback
+                    flatpickr('.startdatepicker', {
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        onChange: function(selectedDates, dateStr, instance) {
+                            if (selectedDates.length > 0) {
+                                var appid = $('.startdatepicker').closest('.cus_sidebar').find('#student_id').attr('data-applicationid');
+                                $.ajax({
+                                    url: App.getUrl('updateApplicationDates') || App.getUrl('siteUrl') + '/application/updatedates',
+                                    method: "GET",
+                                    dataType: "json",
+                                    data: {
+                                        start_date: dateStr,
+                                        appid: appid
+                                    },
+                                    success: function(result) {
+                                        console.log("Start date updated");
+                                        // Update the displayed date
+                                        var date = new Date(dateStr);
+                                        $('.app_start_date .month').text(date.toLocaleString('default', { month: 'short' }));
+                                        $('.app_start_date .day').text(('0' + date.getDate()).slice(-2));
+                                        $('.app_start_date .year').text(date.getFullYear());
+                                    },
+                                    error: function() {
+                                        console.error("Error updating start date");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    
+                    // Initialize end date picker with save callback
+                    flatpickr('.enddatepicker', {
+                        dateFormat: "Y-m-d",
+                        allowInput: true,
+                        onChange: function(selectedDates, dateStr, instance) {
+                            if (selectedDates.length > 0) {
+                                var appid = $('.enddatepicker').closest('.cus_sidebar').find('#student_id').attr('data-applicationid');
+                                $.ajax({
+                                    url: App.getUrl('updateApplicationDates') || App.getUrl('siteUrl') + '/application/updatedates',
+                                    method: "GET",
+                                    dataType: "json",
+                                    data: {
+                                        end_date: dateStr,
+                                        appid: appid
+                                    },
+                                    success: function(result) {
+                                        console.log("End date updated");
+                                        // Update the displayed date
+                                        var date = new Date(dateStr);
+                                        $('.app_end_date .month').text(date.toLocaleString('default', { month: 'short' }));
+                                        $('.app_end_date .day').text(('0' + date.getDate()).slice(-2));
+                                        $('.app_end_date .year').text(date.getFullYear());
+                                    },
+                                    error: function() {
+                                        console.error("Error updating end date");
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             },
             error: function(xhr, status, error) {
@@ -2296,7 +2358,176 @@ Bansal Immigration`;
         });
     });
 
+    // ============================================================================
+    // APPLICATION ACTION BUTTON HANDLERS
+    // ============================================================================
+
+    // Handler for "Discontinue Application" button
+    $(document).on('click', '.discon_application', function(){
+        var appliid = $(this).attr('data-id');
+        $('#discon_application').modal('show');
+        $('input[name="diapp_id"]').val(appliid);
+    });
+
+    // Handler for "Refund Application" button  
+    $(document).on('click', '.refund_application', function(){
+        var appliid = $(this).attr('data-id');
+        $('#refund_application').modal('show');
+        $('input[name="refapp_id"]').val(appliid);
+    });
+
+    // Handler for "Back to Previous Stage" button
+    $(document).on('click', '.backstage', function(){
+        var appliid = $(this).attr('data-id');
+        var stage = $(this).attr('data-stage');
+        var clientId = PageConfig.clientId;
+        
+        if (!appliid || !clientId) {
+            console.error('Application ID or Client ID is missing');
+            return;
+        }
+        
+        $('.popuploader').show();
+        
+        var url = App.getUrl('siteUrl') + '/updatebackstage';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                id: appliid,
+                client_id: clientId
+            },
+            success: function(response){
+                $('.popuploader').hide();
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                
+                if(obj.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+                    $('.curerentstage').text(obj.stage);
+                    
+                    // Update progress bar
+                    if(obj.width !== undefined){
+                        updateProgressBar(obj.width);
+                    }
+                    
+                    // Reload activities accordion
+                    reloadApplicationActivities(appliid);
+                } else {
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+                }
+            },
+            error: function(xhr, status, error){
+                $('.popuploader').hide();
+                console.error('Error going back to previous stage:', error);
+                $('.custom-error-msg').html('<span class="alert alert-danger">Error updating stage. Please try again.</span>');
+            }
+        });
+    });
+
+    // Handler for "Complete Application" button
+    $(document).on('click', '.completestage', function(){
+        var appliid = $(this).attr('data-id');
+        $('#confirmcompleteModal').modal('show');
+        $('.acceptapplication').attr('data-id', appliid);
+    });
+
+    // Handler for confirming application completion
+    $(document).on('click', '.acceptapplication', function(){
+        var appliid = $(this).attr('data-id');
+        var clientId = PageConfig.clientId;
+        
+        if (!appliid || !clientId) {
+            console.error('Application ID or Client ID is missing');
+            return;
+        }
+        
+        $('.popuploader').show();
+        $('#confirmcompleteModal').modal('hide');
+        
+        var url = App.getUrl('siteUrl') + '/completestage';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                id: appliid,
+                client_id: clientId
+            },
+            success: function(response){
+                $('.popuploader').hide();
+                var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                
+                if(obj.status){
+                    $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+                    $('.applicationstatus').html('Completed');
+                    $('.ifdiscont').hide();
+                    $('.revertapp').show();
+                    
+                    // Update progress to 100%
+                    updateProgressBar(100);
+                    
+                    // Reload activities accordion
+                    reloadApplicationActivities(appliid);
+                } else {
+                    $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+                }
+            },
+            error: function(xhr, status, error){
+                $('.popuploader').hide();
+                console.error('Error completing application:', error);
+                $('.custom-error-msg').html('<span class="alert alert-danger">Error completing application. Please try again.</span>');
+            }
+        });
+    });
+
+    // Handler for "Revert Application" button
+    $(document).on('click', '.revertapp', function(){
+        var appliid = $(this).attr('data-id');
+        $('#revert_application').modal('show');
+        $('input[name="revapp_id"]').val(appliid);
+    });
+
+    // ============================================================================
+    // AGENT ASSIGNMENT HANDLERS
+    // ============================================================================
+
+    // Handler for "Add Super Agent" button
+    $(document).on('click', '.opensuperagent', function(){
+        var appliid = $(this).attr('data-id');
+        $('#superagent_application').modal('show');
+        $('#siapp_id').val(appliid);
+    });
+
+    // Handler for "Add Sub Agent" button
+    $(document).on('click', '.opensubagent', function(){
+        var appliid = $(this).attr('data-id');
+        $('#subagent_application').modal('show');
+        $('#sbapp_id').val(appliid);
+    });
+
     // NOTE: openpaymentschedule handler removed - Invoice Schedule feature has been removed
+
+    // ============================================================================
+    // PRODUCT FEE/COMMISSION STATUS HANDLERS
+    // ============================================================================
+
+    // Handler for "Edit Product Fees" button
+    $(document).on('click', '.openpaymentfee', function(){
+        var appliid = $(this).attr('data-id');
+        var partnerid = $(this).attr('data-partnerid');
+        $('#paymentfeemodal').modal('show');
+        $('#paymentfeemodal input[name="app_id"]').val(appliid);
+        // Additional logic to load existing fees if modal requires it
+    });
+
+    // Handler for "Edit Commission Status" button (Latest)
+    $(document).on('click', '.openpaymentfeeLatest', function(){
+        var appliid = $(this).attr('data-id');
+        $('#paymentfeeLatestmodal').modal('show');
+        $('#paymentfeeLatestmodal input[name="app_id"]').val(appliid);
+        // Additional logic to load existing commission data if modal requires it
+    });
 
     $(document).on('click', '.addfee', function(){
         var clonedval = $('.feetypecopy').html();
@@ -3603,6 +3834,40 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================================
 // ADDITIONAL PAGE-SPECIFIC FUNCTIONS
 // ============================================================================
+
+/**
+ * Reload application activities accordion after state change
+ * @param {number} appliid - Application ID
+ */
+function reloadApplicationActivities(appliid) {
+    var url = App.getUrl('getApplicationsLogs') || App.getUrl('siteUrl') + '/get-applications-logs';
+    $.ajax({
+        url: url,
+        type: 'GET',
+        data: { id: appliid },
+        success: function(response) {
+            // Replace the accordion content
+            $('#accordion').html(response);
+            console.log('Activities reloaded successfully');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error reloading activities:', error);
+        }
+    });
+}
+
+/**
+ * Update the circular progress bar
+ * @param {number} width - Progress percentage (0-100)
+ */
+function updateProgressBar(width) {
+    $('.progress-circle span').html(width + ' %');
+    var over = width > 50 ? '50' : '';
+    $('#progresscir').removeClass();
+    $('#progresscir').addClass('progress-circle');
+    $('#progresscir').addClass('prgs_' + width);
+    $('#progresscir').addClass('over_' + over);
+}
 
 // NOTE: Additional functions will be extracted and added here
 // Functions like getTopReceiptValInDB, grandtotalAccountTab, etc. will be added
