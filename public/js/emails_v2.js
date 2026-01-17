@@ -21,9 +21,9 @@
     let availableLabels = []; // Loaded from API
 
     // Expose function to set mail type (for external use)
-    window.setEmailMailType = function(type) {
+    window.setEmailMailTypeV2 = function(type) {
         currentMailType = type;
-        const mailTypeFilter = document.getElementById('mailTypeFilter');
+        const mailTypeFilter = document.getElementById('mailTypeFilterV2');
         if (mailTypeFilter) {
             mailTypeFilter.value = type;
         }
@@ -34,31 +34,42 @@
     // =========================================================================
 
     /**
-     * Get client ID from the DOM (kept for backward compatibility)
+     * Get entity ID from the DOM (supports both client and partner)
      */
-    function getClientId() {
-        const container = document.querySelector('.email-interface-container');
+    function getEntityId() {
+        const container = document.querySelector('.email-v2-interface-container');
         if (!container) {
             // Page doesn't have email interface - this is normal for pages that don't support emails
             return null;
         }
         
         // Check if the container has the required attribute
-        const clientId = container.dataset.clientId;
-        if (!clientId || clientId === '') {
-            // Container exists but client ID is not set - page may not be configured for emails
+        const entityId = container.dataset.entityId;
+        if (!entityId || entityId === '') {
+            // Container exists but entity ID is not set - page may not be configured for emails
             // This is not an error, just return null silently
             return null;
         }
         
-        return clientId;
+        return entityId;
+    }
+
+    /**
+     * Get entity type from the DOM (client or partner)
+     */
+    function getEntityType() {
+        const container = document.querySelector('.email-v2-interface-container');
+        if (!container) {
+            return 'client'; // default
+        }
+        return container.dataset.entityType || 'client';
     }
 
     /**
      * Get matter ID from the DOM
      */
     function getMatterId() {
-        const container = document.querySelector('.email-interface-container');
+        const container = document.querySelector('.email-v2-interface-container');
         if (!container) {
             // Page doesn't have email interface - this is normal for pages that don't support emails
             return null;
@@ -317,11 +328,11 @@
     window.initializeUpload = function() {
         console.log('Initializing upload module...');
         
-        const fileInput = document.getElementById('emailFileInput');
-        const uploadArea = document.getElementById('upload-area');
-        const fileStatus = document.getElementById('fileStatus');
-        const fileCountBadge = document.getElementById('file-count');
-        const uploadProgress = document.getElementById('upload-progress');
+        const fileInput = document.getElementById('emailV2FileInput');
+        const uploadArea = document.getElementById('upload-area-v2');
+        const fileStatus = document.getElementById('fileStatusV2');
+        const fileCountBadge = document.getElementById('file-count-v2');
+        const uploadProgress = document.getElementById('upload-progress-v2');
 
         if (!fileInput || !uploadArea || !fileStatus) {
             console.warn('Upload elements not found - skipping email upload initialization (page may not have emails UI)');
@@ -442,7 +453,7 @@
      * Upload files to server
      */
     async function uploadFiles(files) {
-        const clientId = getClientId();
+        const clientId = getEntityId();
         const matterId = getMatterId();
         
         if (!clientId) {
@@ -457,9 +468,9 @@
 
         isUploading = true;
         
-        const fileStatus = document.getElementById('fileStatus');
-        const uploadProgress = document.getElementById('upload-progress');
-        const fileCountBadge = document.getElementById('file-count');
+        const fileStatus = document.getElementById('fileStatusV2');
+        const uploadProgress = document.getElementById('upload-progress-v2');
+        const fileCountBadge = document.getElementById('file-count-v2');
         
         // Update UI - uploading state
         if (uploadProgress) {
@@ -477,7 +488,7 @@
 
             // Add required fields based on current mail type (inbox or sent)
             formData.append('client_id', clientId);
-            formData.append('type', 'client');
+            formData.append('type', getEntityType());
             
             // Add matter ID - this is now REQUIRED for matter-specific emails
             formData.append(
@@ -492,11 +503,11 @@
             }
             formData.append('_token', csrfToken);
 
-            console.log('Uploading to:', currentMailType === 'sent' ? '/upload-sent-fetch-mail' : '/upload-fetch-mail');
+            console.log('Uploading to:', currentMailType === 'sent' ? '/email-v2/upload-sent' : '/email-v2/upload-inbox');
 
             // Note: Don't set Content-Type header when using FormData - browser sets it automatically with boundary
             const response = await fetch(
-                currentMailType === 'sent' ? '/upload-sent-fetch-mail' : '/upload-fetch-mail',
+                currentMailType === 'sent' ? '/email-v2/upload-sent' : '/email-v2/upload-inbox',
                 {
                     method: 'POST',
                     headers: {
@@ -623,7 +634,7 @@
                     
                     // Reset form after delay
                     setTimeout(() => {
-                        document.getElementById('emailFileInput').value = '';
+                        document.getElementById('emailV2FileInput').value = '';
                         fileStatus.textContent = 'Ready to upload';
                         if (uploadProgress) {
                             uploadProgress.className = 'upload-progress';
@@ -723,8 +734,8 @@
     window.initializeSearch = function() {
         console.log('Initializing search module...');
 
-        const searchInput = document.getElementById('emailSearchInput');
-        const labelFilter = document.getElementById('labelFilter');
+        const searchInput = document.getElementById('emailV2SearchInput');
+        const labelFilter = document.getElementById('labelV2Filter');
 
         if (!searchInput) {
             console.warn('Search input not found - skipping search initialization');
@@ -763,16 +774,16 @@
     /**
      * Initialize email list and load initial emails
      */
-    window.loadEmails = function() {
+    window.loadEmailsV2 = function() {
         // Check if email interface exists on this page before attempting to load
-        const container = document.querySelector('.email-interface-container');
+        const container = document.querySelector('.email-v2-interface-container');
         if (!container) {
             // Page doesn't support emails - silently return
             return;
         }
         
         // Check if required attributes are present
-        if (!container.dataset.clientId || !container.dataset.matterId) {
+        if (!container.dataset.entityId) {
             // Email interface container exists but is not properly configured
             // This page may not be set up for emails yet
             return;
@@ -786,7 +797,7 @@
      * Fetch and display emails from server
      */
     async function loadEmailsFromServer() {
-        const clientId = getClientId();
+        const clientId = getEntityId();
         const matterId = getMatterId();
         
         if (!clientId) {
@@ -797,7 +808,7 @@
         
         if (!matterId) {
             // Matter ID not available - show message only if email interface exists
-            const container = document.querySelector('.email-interface-container');
+            const container = document.querySelector('.email-v2-interface-container');
             if (container) {
                 // Container exists but matter ID is missing - show user-friendly message
                 renderEmptyState('Please select a matter to view emails');
@@ -817,11 +828,12 @@
         try {
             // Determine endpoint based on mail type
             const endpoint = currentMailType === 'sent' 
-                ? '/clients/filter-sentemails' 
-                : '/clients/filter-emails';
+                ? '/email-v2/filter-sentemails' 
+                : '/email-v2/filter-emails';
 
             const requestBody = {
                 client_id: clientId,
+                entity_type: getEntityType(),
                 client_matter_id: matterId, // Add matter_id to filter emails
                 search: currentSearch,
                 status: '', // Keep for backward compatibility (mail_is_read)
@@ -919,7 +931,7 @@
      * Render emails in the list
      */
     function renderEmails(emails) {
-        const emailList = document.getElementById('emailList');
+        const emailList = document.getElementById('emailListV2');
         if (!emailList) {
             console.error('Email list element not found');
             return;
@@ -986,7 +998,7 @@
         // Add click handler to view email
         div.addEventListener('click', function(e) {
             // Don't trigger if context menu is open (close it first on click)
-            const contextMenu = document.getElementById('emailContextMenu');
+            const contextMenu = document.getElementById('emailContextMenuV2');
             if (contextMenu && contextMenu.style.display === 'block') {
                 hideContextMenu();
                 return;
@@ -1023,7 +1035,7 @@
      * Render empty state
      */
     function renderEmptyState(message = null) {
-        const emailList = document.getElementById('emailList');
+        const emailList = document.getElementById('emailListV2');
         if (!emailList) return;
 
         emailList.innerHTML = `
@@ -1043,7 +1055,7 @@
      * Update loading state visual indicator
      */
     function updateLoadingState(loading) {
-        const emailList = document.getElementById('emailList');
+        const emailList = document.getElementById('emailListV2');
         if (!emailList) return;
 
         if (loading) {
@@ -1065,7 +1077,7 @@
      * Update email counts
      */
     function updateEmailCounts(total) {
-        const resultsCount = document.getElementById('resultsCount');
+        const resultsCount = document.getElementById('resultsCountV2');
         if (resultsCount) {
             resultsCount.textContent = `${total} result${total !== 1 ? 's' : ''}`;
         }
@@ -1075,8 +1087,8 @@
      * Load and display email details with attachments
      */
     function loadEmailDetail(email) {
-        const emailContentView = document.getElementById('emailContentView');
-        const emailContentPlaceholder = document.getElementById('emailContentPlaceholder');
+        const emailContentView = document.getElementById('emailContentViewV2');
+        const emailContentPlaceholder = document.getElementById('emailContentPlaceholderV2');
 
         if (!emailContentView || !emailContentPlaceholder) {
             console.error('Email detail elements not found');
@@ -1245,7 +1257,7 @@
             
             // If attachment found and it's an image, replace with preview URL
             if (attachment && attachment.id) {
-                const previewUrl = `/mail-attachments/${attachment.id}/preview`;
+                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
                 return `src="${previewUrl}"`;
             }
             
@@ -1259,7 +1271,7 @@
             let attachment = cidMap[normalizedCid] || cidMap[cidValue.toLowerCase()];
             
             if (attachment && attachment.id) {
-                const previewUrl = `/mail-attachments/${attachment.id}/preview`;
+                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
                 return `background-image: url("${previewUrl}")`;
             }
             
@@ -1317,8 +1329,8 @@
     // =========================================================================
 
     function initializePagination() {
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtnV2');
+        const nextBtn = document.getElementById('nextBtnV2');
 
         if (prevBtn) {
             prevBtn.addEventListener('click', function() {
@@ -1950,7 +1962,7 @@
      */
     async function downloadAttachment(attachmentId, filename) {
         try {
-            const response = await fetch(`/mail-attachments/${attachmentId}/download`, {
+            const response = await fetch(`/email-v2/attachments/${attachmentId}/download`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/octet-stream'
@@ -1983,7 +1995,7 @@
      */
     async function downloadAllAttachments(mailReportId, emailSubject) {
         try {
-            const response = await fetch(`/mail-attachments/email/${mailReportId}/download-all`, {
+            const response = await fetch(`/email-v2/attachments/${mailReportId}/download-all`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/octet-stream'
@@ -2017,10 +2029,10 @@
      */
     async function previewAttachment(attachmentId, filename) {
         try {
-            const previewUrl = `/mail-attachments/${attachmentId}/preview`;
-            const modal = document.getElementById('attachmentPreviewModal');
-            const frame = document.getElementById('previewFrame');
-            const filenameEl = document.getElementById('previewFileName');
+            const previewUrl = `/email-v2/attachments/${attachmentId}/preview`;
+            const modal = document.getElementById('attachmentPreviewModalV2');
+            const frame = document.getElementById('previewFrameV2');
+            const filenameEl = document.getElementById('previewFileNameV2');
 
             if (modal && frame && filenameEl) {
                 filenameEl.textContent = filename;

@@ -695,6 +695,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
   
        //partner document upload
         Route::post('/upload-partner-document-upload', [PartnersController::class, 'uploadpartnerdocumentupload']);
+        Route::post('/partners/add-alldocchecklist', [PartnersController::class, 'addalldocchecklist'])->name('partners.addalldocchecklist');
+        Route::post('/partners/upload-alldocument', [PartnersController::class, 'uploadalldocument'])->name('partners.uploadalldocument');
 
 	// Include unified client routes (accessible by admin only)
 	// These routes use /clients/* instead of /admin/clients/*

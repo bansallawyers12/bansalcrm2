@@ -3536,4 +3536,154 @@ class PartnersController extends Controller
 		 echo json_encode($response);
 	}
     
+    //Add all document checklist for partners
+    public function addalldocchecklist(Request $request){ 
+        try {
+            $response = ['status' => false, 'message' => 'Please try again'];
+            $partnerid = $request->clientid;
+            
+            if(empty($partnerid)) {
+                $response['message'] = 'Partner ID is required';
+                echo json_encode($response);
+                return;
+            }
+            
+            $partner_info = \App\Models\Partner::select('email')->where('id', $partnerid)->first();
+            if(!empty($partner_info)){
+                $partner_unique_email = $partner_info->email;
+            } else {
+                $partner_unique_email = "";
+            }
+            
+            $doctype = isset($request->doctype) ? $request->doctype : 'documents';
+            $checklist = $request->input('checklist');
+
+            if (!empty($checklist)) {
+                // Handle single checklist string or array
+                $checklistArray = is_array($checklist) ? $checklist : [$checklist];
+                
+                $saved = false;
+                foreach ($checklistArray as $item) {
+                    if(empty($item)) continue;
+                    
+                    $obj = new \App\Models\Document;
+                    $obj->user_id = Auth::user()->id;
+                    $obj->client_id = $partnerid;
+                    $obj->type = 'partner';
+                    $obj->doc_type = $doctype;
+                    $obj->checklist = $item;
+                    $saved = $obj->save();
+                }
+
+                if($saved) {
+                    if($request->type == 'partner'){
+                        $subject = 'added document checklist';
+                        $objs = new \App\Models\ActivitiesLog;
+                        $objs->client_id = $partnerid;
+                        $objs->created_by = Auth::user()->id;
+                        $objs->description = '';
+                        $objs->subject = $subject;
+                        $objs->task_group = 'partner';
+                        $objs->task_status = 0;
+                        $objs->pin = 0;
+                        $objs->save();
+                    }
+
+                    $response['status'] = true;
+                    $response['message'] = 'You have successfully added your document checklist';
+                } else {
+                    $response['status'] = false;
+                    $response['message'] = 'Please try again';
+                }
+            } else {
+                $response['status'] = false;
+                $response['message'] = 'Checklist name is required';
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error in addalldocchecklist (partner): ' . $e->getMessage() . ' at line ' . $e->getLine());
+            $response = ['status' => false, 'message' => 'An error occurred: ' . $e->getMessage()];
+        }
+        echo json_encode($response);
+    }
+
+    //Upload all document for partners (with checklist support for bulk upload)
+    public function uploadalldocument(Request $request){ 
+        if ($request->hasfile('document_upload')) {
+            $partnerid = $request->clientid;
+            $partner_info = \App\Models\Partner::select('email')->where('id', $partnerid)->first();
+            if(!empty($partner_info)){
+                $partner_unique_email = $partner_info->email;
+            } else {
+                $partner_unique_email = "";
+            }
+            
+            $doctype = isset($request->doctype) ? $request->doctype : 'documents';
+            $checklist = $request->input('checklist');
+            
+            $files = $request->file('document_upload');
+            $size = $files->getSize();
+            $fileName = $files->getClientOriginalName();
+            $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+            $fileExtension = $files->getClientOriginalExtension();
+            $name = time() . $files->getClientOriginalName();
+            $filePath = $partner_unique_email.'/'.$doctype.'/'. $name;
+            Storage::disk('s3')->put($filePath, file_get_contents($files));
+
+            $req_file_id = $request->fileid;
+            
+            // If fileid provided, update existing entry
+            if (!empty($req_file_id)) {
+                $obj = \App\Models\Document::find($req_file_id);
+                if (!$obj) {
+                    $response['status'] = false;
+                    $response['message'] = 'Document not found';
+                    echo json_encode($response);
+                    return;
+                }
+            } else {
+                // Create new entry (for bulk upload with checklist)
+                $obj = new \App\Models\Document;
+                if (!empty($checklist)) {
+                    $obj->checklist = $checklist;
+                }
+            }
+            
+            $obj->file_name = $nameWithoutExtension;
+            $obj->filetype = $fileExtension;
+            $obj->user_id = Auth::user()->id;
+            $fileUrl = Storage::disk('s3')->url($filePath);
+            $obj->myfile = $fileUrl;
+            $obj->myfile_key = $name;
+            $obj->client_id = $partnerid;
+            $obj->type = 'partner';
+            $obj->file_size = $size;
+            $obj->doc_type = $doctype;
+            $saved = $obj->save();
+
+            if($saved){
+                if($request->type == 'partner'){
+                    $subject = 'uploaded document';
+                    $objs = new \App\Models\ActivitiesLog;
+                    $objs->client_id = $partnerid;
+                    $objs->created_by = Auth::user()->id;
+                    $objs->description = '';
+                    $objs->subject = $subject;
+                    $objs->task_group = 'partner';
+                    $objs->task_status = 0;
+                    $objs->pin = 0;
+                    $objs->save();
+                }
+                $response['status'] = true;
+                $response['message'] = 'You have successfully uploaded your document';
+            } else {
+                $response['status'] = false;
+                $response['message'] = 'Please try again';
+            }
+        } else {
+            $response['status'] = false;
+            $response['message'] = 'Please try again';
+        }
+        echo json_encode($response);
+    }
+    
 }
