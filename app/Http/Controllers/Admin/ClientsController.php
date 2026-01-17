@@ -1297,7 +1297,7 @@ class ClientsController extends Controller
 	}*/
 
     //Client detail page
-    public function clientdetail(Request $request, $id = NULL){ 
+    public function clientdetail(Request $request, $id = NULL, $tab = NULL){ 
         $showAlert = false;
         if(isset($request->t)){
            if(\App\Models\Notification::where('id', $request->t)->exists()){
@@ -1358,7 +1358,7 @@ class ClientsController extends Controller
     }
 
     //Lead detail page
-    public function leaddetail(Request $request, $id = NULL){ 
+    public function leaddetail(Request $request, $id = NULL, $tab = NULL){ 
         $showAlert = false;
         if(isset($request->t)){
            if(\App\Models\Notification::where('id', $request->t)->exists()){
@@ -1512,12 +1512,12 @@ class ClientsController extends Controller
 				$clients = \App\Models\Admin::where('is_archived', '=', 0)
 					->where('role', '=', 7)
 					->where(function($query) use ($squery) {
-						$query->where('email', 'LIKE', '%'.$squery.'%')
-							->orWhere('first_name', 'LIKE', '%'.$squery.'%')
-							->orWhere('last_name', 'LIKE', '%'.$squery.'%')
-							->orWhere('client_id', 'LIKE', '%'.$squery.'%')
-							->orWhere('phone', 'LIKE', '%'.$squery.'%')
-							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', '%'.$squery.'%');
+						$query->where('email', 'ilike', '%'.$squery.'%')
+							->orWhere('first_name', 'ilike', '%'.$squery.'%')
+							->orWhere('last_name', 'ilike', '%'.$squery.'%')
+							->orWhere('client_id', 'ilike', '%'.$squery.'%')
+							->orWhere('phone', 'ilike', '%'.$squery.'%')
+							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', '%'.$squery.'%');
 					})
 					->get();
 
@@ -1553,8 +1553,8 @@ class ClientsController extends Controller
        ->where(
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('first_name', 'LIKE','%'.$squery.'%')->orwhere('last_name', 'LIKE','%'.$squery.'%')->orwhere('client_id', 'LIKE','%'.$squery.'%')->orwhere('phone', 'LIKE','%'.$squery.'%')  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$squery."%");
+                    ->where('email', 'ilike', '%'.$squery.'%')
+                    ->orwhere('first_name', 'ilike','%'.$squery.'%')->orwhere('last_name', 'ilike','%'.$squery.'%')->orwhere('client_id', 'ilike','%'.$squery.'%')->orwhere('phone', 'ilike','%'.$squery.'%')  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', "%".$squery."%");
             })
             ->get();
 
@@ -4160,8 +4160,8 @@ class ClientsController extends Controller
         
         // Only search if query is provided and not empty
         if($squery != '' && trim($squery) != ''){
-            $tags_total = \App\Models\Tag::select('id','name')->where('name', 'LIKE', '%'.$squery.'%')->count();
-            $tags = \App\Models\Tag::select('id','name')->where('name', 'LIKE', '%'.$squery.'%')->paginate(20);
+            $tags_total = \App\Models\Tag::select('id','name')->where('name', 'ilike', '%'.$squery.'%')->count();
+            $tags = \App\Models\Tag::select('id','name')->where('name', 'ilike', '%'.$squery.'%')->paginate(20);
 
             //$total_count = count($tags);
             /*if(count($tags) >=20){
@@ -4561,10 +4561,10 @@ class ClientsController extends Controller
         'ad.first_name','ad.last_name','ad.client_id as client_decode_id')
         ->where('acr.receipt_type',1);
 
-        if ($request->has('client_id')) {
+		if ($request->has('client_id')) {
 			$client_id 	= $request->input('client_id');
 			if(trim($client_id) != ''){
-				$query->where('ad.client_id', 'LIKE', '%'.$client_id.'%');
+				$query->where('ad.client_id', 'ilike', '%'.$client_id.'%');
 			}
 		}
 
@@ -4573,9 +4573,9 @@ class ClientsController extends Controller
 			$name =  $request->input('name');
 			if(trim($name) != '') {
 				$query->where(function ($q) use ($name) {
-                    $q->where(DB::raw("COALESCE(ad.first_name, '') || ' ' || COALESCE(ad.last_name, '')"), 'LIKE', "%{$name}%")
-                      ->orWhere('ad.first_name', 'LIKE', "%{$name}%")
-                      ->orWhere('ad.last_name', 'LIKE', "%{$name}%");
+                    $q->where(DB::raw("COALESCE(ad.first_name, '') || ' ' || COALESCE(ad.last_name, '')"), 'ilike', "%{$name}%")
+                      ->orWhere('ad.first_name', 'ilike', "%{$name}%")
+                      ->orWhere('ad.last_name', 'ilike', "%{$name}%");
                 });
 			}
 		}
@@ -4583,7 +4583,7 @@ class ClientsController extends Controller
         if ($request->has('trans_date')) {
 			$trans_date =  $request->input('trans_date');
 			if(trim($trans_date) != '') {
-				$query->where('acr.trans_date', 'LIKE', '%'.$trans_date.'%');
+				$query->where('acr.trans_date', 'ilike', '%'.$trans_date.'%');
 			}
 		}
 

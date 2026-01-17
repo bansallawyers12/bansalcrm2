@@ -48,7 +48,7 @@ class ProductsController extends Controller
 			$name 		= 	$request->input('name'); 
 			if(trim($name) != '')
 			{
-				$query->where('name', 'LIKE', '%'.$name.'%');
+				$query->where('name', 'ilike', '%'.$name.'%');
 					
 			}
 		}
@@ -58,7 +58,7 @@ class ProductsController extends Controller
 			if(trim($branch) != '')
 			{
 				$query->whereHas('branchdetail', function ($q) use($branch){
-					$q->where('name','Like', '%'.$branch.'%');
+					$q->where('name','ilike', '%'.$branch.'%');
 				});
 					
 			}
@@ -69,7 +69,7 @@ class ProductsController extends Controller
 			if(trim($branch) != '')
 			{
 				$query->whereHas('branchdetail', function ($q) use($branch){
-					$q->where('name','Like', '%'.$branch.'%');
+					$q->where('name','ilike', '%'.$branch.'%');
 				});
 					
 			}
@@ -80,7 +80,7 @@ class ProductsController extends Controller
 			if(trim($branch) != '')
 			{
 				$query->whereHas('partnerdetail', function ($q) use($branch){
-					$q->where('partner_name','Like', '%'.$branch.'%');
+					$q->where('partner_name','ilike', '%'.$branch.'%');
 				});
 					
 			}
@@ -231,8 +231,8 @@ class ProductsController extends Controller
        ->where(
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('partner_name', 'LIKE','%'.$squery.'%');
+                    ->where('email', 'ilike', '%'.$squery.'%')
+                    ->orwhere('partner_name', 'ilike','%'.$squery.'%');
             })
             ->get();
 			
@@ -255,8 +255,8 @@ class ProductsController extends Controller
        ->where( 
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('partner_name', 'LIKE','%'.$squery.'%');
+                    ->where('email', 'ilike', '%'.$squery.'%')
+                    ->orwhere('partner_name', 'ilike','%'.$squery.'%');
             })
             ->get();
 			

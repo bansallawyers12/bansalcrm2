@@ -1505,34 +1505,64 @@ use App\Http\Controllers\Controller;
 			<div class="right_section">
 				<div class="card">
 						<div class="card-body">
-							<ul class="nav nav-pills" id="client_tabs" role="tablist">
+							@php
+								$allowedTabs = [
+									'activities',
+									'noteterm',
+									'application',
+									'interested_service',
+									'documents',
+									'migrationdocuments',
+									'alldocuments',
+									'notuseddocuments',
+									'accounts',
+									'conversations'
+								];
+								$tabAliases = [
+									'notestrm' => 'noteterm'
+								];
+								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
+								$requestedTab = Request::route('tab') ?? Request::get('tab');
+								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
+									$requestedTab = 'activities';
+								}
+								$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
+								$activeTabSlug = array_search($activeTab, $tabAliases, true);
+								if ($activeTabSlug === false) {
+									$activeTabSlug = $requestedTab;
+								}
+								$detailBaseUrl = Request::route() && Request::route()->getName() === 'leads.detail'
+									? url('/leads/detail/'.$encodeId)
+									: url('/clients/detail/'.$encodeId);
+							@endphp
+							<ul class="nav nav-pills" id="client_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}">
 								<li class="nav-item">
-									<a class="nav-link <?php if(!isset($_GET['tab']) || (isset($_GET['tab']) && $_GET['tab'] == '')){ echo 'active'; } ?>" data-bs-toggle="tab" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="true">Activities</a>
+									<a class="nav-link {{ $activeTab === 'activities' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="activities" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="{{ $activeTab === 'activities' ? 'true' : 'false' }}">Activities</a>
 								</li>
 
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="false">Notes & Terms</a>
+									<a class="nav-link {{ $activeTab === 'noteterm' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="notestrm" id="noteterm-tab" href="#noteterm" role="tab" aria-controls="noteterm" aria-selected="{{ $activeTab === 'noteterm' ? 'true' : 'false' }}">Notes & Terms</a>
 								</li>
 
 								<li class="nav-item">
-									<a class="nav-link <?php if(isset($_GET['tab']) && $_GET['tab'] == 'application'){ echo 'active'; } ?>" data-bs-toggle="tab" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="false">Applications</a>
+									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="application" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="false">Interested Services</a>
+									<a class="nav-link {{ $activeTab === 'interested_service' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="interested_service" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="{{ $activeTab === 'interested_service' ? 'true' : 'false' }}">Interested Services</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Education Documents</a>
+									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="documents" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Education Documents</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="migrationdocuments-tab" href="#migrationdocuments" role="tab" aria-controls="migrationdocuments" aria-selected="false">Migration Documents</a>
+									<a class="nav-link {{ $activeTab === 'migrationdocuments' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="migrationdocuments" id="migrationdocuments-tab" href="#migrationdocuments" role="tab" aria-controls="migrationdocuments" aria-selected="{{ $activeTab === 'migrationdocuments' ? 'true' : 'false' }}">Migration Documents</a>
 								</li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" id="alldocuments-tab" href="#alldocuments" role="tab" aria-controls="alldocuments" aria-selected="false">Documents</a>
+                                    <a class="nav-link {{ $activeTab === 'alldocuments' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="alldocuments" id="alldocuments-tab" href="#alldocuments" role="tab" aria-controls="alldocuments" aria-selected="{{ $activeTab === 'alldocuments' ? 'true' : 'false' }}">Documents</a>
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" id="notuseddocuments-tab" href="#notuseddocuments" role="tab" aria-controls="notuseddocuments" aria-selected="false">Not Used Documents</a>
+                                    <a class="nav-link {{ $activeTab === 'notuseddocuments' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="notuseddocuments" id="notuseddocuments-tab" href="#notuseddocuments" role="tab" aria-controls="notuseddocuments" aria-selected="{{ $activeTab === 'notuseddocuments' ? 'true' : 'false' }}">Not Used Documents</a>
                                 </li>
 
 								<li class="nav-item">
@@ -1544,23 +1574,23 @@ use App\Http\Controllers\Controller;
 								</li>-->
 
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="false">Accounts</a>
+									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="accounts" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="false">Conversations</a>
+									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="conversations" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
 								</li>
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>-->
 							</ul>
 							<div class="tab-content" id="clientContent" style="padding-top:15px;">
-								<div class="tab-pane fade <?php if(!isset($_GET['tab']) || (isset($_GET['tab']) && $_GET['tab'] == '')){ echo 'show active'; } ?>" id="activities" role="tabpanel" aria-labelledby="activities-tab">
+								<div class="tab-pane fade {{ $activeTab === 'activities' ? 'show active' : '' }}" id="activities" role="tabpanel" aria-labelledby="activities-tab">
 
 								<!-- Activities Filter Bar - Permanently Visible -->
 								<div class="activities-filter-bar">
-									<form action="{{URL::to('/clients/detail/'.$encodeId)}}" method="get" id="activitiesFilterForm">
-										@if(Request::get('tab') && Request::get('tab') != '')
-											<input type="hidden" name="tab" value="{{ Request::get('tab') }}">
+									<form action="{{ $detailBaseUrl }}" method="get" id="activitiesFilterForm">
+										@if($activeTabSlug && $activeTabSlug !== 'activities')
+											<input type="hidden" name="tab" value="{{ $activeTabSlug }}">
 										@endif
 										
 										<div class="row align-items-end">
@@ -1674,7 +1704,7 @@ use App\Http\Controllers\Controller;
 												<button type="submit" class="btn btn-primary btn-sm" style="margin-right: 8px;">
 													<i class="fas fa-search"></i> Apply Filters
 												</button>
-												<a href="{{URL::to('/clients/detail/'.$encodeId)}}" class="btn btn-secondary btn-sm">
+												<a href="{{ $detailBaseUrl }}" class="btn btn-secondary btn-sm">
 													<i class="fas fa-redo"></i> Reset
 												</a>
 												<?php if(Request::get('keyword') || Request::get('activity_type') != 'all' || Request::get('date_from') || Request::get('date_to')): ?>
@@ -1885,7 +1915,7 @@ use App\Http\Controllers\Controller;
 											?>
 									</div>
 								</div>
-								<div class="tab-pane fade <?php if(isset($_GET['tab']) && $_GET['tab'] == 'application'){ echo 'show active'; } ?>" id="application" role="tabpanel" aria-labelledby="application-tab">
+								<div class="tab-pane fade {{ $activeTab === 'application' ? 'show active' : '' }}" id="application" role="tabpanel" aria-labelledby="application-tab">
 									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">
 										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appliation" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -1994,7 +2024,7 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
                                       
-								<div class="tab-pane fade" id="interested_service" role="tabpanel" aria-labelledby="interested_service-tab">
+								<div class="tab-pane fade {{ $activeTab === 'interested_service' ? 'show active' : '' }}" id="interested_service" role="tabpanel" aria-labelledby="interested_service-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
@@ -2098,7 +2128,7 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+								<div class="tab-pane fade {{ $activeTab === 'documents' ? 'show active' : '' }}" id="documents" role="tabpanel" aria-labelledby="documents-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -2188,7 +2218,7 @@ use App\Http\Controllers\Controller;
                             		</div>
 								</div>
                                       
-								<div class="tab-pane fade" id="migrationdocuments" role="tabpanel" aria-labelledby="migrationdocuments-tab">
+								<div class="tab-pane fade {{ $activeTab === 'migrationdocuments' ? 'show active' : '' }}" id="migrationdocuments" role="tabpanel" aria-labelledby="migrationdocuments-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -2295,7 +2325,7 @@ use App\Http\Controllers\Controller;
 
 
 
-                                 <div class="tab-pane fade" id="alldocuments" role="tabpanel" aria-labelledby="alldocuments-tab">
+                                 <div class="tab-pane fade {{ $activeTab === 'alldocuments' ? 'show active' : '' }}" id="alldocuments" role="tabpanel" aria-labelledby="alldocuments-tab">
                                     <div class="card-header-action text-end" style="padding-bottom:15px;">
                                         <div class="document_layout_type">
                                             <a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -2505,7 +2535,7 @@ use App\Http\Controllers\Controller;
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="notuseddocuments" role="tabpanel" aria-labelledby="notuseddocuments-tab">
+                                <div class="tab-pane fade {{ $activeTab === 'notuseddocuments' ? 'show active' : '' }}" id="notuseddocuments" role="tabpanel" aria-labelledby="notuseddocuments-tab">
 									<!--<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -2632,7 +2662,7 @@ use App\Http\Controllers\Controller;
 
 								{{-- Appointments tab removed - Appointment model deleted --}}
                                 
-								<div class="tab-pane fade" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
+								<div class="tab-pane fade {{ $activeTab === 'noteterm' ? 'show active' : '' }}" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 
 									</div>
@@ -2701,7 +2731,7 @@ use App\Http\Controllers\Controller;
 									</div>
 									<div class="clearfix"></div>
 								</div>
-								<div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
+								<div class="tab-pane fade {{ $activeTab === 'accounts' ? 'show active' : '' }}" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
 									<div class="row">
 										<div class="col-md-12 text-end">
 
@@ -2898,7 +2928,7 @@ use App\Http\Controllers\Controller;
 										</table>
 									</div>
 								</div>
-								<div class="tab-pane fade" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
+								<div class="tab-pane fade {{ $activeTab === 'conversations' ? 'show active' : '' }}" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
 									<div class="conversation_tabs">
 										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
 											<li class="nav-item">
@@ -4022,6 +4052,59 @@ use App\Http\Controllers\Controller;
     // Any remaining Blade-specific code that cannot be extracted goes here
     // Most functionality has been moved to external JS files
     
+    // Keep URL in sync with active tab and honor ?tab= on load
+    (function() {
+        var tabList = document.getElementById('client_tabs');
+        if (!tabList) {
+            return;
+        }
+
+        var tabLinks = tabList.querySelectorAll('[data-bs-toggle="tab"][data-tab]');
+        if (!tabLinks.length) {
+            return;
+        }
+
+        var baseUrl = tabList.getAttribute('data-base-url');
+        if (!baseUrl) {
+            return;
+        }
+        var activeTabSlug = tabList.getAttribute('data-active-tab');
+        var base = new URL(baseUrl, window.location.origin);
+        var basePath = base.pathname.replace(/\/+$/, '');
+
+        var params = new URLSearchParams(window.location.search);
+        var initialTab = params.get('tab');
+        if (initialTab) {
+            var normalizedInitialTab = initialTab === 'noteterm' ? 'notestrm' : initialTab;
+            var initialTrigger = tabList.querySelector('[data-tab="' + normalizedInitialTab + '"]');
+            if (initialTrigger && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                bootstrap.Tab.getOrCreateInstance(initialTrigger).show();
+            }
+            var migratedUrl = new URL(window.location.href);
+            migratedUrl.searchParams.delete('tab');
+            migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
+            history.replaceState(null, '', migratedUrl.toString());
+        } else if (activeTabSlug) {
+            var canonicalUrl = new URL(window.location.href);
+            canonicalUrl.searchParams.delete('tab');
+            canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
+            history.replaceState(null, '', canonicalUrl.toString());
+        }
+
+        tabLinks.forEach(function(link) {
+            link.addEventListener('shown.bs.tab', function(event) {
+                var tabValue = event.target.getAttribute('data-tab');
+                if (!tabValue) {
+                    return;
+                }
+                var url = new URL(window.location.href);
+                url.searchParams.delete('tab');
+                url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
+                history.replaceState(null, '', url.toString());
+            });
+        });
+    })();
+
     // Initialize Bootstrap 5 dropdowns for Action buttons
     // This ensures all dropdown buttons work properly
     (function() {
@@ -4805,6 +4888,12 @@ use App\Http\Controllers\Controller;
         // Clear any error messages
         $('.custom-error-msg').html('');
         
+        // Reset document upload section
+        $('.docclientreceiptupload').val('');
+        $('.selected-file-info').hide();
+        $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
+        $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
+        
         // Initialize flatpickr for date fields if not already initialized
         if (typeof flatpickr !== 'undefined') {
             $('.report_date_fields, .report_entry_date_fields').each(function() {
@@ -4972,9 +5061,39 @@ use App\Http\Controllers\Controller;
         }
     });
     
-    // Document upload for receipt
-    $(document).on('click', '.upload_client_receipt_document a', function() {
+    // Document upload for receipt - Updated with file feedback
+    $(document).on('click', '.upload-receipt-doc-btn', function() {
         $('.docclientreceiptupload').trigger('click');
+    });
+    
+    // Handle file selection - show selected file name
+    $(document).on('change', '.docclientreceiptupload', function() {
+        var file = this.files[0];
+        if (file) {
+            var fileName = file.name;
+            var fileSize = (file.size / 1024).toFixed(2); // Convert to KB
+            
+            // Show file info
+            $('.file-name-display').text(fileName + ' (' + fileSize + ' KB)');
+            $('.selected-file-info').slideDown();
+            
+            // Change button text to indicate file is attached
+            $('.upload-receipt-doc-btn').html('<i class="fa fa-check"></i> Document Attached');
+            $('.upload-receipt-doc-btn').removeClass('btn-outline-primary').addClass('btn-success');
+        }
+    });
+    
+    // Handle file removal
+    $(document).on('click', '.remove-selected-file', function() {
+        // Clear the file input
+        $('.docclientreceiptupload').val('');
+        
+        // Hide file info
+        $('.selected-file-info').slideUp();
+        
+        // Reset button
+        $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
+        $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
     });
     
 </script>

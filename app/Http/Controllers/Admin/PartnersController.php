@@ -66,7 +66,7 @@ class PartnersController extends Controller
 			$name 		= 	$request->input('name'); 
 			if(trim($name) != '')
 			{
-				$query->where('partner_name', 'LIKE', '%'.$name.'%');
+				$query->where('partner_name', 'ilike', '%'.$name.'%');
 			}
 		}
 	
@@ -92,7 +92,7 @@ class PartnersController extends Controller
 			$level 		= 	$request->input('level'); 
 			if(trim($level) != '')
 			{
-				$query->where('level', 'LIKE', '%'.$level.'%');
+				$query->where('level', 'ilike', '%'.$level.'%');
 			}
 		}
 	
@@ -127,7 +127,7 @@ class PartnersController extends Controller
 			$name 		= 	$request->input('name');
 			if(trim($name) != '')
 			{
-				$query->where('partner_name', 'LIKE', '%'.$name.'%');
+				$query->where('partner_name', 'ilike', '%'.$name.'%');
 			}
 		}
 
@@ -153,7 +153,7 @@ class PartnersController extends Controller
 			$level 		= 	$request->input('level');
 			if(trim($level) != '')
 			{
-				$query->where('level', 'LIKE', '%'.$level.'%');
+				$query->where('level', 'ilike', '%'.$level.'%');
 			}
 		}
       
@@ -798,8 +798,8 @@ class PartnersController extends Controller
        ->where(
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('partner_name', 'LIKE','%'.$squery.'%');
+                    ->where('email', 'ilike', '%'.$squery.'%')
+                    ->orwhere('partner_name', 'ilike','%'.$squery.'%');
             })
             ->get();
 			
@@ -822,8 +822,8 @@ class PartnersController extends Controller
        ->where( 
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('partner_name', 'LIKE','%'.$squery.'%');
+                    ->where('email', 'ilike', '%'.$squery.'%')
+                    ->orwhere('partner_name', 'ilike','%'.$squery.'%');
             })
             ->get();
 			

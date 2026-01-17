@@ -162,15 +162,15 @@ class SearchService
             })*/
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($query, $dob) {
-                $q->where('admins.email', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.first_name', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.last_name', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.client_id', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.att_email', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.att_phone', 'LIKE', '%' . $query . '%')
-                  ->orWhere('admins.phone', 'LIKE', '%' . $query . '%')
-                  ->orWhere(DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"), 'LIKE', '%' . $query . '%')
-                  ->orWhere('phone_data.phones', 'LIKE', '%' . $query . '%');
+                $q->where('admins.email', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.first_name', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.last_name', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.client_id', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.att_email', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.att_phone', 'ilike', '%' . $query . '%')
+                  ->orWhere('admins.phone', 'ilike', '%' . $query . '%')
+                  ->orWhere(DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"), 'ilike', '%' . $query . '%')
+                  ->orWhere('phone_data.phones', 'ilike', '%' . $query . '%');
                 
                 if ($dob) {
                     $q->orWhere('admins.dob', '=', $dob);
@@ -257,11 +257,11 @@ class SearchService
                     });
             })
             ->where(function ($q) use ($query, $dob) {
-                $q->where('email', 'LIKE', '%' . $query . '%')
-                  ->orWhere('first_name', 'LIKE', '%' . $query . '%')
-                  ->orWhere('last_name', 'LIKE', '%' . $query . '%')
-                  ->orWhere('phone', 'LIKE', '%' . $query . '%')
-                  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', '%' . $query . '%');
+                $q->where('email', 'ilike', '%' . $query . '%')
+                  ->orWhere('first_name', 'ilike', '%' . $query . '%')
+                  ->orWhere('last_name', 'ilike', '%' . $query . '%')
+                  ->orWhere('phone', 'ilike', '%' . $query . '%')
+                  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', '%' . $query . '%');
                 
                 if ($dob) {
                     $q->orWhere('dob', '=', $dob);
@@ -310,7 +310,7 @@ class SearchService
                   ->orWhere('lead_id', '');
             })*/
             ->where(function ($q) use ($clientId) {
-                $q->where('client_id', 'LIKE', '%' . $clientId . '%')
+                $q->where('client_id', 'ilike', '%' . $clientId . '%')
                   ->orWhere('id', '=', $clientId);
             })
             ->limit(10)
@@ -353,8 +353,8 @@ class SearchService
                   ->orWhere('lead_id', '');
             })*/
             ->where(function ($q) use ($email) {
-                $q->where('email', 'LIKE', '%' . $email . '%')
-                  ->orWhere('att_email', 'LIKE', '%' . $email . '%');
+                $q->where('email', 'ilike', '%' . $email . '%')
+                  ->orWhere('att_email', 'ilike', '%' . $email . '%');
             })
             ->limit(10)
             ->get();
@@ -418,8 +418,8 @@ class SearchService
                     });
             })
             ->where(function ($q) use ($email) {
-                $q->where('email', 'LIKE', '%' . $email . '%')
-                  ->orWhere('att_email', 'LIKE', '%' . $email . '%');
+                $q->where('email', 'ilike', '%' . $email . '%')
+                  ->orWhere('att_email', 'ilike', '%' . $email . '%');
             })
             ->limit(10)
             ->get();
@@ -476,9 +476,9 @@ class SearchService
             ->leftJoinSub($phoneSubquery, 'phone_data', 'admins.id', '=', 'phone_data.client_id')
             ->where(function ($q) use ($searchPatterns) {
                 foreach ($searchPatterns as $pattern) {
-                    $q->orWhere('admins.phone', 'LIKE', $pattern)
-                      ->orWhere('admins.att_phone', 'LIKE', $pattern)
-                      ->orWhere('phone_data.phones', 'LIKE', $pattern);
+                    $q->orWhere('admins.phone', 'ilike', $pattern)
+                      ->orWhere('admins.att_phone', 'ilike', $pattern)
+                      ->orWhere('phone_data.phones', 'ilike', $pattern);
                 }
             })
             ->select('admins.*')
@@ -544,8 +544,8 @@ class SearchService
             })
             ->where(function ($q) use ($searchPatterns) {
                 foreach ($searchPatterns as $pattern) {
-                    $q->orWhere('phone', 'LIKE', $pattern)
-                      ->orWhere('att_phone', 'LIKE', $pattern);
+                    $q->orWhere('phone', 'ilike', $pattern)
+                      ->orWhere('att_phone', 'ilike', $pattern);
                 }
             })
             ->distinct()

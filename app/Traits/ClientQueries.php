@@ -75,7 +75,7 @@ trait ClientQueries
         if (!$this->isAgentContext() && $request->has('type')) {
             $type = $request->input('type');
             if (trim($type) != '') {
-                $query->where('type', 'LIKE', $type);
+                $query->where('type', 'ilike', $type);
             }
         }
         
@@ -83,7 +83,7 @@ trait ClientQueries
         if ($request->has('name')) {
             $name = $request->input('name');
             if (trim($name) != '') {
-                $query->where('first_name', 'LIKE', '%' . $name . '%');
+                $query->where('first_name', 'ilike', '%' . $name . '%');
             }
         }
         
@@ -96,8 +96,8 @@ trait ClientQueries
                     $query->where('email', $email);
                 } else {
                     $query->where(function($q) use ($email) {
-                        $q->where('email', 'LIKE', '%' . $email . '%')
-                          ->orWhere('att_email', 'LIKE', '%' . $email . '%');
+                        $q->where('email', 'ilike', '%' . $email . '%')
+                          ->orWhere('att_email', 'ilike', '%' . $email . '%');
                     });
                 }
             }
@@ -112,8 +112,8 @@ trait ClientQueries
                     $query->where('phone', $phone);
                 } else {
                     $query->where(function($q) use ($phone) {
-                        $q->where('phone', 'LIKE', '%' . $phone . '%')
-                          ->orWhere('att_phone', 'LIKE', '%' . $phone . '%');
+                        $q->where('phone', 'ilike', '%' . $phone . '%')
+                          ->orWhere('att_phone', 'ilike', '%' . $phone . '%');
                     });
                 }
             }

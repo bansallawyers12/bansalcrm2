@@ -97,7 +97,7 @@ class LeadController extends Controller
 			$name 		= 	$request->input('name'); 
 			if(trim($name) != '')
 			{
-			$query	->Where(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$name."%");
+			$query	->where(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', "%".$name."%");
 			}
 		}if ($request->has('phone')) 
 		{

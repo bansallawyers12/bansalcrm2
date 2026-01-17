@@ -242,7 +242,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');   
 	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');    
-	Route::get('/leads/detail/{id}', [ClientsController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
+	Route::get('/leads/detail/{id}/{tab?}', [ClientsController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
 	// Removed broken edit routes - leads now use detail page for viewing/editing
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);

@@ -1960,13 +1960,19 @@
 						</div>
 
 						<div class="col-12 col-md-12 col-lg-12 mt-3">
-							<div class="upload_client_receipt_document" style="display:inline-block;">
+							<div class="upload_client_receipt_document">
 								<input type="hidden" name="type" value="client">
 								<input type="hidden" name="doctype" value="client_receipt">
-								<a href="javascript:;" class="btn btn-outline-primary">
+								<button type="button" class="btn btn-outline-primary btn-sm upload-receipt-doc-btn">
 									<i class="fa fa-plus"></i> Add Document
-								</a>
-								<input class="docclientreceiptupload d-none" type="file" name="document_upload[]"/>
+								</button>
+								<input class="docclientreceiptupload d-none" type="file" name="document_upload[]" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"/>
+								<div class="selected-file-info mt-2" style="display:none;">
+									<span class="badge bg-success">
+										<i class="fa fa-file"></i> <span class="file-name-display"></span>
+										<button type="button" class="btn-close btn-close-white btn-sm ms-2 remove-selected-file" style="font-size:0.7rem;"></button>
+									</span>
+								</div>
 							</div>
 						</div>
                     </div>
