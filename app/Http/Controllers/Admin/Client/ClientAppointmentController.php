@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
  * - addAppointment
  * - editappointment
  * - updateappointmentstatus
+ * - updatefollowupschedule
  * - getAppointments
  * - getAppointmentdetail
  * - deleteappointment
@@ -34,6 +35,10 @@ class ClientAppointmentController extends Controller
 	public function updateappointmentstatus(Request $request, $status = Null, $id = Null){
 		return redirect()->back()->with('error', 'Appointment functionality has been removed');
 	}
+
+    public function updatefollowupschedule(Request $request){
+        return redirect()->back()->with('error', 'Appointment functionality has been removed');
+    }
 	
 	public function getAppointments(Request $request){
 		return response('<div class="row"><div class="col-md-12"><p class="text-muted">Appointment functionality has been removed.</p></div></div>', 200);

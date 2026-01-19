@@ -353,5 +353,4 @@ class ClientMessagingController extends Controller
 			}
 	}
 
-    // TODO: Move uploadmail method here from ClientsController
 }

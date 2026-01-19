@@ -6,6 +6,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ClientsController;
+use App\Http\Controllers\Admin\Client\ClientController;
+use App\Http\Controllers\Admin\Client\ClientMessagingController;
+use App\Http\Controllers\Admin\Client\ClientServiceController;
+use App\Http\Controllers\Admin\Client\ClientAppointmentController;
+use App\Http\Controllers\Admin\Client\ClientNoteController;
+use App\Http\Controllers\Admin\Client\ClientActivityController;
 use App\Http\Controllers\Admin\PartnersController;
 use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\AdminController;
@@ -42,8 +48,8 @@ use App\Http\Controllers\AddressController;
 
 //Email verification routes (public - no auth required)
 // These routes MUST be defined first to ensure they're publicly accessible
-Route::get('/email-verify-token/{token}', [ClientsController::class, 'emailVerifyToken'])->name('emailVerifyToken');
-Route::get('/thankyou', [ClientsController::class, 'thankyou'])->name('emailVerify.thankyou');
+Route::get('/email-verify-token/{token}', [ClientMessagingController::class, 'emailVerifyToken'])->name('emailVerifyToken');
+Route::get('/thankyou', [ClientMessagingController::class, 'thankyou'])->name('emailVerify.thankyou');
 
 /*********************General Function for Both (Front-end & Back-end) ***********************/
 /* Route::post('/get_states', 'HomeController@getStates');
@@ -242,7 +248,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');   
 	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');    
-	Route::get('/leads/detail/{id}/{tab?}', [ClientsController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
+Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
 	// Removed broken edit routes - leads now use detail page for viewing/editing
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
@@ -361,19 +367,19 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		//General Invoice Start 
 		Route::get('/invoice/general-invoice', [InvoiceController::class, 'general_invoice'])->name('invoice.general-invoice'); 
 		
-		Route::post('/interested-service', [ClientsController::class, 'interestedService']); 	 
-		Route::post('/edit-interested-service', [ClientsController::class, 'editinterestedService']); 	 
-		Route::get('/get-services', [ClientsController::class, 'getServices']); 	 
-		Route::post('/upload-mail', [ClientsController::class, 'uploadmail']); 	 
-		Route::post('/mail/enhance', [ClientsController::class, 'enhanceMessage'])->name('mail.enhance');
-		Route::post('/updatefollowupschedule', [ClientsController::class, 'updatefollowupschedule']); 
+		Route::post('/interested-service', [ClientServiceController::class, 'interestedService']); 	 
+		Route::post('/edit-interested-service', [ClientServiceController::class, 'editinterestedService']); 	 
+		Route::get('/get-services', [ClientServiceController::class, 'getServices']); 	 
+		Route::post('/upload-mail', [ClientMessagingController::class, 'uploadmail']); 	 
+		Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('mail.enhance');
+		Route::post('/updatefollowupschedule', [ClientAppointmentController::class, 'updatefollowupschedule']); 
   
-        Route::get('/pinnote', [ClientsController::class, 'pinnote']); 	 
-  	    Route::get('/pinactivitylog', [ClientsController::class, 'pinactivitylog']);
+        Route::get('/pinnote', [ClientNoteController::class, 'pinnote']); 	 
+  	    Route::get('/pinactivitylog', [ClientActivityController::class, 'pinactivitylog']);
   
-		Route::get('/getintrestedservice', [ClientsController::class, 'getintrestedservice']); 	 
-		Route::post('/application/saleforcastservice', [ClientsController::class, 'saleforcastservice']);
-	Route::get('/getintrestedserviceedit', [ClientsController::class, 'getintrestedserviceedit']); 	 
+		Route::get('/getintrestedservice', [ClientServiceController::class, 'getintrestedservice']); 	 
+		Route::post('/application/saleforcastservice', [ClientServiceController::class, 'saleforcastservice']);
+	Route::get('/getintrestedserviceedit', [ClientServiceController::class, 'getintrestedserviceedit']); 	 
 	Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
 		Route::get('/application/invoice/{client_id}/{application}/{invoice_type}', [InvoiceController::class, 'getInvoice']); 	 
 		Route::get('/invoice/view/{id}', [InvoiceController::class, 'show']); 	 
@@ -525,7 +531,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/report/noofpersonofficevisit', [ReportController::class, 'noofpersonofficevisit'])->name('reports.noofpersonofficevisit');
 
 
-		Route::post('/save_tag', [ClientsController::class, 'save_tag']); 	 
+		Route::post('/save_tag', [ClientController::class, 'save_tag']); 	 
 		
 		// NOTE: Email and CRM Email Template routes have been moved to routes/adminconsole.php
 		// Those routes now use the AdminConsole namespace and are accessible at /adminconsole/* paths

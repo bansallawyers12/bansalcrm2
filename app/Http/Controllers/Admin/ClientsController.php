@@ -1,4 +1,52 @@
 <?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+/**
+ * Deprecated controller.
+ *
+ * All client-related actions have been moved to
+ * App\Http\Controllers\Admin\Client\* controllers.
+ */
+class ClientsController extends Controller
+{
+    /**
+     * Legacy prospects route placeholder.
+     */
+    public function prospects(Request $request)
+    {
+        return redirect()->route('clients.index')
+            ->with('error', 'Prospects view has been moved. Please use the clients list.');
+    }
+}
+__halt_compiler();
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+/**
+ * Deprecated controller.
+ *
+ * All client-related actions have been moved to
+ * App\Http\Controllers\Admin\Client\* controllers.
+ */
+class ClientsController extends Controller
+{
+    /**
+     * Legacy prospects route placeholder.
+     */
+    public function prospects(Request $request)
+    {
+        return redirect()->route('clients.index')
+            ->with('error', 'Prospects view has been moved. Please use the clients list.');
+    }
+}
+<?php
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;

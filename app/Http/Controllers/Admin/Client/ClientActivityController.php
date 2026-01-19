@@ -150,5 +150,4 @@ class ClientActivityController extends Controller
 		echo json_encode($response);
 	}
 
-    // TODO: Move 'activities' method here from ClientsController
 }

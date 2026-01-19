@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Auth;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
@@ -1392,8 +1393,15 @@ class ClientDocumentController extends Controller
 		echo json_encode($response);
 	}
 
+    public function downloadpdf(Request $request, $id = NULL){
+	    	$fetchd = Document::where('id',$id)->first();
+	    	$data = ['title' => 'Welcome to codeplaners.com','image' => $fetchd->myfile];
+        $pdf = PDF::loadView('myPDF', $data);
+
+        return $pdf->stream('codeplaners.pdf');
+	}
+
     // TODO: Move remaining document methods here:
-    // - downloadpdf
     // - uploadalldocument
     // - addalldocchecklist
     // - deletealldocs
