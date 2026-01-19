@@ -547,7 +547,6 @@
 .ui.label:last-child {margin-right: 0;}
 .ui.label:first-child { margin-left: 0;}
 .field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
-.ag-appointment-list__title{padding-left: 1rem; text-transform: uppercase;}
 .zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
@@ -716,118 +715,7 @@ td .dropdown-menu {
     border: none;
 }
 
-/*////////////////////////////////////////////
-    ////// appointment popup css chnages start /////////
-    //////////////////////////////////////////// */
-
-
-.timeslots .timeslot_col.active{/*border:1px solid #0062cc;background-color:#fff;*/background-color: #007bff;color: #FFFFFF;margin: 0px 10px 8px 0px;}
-#preloaderbook {
-	display:none;
-    background: #0d104d;
-    background: -webkit-linear-gradient(to right, #0d104d, #28408b);
-    background: linear-gradient(to right, #0d104d, #28408b);
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 5000;
-}
-#preloaderbook .circle-preloader {
-    display: block;
-    width: 60px;
-    height: 60px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-bottom-color: #ffffff;
-    border-radius: 50%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    animation: spin 2s infinite linear;
-}
-
-#loading, #loading_popup{
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    position: fixed;
-    display: none;
-    opacity: 0.7;
-    background-color: #fff;
-    z-index: 99;
-    text-align: center;
-}
-
-#loading-image {
-    position: absolute;
-    top: 100px;
-    left: 600px;
-    z-index: 100;
-}
-
-#loading-image_popup {
-    position: absolute;
-    top: 100px;
-    left: 100px;
-    z-index: 100;
-}
-
-.services_item_title_span {
-    font-size: 18px;
-    line-height: 21px;
-    color: #828F9A;
-    display: inline-block;
-    padding-left: 10px;
-}
-
-.services_item_price {
-    float: right;
-    display: inline-block;
-    font-size: 24px;
-    line-height: 30px;
-    color: #53d56c;
-    /* margin-top: 10px; */
-}
-.services_item_description {
-    font-size: 14px;
-    /* line-height: 18px; */
-    color: #828F9A;
-    display: inline-block;
-    margin-bottom: 10px;
-    margin-left: 25px;
-    margin-top: 5px;
-}
-#datetimepicker {
-    max-width: 330px;
-    font-size: 14px;
-    line-height: 21px;
-    margin: 0px auto;
-    background: #d3d4ec;
-    padding: 8px;
-    border-radius: 5px;
-}
-.timeslots .timeslot_col {
-    display: flex;
-    flex-direction: column;
-    width: calc(33% - 10px);
-    float: left;
-    background: #d3d4ec;
-    padding: 5px;
-    margin: 0px 10px 10px 0px;
-    text-align: center;
-}
-
-/*////////////////////////////////////////////
-////// appointment popup css chnages end /////////
-//////////////////////////////////////////// */
-
-  .filter_panel {background: #f7f7f7;margin: 10px 10px 10px 10px;border: 1pxsolid #eee;display: none;}
+.filter_panel {background: #f7f7f7;margin: 10px 10px 10px 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
 
 /* Activities Filter Bar Styles */
@@ -1981,17 +1869,15 @@ use App\Http\Controllers\Controller;
 
 											?>
 
-											</tbody>
 											<?php
 											}else{ ?>
-											<tbody>
 												<tr>
 													<td style="text-align:center;" colspan="10">
 														No Record found
 													</td>
 												</tr>
-											</tbody>
 									<?php	} ?>
+											</tbody>
 										</table>
 									</div>
 									<div class="ifapplicationdetailnot" style="display:none;">

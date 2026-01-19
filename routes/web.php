@@ -5,11 +5,9 @@ use App\Http\Controllers\Admin\FollowupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\ContactController;
-use App\Http\Controllers\Admin\ClientsController;
 use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
-use App\Http\Controllers\Admin\Client\ClientAppointmentController;
 use App\Http\Controllers\Admin\Client\ClientNoteController;
 use App\Http\Controllers\Admin\Client\ClientActivityController;
 use App\Http\Controllers\Admin\PartnersController;
@@ -190,7 +188,9 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/getnewPartnerbranch', [AdminController::class, 'getnewPartnerbranch']);
 		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);
-	Route::get('/checkclientexist', [AdminController::class, 'checkclientexist']);
+	
+	// Client validation (AJAX) - Moved to ClientController
+	Route::get('/checkclientexist', [\App\Http\Controllers\Admin\Client\ClientController::class, 'checkclientexist']);
 	
 	// Address Autocomplete Routes
 	Route::post('/address/search', [AddressController::class, 'searchAddress'])->name('address.search');
@@ -372,7 +372,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::get('/get-services', [ClientServiceController::class, 'getServices']); 	 
 		Route::post('/upload-mail', [ClientMessagingController::class, 'uploadmail']); 	 
 		Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('mail.enhance');
-		Route::post('/updatefollowupschedule', [ClientAppointmentController::class, 'updatefollowupschedule']); 
   
         Route::get('/pinnote', [ClientNoteController::class, 'pinnote']); 	 
   	    Route::get('/pinactivitylog', [ClientActivityController::class, 'pinactivitylog']);
@@ -707,6 +706,9 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	// Include unified client routes (accessible by admin only)
 	// These routes use /clients/* instead of /admin/clients/*
 	require __DIR__ . '/clients.php';
+	
+	// Include document signature routes
+	require __DIR__ . '/documents.php';
 
     //Client edit form link in send email - REMOVED (HomeController deleted, will be recreated in future)
     //Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');

@@ -10,18 +10,20 @@ use App\Traits\ClientHelpers;
 use Auth;
 
 /**
- * Client followup management
+ * Client action/task management
  * 
- * Methods to move from ClientsController:
- * - followupstore
- * - followupstore_application
- * - reassignfollowupstore
- * - updatefollowup
- * - retagfollowup
- * - personalfollowup
- * - updatefollowupschedule
+ * Manages actions, tasks, and followups for clients.
+ * Used primarily in the Action module (/action).
+ * 
+ * Methods:
+ * - followupstore - Create new action/task
+ * - followupstore_application - Create application stage task
+ * - reassignfollowupstore - Reassign existing task
+ * - updatefollowup - Update task details
+ * - retagfollowup - Retag/reassign task
+ * - personalfollowup - Create personal task
  */
-class ClientFollowupController extends Controller
+class ClientActionController extends Controller
 {
     use ClientHelpers;
 

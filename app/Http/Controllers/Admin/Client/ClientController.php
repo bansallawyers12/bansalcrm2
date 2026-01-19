@@ -1005,6 +1005,26 @@ class ClientController extends Controller
     }
 
     /**
+     * Check if client exists (AJAX validation)
+     * Used for form validation to prevent duplicate clients
+     * 
+     * @param Request $request
+     * @return int Returns 1 if exists, 0 if not
+     */
+    public function checkclientexist(Request $request){
+        if($request->type == 'email'){
+            $clientexists = Admin::where('email', $request->vl)->where('role', 7)->exists();
+            echo $clientexists ? 1 : 0;
+        } elseif($request->type == 'clientid'){
+            $clientexists = Admin::where('client_id', $request->vl)->where('role', 7)->exists();
+            echo $clientexists ? 1 : 0;
+        } else {
+            $clientexists = Admin::where('phone', $request->vl)->where('role', 7)->exists();
+            echo $clientexists ? 1 : 0;
+        }
+    }
+
+    /**
      * Change client type (client/lead)
      */
     public function changetype(Request $request,$id = Null, $slug = Null){

@@ -23,10 +23,6 @@
 			<li class="dropdown {{@$dashclasstype}}">
 				<a href="{{route('dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
 			</li>
-			<!-- <li class="dropdown">
-				<a href="{{URL::to('/appointments-cal')}}" class="nav-link"><i class="fas fa-calendar"></i><span>Appointment</span></a>
-			</li> -->
-			
             
 				<?php
 			if(Route::currentRouteName() == 'leads.index' || Route::currentRouteName() == 'leads.create' || Route::currentRouteName() == 'leads.detail' || Route::currentRouteName() == 'leads.history'){

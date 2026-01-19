@@ -17,7 +17,6 @@
 .ui.label:last-child {margin-right: 0;}
 .ui.label:first-child { margin-left: 0;}
 .field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
-.ag-appointment-list__title{padding-left: 1rem; text-transform: uppercase;}
 .zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
@@ -576,27 +575,6 @@ use App\Http\Controllers\Controller;
 											<div class="row">
 												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
 													<div class="card-content">
-													  <h2 class="mb-3 font-18">0</h2>
-													  <p class="mb-0">Appointments</p>
-													</div>
-												</div>
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 ps-0">
-													<div class="respons_icon">
-														<i class="fas fa-file-alt"></i>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div> 
-							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-								<div class="card">
-									<div class="card-statistic-4">
-										<div class="align-items-center justify-content-between">
-											<div class="row">
-												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pe-0 pt-3">
-													<div class="card-content">
 													  <h2 class="mb-3 font-18">19</h2>
 													  <p class="mb-0">Applications</p>
 													</div>
@@ -630,7 +608,6 @@ use App\Http\Controllers\Controller;
 								<ul>
 									<li>Follower in Tasks & Contacts</li>
 									<li>Multiple Assignee in Applications</li>
-									<li>Invitee in Appointments</li>
 								</ul>
 							</div>
 						</div>
@@ -757,16 +734,6 @@ function getallactivities(){
 						success: function(responses){
 							
 							$('.interest_serv_list').html(responses);
-						}
-					});
-					}if(delhref == 'deleteappointment'){
-						$.ajax({
-						url: site_url+'/get-appointments',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.appointmentlist').html(responses);
 						}
 					});
 					}if(delhref == 'deletefee'){
@@ -1390,35 +1357,6 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 			}
 		});
 				}
-	});
-	
-	$(document).delegate('.edit_appointment', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#edit_appointment').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getAppointmentdetail')}}',
-			type:'GET',
-			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showappointmentdetail').html(response);
-				 if (typeof flatpickr !== 'undefined') {
-					$(".datepicker").each(function() {
-						flatpickr(this, {
-							dateFormat: "Y-m-d",
-							allowInput: true
-						});
-					});
-				}
-				$(".timepicker").timepicker({
-      icons: {
-        up: "fas fa-chevron-up",
-        down: "fas fa-chevron-down"
-      }
-    });
-			}
-		});
 	});
 	
 	$(document).delegate('.interest_service_view', 'click', function(){
