@@ -2601,6 +2601,14 @@ Bansal Immigration`;
                 // Load the HTML form into modal body
                 $('.showproductfee_latest').html(response);
                 
+                // Initialize flatpickr for date fields in the loaded modal
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr('.showproductfee_latest .date_paid', {
+                        dateFormat: 'Y-m-d',
+                        allowInput: true
+                    });
+                }
+                
                 // Reinitialize form validation if needed
                 if (typeof customValidate === 'function') {
                     // Form validation will be handled by the loaded form
