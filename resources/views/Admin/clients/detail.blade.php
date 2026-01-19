@@ -1407,7 +1407,9 @@ use App\Http\Controllers\Controller;
 									'notestrm' => 'noteterm'
 								];
 								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
-								$requestedTab = Request::route('tab') ?? Request::get('tab');
+								$requestedTab = (isset($forcedTab) && $forcedTab)
+									? $forcedTab
+									: (Request::route('tab') ?? Request::get('tab'));
 								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
 									$requestedTab = 'activities';
 								}
@@ -1416,11 +1418,12 @@ use App\Http\Controllers\Controller;
 								if ($activeTabSlug === false) {
 									$activeTabSlug = $requestedTab;
 								}
-								$detailBaseUrl = Request::route() && Request::route()->getName() === 'leads.detail'
-									? url('/leads/detail/'.$encodeId)
-									: url('/clients/detail/'.$encodeId);
+								$detailBaseUrl = Request::route()
+									&& \Illuminate\Support\Str::startsWith(Request::route()->getName(), 'leads.detail')
+										? url('/leads/detail/'.$encodeId)
+										: url('/clients/detail/'.$encodeId);
 							@endphp
-							<ul class="nav nav-pills" id="client_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}">
+							<ul class="nav nav-pills" id="client_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}" data-application-id="{{ $applicationId ?? '' }}">
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'activities' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="activities" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="{{ $activeTab === 'activities' ? 'true' : 'false' }}">Activities</a>
 								</li>
@@ -1834,7 +1837,7 @@ use App\Http\Controllers\Controller;
 												?>
 												<tr id="id_{{$alist->id}}">
 													<td>
-                                                      <a class="openapplicationdetail" data-id="{{$alist->id}}" href="javascript:;" style="display:block;">
+                                                      <a class="openapplicationdetail" data-id="{{$alist->id}}" href="{{ $detailBaseUrl }}/application/{{ $alist->id }}" style="display:block;">
                                                         {{@$productdetail->name}}
 
                                                         <?php if( $application_assign_count > 0 ) { ?>
@@ -3920,8 +3923,10 @@ use App\Http\Controllers\Controller;
             return;
         }
         var activeTabSlug = tabList.getAttribute('data-active-tab');
+        var applicationId = tabList.getAttribute('data-application-id');
         var base = new URL(baseUrl, window.location.origin);
         var basePath = base.pathname.replace(/\/+$/, '');
+        var applicationPath = applicationId ? basePath + '/application/' + applicationId : null;
 
         var params = new URLSearchParams(window.location.search);
         var initialTab = params.get('tab');
@@ -3933,12 +3938,20 @@ use App\Http\Controllers\Controller;
             }
             var migratedUrl = new URL(window.location.href);
             migratedUrl.searchParams.delete('tab');
-            migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
+            if (normalizedInitialTab === 'application' && applicationPath) {
+                migratedUrl.pathname = applicationPath;
+            } else {
+                migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
+            }
             history.replaceState(null, '', migratedUrl.toString());
         } else if (activeTabSlug) {
             var canonicalUrl = new URL(window.location.href);
             canonicalUrl.searchParams.delete('tab');
-            canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
+            if (activeTabSlug === 'application' && applicationPath) {
+                canonicalUrl.pathname = applicationPath;
+            } else {
+                canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
+            }
             history.replaceState(null, '', canonicalUrl.toString());
         }
 
@@ -3949,8 +3962,14 @@ use App\Http\Controllers\Controller;
                     return;
                 }
                 var url = new URL(window.location.href);
+                var currentApplicationId = tabList.getAttribute('data-application-id');
+                var currentApplicationPath = currentApplicationId ? basePath + '/application/' + currentApplicationId : null;
                 url.searchParams.delete('tab');
-                url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
+                if (tabValue === 'application' && currentApplicationPath) {
+                    url.pathname = currentApplicationPath;
+                } else {
+                    url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
+                }
                 history.replaceState(null, '', url.toString());
             });
         });

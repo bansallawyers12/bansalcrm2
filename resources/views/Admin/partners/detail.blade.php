@@ -1652,7 +1652,7 @@ use App\Http\Controllers\Controller;
                                                                             <?php
                                                                             if($data->coursename != ""){
                                                                                 $client_encoded_id_course = base64_encode(convert_uuencode(@$data->client_id));
-                                                                                echo '<a href="'.url('/clients/detail/'.$client_encoded_id_course).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.$data->coursename.'</a>';
+                                                                                echo '<a href="'.url('/clients/detail/'.$client_encoded_id_course.'/application/'.$data->id).'" target="_blank">'.$data->coursename.'</a>';
                                                                             } else {
                                                                                 echo $coursename = 'N/P';
                                                                             } ?>
@@ -2015,7 +2015,7 @@ use App\Http\Controllers\Controller;
                                                                         <?php
                                                                         if($data1->coursename != ""){
                                                                             $client_encoded_id_course1 = base64_encode(convert_uuencode(@$data1->client_id));
-                                                                            echo '<a href="'.url('/clients/detail/'.$client_encoded_id_course1).'" class="activate-app-tab" data-tab="application" data-id="'.$data1->id.'" target="_blank">'.$data1->coursename.'</a>';
+                                                                            echo '<a href="'.url('/clients/detail/'.$client_encoded_id_course1.'/application/'.$data1->id).'" target="_blank">'.$data1->coursename.'</a>';
                                                                         } else {
                                                                             echo $coursename1 = 'N/P';
                                                                         } ?>

@@ -587,6 +587,11 @@ class ClientController extends Controller
     //Client detail page
     public function clientdetail(Request $request, $id = NULL, $tab = NULL){ 
         $showAlert = false;
+        $applicationId = $request->route('applicationId');
+        if (!empty($applicationId) && empty($tab)) {
+            $tab = 'application';
+        }
+        $forcedTab = $tab;
         if(isset($request->t)){
            if(\App\Models\Notification::where('id', $request->t)->exists()){
               $ovv =  \App\Models\Notification::find($request->t);
@@ -632,7 +637,10 @@ class ClientController extends Controller
                     }
                 }
                 
-                return view($this->getClientViewPath('clients.detail'), compact(['fetchedData','encodeId','showAlert']));
+                return view(
+                    $this->getClientViewPath('clients.detail'),
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab'])
+                );
             }
             else
             {
@@ -648,6 +656,11 @@ class ClientController extends Controller
     //Lead detail page
     public function leaddetail(Request $request, $id = NULL, $tab = NULL){ 
         $showAlert = false;
+        $applicationId = $request->route('applicationId');
+        if (!empty($applicationId) && empty($tab)) {
+            $tab = 'application';
+        }
+        $forcedTab = $tab;
         if(isset($request->t)){
            if(\App\Models\Notification::where('id', $request->t)->exists()){
               $ovv =  \App\Models\Notification::find($request->t);
@@ -742,7 +755,10 @@ class ClientController extends Controller
                         $showAlert = true;
                     }
                 }
-                return view($this->getClientViewPath('clients.detail'), compact(['fetchedData','encodeId','showAlert']));
+                return view(
+                    $this->getClientViewPath('clients.detail'),
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab'])
+                );
             }
             else
             {

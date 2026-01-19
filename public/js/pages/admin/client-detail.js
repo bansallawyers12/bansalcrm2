@@ -2117,29 +2117,59 @@ Bansal Immigration`;
     // APPLICATION DETAIL HANDLERS
     // ============================================================================
     
-    // Handle localStorage for active tab and application ID
-    const activeTab = localStorage.getItem('activeTab');
-    const appliid = localStorage.getItem('appliid');
+    function updateClientDetailUrl(tab, applicationId) {
+        var tabList = document.getElementById('client_tabs');
+        if (!tabList) {
+            return;
+        }
+        var baseUrl = tabList.getAttribute('data-base-url');
+        if (!baseUrl) {
+            return;
+        }
+        var base = new URL(baseUrl, window.location.origin);
+        var basePath = base.pathname.replace(/\/+$/, '');
+        var url = new URL(window.location.href);
+        url.searchParams.delete('tab');
 
-    if (activeTab === 'application' && appliid != "") {
-        $('#client_tabs .nav-link').removeClass('active');
-        $('.tab-content .tab-pane').removeClass('active show');
-        $('#application-tab').addClass('active');
-        $('#application').addClass('active show');
-        const $applicationDetailButton = $('<button>').addClass('openapplicationdetail').attr('data-id', appliid).hide();
-        $('body').append($applicationDetailButton);
-        $applicationDetailButton.trigger('click');
-        $applicationDetailButton.remove();
+        if (tab === 'application' && applicationId) {
+            tabList.setAttribute('data-application-id', applicationId);
+            url.pathname = basePath + '/application/' + applicationId;
+        } else if (tab && tab !== 'activities') {
+            tabList.removeAttribute('data-application-id');
+            url.pathname = basePath + '/' + tab;
+        } else {
+            tabList.removeAttribute('data-application-id');
+            url.pathname = basePath;
+        }
+
+        history.replaceState(null, '', url.toString());
+    }
+
+    function showApplicationList() {
+        $('.if_applicationdetail').show();
+        $('.ifapplicationdetailnot').hide();
+        $('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
+        var tabList = document.getElementById('client_tabs');
+        if (tabList) {
+            tabList.removeAttribute('data-application-id');
+        }
         localStorage.removeItem('activeTab');
         localStorage.removeItem('appliid');
+        updateClientDetailUrl('application', null);
     }
 
     // Handle clicking on application/course name to view details
-    $(document).on('click', '.openapplicationdetail', function(){
+    // NOTE: This handler must be registered BEFORE the automatic click trigger below
+    $(document).on('click', '.openapplicationdetail', function(event){
+        if (event && (event.ctrlKey || event.metaKey || event.shiftKey || event.which === 2)) {
+            return;
+        }
+        event.preventDefault();
         var appliid = $(this).attr('data-id');
         $('.if_applicationdetail').hide();
         $('.ifapplicationdetailnot').show();
         $('.popuploader').show();
+        updateClientDetailUrl('application', appliid);
         
         var url = App.getUrl('getApplicationDetail') || App.getUrl('siteUrl') + '/getapplicationdetail';
         $.ajax({
@@ -2240,10 +2270,37 @@ Bansal Immigration`;
         });
     });
 
+    // Handle application detail from URL or localStorage
+    // NOTE: This must run AFTER the openapplicationdetail click handler is registered above
+    const tabList = document.getElementById('client_tabs');
+    const applicationIdFromUrl = tabList ? tabList.getAttribute('data-application-id') : '';
+    const activeTab = localStorage.getItem('activeTab');
+    const appliid = localStorage.getItem('appliid');
+
+    if (applicationIdFromUrl) {
+        $('#client_tabs .nav-link').removeClass('active');
+        $('.tab-content .tab-pane').removeClass('active show');
+        $('#application-tab').addClass('active');
+        $('#application').addClass('active show');
+        const $applicationDetailButton = $('<button>').addClass('openapplicationdetail').attr('data-id', applicationIdFromUrl).hide();
+        $('body').append($applicationDetailButton);
+        $applicationDetailButton.trigger('click');
+        $applicationDetailButton.remove();
+    } else if (activeTab === 'application' && appliid != "") {
+        $('#client_tabs .nav-link').removeClass('active');
+        $('.tab-content .tab-pane').removeClass('active show');
+        $('#application-tab').addClass('active');
+        $('#application').addClass('active show');
+        const $applicationDetailButton = $('<button>').addClass('openapplicationdetail').attr('data-id', appliid).hide();
+        $('body').append($applicationDetailButton);
+        $applicationDetailButton.trigger('click');
+        $applicationDetailButton.remove();
+        localStorage.removeItem('activeTab');
+        localStorage.removeItem('appliid');
+    }
+
     $(document).on('click', '#application-tab', function(){
-        $('.if_applicationdetail').show();
-        $('.ifapplicationdetailnot').hide();
-        $('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
+        showApplicationList();
     });
 
     $(document).on('click', '.openappnote', function(){
