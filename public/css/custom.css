@@ -802,11 +802,12 @@ form[name="add-leads"] select:invalid {
 /* =============================================================================
    FIX: Loader - Ensure loaders are hidden by default
    ============================================================================= */
-.loader,
-.popuploader {
+.loader {
 	display: none !important;
 	opacity: 0;
 }
+
+/* Note: popuploader intentionally NOT included here - it needs to be toggleable via JavaScript */
 
 /* Email Verification Section Styling
    ============================================================================= */

@@ -2381,7 +2381,7 @@ Bansal Immigration`;
     $(document).on('click', '.refund_application', function(){
         var appliid = $(this).attr('data-id');
         $('#refund_application').modal('show');
-        $('input[name="refapp_id"]').val(appliid);
+        $('input[name="reapp_id"]').val(appliid);  // Fixed: Changed from refapp_id to reapp_id to match form field name
     });
 
     // Handler for "Back to Previous Stage" button

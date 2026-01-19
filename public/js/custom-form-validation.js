@@ -1525,22 +1525,40 @@ function customValidate(formName, savetype = '')
                             data: fd,
                             success: function(response){
                                 $('.popuploader').hide();
-                                var obj = $.parseJSON(response);
-                                $('#refund_application').modal('hide');
-                                if(obj.status){
-                                    $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-                                    $('.ifdiscont').hide();
-                                    $('.backstage').hide();
-                                    $('.revertapp').hide();
-                                    $('.completestage').hide();
-                                    $('.nextstage').hide();
-                                    $('.revertapp').hide();
-                                    $('.applicationstatus').html('Refund');
-                                    $('#refund_note').css('display','block');
-                                    $('#refund_note_text').html(obj.refund_note);
-                                } else {
-                                    $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+                                try {
+                                    var obj = $.parseJSON(response);
+                                    $('#refund_application').modal('hide');
+                                    if(obj.status){
+                                        $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+                                        $('.ifdiscont').hide();
+                                        $('.backstage').hide();
+                                        $('.revertapp').hide();
+                                        $('.completestage').hide();
+                                        $('.nextstage').hide();
+                                        $('.revertapp').hide();
+                                        $('.applicationstatus').html('Refund');
+                                        $('#refund_note').css('display','block');
+                                        $('#refund_note_text').html(obj.refund_note);
+                                        
+                                        // Scroll to success message
+                                        $('html, body').animate({scrollTop:0}, 'slow');
+                                    } else {
+                                        $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+                                        // Scroll to error message
+                                        $('html, body').animate({scrollTop:0}, 'slow');
+                                    }
+                                } catch(e) {
+                                    console.error('Error parsing response:', e);
+                                    $('.custom-error-msg').html('<span class="alert alert-danger">An error occurred. Please try again.</span>');
+                                    $('html, body').animate({scrollTop:0}, 'slow');
                                 }
+                            },
+                            error: function(xhr, status, error){
+                                $('.popuploader').hide();
+                                $('#refund_application').modal('hide');
+                                console.error('AJAX Error:', status, error);
+                                $('.custom-error-msg').html('<span class="alert alert-danger">Failed to process refund. Please try again.</span>');
+                                $('html, body').animate({scrollTop:0}, 'slow');
                             }
                         });
                     }

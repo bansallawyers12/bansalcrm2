@@ -526,8 +526,36 @@ class ApplicationsController extends Controller
     public function refund_application(Request $request){
 		$requestData = $request->all();
 		//echo '<pre>'; print_r($requestData); die;
+		
+		// Validate required parameters
+		if(empty($request->reapp_id)){
+			$response['status'] 	= 	false;
+			$response['message']	=	'Application ID is required.';
+			$response['refund_note'] = "";
+			echo json_encode($response);
+			return;
+		}
+		
+		if(empty($request->refund_note)){
+			$response['status'] 	= 	false;
+			$response['message']	=	'Refund notes are required.';
+			$response['refund_note'] = "";
+			echo json_encode($response);
+			return;
+		}
+		
 		$user_id = @Auth::user()->id;
 		$obj = Application::find($request->reapp_id);
+		
+		// Check if application exists
+		if(!$obj){
+			$response['status'] 	= 	false;
+			$response['message']	=	'Application not found.';
+			$response['refund_note'] = "";
+			echo json_encode($response);
+			return;
+		}
+		
 		$obj->status = 8;
         $obj->refund_notes = $request->refund_note;
 		$saved = $obj->save();
@@ -536,7 +564,7 @@ class ApplicationsController extends Controller
             $response['message']	=	'Application successfully refunded.';
             $response['refund_note'] 	= 	$request->refund_note;
         }else{
-            $response['status'] 	= 	true;
+            $response['status'] 	= 	false;
             $response['message']	=	'Please try again';
             $response['refund_note'] 	= "";
         }
