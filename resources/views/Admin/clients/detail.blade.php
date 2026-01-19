@@ -1,862 +1,11 @@
 @extends('layouts.admin')
 @section('title', 'Client Detail')
 
+@push('styles')
+<link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
+@endpush
+
 @section('content')
-<style>
-/* Modern Design CSS Variables */
-:root {
-	--primary-color: #6366f1;
-	--primary-hover: #4f46e5;
-	--secondary-color: #06b6d4;
-	--success-color: #10b981;
-	--background-color: #f8fafc;
-	--card-background: #ffffff;
-	--text-primary: #0f172a;
-	--text-secondary: #64748b;
-	--border-color: #e2e8f0;
-	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-	--radius-sm: 6px;
-	--radius-md: 10px;
-	--radius-lg: 16px;
-	--radius-full: 9999px;
-}
-
-/* Client Detail Container - Pure Flexbox Layout */
-.client-detail-container {
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
-	width: 100%;
-	align-items: flex-start;
-}
-
-/* Bottom Row Container - Holds Personal Details and Third Section */
-.bottom-row-container {
-	display: flex;
-	flex-direction: row;
-	gap: 24px;
-	width: 100%;
-	align-items: stretch;
-}
-
-/* Personal Details Container - Fixed Width */
-.personal-details-container {
-	width: 280px;
-	min-width: 280px;
-	max-width: 280px;
-	flex-shrink: 0;
-}
-
-/* Right Section - Takes Remaining Space */
-.right_section {
-	flex: 1;
-	min-width: 0;
-}
-
-/* Ensure cards inside containers don't overflow */
-.personal-details-container .card {
-	margin-left: 0 !important;
-	margin-right: 0 !important;
-}
-
-/* Modern Profile Card Styles */
-.author-box.left_section_upper {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-lg);
-	border: none;
-	position: relative;
-	overflow: hidden;
-	margin-bottom: 0;
-	margin-left: 0 !important;
-	margin-right: 0 !important;
-}
-
-.author-box.left_section_upper::before {
-	content: '';
-	position: absolute;
-	top: -50%;
-	right: -50%;
-	width: 200px;
-	height: 200px;
-	background: rgba(255, 255, 255, 0.1);
-	border-radius: 50%;
-}
-
-.author-box.left_section_upper .card-body {
-	padding: 14px;
-	color: white;
-	position: relative;
-	z-index: 1;
-}
-
-.author-box-center {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-bottom: 12px;
-}
-
-.author-avtar {
-	width: 55px !important;
-	height: 55px !important;
-	border-radius: var(--radius-full) !important;
-	background: linear-gradient(135deg, var(--secondary-color), #0891b2) !important;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 22px !important;
-	font-weight: 700 !important;
-	color: white !important;
-	margin-bottom: 8px;
-	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-	border: 2px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.author-box-name {
-	text-align: center;
-	margin-bottom: 12px;
-}
-
-.author-box-name a {
-	color: white !important;
-	font-size: 17px;
-	font-weight: 700;
-	text-decoration: none;
-}
-
-.author-box-name span {
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 12px;
-	font-weight: 500;
-	letter-spacing: 0.5px;
-	display: block;
-	margin-top: 4px;
-}
-
-.author-mail_sms {
-	display: flex;
-	gap: 8px;
-	justify-content: center;
-	margin: 12px 0;
-	flex-wrap: wrap;
-}
-
-.author-mail_sms > a,
-.author-mail_sms > span {
-	width: 28px;
-	height: 28px;
-	border-radius: var(--radius-full);
-	background: rgba(255, 255, 255, 0.15);
-	backdrop-filter: blur(10px);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	color: white !important;
-	text-decoration: none;
-}
-
-.author-mail_sms > a:hover {
-	background: rgba(255, 255, 255, 0.25);
-	transform: translateY(-2px);
-}
-
-.author-mail_sms > a i {
-	font-size: 12px;
-	color: white;
-}
-
-.author-box.left_section_upper p:has(.badge-outline) {
-	display: flex;
-	gap: 8px;
-	justify-content: center;
-	margin-bottom: 12px;
-	flex-wrap: wrap;
-}
-
-.author-box.left_section_upper .badge-outline,
-.author-box.left_section_upper p a.badge-outline {
-	padding: 5px 12px;
-	border-radius: var(--radius-full);
-	font-size: 11px;
-	font-weight: 600;
-	backdrop-filter: blur(10px);
-	border: 1px solid rgba(255, 255, 255, 0.2) !important;
-	background: rgba(255, 255, 255, 0.2) !important;
-	color: white !important;
-	text-decoration: none;
-}
-
-.author-box.left_section_upper .badge-outline.active,
-.author-box.left_section_upper p a.badge-outline.active {
-	background: var(--success-color) !important;
-	color: white !important;
-	box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
-}
-
-.author-box.left_section_upper .btn-primary.btn-block {
-	width: 100%;
-	padding: 10px;
-	background: rgba(255, 255, 255, 0.95);
-	color: var(--primary-color);
-	border: none;
-	border-radius: var(--radius-md);
-	font-weight: 600;
-	font-size: 13px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.author-box.left_section_upper .btn-primary.btn-block:hover {
-	background: white;
-	transform: translateY(-2px);
-	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Modern Personal Details Card */
-.card.left_section_lower {
-	background: var(--card-background);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-sm);
-	border: 1px solid var(--border-color);
-	margin-left: 0 !important;
-	margin-right: 0 !important;
-}
-
-.card.left_section_lower .card-header {
-	background: transparent;
-	border-bottom: 2px solid var(--background-color);
-	padding: 12px 16px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
-}
-
-.card.left_section_lower .card-header h4 {
-	font-size: 16px;
-	font-weight: 700;
-	color: var(--text-primary);
-	margin: 0;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.card.left_section_lower .card-body {
-	padding: 14px 18px;
-}
-
-.card.left_section_lower .card-body p.clearfix {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	margin-bottom: 10px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid var(--background-color);
-	line-height: 1.5;
-}
-
-.card.left_section_lower .card-body p.clearfix:last-child {
-	border-bottom: none;
-	margin-bottom: 0;
-	padding-bottom: 0;
-}
-
-.card.left_section_lower .card-body .float-start {
-	font-size: 11px;
-	color: var(--text-secondary);
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.3px;
-	line-height: 1.4;
-}
-
-.card.left_section_lower .card-body .float-end {
-	font-size: 13px;
-	color: var(--text-primary);
-	font-weight: 500;
-	word-break: break-word;
-	line-height: 1.5;
-}
-
-.add_note {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-}
-
-.add_note .not_picked_call,
-.add_note .create_note_d {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
-	padding: 3px 10px;
-	border-radius: var(--radius-sm);
-	font-size: 10px;
-	font-weight: 600;
-	letter-spacing: 0.5px;
-	border: none;
-}
-
-.add_note .create_note_d {
-	font-size: 12px;
-	color: var(--primary-color);
-	background: transparent;
-	padding: 0;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	font-weight: 500;
-	transition: all 0.2s ease;
-}
-
-.add_note .create_note_d:hover {
-	color: var(--primary-hover);
-	transform: translateX(2px);
-}
-
-/* Modern Tab Navigation */
-.card.right_section .nav-pills {
-	background: var(--background-color);
-	padding: 12px 16px;
-	border-bottom: 1px solid var(--border-color);
-	gap: 4px;
-	display: flex;
-	flex-wrap: wrap;
-}
-
-.card.right_section .nav-pills .nav-link {
-	padding: 10px 20px;
-	background: transparent;
-	border: none;
-	color: var(--text-secondary);
-	font-weight: 500;
-	font-size: 14px;
-	border-radius: var(--radius-md);
-	transition: all 0.3s ease;
-	white-space: nowrap;
-}
-
-.card.right_section .nav-pills .nav-link:hover {
-	background: rgba(99, 102, 241, 0.08);
-	color: var(--primary-color);
-}
-
-.card.right_section .nav-pills .nav-link.active {
-	background: var(--primary-color);
-	color: white;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-/* Modern Filter Section */
-.activities-filter-bar {
-	background: var(--background-color);
-	padding: 24px;
-	border-radius: var(--radius-md);
-	margin-bottom: 28px;
-	border: 1px solid var(--border-color);
-}
-
-.activities-filter-bar .form-control {
-	padding: 10px 16px;
-	border: 1.5px solid var(--border-color);
-	border-radius: var(--radius-md);
-	font-size: 14px;
-	transition: all 0.3s ease;
-	background: white;
-}
-
-.activities-filter-bar .form-control:focus {
-	outline: none;
-	border-color: var(--primary-color);
-	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.activities-filter-bar .activity-type-btn {
-	border: 1.5px solid var(--border-color);
-	background: white;
-	border-radius: var(--radius-md);
-	font-size: 13px;
-	font-weight: 500;
-	transition: all 0.3s ease;
-	color: var(--text-secondary);
-}
-
-.activities-filter-bar .activity-type-btn:hover {
-	border-color: var(--primary-color);
-	color: var(--primary-color);
-}
-
-.activities-filter-bar .activity-type-btn.active {
-	background: var(--primary-color);
-	color: white;
-	border-color: var(--primary-color);
-}
-
-.activities-filter-bar .btn-primary {
-	background: var(--primary-color);
-	color: white;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-	border-radius: var(--radius-md);
-	padding: 10px 24px;
-	font-weight: 600;
-	font-size: 13px;
-	border: none;
-	transition: all 0.3s ease;
-}
-
-.activities-filter-bar .btn-primary:hover {
-	background: var(--primary-hover);
-	transform: translateY(-2px);
-	box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-}
-
-.activities-filter-bar .btn-secondary {
-	background: white;
-	color: var(--text-secondary);
-	border: 1.5px solid var(--border-color);
-	border-radius: var(--radius-md);
-	padding: 10px 24px;
-	font-weight: 600;
-	font-size: 13px;
-}
-
-.activities-filter-bar .btn-secondary:hover {
-	background: var(--background-color);
-	border-color: var(--text-secondary);
-}
-
-/* Modern Timeline/Activities */
-.activity {
-	position: relative;
-	padding-left: 60px;
-	margin-bottom: 24px;
-}
-
-.activity::before {
-	content: '';
-	position: absolute;
-	left: 14px;
-	top: 0;
-	bottom: -24px;
-	width: 2px;
-	background: linear-gradient(180deg, var(--primary-color) 0%, rgba(99, 102, 241, 0.1) 100%);
-}
-
-.activity:last-child::before {
-	display: none;
-}
-
-.activity-icon {
-	position: absolute;
-	left: 0;
-	width: 32px;
-	height: 32px;
-	border-radius: var(--radius-full);
-	background: var(--primary-color);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	font-weight: 700;
-	font-size: 14px;
-	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-	border: 3px solid var(--card-background);
-	z-index: 1;
-}
-
-.activity-detail {
-	background: white !important;
-	border-radius: var(--radius-md);
-	padding: 20px;
-	box-shadow: var(--shadow-sm);
-	border: 1px solid var(--border-color) !important;
-	transition: all 0.3s ease;
-}
-
-.activity-detail:hover {
-	box-shadow: var(--shadow-md);
-	transform: translateX(4px);
-}
-
-.activity-head {
-	display: flex;
-	justify-content: space-between;
-	align-items: start;
-	margin-bottom: 12px;
-}
-
-.activity-title {
-	font-size: 15px;
-	color: var(--text-primary);
-	font-weight: 600;
-	flex: 1;
-	line-height: 1.5;
-}
-
-.activity-title b {
-	color: var(--primary-color);
-	font-weight: 700;
-}
-
-.activity-date {
-	font-size: 13px;
-	color: var(--text-secondary);
-	display: flex;
-	align-items: center;
-	gap: 6px;
-}
-
-.activity-detail p {
-	color: var(--text-secondary);
-	font-size: 14px;
-	line-height: 1.6;
-	margin-top: 8px;
-	margin-bottom: 0;
-}
-
-.verified-icon {
-	color: var(--success-color);
-	font-size: 14px;
-}
-
-.unverified-icon {
-	color: var(--text-secondary);
-	font-size: 14px;
-}
-
-.popover {max-width:700px;}
-.ag-space-between {justify-content: space-between;}
-.ag-align-center {align-items: center;}
-.ag-flex {display: flex;}
-.ag-align-start {align-items: flex-start;}
-.ag-flex-column {flex-direction: column;}
-.col-hr-1 {margin-right: 5px!important;}
-.text-semi-bold {font-weight: 600!important;}
-.small, small {font-size: 85%;}
-.ag-align-end { align-items: flex-end;}
-
-
-.ui.label:last-child {margin-right: 0;}
-.ui.label:first-child { margin-left: 0;}
-.field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
-.zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
-.accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
-.accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
-.accordion .accordion-header.app_blue{background-color: rgba(3,169,244,.1);color: #03a9f4;}
-.badge-outline {
-    display: inline-block;
-    padding: 5px 8px;
-    line-height: 12px;
-    border: 1px solid;
-    border-radius: 0.25rem;
-    font-weight: 400;
-    font-size: 13px;
-}
-.col-greenf{color: #9b9f9b !important;}
-.badge-outline.col-greenf.active{background: #4caf50 !important;color:#fff!important;}
-.badge-outline.col-redf.active{background: #4caf50 !important;color:#fff!important;}
-.uploadchecklists .table thead th {
-    border-bottom: none;
-    background-color: rgba(0,0,0,0.04);
-    color: #666;
-    padding-top: 15px;
-    padding-bottom: 15px;
-}
-.card .card-body ul.nav-pills li.nav-item {margin: 0px 0px 0px 0px;}
-
-/* Commission Invoice Modal Select2 Dropdown Styles */
-#opencommissionmodal .select2-results__options {
-	max-height: 300px !important;
-	overflow-y: auto !important;
-	overflow-x: hidden !important;
-}
-#opencommissionmodal .select2-search--dropdown {
-	position: relative !important;
-	z-index: 1 !important;
-	display: block !important;
-}
-#opencommissionmodal .select2-search--dropdown .select2-search__field {
-	width: 100% !important;
-	padding: 6px !important;
-	border: 1px solid #aaa !important;
-	border-radius: 4px !important;
-}
-#opencommissionmodal .select2-container {
-	z-index: 9999 !important;
-}
-#opencommissionmodal .select2-dropdown {
-	z-index: 9999 !important;
-}
-
-/* Add Application Modal Select2 Dropdown Styles - Fix dropdown appearing below modal */
-.add_appliation .select2-container {
-	z-index: 9999 !important;
-}
-.add_appliation .select2-dropdown {
-	z-index: 9999 !important;
-}
-.add_appliation .modal-body {
-	overflow: visible !important;
-}
-.add_appliation .modal-content {
-	overflow: visible !important;
-}
-
- .file-preview-container {
-    border: 1px solid #ddd;
-    padding: 10px;
-    min-height: 300px;
-    text-align: center;
-    display: inline-block;
-}
-
-/* Ensure Bootstrap dropdowns work properly in tables */
-.table .dropdown {
-    position: relative;
-}
-
-.table .dropdown-menu {
-    z-index: 1050 !important;
-    position: absolute !important;
-}
-
-/* Fix for dropdowns inside table cells */
-td .dropdown-menu {
-    z-index: 1050 !important;
-}
-
-/* Document row right-click styling */
-.document-row {
-    cursor: context-menu !important;
-    user-select: none;
-}
-
-.document-row td {
-    cursor: context-menu !important;
-}
-
-/* Allow links and buttons inside rows to work normally */
-.document-row a[href]:not([href^="javascript:"]),
-.document-row button,
-.document-row input,
-.document-row textarea,
-.document-row select {
-    cursor: pointer !important;
-}
-
-/* Context Menu Styles */
-.document-context-menu {
-    display: none;
-    position: fixed;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    z-index: 10000;
-    min-width: 180px;
-    padding: 4px 0;
-    list-style: none;
-    margin: 0;
-}
-
-.document-context-menu.show {
-    display: block;
-}
-
-.document-context-menu li {
-    margin: 0;
-    padding: 0;
-}
-
-.document-context-menu a {
-    display: block;
-    padding: 8px 16px;
-    color: #333;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.document-context-menu a:hover {
-    background-color: #f5f5f5;
-}
-
-.document-context-menu a.disabled {
-    color: #999;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.document-context-menu .divider {
-    height: 1px;
-    margin: 4px 0;
-    background-color: #e0e0e0;
-    padding: 0;
-}
-
-.preview-image {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: auto;
-}
-
-.pdf-viewer, .doc-viewer {
-    width: 100%;
-    height: 400px;
-    border: none;
-}
-
-.filter_panel {background: #f7f7f7;margin: 10px 10px 10px 10px;border: 1pxsolid #eee;display: none;}
-.card .card-body .filter_panel { padding: 20px;}
-
-/* Activities Filter Bar Styles */
-.activities-filter-bar {
-	background: #f8f9fa;
-	padding: 15px;
-	border-radius: 5px;
-	margin-bottom: 20px;
-	border: 1px solid #e0e0e0;
-}
-
-.activity-type-btn {
-	border: 1px solid #ddd;
-	background: #fff;
-	padding: 5px 12px;
-	font-size: 12px;
-	border-radius: 4px;
-	white-space: nowrap;
-	transition: all 0.2s;
-	cursor: pointer;
-}
-
-.activity-type-btn:hover {
-	background: #f0f0f0;
-	border-color: #bbb;
-}
-
-.activity-type-btn.active {
-	background: #6777ef;
-	color: #fff;
-	border-color: #6777ef;
-	font-weight: 600;
-}
-
-.activity-type-btn.active:hover {
-	background: #5568d3;
-	border-color: #5568d3;
-}
-
-.activity-type-btn.dropdown-toggle.active {
-	background: #6777ef;
-	color: #fff;
-	border-color: #6777ef;
-}
-
-.activity-type-dropdown-item.active {
-	background-color: #6777ef;
-	color: #fff;
-}
-
-.activity-type-dropdown-item:hover {
-	background-color: #f0f0f0;
-}
-
-.activity-type-dropdown-item.active:hover {
-	background-color: #5568d3;
-}
-
-.date-filter {
-	font-size: 12px;
-}
-
-.btn-assignaction:hover {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-	color: #fff !important;
-}
-#assignUser {
-	color: #fff !important;
-}
-/* Bulk Upload Styles */
-.bulk-upload-dropzone {
-    transition: all 0.3s ease;
-}
-
-.bulk-upload-dropzone:hover {
-    border-color: #2563eb !important;
-    background-color: #eff6ff !important;
-}
-
-.bulk-upload-dropzone.drag_over {
-    border-color: #10b981 !important;
-    background-color: #d1fae5 !important;
-    transform: scale(1.02);
-}
-
-.bulk-upload-file-item {
-    padding: 10px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.bulk-upload-file-item:last-child {
-    border-bottom: none;
-}
-
-.file-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-}
-
-.file-name {
-    font-weight: 500;
-    color: #333;
-}
-
-.file-size {
-    font-size: 12px;
-    color: #666;
-}
-
-.checklist-select {
-    min-width: 200px;
-}
-
-.match-status {
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.match-status.auto-matched {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.match-status.manual {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.match-status.new-checklist {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-</style>
 <?php
 use App\Http\Controllers\Controller;
 
@@ -1401,7 +550,9 @@ use App\Http\Controllers\Controller;
 									'notestrm' => 'noteterm'
 								];
 								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
-								$requestedTab = Request::route('tab') ?? Request::get('tab');
+								$requestedTab = (isset($forcedTab) && $forcedTab)
+									? $forcedTab
+									: (Request::route('tab') ?? Request::get('tab'));
 								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
 									$requestedTab = 'activities';
 								}
@@ -1410,11 +561,12 @@ use App\Http\Controllers\Controller;
 								if ($activeTabSlug === false) {
 									$activeTabSlug = $requestedTab;
 								}
-								$detailBaseUrl = Request::route() && Request::route()->getName() === 'leads.detail'
-									? url('/leads/detail/'.$encodeId)
-									: url('/clients/detail/'.$encodeId);
+								$detailBaseUrl = Request::route()
+									&& \Illuminate\Support\Str::startsWith(Request::route()->getName(), 'leads.detail')
+										? url('/leads/detail/'.$encodeId)
+										: url('/clients/detail/'.$encodeId);
 							@endphp
-							<ul class="nav nav-pills" id="client_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}">
+							<ul class="nav nav-pills" id="client_tabs" role="tablist" data-base-url="{{ $detailBaseUrl }}" data-active-tab="{{ $activeTabSlug }}" data-application-id="{{ $applicationId ?? '' }}">
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'activities' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="activities" id="activities-tab" href="#activities" role="tab" aria-controls="activities" aria-selected="{{ $activeTab === 'activities' ? 'true' : 'false' }}">Activities</a>
 								</li>
@@ -1828,7 +980,7 @@ use App\Http\Controllers\Controller;
 												?>
 												<tr id="id_{{$alist->id}}">
 													<td>
-                                                      <a class="openapplicationdetail" data-id="{{$alist->id}}" href="javascript:;" style="display:block;">
+                                                      <a class="openapplicationdetail" data-id="{{$alist->id}}" href="{{ $detailBaseUrl }}/application/{{ $alist->id }}" style="display:block;">
                                                         {{@$productdetail->name}}
 
                                                         <?php if( $application_assign_count > 0 ) { ?>
@@ -3891,6 +3043,18 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/common/ui-components.js') }}"></script>
 
 {{-- Page-Specific JavaScript (load last) --}}
+<script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/notes.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
 
 <script>
@@ -3914,8 +3078,10 @@ use App\Http\Controllers\Controller;
             return;
         }
         var activeTabSlug = tabList.getAttribute('data-active-tab');
+        var applicationId = tabList.getAttribute('data-application-id');
         var base = new URL(baseUrl, window.location.origin);
         var basePath = base.pathname.replace(/\/+$/, '');
+        var applicationPath = applicationId ? basePath + '/application/' + applicationId : null;
 
         var params = new URLSearchParams(window.location.search);
         var initialTab = params.get('tab');
@@ -3927,12 +3093,20 @@ use App\Http\Controllers\Controller;
             }
             var migratedUrl = new URL(window.location.href);
             migratedUrl.searchParams.delete('tab');
-            migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
+            if (normalizedInitialTab === 'application' && applicationPath) {
+                migratedUrl.pathname = applicationPath;
+            } else {
+                migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
+            }
             history.replaceState(null, '', migratedUrl.toString());
         } else if (activeTabSlug) {
             var canonicalUrl = new URL(window.location.href);
             canonicalUrl.searchParams.delete('tab');
-            canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
+            if (activeTabSlug === 'application' && applicationPath) {
+                canonicalUrl.pathname = applicationPath;
+            } else {
+                canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
+            }
             history.replaceState(null, '', canonicalUrl.toString());
         }
 
@@ -3943,8 +3117,14 @@ use App\Http\Controllers\Controller;
                     return;
                 }
                 var url = new URL(window.location.href);
+                var currentApplicationId = tabList.getAttribute('data-application-id');
+                var currentApplicationPath = currentApplicationId ? basePath + '/application/' + currentApplicationId : null;
                 url.searchParams.delete('tab');
-                url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
+                if (tabValue === 'application' && currentApplicationPath) {
+                    url.pathname = currentApplicationPath;
+                } else {
+                    url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
+                }
                 history.replaceState(null, '', url.toString());
             });
         });

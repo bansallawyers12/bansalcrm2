@@ -702,7 +702,8 @@ class ApplicationsController extends Controller
 			return response()->json($response);
 		}
 		
-		$obj->super_agent = '';
+		// Set to null instead of empty string - super_agent is an integer column
+		$obj->super_agent = null;
 		$saved = $obj->save();
 		
 		if ($saved) {
@@ -722,7 +723,8 @@ class ApplicationsController extends Controller
 			return response()->json($response);
 		}
 		
-		$obj->sub_agent = '';
+		// Set to null instead of empty string - sub_agent is an integer column
+		$obj->sub_agent = null;
 		$saved = $obj->save();
 		
 		if ($saved) {

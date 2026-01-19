@@ -35,7 +35,9 @@ Route::middleware(['auth:admin'])->group(function() {
     });
     
     // Detail routes
+    Route::get('/clients/detail/{id}/application/{applicationId}', [ClientController::class, 'clientdetail'])->name('clients.detail.application');
     Route::get('/clients/detail/{id}/{tab?}', [ClientController::class, 'clientdetail'])->name('clients.detail');
+    Route::get('/leads/detail/{id}/application/{applicationId}', [ClientController::class, 'leaddetail'])->name('leads.detail.application');
     Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');
     
     // Status views

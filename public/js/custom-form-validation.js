@@ -1618,26 +1618,40 @@ function customValidate(formName, savetype = '')
 					}else if(formName == 'spagent_application'){
 							
 						var myform = document.getElementById('spagent_application');
-						var fd = new FormData(myform);	
+						if(!myform) {
+							console.error('Form spagent_application not found');
+							$('.popuploader').hide();
+							alert('Form not found. Please refresh the page.');
+							return false;
+						}
+						var fd = new FormData(myform);
+						var actionUrl = $("form[name="+formName+"]").attr('action');
+						console.log('Submitting to:', actionUrl);
 						
 						$.ajax({
 							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
+							url: actionUrl,
 							processData: false,
 							contentType: false,
 							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
+								console.log('Response:', response);
+								var obj = typeof response === 'string' ? $.parseJSON(response) : response;
 								$('#superagent_application').modal('hide');
 								if(obj.status){
 									$('#super_agent').val('');
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									 
-								$('.supagent_data').html(obj.data);	
+									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+									$('.supagent_data').html(obj.data);	
 								}else{
-									alert(obj.message);
+									alert(obj.message || 'Error saving super agent');
 								}
+							},
+							error: function(xhr, status, error){
+								$('.popuploader').hide();
+								$('#superagent_application').modal('hide');
+								console.error('Error saving super agent:', error, xhr.responseText);
+								alert('Error saving super agent: ' + error);
 							}
 						});
 					
@@ -1654,16 +1668,20 @@ function customValidate(formName, savetype = '')
 							data: fd,
 							success: function(response){
 								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
+								var obj = typeof response === 'string' ? $.parseJSON(response) : response;
 								$('#subagent_application').modal('hide');
 								if(obj.status){
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									 
+									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 									$('.subagent_data').html(obj.data);	
 								}else{
-									alert(obj.message);
-									
+									alert(obj.message || 'Error saving sub agent');
 								}
+							},
+							error: function(xhr, status, error){
+								$('.popuploader').hide();
+								$('#subagent_application').modal('hide');
+								console.error('Error saving sub agent:', error);
+								alert('Error saving sub agent. Please try again.');
 							}
 						});
 					
