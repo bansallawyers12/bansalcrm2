@@ -1256,28 +1256,41 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 	});
 	
 	$(document).delegate('.converttoapplication','click', function(){
-		
-				var v = $(this).attr('data-id');
-				if(v != ''){
-					$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/convertapplication')}}',
-			type:'GET',
-			data:{cat_id:v,clientid:'{{$fetchedData->id}}'},
-			success:function(response){
-				$('.popuploader').hide();
-				$.ajax({
-					url: site_url+'/get-services',
-					type:'GET',
-					data:{clientid:'{{$fetchedData->id}}'},
-					success: function(responses){
-						
-						$('.interest_serv_list').html(responses);
+		var v = $(this).attr('data-id');
+		if(v != ''){
+			$('.popuploader').show();
+			$.ajax({
+				url: '{{URL::to('/convertapplication')}}',
+				type:'GET',
+				data:{cat_id:v,clientid:'{{$fetchedData->id}}'},
+				success:function(response){
+					var res = typeof response === 'string' ? JSON.parse(response) : response;
+					if(!res || res.status !== true){
+						$('.popuploader').hide();
+						alert((res && res.message) ? res.message : 'Failed to create application. Please try again.');
+						return;
 					}
-				});
-				getallactivities();
-			}
-		});
+					$.ajax({
+						url: site_url+'/get-services',
+						type:'GET',
+						data:{clientid:'{{$fetchedData->id}}'},
+						success: function(responses){
+							$('.interest_serv_list').html(responses);
+							$('.popuploader').hide();
+							getallactivities();
+						},
+						error: function(){
+							$('.popuploader').hide();
+							alert('Application created, but failed to refresh services. Please refresh the page.');
+							getallactivities();
+						}
+					});
+				},
+				error: function(){
+					$('.popuploader').hide();
+					alert('Failed to create application. Please try again.');
+				}
+			});
 		}
 	});
 
