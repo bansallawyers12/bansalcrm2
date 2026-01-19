@@ -878,7 +878,7 @@ Bansal Immigration`;
         $modal.find('select.select2').each(function(){
             var $select = $(this);
             if ($select.hasClass('select2-hidden-accessible')) {
-                return;
+                $select.select2('destroy');
             }
             $select.select2({
                 dropdownParent: $modal

@@ -595,6 +595,12 @@
 #opencommissionmodal .select2-dropdown {
 	z-index: 9999 !important;
 }
+#opencommissionmodal .modal-body {
+	overflow: visible !important;
+}
+#opencommissionmodal .modal-content {
+	overflow: visible !important;
+}
 
 /* Add Application Modal Select2 Dropdown Styles - Fix dropdown appearing below modal */
 .add_appliation .select2-container {
