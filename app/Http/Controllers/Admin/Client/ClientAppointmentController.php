@@ -23,5 +23,27 @@ class ClientAppointmentController extends Controller
         $this->middleware('auth:admin');
     }
 
-    // Move methods here
+    public function addAppointment(Request $request){
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+    }
+
+	public function editappointment(Request $request){
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+	}
+  
+	public function updateappointmentstatus(Request $request, $status = Null, $id = Null){
+		return redirect()->back()->with('error', 'Appointment functionality has been removed');
+	}
+	
+	public function getAppointments(Request $request){
+		return response('<div class="row"><div class="col-md-12"><p class="text-muted">Appointment functionality has been removed.</p></div></div>', 200);
+	}
+
+	public function getAppointmentdetail(Request $request){
+		return response('Appointment functionality has been removed', 404);
+	}
+
+	public function deleteappointment(Request $request){
+		return response()->json(['status' => false, 'message' => 'Appointment functionality has been removed']);
+	}
 }

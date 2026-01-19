@@ -1196,17 +1196,209 @@ class ClientDocumentController extends Controller
 		}
 		echo json_encode($response);
 	} 
+
+    /**
+     * Upload document for client
+     */
+    public function uploaddocument(Request $request){
+		$id = $request->clientid;
+        $doctype = isset($request->doctype)? $request->doctype : '';
+
+		if ($request->hasfile('document_upload')) {
+
+			if(!is_array($request->file('document_upload'))){
+				$files[] = $request->file('document_upload');
+			}else{
+				$files = $request->file('document_upload');
+			}
+			foreach ($files as $file) {
+
+				$size = $file->getSize();
+				$fileName = $file->getClientOriginalName();
+				$nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+				$fileExtension = $file->getClientOriginalExtension();
+				$explodeFileName = explode('.', $fileName);
+				$document_upload = $this->uploadrenameFile($file, \Config::get('constants.documents'));
+				$exploadename = explode('.', $document_upload);
+				$obj = new Document;
+				$obj->file_name = $nameWithoutExtension;
+				$obj->filetype = $fileExtension;
+				$obj->user_id = Auth::user()->id;
+				$obj->myfile = $document_upload;
+				$obj->client_id = $id;
+				$obj->type = $request->type;
+				$obj->file_size = $size;
+				$obj->doc_type = $doctype;
+				$saved = $obj->save();
+
+			}
+
+			if($saved){
+				if($request->type == 'client'){
+				$subject = 'added 1 document';
+				$objs = new ActivitiesLog;
+				$objs->client_id = $id;
+				$objs->created_by = Auth::user()->id;
+				$objs->description = '';
+				$objs->subject = $subject;
+				$objs->task_status = 0;
+				$objs->pin = 0;
+				$objs->save();
+
+				}
+				$response['status'] 	= 	true;
+				$response['message']	=	'You\'ve successfully uploaded your document';
+				$fetchd = Document::where('client_id',$id)->where('doc_type',$doctype)->where('type',$request->type)->orderby('created_at', 'DESC')->get();
+				ob_start();
+				foreach($fetchd as $fetch){
+					$admin = Admin::where('id', $fetch->user_id)->first();
+                  
+                    if( isset($doctype) && $doctype == 'migration'){
+                        $preview_container_type = 'preview-container-migrationdocumentlist';
+                    } else if( isset($doctype) && $doctype == 'education'){
+                        $preview_container_type = 'preview-container-documentlist';
+                    }
+					?>
+					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
+						<td style="white-space: initial;">
+                            <div data-id="<?php echo $fetch->id; ?>" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
+								<a style="white-space: initial;" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','<?php echo $preview_container_type;?>')">
+                                    <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                </a>
+							</div>
+                        </td>
+						<td style="white-space: initial;"><?php echo $admin->first_name; ?></td>
+
+						<td style="white-space: initial;"><?php echo date('d/m/Y', strtotime($fetch->created_at)); ?></td>
+						<td>
+							<div class="dropdown d-inline">
+								<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+								<div class="dropdown-menu">
+									<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
+									<a target="_blank" class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+									<?php
+														$explodeimg = explode('.',$fetch->myfile);
+										if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
+														?>
+															<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+															<?php } ?>
+									<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+
+									<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<?php
+				}
+				$data = ob_get_clean();
+				ob_start();
+				foreach($fetchd as $fetch){
+					$admin = Admin::where('id', $fetch->user_id)->first();
+					?>
+					<div class="grid_list">
+						<div class="grid_col">
+							<div class="grid_icon">
+								<i class="fas fa-file-image"></i>
+							</div>
+							<div class="grid_content">
+								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
+								<div class="dropdown d-inline dropdown_ellipsis_icon">
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+									<div class="dropdown-menu">
+										<a class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
+										<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
+										<a data-id="<?php echo $fetch->id; ?>" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;" >Delete</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<?php
+				}
+				$griddata = ob_get_clean();
+				$response['data']	=$data;
+				$response['griddata']	=$griddata;
+			}else{
+				$response['status'] 	= 	false;
+				$response['message']	=	'Please try again';
+			}
+		 }else{
+			 $response['status'] 	= 	false;
+			$response['message']	=	'Please try again';
+		 }
+		 echo json_encode($response);
+	}
+
+    /**
+     * Rename document
+     */
+    public function renamedoc(Request $request){
+		$id = $request->id;
+		$filename = $request->filename;
+		if(Document::where('id',$id)->exists()){
+			$doc = Document::where('id',$id)->first();
+			$res = DB::table('documents')->where('id', @$id)->update(['file_name' => $filename]);
+			if($res){
+				$response['status'] 	= 	true;
+				$response['data']	=	'Document saved successfully';
+				$response['Id']	=	$id;
+				$response['filename']	=	$filename;
+				$response['filetype']	=	$doc->filetype;
+			}else{
+				$response['status'] 	= 	false;
+				$response['message']	=	'Please try again';
+			}
+		}else{
+			$response['status'] 	= 	false;
+			$response['message']	=	'Please try again';
+		}
+		echo json_encode($response);
+	}
+
+    /**
+     * Delete document
+     */
+    public function deletedocs(Request $request){
+		$note_id = $request->note_id;
+
+		if(Document::where('id',$note_id)->exists()){
+
+			$data = DB::table('documents')->where('id', @$note_id)->first();
+			$res = DB::table('documents')->where('id', @$note_id)->delete();
+
+			if($res){
+
+				$subject = 'deleted a document';
+
+				$objs = new ActivitiesLog;
+				$objs->client_id = $data->client_id;
+				$objs->created_by = Auth::user()->id;
+				$objs->description = '';
+				$objs->subject = $subject;
+				$objs->task_status = 0;
+				$objs->pin = 0;
+				$objs->save();
+				$response['status'] 	= 	true;
+				$response['data']	=	'Document removed successfully';
+			}else{
+				$response['status'] 	= 	false;
+				$response['message']	=	'Please try again';
+			}
+		}else{
+				$response['status'] 	= 	false;
+				$response['message']	=	'Please try again';
+		}
+		echo json_encode($response);
+	}
+
     // TODO: Move remaining document methods here:
-    // - uploaddocument
     // - downloadpdf
-    // - deletedocs
-    // - renamedoc
     // - uploadalldocument
     // - addalldocchecklist
     // - deletealldocs
     // - renamealldoc
     // - renamechecklistdoc
-    // - verifydoc
     // - notuseddoc
     // - backtodoc
 }

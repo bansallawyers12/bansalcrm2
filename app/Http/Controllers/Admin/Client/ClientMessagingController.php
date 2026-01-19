@@ -327,5 +327,31 @@ class ClientMessagingController extends Controller
         }
     }
 
+    /**
+     * Upload/record sent mail
+     */
+    public function uploadmail(Request $request){
+		$requestData 		= 	$request->all();
+		$obj				= 	new \App\Models\MailReport;
+		$obj->user_id		=	Auth::user()->id;
+		$obj->from_mail 	=  $requestData['from'];
+		$obj->to_mail 		=  $requestData['to'];
+		$obj->subject		=  $requestData['subject'];
+		$obj->message		=  $requestData['message'];
+		$obj->mail_type		=  1;
+		$obj->client_id		=  @$requestData['client_id'];
+		$saved				=	$obj->save();
+		if(!$saved)
+			{
+				return redirect()->back()->with('error', \Config::get('constants.server_error'));
+			}
+
+			else
+			{
+				return redirect()->back()->with('success', 'Email uploaded Successfully');
+
+			}
+	}
+
     // TODO: Move uploadmail method here from ClientsController
 }

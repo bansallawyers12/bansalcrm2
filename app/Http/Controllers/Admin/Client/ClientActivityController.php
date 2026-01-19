@@ -118,5 +118,37 @@ class ClientActivityController extends Controller
 		echo json_encode($response);
 	}
 
+    /**
+     * Get activity log for a client
+     */
+    public function activities(Request $request){
+		if(Admin::where('role', '=', '7')->where('id', $request->id)->exists()){
+			$activities = ActivitiesLog::where('client_id', $request->id)->orderby('created_at', 'DESC')->get();
+			$data = array();
+			foreach($activities as $activit){
+				$admin = Admin::where('id', $activit->created_by)->first();
+
+				$data[] = array(
+                    'activity_id' => $activit->id,
+					'subject' => $activit->subject,
+					'createdname' => substr($admin->first_name, 0, 1),
+					'name' => $admin->first_name,
+					'message' => $activit->description,
+					'date' => date('d M Y, H:i A', strtotime($activit->created_at)),
+                   'followup_date' => $activit->followup_date,
+                   'task_group' => $activit->task_group,
+                   'pin' => $activit->pin
+				);
+			}
+
+			$response['status'] 	= 	true;
+			$response['data']	=	$data;
+		}else{
+			$response['status'] 	= 	false;
+			$response['message']	=	'Please try again';
+		}
+		echo json_encode($response);
+	}
+
     // TODO: Move 'activities' method here from ClientsController
 }
