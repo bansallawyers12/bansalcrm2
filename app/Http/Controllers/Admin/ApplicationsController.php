@@ -840,7 +840,7 @@ class ApplicationsController extends Controller
                                                 <input value="Total Course Fee" type="hidden" name="course_fee_type[]">
                                             </td>
 											<td class="total_fee">
-                                                <input value="<?php if( isset($appfeeoption->total_course_fee_amount) && $appfeeoption->total_course_fee_amount != "") { echo $appfeeoption->total_course_fee_amount;} ?>" data-valid="required" type="number" class="form-control total_fee_am" name="total_fee[]" id="total_course_fee_amount">
+                                                <input value="<?php if( isset($appfeeoption->total_course_fee_amount) && $appfeeoption->total_course_fee_amount != "") { echo $appfeeoption->total_course_fee_amount;} ?>" data-valid="required" type="number" min="0" step="0.01" class="form-control total_fee_am" name="total_fee[]" id="total_course_fee_amount">
                                             </td>
 										</tr>
 
@@ -850,7 +850,7 @@ class ApplicationsController extends Controller
                                                 <input value="Scholarship Fee" type="hidden" name="course_fee_type[]">
                                             </td>
 											<td class="total_fee">
-                                                <input value="<?php if( isset($appfeeoption->scholarship_fee_amount) && $appfeeoption->scholarship_fee_amount != "") { echo $appfeeoption->scholarship_fee_amount;} ?>" data-valid="required" type="number" class="form-control total_fee_am" name="total_fee[]" id="scholarship_fee_amount">
+                                                <input value="<?php if( isset($appfeeoption->scholarship_fee_amount) && $appfeeoption->scholarship_fee_amount != "") { echo $appfeeoption->scholarship_fee_amount;} ?>" data-valid="required" type="number" min="0" step="0.01" class="form-control total_fee_am" name="total_fee[]" id="scholarship_fee_amount">
                                             </td>
 										</tr>
 
@@ -861,7 +861,7 @@ class ApplicationsController extends Controller
                                             <input value="Enrolment Fee" type="hidden" name="course_fee_type[]">
                                             </td>
 											<td class="total_fee">
-                                                <input value="<?php if( isset($appfeeoption->enrolment_fee_amount) && $appfeeoption->enrolment_fee_amount != "") { echo $appfeeoption->enrolment_fee_amount;} ?>" data-valid="required" type="number"  class="form-control total_fee_am" name="total_fee[]" id="enrolment_fee_amount">
+                                                <input value="<?php if( isset($appfeeoption->enrolment_fee_amount) && $appfeeoption->enrolment_fee_amount != "") { echo $appfeeoption->enrolment_fee_amount;} ?>" data-valid="required" type="number" min="0" step="0.01" class="form-control total_fee_am" name="total_fee[]" id="enrolment_fee_amount">
                                             </td>
 										</tr>
 
@@ -871,7 +871,7 @@ class ApplicationsController extends Controller
                                                 <input value="Material fees" type="hidden"  name="course_fee_type[]">
                                             </td>
 											<td class="total_fee">
-                                                <input value="<?php if( isset($appfeeoption->material_fees) && $appfeeoption->material_fees != "") { echo $appfeeoption->material_fees;} ?>" data-valid="required" type="number"  class="form-control total_fee_am" name="total_fee[]" id="material_fee_amount">
+                                                <input value="<?php if( isset($appfeeoption->material_fees) && $appfeeoption->material_fees != "") { echo $appfeeoption->material_fees;} ?>" data-valid="required" type="number" min="0" step="0.01" class="form-control total_fee_am" name="total_fee[]" id="material_fee_amount">
                                             </td>
 										</tr>
                                     </tbody>

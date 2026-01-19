@@ -3755,8 +3755,7 @@ use App\Http\Controllers\Controller;
 			</div>
 		</div>
 	</div>
-
-
+</div>
 
 <div class="modal fade custom_modal" id="application_opensaleforcast" tabindex="-1" role="dialog" aria-labelledby="applicationModalLabel" aria-hidden="true">
 	<div class="modal-dialog">

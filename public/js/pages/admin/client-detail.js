@@ -2582,6 +2582,49 @@ Bansal Immigration`;
         });
     });
 
+    // ============================================================================
+    // PRODUCT FEE AUTO-CALCULATION
+    // ============================================================================
+    
+    // Calculate Tution Fee (sum of all fee inputs in Product Fee modal)
+    function calculateTutionFee() {
+        var totalFee = 0;
+        var hasValues = false;
+        
+        // Sum all fee inputs
+        $('.total_fee_am').each(function(){
+            var val = parseFloat($(this).val());
+            if(!isNaN(val) && val >= 0) {
+                totalFee += val;
+                hasValues = true;
+            }
+        });
+        
+        // Format to 2 decimal places
+        var formattedTotal = totalFee.toFixed(2);
+        
+        // Update display in table footer
+        $('.calculate_tution_fee').html(formattedTotal);
+        
+        // Update hidden field for form submission
+        $('#tution_fees').val(formattedTotal);
+        
+        return totalFee;
+    }
+
+    // Trigger calculation when any fee input changes
+    $(document).on('keyup change blur', '.total_fee_am', function(){
+        calculateTutionFee();
+    });
+
+    // Calculate on modal load (when form is populated with existing data)
+    $(document).on('shown.bs.modal', '#new_fee_option', function(){
+        // Small delay to ensure form is fully loaded
+        setTimeout(function(){
+            calculateTutionFee();
+        }, 100);
+    });
+
     $(document).on('click', '.addfee', function(){
         var clonedval = $('.feetypecopy').html();
         $('.fee_type_sec .fee_fields').append('<div class="fee_fields_row field_clone">'+clonedval+'</div>');
