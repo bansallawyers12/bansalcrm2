@@ -15,11 +15,11 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: #f5f7fa;
+            background: #1a1a2e;
             min-height: 100vh;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a1a2e;
             color: white;
             padding: 15px 30px;
             display: flex;
@@ -30,11 +30,13 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .header-title {
             font-size: 18px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .header-actions {
             display: flex;
@@ -42,8 +44,8 @@
             align-items: center;
         }
         .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 24px;
+            border-radius: 6px;
             font-weight: 500;
             cursor: pointer;
             border: none;
@@ -52,13 +54,7 @@
             gap: 8px;
             text-decoration: none;
             transition: all 0.2s ease;
-        }
-        .btn-primary {
-            background: white;
-            color: #667eea;
-        }
-        .btn-primary:hover {
-            background: #f0f0f0;
+            font-size: 14px;
         }
         .btn-success {
             background: #28a745;
@@ -72,25 +68,27 @@
             cursor: not-allowed;
         }
         .main-container {
-            display: flex;
             margin-top: 60px;
-            height: calc(100vh - 60px);
-        }
-        .document-viewer {
-            flex: 1;
-            overflow-y: auto;
+            min-height: calc(100vh - 60px);
+            background: #2d2d44;
             padding: 20px;
-            background: #e9ecef;
+            overflow-y: auto;
+        }
+        .page-indicator {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
         }
         .page-container {
-            max-width: 850px;
+            max-width: 900px;
             margin: 0 auto;
         }
         .page-wrapper {
             position: relative;
             margin-bottom: 20px;
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         .page-image {
             width: 100%;
@@ -98,8 +96,8 @@
         }
         .signature-field {
             position: absolute;
-            border: 2px dashed #667eea;
-            background: rgba(102, 126, 234, 0.1);
+            border: 2px dashed #28a745;
+            background: rgba(40, 167, 69, 0.15);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -107,19 +105,20 @@
             transition: all 0.2s ease;
         }
         .signature-field:hover {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: #764ba2;
+            background: rgba(40, 167, 69, 0.25);
+            border-color: #1e7e34;
         }
         .signature-field.signed {
             border-color: #28a745;
             background: rgba(40, 167, 69, 0.1);
+            border-style: solid;
         }
         .signature-field-placeholder {
-            color: #667eea;
-            font-size: 14px;
+            color: #28a745;
+            font-size: 13px;
             font-weight: 500;
             text-align: center;
-            padding: 10px;
+            padding: 8px;
         }
         .signature-field.signed .signature-field-placeholder {
             display: none;
@@ -129,36 +128,74 @@
             max-height: 100%;
             object-fit: contain;
         }
-        .sidebar {
-            width: 350px;
-            background: white;
-            border-left: 1px solid #e9ecef;
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
-        .sidebar-header {
-            padding: 20px;
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
             border-bottom: 1px solid #e9ecef;
         }
-        .sidebar-header h2 {
-            font-size: 18px;
+        .modal-header h2 {
+            font-size: 20px;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: #333;
+            margin: 0;
         }
-        .sidebar-header p {
-            font-size: 14px;
-            color: #6c757d;
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
         }
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
+        .modal-close:hover {
+            color: #333;
         }
+        .modal-body {
+            padding: 25px;
+        }
+
+        /* Signature Tabs */
         .signature-tabs {
             display: flex;
             border-bottom: 2px solid #e9ecef;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .signature-tab {
             flex: 1;
@@ -170,13 +207,14 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
             transition: all 0.2s ease;
+            font-size: 14px;
         }
         .signature-tab:hover {
-            color: #667eea;
+            color: #28a745;
         }
         .signature-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #28a745;
+            border-bottom-color: #28a745;
         }
         .tab-content {
             display: none;
@@ -184,45 +222,41 @@
         .tab-content.active {
             display: block;
         }
+
+        /* Draw Signature */
+        .signature-instruction {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
         .signature-pad-container {
             border: 2px solid #e9ecef;
             border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            background: white;
         }
         #signaturePad {
             width: 100%;
-            height: 200px;
+            height: 180px;
             background: white;
+            display: block;
         }
-        .signature-pad-actions {
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-        }
-        .signature-pad-actions button {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .signature-pad-actions button:hover {
-            background: #f8f9fa;
-        }
+
+        /* Type Signature */
         .type-signature-input {
             width: 100%;
             padding: 15px;
-            font-size: 24px;
-            font-family: 'Brush Script MT', cursive;
+            font-size: 18px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             text-align: center;
             margin-bottom: 15px;
+        }
+        .type-signature-input:focus {
+            outline: none;
+            border-color: #28a745;
         }
         .type-signature-preview {
             border: 2px solid #e9ecef;
@@ -232,14 +266,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             background: white;
         }
         .type-signature-text {
             font-family: 'Brush Script MT', cursive;
-            font-size: 36px;
-            color: #2c3e50;
+            font-size: 42px;
+            color: #333;
         }
+
+        /* Upload Signature */
         .upload-zone {
             border: 2px dashed #e9ecef;
             border-radius: 8px;
@@ -247,90 +283,74 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .upload-zone:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.05);
         }
         .upload-zone i {
-            font-size: 48px;
-            color: #6c757d;
-            margin-bottom: 15px;
+            font-size: 40px;
+            color: #ccc;
+            margin-bottom: 10px;
         }
         .upload-zone p {
-            color: #6c757d;
-            margin-bottom: 10px;
+            color: #888;
+            margin-bottom: 5px;
         }
         .upload-preview {
             max-width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             margin-top: 15px;
         }
-        .apply-signature-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .apply-signature-btn:hover {
-            opacity: 0.9;
-        }
-        .apply-signature-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-        .progress-indicator {
+
+        /* Modal Footer */
+        .modal-footer {
             display: flex;
-            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-        }
-        .progress-indicator i {
-            color: #28a745;
-            font-size: 20px;
-        }
-        .progress-indicator span {
-            font-weight: 500;
-            color: #2e7d32;
-        }
-        .signer-info {
+            justify-content: center;
+            padding: 20px 25px;
+            border-top: 1px solid #e9ecef;
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
         }
-        .signer-info h4 {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 5px;
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+            padding: 12px 30px;
         }
-        .signer-info p {
-            font-size: 16px;
-            color: #2c3e50;
-            font-weight: 500;
+        .btn-clear:hover {
+            background: #c82333;
         }
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 12px 30px;
+        }
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+        .btn-save {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+        }
+        .btn-save:hover {
+            background: #218838;
+        }
+
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 3000;
         }
         .loading-overlay.hidden {
             display: none;
@@ -339,7 +359,7 @@
             width: 50px;
             height: 50px;
             border: 4px solid #e9ecef;
-            border-top-color: #667eea;
+            border-top-color: #28a745;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -349,19 +369,30 @@
         .loading-text {
             margin-top: 20px;
             font-size: 16px;
-            color: #6c757d;
+            color: #666;
         }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .progress-bar-container span {
+            color: white;
+            font-size: 13px;
+        }
+
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
+            .modal-content {
+                width: 95%;
+                margin: 10px;
             }
-            .sidebar {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid #e9ecef;
-            }
-            .document-viewer {
-                max-height: 50vh;
+            .header-title span {
+                display: none;
             }
         }
     </style>
@@ -375,9 +406,13 @@
     <header class="header">
         <div class="header-title">
             <i class="fas fa-file-signature"></i>
-            {{ $document->display_title ?? 'Document' }}
+            <span>{{ $document->display_title ?? 'Document' }}</span>
         </div>
         <div class="header-actions">
+            <div class="progress-bar-container" id="progressContainer" style="display: none;">
+                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                <span id="progressText">0 of 0 signed</span>
+            </div>
             <button type="button" class="btn btn-success" id="submitBtn" disabled onclick="submitSignatures()">
                 <i class="fas fa-check"></i> Complete Signing
             </button>
@@ -385,69 +420,40 @@
     </header>
 
     <div class="main-container">
-        <div class="document-viewer" id="documentViewer">
-            <div class="page-container" id="pageContainer">
-                <!-- Pages will be loaded here -->
-            </div>
+        <div class="page-indicator" id="pageIndicator">Page 1</div>
+        <div class="page-container" id="pageContainer">
+            <!-- Pages will be loaded here -->
         </div>
+    </div>
 
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Sign Document</h2>
-                <p>Create your signature and click on the highlighted areas to sign.</p>
+    <!-- Sign Modal -->
+    <div class="modal-overlay" id="signModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Here</h2>
+                <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            
-            <div class="sidebar-content">
-                <div class="signer-info">
-                    <h4>Signing as</h4>
-                    <p>{{ $signer->name }}</p>
-                    <small class="text-muted">{{ $signer->email }}</small>
-                </div>
-
-                <div class="progress-indicator" id="progressIndicator" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="progressText">0 of 0 signatures placed</span>
-                </div>
-
+            <div class="modal-body">
                 <div class="signature-tabs">
-                    <div class="signature-tab active" data-tab="draw">
-                        <i class="fas fa-pen"></i> Draw
-                    </div>
-                    <div class="signature-tab" data-tab="type">
-                        <i class="fas fa-keyboard"></i> Type
-                    </div>
-                    <div class="signature-tab" data-tab="upload">
-                        <i class="fas fa-upload"></i> Upload
-                    </div>
+                    <div class="signature-tab active" data-tab="draw">Draw</div>
+                    <div class="signature-tab" data-tab="type">Type</div>
+                    <div class="signature-tab" data-tab="upload">Upload</div>
                 </div>
 
                 <!-- Draw Tab -->
                 <div class="tab-content active" id="tab-draw">
+                    <p class="signature-instruction">Use your mouse, touch, or stylus to draw your signature below</p>
                     <div class="signature-pad-container">
                         <canvas id="signaturePad"></canvas>
-                        <div class="signature-pad-actions">
-                            <button type="button" onclick="clearSignaturePad()">
-                                <i class="fas fa-eraser"></i> Clear
-                            </button>
-                            <button type="button" onclick="undoSignaturePad()">
-                                <i class="fas fa-undo"></i> Undo
-                            </button>
-                        </div>
                     </div>
-                    <button type="button" class="apply-signature-btn" onclick="applyDrawnSignature()" id="applyDrawBtn" disabled>
-                        Apply Signature
-                    </button>
                 </div>
 
                 <!-- Type Tab -->
                 <div class="tab-content" id="tab-type">
-                    <input type="text" class="type-signature-input" id="typeInput" placeholder="Type your name" oninput="updateTypePreview()">
+                    <input type="text" class="type-signature-input" id="typeInput" placeholder="Type your full name" oninput="updateTypePreview()">
                     <div class="type-signature-preview">
                         <span class="type-signature-text" id="typePreview"></span>
                     </div>
-                    <button type="button" class="apply-signature-btn" onclick="applyTypedSignature()" id="applyTypeBtn" disabled>
-                        Apply Signature
-                    </button>
                 </div>
 
                 <!-- Upload Tab -->
@@ -455,14 +461,22 @@
                     <div class="upload-zone" onclick="document.getElementById('uploadInput').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Click to upload signature image</p>
-                        <small>PNG, JPG up to 2MB</small>
+                        <small style="color: #aaa;">PNG, JPG up to 2MB</small>
                         <img id="uploadPreview" class="upload-preview" style="display: none;">
                     </div>
                     <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
-                    <button type="button" class="apply-signature-btn" onclick="applyUploadedSignature()" id="applyUploadBtn" disabled>
-                        Apply Signature
-                    </button>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-clear" onclick="clearCurrentSignature()">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-save" id="saveSignatureBtn" onclick="saveSignature()">
+                    Save Signature
+                </button>
             </div>
         </div>
     </div>
@@ -477,9 +491,10 @@
         
         // State
         let signaturePad;
-        let currentSignatureData = null;
+        let currentFieldId = null;
         let signedFields = {};
         let uploadedImage = null;
+        let currentTab = 'draw';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -492,40 +507,47 @@
             const canvas = document.getElementById('signaturePad');
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
             });
 
-            // Resize canvas
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
                 const container = canvas.parentElement;
                 canvas.width = container.offsetWidth * ratio;
-                canvas.height = 200 * ratio;
+                canvas.height = 180 * ratio;
                 canvas.getContext('2d').scale(ratio, ratio);
                 signaturePad.clear();
             }
 
             window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // Enable apply button when signature is drawn
-            signaturePad.addEventListener('endStroke', function() {
-                document.getElementById('applyDrawBtn').disabled = signaturePad.isEmpty();
-            });
+            setTimeout(resizeCanvas, 100);
         }
 
         function initTabs() {
             document.querySelectorAll('.signature-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
                     const tabName = this.dataset.tab;
+                    currentTab = tabName;
                     
-                    // Update active tab
                     document.querySelectorAll('.signature-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Show tab content
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     document.getElementById('tab-' + tabName).classList.add('active');
+
+                    // Resize canvas when switching to draw tab
+                    if (tabName === 'draw') {
+                        setTimeout(() => {
+                            const canvas = document.getElementById('signaturePad');
+                            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                            const container = canvas.parentElement;
+                            canvas.width = container.offsetWidth * ratio;
+                            canvas.height = 180 * ratio;
+                            canvas.getContext('2d').scale(ratio, ratio);
+                        }, 50);
+                    }
                 });
             });
         }
@@ -544,7 +566,7 @@
                 img.src = `{{ url('/documents') }}/${documentId}/page/${i}?token=${signerToken}`;
                 img.alt = 'Page ' + i;
                 img.onload = function() {
-                    addSignatureFields(wrapper, i, img.naturalWidth, img.naturalHeight);
+                    addSignatureFields(wrapper, i);
                 };
                 
                 wrapper.appendChild(img);
@@ -552,10 +574,11 @@
             }
 
             document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('pageIndicator').textContent = 'Page 1 of ' + totalPages;
             updateProgress();
         }
 
-        function addSignatureFields(wrapper, pageNum, imgWidth, imgHeight) {
+        function addSignatureFields(wrapper, pageNum) {
             const pageFields = signatureFields.filter(f => f.page_number == pageNum);
             
             pageFields.forEach(field => {
@@ -564,38 +587,61 @@
                 fieldEl.id = 'field-' + field.id;
                 fieldEl.dataset.fieldId = field.id;
                 
-                // Position using percentages
                 fieldEl.style.left = field.x_percent + '%';
                 fieldEl.style.top = field.y_percent + '%';
                 fieldEl.style.width = (field.width_percent || 20) + '%';
                 fieldEl.style.height = (field.height_percent || 10) + '%';
                 
                 fieldEl.innerHTML = '<div class="signature-field-placeholder"><i class="fas fa-pen"></i> Click to sign</div>';
-                fieldEl.onclick = function() { signField(field.id); };
+                fieldEl.onclick = function() { openSignModal(field.id); };
                 
                 wrapper.appendChild(fieldEl);
             });
         }
 
-        function clearSignaturePad() {
+        function openSignModal(fieldId) {
+            currentFieldId = fieldId;
+            document.getElementById('signModal').classList.add('active');
+            
+            // Reset modal
             signaturePad.clear();
-            document.getElementById('applyDrawBtn').disabled = true;
+            document.getElementById('typeInput').value = '';
+            document.getElementById('typePreview').textContent = '';
+            uploadedImage = null;
+            document.getElementById('uploadPreview').style.display = 'none';
+            
+            // Resize canvas
+            setTimeout(() => {
+                const canvas = document.getElementById('signaturePad');
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                const container = canvas.parentElement;
+                canvas.width = container.offsetWidth * ratio;
+                canvas.height = 180 * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+            }, 100);
         }
 
-        function undoSignaturePad() {
-            const data = signaturePad.toData();
-            if (data && data.length > 0) {
-                data.pop();
-                signaturePad.fromData(data);
+        function closeModal() {
+            document.getElementById('signModal').classList.remove('active');
+            currentFieldId = null;
+        }
+
+        function clearCurrentSignature() {
+            if (currentTab === 'draw') {
+                signaturePad.clear();
+            } else if (currentTab === 'type') {
+                document.getElementById('typeInput').value = '';
+                document.getElementById('typePreview').textContent = '';
+            } else if (currentTab === 'upload') {
+                uploadedImage = null;
+                document.getElementById('uploadPreview').style.display = 'none';
+                document.getElementById('uploadInput').value = '';
             }
-            document.getElementById('applyDrawBtn').disabled = signaturePad.isEmpty();
         }
 
         function updateTypePreview() {
             const input = document.getElementById('typeInput');
-            const preview = document.getElementById('typePreview');
-            preview.textContent = input.value;
-            document.getElementById('applyTypeBtn').disabled = !input.value.trim();
+            document.getElementById('typePreview').textContent = input.value;
         }
 
         function handleUpload(input) {
@@ -607,26 +653,30 @@
                     const preview = document.getElementById('uploadPreview');
                     preview.src = uploadedImage;
                     preview.style.display = 'block';
-                    document.getElementById('applyUploadBtn').disabled = false;
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function applyDrawnSignature() {
-            if (!signaturePad.isEmpty()) {
-                currentSignatureData = signaturePad.toDataURL('image/png');
-                highlightFieldsForSigning();
-            }
-        }
+        function saveSignature() {
+            let signatureData = null;
 
-        function applyTypedSignature() {
-            const text = document.getElementById('typeInput').value.trim();
-            if (text) {
-                // Create canvas to render typed signature
+            if (currentTab === 'draw') {
+                if (signaturePad.isEmpty()) {
+                    alert('Please draw your signature first.');
+                    return;
+                }
+                signatureData = signaturePad.toDataURL('image/png');
+            } else if (currentTab === 'type') {
+                const text = document.getElementById('typeInput').value.trim();
+                if (!text) {
+                    alert('Please type your name first.');
+                    return;
+                }
+                // Create canvas for typed signature
                 const canvas = document.createElement('canvas');
                 canvas.width = 400;
-                canvas.height = 150;
+                canvas.height = 120;
                 const ctx = canvas.getContext('2d');
                 
                 ctx.fillStyle = 'white';
@@ -638,47 +688,33 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(text, canvas.width / 2, canvas.height / 2);
                 
-                currentSignatureData = canvas.toDataURL('image/png');
-                highlightFieldsForSigning();
-            }
-        }
-
-        function applyUploadedSignature() {
-            if (uploadedImage) {
-                currentSignatureData = uploadedImage;
-                highlightFieldsForSigning();
-            }
-        }
-
-        function highlightFieldsForSigning() {
-            document.querySelectorAll('.signature-field:not(.signed)').forEach(field => {
-                field.style.animation = 'pulse 1s infinite';
-            });
-        }
-
-        function signField(fieldId) {
-            if (!currentSignatureData) {
-                alert('Please create a signature first using Draw, Type, or Upload options.');
-                return;
-            }
-
-            const fieldEl = document.getElementById('field-' + fieldId);
-            if (fieldEl.classList.contains('signed')) {
-                if (!confirm('This field is already signed. Replace signature?')) {
+                signatureData = canvas.toDataURL('image/png');
+            } else if (currentTab === 'upload') {
+                if (!uploadedImage) {
+                    alert('Please upload a signature image first.');
                     return;
                 }
+                signatureData = uploadedImage;
             }
 
-            // Add signature image
+            if (signatureData && currentFieldId) {
+                applySignatureToField(currentFieldId, signatureData);
+                closeModal();
+            }
+        }
+
+        function applySignatureToField(fieldId, signatureData) {
+            const fieldEl = document.getElementById('field-' + fieldId);
+            if (!fieldEl) return;
+
             fieldEl.innerHTML = '';
             const img = document.createElement('img');
-            img.src = currentSignatureData;
+            img.src = signatureData;
             img.className = 'signature-image';
             fieldEl.appendChild(img);
             fieldEl.classList.add('signed');
-            fieldEl.style.animation = '';
 
-            signedFields[fieldId] = currentSignatureData;
+            signedFields[fieldId] = signatureData;
             updateProgress();
         }
 
@@ -686,16 +722,15 @@
             const totalFields = signatureFields.length;
             const signedCount = Object.keys(signedFields).length;
             
-            const progressEl = document.getElementById('progressIndicator');
+            const progressContainer = document.getElementById('progressContainer');
             const progressText = document.getElementById('progressText');
             const submitBtn = document.getElementById('submitBtn');
 
             if (totalFields > 0) {
-                progressEl.style.display = 'flex';
-                progressText.textContent = `${signedCount} of ${totalFields} signatures placed`;
+                progressContainer.style.display = 'flex';
+                progressText.textContent = `${signedCount} of ${totalFields} signed`;
                 submitBtn.disabled = signedCount < totalFields;
             } else {
-                // No pre-defined fields, allow any signature
                 submitBtn.disabled = signedCount === 0;
             }
         }
@@ -715,6 +750,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
@@ -723,29 +759,32 @@
                     })
                 });
 
-                const result = await response.json();
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const result = await response.json();
 
-                if (result.success) {
-                    window.location.href = result.redirect || '/documents/thankyou';
+                    if (result.success) {
+                        window.location.href = result.redirect || '/documents/thankyou/{{ $document->id }}';
+                    } else {
+                        throw new Error(result.message || 'Failed to submit signatures');
+                    }
                 } else {
-                    throw new Error(result.message || 'Failed to submit signatures');
+                    // If not JSON, it might be a redirect or HTML error page
+                    if (response.ok) {
+                        window.location.href = '/documents/thankyou/{{ $document->id }}';
+                    } else {
+                        const text = await response.text();
+                        console.error('Non-JSON response:', text.substring(0, 500));
+                        throw new Error('Server returned an unexpected response. Please try again.');
+                    }
                 }
             } catch (error) {
                 loadingOverlay.classList.add('hidden');
                 alert('Error: ' + error.message);
+                console.error('Submit error:', error);
             }
         }
-
-        // Add pulse animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
-                70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>

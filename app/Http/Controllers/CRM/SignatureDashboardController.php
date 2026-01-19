@@ -10,6 +10,8 @@ use App\Services\SignatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -147,6 +149,19 @@ class SignatureDashboardController extends Controller
                 'from_email' => $request->from_email,
             ]);
             
+            // Create activity note for signer added
+            DocumentNote::create([
+                'document_id' => $document->id,
+                'created_by' => auth('admin')->id(),
+                'action_type' => 'signer_added',
+                'note' => "Signer added: {$signer->name} ({$signer->email})",
+                'metadata' => [
+                    'signer_id' => $signer->id,
+                    'signer_name' => $signer->name,
+                    'signer_email' => $signer->email,
+                ]
+            ]);
+            
             // Associate document with client if specified
             if ($request->has('selected_client_id') && $request->selected_client_id) {
                 $client = Admin::find($request->selected_client_id);
@@ -205,6 +220,18 @@ class SignatureDashboardController extends Controller
                 'created_by' => Auth::guard('admin')->id(),
                 'signer_count' => 0,
             ]);
+            
+            // Create activity note for document creation
+            DocumentNote::create([
+                'document_id' => $document->id,
+                'created_by' => Auth::guard('admin')->id(),
+                'action_type' => 'document_created',
+                'note' => 'Document created',
+                'metadata' => [
+                    'file_name' => $nameWithoutExtension,
+                    'file_type' => $fileExtension,
+                ]
+            ]);
 
             // Redirect to the signature placement page
             return redirect()->route('signatures.edit', $document->id)
@@ -255,8 +282,20 @@ class SignatureDashboardController extends Controller
         }
         
         // Update document status if fields were added
-        if ($document->signatureFields()->count() > 0) {
+        $fieldCount = $document->signatureFields()->count();
+        if ($fieldCount > 0) {
             $document->update(['status' => 'signature_placed']);
+            
+            // Create activity note for signature fields placed
+            DocumentNote::create([
+                'document_id' => $document->id,
+                'created_by' => auth('admin')->id(),
+                'action_type' => 'signature_placed',
+                'note' => "Signature fields placed ({$fieldCount} field(s))",
+                'metadata' => [
+                    'field_count' => $fieldCount,
+                ]
+            ]);
         }
         
         // Redirect to add signer page
@@ -380,18 +419,53 @@ class SignatureDashboardController extends Controller
         $emailsSent = 0;
         $errors = [];
         
+        // Get mail configuration from config (which reads from .env)
+        $mailHost = config('mail.mailers.smtp.host');
+        $mailPort = config('mail.mailers.smtp.port');
+        $mailUsername = config('mail.mailers.smtp.username');
+        $mailPassword = config('mail.mailers.smtp.password');
+        $mailEncryption = config('mail.mailers.smtp.encryption', 'tls');
+        $mailFromAddress = config('mail.from.address');
+        $mailFromName = config('mail.from.name');
+        
+        // Configure mail settings dynamically
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', [
+            'transport' => 'smtp',
+            'host' => $mailHost,
+            'port' => $mailPort,
+            'encryption' => $mailEncryption,
+            'username' => $mailUsername,
+            'password' => $mailPassword,
+        ]);
+        Config::set('mail.from.address', $mailFromAddress);
+        Config::set('mail.from.name', $mailFromName);
+        
+        // Clear cached mail manager to apply new config
+        app()->forgetInstance('mailer');
+        app()->forgetInstance('mail.manager');
+        
         foreach ($pendingSigners as $signer) {
             try {
                 // Generate signing URL
                 $signingUrl = url("/sign/{$document->id}/{$signer->token}");
                 
-                $subject = $signer->email_subject ?? 'Document Signature Request';
-                $message = $signer->email_message ?? "Please review and sign the attached document.";
+                $subject = $signer->email_subject ?? 'Document Signature Request from ' . $mailFromName;
+                $emailMessage = $signer->email_message ?? "Please review and sign the attached document.";
                 
-                // Send email
-                Mail::raw("Hello {$signer->name},\n\n{$message}\n\nPlease click the following link to sign the document:\n{$signingUrl}\n\nDocument: {$document->display_title}\n\nThank you.", function ($mail) use ($signer, $subject) {
+                // Email data for template
+                $emailData = [
+                    'signerName' => $signer->name,
+                    'emailMessage' => $emailMessage,
+                    'documentTitle' => $document->display_title,
+                    'signingUrl' => $signingUrl,
+                ];
+                
+                // Send email using the signature-request template
+                Mail::send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
                     $mail->to($signer->email, $signer->name)
-                         ->subject($subject);
+                         ->subject($subject)
+                         ->from($mailFromAddress, $mailFromName);
                 });
                 
                 // Create activity note for successful email
@@ -399,7 +473,7 @@ class SignatureDashboardController extends Controller
                     'document_id' => $document->id,
                     'created_by' => Auth::guard('admin')->id() ?? 1,
                     'action_type' => 'email_sent',
-                    'note' => "Email sent successfully to {$signer->name} ({$signer->email})",
+                    'note' => "Email sent to {$signer->name} ({$signer->email})",
                     'metadata' => [
                         'signer_email' => $signer->email,
                         'signer_name' => $signer->name,
@@ -410,6 +484,11 @@ class SignatureDashboardController extends Controller
                 $emailsSent++;
                 
             } catch (\Exception $e) {
+                Log::error('Signature email failed', [
+                    'document_id' => $document->id,
+                    'signer_email' => $signer->email,
+                    'error' => $e->getMessage()
+                ]);
                 $errors[] = "Failed to send email to {$signer->email}: " . $e->getMessage();
             }
         }

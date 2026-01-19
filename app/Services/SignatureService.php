@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\DocumentNote;
 use App\Models\ActivitiesLog;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -63,20 +64,70 @@ class SignatureService
     }
 
     /**
+     * Configure mail settings using config values (from .env)
+     */
+    protected function configureMailer(): void
+    {
+        // Get mail configuration from config (which reads from .env)
+        $mailHost = config('mail.mailers.smtp.host');
+        $mailPort = config('mail.mailers.smtp.port');
+        $mailUsername = config('mail.mailers.smtp.username');
+        $mailPassword = config('mail.mailers.smtp.password');
+        $mailEncryption = config('mail.mailers.smtp.encryption', 'tls');
+        $mailFromAddress = config('mail.from.address');
+        $mailFromName = config('mail.from.name');
+        
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', [
+            'transport' => 'smtp',
+            'host' => $mailHost,
+            'port' => $mailPort,
+            'encryption' => $mailEncryption,
+            'username' => $mailUsername,
+            'password' => $mailPassword,
+        ]);
+        Config::set('mail.from.address', $mailFromAddress);
+        Config::set('mail.from.name', $mailFromName);
+        
+        // Clear cached mail manager to apply new config
+        app()->forgetInstance('mailer');
+        app()->forgetInstance('mail.manager');
+    }
+
+    /**
      * Send signing email to a signer
      */
     protected function sendSigningEmail(Document $document, Signer $signer, array $options = []): void
     {
         try {
+            // Configure mailer with Zepto settings
+            $this->configureMailer();
+            
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
             
-            $subject = $options['subject'] ?? 'Document Signature Request';
-            $message = $options['message'] ?? "Please review and sign the attached document.";
+            // Get from address from config
+            $mailFromName = config('mail.from.name');
             
-            // Send email using Laravel Mail
-            Mail::raw("Hello {$signer->name},\n\n{$message}\n\nPlease click the following link to sign the document:\n{$signingUrl}\n\nDocument: {$document->display_title}\n\nThank you.", function ($mail) use ($signer, $subject) {
+            $subject = $options['subject'] ?? 'Document Signature Request from ' . $mailFromName;
+            $emailMessage = $options['message'] ?? "Please review and sign the attached document.";
+            
+            // Email data for template
+            $emailData = [
+                'signerName' => $signer->name,
+                'emailMessage' => $emailMessage,
+                'documentTitle' => $document->display_title,
+                'signingUrl' => $signingUrl,
+            ];
+            
+            // Get from address from config
+            $mailFromAddress = config('mail.from.address');
+            $mailFromName = config('mail.from.name');
+            
+            // Send email using the signature-request template
+            Mail::send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
                 $mail->to($signer->email, $signer->name)
-                     ->subject($subject);
+                     ->subject($subject)
+                     ->from($mailFromAddress, $mailFromName);
             });
 
             // Create activity note for successful email delivery
@@ -84,7 +135,7 @@ class SignatureService
                 'document_id' => $document->id,
                 'created_by' => Auth::guard('admin')->id() ?? 1,
                 'action_type' => 'email_sent',
-                'note' => "Email sent successfully to {$signer->name} ({$signer->email})",
+                'note' => "Email sent to {$signer->name} ({$signer->email})",
                 'metadata' => [
                     'signer_id' => $signer->id,
                     'signer_email' => $signer->email,
@@ -149,14 +200,32 @@ class SignatureService
                 throw new \Exception('Maximum reminders already sent');
             }
 
+            // Configure mailer with Zepto settings
+            $this->configureMailer();
+
             $document = $signer->document;
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
             $reminderNumber = $signer->reminder_count + 1;
 
-            // Send reminder email
-            Mail::raw("Hello {$signer->name},\n\nThis is a reminder to sign your document.\n\nPlease click the following link to sign:\n{$signingUrl}\n\nDocument: {$document->display_title}\n\nReminder #{$reminderNumber}\n\nThank you.", function ($mail) use ($signer) {
+            // Get from address from config
+            $mailFromAddress = config('mail.from.address');
+            $mailFromName = config('mail.from.name');
+
+            // Email data for reminder template
+            $emailData = [
+                'signerName' => $signer->name,
+                'emailMessage' => "This is reminder #{$reminderNumber} to sign your document. Please review and sign the attached document.",
+                'documentTitle' => $document->display_title,
+                'signingUrl' => $signingUrl,
+            ];
+            
+            $subject = "Reminder #{$reminderNumber}: Document Signature Request from " . $mailFromName;
+            
+            // Send reminder email using the signature-request template
+            Mail::send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
                 $mail->to($signer->email, $signer->name)
-                     ->subject('Reminder: Please Sign Your Document');
+                     ->subject($subject)
+                     ->from($mailFromAddress, $mailFromName);
             });
 
             // Update reminder tracking

@@ -58,6 +58,12 @@ class DocumentNote extends Model
      */
     public function getActionTextAttribute()
     {
+        // If there's a note, use it as the action text
+        if ($this->note) {
+            return $this->note;
+        }
+        
+        // Fallback to action type formatting
         return match($this->action_type) {
             'associated' => 'Associated document',
             'detached' => 'Detached document',
@@ -68,6 +74,9 @@ class DocumentNote extends Model
             'email_failed' => 'Email failed',
             'email_delivered' => 'Email delivered',
             'signature_cancelled' => 'Signature cancelled',
+            'signer_added' => 'Signer added',
+            'signature_placed' => 'Signature fields placed',
+            'document_created' => 'Document created',
             default => ucfirst(str_replace('_', ' ', $this->action_type))
         };
     }

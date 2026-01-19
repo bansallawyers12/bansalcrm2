@@ -109,61 +109,115 @@ class PublicDocumentController extends Controller
 
     /**
      * Submit signatures for a public document
+     * Supports both legacy format (with signer_id, signature_positions) and new format (token + signatures object)
      */
     public function submitSignatures(Request $request, $id)
     {
+        $isAjax = $request->expectsJson() || $request->ajax() || $request->isJson();
+        
         Log::info('=== START submitSignatures ===', [
             'document_id' => $id,
-            'signer_id' => $request->signer_id,
+            'is_ajax' => $isAjax,
+            'has_token' => $request->has('token'),
+            'has_signer_id' => $request->has('signer_id'),
             'has_signatures' => $request->has('signatures'),
-        ]);
-        
-        $request->validate([
-            'signer_id' => 'required|integer|exists:signers,id',
-            'token' => 'required|string|min:32',
-            'signatures' => 'required|array',
-            'signatures.*' => 'nullable|string',
-            'signature_positions' => 'required|array',
-            'signature_positions.*' => 'nullable|string'
         ]);
 
         $documentId = (int) $id;
         if ($documentId <= 0) {
             Log::error('Invalid document ID in submitSignatures', ['id' => $id]);
+            if ($isAjax) {
+                return response()->json(['success' => false, 'message' => 'Invalid document ID.'], 400);
+            }
             return redirect('/')->with('error', 'Invalid document ID.');
         }
 
         try {
             $document = Document::findOrFail($documentId);
-            $signer = Signer::findOrFail($request->signer_id);
+            
+            // Determine if this is new format (token only) or legacy format (signer_id)
+            $isNewFormat = $request->has('token') && !$request->has('signer_id');
+            
+            if ($isNewFormat) {
+                // New format: find signer by token
+                $token = $request->input('token');
+                if (!$token || strlen($token) < 32) {
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'Invalid token.'], 400);
+                    }
+                    return redirect('/')->with('error', 'Invalid token.');
+                }
+                
+                $signer = $document->signers()->where('token', $token)->first();
+                if (!$signer) {
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'Invalid or expired signing link.'], 400);
+                    }
+                    return redirect('/')->with('error', 'Invalid or expired signing link.');
+                }
+            } else {
+                // Legacy format: validate with signer_id
+                $request->validate([
+                    'signer_id' => 'required|integer|exists:signers,id',
+                    'token' => 'required|string|min:32',
+                    'signatures' => 'required|array',
+                    'signatures.*' => 'nullable|string',
+                    'signature_positions' => 'required|array',
+                    'signature_positions.*' => 'nullable|string'
+                ]);
+                
+                $signer = Signer::findOrFail($request->signer_id);
+                
+                // Verify signer belongs to this document
+                if ($signer->document_id !== $document->id) {
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'Invalid signing attempt.'], 400);
+                    }
+                    return redirect('/')->with('error', 'Invalid signing attempt.');
+                }
 
-            // Verify signer belongs to this document
-            if ($signer->document_id !== $document->id) {
-                return redirect('/')->with('error', 'Invalid signing attempt.');
-            }
-
-            // Verify token matches
-            if ($signer->token !== $request->token) {
-                return redirect('/')->with('error', 'Invalid or expired signing link.');
+                // Verify token matches
+                if ($signer->token !== $request->token) {
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'Invalid or expired signing link.'], 400);
+                    }
+                    return redirect('/')->with('error', 'Invalid or expired signing link.');
+                }
             }
 
             // Check if signer has already signed
             if ($signer->status === 'signed') {
+                if ($isAjax) {
+                    return response()->json([
+                        'success' => true, 
+                        'message' => 'This document has already been signed.',
+                        'redirect' => route('public.documents.thankyou', ['id' => $document->id])
+                    ]);
+                }
                 return redirect()->route('public.documents.thankyou', ['id' => $document->id])
                     ->with('info', 'This document has already been signed.');
             }
             
             // Check if signature has been cancelled
             if ($signer->status === 'cancelled') {
+                if ($isAjax) {
+                    return response()->json(['success' => false, 'message' => 'This signing link has been cancelled.'], 400);
+                }
                 return redirect('/')->with('error', 'This signing link has been cancelled.');
             }
             
             if ($signer->token !== null && $signer->status === 'pending') {
-                // Get PDF file
+                // Get PDF file - check both S3 URL and local storage
                 $url = $document->myfile;
                 $pdfPath = null;
+                $tempFile = null;
                 
-                if ($url && file_exists(storage_path('app/public/' . $url))) {
+                // Check if it's an S3 URL
+                if ($url && (str_contains($url, 's3.') || str_contains($url, 'amazonaws.com') || str_contains($url, 'http'))) {
+                    // Download from S3/remote to a temporary file
+                    $pdfPath = $this->downloadS3FileToTemp($url, $document->id);
+                    $tempFile = $pdfPath;
+                } elseif ($url && file_exists(storage_path('app/public/' . $url))) {
                     $pdfPath = storage_path('app/public/' . $url);
                 }
                 
@@ -172,6 +226,9 @@ class PublicDocumentController extends Controller
                         'document_id' => $document->id,
                         'url' => $url,
                     ]);
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'Document file not found. Please contact support.'], 400);
+                    }
                     return redirect()->back()->with('error', 'Document file not found. Please contact support.');
                 }
                 
@@ -182,28 +239,27 @@ class PublicDocumentController extends Controller
                     mkdir(storage_path('app/public/signed'), 0755, true);
                 }
 
-                // Process signatures
+                // Process signatures - handle both new and legacy format
                 $signaturePositions = [];
                 $signatureLinks = [];
                 $signaturesSaved = false;
+                
+                // Get signature fields from database for position reference
+                $signatureFieldsFromDb = $document->signatureFields()->get()->keyBy('id');
 
-                foreach ($request->signatures as $page => $signaturesJson) {
-                    $pageNum = (int) $page;
-                    if ($pageNum < 1 || $pageNum > 999 || !$signaturesJson) {
-                        continue;
-                    }
-
-                    $signatures = json_decode($signaturesJson, true);
-                    $positions = json_decode($request->signature_positions[$page] ?? '{}', true);
-
-                    if (!is_array($signatures) || !is_array($positions)) {
-                        continue;
-                    }
-
-                    foreach ($signatures as $fieldId => $signatureData) {
+                if ($isNewFormat) {
+                    // New format: signatures = { fieldId: base64Data, ... }
+                    foreach ($request->signatures as $fieldId => $signatureData) {
                         $sanitizedFieldId = (int) $fieldId;
-                        if ($sanitizedFieldId <= 0) continue;
-
+                        if ($sanitizedFieldId <= 0 || !$signatureData) continue;
+                        
+                        // Get field position from database
+                        $field = $signatureFieldsFromDb->get($sanitizedFieldId);
+                        if (!$field) {
+                            Log::warning('Signature field not found in database', ['field_id' => $sanitizedFieldId]);
+                            continue;
+                        }
+                        
                         // Validate and decode signature
                         $sanitizedSignature = $this->sanitizeSignatureData($signatureData, $sanitizedFieldId);
                         if ($sanitizedSignature === false) continue;
@@ -223,24 +279,77 @@ class PublicDocumentController extends Controller
                         $signaturePath = storage_path('app/public/' . $localSignaturePath);
                         $signatureUrl = asset('storage/' . $localSignaturePath);
 
-                        // Store position
-                        $position = $positions[$fieldId] ?? [];
-                        $sanitizedPosition = $this->sanitizePositionData($position);
-
                         $signaturePositions[$sanitizedFieldId] = [
                             'path' => $signaturePath,
-                            'page' => $pageNum,
-                            'x_percent' => $sanitizedPosition['x_percent'],
-                            'y_percent' => $sanitizedPosition['y_percent'],
-                            'w_percent' => $sanitizedPosition['w_percent'],
-                            'h_percent' => $sanitizedPosition['h_percent']
+                            'page' => $field->page_number,
+                            'x_percent' => $field->x_percent,
+                            'y_percent' => $field->y_percent,
+                            'w_percent' => $field->width_percent ?? 20,
+                            'h_percent' => $field->height_percent ?? 10
                         ];
                         $signatureLinks[$sanitizedFieldId] = $signatureUrl;
                         $signaturesSaved = true;
                     }
+                } else {
+                    // Legacy format: signatures grouped by page
+                    foreach ($request->signatures as $page => $signaturesJson) {
+                        $pageNum = (int) $page;
+                        if ($pageNum < 1 || $pageNum > 999 || !$signaturesJson) {
+                            continue;
+                        }
+
+                        $signatures = json_decode($signaturesJson, true);
+                        $positions = json_decode($request->signature_positions[$page] ?? '{}', true);
+
+                        if (!is_array($signatures) || !is_array($positions)) {
+                            continue;
+                        }
+
+                        foreach ($signatures as $fieldId => $signatureData) {
+                            $sanitizedFieldId = (int) $fieldId;
+                            if ($sanitizedFieldId <= 0) continue;
+
+                            // Validate and decode signature
+                            $sanitizedSignature = $this->sanitizeSignatureData($signatureData, $sanitizedFieldId);
+                            if ($sanitizedSignature === false) continue;
+
+                            $imageData = $sanitizedSignature['imageData'];
+
+                            // Store signature locally
+                            $filename = sprintf('%d_field_%d_%s.png', $signer->id, $sanitizedFieldId, bin2hex(random_bytes(8)));
+                            $localSignaturePath = 'signatures/' . $filename;
+                            
+                            // Ensure signatures directory exists
+                            if (!file_exists(storage_path('app/public/signatures'))) {
+                                mkdir(storage_path('app/public/signatures'), 0755, true);
+                            }
+                            
+                            Storage::disk('public')->put($localSignaturePath, $imageData);
+                            $signaturePath = storage_path('app/public/' . $localSignaturePath);
+                            $signatureUrl = asset('storage/' . $localSignaturePath);
+
+                            // Store position
+                            $position = $positions[$fieldId] ?? [];
+                            $sanitizedPosition = $this->sanitizePositionData($position);
+
+                            $signaturePositions[$sanitizedFieldId] = [
+                                'path' => $signaturePath,
+                                'page' => $pageNum,
+                                'x_percent' => $sanitizedPosition['x_percent'],
+                                'y_percent' => $sanitizedPosition['y_percent'],
+                                'w_percent' => $sanitizedPosition['w_percent'],
+                                'h_percent' => $sanitizedPosition['h_percent']
+                            ];
+                            $signatureLinks[$sanitizedFieldId] = $signatureUrl;
+                            $signaturesSaved = true;
+                        }
+                    }
                 }
 
                 if (!$signaturesSaved) {
+                    if ($isAjax) {
+                        return response()->json(['success' => false, 'message' => 'No valid signatures were detected. Please ensure all signature fields are properly signed.'], 400);
+                    }
                     return redirect()->back()
                         ->with('error', 'No valid signatures were detected. Please ensure all signature fields are properly signed.')
                         ->withInput();
@@ -253,16 +362,32 @@ class PublicDocumentController extends Controller
                     $signatureImageContent = file_get_contents($sigData['path']);
                     $signatureBase64 = base64_encode($signatureImageContent);
                     
+                    // Convert percentages from 0-100 scale to 0-1 decimal scale for Python service
                     $signaturesForPython[] = [
                         'field_id' => $fieldId,
                         'page_number' => $sigData['page'],
-                        'x_percent' => $sigData['x_percent'],
-                        'y_percent' => $sigData['y_percent'],
-                        'width_percent' => $sigData['w_percent'],
-                        'height_percent' => $sigData['h_percent'],
+                        'x_percent' => floatval($sigData['x_percent']) / 100,
+                        'y_percent' => floatval($sigData['y_percent']) / 100,
+                        'width_percent' => floatval($sigData['w_percent']) / 100,
+                        'height_percent' => floatval($sigData['h_percent']) / 100,
                         'signature_data' => $signatureBase64
                     ];
                 }
+                
+                Log::info('Signatures prepared for Python service', [
+                    'document_id' => $document->id,
+                    'signature_count' => count($signaturesForPython),
+                    'positions' => array_map(function($s) {
+                        return [
+                            'field_id' => $s['field_id'],
+                            'page' => $s['page_number'],
+                            'x' => $s['x_percent'],
+                            'y' => $s['y_percent'],
+                            'w' => $s['width_percent'],
+                            'h' => $s['height_percent']
+                        ];
+                    }, $signaturesForPython)
+                ]);
 
                 try {
                     $response = Http::timeout(60)->post($this->pythonServiceUrl . '/add_signatures', [
@@ -321,11 +446,26 @@ class PublicDocumentController extends Controller
 
                 // Create notifications and activity logs
                 $this->createSignatureNotifications($document, $signer);
+                
+                // Clean up temp file if exists
+                if ($tempFile && file_exists($tempFile)) {
+                    @unlink($tempFile);
+                }
 
+                if ($isAjax) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Document signed successfully!',
+                        'redirect' => route('public.documents.thankyou', ['id' => $document->id])
+                    ]);
+                }
                 return redirect()->route('public.documents.thankyou', ['id' => $document->id])
                     ->with('success', 'Document signed successfully! You can now download your signed document.');
             }
 
+            if ($isAjax) {
+                return response()->json(['success' => false, 'message' => 'An unexpected error occurred while processing your signature.'], 500);
+            }
             return redirect()->back()
                 ->with('error', 'An unexpected error occurred while processing your signature.');
         } catch (\Exception $e) {
@@ -334,6 +474,9 @@ class PublicDocumentController extends Controller
                 'document_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
+            if ($isAjax) {
+                return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
+            }
             return redirect()->back()
                 ->with('error', 'An unexpected error occurred while processing your signature.');
         }
