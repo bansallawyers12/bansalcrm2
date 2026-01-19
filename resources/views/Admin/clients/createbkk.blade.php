@@ -394,7 +394,10 @@
 											<label for="phone">Contact No.<span style="color:#ff0000;">*</span></label>
 											<div class="cus_field_input">
 												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="country_code" readonly >
+													@include('partials.country-code-select', [
+														'name' => 'country_code',
+														'selected' => old('country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+													])
 												</div>	
 												{!! Form::text('phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'', 'id' => 'checkphone' ))  !!}
 												@if ($errors->has('phone'))
@@ -447,7 +450,10 @@
 											<label for="att_phone">Phone</label>
 											<div class="cus_field_input">
 												<div class="country_code"> 
-													<input class="telephone" id="telephone" type="tel" name="att_country_code" readonly >
+													@include('partials.country-code-select', [
+														'name' => 'att_country_code',
+														'selected' => old('att_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+													])
 												</div>	
 												{!! Form::text('att_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
 												@if ($errors->has('att_phone'))

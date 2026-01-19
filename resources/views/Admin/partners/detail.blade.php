@@ -2746,7 +2746,10 @@ use App\Http\Controllers\Controller;
 								<label for="branch_phone">Phone</label>
 								<div class="cus_field_input"> 
 									<div class="country_code"> 
-										<input class="telephone" id="telephone" type="tel" value="{{ config('phone.default_country_code', '+61') }}" name="brnch_country_code" readonly >
+										@include('partials.country-code-select', [
+											'name' => 'brnch_country_code',
+											'selected' => old('brnch_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+										])
 									</div>	
 									{!! Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('branch_phone'))
@@ -3858,7 +3861,7 @@ jQuery(document).ready(function($){
 		$('#add_clientcontact #appliationModalLabel').html('Add Contact');
 
 		$('#add_clientcontact input[name="contact_id"]').val('');
-		$('#add_clientcontact #telephone').val('+61');
+		$('#add_clientcontact select[name="country_code"]').val('{{ \App\Helpers\PhoneHelper::getDefaultCountryCode() }}');
 		$('#add_clientcontact #primary_contact').prop('checked', false);
 		$('#add_clientcontact .allinputfields input').val('');
 		$('#add_clientcontact .allinputfields select').val('');
@@ -3869,7 +3872,7 @@ jQuery(document).ready(function($){
 		$('#add_clientbranch #appliationModalLabel').html('Add new branch');
 
 		$('#add_clientbranch input[name="branch_id"]').val('');
-		$('#add_clientbranch #telephone').val('+61');
+		$('#add_clientbranch select[name="country_code"]').val('{{ \App\Helpers\PhoneHelper::getDefaultCountryCode() }}');
 		$('#add_clientbranch #head_office').prop('checked', false);
 		$('#add_clientbranch .allinputfields input').val('');
 		$('#add_clientbranch .allinputfields select').val('');
@@ -4293,7 +4296,7 @@ function formatRepoSelection (repo) {
 					$('#add_clientcontact input[name="email"]').val(res.data.contact_email);
 					$('#add_clientcontact input[name="phone"]').val(res.data.contact_phone);
 					$('#add_clientcontact input[name="fax"]').val(res.data.fax);
-					$('#add_clientcontact input[name="telephone"]').val(res.data.countrycode);
+					$('#add_clientcontact select[name="country_code"]').val(res.data.countrycode || '');
 					$('#add_clientcontact input[name="department"]').val(res.data.department);
 					$('#add_clientcontact input[name="position"]').val(res.data.position);
 					$('#add_clientcontact #branch').val(res.data.branch);
@@ -4328,7 +4331,7 @@ function formatRepoSelection (repo) {
 					$('#add_clientbranch input[name="email"]').val(res.data.email);
 					$('#add_clientbranch input[name="phone"]').val(res.data.phone);
 					$('#add_clientbranch #country').val(res.data.country);
-					$('#add_clientbranch #telephone').val(res.data.country_code);
+					$('#add_clientbranch select[name="country_code"]').val(res.data.country_code || '');
 					$('#add_clientbranch input[name="city"]').val(res.data.city);
 					$('#add_clientbranch input[name="state"]').val(res.data.state);
 					$('#add_clientbranch input[name="zip_code"]').val(res.data.zip);

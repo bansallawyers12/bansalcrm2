@@ -657,6 +657,7 @@
 @section('scripts') 
 <script>
 // Cache buster: <?php echo time(); ?>
+window.countryCodeOptionsHtml = {!! json_encode(view('partials.country-code-options')->render()) !!};
 
 jQuery(document).ready(function($){
 
@@ -674,7 +675,7 @@ jQuery(document).ready(function($){
 			window.vendorLibsReady.then(callback);
 			return;
 		}
-		if (typeof $.fn.select2 === 'function' || typeof $.fn.intlTelInput === 'function') {
+		if (typeof $.fn.select2 === 'function') {
 			callback();
 			return;
 		}
@@ -716,22 +717,6 @@ jQuery(document).ready(function($){
 		console.log('Partner Create: Select2 initialization complete');
 	}
 
-	function initIntlTelInputs($scope) {
-		if (typeof $.fn.intlTelInput !== 'function') {
-			return;
-		}
-		var $inputs = $scope ? $scope.find('.telephone') : $('.telephone');
-		$inputs.each(function() {
-			if (window.intlTelInputGlobals && window.intlTelInputGlobals.getInstance(this)) {
-				return;
-			}
-			try {
-				$(this).intlTelInput();
-			} catch (error) {
-				console.warn('Error initializing intlTelInput:', error);
-			}
-		});
-	}
 	var branchdata = new Array();
     var itag = $('.branchdata .row').length;
 
@@ -942,7 +927,7 @@ jQuery(document).ready(function($){
 		$('input[name="branch_phone"]').val(c.phone);
 		$(".branch_country").val(c.country).trigger('change') ;
 		//alert(c.ccode);
-		$('#telephone').val(c.ccode);
+		$('#branchform select[name="brnch_country_code"]').val(c.ccode || '');
 		$('#clientModalLabel').html('Edit Branch');
 		$('.savebranch').hide();
 		$('#update_branch').show();
@@ -955,7 +940,6 @@ jQuery(document).ready(function($){
 
 	whenVendorLibsReady(function() {
 		initPartnerSelect2();
-		initIntlTelInputs();
 	});
 
     
@@ -1123,18 +1107,17 @@ jQuery(document).ready(function($){
         $('#update_partnerphone').hide();
         $('#partnerphoneform')[0].reset();
         $('.addpartnerphone').modal('show');
-        initIntlTelInputs($('.addpartnerphone'));
     });
 
     $('.addpartnerphone').on('shown.bs.modal', function () {
-        initIntlTelInputs($('.addpartnerphone'));
+		$('.country_code').removeClass('error');
     });
 
     //Save partner phone
     $(document).delegate('.savepartnerphone','click', function() {
-        var partner_phone_type = $('input[name="partner_phone_type"]').val();
+        var partner_phone_type = $('select[name="partner_phone_type"]').val();
         $('.partner_phone_type_error').html('');
-        $('input[name="partner_phone_type"]').parent().removeClass('error');
+        $('select[name="partner_phone_type"]').parent().removeClass('error');
 
         var partner_phone = $('input[name="partner_phone"]').val();
         $('.partner_phone_error').html('');
@@ -1145,7 +1128,7 @@ jQuery(document).ready(function($){
             var flag = false;
             if(partner_phone_type == ''){
                 $('.partner_phone_type_error').html('The Phone field is required.');
-                $('input[name="partner_phone_type"]').parent().addClass('error');
+                $('select[name="partner_phone_type"]').parent().addClass('error');
                 flag = true;
             }
 
@@ -1182,7 +1165,7 @@ jQuery(document).ready(function($){
 
                                 html += '<div class="cus_field_input">';
                                     html += '<div class="country_code">';
-                                        html += '<input class="telephone" id="telephone" type="tel" name="partner_country_code[]" value="'+str[1].value+'"  >';
+                                html += '<select class="form-control country_code_select" name="partner_country_code[]">' + window.countryCodeOptionsHtml + '</select>';
                                     html += '</div>';
                                     html += '<input class="form-control tel_input"  autocomplete="off" placeholder="Enter Phone" name="partner_phone[]" type="text" value="'+str[2].value+'">';
                                 html += '</div>';
@@ -1197,7 +1180,7 @@ jQuery(document).ready(function($){
 
                     html += '</div></div>';
                 $('.partnerphonedata').append(html);
-                initIntlTelInputs($('.partnerphonedata'));
+				$('#metatag_' + itag_phone + ' select[name="partner_country_code[]"]').val(str[1].value || '');
                 $('#partnerphoneform')[0].reset();
                 $('.addpartnerphone').modal('hide');
                 itag_phone++;

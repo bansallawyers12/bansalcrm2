@@ -1042,7 +1042,7 @@ class PartnersController extends Controller
 		$obj->city 			= $request->city;
 		$obj->state 				= $request->state;
 		$obj->street 			= $request->street;
-		$obj->country_code 	= $request->country_code;
+		$obj->country_code 	= PhoneHelper::normalizeCountryCode($request->country_code);
 		$obj->phone 			= $request->phone;
 		$obj->is_headoffice 		= isset($request->head_office) ? $request->head_office : 0; // Default to 0 if not set
 		$obj->is_regional 		= isset($request->is_regional) ? $request->is_regional : 1; // Default to 1 (Regional) if not set

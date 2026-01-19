@@ -16,8 +16,7 @@
         await new Promise((resolve) => {
             const check = () => {
                 if (typeof window.$ !== 'undefined' &&
-                    typeof window.$.fn.select2 === 'function' &&
-                    typeof window.$.fn.intlTelInput === 'function') {
+                    typeof window.$.fn.select2 === 'function') {
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -189,19 +188,7 @@
                     });
             });
             
-            // Initialize intlTelInput if available
-            // Note: intlTelInput is a jQuery plugin, use $.fn.intlTelInput
-            if (typeof $.fn.intlTelInput === 'function') {
-                $(".telephone").each(function() {
-                    try {
-                        $(this).intlTelInput();
-                    } catch (e) {
-                        console.warn('Error initializing intlTelInput:', e);
-                    }
-                });
-            } else {
-                console.warn('intlTelInput not available');
-            }
+            // intlTelInput plugin no longer used - replaced with country code select dropdowns
             
             // All the table column show/hide logic
             $('.drop_table_data button').on('click', function(){

@@ -30,8 +30,7 @@
             const check = () => {
                 if (typeof $ !== 'undefined' && 
                     typeof $.fn.select2 === 'function' &&
-                    typeof flatpickr !== 'undefined' &&
-                    typeof intlTelInput !== 'undefined') {
+                    typeof flatpickr !== 'undefined') {
                     console.log('[ui-components.js] All vendor libraries detected!');
                     resolve();
                 } else {

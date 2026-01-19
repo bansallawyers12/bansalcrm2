@@ -251,7 +251,10 @@
 														<label for="phone">Phone Number</label>
 														<div class="cus_field_input">
 															<div class="country_code">
-																<input class="telephone" id="telephone" type="tel" name="country_code" readonly value="{{--@$fetchedData->first_name--}}" >
+																@include('partials.country-code-select', [
+																	'name' => 'partner_country_code_placeholder',
+																	'selected' => \App\Helpers\PhoneHelper::getDefaultCountryCode()
+																])
 															</div>
 															{{--Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))--}}
 															{{--@if ($errors->has('phone'))--}}
@@ -331,7 +334,10 @@
                                                                     <label for="phone">Phone Number</label>
                                                                     <div class="cus_field_input">
                                                                         <div class="country_code">
-                                                                            <input class="telephone" id="telephone" type="tel" name="partner_country_code[]" value="<?php echo $partnerphone->partner_country_code;?>" >
+																			@include('partials.country-code-select', [
+																				'name' => 'partner_country_code[]',
+																				'selected' => old('partner_country_code.' . $iii, $partnerphone->partner_country_code)
+																			])
                                                                         </div>
                                                                         {!! Form::text('partner_phone[]', $partnerphone->partner_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone'))  !!}
                                                                     </div>
@@ -647,7 +653,10 @@
 								<label for="branch_phone">Phone</label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" value="{{ config('phone.default_country_code', '+61') }}" name="brnch_country_code" readonly >
+										@include('partials.country-code-select', [
+											'name' => 'brnch_country_code',
+											'selected' => old('brnch_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+										])
 									</div>
 									{!! Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('branch_phone'))
@@ -758,7 +767,10 @@
 								<label for="partner_phone">Phone Number </label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" name="partner_country_code"  >
+										@include('partials.country-code-select', [
+											'name' => 'partner_country_code',
+											'selected' => old('partner_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+										])
 									</div>
 									{!! Form::text('partner_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('partner_phone'))
@@ -785,6 +797,7 @@
 @endsection
 @section('scripts')
 <script>
+window.countryCodeOptionsHtml = {!! json_encode(view('partials.country-code-options')->render()) !!};
 
 jQuery(document).ready(function($){
 	function validateEmail(sEmail) {
@@ -993,7 +1006,7 @@ jQuery(document).ready(function($){
 		$('input[name="branch_phone"]').val(c.phone);
 		$(".branch_country").val(c.country).trigger('change') ;
 		//alert(c.ccode);
-		$('#telephone').val(c.ccode);
+		$('#branchform select[name="brnch_country_code"]').val(c.ccode || '');
 		$('#clientModalLabel').html('Edit Branch');
 		$('.savebranch').hide();
 		$('#update_branch').show();
@@ -1191,19 +1204,18 @@ jQuery(document).ready(function($){
         $('#update_partnerphone').hide();
         $('#partnerphoneform')[0].reset();
         $('.addpartnerphone').modal('show');
-        $(".telephone").intlTelInput();
     });
 
     $('.addpartnerphone').on('shown.bs.modal', function () {
-        $(".telephone").intlTelInput();
+		$('.country_code').removeClass('error');
     });
 
     //Save partner phone
     $(document).delegate('.savepartnerphone','click', function() {
 
-        var partner_phone_type = $('input[name="partner_phone_type"]').val();
+        var partner_phone_type = $('select[name="partner_phone_type"]').val();
         $('.partner_phone_type_error').html('');
-        $('input[name="partner_phone_type"]').parent().removeClass('error');
+        $('select[name="partner_phone_type"]').parent().removeClass('error');
 
         var partner_phone = $('input[name="partner_phone"]').val();
         $('.partner_phone_error').html('');
@@ -1214,7 +1226,7 @@ jQuery(document).ready(function($){
             var flag = false;
             if(partner_phone_type == ''){
                 $('.partner_phone_type_error').html('The phone type field is required.');
-                $('input[name="partner_phone_type"]').parent().addClass('error');
+                $('select[name="partner_phone_type"]').parent().addClass('error');
                 flag = true;
             }
 
@@ -1255,7 +1267,7 @@ jQuery(document).ready(function($){
 
                                 html += '<div class="cus_field_input">';
                                     html += '<div class="country_code">';
-                                        html += '<input class="telephone" id="telephone" type="tel" name="partner_country_code[]" value="'+str[1].value+'" >';
+                                        html += '<select class="form-control country_code_select" name="partner_country_code[]">' + window.countryCodeOptionsHtml + '</select>';
                                     html += '</div>';
                                     html += '<input class="form-control tel_input" readonly autocomplete="off" placeholder="Enter Phone" name="partner_phone[]" type="text" value="'+str[2].value+'">';
                                 html += '</div>';
@@ -1274,7 +1286,7 @@ jQuery(document).ready(function($){
                     //html += '</div>';
                     html += '</div></div>';
                 $('.partnerphonedata').append(html);
-                $(".telephone").intlTelInput();
+				$('.partnerphonedata').find('select[name="partner_country_code[]"]').last().val(str[1].value || '');
                 $('#partnerphoneform')[0].reset();
                 $('.addpartnerphone').modal('hide');
                 itag_phone++;
