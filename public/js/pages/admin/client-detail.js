@@ -2625,19 +2625,21 @@ Bansal Immigration`;
     // PRODUCT FEE AUTO-CALCULATION
     // ============================================================================
     
-    // Calculate Tution Fee (sum of all fee inputs in Product Fee modal)
+    // Calculate Tution Fee (Total Course Fee - Scholarship Fee + Enrolment Fee + Material Fees)
     function calculateTutionFee() {
-        var totalFee = 0;
-        var hasValues = false;
+        // Get individual fee values
+        var totalCourseFee = parseFloat($('#total_course_fee_amount').val()) || 0;
+        var scholarshipFee = parseFloat($('#scholarship_fee_amount').val()) || 0;
+        var enrolmentFee = parseFloat($('#enrolment_fee_amount').val()) || 0;
+        var materialFees = parseFloat($('#material_fee_amount').val()) || 0;
         
-        // Sum all fee inputs
-        $('.total_fee_am').each(function(){
-            var val = parseFloat($(this).val());
-            if(!isNaN(val) && val >= 0) {
-                totalFee += val;
-                hasValues = true;
-            }
-        });
+        // Calculate tuition fee: Scholarship Fee is SUBTRACTED (it's a discount)
+        var totalFee = totalCourseFee - scholarshipFee + enrolmentFee + materialFees;
+        
+        // Ensure tuition fee doesn't go negative
+        if (totalFee < 0) {
+            totalFee = 0;
+        }
         
         // Format to 2 decimal places
         var formattedTotal = totalFee.toFixed(2);
