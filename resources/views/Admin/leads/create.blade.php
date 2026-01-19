@@ -422,7 +422,10 @@
 											<label for="phone">Phone Number <span class="span_req">*</span></label>
 											<div class="cus_field_input">
 												<div class="country_code">
-													<input class="telephone" id="telephone" type="tel" name="country_code" readonly style="width:50px !important;padding-left:2px !important;">
+													@include('partials.country-code-select', [
+														'name' => 'country_code',
+														'selected' => old('country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+													])
 												</div>
 												{!! Form::text('phone', old('phone'), array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
 												@if ($errors->has('phone'))
@@ -494,7 +497,10 @@
 											<label for="att_phone">Additional Phone</label>
 											<div class="cus_field_input">
 												<div class="country_code">
-													<input class="telephone" id="telephone_att" type="tel" name="att_country_code" readonly style="width:50px;padding-left:2px;">
+													@include('partials.country-code-select', [
+														'name' => 'att_country_code',
+														'selected' => old('att_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+													])
 												</div>
 												{!! Form::text('att_phone', old('att_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
 												@if ($errors->has('att_phone'))

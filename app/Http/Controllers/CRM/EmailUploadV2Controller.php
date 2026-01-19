@@ -1002,9 +1002,7 @@ class EmailUploadV2Controller extends Controller
         try {
             // Company domains that indicate emails WE sent
             $companyDomains = [
-                '@bansalimmigration.com.au',
-                '@bansaleducation.com.au',
-                '@bansallawyers.com.au'
+                '@bansaleducation.com.au'
             ];
             
             // Check if email is from our company domains

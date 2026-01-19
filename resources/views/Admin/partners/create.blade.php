@@ -274,7 +274,10 @@
                                                             <label for="phone">Phone Number</label>
                                                             <div class="cus_field_input">
                                                                 <div class="country_code">
-                                                                    <input class="telephone" id="telephone" type="tel" name="partner_country_code[]"  >
+																	@include('partials.country-code-select', [
+																		'name' => 'partner_country_code[]',
+																		'selected' => old('partner_country_code.0', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+																	])
                                                                 </div>
                                                                 {!! Form::text('partner_phone[]', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
                                                                 @if ($errors->has('partner_phone'))
@@ -509,7 +512,10 @@
 								<label for="branch_phone">Phone</label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" value="{{ config('phone.default_country_code', '+61') }}" name="brnch_country_code" readonly >
+										@include('partials.country-code-select', [
+											'name' => 'brnch_country_code',
+											'selected' => old('brnch_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+										])
 									</div>
 									{!! Form::text('branch_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('branch_phone'))
@@ -619,7 +625,10 @@
 								<label for="partner_phone">Phone Number </label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" name="partner_country_code" readonly >
+										@include('partials.country-code-select', [
+											'name' => 'partner_country_code',
+											'selected' => old('partner_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
+										])
 									</div>
 									{!! Form::text('partner_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									@if ($errors->has('partner_phone'))

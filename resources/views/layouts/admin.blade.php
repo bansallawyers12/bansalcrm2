@@ -24,12 +24,8 @@
 	<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 	
-	<!-- Load intlTelInput jQuery plugin (old version - jQuery plugin, not ES module) -->
-	<link rel="stylesheet" href="{{asset('css/intlTelInput.css')}}">
-	<script src="{{asset('js/intlTelInput.js')}}"></script>
-	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
- 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr, intlTelInput -->
+ 	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr -->
  	<!-- Note: select2 and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
@@ -39,7 +35,7 @@
 	<!--<link rel="stylesheet" href="{{--asset('css/flagstrap.css')--}}">-->
   
 	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
-	<!-- intlTelInput CSS now loaded via Vite (vendor-libs.js) -->
+	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
   
 	<!-- Google Font: Nunito (standardized across CRM) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
@@ -322,7 +318,7 @@ i[style*="color:rgba"] {
 	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
 	<!-- Feather Icons and jQuery NiceScroll now loaded via Vite (ui-libs.js) -->
 	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
- 	<!-- flatpickr, iziToast, intlTelInput now loaded via Vite (vendor-libs.js) -->
+ 	<!-- flatpickr, iziToast now loaded via Vite (vendor-libs.js) -->
  	<!-- Select2 and DataTables are loaded from CDN in <head> section -->
   
 	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
