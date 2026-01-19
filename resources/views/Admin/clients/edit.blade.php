@@ -799,7 +799,36 @@
 												<label for="att_phone">Additional Phone</label>
 												<div class="cus_field_input">
 													<div class="country_code"> 
-														<input class="telephone" id="telephone" type="tel" name="att_country_code" readonly>
+														@php
+															$preferredCountries = \App\Models\Country::getPreferredCountries();
+															$allCountries = \App\Models\Country::getAllWithPhoneCodes();
+															$defaultCountryCode = \App\Helpers\PhoneHelper::getDefaultCountryCode();
+															$selectedCountryCode = old('att_country_code', $fetchedData->att_country_code ?? $defaultCountryCode);
+															$preferredCodes = $preferredCountries->pluck('phonecode')->map(function($code) {
+																return '+' . $code;
+															})->toArray();
+														@endphp
+														<select class="form-control country_code_select" name="att_country_code">
+															<option value="">Select</option>
+															@if($preferredCountries->count())
+																<optgroup label="Popular">
+																	@foreach($preferredCountries as $country)
+																		@php $code = '+' . $country->phonecode; @endphp
+																		<option value="{{ $code }}" {{ $code === $selectedCountryCode ? 'selected' : '' }}>
+																			{{ $code }} ({{ $country->name }})
+																		</option>
+																	@endforeach
+																</optgroup>
+															@endif
+															<optgroup label="All Countries">
+																@foreach($allCountries as $country)
+																	@php $code = '+' . $country->phonecode; @endphp
+																	@if(!in_array($code, $preferredCodes, true))
+																		<option value="{{ $code }}">{{ $code }} ({{ $country->name }})</option>
+																	@endif
+																@endforeach
+															</optgroup>
+														</select>
 													</div>	
 													{!! Form::text('att_phone', @$fetchedData->att_phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
 													@if ($errors->has('att_phone'))
@@ -1438,7 +1467,35 @@ if($fetchedData->tagname != ''){
 								<label for="client_phone">Phone Number </label>
 								<div class="cus_field_input">
 									<div class="country_code">
-										<input class="telephone" id="telephone" type="tel" name="client_country_code" >
+										@php
+											$preferredCountries = \App\Models\Country::getPreferredCountries();
+											$allCountries = \App\Models\Country::getAllWithPhoneCodes();
+											$defaultCountryCode = \App\Helpers\PhoneHelper::getDefaultCountryCode();
+											$preferredCodes = $preferredCountries->pluck('phonecode')->map(function($code) {
+												return '+' . $code;
+											})->toArray();
+										@endphp
+										<select class="form-control country_code_select" name="client_country_code">
+											<option value="">Select</option>
+											@if($preferredCountries->count())
+												<optgroup label="Popular">
+													@foreach($preferredCountries as $country)
+														@php $code = '+' . $country->phonecode; @endphp
+														<option value="{{ $code }}" {{ $code === $defaultCountryCode ? 'selected' : '' }}>
+															{{ $code }} ({{ $country->name }})
+														</option>
+													@endforeach
+												</optgroup>
+											@endif
+											<optgroup label="All Countries">
+												@foreach($allCountries as $country)
+													@php $code = '+' . $country->phonecode; @endphp
+													@if(!in_array($code, $preferredCodes, true))
+														<option value="{{ $code }}">{{ $code }} ({{ $country->name }})</option>
+													@endif
+												@endforeach
+											</optgroup>
+										</select>
 									</div>
 									{!! Form::text('client_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
 									<span class="custom-error client_phone_error" role="alert">

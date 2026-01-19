@@ -350,15 +350,6 @@ i[style*="color:rgba"] {
 	<!-- Modern Search - Replaces inline search initialization to prevent conflicts -->
 	<script src="{{asset('js/modern-search.js')}}" defer></script>
 	
-	<!-- Phone Input Standardization - Configuration and Script -->
-	<script>
-		// Phone configuration from Laravel
-		window.DEFAULT_COUNTRY_CODE = '{{ config("phone.default_country_code", "+61") }}';
-		window.DEFAULT_COUNTRY = '{{ config("phone.default_country", "au") }}';
-		window.PREFERRED_COUNTRIES = '{{ implode(",", config("phone.preferred_countries", ["au", "in", "pk", "np", "gb", "ca"])) }}';
-	</script>
-	<script src="{{asset('js/phone-input-standard.js')}}" defer></script>
-	
 	<div id="checkinmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">

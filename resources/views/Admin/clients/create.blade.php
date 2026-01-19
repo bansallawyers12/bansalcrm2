@@ -417,7 +417,36 @@
 											<label for="client_phone">Phone Number <span class="span_req">*</span></label>
 											<div class="cus_field_input">
 												<div class="country_code">
-													<input class="telephone" id="telephone" type="tel" name="client_country_code" readonly>
+													@php
+														$preferredCountries = \App\Models\Country::getPreferredCountries();
+														$allCountries = \App\Models\Country::getAllWithPhoneCodes();
+														$defaultCountryCode = \App\Helpers\PhoneHelper::getDefaultCountryCode();
+														$selectedCountryCode = old('client_country_code', $defaultCountryCode);
+														$preferredCodes = $preferredCountries->pluck('phonecode')->map(function($code) {
+															return '+' . $code;
+														})->toArray();
+													@endphp
+													<select class="form-control country_code_select" name="client_country_code">
+														<option value="">Select</option>
+														@if($preferredCountries->count())
+															<optgroup label="Popular">
+																@foreach($preferredCountries as $country)
+																	@php $code = '+' . $country->phonecode; @endphp
+																<option value="{{ $code }}" {{ $code === $selectedCountryCode ? 'selected' : '' }}>
+																		{{ $code }} ({{ $country->name }})
+																	</option>
+																@endforeach
+															</optgroup>
+														@endif
+														<optgroup label="All Countries">
+															@foreach($allCountries as $country)
+																@php $code = '+' . $country->phonecode; @endphp
+																@if(!in_array($code, $preferredCodes, true))
+																	<option value="{{ $code }}">{{ $code }} ({{ $country->name }})</option>
+																@endif
+															@endforeach
+														</optgroup>
+													</select>
 												</div>
 												{!! Form::text('client_phone', old('client_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
 												@if ($errors->has('client_phone'))
