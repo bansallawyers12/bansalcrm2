@@ -5664,6 +5664,53 @@ function arcivedAction( id, table ) {
         }
     });
     
+    // ============================================================================
+    // INDIVIDUAL DOCUMENT UPLOAD FOR CHECKLIST ROWS
+    // ============================================================================
+    
+    // Trigger file input when "Add Document" button is clicked in allupload_document container
+    $(document).on('click', '.allupload_document .btn-primary', function(e) {
+        e.preventDefault();
+        $(this).closest('form').find('.alldocupload').click();
+    });
+
+    // Clear file input value on click to allow re-selecting the same file
+    $(document).on('click', '.alldocupload', function() {
+        $(this).attr("value", "");
+    });
+
+    // Handle file selection for individual document upload
+    $(document).on('change', '.alldocupload', function() {
+        $('.popuploader').show();
+        var fileidL = $(this).attr("data-fileid");
+        var formData = new FormData($('#upload_form_' + fileidL)[0]);
+        
+        $.ajax({
+            url: '{{URL::to('/partners/upload-alldocument')}}',
+            type: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            datatype: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(responses) {
+                $('.popuploader').hide();
+                var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+                if (ress.status) {
+                    $('.custom-error-msg').html('<span class="alert alert-success">' + ress.message + '</span>');
+                    // Reload the page to refresh the document list
+                    location.reload();
+                } else {
+                    $('.custom-error-msg').html('<span class="alert alert-danger">' + ress.message + '</span>');
+                }
+            },
+            error: function() {
+                $('.popuploader').hide();
+                $('.custom-error-msg').html('<span class="alert alert-danger">Error uploading document. Please try again.</span>');
+            }
+        });
+    });
+    
     // Toggle bulk upload dropzone
     $(document).on('click', '.bulk-upload-toggle-btn', function() {
         const dropzoneContainer = $(this).closest('.card-header-action').next('.bulk-upload-dropzone-container');
