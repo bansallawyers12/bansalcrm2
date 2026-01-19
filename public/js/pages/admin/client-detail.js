@@ -1151,6 +1151,12 @@ Bansal Immigration`;
                     if(delhref == 'deletealldocs'){
                         $('.alldocumnetlist #id_'+notid).remove();
                     }
+                    if(delhref == 'superagent'){
+                        $('.supagent_data').remove();
+                    }
+                    if(delhref == 'subagent'){
+                        $('.subagent_data').remove();
+                    }
                     if(delhref == 'deleteservices'){
                         var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
                         $.ajax({

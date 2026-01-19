@@ -608,7 +608,7 @@ class ApplicationsController extends Controller
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href=""><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="superagent" data-id="'.$request->siapp_id.'" class="deletenote"><i class="fa fa-times"></i></a>
 							</div>
 						</div>';
 			}else{
@@ -651,7 +651,7 @@ class ApplicationsController extends Controller
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href=""><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="subagent" data-id="'.$request->sbapp_id.'" class="deletenote"><i class="fa fa-times"></i></a>
 							</div>
 						</div>';
 			}else{
