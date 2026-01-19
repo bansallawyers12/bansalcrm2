@@ -109,15 +109,24 @@
 			<?php
 				if(array_key_exists('21',  $module_access)) {
 			?>
-			<li class="dropdown {{@$clientclasstype}}">
-				<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
-			</li>
-			<?php
-			}
-		?>
+		<li class="dropdown {{@$clientclasstype}}">
+			<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
+		</li>
+		<?php
+		}
+	?>
 
-			<?php
-				//if( Auth::user()->role == 1 ){ //super admin or admin
+		<?php
+		if(Route::currentRouteName() == 'signatures.index' || Route::currentRouteName() == 'signatures.create' || Route::currentRouteName() == 'signatures.show'){
+			$signatureclasstype = 'active';
+		}
+		?>
+		<li class="dropdown {{@$signatureclasstype}}">
+			<a href="{{route('signatures.index')}}" class="nav-link"><i class="fas fa-file-signature"></i><span>Signatures</span></a>
+		</li>
+
+		<?php
+			//if( Auth::user()->role == 1 ){ //super admin or admin
 
                     if(Route::currentRouteName() == 'clients.clientreceiptlist'){
                         $clientaccountmanagerclasstype = 'active';

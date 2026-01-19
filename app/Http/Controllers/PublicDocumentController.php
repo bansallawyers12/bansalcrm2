@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Public Document Controller
@@ -21,11 +22,17 @@ use Illuminate\Support\Facades\Mail;
 class PublicDocumentController extends Controller
 {
     /**
+     * Python service base URL
+     */
+    protected $pythonServiceUrl;
+
+    /**
      * No authentication required - using token-based validation
      */
     public function __construct()
     {
         // Public controller - no authentication middleware
+        $this->pythonServiceUrl = env('PYTHON_SERVICE_URL', 'http://127.0.0.1:5001');
     }
 
     /**
@@ -239,8 +246,58 @@ class PublicDocumentController extends Controller
                         ->withInput();
                 }
 
-                // For now, copy original PDF as signed (you would integrate with a PDF library to overlay signatures)
-                copy($pdfPath, $outputPath);
+                // Use Python service to add signatures to PDF
+                $signaturesForPython = [];
+                foreach ($signaturePositions as $fieldId => $sigData) {
+                    // Read signature image and convert to base64
+                    $signatureImageContent = file_get_contents($sigData['path']);
+                    $signatureBase64 = base64_encode($signatureImageContent);
+                    
+                    $signaturesForPython[] = [
+                        'field_id' => $fieldId,
+                        'page_number' => $sigData['page'],
+                        'x_percent' => $sigData['x_percent'],
+                        'y_percent' => $sigData['y_percent'],
+                        'width_percent' => $sigData['w_percent'],
+                        'height_percent' => $sigData['h_percent'],
+                        'signature_data' => $signatureBase64
+                    ];
+                }
+
+                try {
+                    $response = Http::timeout(60)->post($this->pythonServiceUrl . '/add_signatures', [
+                        'input_path' => $pdfPath,
+                        'output_path' => $outputPath,
+                        'signatures' => $signaturesForPython
+                    ]);
+
+                    if (!$response->successful()) {
+                        Log::error('Python service failed to add signatures', [
+                            'document_id' => $document->id,
+                            'status' => $response->status(),
+                            'body' => $response->body()
+                        ]);
+                        // Fallback: copy original PDF
+                        copy($pdfPath, $outputPath);
+                    } else {
+                        $result = $response->json();
+                        if (!($result['success'] ?? false)) {
+                            Log::warning('Python service returned unsuccessful result for add_signatures', [
+                                'document_id' => $document->id,
+                                'error' => $result['error'] ?? 'Unknown error'
+                            ]);
+                            // Fallback: copy original PDF
+                            copy($pdfPath, $outputPath);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Python service connection error for add_signatures', [
+                        'document_id' => $document->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Fallback: copy original PDF
+                    copy($pdfPath, $outputPath);
+                }
 
                 // Generate SHA-256 hash for tamper detection
                 $signedHash = hash_file('sha256', $outputPath);
@@ -316,28 +373,60 @@ class PublicDocumentController extends Controller
                 mkdir($cacheDir, 0755, true);
             }
 
-            // Use Imagick to convert PDF page to image (requires Imagick extension)
-            if (extension_loaded('imagick')) {
-                try {
-                    $imagick = new \Imagick();
-                    $imagick->setResolution(150, 150);
-                    $imagick->readImage($pdfPath . '[' . ($page - 1) . ']');
-                    $imagick->setImageFormat('png');
-                    $imagick->writeImage($cachedImagePath);
-                    $imagick->clear();
-                    $imagick->destroy();
+            // Use Python service to convert PDF page to image
+            try {
+                $response = Http::timeout(30)->post($this->pythonServiceUrl . '/convert_page', [
+                    'file_path' => $pdfPath,
+                    'page_number' => (int) $page,
+                    'resolution' => 150
+                ]);
+
+                if ($response->successful()) {
+                    $result = $response->json();
                     
-                    return response()->file($cachedImagePath, [
-                        'Content-Type' => 'image/png',
-                        'Cache-Control' => 'public, max-age=86400',
+                    if ($result['success'] ?? false) {
+                        // Extract base64 image data
+                        $imageData = $result['image_data'] ?? '';
+                        
+                        // Remove data URI prefix if present
+                        if (strpos($imageData, 'data:image/png;base64,') === 0) {
+                            $imageData = substr($imageData, strlen('data:image/png;base64,'));
+                        }
+                        
+                        // Decode and save to cache
+                        $imageContent = base64_decode($imageData);
+                        if ($imageContent !== false) {
+                            file_put_contents($cachedImagePath, $imageContent);
+                            
+                            return response()->file($cachedImagePath, [
+                                'Content-Type' => 'image/png',
+                                'Cache-Control' => 'public, max-age=86400',
+                            ]);
+                        }
+                    }
+                    
+                    Log::error('Python service returned unsuccessful result', [
+                        'document_id' => $id,
+                        'page' => $page,
+                        'error' => $result['error'] ?? 'Unknown error'
                     ]);
-                } catch (\Exception $e) {
-                    Log::error('Imagick error', ['error' => $e->getMessage()]);
+                } else {
+                    Log::error('Python service request failed', [
+                        'document_id' => $id,
+                        'page' => $page,
+                        'status' => $response->status()
+                    ]);
                 }
+            } catch (\Exception $e) {
+                Log::error('Python service connection error', [
+                    'document_id' => $id,
+                    'page' => $page,
+                    'error' => $e->getMessage()
+                ]);
             }
 
-            // Fallback: return a placeholder image or error
-            abort(503, 'PDF processing not available. Please install Imagick extension.');
+            // Fallback: return error
+            abort(503, 'PDF processing service not available. Please ensure the Python service is running.');
         } catch (\Exception $e) {
             Log::error('Error in getPage', [
                 'document_id' => $id,
@@ -455,22 +544,31 @@ class PublicDocumentController extends Controller
     // ==================== Private Helper Methods ====================
 
     /**
-     * Count PDF pages
+     * Count PDF pages using Python service
      */
     protected function countPdfPages($pathToPdf)
     {
         try {
-            if (extension_loaded('imagick')) {
-                $imagick = new \Imagick();
-                $imagick->pingImage($pathToPdf);
-                $count = $imagick->getNumberImages();
-                $imagick->clear();
-                $imagick->destroy();
-                return $count;
+            $response = Http::timeout(15)->post($this->pythonServiceUrl . '/pdf_info', [
+                'file_path' => $pathToPdf
+            ]);
+
+            if ($response->successful()) {
+                $result = $response->json();
+                if ($result['success'] ?? false) {
+                    return $result['page_count'] ?? 1;
+                }
             }
+            
+            Log::warning('Python service failed to get PDF info, defaulting to 1 page', [
+                'file' => $pathToPdf
+            ]);
             return 1;
         } catch (\Exception $e) {
-            Log::error('Error counting PDF pages', ['error' => $e->getMessage()]);
+            Log::error('Error counting PDF pages via Python service', [
+                'file' => $pathToPdf,
+                'error' => $e->getMessage()
+            ]);
             return 1;
         }
     }
