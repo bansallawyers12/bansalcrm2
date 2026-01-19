@@ -415,11 +415,6 @@ class EmailUploadV2Controller extends Controller
             $document->mail_type = $mailType;
             $document->file_size = $fileSize;
             $document->doc_type = $docType;
-            $document->client_matter_id = $mailType === 'sent' 
-                ? $request->upload_sent_mail_client_matter_id 
-                : $request->upload_inbox_mail_client_matter_id;
-            // Email documents don't have signers, so set signer_count to 0
-            $document->signer_count = 0;
             
             try {
                 $document->save();
@@ -448,7 +443,6 @@ class EmailUploadV2Controller extends Controller
             $mailReport->conversion_type = $docType;
             $mailReport->mail_body_type = $mailType;
             $mailReport->uploaded_doc_id = $document->id;
-            $mailReport->client_matter_id = $document->client_matter_id;
             
             // Format sent time from Python response
             if (!empty($parsedData['sent_date'])) {
@@ -562,41 +556,12 @@ class EmailUploadV2Controller extends Controller
             // NEW: Auto-assign labels
             $this->autoAssignLabels($mailReport, $mailType);
 
-            // 5. Update client matter timestamp (only for clients, if ClientMatter exists)
-            $matterId = $document->client_matter_id;
-            if (!empty($matterId) && $request->type !== 'partner') {
-                try {
-                    if (class_exists('App\Models\ClientMatter')) {
-                        $matter = \App\Models\ClientMatter::find($matterId);
-                        if ($matter) {
-                            $matter->updated_at = now();
-                            $matter->save();
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // ClientMatter model may not exist - silently skip
-                    Log::debug('ClientMatter update skipped', ['error' => $e->getMessage()]);
-                }
-            }
-
-            // 6. Create activity log
+            // 5. Create activity log
             $entityType = $request->type;
             if ($entityType == 'client') {
-                // Get matter reference (if ClientMatter model exists)
+                // Get matter reference from latest active matter (if ClientMatter model exists)
                 $matterReference = '';
-                if ($matterId && class_exists('App\Models\ClientMatter')) {
-                    try {
-                        $matter = \App\Models\ClientMatter::find($matterId);
-                        if ($matter && isset($matter->client_unique_matter_no)) {
-                            $matterReference = $matter->client_unique_matter_no;
-                        }
-                    } catch (\Exception $e) {
-                        // Skip if model doesn't exist
-                    }
-                }
-                
-                // Fall back to latest active matter if none found
-                if (empty($matterReference) && class_exists('App\Models\ClientMatter')) {
+                if (class_exists('App\Models\ClientMatter')) {
                     try {
                         $latestMatter = \App\Models\ClientMatter::where('client_id', $clientId)
                             ->where('matter_status', 1)
@@ -650,7 +615,7 @@ class EmailUploadV2Controller extends Controller
                         'created_by' => Auth::user()->id ?? Auth::id(),
                         'subject' => $subject,
                         'description' => $description,
-                        'activity_type' => 'email',
+                        'use_for' => null, // Integer field for user/category assignment
                         'task_status' => 0,
                         'pin' => 0,
                     ]);
