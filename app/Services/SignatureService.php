@@ -151,9 +151,10 @@ class SignatureService
 
             $document = $signer->document;
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
+            $reminderNumber = $signer->reminder_count + 1;
 
             // Send reminder email
-            Mail::raw("Hello {$signer->name},\n\nThis is a reminder to sign your document.\n\nPlease click the following link to sign:\n{$signingUrl}\n\nDocument: {$document->display_title}\n\nReminder #{$signer->reminder_count + 1}\n\nThank you.", function ($mail) use ($signer) {
+            Mail::raw("Hello {$signer->name},\n\nThis is a reminder to sign your document.\n\nPlease click the following link to sign:\n{$signingUrl}\n\nDocument: {$document->display_title}\n\nReminder #{$reminderNumber}\n\nThank you.", function ($mail) use ($signer) {
                 $mail->to($signer->email, $signer->name)
                      ->subject('Reminder: Please Sign Your Document');
             });

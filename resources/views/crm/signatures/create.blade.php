@@ -1,324 +1,591 @@
 @extends('layouts.admin')
-@section('title', 'Send New Document for Signature')
+@section('title', isset($document) ? 'Add Signer to Document' : 'Upload Document for Signature')
 
 @push('styles')
 <style>
-    .send-document-container {
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .upload-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
     }
-    .page-header {
+    
+    .upload-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        width: 100%;
+        max-width: 700px;
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb-nav {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 15px;
+    }
+    
+    .breadcrumb-nav a {
+        color: #3b82f6;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-nav a:hover {
+        text-decoration: underline;
+    }
+    
+    .breadcrumb-nav span {
+        color: #9ca3af;
+        margin: 0 8px;
+    }
+    
+    /* Page title with icon */
+    .page-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
         margin-bottom: 30px;
+    }
+    
+    .page-title-icon {
+        width: 36px;
+        height: 36px;
+        background: #e0e7ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4f46e5;
+    }
+    
+    .page-title h1 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a202c;
+        margin: 0;
+    }
+    
+    /* Wizard steps indicator */
+    .wizard-steps {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .wizard-step {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #e5e7eb;
+    }
+    
+    .wizard-step.active {
+        background: #3b82f6;
+    }
+    
+    .wizard-step.completed {
+        background: #10b981;
+    }
+    
+    /* Section header */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .section-header .icon {
+        color: #6366f1;
+        font-size: 18px;
+    }
+    
+    .section-header h2 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #374151;
+        margin: 0;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .form-group label .required {
+        color: #ef4444;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"] {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-group input::placeholder {
+        color: #9ca3af;
+    }
+    
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+    
+    .file-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .file-input-wrapper input[type="file"] {
+        display: none;
+    }
+    
+    .file-choose-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
+    }
+    
+    .file-choose-btn:hover {
+        background: #2563eb;
+    }
+    
+    .file-name {
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    /* Button row */
+    .button-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
     }
-    .page-header h1 {
-        font-size: 24px;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
+    
+    .button-row-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
     }
-    .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin: 0;
-        font-size: 14px;
-    }
-    .form-section {
-        padding: 25px 0;
-        border-bottom: 1px solid #eee;
-    }
-    .form-section:last-child {
-        border-bottom: none;
-    }
-    .form-section h2 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 20px;
-    }
-    .form-group label {
-        font-weight: 600;
-        color: #495057;
-    }
-    .form-control {
-        border-radius: 5px;
-    }
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    .btn-cancel {
+        background: #6b7280;
         color: white;
-        padding: 10px 20px;
+        padding: 12px 32px;
         border-radius: 8px;
-        border: none;
+        font-size: 15px;
         font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: #4b5563;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-back {
+        background: #6b7280;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        transition: background-color 0.2s;
     }
-    .btn-primary-custom:hover {
+    
+    .btn-back:hover {
+        background: #4b5563;
+    }
+    
+    .btn-next {
+        background: #6366f1;
         color: white;
-        opacity: 0.9;
-    }
-    .match-alert {
-        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-        border-left: 4px solid #4caf50;
-        padding: 15px 20px;
+        padding: 12px 32px;
         border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-        animation: slideDown 0.3s ease;
-    }
-    .match-alert.show {
-        display: flex;
+        font-size: 15px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
         align-items: center;
-        gap: 15px;
+        gap: 8px;
+        transition: background-color 0.2s;
     }
-    .match-alert-icon {
-        font-size: 32px;
-        color: #4caf50;
+    
+    .btn-next:hover {
+        background: #4f46e5;
     }
-    .match-alert-content {
-        flex: 1;
+    
+    .btn-add-signer {
+        background: #6366f1;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
     }
-    .match-alert-title {
-        font-weight: 600;
-        color: #2e7d32;
-        margin-bottom: 5px;
+    
+    .btn-add-signer:hover {
+        background: #4f46e5;
     }
-    .match-alert-text {
-        color: #558b2f;
+    
+    .btn-upload {
+        background: #3b82f6;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-upload:hover {
+        background: #2563eb;
+    }
+    
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 24px;
+        color: #3b82f6;
+        text-decoration: none;
         font-size: 14px;
     }
-    .match-alert-actions {
-        display: flex;
-        gap: 10px;
+    
+    .back-link:hover {
+        text-decoration: underline;
     }
-    .btn-match-accept {
-        background: #4caf50;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
+    
+    .alert {
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        border-radius: 8px;
     }
-    .btn-match-dismiss {
-        background: #757575;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
+    
+    .alert-danger {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
     }
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    
+    .alert-success {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #16a34a;
+    }
+    
+    .alert-danger ul,
+    .alert-success ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    /* Wizard step panels */
+    .wizard-panel {
+        display: none;
+    }
+    
+    .wizard-panel.active {
+        display: block;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="send-document-container">
-    <div class="page-header">
-        <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('signatures.index') }}">Signature Dashboard</a></li>
-                    <li class="breadcrumb-item active">Send New Document</li>
-                </ol>
-            </nav>
-            <h1>Send New Document for Signature</h1>
-        </div>
-        <div class="header-actions">
-            <a href="{{ route('signatures.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-        </div>
-    </div>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('signatures.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        @if(isset($document) && $document)
-            <input type="hidden" name="document_id" value="{{ $document->id }}">
-            <div class="form-section">
-                <h2>Existing Document</h2>
-                <div class="form-group">
-                    <label>Document Title</label>
-                    <input type="text" class="form-control" value="{{ $document->display_title }}" readonly>
-                    <small class="form-text text-muted">You are adding a signer to an existing document.</small>
+<!-- Main Content -->
+<div class="main-content">
+    <section class="section">
+        <div class="section-body">
+            <div class="upload-container">
+                <div class="upload-card">
+                    
+                    @if(isset($document) && $document)
+                        {{-- Add Signer Flow --}}
+                        <nav class="breadcrumb-nav">
+                            <a href="{{ route('signatures.index') }}">Signature Dashboard</a>
+                            <span>/</span>
+                            <a href="{{ route('signatures.show', $document->id) }}">Document Details</a>
+                            <span>/</span>
+                            Add Signer
+                        </nav>
+                        
+                        <div class="page-title">
+                            <div class="page-title-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h1>Add Signer to Document</h1>
+                        </div>
+                        
+                        <div class="wizard-steps">
+                            <div class="wizard-step active" id="step1Dot"></div>
+                            <div class="wizard-step" id="step2Dot"></div>
+                        </div>
+                        
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+                        
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        
+                        <form action="{{ route('signatures.store') }}" method="POST" id="signerForm">
+                            @csrf
+                            <input type="hidden" name="document_id" value="{{ $document->id }}">
+                            
+                            {{-- Step 1: Find Signer (Email) --}}
+                            <div class="wizard-panel active" id="step1Panel">
+                                <div class="section-header">
+                                    <span class="icon"><i class="fas fa-envelope"></i></span>
+                                    <h2>Find Signer</h2>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="signer_email">Signer Email <span class="required">*</span></label>
+                                    <input type="email" id="signer_email" name="signer_email" 
+                                           placeholder="john@example.com" 
+                                           value="{{ old('signer_email') }}">
+                                    <p class="form-help">Enter the email address to find existing clients/leads</p>
+                                </div>
+                                
+                                <div class="button-row">
+                                    <a href="{{ route('signatures.show', $document->id) }}" class="btn-cancel">Cancel</a>
+                                    <button type="button" class="btn-next" id="nextBtn">
+                                        Next <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {{-- Step 2: Signer Information (Name) --}}
+                            <div class="wizard-panel" id="step2Panel">
+                                <div class="section-header">
+                                    <span class="icon"><i class="fas fa-user-plus"></i></span>
+                                    <h2>Signer Information</h2>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="signer_name">Signer Name <span class="required">*</span></label>
+                                    <input type="text" id="signer_name" name="signer_name" 
+                                           placeholder="John Doe" 
+                                           value="{{ old('signer_name') }}">
+                                    <p class="form-help">Enter the full name of the signer</p>
+                                </div>
+                                
+                                <div class="button-row">
+                                    <a href="{{ route('signatures.show', $document->id) }}" class="btn-cancel">Cancel</a>
+                                    <div class="button-row-right">
+                                        <button type="button" class="btn-back" id="backBtn">
+                                            <i class="fas fa-arrow-left"></i> Back
+                                        </button>
+                                        <button type="submit" class="btn-add-signer">
+                                            <i class="fas fa-user-plus"></i> Add Signer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    @else
+                        {{-- Upload Document Flow --}}
+                        <h1 style="font-size: 24px; font-weight: 600; color: #1a202c; text-align: center; margin-bottom: 30px;">Upload Document</h1>
+                        
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        
+                        <form action="{{ route('signatures.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input type="text" id="title" name="title" placeholder="Enter document title" value="{{ old('title') }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Document (PDF)</label>
+                                <div class="file-input-wrapper">
+                                    <label for="file" class="file-choose-btn">Choose file</label>
+                                    <input type="file" id="file" name="file" accept=".pdf,.doc,.docx" required onchange="updateFileName(this)">
+                                    <span class="file-name" id="fileName">No file chosen</span>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-upload" style="float: right;">Upload</button>
+                            
+                            <a href="{{ route('signatures.index') }}" class="back-link" style="clear: both; padding-top: 60px;">Back to Documents</a>
+                        </form>
+                    @endif
+                    
                 </div>
             </div>
-        @else
-            <div class="form-section">
-                <h2>Document Details</h2>
-                <div class="form-group">
-                    <label for="file">Document File <span style="color: #dc3545;">*</span></label>
-                    <input type="file" class="form-control" id="file" name="file" accept=".pdf" required>
-                    <small class="form-text text-muted">Only PDF files are allowed (max 10MB).</small>
-                </div>
-
-                <div class="form-group mt-3">
-                    <label for="title">Document Title (Optional)</label>
-                    <input type="text" class="form-control" id="title" name="title" placeholder="e.g., Client Agreement" value="{{ old('title') }}">
-                    <small class="form-text text-muted">Leave blank to use the file name as title.</small>
-                </div>
-            </div>
-        @endif
-
-        <div class="form-section">
-            <h2>Signer Details</h2>
-            <div class="form-group">
-                <label for="signer_email">Signer Email <span style="color: #dc3545;">*</span></label>
-                <input type="email" class="form-control" id="signer_email" name="signer_email" placeholder="john.doe@example.com" value="{{ old('signer_email') }}" required oninput="debounceSearch(this.value)">
-                @error('signer_email')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="match-alert" id="matchAlert">
-                <div class="match-alert-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="match-alert-content">
-                    <div class="match-alert-title">Matching Client Found!</div>
-                    <div class="match-alert-text" id="matchAlertText"></div>
-                </div>
-                <div class="match-alert-actions">
-                    <button type="button" class="btn-match-accept" onclick="acceptMatch()">Use This Client</button>
-                    <button type="button" class="btn-match-dismiss" onclick="dismissMatch()">Dismiss</button>
-                </div>
-            </div>
-
-            <div class="form-group mt-3">
-                <label for="signer_name">Signer Name <span style="color: #dc3545;">*</span></label>
-                <input type="text" class="form-control" id="signer_name" name="signer_name" placeholder="John Doe" value="{{ old('signer_name') }}" required>
-                @error('signer_name')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <input type="hidden" id="association_id" name="association_id" value="{{ old('association_id') }}">
         </div>
-
-        <div class="form-section">
-            <h2>Email Settings (Optional)</h2>
-            <div class="form-group">
-                <label for="email_subject">Email Subject</label>
-                <input type="text" class="form-control" id="email_subject" name="email_subject" placeholder="Document Signature Request" value="{{ old('email_subject') }}">
-                <small class="form-text text-muted">Leave blank for default subject.</small>
-            </div>
-
-            <div class="form-group mt-3">
-                <label for="email_message">Custom Message</label>
-                <textarea class="form-control" id="email_message" name="email_message" rows="3" placeholder="Add a personal message to the signer...">{{ old('email_message') }}</textarea>
-                <small class="form-text text-muted">This message will be included in the email.</small>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h2>Workflow Settings (Optional)</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="due_at">Due Date</label>
-                        <input type="datetime-local" class="form-control" id="due_at" name="due_at" value="{{ old('due_at') }}">
-                        <small class="form-text text-muted">The date by which the document should be signed.</small>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="priority">Priority</label>
-                        <select class="form-control" id="priority" name="priority">
-                            <option value="normal" {{ old('priority') == 'normal' ? 'selected' : '' }}>Normal</option>
-                            <option value="low" {{ old('priority') == 'low' ? 'selected' : '' }}>Low</option>
-                            <option value="high" {{ old('priority') == 'high' ? 'selected' : '' }}>High</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-right mt-4">
-            <button type="submit" class="btn-primary-custom">
-                <i class="fas fa-paper-plane"></i> Send for Signature
-            </button>
-        </div>
-    </form>
+    </section>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    const clients = @json($clients ?? []);
-    let currentMatch = null;
-    let searchTimeout;
-
-    function debounceSearch(email) {
-        clearTimeout(searchTimeout);
-        if (email.length > 3 && email.includes('@')) {
-            searchTimeout = setTimeout(() => {
-                searchClientMatch(email);
-            }, 500);
-        } else {
-            document.getElementById('matchAlert').classList.remove('show');
-            currentMatch = null;
-            document.getElementById('association_id').value = '';
-            document.getElementById('signer_name').readOnly = false;
+    function updateFileName(input) {
+        const fileName = input.files[0] ? input.files[0].name : 'No file chosen';
+        document.getElementById('fileName').textContent = fileName;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const step1Panel = document.getElementById('step1Panel');
+        const step2Panel = document.getElementById('step2Panel');
+        const step1Dot = document.getElementById('step1Dot');
+        const step2Dot = document.getElementById('step2Dot');
+        const emailInput = document.getElementById('signer_email');
+        const nameInput = document.getElementById('signer_name');
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                // Validate email
+                const email = emailInput.value.trim();
+                if (!email) {
+                    alert('Please enter a signer email address.');
+                    emailInput.focus();
+                    return;
+                }
+                
+                // Simple email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address.');
+                    emailInput.focus();
+                    return;
+                }
+                
+                // Switch to step 2
+                step1Panel.classList.remove('active');
+                step2Panel.classList.add('active');
+                step1Dot.classList.remove('active');
+                step1Dot.classList.add('completed');
+                step2Dot.classList.add('active');
+                
+                // Focus on name input
+                nameInput.focus();
+            });
         }
-    }
-
-    function searchClientMatch(email) {
-        const clientMatch = clients.find(client => 
-            client.email && client.email.toLowerCase() === email.toLowerCase()
-        );
-
-        if (clientMatch) {
-            currentMatch = clientMatch;
-            document.getElementById('matchAlertText').innerHTML = `Client: <strong>${clientMatch.first_name} ${clientMatch.last_name}</strong> (${clientMatch.email})`;
-            document.getElementById('matchAlert').classList.add('show');
-        } else {
-            document.getElementById('matchAlert').classList.remove('show');
-            currentMatch = null;
-            document.getElementById('association_id').value = '';
-            document.getElementById('signer_name').readOnly = false;
+        
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                // Switch back to step 1
+                step2Panel.classList.remove('active');
+                step1Panel.classList.add('active');
+                step2Dot.classList.remove('active');
+                step1Dot.classList.remove('completed');
+                step1Dot.classList.add('active');
+                
+                // Focus on email input
+                emailInput.focus();
+            });
         }
-    }
-
-    function acceptMatch() {
-        if (currentMatch) {
-            document.getElementById('signer_name').value = `${currentMatch.first_name} ${currentMatch.last_name}`;
-            document.getElementById('association_id').value = currentMatch.id;
-            document.getElementById('signer_name').readOnly = true;
-            document.getElementById('matchAlert').classList.remove('show');
+        
+        // Handle form submission validation
+        const form = document.getElementById('signerForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const email = emailInput.value.trim();
+                const name = nameInput.value.trim();
+                
+                if (!email) {
+                    e.preventDefault();
+                    alert('Please enter a signer email address.');
+                    // Switch to step 1 if needed
+                    step2Panel.classList.remove('active');
+                    step1Panel.classList.add('active');
+                    step2Dot.classList.remove('active');
+                    step1Dot.classList.remove('completed');
+                    step1Dot.classList.add('active');
+                    emailInput.focus();
+                    return;
+                }
+                
+                if (!name) {
+                    e.preventDefault();
+                    alert('Please enter a signer name.');
+                    nameInput.focus();
+                    return;
+                }
+            });
         }
-    }
-
-    function dismissMatch() {
-        document.getElementById('matchAlert').classList.remove('show');
-        currentMatch = null;
-        document.getElementById('association_id').value = '';
-        document.getElementById('signer_name').readOnly = false;
-    }
+        
+        // If there's a validation error for name, show step 2
+        @if(old('signer_name') || $errors->has('signer_name'))
+            step1Panel.classList.remove('active');
+            step2Panel.classList.add('active');
+            step1Dot.classList.remove('active');
+            step1Dot.classList.add('completed');
+            step2Dot.classList.add('active');
+        @endif
+    });
 </script>
 @endpush

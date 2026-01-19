@@ -227,6 +227,10 @@
 @endpush
 
 @section('content')
+<!-- Main Content -->
+<div class="main-content">
+    <section class="section">
+        <div class="section-body">
 <div class="document-detail-container">
     <!-- Header -->
     <div class="page-header">
@@ -527,6 +531,9 @@
             </form>
         </div>
     </div>
+</div>
+        </div>
+    </section>
 </div>
 @endsection
 

@@ -157,6 +157,10 @@
 @endpush
 
 @section('content')
+<!-- Main Content -->
+<div class="main-content">
+    <section class="section">
+        <div class="section-body">
 <div class="signature-dashboard">
     <!-- Header -->
     <div class="dashboard-header">
@@ -324,5 +328,8 @@
             @endif
         </div>
     </div>
+</div>
+        </div>
+    </section>
 </div>
 @endsection

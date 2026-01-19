@@ -86,16 +86,13 @@ class SignatureDashboardController extends Controller
             'all_pending' => Document::forSignatureWorkflow()->byStatus('sent')->notArchived()->count(),
         ];
 
-        // Provide errors variable for the layout
-        $errors = $request->session()->get('errors') ?? new \Illuminate\Support\MessageBag();
-
         // Load clients for attach modal
         $clients = Admin::where('role', 7)
             ->whereNull('is_deleted')
             ->select('id', 'first_name', 'last_name', 'email')
             ->get();
 
-        return view('crm.signatures.dashboard', compact('documents', 'counts', 'user', 'errors', 'clients'));
+        return view('crm.signatures.dashboard', compact('documents', 'counts', 'user', 'clients'));
     }
 
     public function create(Request $request)
@@ -111,9 +108,7 @@ class SignatureDashboardController extends Controller
             $document = Document::with('signatureFields')->findOrFail($request->document_id);
         }
 
-        $errors = request()->session()->get('errors') ?? new \Illuminate\Support\MessageBag();
-
-        return view('crm.signatures.create', compact('clients', 'user', 'errors', 'document'));
+        return view('crm.signatures.create', compact('clients', 'user', 'document'));
     }
 
     public function store(Request $request)
@@ -180,56 +175,93 @@ class SignatureDashboardController extends Controller
             return redirect()->route('signatures.show', $document->id)
                 ->with('success', $successMessage);
         } else {
+            // Simple upload flow - just file and optional title
             $request->validate([
                 'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
                 'title' => 'nullable|string|max:255',
-                'signer_email' => 'required|email',
-                'signer_name' => 'required|string|min:2|max:100',
-                'document_type' => 'nullable|string|in:agreement,nda,general,contract',
-                'priority' => 'nullable|string|in:low,normal,high',
-                'due_at' => 'nullable|date|after:now',
-                'association_id' => 'nullable|integer',
             ]);
             
-            // Handle file upload for new documents
+            // Handle file upload to S3
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('documents', $fileName, 'public');
+            $originalName = $file->getClientOriginalName();
+            $nameWithoutExtension = pathinfo($originalName, PATHINFO_FILENAME);
+            $fileExtension = $file->getClientOriginalExtension();
+            $fileKey = time() . '_' . $originalName;
+            $filePath = 'signatures/' . $fileKey;
+            
+            // Upload to S3
+            Storage::disk('s3')->put($filePath, file_get_contents($file));
+            $fileUrl = Storage::disk('s3')->url($filePath);
 
             // Create document
             $document = Document::create([
-                'file_name' => $fileName,
-                'filetype' => $file->getClientMimeType(),
-                'myfile' => $filePath,
-                'title' => $request->title ?: pathinfo($fileName, PATHINFO_FILENAME),
+                'file_name' => $nameWithoutExtension,
+                'filetype' => $fileExtension,
+                'myfile' => $fileUrl,
+                'myfile_key' => $fileKey,
+                'file_size' => $file->getSize(),
+                'title' => $request->title ?: $nameWithoutExtension,
                 'status' => 'draft',
                 'created_by' => Auth::guard('admin')->id(),
                 'signer_count' => 0,
             ]);
+
+            // Redirect to the signature placement page
+            return redirect()->route('signatures.edit', $document->id)
+                ->with('success', 'Document uploaded successfully! Now place signature fields on the document.');
         }
+    }
 
-        $user = Auth::guard('admin')->user();
+    /**
+     * Show signature field placement editor
+     */
+    public function edit($id)
+    {
+        $document = Document::with(['signatureFields'])->findOrFail($id);
+        
+        return view('crm.signatures.edit', compact('document'));
+    }
 
-        // Set association if provided
-        if ($request->association_id) {
-            $this->signatureService->associate($document, $request->association_id);
-        }
-
-        // Store signer information in session for later use
-        session([
-            'pending_document_signer' => [
-                'email' => $request->signer_email,
-                'name' => $request->signer_name,
-                'email_subject' => $request->email_subject,
-                'email_message' => $request->email_message,
-                'email_template' => $request->email_template,
-                'from_email' => $request->from_email,
-            ]
+    /**
+     * Save signature field locations
+     */
+    public function saveSignatureFields(Request $request, $id)
+    {
+        $document = Document::findOrFail($id);
+        
+        $request->validate([
+            'fields' => 'nullable|array',
+            'fields.*.page' => 'required|integer|min:1',
+            'fields.*.x_percent' => 'required|numeric|min:0|max:100',
+            'fields.*.y_percent' => 'required|numeric|min:0|max:100',
+            'fields.*.width_percent' => 'required|numeric|min:1|max:100',
+            'fields.*.height_percent' => 'required|numeric|min:1|max:100',
         ]);
-
-        // Redirect to signature placement page
-        return redirect()->route('documents.edit', $document->id)
-            ->with('success', 'Document uploaded! Now place signature fields on the document.');
+        
+        // Delete existing signature fields
+        $document->signatureFields()->delete();
+        
+        // Create new signature fields
+        if ($request->has('fields') && is_array($request->fields)) {
+            foreach ($request->fields as $fieldData) {
+                $document->signatureFields()->create([
+                    'page_number' => $fieldData['page'],
+                    'x_percent' => $fieldData['x_percent'],
+                    'y_percent' => $fieldData['y_percent'],
+                    'width_percent' => $fieldData['width_percent'],
+                    'height_percent' => $fieldData['height_percent'],
+                ]);
+            }
+        }
+        
+        // Update document status if fields were added
+        if ($document->signatureFields()->count() > 0) {
+            $document->update(['status' => 'signature_placed']);
+        }
+        
+        // Redirect to add signer page
+        return redirect()->route('signatures.create', ['document_id' => $document->id])
+            ->with('success', 'Signature locations saved! Now add a signer.');
     }
 
     public function show($id)
@@ -244,9 +276,7 @@ class SignatureDashboardController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        $errors = request()->session()->get('errors') ?? new \Illuminate\Support\MessageBag();
-
-        return view('crm.signatures.show', compact('document', 'errors', 'clients'));
+        return view('crm.signatures.show', compact('document', 'clients'));
     }
 
     public function sendReminder(Request $request, $id)

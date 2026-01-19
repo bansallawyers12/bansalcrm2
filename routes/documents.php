@@ -73,6 +73,8 @@ Route::middleware('auth:admin')->group(function () {
         Route::post('/bulk-resend', [SignatureDashboardController::class, 'bulkResend'])->name('signatures.bulk-resend');
         
         Route::get('/{id}', [SignatureDashboardController::class, 'show'])->name('signatures.show');
+        Route::get('/{id}/edit', [SignatureDashboardController::class, 'edit'])->name('signatures.edit');
+        Route::post('/{id}/save-fields', [SignatureDashboardController::class, 'saveSignatureFields'])->name('signatures.save-fields');
         Route::post('/{id}/reminder', [SignatureDashboardController::class, 'sendReminder'])->name('signatures.reminder');
         Route::post('/{id}/cancel', [SignatureDashboardController::class, 'cancelSignature'])->name('signatures.cancel');
         Route::post('/{id}/send', [SignatureDashboardController::class, 'sendForSignature'])->name('signatures.send');

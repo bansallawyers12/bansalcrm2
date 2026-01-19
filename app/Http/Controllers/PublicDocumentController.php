@@ -344,6 +344,8 @@ class PublicDocumentController extends Controller
      */
     public function getPage($id, $page)
     {
+        $tempFile = null;
+        
         try {
             $document = Document::findOrFail($id);
             
@@ -359,11 +361,22 @@ class PublicDocumentController extends Controller
             $url = $document->myfile;
             $pdfPath = null;
 
-            if ($url && file_exists(storage_path('app/public/' . $url))) {
+            // Check if it's an S3 URL
+            if ($url && (str_contains($url, 's3.') || str_contains($url, 'amazonaws.com'))) {
+                // Download from S3 to a temporary file
+                $pdfPath = $this->downloadS3FileToTemp($url, $id);
+                $tempFile = $pdfPath; // Track for cleanup
+            } elseif ($url && file_exists(storage_path('app/public/' . $url))) {
+                // Local file
                 $pdfPath = storage_path('app/public/' . $url);
             }
 
             if (!$pdfPath || !file_exists($pdfPath)) {
+                Log::error('Document file not found', [
+                    'document_id' => $id,
+                    'myfile' => $url,
+                    'tried_path' => $pdfPath
+                ]);
                 abort(404, 'Document file not found');
             }
 
@@ -398,6 +411,11 @@ class PublicDocumentController extends Controller
                         if ($imageContent !== false) {
                             file_put_contents($cachedImagePath, $imageContent);
                             
+                            // Clean up temp file
+                            if ($tempFile && file_exists($tempFile)) {
+                                unlink($tempFile);
+                            }
+                            
                             return response()->file($cachedImagePath, [
                                 'Content-Type' => 'image/png',
                                 'Cache-Control' => 'public, max-age=86400',
@@ -425,15 +443,95 @@ class PublicDocumentController extends Controller
                 ]);
             }
 
+            // Clean up temp file on error
+            if ($tempFile && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
             // Fallback: return error
             abort(503, 'PDF processing service not available. Please ensure the Python service is running.');
         } catch (\Exception $e) {
+            // Clean up temp file on exception
+            if ($tempFile && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+            
             Log::error('Error in getPage', [
                 'document_id' => $id,
                 'page' => $page,
                 'error' => $e->getMessage()
             ]);
             abort(500, 'An error occurred while retrieving the page');
+        }
+    }
+    
+    /**
+     * Download a file from S3 URL to a temporary local file
+     */
+    protected function downloadS3FileToTemp($s3Url, $documentId)
+    {
+        try {
+            // Create temp directory if it doesn't exist
+            $tempDir = storage_path('app/temp');
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+            
+            $tempPath = $tempDir . '/doc_' . $documentId . '_' . time() . '.pdf';
+            
+            // Try to download using file_get_contents with context
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 30,
+                    'user_agent' => 'BansalCRM/1.0'
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false
+                ]
+            ]);
+            
+            $content = @file_get_contents($s3Url, false, $context);
+            
+            if ($content === false) {
+                // Fallback: try using Laravel's HTTP client
+                $response = Http::timeout(30)->get($s3Url);
+                if ($response->successful()) {
+                    $content = $response->body();
+                } else {
+                    Log::error('Failed to download S3 file', [
+                        'url' => $s3Url,
+                        'status' => $response->status()
+                    ]);
+                    return null;
+                }
+            }
+            
+            if ($content && strlen($content) > 0) {
+                file_put_contents($tempPath, $content);
+                
+                if (file_exists($tempPath) && filesize($tempPath) > 0) {
+                    Log::info('Downloaded S3 file to temp', [
+                        'document_id' => $documentId,
+                        'temp_path' => $tempPath,
+                        'size' => filesize($tempPath)
+                    ]);
+                    return $tempPath;
+                }
+            }
+            
+            Log::error('Downloaded S3 file is empty or failed', [
+                'url' => $s3Url,
+                'document_id' => $documentId
+            ]);
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('Exception downloading S3 file', [
+                'url' => $s3Url,
+                'error' => $e->getMessage()
+            ]);
+            return null;
         }
     }
 
