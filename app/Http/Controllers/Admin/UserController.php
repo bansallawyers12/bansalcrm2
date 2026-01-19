@@ -83,13 +83,11 @@ class UserController extends Controller
 			}else{
 			     $obj->show_dashboard_per		=	0;
 			}
-			// Set required NOT NULL fields for PostgreSQL
-			$obj->verified = 1; // Users are verified by default
-			$obj->cp_status = 0; // Required NOT NULL field (0 = client portal not activated)
-			$obj->cp_code_verify = 0; // Required NOT NULL field (0 = not verified)
-			$obj->australian_study = 0; // Required NOT NULL field (default: 0)
-			$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
-			$obj->regional_study = 0; // Required NOT NULL field (default: 0)
+		// Set required NOT NULL fields for PostgreSQL
+		$obj->verified = 1; // Users are verified by default
+		$obj->australian_study = 0; // Required NOT NULL field (default: 0)
+		$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
+		$obj->regional_study = 0; // Required NOT NULL field (default: 0)
 			
 			if(isset($requestData['permission']) && is_array($requestData['permission']) ){
                 $obj->permission		=	implode(",",$requestData['permission']);

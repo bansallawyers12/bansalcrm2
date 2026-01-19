@@ -95,14 +95,12 @@ class StaffController extends Controller
 			$obj->password	=	Hash::make(@$requestData['password']);
 			$obj->role	=	63;
 			$obj->phone	=	@$requestData['phone'];
-			// Set required NOT NULL fields for PostgreSQL
-			$obj->verified = 1; // Staff members are verified
-			$obj->show_dashboard_per = 1; // Staff have dashboard access
-			$obj->cp_status = 0; // Required NOT NULL field (0 = client portal not activated)
-			$obj->cp_code_verify = 0; // Required NOT NULL field (0 = not verified)
-			$obj->australian_study = 0; // Required NOT NULL field (default: 0)
-			$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
-			$obj->regional_study = 0; // Required NOT NULL field (default: 0)
+		// Set required NOT NULL fields for PostgreSQL
+		$obj->verified = 1; // Staff members are verified
+		$obj->show_dashboard_per = 1; // Staff have dashboard access
+		$obj->australian_study = 0; // Required NOT NULL field (default: 0)
+		$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
+		$obj->regional_study = 0; // Required NOT NULL field (default: 0)
 			/* Profile Image Upload Function Start */						  
 					if($request->hasfile('profile_img')) 
 					{	

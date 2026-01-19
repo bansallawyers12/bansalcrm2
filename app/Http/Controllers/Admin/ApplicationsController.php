@@ -1128,7 +1128,6 @@ class ApplicationsController extends Controller
 		$obj->application_id = $app_id;
 		$obj->document_type = @$request->document_type;
 		$obj->description = $request->description;
-		$obj->allow_client = $request->allow_upload_docu;
 		$obj->make_mandatory = $request->proceed_next_stage;
 		if($requestData['due_date'] == 1){
 			$obj->date = $request->appoint_date;

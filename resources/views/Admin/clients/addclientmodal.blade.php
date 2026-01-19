@@ -1137,10 +1137,6 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<div class="form-check form-check-inline">
-									<input value="1" class="" type="checkbox" value="Allow clients to upload documents from client portal" name="allow_upload_docu">
-									<label style="padding-left: 8px;" class="form-check-label" for="allow_upload_docu">Allow clients to upload documents from client portal</label>
-								</div>
-								<div class="form-check form-check-inline">
 									<input value="1" class="" type="checkbox" value="Make this as mandatory inorder to proceed next stage" name="proceed_next_stage">
 									<label style="padding-left: 8px;" class="form-check-label" for="proceed_next_stage">Make this as mandatory inorder to proceed next stage</label>
 								</div>
@@ -1381,7 +1377,6 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="checkbox" value="Allow clients to upload documents from client portal" name="allow_upload_docu">
 									<label class="form-check-label" for="allow_upload_docu">Auto Invoicing</label>
 								</div>
 								<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>

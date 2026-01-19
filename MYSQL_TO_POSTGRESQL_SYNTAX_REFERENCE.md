@@ -916,8 +916,7 @@ $objs->save();
    - **Columns:** `password` (NOT NULL, required for all admins table records)
    - **Issue:** PostgreSQL rejects empty strings `''` for NOT NULL string columns. Empty string may be treated as NULL or rejected entirely.
    - **Solution:** Use `Hash::make('LEAD_PLACEHOLDER')` as placeholder. This is safe because:
-     - Leads (`type='lead'`) typically have `cp_status=0` and cannot login
-     - When client portal is activated, password is overwritten with real password
+     - Leads (`type='lead'`) are typically restricted from logging in
      - Placeholder hash will never match any login attempt (`Hash::check()` returns false)
    - **Note:** The `admins` table is used for staff, leads, and clients. Password is required due to NOT NULL constraint, but leads don't need real passwords.
 
@@ -935,14 +934,6 @@ $objs->save();
    - **Columns:** `australian_study` (NOT NULL, default: 0), `specialist_education` (NOT NULL, default: 0), `regional_study` (NOT NULL, default: 0)
    - **Issue:** These columns have `default(0)` in the migration, but PostgreSQL doesn't apply database defaults when using explicit column lists in `INSERT` statements with `DB::table()->insert()`. Must explicitly provide values.
    - **Note:** These fields track EOI (Expression of Interest) qualifications for immigration points calculation. For new leads, all should be `0` (false). When using `DB::table('admins')->insertGetId()` or `DB::table('admins')->insert()`, must include all three fields.
-
-10. **Admins Table (Client Portal columns):**
-   - **File:** `app/Http/Controllers/CRM/Leads/LeadController.php`
-   - **Lines 385-386:** Added `'cp_status' => 0` and `'cp_code_verify' => 0` to `$adminData` array when creating leads via `DB::table('admins')->insertGetId()`
-   - **Files Fixed:** LeadController.php (1 instance)
-   - **Columns:** `cp_status` (NOT NULL, default: 0), `cp_code_verify` (NOT NULL, default: 0)
-   - **Issue:** These columns have `default(0)` in the migration, but PostgreSQL doesn't apply database defaults when using explicit column lists in `INSERT` statements with `DB::table()->insert()`. Must explicitly provide values.
-   - **Note:** `cp_status` controls client portal access (0 = inactive, 1 = active). `cp_code_verify` tracks verification code status. For new leads, both should be `0`. When using `DB::table('admins')->insertGetId()` or `DB::table('admins')->insert()`, must include both fields.
 
 **Safety:** 🔴 **CRITICAL** - Code missing NOT NULL column values will **fail immediately** in PostgreSQL with errors like:
 ```
@@ -1040,7 +1031,6 @@ This occurs when `new ActivitiesLog` is used without setting `task_status` and `
   - `verified` (default: 0 for new leads/clients, 1 for verified users) - **CRITICAL**: Required when using `DB::table('admins')->insert()` or `insertGetId()`
   - `password` (NOT NULL, use `Hash::make('LEAD_PLACEHOLDER')` for leads) - **CRITICAL**: Empty strings may be rejected. Use hashed placeholder for leads/clients without portal access.
   - `show_dashboard_per` (default: 0 for leads/clients, 1 for staff with permission) - **CRITICAL**: Required when using `DB::table('admins')->insert()` or `insertGetId()`
-  - `cp_status` (default: 0), `cp_code_verify` (default: 0) - **CRITICAL**: Database defaults not applied with explicit INSERT column lists. Must explicitly provide values.
   - `australian_study`, `specialist_education`, `regional_study` (all default: 0) - **CRITICAL**: Database defaults not applied with explicit INSERT column lists. Must explicitly provide values.
 - Check migration files for other tables with NOT NULL columns that have defaults
 
@@ -1642,7 +1632,6 @@ grep -r "whereRaw.*TO_DATE.*trans_date" app/ | grep -v "whereNotNull"
 | `DB::table('admins')->insert()` missing `verified` | Add `'verified' => 0` (for new leads/clients) | 🔴 Critical | admins table |
 | `DB::table('admins')->insert()` password empty string | Use `'password' => Hash::make('LEAD_PLACEHOLDER')` | 🔴 Critical | admins table - PostgreSQL rejects empty strings for NOT NULL |
 | `DB::table('admins')->insert()` missing `show_dashboard_per` | Add `'show_dashboard_per' => 0` (for new leads/clients) | 🔴 Critical | admins table |
-| `DB::table('admins')->insert()` missing `cp_status`/`cp_code_verify` | Add `'cp_status' => 0, 'cp_code_verify' => 0` | 🔴 Critical | admins table - Database defaults not applied with explicit column lists |
 | `DB::table('admins')->insert()` missing EOI fields | Add `'australian_study' => 0, 'specialist_education' => 0, 'regional_study' => 0` | 🔴 Critical | admins table - Database defaults not applied with explicit column lists |
 | Code references column that doesn't exist | Run pending migration: `php artisan migrate --path=database/migrations/YYYY_MM_DD_HHMMSS_name.php` | 🔴 Critical | Check `php artisan migrate:status` for pending migrations |
 | Missing form field accessed directly | Use null coalescing: `$obj->field = $request->field ?? default_value;` | 🔴 Critical | Prevents undefined index warnings and NULL constraint violations |
@@ -1684,7 +1673,6 @@ When pulling new code from MySQL, check for:
 - [ ] `DB::table('admins')->insert()` or `insertGetId()` → Verify `verified` is included (use `0` for new leads/clients)
 - [ ] `DB::table('admins')->insert()` or `insertGetId()` → Verify `password` is included (use `Hash::make('LEAD_PLACEHOLDER')` for leads, not empty string)
 - [ ] `DB::table('admins')->insert()` or `insertGetId()` → Verify `show_dashboard_per` is included (use `0` for new leads/clients)
-- [ ] `DB::table('admins')->insert()` or `insertGetId()` → Verify client portal fields are included (`'cp_status' => 0, 'cp_code_verify' => 0`)
 - [ ] `DB::table('admins')->insert()` or `insertGetId()` → Verify EOI qualification fields are included (`'australian_study' => 0, 'specialist_education' => 0, 'regional_study' => 0`)
 - [ ] Check other models for NOT NULL columns with defaults that need explicit values
 - [ ] **IMPORTANT:** Database defaults (`default()` in migrations) are NOT applied when using `DB::table()->insert()` with explicit column lists. Always provide explicit values for NOT NULL columns.
@@ -2209,7 +2197,7 @@ These require understanding the data model and business logic. Highest risk if d
   - ClientQualification: `specialist_education`, `stem_qualification`, `regional_study`
   - ClientExperience: `fte_multiplier`
   - ClientMatter: `matter_status`
-  - Admins (various fields): `verified`, `password`, `show_dashboard_per`, `cp_status`, `cp_code_verify`, EOI fields
+  - Admins (various fields): `verified`, `password`, `show_dashboard_per`, EOI fields (`australian_study`, `specialist_education`, `regional_study`)
 - **Why Risky:**
   - Each model has different business rules
   - Wrong default values could affect functionality

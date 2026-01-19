@@ -1313,15 +1313,6 @@ use App\Http\Controllers\Controller;
 								<span class="float-start">Naati/PY</span>
 								<span class="float-end text-muted"><?php if($fetchedData->naati_py != ''){ ?>{{$fetchedData->naati_py}}<?php } ?></span>
 							</p>
-							<div class="clearfix">
-								<span class="float-start">Client Portal:</span>
-								<div class="custom-switches float-end">
-									<label class="custom-switch">
-										<input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" checked>
-										<span class="custom-switch-indicator"></span>
-									</label>
-								</div>
-							</div>
 							<?php
 								// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 								$addedby = null;
@@ -3521,7 +3512,7 @@ use App\Http\Controllers\Controller;
 			<div class="modal-body text-center">
 				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
 				<h4 class="modal-title text-center message col-v-5">Publish Document?</h4>
-				<h5 class="">Publishing documents will allow client to access from client portal , Are you sure you want to continue ?</h5>
+				<h5 class="">Are you sure you want to publish this document?</h5>
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger acceptpublishdoc">Publish Anyway</button>
 				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
 			</div>
@@ -4014,7 +4005,9 @@ use App\Http\Controllers\Controller;
         applicationChecklistUpload: '{{ url("/application/checklistupload") }}',
         getApplicationsLogs: '{{ url("/get-applications-logs") }}',
         getApplicationDetail: '{{ url("/getapplicationdetail") }}',
-        updateApplicationDates: '{{ url("/application/updatedates") }}'
+        updateApplicationDates: '{{ url("/application/updatedates") }}',
+        showProductFee: '{{ url("/showproductfee") }}',
+        showProductFeeLatest: '{{ url("/showproductfeelatest") }}'
     };
     
     // Page-Specific Configuration

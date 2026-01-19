@@ -2518,17 +2518,68 @@ Bansal Immigration`;
     $(document).on('click', '.openpaymentfee', function(){
         var appliid = $(this).attr('data-id');
         var partnerid = $(this).attr('data-partnerid');
-        $('#paymentfeemodal').modal('show');
-        $('#paymentfeemodal input[name="app_id"]').val(appliid);
-        // Additional logic to load existing fees if modal requires it
+        
+        // Load product fee form via AJAX
+        var url = App.getUrl('showProductFee') || App.getUrl('siteUrl') + '/showproductfee';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {
+                id: appliid,
+                partnerid: partnerid
+            },
+            beforeSend: function() {
+                // Show loading indicator
+                $('.showproductfee').html('<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+                $('#new_fee_option').modal('show');
+            },
+            success: function(response){
+                // Load the HTML form into modal body
+                $('.showproductfee').html(response);
+                
+                // Reinitialize form validation if needed
+                if (typeof customValidate === 'function') {
+                    // Form validation will be handled by the loaded form
+                }
+            },
+            error: function(xhr, status, error){
+                $('.showproductfee').html('<div style="text-align:center;padding:20px;color:red;"><i class="fas fa-exclamation-triangle"></i> Error loading fee details. Please try again.</div>');
+                console.error('Error loading product fee:', error);
+            }
+        });
     });
 
     // Handler for "Edit Commission Status" button (Latest)
     $(document).on('click', '.openpaymentfeeLatest', function(){
         var appliid = $(this).attr('data-id');
-        $('#paymentfeeLatestmodal').modal('show');
-        $('#paymentfeeLatestmodal input[name="app_id"]').val(appliid);
-        // Additional logic to load existing commission data if modal requires it
+        
+        // Load commission status form via AJAX
+        var url = App.getUrl('showProductFeeLatest') || App.getUrl('siteUrl') + '/showproductfeelatest';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {
+                id: appliid
+            },
+            beforeSend: function() {
+                // Show loading indicator
+                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+                $('#new_fee_option_latest').modal('show');
+            },
+            success: function(response){
+                // Load the HTML form into modal body
+                $('.showproductfee_latest').html(response);
+                
+                // Reinitialize form validation if needed
+                if (typeof customValidate === 'function') {
+                    // Form validation will be handled by the loaded form
+                }
+            },
+            error: function(xhr, status, error){
+                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;color:red;"><i class="fas fa-exclamation-triangle"></i> Error loading commission status. Please try again.</div>');
+                console.error('Error loading commission status:', error);
+            }
+        });
     });
 
     $(document).on('click', '.addfee', function(){
