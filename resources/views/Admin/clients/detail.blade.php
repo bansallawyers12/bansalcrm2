@@ -3900,6 +3900,12 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/common/ui-components.js') }}"></script>
 
 {{-- Page-Specific JavaScript (load last) --}}
+<script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
 
 <script>
