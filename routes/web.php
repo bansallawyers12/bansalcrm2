@@ -706,6 +706,9 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	// Include unified client routes (accessible by admin only)
 	// These routes use /clients/* instead of /admin/clients/*
 	require __DIR__ . '/clients.php';
+	
+	// Include document signature routes
+	require __DIR__ . '/documents.php';
 
     //Client edit form link in send email - REMOVED (HomeController deleted, will be recreated in future)
     //Route::get('/verify-dob/{encoded_id}', 'HomeController@showDobForm');

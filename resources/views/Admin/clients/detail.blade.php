@@ -1869,17 +1869,15 @@ use App\Http\Controllers\Controller;
 
 											?>
 
-											</tbody>
 											<?php
 											}else{ ?>
-											<tbody>
 												<tr>
 													<td style="text-align:center;" colspan="10">
 														No Record found
 													</td>
 												</tr>
-											</tbody>
 									<?php	} ?>
+											</tbody>
 										</table>
 									</div>
 									<div class="ifapplicationdetailnot" style="display:none;">

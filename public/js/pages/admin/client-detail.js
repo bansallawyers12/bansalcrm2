@@ -1155,7 +1155,7 @@ Bansal Immigration`;
                         $('.supagent_data').remove();
                     }
                     if(delhref == 'subagent'){
-                        $('.subagent_data').remove();
+                        $('.subagent_data .client_info').remove();
                     }
                     if(delhref == 'deleteservices'){
                         var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
@@ -1167,7 +1167,6 @@ Bansal Immigration`;
                                 $('.interest_serv_list').html(responses);
                             }
                         });
-                    // NOTE: deletepaymentschedule handler removed - Invoice Schedule feature has been removed
                     }else if(delhref == 'deleteapplicationdocs'){
                         $('.mychecklistdocdata').html(res.doclistdata);
                         $('.checklistuploadcount').html(res.applicationuploadcount);
@@ -1184,7 +1183,8 @@ Bansal Immigration`;
                                 }
                             });
                         }
-                    }else{
+                    }else if(delhref != 'superagent' && delhref != 'subagent'){
+                        // Only call getallnotes for note deletions, not for super/sub agent
                         if(typeof getallnotes === 'function') {
                             getallnotes();
                         }
@@ -1194,6 +1194,12 @@ Bansal Immigration`;
                         getallactivities();
                     }
                 }
+            },
+            error: function(xhr, status, error){
+                $('.popuploader').hide();
+                $('#confirmModal').modal('hide');
+                console.error('Delete operation failed:', error);
+                alert('Delete operation failed. Please try again.');
             }
         });
     });

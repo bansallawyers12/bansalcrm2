@@ -694,43 +694,43 @@ class ApplicationsController extends Controller
 	}
 	
 	public function superagent(Request $request){
-		$requestData = $request->all();
+		$response = ['status' => false, 'message' => 'Please try again'];
 		
-			$user_id = @Auth::user()->id;
-			$obj = Application::find($request->note_id);
-			$obj->super_agent = '';
-			$saved = $obj->save();
-			if($saved){
-
-				$response['status'] 	= 	true;
-				$response['message']	=	'Application successfully updated.';
-				
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-			}
+		$obj = Application::find($request->note_id);
+		if (!$obj) {
+			$response['message'] = 'Application not found';
+			return response()->json($response);
+		}
 		
-		echo json_encode($response);
+		$obj->super_agent = '';
+		$saved = $obj->save();
+		
+		if ($saved) {
+			$response['status'] = true;
+			$response['message'] = 'Super agent removed successfully.';
+		}
+		
+		return response()->json($response);
 	}
 	
 	public function subagent(Request $request){
-		$requestData = $request->all();
+		$response = ['status' => false, 'message' => 'Please try again'];
 		
-			$user_id = @Auth::user()->id;
-			$obj = Application::find($request->note_id);
-			$obj->sub_agent = '';
-			$saved = $obj->save();
-			if($saved){
-
-				$response['status'] 	= 	true;
-				$response['message']	=	'Application successfully updated.';
-				
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-			}
+		$obj = Application::find($request->note_id);
+		if (!$obj) {
+			$response['message'] = 'Application not found';
+			return response()->json($response);
+		}
 		
-		echo json_encode($response);
+		$obj->sub_agent = '';
+		$saved = $obj->save();
+		
+		if ($saved) {
+			$response['status'] = true;
+			$response['message'] = 'Sub agent removed successfully.';
+		}
+		
+		return response()->json($response);
 	}
 	
 	public function application_ownership(Request $request){

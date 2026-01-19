@@ -153,6 +153,12 @@ class ClientApplicationController extends Controller
 			$app = \App\Models\InterestedService::where('client_id',$clientid)->where('id',$id)->first();
 			$workflow = $app->workflow;
 			$workflowstage = \App\Models\WorkflowStage::where('w_id', $workflow)->orderby('id','ASC')->first();
+			if(!$workflowstage){
+				return response()->json([
+					'status' => false,
+					'message' => 'Workflow stage not found. Please try again.'
+				]);
+			}
 			$partner = $app->partner;
 			$branch = $app->branch;
 			$product = $app->product;
@@ -174,7 +180,12 @@ class ClientApplicationController extends Controller
 			$obj->discounts = @$app->discounts;
 
 			$saved = $obj->save();
-
+			if(!$saved){
+				return response()->json([
+					'status' => false,
+					'message' => 'Please try again'
+				]);
+			}
 
 			$app = \App\Models\InterestedService::find($id);
 			$app->status = 1;
@@ -187,7 +198,10 @@ class ClientApplicationController extends Controller
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->clientid;
 				$objs->created_by = Auth::user()->id;
-				$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
+				$productName = $productdetail ? $productdetail->name : 'Unknown product';
+				$partnerName = $partnerdetail ? $partnerdetail->partner_name : 'Unknown partner';
+				$branchName = $PartnerBranch ? $PartnerBranch->name : 'Unknown branch';
+				$objs->description = '<span class="text-semi-bold">'.$productName.'</span><p>'.$partnerName.' ('.$branchName.')</p>';
 				$objs->subject = $subject;
 				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
@@ -202,7 +216,7 @@ class ClientApplicationController extends Controller
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';
 		}
-		echo json_encode($response);
+		return response()->json($response);
 	}
 
 	public function deleteservices(Request $request){
