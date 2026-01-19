@@ -309,38 +309,56 @@ function customValidate(formName, savetype = '')
 								}
 							}
 						});
-					}else if(formName == 'appnotetermform')
-					{   
-				var noteid = $('#appnotetermform input[name="noteid"]').val();
-						var myform = document.getElementById('appnotetermform');
-						syncEditorContent($(myform));
-						var fd = new FormData(myform);
-						$.ajax({
-							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
-							success: function(response){
-									$('.popuploader').hide();
-								var obj = $.parseJSON(response);
-								if(obj.status){
-									$('#create_applicationnote').modal('hide');
-									$.ajax({
-										url: site_url+'/get-applications-logs',
-										type:'GET',
-										data:{id: noteid},
-										success: function(responses){
-											 
-											$('#accordion').html(responses);
+				}else if(formName == 'appnotetermform')
+				{   
+			var noteid = $('#appnotetermform input[name="noteid"]').val();
+			var stagetype = $('#appnotetermform input[name="type"]').val(); // Capture stage name
+					var myform = document.getElementById('appnotetermform');
+					syncEditorContent($(myform));
+					var fd = new FormData(myform);
+					$.ajax({
+						type:'post',
+						url:$("form[name="+formName+"]").attr('action'),
+						processData: false,
+						contentType: false,
+						data: fd,
+						success: function(response){
+								$('.popuploader').hide();
+							var obj = $.parseJSON(response);
+							if(obj.status){
+								$('#create_applicationnote').modal('hide');
+								
+								// Convert stage name to accordion ID format (same logic as backend)
+								var accordionId = stagetype.toLowerCase().trim().replace(/[^a-z0-9-]+/g, '-') + '_accor';
+								
+								$.ajax({
+									url: site_url+'/get-applications-logs',
+									type:'GET',
+									data:{id: noteid},
+									success: function(responses){
+										 
+										$('#accordion').html(responses);
+										
+										// Re-open the accordion where note was added (Bootstrap 5 syntax)
+										var accordionElement = document.getElementById(accordionId);
+										if(accordionElement) {
+											var bsCollapse = new bootstrap.Collapse(accordionElement, {
+												show: true
+											});
 										}
-									});
-								}else{
-									$('#create_applicationnote .customerror').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
+										
+										// Show success message
+										if($('.custom-error-msg').length){
+											$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+										}
+									}
+								});
+							}else{
+								$('#create_applicationnote .customerror').html('<span class="alert alert-danger">'+obj.message+'</span>');
+								
 							}
-						});
+						}
+					});
 					}else if(formName == 'clientnotetermform')
 					{
 						

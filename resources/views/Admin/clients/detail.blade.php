@@ -1932,8 +1932,6 @@ use App\Http\Controllers\Controller;
 													<th>Status</th>
 													<th>Start Date</th>
 													<th>End Date</th>
-
-													<th></th>
 												</tr>
 											</thead>
 											<tbody class="applicationtdata">
@@ -1986,23 +1984,6 @@ use App\Http\Controllers\Controller;
 
 													<td><?php if(@$alist->start_date != ''){ echo date('d/m/Y', strtotime($alist->start_date)); } ?></td>
 													<td><?php if(@$alist->end_date != ''){ echo date('d/m/Y', strtotime($alist->end_date)); } ?></td>
-
-                                                  <?php
-                                                  if( Auth::user()->role == 1 )
-                                                  { //super admin or admin
-                                                  ?>
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-
-																<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$alist->id}}, 'applications')"><i class="fas fa-trash"></i> Delete</a>
-															</div>
-														</div>
-													</td>
-
-                                                   <?php
-                                                    }?>
 												</tr>
 												<?php
 											}
