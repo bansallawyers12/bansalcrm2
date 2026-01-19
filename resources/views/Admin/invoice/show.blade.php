@@ -707,7 +707,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
 			<div class="modal-body text-center">
-				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"><span aria-hidden="true">×</span></button>
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"></button>
 				<h4 class="modal-title text-center message col-v-5">Are your sure you want revert?</h4> 
 				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accepteducation">Accept</button> 
 				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
@@ -724,7 +724,7 @@
 		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Payment Details</h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 			</div>
 			<div class="modal-body">
 			
