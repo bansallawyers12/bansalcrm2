@@ -879,7 +879,6 @@ class ApplicationsController extends Controller
                                         <tr>
                                             <td>Tution Fee -</td>
 											<td class="calculate_tution_fee"><?php if( isset($appfeeoption->tution_fees) && $appfeeoption->tution_fees != "") { echo $appfeeoption->tution_fees;} ?></td>
-                                            <td></td>
                                         </tr>
                                     </tfoot>
 								</table>
@@ -928,7 +927,7 @@ class ApplicationsController extends Controller
 
                         <div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('applicationfeeform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -1934,7 +1933,7 @@ class ApplicationsController extends Controller
                     </div>
                     <div style="float:right;">
                         <button onclick="customValidate('applicationfeeformlatest')" type="button" class="btn btn-primary">Save</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
 			</div>

@@ -98,9 +98,6 @@ class StaffController extends Controller
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Staff members are verified
 		$obj->show_dashboard_per = 1; // Staff have dashboard access
-		$obj->australian_study = 0; // Required NOT NULL field (default: 0)
-		$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
-		$obj->regional_study = 0; // Required NOT NULL field (default: 0)
 			/* Profile Image Upload Function Start */						  
 					if($request->hasfile('profile_img')) 
 					{	

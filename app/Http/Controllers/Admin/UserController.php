@@ -85,9 +85,6 @@ class UserController extends Controller
 			}
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Users are verified by default
-		$obj->australian_study = 0; // Required NOT NULL field (default: 0)
-		$obj->specialist_education = 0; // Required NOT NULL field (default: 0)
-		$obj->regional_study = 0; // Required NOT NULL field (default: 0)
 			
 			if(isset($requestData['permission']) && is_array($requestData['permission']) ){
                 $obj->permission		=	implode(",",$requestData['permission']);

@@ -1432,9 +1432,6 @@ class ClientsController extends Controller
                     }
                     // Set required NOT NULL fields for PostgreSQL
                     $obj->password = Hash::make('LEAD_PLACEHOLDER'); // Required NOT NULL - placeholder for leads
-                    $obj->australian_study = 0; // Required NOT NULL field (default: 0)
-                    $obj->specialist_education = 0; // Required NOT NULL field (default: 0)
-                    $obj->regional_study = 0; // Required NOT NULL field (default: 0)
                     $obj->save();
 
                     $fetchedData = Admin::find($obj->id);
