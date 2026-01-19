@@ -12,6 +12,21 @@ class ActivitiesLog extends Model
     protected $table = 'activities_logs';
     
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'client_id',
+        'created_by',
+        'subject',
+        'description',
+        'use_for',
+        'task_status',
+        'pin',
+    ];
+    
+    /**
      * Get the client associated with this activity
      */
     public function client()

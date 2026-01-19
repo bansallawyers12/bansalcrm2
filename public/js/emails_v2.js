@@ -66,20 +66,17 @@
     }
 
     /**
-     * Get matter ID from the DOM
+     * Get matter ID from the DOM (optional - not required for email upload)
+     * Returns null if not available - this is acceptable
      */
     function getMatterId() {
         const container = document.querySelector('.email-v2-interface-container');
         if (!container) {
-            // Page doesn't have email interface - this is normal for pages that don't support emails
             return null;
         }
         
-        // Check if the container has the required attribute
         const matterId = container.dataset.matterId;
         if (!matterId || matterId === '') {
-            // Container exists but matter ID is not set - page may not be configured for emails
-            // This is not an error, just return null silently
             return null;
         }
         
@@ -454,15 +451,9 @@
      */
     async function uploadFiles(files) {
         const clientId = getEntityId();
-        const matterId = getMatterId();
         
         if (!clientId) {
             showNotification('Client ID not found', 'error');
-            return;
-        }
-        
-        if (!matterId) {
-            showNotification('Matter ID not found. Please select a matter.', 'error');
             return;
         }
 
@@ -489,12 +480,6 @@
             // Add required fields based on current mail type (inbox or sent)
             formData.append('client_id', clientId);
             formData.append('type', getEntityType());
-            
-            // Add matter ID - this is now REQUIRED for matter-specific emails
-            formData.append(
-                currentMailType === 'sent' ? 'upload_sent_mail_client_matter_id' : 'upload_inbox_mail_client_matter_id',
-                matterId
-            );
 
             // Validate and add CSRF token (both in header and form data for compatibility)
             const csrfToken = getCsrfToken();
@@ -645,7 +630,7 @@
                     }, 2000);
                     
                     // Reload email list
-                    loadEmails();
+                    loadEmailsFromServer();
                 }
             } else {
                 // Complete error state
@@ -798,22 +783,10 @@
      */
     async function loadEmailsFromServer() {
         const clientId = getEntityId();
-        const matterId = getMatterId();
         
         if (!clientId) {
             // Client ID not available - page may not support emails
             // Don't show warning as this is expected on pages without email interface
-            return;
-        }
-        
-        if (!matterId) {
-            // Matter ID not available - show message only if email interface exists
-            const container = document.querySelector('.email-v2-interface-container');
-            if (container) {
-                // Container exists but matter ID is missing - show user-friendly message
-                renderEmptyState('Please select a matter to view emails');
-            }
-            // Otherwise, silently return (page doesn't support emails)
             return;
         }
 
@@ -834,7 +807,6 @@
             const requestBody = {
                 client_id: clientId,
                 entity_type: getEntityType(),
-                client_matter_id: matterId, // Add matter_id to filter emails
                 search: currentSearch,
                 status: '', // Keep for backward compatibility (mail_is_read)
                 label_id: currentLabelId
@@ -1433,18 +1405,6 @@
     }
 
     /**
-     * Get current matter ID from the matter dropdown
-     */
-    function getCurrentMatterIdFromDropdown() {
-        const matterDropdown = document.getElementById('sel_matter_id_client_detail');
-        if (matterDropdown && matterDropdown.value) {
-            return matterDropdown.value;
-        }
-        // Fallback: try to get from email interface container
-        return getMatterId();
-    }
-
-    /**
      * Open compose modal and populate fields
      */
     function openComposeModal(data) {
@@ -1452,15 +1412,6 @@
         if (!modal) {
             showNotification('Compose email modal not found. Please ensure you are on the client detail page.', 'error');
             return;
-        }
-
-        // Always set matter ID - use provided one or get from dropdown
-        const matterIdInput = document.getElementById('compose_client_matter_id');
-        if (matterIdInput) {
-            const matterId = data.matterId || getCurrentMatterIdFromDropdown();
-            if (matterId) {
-                matterIdInput.value = matterId;
-            }
         }
 
         // Set subject
@@ -1575,9 +1526,6 @@
             return;
         }
 
-        // Get matter ID
-        const matterId = getMatterId();
-
         // Format subject
         const replySubject = formatReplySubject(email.subject);
 
@@ -1588,8 +1536,7 @@
         openComposeModal({
             to: [senderEmail],
             subject: replySubject,
-            message: replyMessage,
-            matterId: matterId
+            message: replyMessage
         });
 
         showNotification('Reply email opened', 'info');
@@ -1604,9 +1551,6 @@
             return;
         }
 
-        // Get matter ID
-        const matterId = getMatterId();
-
         // Format subject
         const forwardSubject = formatForwardSubject(email.subject);
 
@@ -1617,8 +1561,7 @@
         openComposeModal({
             to: [],
             subject: forwardSubject,
-            message: forwardMessage,
-            matterId: matterId
+            message: forwardMessage
         });
 
         showNotification('Forward email opened', 'info');
@@ -1838,7 +1781,7 @@
      */
     async function fetchLabels() {
         try {
-            const response = await fetch('/email-labels', {
+            const response = await fetch('/email-v2/labels', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -1892,7 +1835,7 @@
      */
     async function applyLabel(mailReportId, labelId) {
         try {
-            const response = await fetch('/email-labels/apply', {
+            const response = await fetch('/email-v2/labels/apply', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1925,7 +1868,7 @@
      */
     async function removeLabel(mailReportId, labelId) {
         try {
-            const response = await fetch('/email-labels/remove', {
+            const response = await fetch('/email-v2/labels/remove', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2067,6 +2010,11 @@
      * Initialize new filter and modal features
      */
     function initializeNewFeatures() {
+        // Initialize upload functionality (drag & drop)
+        if (typeof window.initializeUpload === 'function') {
+            window.initializeUpload();
+        }
+
         // Fetch labels on load
         fetchLabels();
 
@@ -2110,35 +2058,6 @@
 
         // Initialize attachment handlers
         initializeAttachmentHandlers();
-
-        // Auto-set matter ID when compose modal opens (for all email composes)
-        const composeModal = document.getElementById('emailmodal');
-        if (composeModal) {
-            // Listen for modal show event (Bootstrap 4)
-            if (typeof jQuery !== 'undefined') {
-                jQuery(composeModal).on('show.bs.modal', function() {
-                    const matterIdInput = document.getElementById('compose_client_matter_id');
-                    if (matterIdInput && !matterIdInput.value) {
-                        // Only set if not already set (to preserve reply/forward matter ID)
-                        const matterId = getCurrentMatterIdFromDropdown();
-                        if (matterId) {
-                            matterIdInput.value = matterId;
-                        }
-                    }
-                });
-            }
-            // Also listen for native modal show event
-            composeModal.addEventListener('show.bs.modal', function() {
-                const matterIdInput = document.getElementById('compose_client_matter_id');
-                if (matterIdInput && !matterIdInput.value) {
-                    // Only set if not already set (to preserve reply/forward matter ID)
-                    const matterId = getCurrentMatterIdFromDropdown();
-                    if (matterId) {
-                        matterIdInput.value = matterId;
-                    }
-                }
-            });
-        }
     }
 
     /**
