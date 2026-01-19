@@ -3906,6 +3906,10 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
 
 <script>
