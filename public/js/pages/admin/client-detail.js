@@ -2325,6 +2325,8 @@ Bansal Immigration`;
                         },
                         success: function(responses){
                             $('#accordion').html(responses);
+                            // Re-initialize Bootstrap Collapse for click functionality
+                            reinitializeAccordions();
                         },
                         error: function(xhr, status, error){
                             console.error('Error loading application logs:', error);
@@ -2923,6 +2925,8 @@ Bansal Immigration`;
                         data:{id: obj.application_id},
                         success: function(responses){
                             $('#accordion').html(responses);
+                            // Re-initialize Bootstrap Collapse for click functionality
+                            reinitializeAccordions();
                         }
                     });
                 }
@@ -3836,6 +3840,24 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================================
 
 /**
+ * Re-initialize Bootstrap Collapse on accordion headers
+ * Must be called after replacing accordion HTML to restore click functionality
+ */
+function reinitializeAccordions() {
+    // Re-initialize Bootstrap collapse on all accordion headers
+    var collapseElements = document.querySelectorAll('#accordion [data-bs-toggle="collapse"]');
+    collapseElements.forEach(function(element) {
+        // Check if already initialized to avoid duplicates
+        var instance = bootstrap.Collapse.getInstance(element);
+        if (!instance) {
+            new bootstrap.Collapse(element, {
+                toggle: false // Don't auto-toggle on init
+            });
+        }
+    });
+}
+
+/**
  * Reload application activities accordion after state change
  * @param {number} appliid - Application ID
  */
@@ -3848,6 +3870,8 @@ function reloadApplicationActivities(appliid) {
         success: function(response) {
             // Replace the accordion content
             $('#accordion').html(response);
+            // Re-initialize Bootstrap Collapse for click functionality
+            reinitializeAccordions();
             console.log('Activities reloaded successfully');
         },
         error: function(xhr, status, error) {

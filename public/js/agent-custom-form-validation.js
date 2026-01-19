@@ -6,6 +6,24 @@ var min = "This field should be greater than or equal to ";
 var max = "This field should be less than or equal to ";
 var equal = "This field should be equal to ";
 
+/**
+ * Re-initialize Bootstrap Collapse on accordion headers
+ * Must be called after replacing accordion HTML to restore click functionality
+ */
+function reinitializeAccordions() {
+	// Re-initialize Bootstrap collapse on all accordion headers
+	var collapseElements = document.querySelectorAll('#accordion [data-bs-toggle="collapse"]');
+	collapseElements.forEach(function(element) {
+		// Check if already initialized to avoid duplicates
+		var instance = bootstrap.Collapse.getInstance(element);
+		if (!instance) {
+			new bootstrap.Collapse(element, {
+				toggle: false // Don't auto-toggle on init
+			});
+		}
+	});
+}
+
 // Helper function to sync TinyMCE/summernote content to textarea before form submission
 function syncEditorContent($form) {
 	$form.find('textarea.summernote-simple, textarea.summernote').each(function() {
@@ -314,12 +332,16 @@ function customValidate(formName, savetype = '')
 										 
 										$('#accordion').html(responses);
 										
+										// Re-initialize ALL accordions for click functionality
+										reinitializeAccordions();
+										
 										// Re-open the accordion where note was added (Bootstrap 5 syntax)
 										var accordionElement = document.getElementById(accordionId);
 										if(accordionElement) {
-											var bsCollapse = new bootstrap.Collapse(accordionElement, {
-												show: true
-											});
+											var collapseInstance = bootstrap.Collapse.getInstance(accordionElement);
+											if(collapseInstance) {
+												collapseInstance.show();
+											}
 										}
 										
 										// Show success message
@@ -1102,19 +1124,21 @@ function customValidate(formName, savetype = '')
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
-								$('#revert_application').modal('hide');
-								if(obj.status){
-									
-									$.ajax({
-										url: site_url+'/agent/get-applications-logs',
-										type:'GET',
-										data:{id: appliid},
-										success: function(responses){
-											 
-											$('#accordion').html(responses);
-										}
-									});
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+							$('#revert_application').modal('hide');
+							if(obj.status){
+								
+								$.ajax({
+									url: site_url+'/agent/get-applications-logs',
+									type:'GET',
+									data:{id: appliid},
+									success: function(responses){
+										 
+										$('#accordion').html(responses);
+										// Re-initialize Bootstrap Collapse for click functionality
+										reinitializeAccordions();
+									}
+								});
+							$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								
 								$('.progress-circle span').html(obj.width+' %');
 				var over = '';
@@ -1527,22 +1551,24 @@ function customValidate(formName, savetype = '')
 									});
 									
 									$.ajax({
-										url: site_url+'/agent/get-applications-logs',
-										type:'GET',
-										data:{id: noteid},
-										success: function(responses){
-											 
-											$('#accordion').html(responses);
-										}
-									});
-									
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
+									url: site_url+'/agent/get-applications-logs',
+									type:'GET',
+									data:{id: noteid},
+									success: function(responses){
+										 
+										$('#accordion').html(responses);
+										// Re-initialize Bootstrap Collapse for click functionality
+										reinitializeAccordions();
+									}
+								});
+								
+							}else{
+								$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+								
 							}
-						});		
-					}else if(formName == 'appkicationsendmail'){
+						}
+					});		
+				}else if(formName == 'appkicationsendmail'){
 						var client_id = $('#appkicationsendmail input[name="client_id"]').val();
 						var noteid = $('#appkicationsendmail input[name="noteid"]').val();
 						var myform = document.getElementById('appkicationsendmail');
@@ -1570,23 +1596,25 @@ function customValidate(formName, savetype = '')
 										}
 									});
 									
-									$.ajax({
-										url: site_url+'/agent/get-applications-logs',
-										type:'GET',
-										data:{id: noteid},
-										success: function(responses){
-											 
-											$('#accordion').html(responses);
-										}
-									});
-									
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
+								$.ajax({
+									url: site_url+'/agent/get-applications-logs',
+									type:'GET',
+									data:{id: noteid},
+									success: function(responses){
+										 
+										$('#accordion').html(responses);
+										// Re-initialize Bootstrap Collapse for click functionality
+										reinitializeAccordions();
+									}
+								});
+								
+							}else{
+								$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+								
 							}
-						});		
-					}else if(formName == 'editappointment'){
+						}
+					});		
+				}else if(formName == 'editappointment'){
 						var client_id = $('#editappointment input[name="client_id"]').val();
 						var myform = document.getElementById('editappointment');
 						var fd = new FormData(myform);	
