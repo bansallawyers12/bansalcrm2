@@ -389,7 +389,7 @@ use App\Http\Controllers\Controller;
 												<tr id="id_{{$alist->id}}">
 													<td><a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$partnerdetail->id)))}}">{{$partnerdetail->first_name}} {{$partnerdetail->last_name}}</a></td>
 													<td></td>
-													<td>{{$productdetail->name}}</td>
+													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$partnerdetail->id))}}?tab=application&appid={{@$alist->id}}">{{$productdetail->name}}</a></td>
 													<td>{{$workflow->name}}</td>
 													<td>{{$alist->stage}}</td>
 													<td>
