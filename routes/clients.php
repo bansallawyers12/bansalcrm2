@@ -1,16 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\ClientsController;
 use App\Http\Controllers\Admin\Client\ClientController;
-use App\Http\Controllers\Admin\Client\ClientFollowupController;
+use App\Http\Controllers\Admin\Client\ClientActionController;
 use App\Http\Controllers\Admin\Client\ClientNoteController;
 use App\Http\Controllers\Admin\Client\ClientActivityController;
 use App\Http\Controllers\Admin\Client\ClientApplicationController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
 use App\Http\Controllers\Admin\Client\ClientDocumentController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
-use App\Http\Controllers\Admin\Client\ClientAppointmentController;
 use App\Http\Controllers\Admin\Client\ClientReceiptController;
 use App\Http\Controllers\Admin\Client\ClientMergeController;
 
@@ -28,9 +26,6 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Main CRUD routes
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
-    // REMOVED: Direct client creation - clients must be created via lead conversion
-    // Route::get('/clients/create', [ClientsController::class, 'create'])->name('clients.create');
-    // Route::post('/clients/store', [ClientsController::class, 'store'])->name('clients.store');
     Route::get('/clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
     Route::post('/clients/edit', [ClientController::class, 'edit'])->name('clients.update');
     
@@ -44,17 +39,15 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');
     
     // Status views
-    Route::get('/prospects', [ClientsController::class, 'prospects'])->name('clients.prospects');
     Route::get('/archived', [ClientController::class, 'archived'])->name('clients.archived');
     
     // Follow-up routes
-    Route::post('/clients/followup/store', [ClientFollowupController::class, 'followupstore'])->name('clients.followup.store');
-    Route::post('/clients/followup_application/store_application', [ClientFollowupController::class, 'followupstore_application'])->name('clients.followup.store_application');
-    Route::post('/clients/followup/retagfollowup', [ClientFollowupController::class, 'retagfollowup'])->name('clients.followup.retagfollowup');
-    Route::post('/clients/personalfollowup/store', [ClientFollowupController::class, 'personalfollowup'])->name('clients.personalfollowup.store');
-    Route::post('/clients/updatefollowup/store', [ClientFollowupController::class, 'updatefollowup'])->name('clients.updatefollowup.store');
-    Route::post('/clients/reassignfollowup/store', [ClientFollowupController::class, 'reassignfollowupstore'])->name('clients.reassignfollowup.store');
-    Route::post('/updatefollowupschedule', [ClientAppointmentController::class, 'updatefollowupschedule'])->name('clients.updatefollowupschedule');
+    Route::post('/clients/followup/store', [ClientActionController::class, 'followupstore'])->name('clients.followup.store');
+    Route::post('/clients/followup_application/store_application', [ClientActionController::class, 'followupstore_application'])->name('clients.followup.store_application');
+    Route::post('/clients/followup/retagfollowup', [ClientActionController::class, 'retagfollowup'])->name('clients.followup.retagfollowup');
+    Route::post('/clients/personalfollowup/store', [ClientActionController::class, 'personalfollowup'])->name('clients.personalfollowup.store');
+    Route::post('/clients/updatefollowup/store', [ClientActionController::class, 'updatefollowup'])->name('clients.updatefollowup.store');
+    Route::post('/clients/reassignfollowup/store', [ClientActionController::class, 'reassignfollowupstore'])->name('clients.reassignfollowup.store');
     
     // Client management
     Route::get('/clients/changetype/{id}/{type}', [ClientController::class, 'changetype'])->name('clients.changetype');

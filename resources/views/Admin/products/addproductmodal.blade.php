@@ -166,136 +166,6 @@
 		</div>
 	</div>
 </div>
-
-<!-- Appointment Modal -->
-<div class="modal fade add_appointment custom_modal" id="create_appoint" tabindex="-1" role="dialog" aria-labelledby="create_interestModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="interestModalLabel">Add Appointment</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<form method="post" action="{{URL::to('/add-appointment')}}" name="appointform" id="appointform" autocomplete="off" enctype="multipart/form-data">
-				@csrf 
-				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
-					<div class="row">
-						<div class="col-12 col-md-6 col-lg-6">
-						<?php
-						$timelist = \DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-						?>
-							<div class="form-group">
-								<label style="display:block;" for="related_to">Related to:</label>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="client" value="Client" name="related_to" checked>
-									<label class="form-check-label" for="client">Client</label>
-								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="partner" value="Partner" name="related_to">
-									<label class="form-check-label" for="partner">Partner</label>
-								</div>
-								<span class="custom-error related_to_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label style="display:block;" for="related_to">Added by:</label>
-								<span>{{@Auth::user()->first_name}}</span>
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="client_name">Client Name <span class="span_req">*</span></label>
-								{!! Form::text('client_name', @$fetchedData->first_name.' '.@$fetchedData->last_name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Client Name','readonly'=>'readonly' ))  !!} 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="timezone">Timezone <span class="span_req">*</span></label>
-								<select class="form-control timezoneselect2" name="timezone" data-valid="required">
-									<option value="">Select Timezone</option>
-									<?php
-									foreach($timelist as $tlist){
-										?>
-										<option value="<?php echo $tlist; ?>" <?php if($tlist == 'Australia/Melbourne'){ echo "selected"; } ?>><?php echo $tlist; ?></option>
-										<?php
-									}
-									?>
-								</select>
-							</div>
-						</div>
-						<div class="col-12 col-md-7 col-lg-7">
-							<div class="form-group"> 
-								<label for="appoint_date">Date</label>
-								<div class="input-group">
-									<div class="input-group-prepend"> 
-										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
-										</div>
-									</div>
-									{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
-								</div>
-								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
-								<span class="custom-error appoint_date_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-5 col-lg-5">
-							<div class="form-group"> 
-								<label for="appoint_time">Time</label>
-								<div class="input-group">
-									<div class="input-group-prepend">
-										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
-										</div>
-									</div>
-									{!! Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off',  'placeholder'=>'Select Time', 'readonly'))  !!}
-								</div>
-								<span class="custom-error appoint_time_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="title">Title <span class="span_req">*</span></label>
-								{!! Form::text('title', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Title' ))  !!} 
-								<span class="custom-error title_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="description">Description</label>
-								<textarea class="form-control" name="description" placeholder="Description"></textarea>
-								<span class="custom-error description_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>	
-						</div>	
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="invitees">Invitees</label>
-								<select class="form-control select2" name="invitees">
-									<option>Select Invitees</option>
-									
-								</select>
-							</div>
-						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('appointform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</form>  
-			</div>
-		</div>
-	</div>
-</div>
  
 <!-- Note & Terms Modal -->
 <div class="modal fade custom_modal" id="create_note" tabindex="-1" role="dialog" aria-labelledby="create_noteModalLabel" aria-hidden="true">
@@ -727,7 +597,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/add-appointment')}}" name="checklistform" id="checklistform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="#" name="checklistform" id="checklistform" autocomplete="off" enctype="multipart/form-data">
 				@csrf 
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">						
@@ -827,7 +697,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/add-appointment')}}" name="paymentform" id="paymentform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="#" name="paymentform" id="paymentform" autocomplete="off" enctype="multipart/form-data">
 				@csrf 
 				<input type="hidden" name="client_id" value="{{$fetchedData->id}}">
 					<div class="row">

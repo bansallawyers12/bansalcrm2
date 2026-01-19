@@ -1721,31 +1721,6 @@ class AdminController extends Controller
         */
     }
 
-    public function checkclientexist(Request $request){
-        if($request->type == 'email'){
-         $clientexists = \App\Models\Admin::where('email', $request->vl)->where('role',7)->exists();
-            if($clientexists){
-                echo 1;
-            }else{
-                echo 0;
-            }
-        }else if($request->type == 'clientid'){
-         $clientexists = \App\Models\Admin::where('client_id', $request->vl)->where('role',7)->exists();
-            if($clientexists){
-                echo 1;
-            }else{
-                echo 0;
-            }
-        }else{
-            $clientexists = \App\Models\Admin::where('phone', $request->vl)->where('role',7)->exists();
-            if($clientexists){
-                echo 1;
-            }else{
-                echo 0;
-            }
-        }
-    }
-
 	public function allnotification(Request $request){
 		$query = \App\Models\Notification::where('receiver_id', Auth::user()->id);
 		

@@ -263,20 +263,7 @@
 										</div>
 									</div>
 									
-									<div class="accordion">
-										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-12">
-											<h4>APPOINTMENTS</h4>
-										</div>
-										<div class="accordion-body collapse" id="panel-body-12" data-parent="#accordion">
-											<div class="select_toggle">
-												<a href="javascript:;" data-class="appointments" class="btn btn-primary select_all">Select All</a>
-												<a href="javascript:;" data-class="appointments" class="btn btn-secondary deselect_all">Deselect All</a>
-											</div>
-											<ul>
-												<li><label><input type="checkbox" name="module_access[70]" class="appointments"> Can manage Partners appointments.</label></li>
-											</ul>
-										</div>
-									</div>
+									{{-- Appointments permission removed - feature deprecated --}}
 									
 									{{-- Task system removed - December 2025 --}}
 									<!--<div class="accordion">

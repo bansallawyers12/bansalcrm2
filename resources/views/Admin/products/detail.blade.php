@@ -17,7 +17,6 @@
 .ui.label:last-child {margin-right: 0;}
 .ui.label:first-child { margin-left: 0;}
 .field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
-.ag-appointment-list__title{padding-left: 1rem; text-transform: uppercase;}
 .zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
@@ -470,16 +469,6 @@ function getallactivities(){
 						success: function(responses){
 							
 							$('.interest_serv_list').html(responses);
-						}
-					});
-					}if(delhref == 'deleteappointment'){
-						$.ajax({
-						url: site_url+'/get-appointments',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.appointmentlist').html(responses);
 						}
 					});
 					}else{
@@ -978,35 +967,6 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 	$('.ifselecttask select').attr('data-valid', '');
 	
 });*/
-	$(document).delegate('.edit_appointment', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#edit_appointment').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getAppointmentdetail')}}',
-			type:'GET',
-			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showappointmentdetail').html(response);
-				 if (typeof flatpickr !== 'undefined') {
-					$(".datepicker").each(function() {
-						flatpickr(this, {
-							dateFormat: "Y-m-d",
-							allowInput: true
-						});
-					});
-				}
-				$(".timepicker").timepicker({
-      icons: {
-        up: "fas fa-chevron-up",
-        down: "fas fa-chevron-down"
-      }
-    });
-			}
-		});
-	});
-	
 	$(document).delegate('.interest_service_view', 'click', function(){
 		var v = $(this).attr('data-id');
 		$('.popuploader').show();
