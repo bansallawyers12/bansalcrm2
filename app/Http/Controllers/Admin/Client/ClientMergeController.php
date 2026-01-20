@@ -99,23 +99,6 @@ class ClientMergeController extends Controller
                 }
             }
 
-            //appointments - REMOVED: appointments table deleted
-            // Appointment merge functionality disabled - appointments table no longer exists
-            /*
-            $appointments = DB::table('appointments')->where('client_id', $request->merge_from)->get();
-            if(!empty($appointments)){
-                foreach($appointments as $appkey=>$appval){
-                    DB::table('appointments')
-                    ->where('client_id', $request->merge_from)
-                    ->update([
-                        'client_id' => $request->merge_into,
-                        'updated_at' => now()
-                    ]);
-                }
-            }
-            */
-
-
             //quotations
             $quotations = DB::table('quotations')->where('client_id', $request->merge_from)->get();
             if(!empty($quotations)){

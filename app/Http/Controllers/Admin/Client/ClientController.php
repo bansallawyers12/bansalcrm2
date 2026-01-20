@@ -88,22 +88,6 @@ class ClientController extends Controller
 		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData']));
 	}
 
-	public function create(Request $request)
-	{
-		// REMOVED: Direct client creation is disabled
-		// Clients must be created by converting leads first
-		return redirect()->route('clients.index')
-			->with('error', 'Direct client creation is disabled. Please create a lead first and then convert it to a client.');
-	}
-
-	public function store(Request $request)
-	{
-		// REMOVED: Direct client creation is disabled
-		// Clients must be created by converting leads first
-		return redirect()->route('clients.index')
-			->with('error', 'Direct client creation is disabled. Please create a lead first and then convert it to a client.');
-	}
-
     public function edit(Request $request, $id = NULL)
 	{
 		 
@@ -180,29 +164,6 @@ class ClientController extends Controller
           
 		$obj->address	=	@$requestData['address'];
 		
-		// Geocoding disabled - GPS coordinates not needed
-		/*
-		if( isset($requestData['address']) && $requestData['address'] != ""){
-            //$address = "16-18, Argyle Street, Camden, London, WC1H 8EG, United Kingdom";
-            $address = @$requestData['address'];
-            $result = app('geocoder')->geocode($address)->get(); //dd($result);
-          
-            if(isset($result[0]) && $result[0] != "" ){
-                $coordinates = $result[0]->getCoordinates();
-                $lat = $coordinates->getLatitude();
-                $long = $coordinates->getLongitude();
-            } else {
-                $lat = "";
-                $long = "";
-            }
-          
-            //echo "lat==".$lat;
-            //echo "long==".$long; die();
-			$obj->latitude	=	$lat;
-            $obj->longitude	=	$long;
-        }
-		*/
-
 			$obj->city	=	@$requestData['city'];
 			$obj->state	=	@$requestData['state'];
 			$obj->zip	=	@$requestData['zip'];

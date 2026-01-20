@@ -493,22 +493,6 @@ class ClientActionController extends Controller
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
-			/*$objs = new ActivitiesLog;
-            $objs->client_id = @$requestData['client_id'];
-            $objs->created_by = Auth::user()->id;
-            $objs->subject = 'set action for '.@$assignee_name;
-            $objs->description = '<span class="text-semi-bold">'.@$title.'</span><p>'.$description.'</p>';
-            if(Auth::user()->id != @$requestData['rem_cat11']){
-                $objs->use_for = @$requestData['rem_cat11'];
-            } else {
-                $objs->use_for = "";
-            }
-            $objs->followup_date = date('Y-m-d H:i:s');
-            $objs->task_group = 'stage';
-            $objs->save();*/
-
-
-
             $obj1 = new \App\Models\ApplicationActivitiesLog;
             $obj1->stage = $requestData['stage_name'];
             $obj1->type = 'task';
