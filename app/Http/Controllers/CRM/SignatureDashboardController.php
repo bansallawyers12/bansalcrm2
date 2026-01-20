@@ -450,7 +450,7 @@ class SignatureDashboardController extends Controller
                 // Generate signing URL
                 $signingUrl = url("/sign/{$document->id}/{$signer->token}");
                 
-                $subject = $signer->email_subject ?? 'Document Signature Request from ' . $mailFromName;
+                $subject = $signer->email_subject ?? 'Document Signature Request from Bansal Education';
                 $emailMessage = $signer->email_message ?? "Please review and sign the attached document.";
                 
                 // Email data for template

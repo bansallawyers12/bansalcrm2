@@ -108,7 +108,7 @@ class SignatureService
             // Get from address from config
             $mailFromName = config('mail.from.name');
             
-            $subject = $options['subject'] ?? 'Document Signature Request from ' . $mailFromName;
+            $subject = $options['subject'] ?? 'Document Signature Request from Bansal Education';
             $emailMessage = $options['message'] ?? "Please review and sign the attached document.";
             
             // Email data for template
@@ -219,7 +219,7 @@ class SignatureService
                 'signingUrl' => $signingUrl,
             ];
             
-            $subject = "Reminder #{$reminderNumber}: Document Signature Request from " . $mailFromName;
+            $subject = "Reminder #{$reminderNumber}: Document Signature Request from Bansal Education";
             
             // Send reminder email using the signature-request template
             Mail::send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {

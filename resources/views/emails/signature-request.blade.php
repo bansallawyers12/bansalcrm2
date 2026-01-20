@@ -15,9 +15,9 @@
                     <tr>
                         <td style="background-color: #3366CC; padding: 30px 40px; text-align: center;">
                             <!-- Logo -->
-                            <img src="https://bansalcrm.com/assets/images/bansal-logo-white.png" alt="Bansal Immigration" style="height: 60px; margin-bottom: 15px;" onerror="this.style.display='none'">
+                            <img src="https://bansalcrm.com/assets/images/bansal-logo-white.png" alt="Bansal Education" style="height: 60px; margin-bottom: 15px;" onerror="this.style.display='none'">
                             <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">Document Signature Request</h1>
-                            <p style="color: #cce0ff; margin: 10px 0 0 0; font-size: 14px;">Bansal Migration Immigration & Visa Services</p>
+                            <p style="color: #cce0ff; margin: 10px 0 0 0; font-size: 14px;">Bansal Education Group</p>
                         </td>
                     </tr>
                     
@@ -80,7 +80,7 @@
                                 <tr>
                                     <td>
                                         <p style="margin: 0 0 5px 0; font-size: 14px; color: #333;"><strong>Regards,</strong></p>
-                                        <p style="margin: 0; font-size: 14px; color: #333;"><strong>Bansal Migration Team</strong></p>
+                                        <p style="margin: 0; font-size: 14px; color: #333;"><strong>Bansal Education Team</strong></p>
                                     </td>
                                 </tr>
                             </table>
@@ -90,8 +90,8 @@
                     <!-- Footer -->
                     <tr>
                         <td style="background-color: #f8f9fa; padding: 25px 40px; text-align: center; border-top: 1px solid #e9ecef;">
-                            <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #333;">Bansal Migration</p>
-                            <p style="margin: 0; font-size: 13px; color: #666;">Immigration & Visa Services</p>
+                            <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #333;">Bansal Education</p>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Education Group</p>
                         </td>
                     </tr>
                     
