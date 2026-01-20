@@ -9,6 +9,7 @@ import json
 import sys
 import os
 import base64
+import mimetypes
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
@@ -243,6 +244,52 @@ class EmailParserService:
         # No valid email found
         return text if text else None, None
     
+    def _detect_mime_type(self, filename: str) -> str:
+        """
+        Detect MIME type from filename extension.
+        Uses Python's mimetypes module with fallback for common types.
+        """
+        if not filename:
+            return 'application/octet-stream'
+        
+        # Try using mimetypes module first
+        mime_type, _ = mimetypes.guess_type(filename)
+        if mime_type:
+            return mime_type
+        
+        # Fallback: manual mapping for common types that might not be in mimetypes
+        ext = filename.lower().rsplit('.', 1)[-1] if '.' in filename else ''
+        mime_map = {
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'gif': 'image/gif',
+            'bmp': 'image/bmp',
+            'webp': 'image/webp',
+            'ico': 'image/x-icon',
+            'svg': 'image/svg+xml',
+            'pdf': 'application/pdf',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt': 'application/vnd.ms-powerpoint',
+            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'txt': 'text/plain',
+            'csv': 'text/csv',
+            'html': 'text/html',
+            'htm': 'text/html',
+            'json': 'application/json',
+            'xml': 'application/xml',
+            'zip': 'application/zip',
+            'rar': 'application/x-rar-compressed',
+            '7z': 'application/x-7z-compressed',
+            'msg': 'application/vnd.ms-outlook',
+            'eml': 'message/rfc822',
+        }
+        
+        return mime_map.get(ext, 'application/octet-stream')
+    
     def _extract_attachments(self, msg) -> list:
         """Extract attachment information from message."""
         attachments = []
@@ -255,7 +302,12 @@ class EmailParserService:
         try:
             for attachment in msg.attachments:
                 try:
-                    content_id = self._safe_get(getattr(attachment, 'contentId', ''), '')
+                    # Try multiple property names for Content ID (extract_msg uses 'cid' in newer versions)
+                    # Priority: 'cid' (newer/correct) -> 'contentId' (legacy) -> empty string
+                    content_id = (
+                        self._safe_get(getattr(attachment, 'cid', ''), '') or
+                        self._safe_get(getattr(attachment, 'contentId', ''), '')
+                    )
                     
                     # Only mark as inline if:
                     # 1. It has a content_id AND
@@ -268,9 +320,19 @@ class EmailParserService:
                         if cid_ref.lower() in combined_body:
                             is_inline = True
                     
+                    # Get filename
+                    filename = self._safe_get(attachment.longFilename or attachment.shortFilename, 'Unknown')
+                    
+                    # Get content type - use library value first, then detect from filename
+                    content_type = self._safe_get(getattr(attachment, 'contentType', ''), '')
+                    
+                    # If content type is missing or generic, detect from filename extension
+                    if not content_type or content_type == 'application/octet-stream':
+                        content_type = self._detect_mime_type(filename)
+                    
                     attachment_data = {
-                        'filename': self._safe_get(attachment.longFilename or attachment.shortFilename, 'Unknown'),
-                        'content_type': self._safe_get(getattr(attachment, 'contentType', 'application/octet-stream'), 'application/octet-stream'),
+                        'filename': filename,
+                        'content_type': content_type,
                         'content_id': content_id,
                         'is_inline': is_inline,
                         'size': len(attachment.data) if attachment.data else 0,

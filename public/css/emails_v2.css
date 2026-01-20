@@ -439,12 +439,34 @@
     line-height: 1.6;
     color: #212529;
     font-size: 14px;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
 }
 
 .email-content-body img {
     max-width: 100%;
     height: auto;
     margin: 10px 0;
+}
+
+/* Ensure email HTML content doesn't overflow */
+.email-content-body > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Handle tables in email content */
+.email-content-body table {
+    max-width: 100%;
+    table-layout: fixed;
+}
+
+.email-content-body td,
+.email-content-body th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Empty State Styles */

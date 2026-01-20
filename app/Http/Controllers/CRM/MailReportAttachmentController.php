@@ -150,8 +150,11 @@ class MailReportAttachmentController extends Controller
 
             $content = Storage::disk('s3')->get($attachment->s3_key);
             
+            // Use effective MIME type (handles fallback for generic content types)
+            $mimeType = $attachment->getEffectiveMimeType();
+            
             return Response::make($content, 200, [
-                'Content-Type' => $attachment->content_type,
+                'Content-Type' => $mimeType,
                 'Content-Disposition' => 'inline; filename="' . $attachment->filename . '"',
             ]);
         } catch (\Exception $e) {

@@ -63,19 +63,87 @@ class MailReportAttachment extends Model
 
     /**
      * Check if the attachment is an image.
+     * Checks content_type first, then falls back to file extension for generic types.
      */
     public function isImage(): bool
     {
         $imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
-        return in_array($this->content_type, $imageTypes);
+        
+        // First check by content type
+        if (in_array($this->content_type, $imageTypes)) {
+            return true;
+        }
+        
+        // Fallback: check by extension if content_type is generic (application/octet-stream)
+        if ($this->content_type === 'application/octet-stream' || empty($this->content_type)) {
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            return in_array($this->getFileExtension(), $imageExtensions);
+        }
+        
+        return false;
     }
 
     /**
      * Check if the attachment is a PDF.
+     * Checks content_type first, then falls back to file extension for generic types.
      */
     public function isPdf(): bool
     {
-        return $this->content_type === 'application/pdf';
+        // First check by content type
+        if ($this->content_type === 'application/pdf') {
+            return true;
+        }
+        
+        // Fallback: check by extension if content_type is generic
+        if ($this->content_type === 'application/octet-stream' || empty($this->content_type)) {
+            return $this->getFileExtension() === 'pdf';
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get the lowercase file extension from filename.
+     */
+    protected function getFileExtension(): string
+    {
+        $extension = $this->extension ?? pathinfo($this->filename ?? '', PATHINFO_EXTENSION);
+        return strtolower($extension ?? '');
+    }
+
+    /**
+     * Get the effective MIME type (with fallback for generic types).
+     * Useful for serving files with correct Content-Type header.
+     */
+    public function getEffectiveMimeType(): string
+    {
+        // If content_type is specific, use it
+        if ($this->content_type && $this->content_type !== 'application/octet-stream') {
+            return $this->content_type;
+        }
+        
+        // Map common extensions to MIME types
+        $mimeMap = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'bmp' => 'image/bmp',
+            'webp' => 'image/webp',
+            'pdf' => 'application/pdf',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'txt' => 'text/plain',
+            'csv' => 'text/csv',
+            'html' => 'text/html',
+            'json' => 'application/json',
+            'xml' => 'application/xml',
+        ];
+        
+        $ext = $this->getFileExtension();
+        return $mimeMap[$ext] ?? 'application/octet-stream';
     }
 
     /**
