@@ -188,109 +188,64 @@ jQuery(document).ready(function($){
     // APPLICATION TAB HANDLERS
     // ============================================================================
     
-    console.log('[application-handlers.js] Setting up #application-tab handlers');
-    
-    // Method 1: Direct click handler on the element (more reliable for already-active tabs)
+    // Direct click handler for when tab is already active
     $(document).ready(function() {
-        console.log('[application-handlers.js] DOM ready, attaching direct click handler');
-        
         $('#application-tab').off('click.appHandler').on('click.appHandler', function(e) {
-            console.log('===== APPLICATION TAB DIRECT CLICK =====');
-            
-            // Check if this tab is already active
             var isAlreadyActive = $(this).hasClass('active');
-            console.log('Tab is already active:', isAlreadyActive);
-            console.log('Has active class:', $(this).attr('class'));
             
             if (isAlreadyActive) {
-                console.log('Tab is active, checking if we need to switch from detail to list');
-                
-                // Check if detail view is currently visible
                 var detailVisible = $('.ifapplicationdetailnot').is(':visible');
                 var listHidden = $('.if_applicationdetail').is(':hidden');
                 
-                console.log('Detail visible:', detailVisible);
-                console.log('List hidden:', listHidden);
-                console.log('.ifapplicationdetailnot display:', $('.ifapplicationdetailnot').css('display'));
-                console.log('.if_applicationdetail display:', $('.if_applicationdetail').css('display'));
-                
-                // If viewing detail, switch to list
                 if (detailVisible && listHidden) {
-                    console.log('Switching from detail to list view');
-                    
                     showApplicationList();
                     
                     $('.popuploader').show();
                     var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
-                    console.log('Fetching application list from:', url);
                     $.ajax({
                         url: url,
                         type:'GET',
                         datatype:'json',
                         data:{id: App.getPageConfig('clientId')},
                         success: function(responses){
-                            console.log('Application list loaded successfully');
                             $('.popuploader').hide();
                             $('.applicationtdata').html(responses);
                         },
                         error: function() {
-                            console.error('Failed to load application list');
                             $('.popuploader').hide();
                         }
                     });
-                } else {
-                    console.log('Already showing list, no action needed');
                 }
-            } else {
-                console.log('Tab not active yet, Bootstrap will handle tab switch');
             }
         });
     });
     
-    // Method 2: Bootstrap's tab show event for switching FROM other tabs TO this tab
+    // Bootstrap tab show event for switching from other tabs
     $('#application-tab').on('show.bs.tab', function (e) {
-        console.log('===== APPLICATION TAB SHOW EVENT (from another tab) =====');
-        
-        // Check if we're currently viewing an application detail
         var tabList = document.getElementById('client_tabs');
         var isViewingDetail = tabList && tabList.getAttribute('data-application-id');
-        
-        console.log('Is viewing detail:', isViewingDetail);
-        
-        // Check if detail view is currently visible (more reliable than attribute)
         var detailVisible = $('.ifapplicationdetailnot').is(':visible');
         var listHidden = $('.if_applicationdetail').is(':hidden');
         
-        console.log('Detail visible:', detailVisible);
-        console.log('List hidden:', listHidden);
-        
-        // If viewing detail (either by attribute OR by visibility), we need to reset to list view
         if (isViewingDetail || (detailVisible && listHidden)) {
-            console.log('BRANCH: Viewing detail, switching to list');
-            
             showApplicationList();
             
             $('.popuploader').show();
             var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
-            console.log('Fetching application list from:', url);
             $.ajax({
                 url: url,
                 type:'GET',
                 datatype:'json',
                 data:{id: App.getPageConfig('clientId')},
                 success: function(responses){
-                    console.log('Application list loaded successfully');
                     $('.popuploader').hide();
                     $('.applicationtdata').html(responses);
                 },
                 error: function() {
-                    console.error('Failed to load application list');
                     $('.popuploader').hide();
                 }
             });
         } else {
-            console.log('BRANCH: Not viewing detail, refreshing list normally');
-            // Otherwise, refresh the list normally
             showApplicationList();
             $('.popuploader').show();
             var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
@@ -572,26 +527,17 @@ function updateClientDetailUrl(tab, applicationId) {
  * Show application list view (hide detail view)
  */
 function showApplicationList() {
-    console.log('[showApplicationList] Starting...');
-    console.log('[showApplicationList] Before - .if_applicationdetail display:', $('.if_applicationdetail').css('display'));
-    console.log('[showApplicationList] Before - .ifapplicationdetailnot display:', $('.ifapplicationdetailnot').css('display'));
-    
     $('.if_applicationdetail').show();
     $('.ifapplicationdetailnot').hide();
     $('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
     
-    console.log('[showApplicationList] After - .if_applicationdetail display:', $('.if_applicationdetail').css('display'));
-    console.log('[showApplicationList] After - .ifapplicationdetailnot display:', $('.ifapplicationdetailnot').css('display'));
-    
     var tabList = document.getElementById('client_tabs');
     if (tabList) {
-        console.log('[showApplicationList] Removing data-application-id attribute');
         tabList.removeAttribute('data-application-id');
     }
     localStorage.removeItem('activeTab');
     localStorage.removeItem('appliid');
     updateClientDetailUrl('application', null);
-    console.log('[showApplicationList] Complete');
 }
 
 // Make functions available globally
