@@ -261,9 +261,6 @@ use App\Http\Controllers\Controller;
 									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'documents'])}}" id="documents-tab" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Documents</a>
 								</li>
 								<li class="nav-item">
-									{{-- <a class="nav-link" data-bs-toggle="tab" id="appointments-tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">Appointments</a> --}}
-								</li>
-								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'accounts'])}}" id="accounts-tab" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
 								<li class="nav-item">
@@ -272,10 +269,6 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'email-v2'])}}" id="email-v2-tab" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
 								</li>
-								{{-- Task system removed - December 2025 --}}
-								<!--<li class="nav-item">
-									<a class="nav-link" data-bs-toggle="tab" id="tasks-tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
-								</li>-->
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'promotions' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'promotions'])}}" id="promotions-tab" role="tab" aria-controls="promotions" aria-selected="{{ $activeTab === 'promotions' ? 'true' : 'false' }}">Promotions</a>
 								</li>
@@ -419,13 +412,6 @@ use App\Http\Controllers\Controller;
 											?>											
 												
 											</tbody>
-											<!--<tbody>
-												<tr>
-													<td style="text-align:center;" colspan="10">
-														No Record found
-													</td>
-												</tr>
-											</tbody>-->
 										</table> 
 									</div>
 									<div class="ifapplicationdetailnot" style="display:none;">
@@ -1055,7 +1041,6 @@ use App\Http\Controllers\Controller;
 										</div>
 									</div>
 								</div>
-								{{-- Appointments tab removed - Appointment model deleted --}}
 								<div class="tab-pane fade <?php echo ($activeTab === 'accounts') ? 'show active' : ''; ?>" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
 									
 									<div class="table-responsive"> 
@@ -1359,28 +1344,6 @@ use App\Http\Controllers\Controller;
 								</div>
                       
                       
-								{{-- Task system removed - December 2025 --}}
-								<!--<div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;"  class="btn btn-primary opencreate_task"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="table-responsive"> 
-										<table id="my-datatable" class="table-2 table text_wrap">
-											<thead>
-												<tr>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-													<th></th>
-												</tr>
-											</thead>
-											<tbody class="taskdata ">
-											</tbody>
-										</table> 
-									</div>
-								</div>-->
 								<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">
 									<span>other_info</span>
 								</div>
@@ -3770,16 +3733,6 @@ jQuery(document).ready(function($){
         width: "100%"
     });
 
-	// Task system removed - December 2025 (dead code - modal is commented out)
-	/*$(document).delegate('.opencreate_task', 'click', function () {
-        $('#tasktermclientform')[0].reset();
-        $('#tasktermclientform select').val('').trigger('change');
-        $('.create_task').modal('show');
-        $('.ifselecttask').hide();
-        $('.ifselecttask select').attr('data-valid', '');
-
-    });*/
-  
 	$(document).delegate('.addpaymentmodal','click', function(){
 		var v = $(this).attr('data-invoiceid');
 		var netamount = $(this).attr('data-netamount');
@@ -3911,19 +3864,6 @@ jQuery(document).ready(function($){
   
    
   
-	$(document).delegate('.opentaskview', 'click', function(){
-		$('#opentaskview').modal('show');
-		var v = $(this).attr('id');
-		$.ajax({
-			url: site_url+'/partner/get-task-detail',
-			type:'GET',
-			data:{task_id:v},
-			success: function(responses){
-				
-				$('.taskview').html(responses);
-			}
-		});
-	});
 	function getallnotes(){
 	$.ajax({
 		url: site_url+'/get-notes',
@@ -5446,115 +5386,6 @@ $(document).delegate('#notes-tab', 'click', function(){
 				}
 			}
 		});
-  });
-  $(document).delegate('.changetaskstatus', 'click', function(){
-	  var statusname = $(this).attr('data-statusname');
-	  var did = $(this).attr('data-id');
-	  var dstatus = $(this).attr('data-status');
-	  $('.taskstatus').html(statusname+' <i class="fa fa-angle-down"></i>');
-	  $('.popuploader').show();
-	  $.ajax({
-			url: '{{URL::to('/change-task-status')}}',
-			type:'GET',
-			data:{id:did, status:dstatus},
-			success:function(response){
-				$('.popuploader').hide();
-				var obj = $.parseJSON(response);
-				if(obj.status){
-					$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-					$('.tasklogs').html(obj.data);
-					// Task system removed - December 2025
-					// $.ajax({
-					// 		url: site_url+'/partner/get-tasks',
-					// 		type:'GET',
-					// 		data:{clientid:'{{$fetchedData->id}}'},
-					// 		success: function(responses){
-					// 			 $('#my-datatable').DataTable().destroy();
-					// 			$('.taskdata').html(responses);
-					// 			$('#my-datatable').DataTable({
-					// 				"searching": false,
-					// 				"lengthChange": false,
-					// 			  "columnDefs": [
-					// 				{ "sortable": false, "targets": [0, 2, 3] }
-					// 			  ],
-					// 			  order: [[1, "desc"]] //column indexes is zero based
-					// 			}).draw();
-					// 		}
-					// 	});
-				}else{
-					$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-					
-				}
-			}
-		});
-  });
-  
-  $(document).delegate('.changeprioritystatus', 'click', function(){
-	  var statusname = $(this).attr('data-statusname');
-	  var did = $(this).attr('data-id');
-	  var dstatus = $(this).attr('data-status');
-	  $('.prioritystatus').html(statusname+' <i class="fa fa-angle-down"></i>');
-	  $('.popuploader').show();
-	  $.ajax({
-			url: '{{URL::to('/change-task-priority')}}',
-			type:'GET',
-			data:{id:did, status:statusname},
-			success:function(response){
-				$('.popuploader').hide();
-				var obj = $.parseJSON(response);
-				if(obj.status){
-					$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-					$('.tasklogs').html(obj.data);
-					// Task system removed - December 2025
-					// $.ajax({
-					// 		url: site_url+'/partner/get-tasks',
-					// 		type:'GET',
-					// 		data:{clientid:'{{$fetchedData->id}}'},
-					// 		success: function(responses){
-					// 			 $('#my-datatable').DataTable().destroy();
-					// 			$('.taskdata').html(responses);
-					// 			$('#my-datatable').DataTable({
-					// 				"searching": false,
-					// 				"lengthChange": false,
-					// 			  "columnDefs": [
-					// 				{ "sortable": false, "targets": [0, 2, 3] }
-					// 			  ],
-					// 			  order: [[1, "desc"]] //column indexes is zero based
-					// 			}).draw();
-					// 		}
-					// 	});
-				}else{
-					$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-					
-				}
-			}
-		});
-  });
-  $(document).delegate('.savecomment', 'click', function(){
-	  var flag = false;
-	  if($('#comment').val() == ''){
-		  $('.comment-error').html('The Comment field is required.');
-		  flag = true;
-	  }
-	  
-	  if(!flag){
-		  $('.popuploader').show();
-		  $.ajax({
-			url: '{{URL::to('/partner/savecomment')}}',
-			type:'POST',
-			data:{comment:$('#comment').val(), taskid:$('#taskid').val()},
-			 headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-			success:function(response){
-				$('.popuploader').hide();
-				var obj = $.parseJSON(response);
-				if(obj.status){
-					$('.tasklogs').html(obj.data);
-				}
-			}
-		});
-	  }
   });
   $(document).delegate('.openpromotonform', 'click', function(){
 		var appliid = $(this).attr('data-id');

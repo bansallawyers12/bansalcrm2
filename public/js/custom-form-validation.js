@@ -980,51 +980,7 @@ function customValidate(formName, savetype = '')
                    
 
                    
-					else if(formName == 'tasktermclientform'){
-						var client_id = $('#tasktermclientform input[name="partnerid"]').val();
-						var myform = document.getElementById('tasktermclientform');
-						var fd = new FormData(myform);	
-						$.ajax({
-							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
-							success: function(response){
-								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
-								$('#opentaskmodal').modal('hide');
-								if(obj.status){
-									$('#create_note').modal('hide');
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									$.ajax({
-										url: site_url+'/partner/get-tasks',
-										type:'GET',
-										data:{clientid:client_id},
-										success: function(responses){
-											 $('#my-datatable').DataTable().destroy();
-											$('.taskdata').html(responses);
-											$('#my-datatable').DataTable({
-												"searching": false,
-												"lengthChange": false,
-											  "columnDefs": [
-												{ "sortable": false, "targets": [0, 2, 3] }
-											  ],
-											  order: [[1, "desc"]] //column indexes is zero based
-
-												
-											}).draw();
-											
-										}
-									});
-									
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
-							}
-						});		
-					}else if(formName == 'feeform'){
+					else if(formName == 'feeform'){
 						var product_id = $('#feeform input[name="product_id"]').val();
 						var myform = document.getElementById('feeform');
 						var fd = new FormData(myform);	

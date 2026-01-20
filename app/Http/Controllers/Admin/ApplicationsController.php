@@ -1195,93 +1195,6 @@ class ApplicationsController extends Controller
 		echo json_encode($response);
 	}
 	
-	/*public function checklistupload(Request $request){
-		 $imageData = '';
-		if (isset($_FILES['file']['name'][0])) {
-		  foreach ($_FILES['file']['name'] as $keys => $values) {
-			$fileName = $_FILES['file']['name'][$keys];
-			if (move_uploaded_file($_FILES['file']['tmp_name'][$keys], Config::get('constants.documents').'/'. $fileName)) {
-				$obj = new \App\Models\ApplicationDocument;
-				$obj->type = $request->type;
-				$obj->typename = $request->typename;
-				$obj->list_id = $request->id;
-				$obj->file_name = $fileName;
-				$obj->user_id = Auth::user()->id;
-				$obj->application_id = $request->application_id;
-				$save = $obj->save();
-			  $imageData .= '<li><i class="fa fa-file"></i> '.$fileName.'</li>';
-			}
-		  }
-		}
-		
-		$doclists = \App\Models\ApplicationDocument::where('application_id',$request->application_id)->orderby('created_at','DESC')->get();
-		$doclistdata = ''; 
-		foreach($doclists as $doclist){
-			$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
-			$doclistdata .= '<tr id="">';
-				$doclistdata .= '<td><i class="fa fa-file"></i> '. $doclist->file_name.'<br>'.@$docdata->document_type.'</td>';
-				$doclistdata .= '<td>';
-					$doclistdata .=  $doclist->typename;
-				$doclistdata .= '</td>';
-				$admin = \App\Models\Admin::where('id', @$doclist->user_id)->first();
-				
-			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr(@$admin->first_name, 0, 1).'</span>'.@$admin->first_name.'</td>';
-			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
-			$doclistdata .= '<td>';
-			if($doclist->status == 1){
-				$doclistdata .= '<span class="check"><i class="fa fa-eye"></i></span>';
-			}
-				$doclistdata .= '<div class="dropdown d-inline">
-					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-					<div class="dropdown-menu">
-						<a target="_blank" class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Preview</a>
-						<a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
-						<a download class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Download</a>';
-						if($doclist->status == 0){
-							$doclistdata .= '<a data-id="'.$doclist->id.'" class="dropdown-item publishdoc" href="javascript:;">Publish Document</a>';
-						}else{
-							$doclistdata .= '<a data-id="'.$doclist->id.'"  class="dropdown-item unpublishdoc" href="javascript:;">Unpublish Document</a>';
-						}
-						
-					$doclistdata .= '</div>
-				</div>								  
-			</td>';
-			$doclistdata .= '</tr>';
-		}
-		$application_id = $request->application_id;
-		$applicationuploadcount = DB::select("SELECT COUNT(DISTINCT list_id) AS cnt FROM application_documents where application_id = '$application_id'");
-		$response['status'] 	= 	$uploadSummary['failed_count'] === 0;
-        $response['message']    =   $uploadSummary['failed_count'] === 0
-            ? 'Documents uploaded successfully.'
-            : 'Some documents failed to upload.';
-		$response['imagedata']	=	$imageData;
-		$response['doclistdata']	=	$doclistdata;
-		$response['applicationuploadcount']	=	@$applicationuploadcount[0]->cnt;
-        $response['upload_summary'] = $uploadSummary;
-		
-		
-		$applicationdocuments = \App\Models\ApplicationDocumentList::where('application_id', $application_id)->where('type', $request->type)->get();
-			$checklistdata = '<table class="table"><tbody>';
-			foreach($applicationdocuments as $applicationdocument){
-				$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
-				$checklistdata .= '<tr>';
-				if($appcount >0){
-					$checklistdata .= '<td><span class="check"><i class="fa fa-check"></i></span></td>';
-				}else{
-					$checklistdata .= '<td><span class="round"></span></td>';
-				}
-					
-					$checklistdata .= '<td>'.@$applicationdocument->document_type.'</td>';
-					$checklistdata .= '<td><div class="circular-box cursor-pointer"><button class="transparent-button paddingNone">'.$appcount.'</button></div></td>';
-					$checklistdata .= '<td><a data-aid="'.$application_id.'" data-type="'.$request->type.'" data-id="'.$applicationdocument->id.'" class="openfileupload" href="javascript:;"><i class="fa fa-plus"></i></a></td>';
-				$checklistdata .= '</tr>';
-			}
-			$checklistdata .= '</tbody></table>';
-		$response['checklistdata']	=	$checklistdata;
-		$response['type']	=	$request->type;
-		echo json_encode($response);
-	}*/
-  
     public function checklistupload(Request $request){ //dd($request->all());
         $imageData = "";
         $uploadSummary = [
@@ -2190,22 +2103,6 @@ class ApplicationsController extends Controller
    
    
     
-    //Update commission amount on the basis of partner id
-    /*public function updateCommissionPerAmount(Request $request){
-		$obj = Partner::find($request->partnerid);
-        $obj->commission_percentage = $request->commission_percentage;
-        $saved = $obj->save();
-        if($saved){
-            $response['status'] 	= 	true;
-            $response['message']	=	'Commission amount id successfully updated.';
-            $response['commission_percentage']	=	$obj->commission_percentage;
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'Please try again';
-        }
-        echo json_encode($response);
-	}*/
-  	
   	public function overdueApplicationList(Request $request)
 	{
 		//check authorization start
