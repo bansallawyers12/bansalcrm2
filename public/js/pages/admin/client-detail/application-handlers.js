@@ -185,19 +185,51 @@ jQuery(document).ready(function($){
     });
 
     // ============================================================================
-    // APPLICATION TAB CLICK HANDLER
+    // APPLICATION TAB HANDLERS
     // ============================================================================
     
-    $(document).on('click', '#application-tab', function (e) {
-        // Check if we're currently viewing an application detail
+    // Direct click handler for when tab is already active
+    $(document).ready(function() {
+        $('#application-tab').off('click.appHandler').on('click.appHandler', function(e) {
+            var isAlreadyActive = $(this).hasClass('active');
+            
+            if (isAlreadyActive) {
+                var detailVisible = $('.ifapplicationdetailnot').is(':visible');
+                var listHidden = $('.if_applicationdetail').is(':hidden');
+                
+                if (detailVisible && listHidden) {
+                    showApplicationList();
+                    
+                    $('.popuploader').show();
+                    var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
+                    $.ajax({
+                        url: url,
+                        type:'GET',
+                        datatype:'json',
+                        data:{id: App.getPageConfig('clientId')},
+                        success: function(responses){
+                            $('.popuploader').hide();
+                            $('.applicationtdata').html(responses);
+                        },
+                        error: function() {
+                            $('.popuploader').hide();
+                        }
+                    });
+                }
+            }
+        });
+    });
+    
+    // Bootstrap tab show event for switching from other tabs
+    $('#application-tab').on('show.bs.tab', function (e) {
         var tabList = document.getElementById('client_tabs');
         var isViewingDetail = tabList && tabList.getAttribute('data-application-id');
+        var detailVisible = $('.ifapplicationdetailnot').is(':visible');
+        var listHidden = $('.if_applicationdetail').is(':hidden');
         
-        // If viewing detail, reset to list and prevent default tab behavior
-        if (isViewingDetail) {
-            e.preventDefault();
-            e.stopPropagation();
+        if (isViewingDetail || (detailVisible && listHidden)) {
             showApplicationList();
+            
             $('.popuploader').show();
             var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
             $.ajax({
@@ -208,10 +240,12 @@ jQuery(document).ready(function($){
                 success: function(responses){
                     $('.popuploader').hide();
                     $('.applicationtdata').html(responses);
+                },
+                error: function() {
+                    $('.popuploader').hide();
                 }
             });
         } else {
-            // Otherwise, refresh the list normally
             showApplicationList();
             $('.popuploader').show();
             var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
@@ -223,6 +257,9 @@ jQuery(document).ready(function($){
                 success: function(responses){
                     $('.popuploader').hide();
                     $('.applicationtdata').html(responses);
+                },
+                error: function() {
+                    $('.popuploader').hide();
                 }
             });
         }
@@ -493,6 +530,7 @@ function showApplicationList() {
     $('.if_applicationdetail').show();
     $('.ifapplicationdetailnot').hide();
     $('.ifapplicationdetailnot').html('<h4>Please wait ...</h4>');
+    
     var tabList = document.getElementById('client_tabs');
     if (tabList) {
         tabList.removeAttribute('data-application-id');
