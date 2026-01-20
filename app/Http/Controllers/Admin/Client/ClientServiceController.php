@@ -199,12 +199,12 @@ class ClientServiceController extends Controller
 				<div class="serv_user_action">
 					<a href="javascript:;" data-id="<?php echo $inteservice->id; ?>" class="btn btn-primary interest_service_view">View</a>
 					<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-						<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+						<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 						<div class="dropdown-menu">
 						<?php if($inteservice->status == 0){ ?>
 							<a class="dropdown-item converttoapplication" data-id="<?php echo $inteservice->id; ?>" href="javascript:;">Create Appliation</a>
 						<?php } ?>
-							<a class="dropdown-item" href="javascript:;">Delete</a>
+							<a data-id="<?php echo $inteservice->id; ?>" data-href="deleteservices" class="dropdown-item deletenote" href="javascript:;">Delete</a>
 						</div>
 					</div>
 				</div>
