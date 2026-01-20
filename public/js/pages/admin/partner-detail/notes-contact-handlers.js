@@ -126,6 +126,10 @@ jQuery(document).ready(function($){
         });
     }
 
+    // Expose helpers for other modules
+    window.getallnotes = getallnotes;
+    window.getallactivities = getallactivities;
+
     var notid = '';
     var delhref = '';
     $(document).delegate('.deletenote', 'click', function(){
