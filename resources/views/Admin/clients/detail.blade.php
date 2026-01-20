@@ -3042,7 +3042,22 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
 <script src="{{ asset('js/common/ui-components.js') }}"></script>
 
-{{-- Page-Specific JavaScript (load last) --}}
+{{-- Page-Specific JavaScript Modules (load in dependency order) --}}
+{{-- Core feature modules --}}
+<script src="{{ asset('js/pages/admin/client-detail/session-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/client-status.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/assignee-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/email-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-upload.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/application-stage.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>
+
+{{-- UI and utility modules --}}
 <script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
@@ -3051,244 +3066,24 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/notes.js') }}"></script>
+
+{{-- Main client-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
 
+{{-- Blade-specific inline code (loaded last, uses Blade variables) --}}
+<script src="{{ asset('js/pages/admin/client-detail/blade-inline.js') }}"></script>
+
 <script>
-    // Any remaining Blade-specific code that cannot be extracted goes here
-    // Most functionality has been moved to external JS files
+    // ============================================================================
+    // BLADE-SPECIFIC INLINE SCRIPTS
+    // ============================================================================
+    // Most Blade-specific functionality has been moved to blade-inline.js
+    // This section retains only code that requires server-side Blade variable interpolation
+    // ============================================================================
     
-    // Keep URL in sync with active tab and honor ?tab= on load
-    (function() {
-        var tabList = document.getElementById('client_tabs');
-        if (!tabList) {
-            return;
-        }
-
-        var tabLinks = tabList.querySelectorAll('[data-bs-toggle="tab"][data-tab]');
-        if (!tabLinks.length) {
-            return;
-        }
-
-        var baseUrl = tabList.getAttribute('data-base-url');
-        if (!baseUrl) {
-            return;
-        }
-        var activeTabSlug = tabList.getAttribute('data-active-tab');
-        var applicationId = tabList.getAttribute('data-application-id');
-        var base = new URL(baseUrl, window.location.origin);
-        var basePath = base.pathname.replace(/\/+$/, '');
-        var applicationPath = applicationId ? basePath + '/application/' + applicationId : null;
-
-        var params = new URLSearchParams(window.location.search);
-        var initialTab = params.get('tab');
-        if (initialTab) {
-            var normalizedInitialTab = initialTab === 'noteterm' ? 'notestrm' : initialTab;
-            var initialTrigger = tabList.querySelector('[data-tab="' + normalizedInitialTab + '"]');
-            if (initialTrigger && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                bootstrap.Tab.getOrCreateInstance(initialTrigger).show();
-            }
-            var migratedUrl = new URL(window.location.href);
-            migratedUrl.searchParams.delete('tab');
-            if (normalizedInitialTab === 'application' && applicationPath) {
-                migratedUrl.pathname = applicationPath;
-            } else {
-                migratedUrl.pathname = normalizedInitialTab === 'activities' ? basePath : basePath + '/' + normalizedInitialTab;
-            }
-            history.replaceState(null, '', migratedUrl.toString());
-        } else if (activeTabSlug) {
-            var canonicalUrl = new URL(window.location.href);
-            canonicalUrl.searchParams.delete('tab');
-            if (activeTabSlug === 'application' && applicationPath) {
-                canonicalUrl.pathname = applicationPath;
-            } else {
-                canonicalUrl.pathname = activeTabSlug === 'activities' ? basePath : basePath + '/' + activeTabSlug;
-            }
-            history.replaceState(null, '', canonicalUrl.toString());
-        }
-
-        tabLinks.forEach(function(link) {
-            link.addEventListener('shown.bs.tab', function(event) {
-                var tabValue = event.target.getAttribute('data-tab');
-                if (!tabValue) {
-                    return;
-                }
-                var url = new URL(window.location.href);
-                var currentApplicationId = tabList.getAttribute('data-application-id');
-                var currentApplicationPath = currentApplicationId ? basePath + '/application/' + currentApplicationId : null;
-                url.searchParams.delete('tab');
-                if (tabValue === 'application' && currentApplicationPath) {
-                    url.pathname = currentApplicationPath;
-                } else {
-                    url.pathname = tabValue === 'activities' ? basePath : basePath + '/' + tabValue;
-                }
-                history.replaceState(null, '', url.toString());
-            });
-        });
-    })();
-
-    // Initialize Bootstrap 5 dropdowns for Action buttons
-    // This ensures all dropdown buttons work properly
-    (function() {
-        var dropdownInitAttempts = 0;
-        var maxAttempts = 50; // 5 seconds max wait
-        
-        function initDropdowns() {
-            dropdownInitAttempts++;
-            
-            // Check if Bootstrap is available
-            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                // Initialize all dropdown toggles that aren't already initialized
-                var dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-                var initializedCount = 0;
-                
-                dropdownToggles.forEach(function(element) {
-                    // Check if dropdown is already initialized
-                    if (!bootstrap.Dropdown.getInstance(element)) {
-                        try {
-                            new bootstrap.Dropdown(element);
-                            initializedCount++;
-                        } catch (e) {
-                            console.warn('Failed to initialize dropdown:', e, element);
-                        }
-                    }
-                });
-                
-                if (initializedCount > 0) {
-                    console.log('Initialized ' + initializedCount + ' Bootstrap dropdown(s)');
-                }
-                
-                // Setup mutation observer for dynamically added dropdowns
-                if (!window.dropdownObserverSetup) {
-                    window.dropdownObserverSetup = true;
-                    
-                    var observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.addedNodes.length > 0) {
-                                mutation.addedNodes.forEach(function(node) {
-                                    if (node.nodeType === 1) { // Element node
-                                        // Check for dropdown toggles in the added node
-                                        var dropdowns = node.querySelectorAll ? node.querySelectorAll('[data-bs-toggle="dropdown"]') : [];
-                                        dropdowns.forEach(function(element) {
-                                            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(element)) {
-                                                try {
-                                                    new bootstrap.Dropdown(element);
-                                                } catch (e) {
-                                                    console.warn('Failed to initialize dynamic dropdown:', e);
-                                                }
-                                            }
-                                        });
-                                        
-                                        // Also check if the node itself is a dropdown toggle
-                                        if (node.hasAttribute && node.hasAttribute('data-bs-toggle') && node.getAttribute('data-bs-toggle') === 'dropdown') {
-                                            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown && !bootstrap.Dropdown.getInstance(node)) {
-                                                try {
-                                                    new bootstrap.Dropdown(node);
-                                                } catch (e) {
-                                                    console.warn('Failed to initialize dynamic dropdown:', e);
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    });
-                    
-                    // Observe the document body for changes
-                    observer.observe(document.body, {
-                        childList: true,
-                        subtree: true
-                    });
-                }
-            } else if (dropdownInitAttempts < maxAttempts) {
-                // Retry if Bootstrap isn't loaded yet
-                setTimeout(initDropdowns, 100);
-            } else {
-                console.error('Bootstrap Dropdown not available after ' + maxAttempts + ' attempts');
-            }
-        }
-        
-        // Start initialization when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDropdowns);
-        } else {
-            // DOM is already ready
-            initDropdowns();
-        }
-        
-        // Also try after window load as a fallback
-        window.addEventListener('load', function() {
-            if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                initDropdowns();
-            }
-        });
-    })();
-
-    // Activities Filter Functionality
-    $(document).ready(function() {
-        // Activity Type Button Click Handler (main buttons)
-        $('.activity-type-btn:not(.dropdown-toggle)').on('click', function() {
-            var type = $(this).data('type');
-            
-            // Remove active class from all buttons and dropdown items
-            $('.activity-type-btn').removeClass('active');
-            $('.activity-type-dropdown-item').removeClass('active');
-            
-            // Add active class to clicked button
-            $(this).addClass('active');
-            
-            // Reset dropdown button text
-            $('.activity-type-btn.dropdown-toggle').text('More...').removeClass('active');
-            
-            // Update hidden input
-            $('#activity_type_input').val(type);
-        });
-
-        // Activity Type Dropdown Item Click Handler
-        $(document).on('click', '.activity-type-dropdown-item', function(e) {
-            e.preventDefault();
-            var type = $(this).data('type');
-            var label = $(this).text();
-            
-            // Remove active class from all buttons and dropdown items
-            $('.activity-type-btn').removeClass('active');
-            $('.activity-type-dropdown-item').removeClass('active');
-            
-            // Add active class to clicked dropdown item
-            $(this).addClass('active');
-            
-            // Update dropdown button
-            var $dropdownBtn = $('.activity-type-btn.dropdown-toggle');
-            $dropdownBtn.text(label).addClass('active');
-            
-            // Update hidden input
-            $('#activity_type_input').val(type);
-        });
-
-        // Initialize Date Pickers with Flatpickr
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr('.date-filter', {
-                dateFormat: 'Y-m-d',
-                allowInput: true,
-                altInput: false
-            });
-        } else {
-            console.warn('Flatpickr is not available. Please ensure vendor-libs.js is loaded.');
-        }
-
-        // Auto-submit form on Enter key in search box
-        $('#activity_search').on('keypress', function(e) {
-            if (e.which === 13) {
-                e.preventDefault();
-                $('#activitiesFilterForm').submit();
-            }
-        });
-    });
-
     // Add Interested Services Modal - Populate dropdowns based on selections
     // This is scoped to only affect the .add_interested_service modal to avoid breaking other functionality
     $(document).ready(function() {
