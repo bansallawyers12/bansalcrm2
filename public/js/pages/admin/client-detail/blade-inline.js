@@ -254,12 +254,839 @@ jQuery(document).ready(function($) {
     });
 });
 
-console.log('[blade-inline.js] Blade-specific handlers initialized');
+// ============================================================================
+// ADD INTERESTED SERVICES MODAL
+// ============================================================================
+
+jQuery(document).ready(function($) {
+    // Helper function to re-initialize Select2 after AJAX update
+    function reinitSelect2($select, dropdownParent) {
+        if (typeof $.fn.select2 === 'undefined') {
+            return; // Select2 not available, skip initialization
+        }
+        try {
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+            var select2Options = {
+                dropdownParent: dropdownParent || $select.closest('.modal')
+            };
+            $select.select2(select2Options);
+        } catch(e) {
+            console.warn('Select2 initialization failed:', e);
+        }
+    }
+
+    // Handle Workflow change - Load Partners
+    $(document).delegate('.add_interested_service #intrested_workflow', 'change', function(){
+        var workflowId = $(this).val();
+        var $modal = $(this).closest('.add_interested_service');
+        var $partnerSelect = $modal.find('#intrested_partner');
+        var $productSelect = $modal.find('#intrested_product');
+        var $branchSelect = $modal.find('#intrested_branch');
+        var url = App.getUrl('getPartner') || App.getUrl('siteUrl') + '/getpartner';
+        
+        if(workflowId != ''){
+            if($('.popuploader').length) {
+                $('.popuploader').show();
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {cat_id: workflowId},
+                success: function(response){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                    $partnerSelect.html(response);
+                    reinitSelect2($partnerSelect, $modal);
+                    $partnerSelect.val('').trigger('change');
+                    
+                    $productSelect.html('<option value="">Please Select a Product</option>');
+                    reinitSelect2($productSelect, $modal);
+                    $productSelect.val('').trigger('change');
+                    
+                    $branchSelect.html('<option value="">Please Select a Branch</option>');
+                    reinitSelect2($branchSelect, $modal);
+                    $branchSelect.val('').trigger('change');
+                },
+                error: function(){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                }
+            });
+        } else {
+            // Reset all dependent dropdowns if workflow is cleared
+            $partnerSelect.html('<option value="">Please Select a Partner</option>');
+            reinitSelect2($partnerSelect, $modal);
+            $productSelect.html('<option value="">Please Select a Product</option>');
+            reinitSelect2($productSelect, $modal);
+            $branchSelect.html('<option value="">Please Select a Branch</option>');
+            reinitSelect2($branchSelect, $modal);
+        }
+    });
+
+    // Handle Partner change - Load Products
+    $(document).delegate('.add_interested_service #intrested_partner', 'change', function(){
+        var partnerId = $(this).val();
+        var $modal = $(this).closest('.add_interested_service');
+        var $productSelect = $modal.find('#intrested_product');
+        var $branchSelect = $modal.find('#intrested_branch');
+        var url = App.getUrl('getProduct') || App.getUrl('siteUrl') + '/getproduct';
+        
+        if(partnerId != ''){
+            if($('.popuploader').length) {
+                $('.popuploader').show();
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {cat_id: partnerId},
+                success: function(response){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                    $productSelect.html(response);
+                    reinitSelect2($productSelect, $modal);
+                    $productSelect.val('').trigger('change');
+                    
+                    $branchSelect.html('<option value="">Please Select a Branch</option>');
+                    reinitSelect2($branchSelect, $modal);
+                    $branchSelect.val('').trigger('change');
+                },
+                error: function(){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                    $productSelect.html('<option value="">Please Select a Product</option>');
+                    reinitSelect2($productSelect, $modal);
+                }
+            });
+        } else {
+            // Reset product and branch if partner is cleared
+            $productSelect.html('<option value="">Please Select a Product</option>');
+            reinitSelect2($productSelect, $modal);
+            $branchSelect.html('<option value="">Please Select a Branch</option>');
+            reinitSelect2($branchSelect, $modal);
+        }
+    });
+
+    // Handle Product change - Load Branches
+    $(document).delegate('.add_interested_service #intrested_product', 'change', function(){
+        var productId = $(this).val();
+        var $modal = $(this).closest('.add_interested_service');
+        var $branchSelect = $modal.find('#intrested_branch');
+        var url = App.getUrl('getBranch') || App.getUrl('siteUrl') + '/getbranch';
+        
+        if(productId != ''){
+            if($('.popuploader').length) {
+                $('.popuploader').show();
+            }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {cat_id: productId},
+                success: function(response){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                    $branchSelect.html(response);
+                    reinitSelect2($branchSelect, $modal);
+                    $branchSelect.val('').trigger('change');
+                },
+                error: function(){
+                    if($('.popuploader').length) {
+                        $('.popuploader').hide();
+                    }
+                    $branchSelect.html('<option value="">Please Select a Branch</option>');
+                    reinitSelect2($branchSelect, $modal);
+                }
+            });
+        } else {
+            // Reset branch if product is cleared
+            $branchSelect.html('<option value="">Please Select a Branch</option>');
+            reinitSelect2($branchSelect, $modal);
+        }
+    });
+});
+
+// Handle View button click for Interested Services
+$(document).delegate('.interest_service_view', 'click', function(){
+    var v = $(this).attr('data-id');
+    var url = App.getUrl('getInterestedService') || App.getUrl('siteUrl') + '/getintrestedservice';
+    if($('.popuploader').length) {
+        $('.popuploader').show();
+    }
+    // Show modal - try Bootstrap 5 first, fallback to jQuery
+    var modalElement = document.getElementById('interest_service_view');
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal && modalElement) {
+        var modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+        modal.show();
+    } else if (typeof $.fn.modal !== 'undefined') {
+        $('#interest_service_view').modal('show');
+    }
+    $.ajax({
+        url: url,
+        type: 'GET',
+        data: {id: v},
+        success: function(response){
+            if($('.popuploader').length) {
+                $('.popuploader').hide();
+            }
+            $('.showinterestedservice').html(response);
+        },
+        error: function(){
+            if($('.popuploader').length) {
+                $('.popuploader').hide();
+            }
+        }
+    });
+});
 
 // ============================================================================
-// NOTE: Additional Blade-specific handlers should be added below
+// BULK UPLOAD FUNCTIONALITY FOR DOCUMENTS TAB
 // ============================================================================
-// - Add Interested Services Modal handlers (Blade URLs required)
-// - Bulk Upload functionality (Blade routes and CSRF required)
-// - Client Receipt handlers (Blade routes required)
-// These are kept in detail.blade.php inline scripts due to Blade variable dependencies
+
+let bulkUploadFiles = [];
+let currentClientId = PageConfig.clientId;
+
+// Toggle bulk upload dropzone
+$(document).on('click', '.bulk-upload-toggle-btn', function() {
+    const dropzoneContainer = $('.bulk-upload-dropzone-container');
+    
+    if (dropzoneContainer.is(':visible')) {
+        dropzoneContainer.slideUp();
+        $(this).html('<i class="fas fa-upload"></i> Bulk Upload');
+        // Clear files
+        bulkUploadFiles = [];
+        dropzoneContainer.find('.bulk-upload-file-list').hide();
+        dropzoneContainer.find('.file-count').text('0');
+    } else {
+        dropzoneContainer.slideDown();
+        $(this).html('<i class="fas fa-times"></i> Close');
+    }
+});
+
+// Click to browse files
+$(document).on('click', '.bulk-upload-dropzone', function(e) {
+    if (!$(e.target).is('input')) {
+        $('.bulk-upload-file-input').click();
+    }
+});
+
+// File input change
+$(document).on('change', '.bulk-upload-file-input', function() {
+    const files = this.files;
+    if (files.length > 0) {
+        handleBulkFilesSelected(files);
+    }
+});
+
+// Drag and drop handlers
+$(document).on('dragover', '.bulk-upload-dropzone', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).addClass('drag_over');
+});
+
+$(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('drag_over');
+});
+
+$(document).on('drop', '.bulk-upload-dropzone', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('drag_over');
+    
+    const files = e.originalEvent.dataTransfer.files;
+    if (files && files.length > 0) {
+        handleBulkFilesSelected(files);
+    }
+});
+
+// Handle files selected
+function handleBulkFilesSelected(files) {
+    bulkUploadFiles = [];
+    
+    const invalidFiles = [];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+    
+    Array.from(files).forEach(file => {
+        if (file.size > maxSize) {
+            invalidFiles.push(file.name + ' (exceeds 50MB)');
+            return;
+        }
+        
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(ext)) {
+            invalidFiles.push(file.name + ' (invalid file type)');
+            return;
+        }
+        
+        bulkUploadFiles.push(file);
+    });
+    
+    if (invalidFiles.length > 0) {
+        alert('The following files were skipped:\n' + invalidFiles.join('\n'));
+    }
+    
+    if (bulkUploadFiles.length === 0) {
+        alert('No valid files selected. Please select PDF, JPG, PNG, DOC, or DOCX files under 50MB.');
+        return;
+    }
+    
+    // Show file list
+    $('.bulk-upload-file-list').show();
+    $('.file-count').text(bulkUploadFiles.length);
+    
+    // Show mapping interface
+    showBulkUploadMapping();
+}
+
+// Show mapping interface
+function showBulkUploadMapping() {
+    if (bulkUploadFiles.length === 0) return;
+    
+    // Get existing checklists
+    getExistingChecklists(function(checklists) {
+        // Call backend to get auto-matches
+        getAutoChecklistMatches(bulkUploadFiles, checklists, function(matches) {
+            displayMappingInterface(bulkUploadFiles, checklists, matches);
+        });
+    });
+}
+
+// Get existing checklists from database
+function getExistingChecklists(callback) {
+    var url = App.getUrl('documentsAutoChecklistMatches');
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            _token: App.getCsrf(),
+            clientid: currentClientId,
+            files: [] // Empty array just to get checklists
+        },
+        success: function(response) {
+            if (response.status && response.checklists) {
+                const checklists = response.checklists.map(name => ({ name: name }));
+                callback(checklists);
+            } else {
+                // Fallback: get from table
+                const checklists = [];
+                const checklistNames = new Set();
+                
+                $('.alldocumnetlist tr').each(function() {
+                    const checklistName = $(this).data('checklist-name');
+                    if (checklistName && !checklistNames.has(checklistName)) {
+                        checklistNames.add(checklistName);
+                        checklists.push({ name: checklistName });
+                    }
+                });
+                
+                callback(checklists);
+            }
+        },
+        error: function() {
+            // Fallback: get from table
+            const checklists = [];
+            const checklistNames = new Set();
+            
+            $('.alldocumnetlist tr').each(function() {
+                const checklistName = $(this).data('checklist-name');
+                if (checklistName && !checklistNames.has(checklistName)) {
+                    checklistNames.add(checklistName);
+                    checklists.push({ name: checklistName });
+                }
+            });
+            
+            callback(checklists);
+        }
+    });
+}
+
+// Get auto-checklist matches from backend
+function getAutoChecklistMatches(files, checklists, callback) {
+    const fileData = Array.from(files).map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+    }));
+    
+    const checklistNames = checklists.map(c => c.name);
+    var url = App.getUrl('documentsAutoChecklistMatches');
+    
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            _token: App.getCsrf(),
+            clientid: currentClientId,
+            files: fileData,
+            checklists: checklistNames
+        },
+        success: function(response) {
+            if (response.status) {
+                callback(response.matches || {});
+            } else {
+                callback({});
+            }
+        },
+        error: function() {
+            callback({});
+        }
+    });
+}
+
+// Display mapping interface
+function displayMappingInterface(files, checklists, matches) {
+    const modal = $('#bulk-upload-mapping-modal');
+    const tableContainer = $('#bulk-upload-mapping-table');
+    
+    let html = '<div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">';
+    html += '<table class="table table-bordered bulk-upload-table" style="width: 100%; min-width: 600px; margin-bottom: 0;">';
+    html += '<thead><tr><th style="min-width: 150px;">File Name</th><th style="min-width: 200px;">Checklist Assignment</th><th style="min-width: 100px;">Status</th><th style="min-width: 80px;">Action</th></tr></thead>';
+    html += '<tbody>';
+    
+    Array.from(files).forEach((file, index) => {
+        const fileName = file.name;
+        const fileSize = formatFileSize(file.size);
+        const match = matches[fileName] || null;
+        
+        let selectedChecklist = '';
+        let statusClass = 'manual';
+        let statusText = 'Manual selection';
+        
+        if (match && match.checklist) {
+            selectedChecklist = match.checklist;
+            statusClass = match.confidence === 'high' ? 'auto-matched' : 'manual';
+            statusText = match.confidence === 'high' ? 'Auto-matched' : 'Suggested';
+        }
+        
+        html += '<tr class="bulk-upload-file-item">';
+        html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name" style="word-break: break-word; overflow-wrap: break-word;">' + escapeHtml(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666;">' + fileSize + '</div></div></div></td>';
+        html += '<td style="min-width: 200px;">';
+        html += '<select class="form-control checklist-select" data-file-index="' + index + '" style="width: 100%;">';
+        html += '<option value="">-- Select Checklist --</option>';
+        html += '<option value="__NEW__">+ Create New Checklist</option>';
+        checklists.forEach(checklist => {
+            const selected = selectedChecklist === checklist.name ? 'selected' : '';
+            html += '<option value="' + escapeHtml(checklist.name) + '" ' + selected + '>' + escapeHtml(checklist.name) + '</option>';
+        });
+        html += '</select>';
+        html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none; width: 100%;">';
+        html += '</td>';
+        html += '<td style="white-space: nowrap;"><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
+        html += '<td style="white-space: nowrap;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
+        html += '</tr>';
+    });
+    
+    html += '</tbody></table>';
+    html += '</div>';
+    tableContainer.html(html);
+    modal.show();
+}
+
+// Handle new checklist option
+$(document).on('change', '.checklist-select', function() {
+    const fileIndex = $(this).data('file-index');
+    const value = $(this).val();
+    const newInput = $('.new-checklist-input[data-file-index="' + fileIndex + '"]');
+    
+    if (value === '__NEW__') {
+        newInput.show();
+        $(this).closest('tr').find('.match-status').removeClass('auto-matched manual').addClass('new-checklist').text('New checklist');
+    } else {
+        newInput.hide();
+        if (value) {
+            $(this).closest('tr').find('.match-status').removeClass('new-checklist').addClass('manual').text('Manual selection');
+        }
+    }
+});
+
+// Close modal
+$(document).on('click', '.close-mapping-modal, #cancel-bulk-upload', function() {
+    $('#bulk-upload-mapping-modal').hide();
+    $('#bulk-upload-progress').hide();
+    $('#confirm-bulk-upload').prop('disabled', false);
+});
+
+// Remove a file from bulk upload
+$(document).on('click', '.bulk-upload-remove-file', function() {
+    const index = parseInt($(this).data('file-index'), 10);
+    if (Number.isNaN(index)) {
+        return;
+    }
+    bulkUploadFiles.splice(index, 1);
+    $('.file-count').text(bulkUploadFiles.length);
+    if (bulkUploadFiles.length === 0) {
+        $('#bulk-upload-mapping-modal').hide();
+        $('.bulk-upload-file-list').hide();
+        return;
+    }
+    showBulkUploadMapping();
+});
+
+// Confirm bulk upload
+$(document).on('click', '#confirm-bulk-upload', function() {
+    const mappings = [];
+    
+    // Collect mappings
+    bulkUploadFiles.forEach((file, index) => {
+        const selectElement = $('.checklist-select[data-file-index="' + index + '"]');
+        const checklist = selectElement.val();
+        
+        let mapping = null;
+        
+        if (checklist === '__NEW__') {
+            const newChecklistName = $('.new-checklist-input[data-file-index="' + index + '"]').val();
+            if (newChecklistName) {
+                mapping = { type: 'new', name: newChecklistName.trim() };
+            }
+        } else if (checklist) {
+            mapping = { type: 'existing', name: checklist };
+        }
+        
+        mappings.push(mapping);
+    });
+    
+    // Validate all files have mappings
+    const unmappedFiles = [];
+    mappings.forEach((mapping, index) => {
+        if (!mapping || !mapping.name) {
+            unmappedFiles.push(bulkUploadFiles[index].name);
+        }
+    });
+    
+    if (unmappedFiles.length > 0) {
+        alert('Please map all files to checklists:\n' + unmappedFiles.join('\n'));
+        return;
+    }
+    
+    // Upload files
+    uploadBulkFiles(bulkUploadFiles, mappings);
+});
+
+// Upload bulk files
+function uploadBulkFiles(files, mappings) {
+    const formData = new FormData();
+    
+    files.forEach((file, index) => {
+        formData.append('files[]', file);
+        formData.append('mappings[]', JSON.stringify(mappings[index]));
+    });
+    
+    formData.append('_token', App.getCsrf());
+    formData.append('clientid', currentClientId);
+    formData.append('doctype', 'documents');
+    formData.append('type', 'client');
+    
+    $('#bulk-upload-progress').show();
+    $('#bulk-upload-progress-bar').css('width', '0%').text('0%');
+    $('#confirm-bulk-upload').prop('disabled', true);
+    
+    $.ajax({
+        url: App.getUrl('documentsBulkUpload'),
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhr: function() {
+            const xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    $('#bulk-upload-progress-bar').css('width', percentComplete + '%').text(Math.round(percentComplete) + '%');
+                }
+            });
+            return xhr;
+        },
+        success: function(response) {
+            $('#bulk-upload-progress').hide();
+            $('#confirm-bulk-upload').prop('disabled', false);
+            
+            if (response.status) {
+                let message = response.message || 'Upload completed.';
+                if (response.errors && response.errors.length > 0) {
+                    message += '\n\nSome files failed:\n' + response.errors.join('\n');
+                }
+                alert(message);
+                $('#bulk-upload-mapping-modal').hide();
+                $('.bulk-upload-dropzone-container').hide();
+                $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
+                bulkUploadFiles = [];
+                
+                // Reload the page to show new documents
+                location.reload();
+            } else {
+                let errorMsg = 'Error: ' + (response.message || 'Upload failed.');
+                if (response.errors && response.errors.length > 0) {
+                    errorMsg += '\n\nDetails:\n' + response.errors.join('\n');
+                }
+                alert(errorMsg);
+            }
+        },
+        error: function(xhr) {
+            $('#bulk-upload-progress').hide();
+            $('#confirm-bulk-upload').prop('disabled', false);
+            let errorMsg = 'Upload failed. Please try again.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            alert(errorMsg);
+        }
+    });
+}
+
+// Helper functions
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============================================================================
+// CLIENT RECEIPT MODAL HANDLERS
+// ============================================================================
+
+// Handle "Create Client Receipt" button click
+$(document).on('click', '.createclientreceipt', function() {
+    // Reset form
+    $('#create_client_receipt')[0].reset();
+    
+    // Set function_type to 'add' for new receipt
+    $('#function_type').val('add');
+    
+    // Clear any existing rows except the first one
+    $('.productitem tr.clonedrow:not(:first)').remove();
+    
+    // Clear the first row values
+    $('.productitem tr.clonedrow:first').find('input, select').val('');
+    $('.productitem tr.clonedrow:first').find('.unique_trans_no').val('');
+    
+    // Reset totals
+    $('.total_deposit_amount_all_rows').html('');
+    
+    // Clear any error messages
+    $('.custom-error-msg').html('');
+    
+    // Reset document upload section
+    $('.docclientreceiptupload').val('');
+    $('.selected-file-info').hide();
+    $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
+    $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
+    
+    // Initialize flatpickr for date fields if not already initialized
+    if (typeof flatpickr !== 'undefined') {
+        $('.report_date_fields, .report_entry_date_fields').each(function() {
+            if (!this._flatpickr) {
+                flatpickr(this, {
+                    dateFormat: 'd/m/Y',
+                    allowInput: true
+                });
+            }
+        });
+    }
+    
+    // Open the modal
+    $('#createclientreceiptmodal').modal('show');
+});
+
+// Handle "Edit Client Receipt" button click (from the pencil icon)
+$(document).on('click', '.updateclientreceipt', function() {
+    var receipt_id = $(this).attr('data-id');
+    var url = App.getUrl('clientGetReceiptInfo') || App.getUrl('siteUrl') + '/clients/getClientReceiptInfoById';
+    
+    // Set function_type to 'edit' for updating receipt
+    $('#function_type').val('edit');
+    
+    // Clear any error messages
+    $('.custom-error-msg').html('');
+    
+    // Show loader
+    if ($('.popuploader').length) {
+        $('.popuploader').show();
+    }
+    
+    // Fetch receipt data from server
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            _token: App.getCsrf(),
+            id: receipt_id
+        },
+        success: function(response) {
+            if ($('.popuploader').length) {
+                $('.popuploader').hide();
+            }
+            
+            var obj = typeof response === 'string' ? JSON.parse(response) : response;
+            
+            if (obj.status) {
+                // Clear existing rows
+                $('.productitem').html('');
+                
+                // Populate form with fetched data
+                $.each(obj.requestData, function(index, data) {
+                    var clonedRow = `
+                        <tr class="clonedrow">
+                            <td>
+                                <input data-valid="required" class="form-control report_date_fields" name="trans_date[]" type="text" value="${data.trans_date}" />
+                            </td>
+                            <td>
+                                <input data-valid="required" class="form-control report_entry_date_fields" name="entry_date[]" type="text" value="${data.entry_date}" />
+                            </td>
+                            <td>
+                                <input class="form-control unique_trans_no" type="text" value="${data.trans_no}" readonly/>
+                                <input class="unique_trans_no_hidden" name="trans_no[]" type="hidden" value="${data.trans_no}" />
+                                <input name="id[]" type="hidden" value="${data.id}" />
+                            </td>
+                            <td>
+                                <select data-valid="required" class="form-control" name="payment_method[]">
+                                    <option value="">Select</option>
+                                    <option value="Cash" ${data.payment_method == 'Cash' ? 'selected' : ''}>Cash</option>
+                                    <option value="Bank transfer" ${data.payment_method == 'Bank transfer' ? 'selected' : ''}>Bank transfer</option>
+                                    <option value="EFTPOS" ${data.payment_method == 'EFTPOS' ? 'selected' : ''}>EFTPOS</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input data-valid="required" class="form-control" name="description[]" type="text" value="${data.description}" />
+                            </td>
+                            <td>
+                                <div class="currencyinput">
+                                    <span>$</span>
+                                    <input data-valid="required" class="form-control deposit_amount_per_row" name="deposit_amount[]" type="text" value="${data.deposit_amount}" />
+                                </div>
+                            </td>
+                            <td style="text-align:center;">
+                                <a class="removeitems text-danger" href="javascript:;" title="Remove row">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    $('.productitem').append(clonedRow);
+                });
+                
+                // Re-initialize flatpickr for date fields
+                if (typeof flatpickr !== 'undefined') {
+                    $('.report_date_fields, .report_entry_date_fields').each(function() {
+                        if (!this._flatpickr) {
+                            flatpickr(this, {
+                                dateFormat: 'd/m/Y',
+                                allowInput: true
+                            });
+                        }
+                    });
+                }
+                
+                // Calculate and display total
+                calculateReceiptTotal();
+                
+                // Open the modal
+                $('#createclientreceiptmodal').modal('show');
+            } else {
+                alert('Error loading receipt data: ' + obj.message);
+            }
+        },
+        error: function() {
+            if ($('.popuploader').length) {
+                $('.popuploader').hide();
+            }
+            alert('Error loading receipt data. Please try again.');
+        }
+    });
+});
+
+// Calculate total deposit amount
+function calculateReceiptTotal() {
+    var total = 0;
+    $('.deposit_amount_per_row').each(function() {
+        var amount = parseFloat($(this).val()) || 0;
+        total += amount;
+    });
+    $('.total_deposit_amount_all_rows').html('$' + total.toFixed(2));
+}
+
+// Update total when deposit amount changes
+$(document).on('keyup change', '.deposit_amount_per_row', function() {
+    calculateReceiptTotal();
+});
+
+// Add new line functionality (already in modal)
+$(document).on('click', '.openproductrinfo', function() {
+    var clonedRow = $('.productitem tr.clonedrow:first').clone();
+    clonedRow.find('input, select').val('');
+    clonedRow.find('.unique_trans_no').val('');
+    $('.productitem').append(clonedRow);
+    
+    // Re-initialize flatpickr for new row
+    if (typeof flatpickr !== 'undefined') {
+        clonedRow.find('.report_date_fields, .report_entry_date_fields').each(function() {
+            flatpickr(this, {
+                dateFormat: 'd/m/Y',
+                allowInput: true
+            });
+        });
+    }
+    
+    calculateReceiptTotal();
+});
+
+// Remove row functionality
+$(document).on('click', '.removeitems', function() {
+    if ($('.productitem tr.clonedrow').length > 1) {
+        $(this).closest('tr').remove();
+        calculateReceiptTotal();
+    } else {
+        alert('At least one row is required.');
+    }
+});
+
+// Document upload for receipt - Updated with file feedback
+$(document).on('click', '.upload-receipt-doc-btn', function() {
+    $('.docclientreceiptupload').trigger('click');
+});
+
+// Handle file selection - show selected file name
+$(document).on('change', '.docclientreceiptupload', function() {
+    var file = this.files[0];
+    if (file) {
+        var fileName = file.name;
+        var fileSize = (file.size / 1024).toFixed(2); // Convert to KB
+        
+        // Show file info
+        $('.file-name-display').text(fileName + ' (' + fileSize + ' KB)');
+        $('.selected-file-info').slideDown();
+        
+        // Change button text to indicate file is attached
+        $('.upload-receipt-doc-btn').html('<i class="fa fa-check"></i> Document Attached');
+        $('.upload-receipt-doc-btn').removeClass('btn-outline-primary').addClass('btn-success');
+    }
+});
+
+// Handle file removal
+$(document).on('click', '.remove-selected-file', function() {
+    // Clear the file input
+    $('.docclientreceiptupload').val('');
+    
+    // Hide file info
+    $('.selected-file-info').slideUp();
+    
+    // Reset button
+    $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
+    $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
+});
+
+console.log('[blade-inline.js] Blade-specific handlers initialized');
