@@ -37,6 +37,9 @@ Route::post('/documents/{document}/sign', [PublicDocumentController::class, 'sub
 Route::get('/documents/{id}/page/{page}', [PublicDocumentController::class, 'getPage'])
     ->name('public.documents.page');
 
+Route::get('/documents/{id}/info', [PublicDocumentController::class, 'getDocumentInfo'])
+    ->name('public.documents.info');
+
 Route::get('/documents/{id?}', [PublicDocumentController::class, 'index'])
     ->name('public.documents.index');
 

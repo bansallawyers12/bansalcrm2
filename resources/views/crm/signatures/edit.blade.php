@@ -433,8 +433,11 @@
     const existingFields = @json($document->signatureFields ?? []);
     
     document.addEventListener('DOMContentLoaded', function() {
-        loadPdfPage(1);
-        loadExistingFields();
+        // First fetch document info to get total pages, then load first page
+        fetchDocumentInfo().then(() => {
+            loadPdfPage(1);
+            loadExistingFields();
+        });
         
         document.getElementById('addFieldBtn').addEventListener('click', addSignatureField);
         document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
@@ -450,6 +453,22 @@
             }
         });
     });
+    
+    // Fetch document info including page count
+    function fetchDocumentInfo() {
+        return fetch(`/documents/${documentId}/info`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.page_count) {
+                    totalPages = data.page_count;
+                    updatePageNav();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching document info:', error);
+                // Keep totalPages as 1 if fetch fails
+            });
+    }
     
     function loadPdfPage(page) {
         const loading = document.getElementById('pdfLoading');
@@ -472,14 +491,6 @@
         };
         
         img.src = pageUrl;
-        
-        // Get total pages on first load
-        if (page === 1) {
-            fetch(`/documents/${documentId}/page/1`)
-                .then(() => {
-                    updatePageNav();
-                });
-        }
     }
     
     function changePage(delta) {

@@ -67,6 +67,14 @@
         margin: 0;
     }
     
+    /* Hide any document preview elements that may appear between page-title and wizard-steps */
+    .page-title + .document-preview,
+    .page-title + .signature-preview,
+    .page-title + .pdf-preview,
+    .page-title + div:not(.wizard-steps) {
+        display: none !important;
+    }
+    
     /* Wizard steps indicator */
     .wizard-steps {
         display: flex;
@@ -82,13 +90,13 @@
         background: #e5e7eb;
     }
     
-    .wizard-step.active {
+    /*.wizard-step.active {
         background: #3b82f6;
     }
     
     .wizard-step.completed {
         background: #10b981;
-    }
+    }*/
     
     /* Section header */
     .section-header {

@@ -82,18 +82,30 @@ class PublicDocumentController extends Controller
 
             $signatureFields = $document->signatureFields()->get();
             
-            // Get PDF path - handle local files
+            // Get PDF path - handle both S3 and local files
             $url = $document->myfile;
             $pdfPath = null;
+            $tempFile = null;
             
-            if ($url && file_exists(storage_path('app/public/' . $url))) {
+            // Check if it's an S3 URL
+            if ($url && (str_contains($url, 's3.') || str_contains($url, 'amazonaws.com'))) {
+                // Download from S3 to a temporary file for page counting
+                $pdfPath = $this->downloadS3FileToTemp($url, $documentId);
+                $tempFile = $pdfPath; // Track for cleanup
+            } elseif ($url && file_exists(storage_path('app/public/' . $url))) {
+                // Local file
                 $pdfPath = storage_path('app/public/' . $url);
             }
 
-            // Count PDF pages (simplified - you may need a PDF library for this)
+            // Count PDF pages using Python service
             $pdfPages = 1;
             if ($pdfPath && file_exists($pdfPath)) {
                 $pdfPages = $this->countPdfPages($pdfPath) ?: 1;
+            }
+            
+            // Clean up temp file after counting pages
+            if ($tempFile && file_exists($tempFile)) {
+                unlink($tempFile);
             }
 
             return view('documents.sign', compact('document', 'signer', 'signatureFields', 'pdfPages'));
@@ -605,6 +617,78 @@ class PublicDocumentController extends Controller
                 'error' => $e->getMessage()
             ]);
             abort(500, 'An error occurred while retrieving the page');
+        }
+    }
+
+    /**
+     * Get document info including page count
+     * Used by the signature editor to know how many pages the document has
+     */
+    public function getDocumentInfo($id)
+    {
+        $tempFile = null;
+        
+        try {
+            $document = Document::findOrFail($id);
+            
+            $url = $document->myfile;
+            $pdfPath = null;
+
+            // Check if it's an S3 URL
+            if ($url && (str_contains($url, 's3.') || str_contains($url, 'amazonaws.com'))) {
+                // Download from S3 to a temporary file
+                $pdfPath = $this->downloadS3FileToTemp($url, $id);
+                $tempFile = $pdfPath; // Track for cleanup
+            } elseif ($url && file_exists(storage_path('app/public/' . $url))) {
+                // Local file
+                $pdfPath = storage_path('app/public/' . $url);
+            }
+
+            if (!$pdfPath || !file_exists($pdfPath)) {
+                Log::error('Document file not found for info', [
+                    'document_id' => $id,
+                    'myfile' => $url,
+                    'tried_path' => $pdfPath
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Document file not found',
+                    'page_count' => 1
+                ], 404);
+            }
+
+            // Get page count using Python service
+            $pageCount = $this->countPdfPages($pdfPath);
+            
+            // Clean up temp file
+            if ($tempFile && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            return response()->json([
+                'success' => true,
+                'document_id' => $id,
+                'page_count' => $pageCount,
+                'title' => $document->display_title,
+                'status' => $document->status
+            ]);
+
+        } catch (\Exception $e) {
+            // Clean up temp file on exception
+            if ($tempFile && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+            
+            Log::error('Error getting document info', [
+                'document_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to get document info',
+                'page_count' => 1
+            ], 500);
         }
     }
     
