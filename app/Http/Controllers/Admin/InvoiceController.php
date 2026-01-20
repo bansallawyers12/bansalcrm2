@@ -97,6 +97,9 @@ class InvoiceController extends Controller
 				$branchdata = array();
 			}else{
 				$applicationdata = \App\Models\Application::where('id', $invoicedetail->application_id)->first();
+				if(!$applicationdata){
+					return redirect()->back()->with('error', 'Application data not found for this invoice.');
+				}
 				$partnerdata = \App\Models\Partner::where('id', @$applicationdata->partner_id)->first();
 				$productdata = \App\Models\Product::where('id', @$applicationdata->product_id)->first();
 				$branchdata = \App\Models\PartnerBranch::where('id', @$applicationdata->branch)->first();
@@ -104,6 +107,9 @@ class InvoiceController extends Controller
 			}
 			
 			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
+			if(!$clientdata){
+				return redirect()->back()->with('error', 'Client not found for this invoice.');
+			}
 			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
 			
 			
@@ -366,6 +372,9 @@ class InvoiceController extends Controller
 		
 		/* Update Client detail start*/
         $obj_client				=   \App\Models\Admin::find(@$requestData['client_id']);
+		if(!$obj_client){
+			return redirect()->back()->with('error', 'Client not found. Please refresh and try again.');
+		}
         $obj_client->first_name	=	@$requestData['first_name'];
         $obj_client->last_name	=	@$requestData['last_name'];
 

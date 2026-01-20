@@ -239,7 +239,7 @@
 																<i class="fas fa-clock"></i>
 															</div>
 														</div>	
-														<input type="text" name="" placeholder="" value="{{date('d/m/Y', strtotime($invoicedetail->discount_date))}}" class=" form-control" />
+														<input type="text" name="" placeholder="" value="{{ $invoicedetail->discount_date ? date('d/m/Y', strtotime($invoicedetail->discount_date)) : '' }}" class=" form-control" />
 													</div>
 													
 												</div> 
