@@ -116,8 +116,8 @@
 												<th>Description</th>
 												<th>Income Type</th>
 												<th>Amount</th>
-												<th>Tax</th>
-												<th>Tax Amount</th>
+												<th>GST</th>
+												<th>GST Amount</th>
 												<th>Total Amount</th>
 											</tr>
 										</thead>
@@ -144,7 +144,8 @@
 												</td>
 												<td>
 													<select name="tax_code[]" class="form-control">
-														<option value="">Select A Tax Code</option>
+														<option value="0">No GST</option>
+														<option value="10">GST 10%</option>
 													</select>
 												</td>
 												<td>
@@ -196,14 +197,14 @@
 												</div> 
 											</div>
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<div class="label_input">
 													<input type="hidden" name="total_tax" value="0">
 													<input type="text" id="gst" readonly="readonly"> <div class="basic_label">AUD</div>
 												</div>
 											</div>
 											<div class="inline_field">
-												<label>Total Amount (incl Tax):</label>
+												<label>Total Amount (incl GST):</label>
 												<div class="label_input">
 													<input type="hidden" name="invoice_amount" value="{{$netamount}}">
 													<input type="text" id="netFeePaid" value="{{$netamount}}" readonly="readonly">
@@ -388,7 +389,7 @@
 					<div class="tax_col">
 						<div class="form-check form-check-inline">
 							<input disabled class="form-check-input" type="checkbox" id="taxval" value="1" name="taxval">
-							<label class="form-check-label" for="taxval">Tax</label>
+							<label class="form-check-label" for="taxval">GST</label>
 						</div>
 						{{--<div class="input_field">
 							<input readonly class="form-control" type="text" />
@@ -399,11 +400,11 @@
 										<div class="col-lg-4">
 											<div class="tax_amount_field">
 												<div class="tax_amount">
-													<span>Tax Amount: </span>
+													<span>GST Amount: </span>
 													<span>0.00</span>
 												</div>
 												<div class="tax_amount">
-													<span>Total Including Tax: </span>
+													<span>Total Including GST: </span>
 													<span>0.00</span>
 												</div>
 											</div>

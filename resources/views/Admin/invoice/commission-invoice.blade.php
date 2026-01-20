@@ -138,8 +138,8 @@
 												<th style="width:100px">Commission Percent</th>
 												<th style="width:100px">Commission Amount	</th>
 												<th>Bonus Amount	</th>
-												<th style="width:100px">Tax</th>
-												<th>Tax Amount</th>
+												<th style="width:100px">GST</th>
+												<th>GST Amount</th>
 												<th>Net Amount</th>
 												<th></th>
 											</tr>
@@ -179,8 +179,8 @@
 												</td>
 												<td>
 													<select name="tax[]" class="form-control tax_amt">
-														<option value="0" selected>No Tax (Tax table removed)</option>
-														{{-- NOTE: Tax::all() has been removed - taxes table has been dropped --}}
+														<option value="0" selected>No GST</option>
+														<option value="10">GST 10%</option>
 													</select>
 												</td>
 												<td>
@@ -283,7 +283,7 @@
 
 
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 													<input type="hidden" name="total_tax" value="0">
@@ -291,7 +291,7 @@
 												</div>
 											</div> 
 											<div class="inline_field">
-												<label>Total Amount (incl Tax)</label>
+												<label>Total Amount (incl GST)</label>
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 													<input type="hidden" name="total_amt" value="0">
@@ -349,7 +349,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 													<input type="hidden" name="total_tax" value="0">
@@ -496,12 +496,12 @@
 												<div class="tax_col">
 													<div class="form-check form-check-inline">
 														<input disabled class="form-check-input" type="checkbox" id="taxval" value="1" name="taxval">
-														<label class="form-check-label" for="taxval">Tax</label>
+														<label class="form-check-label" for="taxval">GST</label>
 													</div>
 												<div class="input_field ifcheckedtax" style="display:none;">
 														<select id="taxget" class="form-control">
-														    <option value="0">No Tax (Tax table removed)</option>
-														 	{{-- NOTE: Tax::all() has been removed - taxes table has been dropped --}}
+														    <option value="0">No GST</option>
+														    <option value="10">GST 10%</option>
 														</select>
 													</div>
 												</div>
@@ -510,12 +510,12 @@
 										<div class="col-lg-4">
 											<div class="tax_amount_field">
 												<div class="tax_amount">
-													<span>Tax Amount: </span>
+													<span>GST Amount: </span>
 													<span class="currencynotinput">$</span>
 													<span class="taxa">0.00</span>
 												</div>
 												<div class="tax_amount">
-													<span>Total Including Tax: </span>
+													<span>Total Including GST: </span>
 													<span class="currencynotinput">$</span>
 													<span class="total_includetax">0.00</span>
 												</div>

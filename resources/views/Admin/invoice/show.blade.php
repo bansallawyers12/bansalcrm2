@@ -142,8 +142,8 @@
 												<th>Income Type</th>
 												<th>Amount</th>
 												<th>Bonus Amount</th>
-												<th>Tax (%)</th>
-												<th>Tax Amount</th>
+												<th>GST (%)</th>
+												<th>GST Amount</th>
 												<th>Total Amount</th>
 											<?php
 										}else{
@@ -153,8 +153,8 @@
 												<th>Commission Percent</th>
 												<th>Commission Amount	</th>
 												<th>Bonus Amount</th>
-												<th>Tax</th>
-												<th>Tax Amount</th>
+												<th>GST</th>
+												<th>GST Amount</th>
 												<th>Net Amount</th>
 										<?php } ?>	
 											</tr>
@@ -305,7 +305,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<span class="percentageinput">%</span>
 												<div class="label_input">
 													
@@ -315,7 +315,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Total Amount (incl Tax):</label>
+												<label>Total Amount (incl GST):</label>
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 													
@@ -360,7 +360,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<span class="percentageinput">%</span>
 												<div class="label_input">
 													<input type="hidden" name="total_tax" value="0">
@@ -369,7 +369,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Total Amount (incl Tax):</label>
+												<label>Total Amount (incl GST):</label>
 												<span class="currencyinput">$</span>
 												<div class="label_input">
 													
@@ -433,7 +433,7 @@
 											</div>
 											
 											<div class="inline_field">
-												<label>Tax:</label>
+												<label>GST:</label>
 												<span class="percentageinput">%</span>
 												<div class="label_input">
 													<input type="hidden" name="total_tax" value="0">
