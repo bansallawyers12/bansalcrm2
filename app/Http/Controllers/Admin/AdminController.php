@@ -6,20 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Redirect;
 
-use App\Models\Lead;
 use App\Models\Admin;
-use App\Models\WebsiteSetting;
-use App\Models\SeoPage;
-use App\Models\City;
 use App\Models\Contact;
 // NOTE: TaxRate model/table has been removed
 // use App\Models\TaxRate;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\InvoicePayment;
-use App\Models\Setting;
 use Auth;
 use Config;
 use App\Models\ActivitiesLog;
@@ -326,14 +319,6 @@ class AdminController extends Controller
 			return json_encode(array('success' => false, 'message' => 'ID not exist'));
 		}
 	}
-
-	public function websiteSetting(Request $request)
-	{
-		// website_settings table has been removed
-		// Redirect to dashboard with message
-		return redirect()->route('dashboard')->with('error', 'Website Settings feature has been removed. The website_settings table no longer exists.');
-	}
-
 
 	public function editapi(Request $request)
 	{
@@ -1107,60 +1092,6 @@ class AdminController extends Controller
 		die;
 	}
 
-	public function addCkeditiorImage(Request $request)
-	{
-		echo "<pre>";
-		print_r($_FILES);die;
-
-
-
-		$status 			= 	0;
-		$method 			= 	$request->method();
-
-		if ($request->isMethod('post'))
-		{
-			$requestData 	= 	$request->all();
-
-			echo "<pre>";
-			print_r($requestData);die;
-
-
-			if(isset($requestData['id']) && !empty($requestData['id']))
-			{
-				$recordExist = Country::where('id', $requestData['id'])->exists();
-
-				if($recordExist)
-				{
-					$data 	= 	State::where('country_id', '=', $requestData['id'])->get();
-
-					if($data)
-					{
-						$status = 1;
-						$message = 'Record has been fetched successfully.';
-					}
-					else
-					{
-						$message = Config::get('constants.server_error');
-					}
-				}
-				else
-				{
-					$message = 'ID does not exist, please check it once again.';
-				}
-			}
-			else
-			{
-				$message = 'ID does not exist, please check it once again.';
-			}
-		}
-		else
-		{
-			$message = Config::get('constants.post_method');
-		}
-		echo json_encode(array('status'=>$status, 'message'=>$message, 'data'=>$data));
-		die;
-	}
-
 	public function sessions(Request $request)
 	{
 		return view('Admin.sessions');
@@ -1687,39 +1618,6 @@ class AdminController extends Controller
 
 		echo json_encode($agents);
 	}
-
-	public function gensettings(Request $request){
-	   // Settings table has been removed - redirect or show message
-	   return redirect('/admin/dashboard')->with('info', 'General settings feature has been deprecated.');
-	   
-	   // OLD CODE - Settings table removed
-	   // $setting = Setting::where('office_id', Auth::user()->office_id)->first();
-	   // return view('Admin.gensettings.index', compact('setting'));
-	}
-
-    public function gensettingsupdate(Request $request){
-        // Settings table has been removed - return success message
-        return redirect()->route('dashboard')->with('info', 'General settings feature has been deprecated.');
-        
-        // OLD CODE - Settings table removed
-        /*
-        if(Setting::where('office_id', Auth::user()->office_id)->exists()){
-           $setting = Setting::where('office_id', Auth::user()->office_id)->first();
-            $objs = Setting::find($setting->id);
-            $objs->date_format = $request->date_format;
-             $objs->time_format = $request->time_format;
-            $objs->save();
-        }else{
-             $objs = new Setting;
-            $objs->date_format = $request->date_format;
-            $objs->office_id = Auth::user()->office_id;
-             $objs->time_format = $request->time_format;
-            $objs->save();
-        }
-
-        return redirect()->route('gensettings.index')->with('success', 'Record updated successfully');
-        */
-    }
 
 	public function allnotification(Request $request){
 		$query = \App\Models\Notification::where('receiver_id', Auth::user()->id);

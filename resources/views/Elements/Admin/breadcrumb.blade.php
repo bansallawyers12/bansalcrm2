@@ -1,9 +1,2 @@
 @if(Auth::user()->role == 1)
-	{{-- Website Settings link removed - website_settings table has been dropped --}}
-	{{-- <li class="breadcrumb-menu d-md-down-none">
-		<div class="btn-group" role="group" aria-label="Button group">
-			<a class="btn" href="{{URL::to('/website_setting')}}">
-			<i class="icon-settings"></i>  Website Settings</a>
-		</div>
-	</li> --}}
 @endif	

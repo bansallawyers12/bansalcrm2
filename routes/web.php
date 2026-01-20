@@ -168,11 +168,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/move_action', [AdminController::class, 'moveAction']);
 		
 		
-		Route::post('/add_ckeditior_image', [AdminController::class, 'addCkeditiorImage'])->name('add_ckeditior_image');
 		Route::post('/get_chapters', [AdminController::class, 'getChapters'])->name('get_chapters');
-		// NOTE: website_setting routes have been removed - website_settings table has been dropped
-		// Route::get('/website_setting', [AdminController::class, 'websiteSetting'])->name('website_setting');
-		// Route::post('/website_setting', [AdminController::class, 'websiteSetting']);
 		Route::post('/get_states', [AdminController::class, 'getStates']);
 		Route::get('/settings/taxes/returnsetting', [AdminController::class, 'returnsetting'])->name('returnsetting');
 		Route::post('/settings/taxes/savereturnsetting', [AdminController::class, 'returnsetting'])->name('savereturnsetting');
@@ -294,10 +290,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::post('/email_templates/store', [EmailTemplateController::class, 'store'])->name('email.store');
 		Route::get('/edit_email_template/{id}', [EmailTemplateController::class, 'editEmailTemplate'])->name('edit_email_template');
 		Route::post('/edit_email_template', [EmailTemplateController::class, 'editEmailTemplate'])->name('email.update');	
-		
-	//SEO Tool
-		Route::get('/edit_seo/{id}', [AdminController::class, 'editSeo'])->name('edit_seo');
-		Route::post('/edit_seo', [AdminController::class, 'editSeo'])->name('edit_seo.update');
 		
 	Route::get('/api-key', [AdminController::class, 'editapi'])->name('edit_api');
 	Route::post('/api-key', [AdminController::class, 'editapi'])->name('edit_api.update');	
@@ -535,9 +527,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		// NOTE: Email and CRM Email Template routes have been moved to routes/adminconsole.php
 		// Those routes now use the AdminConsole namespace and are accessible at /adminconsole/* paths
 		// The duplicate routes that were here (lines 626-637) have been removed to prevent conflicts and errors
-		
-		Route::get('/gen-settings', [AdminController::class, 'gensettings'])->name('gensettings.index');
-		Route::post('/gen-settings/update', [AdminController::class, 'gensettingsupdate'])->name('gensettings.update');
 		
 		Route::get('/fetch-notification', [AdminController::class, 'fetchnotification']);
 		Route::get('/fetch-messages', [AdminController::class, 'fetchmessages']);
