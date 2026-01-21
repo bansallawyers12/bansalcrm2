@@ -495,18 +495,47 @@ jQuery(document).ready(function($){
     // SELECT2 INITIALIZATION FOR APPLICATION FORMS
     // ============================================================================
     
-    // Fix for Add Application modal - ensure dropdown appears above modal
-    $(".applicationselect2").select2({
-        dropdownParent: $(".add_appliation")
-    });
+    // Initialize Select2 when modal is shown to ensure proper rendering
+    $('.add_appliation').on('shown.bs.modal', function () {
+        // Destroy any existing Select2 instances first
+        if ($(".applicationselect2").hasClass("select2-hidden-accessible")) {
+            $(".applicationselect2").select2('destroy');
+        }
+        if ($(".partner_branchselect2").hasClass("select2-hidden-accessible")) {
+            $(".partner_branchselect2").select2('destroy');
+        }
+        if ($(".approductselect2").hasClass("select2-hidden-accessible")) {
+            $(".approductselect2").select2('destroy');
+        }
+        
+        // Initialize Select2 with dropdownParent
+        $(".applicationselect2").select2({
+            dropdownParent: $(".add_appliation"),
+            width: '100%'
+        });
 
-    $(".partner_branchselect2").select2({
-        dropdownParent: $(".add_appliation")
+        $(".partner_branchselect2").select2({
+            dropdownParent: $(".add_appliation"),
+            width: '100%'
+        });
+        
+        $(".approductselect2").select2({
+            dropdownParent: $(".add_appliation"),
+            width: '100%'
+        });
     });
     
-    // Initialize product select2 if it exists
-    $(".approductselect2").select2({
-        dropdownParent: $(".add_appliation")
+    // Clean up Select2 when modal is hidden
+    $('.add_appliation').on('hidden.bs.modal', function () {
+        if ($(".applicationselect2").hasClass("select2-hidden-accessible")) {
+            $(".applicationselect2").select2('destroy');
+        }
+        if ($(".partner_branchselect2").hasClass("select2-hidden-accessible")) {
+            $(".partner_branchselect2").select2('destroy');
+        }
+        if ($(".approductselect2").hasClass("select2-hidden-accessible")) {
+            $(".approductselect2").select2('destroy');
+        }
     });
 
     console.log('[application-handlers.js] Application handlers initialized');
