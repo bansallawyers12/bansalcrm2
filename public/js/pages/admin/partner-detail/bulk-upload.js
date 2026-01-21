@@ -129,6 +129,7 @@ jQuery(document).ready(function($){
             dropzoneContainer.find('.file-count').text('0');
         } else {
             dropzoneContainer.slideDown();
+            bindDropzoneDragHandlers();
             $(this).html('<i class="fas fa-times"></i> Close');
         }
     });
@@ -146,73 +147,71 @@ jQuery(document).ready(function($){
         }
     });
 
-    function isFileDrag(e) {
-        const dt = e.originalEvent && e.originalEvent.dataTransfer;
-        if (!dt || !dt.types) {
-            return false;
+    // Allow file drag events on the page so drop works reliably
+    // Bind on window/body to ensure drag events are accepted on Windows browsers
+    $(window).on('dragenter dragover', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
         }
-        if (typeof dt.types.indexOf === 'function') {
-            return dt.types.indexOf('Files') !== -1;
+    });
+
+    $(window).on('drop', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
         }
-        return Array.from(dt.types).includes('Files');
+    });
+
+    function bindDropzoneDragHandlers() {
+        $('.bulk-upload-dropzone').each(function() {
+            if (this.dataset.dragBound === '1') {
+                return;
+            }
+            this.dataset.dragBound = '1';
+
+            let dragCount = 0;
+
+            this.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount += 1;
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                this.classList.add('drag_over');
+            });
+
+            this.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                this.classList.add('drag_over');
+            });
+
+            this.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount = Math.max(dragCount - 1, 0);
+                if (dragCount === 0) {
+                    this.classList.remove('drag_over');
+                }
+            });
+
+            this.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount = 0;
+                this.classList.remove('drag_over');
+                const files = e.dataTransfer && e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    handleBulkFilesSelectedPartner(files);
+                }
+            });
+        });
     }
 
-    // Allow file drag events on the page so drop works reliably
-    $(document).on('dragenter dragover', function(e) {
-        if (isFileDrag(e)) {
-            e.preventDefault();
-        }
-    });
-
-    $(document).on('drop', function(e) {
-        if (isFileDrag(e)) {
-            e.preventDefault();
-        }
-    });
-
-    // Keep drag state per dropzone to avoid flicker
-    $(document).on('dragenter', '.bulk-upload-dropzone', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.originalEvent && e.originalEvent.dataTransfer) {
-            e.originalEvent.dataTransfer.dropEffect = 'copy';
-        }
-        const $zone = $(this);
-        const count = ($zone.data('drag-count') || 0) + 1;
-        $zone.data('drag-count', count).addClass('drag_over');
-    });
-
-    $(document).on('dragover', '.bulk-upload-dropzone', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.originalEvent && e.originalEvent.dataTransfer) {
-            e.originalEvent.dataTransfer.dropEffect = 'copy';
-        }
-        $(this).addClass('drag_over');
-    });
-
-    $(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const $zone = $(this);
-        const count = Math.max(($zone.data('drag-count') || 1) - 1, 0);
-        $zone.data('drag-count', count);
-        if (count === 0) {
-            $zone.removeClass('drag_over');
-        }
-    });
-
-    $(document).on('drop', '.bulk-upload-dropzone', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const $zone = $(this);
-        $zone.data('drag-count', 0).removeClass('drag_over');
-
-        const files = e.originalEvent.dataTransfer.files;
-        if (files && files.length > 0) {
-            handleBulkFilesSelectedPartner(files);
-        }
-    });
+    bindDropzoneDragHandlers();
 
     // Prevent browser from opening file on drop outside the dropzone
     $(document).on('dragover drop', function(e) {
