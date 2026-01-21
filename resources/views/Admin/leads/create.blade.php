@@ -1033,6 +1033,8 @@
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
         getTagData: '{{ url("/gettagdata") }}',
+        getRecipients: '{{ url("/clients/get-recipients") }}',
+        checkClientExist: '{{ url("/checkclientexist") }}',
         checkEmailUnique: '{{ url("/is_email_unique") }}',
         checkContactUnique: '{{ url("/is_contactno_unique") }}'
     };
@@ -1040,6 +1042,9 @@
     // Page-specific data for create
     PageConfig.isCreatePage = true;
 </script>
+
+{{-- Load Client Create JavaScript for Shared Functionality --}}
+<script src="{{ asset('js/pages/admin/client-create.js') }}"></script>
 
 {{-- Page-Specific JavaScript --}}
 <script>

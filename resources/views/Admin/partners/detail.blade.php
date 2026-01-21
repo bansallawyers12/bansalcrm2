@@ -2847,6 +2847,10 @@ use App\Http\Controllers\Controller;
     // GLOBAL CONFIGURATION
     // ============================================================================
     
+    // Ensure global config objects exist before setting properties
+    window.AppConfig = window.AppConfig || {};
+    window.PageConfig = window.PageConfig || {};
+    
     // Application Configuration
     AppConfig.csrf = '{{ csrf_token() }}';
     AppConfig.siteUrl = '{{ url("/") }}';

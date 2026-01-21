@@ -6,9 +6,9 @@
 (function($) {
     'use strict';
 
-    // Get URLs from data attributes or use defaults
-    const checkClientExistUrl = $('#create-client-form').data('check-url') || '/checkclientexist';
-    const getRecipientsUrl = $('#create-client-form').data('recipients-url') || '/clients/get-recipients';
+    // Get URLs from AppConfig (set in blade template) or use defaults
+    const checkClientExistUrl = (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.checkClientExist) || '/checkclientexist';
+    const getRecipientsUrl = (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.getRecipients) || '/clients/get-recipients';
 
     /**
      * Initialize phone number validation
@@ -113,6 +113,8 @@
             return;
         }
 
+        console.log('Initializing Related Files Select2 with URL:', getRecipientsUrl);
+
         $('.js-data-example-ajaxcc').select2({
             multiple: true,
             closeOnSelect: false,
@@ -122,12 +124,14 @@
                 dataType: 'json',
                 delay: 250,
                 data: function(params) {
+                    console.log('Search term:', params.term);
                     return {
                         q: params.term, // search term
                         page: params.page || 1
                     };
                 },
                 processResults: function(data) {
+                    console.log('Received data:', data);
                     // Transforms the top-level key of the response object from 'items' to 'results'
                     return {
                         results: data.items || []
@@ -138,6 +142,8 @@
             templateResult: formatRepo,
             templateSelection: formatRepoSelection
         });
+
+        console.log('Related Files Select2 initialized successfully');
     }
 
     /**

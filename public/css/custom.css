@@ -1949,3 +1949,54 @@ select.form-control:focus {
 	}
 }
 
+/* Bulk Upload Dropzone Visual Feedback
+   ============================================================================= */
+.bulk-upload-dropzone {
+	transition: all 0.3s ease;
+}
+
+.bulk-upload-dropzone:hover {
+	border-color: #2563eb !important;
+	background-color: #eff6ff !important;
+}
+
+.bulk-upload-dropzone.drag_over {
+	border-color: #10b981 !important;
+	background-color: #d1fae5 !important;
+	transform: scale(1.02);
+}
+
+.bulk-upload-file-item {
+	padding: 10px;
+	border-bottom: 1px solid #e2e8f0;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.bulk-upload-file-item:last-child {
+	border-bottom: none;
+}
+
+.file-info {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+}
+
+.file-name {
+	font-weight: 500;
+	color: #333;
+}
+
+.file-size {
+	font-size: 12px;
+	color: #666;
+}
+
+.checklist-select {
+	width: 100%;
+	min-width: 180px;
+}
+
