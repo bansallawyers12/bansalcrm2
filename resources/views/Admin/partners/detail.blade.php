@@ -597,7 +597,7 @@ use App\Http\Controllers\Controller;
 																<i class="fas fa-calendar-alt"></i>
 															</div>
 														</div>
-														{!! Form::text('contract_start','', array('id' => 'contract_start','class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
+														{!! Form::text('contract_start', @$fetchedData->contract_start, array('id' => 'contract_start','class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 														@if ($errors->has('contract_start'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('contract_start') }}</strong>
@@ -2935,6 +2935,7 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
 
 {{-- Main partner-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/partner-detail.js') }}"></script>

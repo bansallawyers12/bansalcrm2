@@ -52,6 +52,9 @@ class InvoiceController extends Controller
 	public function getInvoice(Request $request, $clientid, $applicationid, $type){
 		//dd($type);
 		$clientdata = \App\Models\Admin::where('role', 7)->where('id', $clientid)->first();
+		if(!$clientdata){
+			return redirect()->back()->with('error', 'Client not found for this invoice.');
+		}
 		if($type == 3){
 			$workflowdaa = \App\Models\Workflow::where('id', $applicationid)->first();
 			return view('Admin.invoice.general-invoice',compact(['clientid','applicationid','type','clientdata','workflowdaa'])); 
@@ -647,7 +650,7 @@ class InvoiceController extends Controller
 		}
 		
 			if(@$requestData['btn'] == 'savepreview'){
-				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
+				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
 				return redirect()->route('invoice.unpaid')->with('success', 'Invoice updated Successfully');
@@ -718,6 +721,7 @@ class InvoiceController extends Controller
 			
 			$invoicedetail->tax 			= @$requestData['tax_code'][$i];
 			$invoicedetail->tax_amount 		= @$requestData['tax_amt'][$i];
+			$invoicedetail->bonus_amount 		= 0;
 			$invoicedetail->netamount 		= @$requestData['total_amt'][$i];
 			$saved							=	@$invoicedetail->save();
 		}
@@ -743,7 +747,7 @@ class InvoiceController extends Controller
 			$objsss->save();
 		
 			if(@$requestData['btn'] == 'savepreview'){
-				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
+				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
 				return redirect()->route('invoice.unpaid')->with('success', 'Invoice updated Successfully');
@@ -812,6 +816,7 @@ class InvoiceController extends Controller
 			
 			$invoicedetail->tax 			= @$requestData['tax_code'][$i];
 			$invoicedetail->tax_amount 		= @$requestData['tax_amt'][$i];
+			$invoicedetail->bonus_amount 		= 0;
 			$invoicedetail->netamount 		= @$requestData['total_amt'][$i];
 			$saved							=	@$invoicedetail->save();
 		}
@@ -833,7 +838,7 @@ class InvoiceController extends Controller
 			}
 		
 			if(@$requestData['btn'] == 'savepreview'){
-				return Redirect::to('/admin/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
+				return Redirect::to('/invoice/view/'.@$obj->id)->with('success', 'Invoice saved Successfully');
 			}
 			else{
 				//return Redirect::to('/admin/invoice/lists/'.base64_encode(convert_uuencode(@$obj->id)))->with('success', 'Invoice saved Successfully');

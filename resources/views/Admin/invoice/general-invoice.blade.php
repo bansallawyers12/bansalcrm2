@@ -65,7 +65,7 @@
 							<div class="card-body">
 								<div class="form-group"> 
 									<label for="invoice_date">Invoice Date:</label>
-									{!! Form::date('invoice_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
+									{!! Form::date('invoice_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									{{-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> --}}
 									@if ($errors->has('invoice_date'))
 										<span class="custom-error" role="alert">
@@ -75,7 +75,7 @@
 								</div>
 								<div class="form-group"> 
 									<label for="invoice_due_date">Invoice Due Date:</label>
-									{!! Form::date('invoice_due_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
+									{!! Form::date('invoice_due_date', date('Y-m-d'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
 									{{-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> --}}
 									@if ($errors->has('invoice_due_date'))
 										<span class="custom-error" role="alert">
@@ -84,18 +84,9 @@
 									@endif
 								</div>
 							<div class="form-group"> 
-								<label for="currency">Currency <span class="span_req">*</span></label>
-								<select class="form-control" name="currency" id="currency">
-									<option value="AUD" selected>Australian dollar (AUD)</option>
-									<option value="USD">US dollar (USD)</option>
-									<option value="GBP">British pound (GBP)</option>
-									<option value="EUR">Euro (EUR)</option>
-									<option value="CAD">Canadian dollar (CAD)</option>
-									<option value="NZD">New Zealand dollar (NZD)</option>
-									<option value="INR">Indian rupee (INR)</option>
-									<option value="JPY">Japanese yen (JPY)</option>
-									<option value="CNY">Chinese yuan (CNY)</option>
-								</select>
+								<label for="currency_display">Currency <span class="span_req">*</span></label>
+								<input type="hidden" name="currency" value="AUD" data-valid="required">
+								<input class="form-control" id="currency_display" type="text" value="Australian dollar (AUD)" readonly>
 								@if ($errors->has('currency'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('currency') }}</strong>
@@ -117,7 +108,7 @@
 						<div class="card">
 							<div class="card-body">
 								<div class="table-responsive">
-									<table class="table text_wrap table-striped table-hover table-md vertical_align">
+									<table class="table text_wrap table-striped table-hover table-md vertical_align invoice-line-items">
 										<thead> 
 											<tr>
 												<th></th>
@@ -132,16 +123,16 @@
 										<tbody class="productitem">
 											<tr class="clonedrow">
 												<td><a href="#"><i class="fa fa-drag"><i></a></td>
-												<td><input class="form-control" type="text" name="description[]" value="Tuition Fee"/></td>
+												<td><input class="form-control" type="text" name="description[]" value="Tuition Fee" data-valid="required"/></td>
 												<td>
-													<select name="income_type[]" class="form-control income_type">
-														<option value="">Select Income Type</option>
+													<select name="income_type[]" class="form-control income_type" data-valid="required">
+														<option value="">Select</option>
 														<option value="Income">Income</option>
 														<option value="Payables">Payables</option>
 													</select>
 												</td>
 												<td>
-													<input class="form-control amount"  name="amount[]" type="number" step="0.01" />
+													<input class="form-control amount"  name="amount[]" type="number" step="0.01" data-valid="required" />
 												</td>
 												<td>
 													<select name="tax_code[]" class="form-control tax_per">
@@ -294,7 +285,7 @@
 									<div class="col-lg-3">
 										<div class="add_notes">
 											<h4>Add Notes</h4>
-											<textarea class="form-control"></textarea>
+											<textarea class="form-control" name="notes"></textarea>
 										</div>
 									</div>
 									<div class="col-lg-3">
@@ -397,18 +388,14 @@ jQuery(document).ready(function($){
 		}	
 	});
 	$(document).delegate('.amount','keyup', function(){
-		var total_fee = $(this).val(); 
-		var currentRow=$(this).closest("tr");
-		
-		
-		currentRow.find('.totlamt').val(total_fee);
-			grandtotal();
-			
-		
+		grandtotal();
 	});
 	$(document).delegate('.income_type','change', function(){
 			grandtotal();		
 		});
+	$(document).delegate('.tax_per','change', function(){
+		grandtotal();
+	});
 		
 		$(document).delegate('#payment_done','change', function(){
 			if($('#payment_done').is(':checked')){
@@ -431,24 +418,30 @@ jQuery(document).ready(function($){
 		var paymentAmount = 0;
 		var pric = 0;
 		var tot_amt = 0;
+		var taxTotal = 0;
 		$('.productitem tr').each(function(){
+			var amountVal = 0;
+			if($(this).find('.amount').val() != ''){
+				amountVal = parseFloat($(this).find('.amount').val());
+			}
+			if(isNaN(amountVal)){
+				amountVal = 0;
+			}
+			var taxRate = parseFloat($(this).find('.tax_per option:selected').val());
+			if(isNaN(taxRate)){
+				taxRate = 0;
+			}
+			var rowTax = (amountVal * taxRate) / 100;
+			var rowTotal = amountVal + rowTax;
 			
 			if($(this).find('.income_type option:selected').val() == 'Income'){
-				if($(this).find('.amount').val() != ''){
-					var ssss = $(this).find('.amount').val();
-				}else{
-					var ssss = 0;
-				}
+				var ssss = amountVal;
 			}else{
 				var ssss = 0;
 			}
 			pric += parseFloat(ssss);
 			if($(this).find('.income_type option:selected').val() == 'Payables'){
-				if($(this).find('.amount').val() != ''){
-					var ss = $(this).find('.amount').val();
-				}else{
-					var ss = 0;
-				}
+				var ss = amountVal;
 			}else{
 				var ss = 0;
 			}
@@ -456,13 +449,10 @@ jQuery(document).ready(function($){
 			paymentAmount += parseFloat(ss);
 		
 	
-			if($(this).find('.totlamt').val() != ''){
-					var ssq = $(this).find('.totlamt').val();
-				}else{
-					var ssq = 0;
-				}
-				
-					tot_amt += parseFloat(ssq);
+			$(this).find('.tax_amt').val(rowTax.toFixed(2));
+			$(this).find('.totlamt').val(rowTotal.toFixed(2));
+			tot_amt += rowTotal;
+			taxTotal += rowTax;
 		});
 		var p =0;
 		if($('#payment_done').is(':checked')){
@@ -478,7 +468,6 @@ jQuery(document).ready(function($){
 				}
 			});
 		}
-		$('.tax_per option[value="10"]').attr('selected','selected');
 		$('.invoiceNetAmount').html(paymentAmount.toFixed(2));
 		$('#invoice_net_amount').val(paymentAmount.toFixed(2));
 		$('.invoiceNetAmount_2').html(pric.toFixed(2));
@@ -489,9 +478,7 @@ jQuery(document).ready(function($){
 		
 		var totaldue = parseFloat(tot_amt) - parseFloat(p);
 		$('#totaldue').val(totaldue.toFixed(2));
-		$('.tax_amt').val(0.00);
-		$('.totlamt').val(tot_amt.toFixed(2));
-		$('#gst').val(0.00);
+		$('#gst').val(taxTotal.toFixed(2));
 	}
 	$('.add_payment_field a').on('click', function(){
 		if($('#payment_done').is(':checked')){

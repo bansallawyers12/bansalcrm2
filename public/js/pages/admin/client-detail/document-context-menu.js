@@ -99,7 +99,7 @@
                 // Old file upload - construct AWS S3 URL and open in new tab
                 const awsBucket = window.awsBucket || '';
                 const awsRegion = window.awsRegion || '';
-                const clientId = window.PageConfig?.clientId || '';
+                const clientId = window.PageConfig?.clientId || window.PageConfig?.partnerId || '';
 
                 if (awsBucket && awsRegion && clientId && myfile) {
                     const fileUrl = `https://${awsBucket}.s3.${awsRegion}.amazonaws.com/${clientId}/${docType}/${myfile}`;

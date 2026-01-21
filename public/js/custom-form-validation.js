@@ -136,7 +136,7 @@ function customValidate(formName, savetype = '')
 			var j = 0; //for serial wise errors shown	
 			if($.inArray("required", splitDataValidation) !== -1) //for required
 				{
-					var for_class = $(this).attr('class');	
+					var for_class = $(this).attr('class') || '';	
 					if(for_class.indexOf('multiselect_subject') != -1)
 						{
 							var value = $.trim($(this).val());	

@@ -234,6 +234,23 @@
 .invoice_info ul li{color: #000;}
 .invoice_info ul li span{width:30%;display: inline-block;font-weight: 600;}
 
+.invoice-line-items{border-collapse: separate;border-spacing: 0 6px;}
+.invoice-line-items thead th{background:#f6f7fb;color:#4a4a4a;font-size:13px;font-weight:600;border-bottom:1px solid #e6e8f0;}
+.invoice-line-items tbody tr{background:#fff;}
+.invoice-line-items tbody td{padding:6px 10px;vertical-align: middle;line-height:20px;}
+.invoice-line-items tbody td:first-child{width:28px;text-align:center;color:#9aa2b1;}
+.invoice-line-items tbody td:last-child{width:28px;text-align:center;}
+.invoice-line-items .form-control{height:34px;padding:6px 10px;line-height:20px;margin:0;}
+.invoice-line-items .income_type,
+.invoice-line-items .tax_per{min-width:140px;}
+.invoice-line-items .amount,
+.invoice-line-items .tax_amt,
+.invoice-line-items .totlamt{text-align:right;}
+.invoice-line-items .tax_amt,
+.invoice-line-items .totlamt{background-color:#fdfdff;}
+.invoice-line-items .removeitems{color:#dc3545;}
+.invoice-line-items .removeitems:hover{color:#a71d2a;}
+
 .bottom_aligned{margin-top:20px;}  
 .invoiceNetResult{background-color: #fcfcfc;border: 1px dashed #dbdbdb;display: inline-block;margin-top: 22px;padding: 10px;width: calc(50% - 10px);}
 .cus_col_7 .invoiceNetResult:first-child{margin-right:15px;}

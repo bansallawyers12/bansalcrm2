@@ -43,7 +43,7 @@ jQuery(document).ready(function($){
 
     $(document).delegate('input[name=document_upload]', 'change', function() {
         $('.popuploader').show();
-        var formData = new FormData($('#upload_form')[0]);
+        var formData = new FormData($(this).closest('form')[0]);
         $.ajax({
             url: App.getUrl('partnersUploadPartnerDocument') || (siteUrl + '/upload-partner-document-upload'),
             type:'POST',

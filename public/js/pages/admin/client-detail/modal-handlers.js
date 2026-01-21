@@ -15,13 +15,12 @@
             $('#opencommissionmodal').modal('show');
         });
 
-        // Ensure Select2 inside Commission Invoice modal works correctly
-        $(document).on('shown.bs.modal', '#opencommissionmodal', function(){
+        function initModalSelect2(modalSelector) {
             if (typeof $.fn.select2 !== 'function') {
                 return;
             }
 
-            var $modal = $('#opencommissionmodal');
+            var $modal = $(modalSelector);
             $modal.find('select.select2').each(function(){
                 var $select = $(this);
                 if ($select.hasClass('select2-hidden-accessible')) {
@@ -31,11 +30,21 @@
                     dropdownParent: $modal
                 });
             });
+        }
+
+        // Ensure Select2 inside Commission Invoice modal works correctly
+        $(document).on('shown.bs.modal', '#opencommissionmodal', function(){
+            initModalSelect2('#opencommissionmodal');
         });
 
         // General Invoice modal handler
         $(document).on('click', '.opengeneralinvoice', function(){
             $('#opengeneralinvoice').modal('show');
+        });
+
+        // Ensure Select2 inside General Invoice modal works correctly
+        $(document).on('shown.bs.modal', '#opengeneralinvoice', function(){
+            initModalSelect2('#opengeneralinvoice');
         });
 
         // Tags popup modal handler
