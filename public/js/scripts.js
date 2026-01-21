@@ -384,7 +384,11 @@ $(function () {
 
   // Select2
   if (jQuery().select2) {
-    $(".select2").select2();
+    $(".select2")
+      .not(".js-data-example-ajaxcc")
+      .not(".js-data-example-ajaxccd")
+      .not(".js-data-example-ajaxccapp")
+      .select2();
   }
 
   // Selectric

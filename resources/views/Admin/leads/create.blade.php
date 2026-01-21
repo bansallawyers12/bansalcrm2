@@ -1125,10 +1125,6 @@ $(document).ready(function($){
     <script src="{{ asset('js/address-autocomplete.js') }}"></script>
 @endpush
 
-@section('scripts')
-<script src="{{ asset('js/address-autocomplete.js') }}"></script>
-@endsection
-
 <!-- Naati/PY Checkbox Handling -->
 <script>
 jQuery(document).ready(function($){

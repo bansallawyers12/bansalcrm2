@@ -64,7 +64,7 @@ use App\Http\Controllers\Controller;
 			</div>
 			<div class="row">
 				<div class="col-3 col-md-3 col-lg-3">
-					<div class="card author-box">
+					<div class="card author-box left_section_upper">
 						<div class="card-body">
 							<div class="author-box-center">
 							<span class="author-avtar" style="background: rgb(68, 182, 174);"><b>{{substr($fetchedData->partner_name, 0, 1)}}</b></span>
@@ -215,6 +215,7 @@ use App\Http\Controllers\Controller;
 									'contacts',
 									'noteterm',
 									'documents',
+									'notuseddocuments',
 									'accounts',
 									'conversations',
 									'promotions',
@@ -260,6 +261,9 @@ use App\Http\Controllers\Controller;
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'documents'])}}" id="documents-tab" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Documents</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ $activeTab === 'notuseddocuments' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'notuseddocuments'])}}" id="notuseddocuments-tab" role="tab" aria-controls="notuseddocuments" aria-selected="{{ $activeTab === 'notuseddocuments' ? 'true' : 'false' }}">Not Used Documents</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'accounts'])}}" id="accounts-tab" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
@@ -1040,6 +1044,91 @@ use App\Http\Controllers\Controller;
 												</div>
 											</div>
 										</div>
+									</div>
+								</div>
+								<div class="tab-pane fade <?php echo ($activeTab === 'notuseddocuments') ? 'show active' : ''; ?>" id="notuseddocuments" role="tabpanel" aria-labelledby="notuseddocuments-tab">
+									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
+										<div class="">
+											<table class="table text_wrap">
+												<thead>
+													<tr>
+														<th>Checklist</th>
+														<th>Added By</th>
+														<th>File Name</th>
+														<th></th>
+													</tr>
+												</thead>
+												<tbody class="tdata notuseddocumnetlist">
+													<?php
+													$fetchd = \App\Models\Document::where('client_id', $fetchedData->id)
+														->where('not_used_doc', 1)
+														->where('type', 'partner')
+														->where('doc_type', 'documents')
+														->orderBy('updated_at', 'DESC')
+														->get();
+													foreach($fetchd as $notuseKey=>$fetch)
+													{
+														$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+														?>
+														<tr class="drow" id="id_{{$fetch->id}}">
+															<td style="white-space: initial;"><?php echo $fetch->checklist; ?></td>
+															<td style="white-space: initial;">
+																<?php
+																	echo $admin->first_name. "<br>";
+																	echo date('d/m/Y', strtotime($fetch->created_at));
+																?>
+															</td>
+															<td style="white-space: initial;">
+																<?php if( isset($fetch->file_name) && $fetch->file_name !=""){ ?>
+																	<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
+																		<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-notuseddocumentlist-partner')">
+																				<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+																			</a>
+																		<?php } else {  //For old file upload
+																			$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+																			$myawsfile = $url.$fetchedData->id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
+																			?>
+																			<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-notuseddocumentlist-partner')">
+																				<i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+																			</a>
+																		<?php } ?>
+																	</div>
+																<?php
+																}
+																else
+																{
+																	echo "N/A";
+																}?>
+															</td>
+															<td>
+																<div class="dropdown d-inline">
+																	<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+																	<div class="dropdown-menu">
+																		<?php
+																		$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
+																		?>
+																		<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
+																			<a target="_blank" class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Preview</a>
+																		<?php } else {  //For old file upload ?>
+																			<a target="_blank" class="dropdown-item" href="<?php echo $url.$fetchedData->id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">Preview</a>
+																		<?php } ?>
+
+																		<a data-id="{{$fetch->id}}" class="dropdown-item backtodoc" data-doctype="documents" data-href="backtodoc" href="javascript:;">Back To Document</a>
+																	</div>
+																</div>
+															</td>
+														</tr>
+													<?php
+													} //end foreach?>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<!-- Container for File Preview -->
+									<div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist-partner">
+										<p style="color:#000;">Click on a file to preview it here.</p>
 									</div>
 								</div>
 								<div class="tab-pane fade <?php echo ($activeTab === 'accounts') ? 'show active' : ''; ?>" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
@@ -2772,6 +2861,45 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
+<div id="confirmNotUseDocModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
+	<div class="modal-dialog">
+		<div class="modal-content popUp">
+			<div class="modal-body text-center">
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"></button>
+				<h4 class="modal-title text-center message col-v-5">Do you want to send this document in Not Use Tab?</h4>
+				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Send</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="confirmBackToDocModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
+	<div class="modal-dialog">
+		<div class="modal-content popUp">
+			<div class="modal-body text-center">
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"></button>
+				<h4 class="modal-title text-center message col-v-5">Do you want to send this in document Tab again?</h4>
+				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Send</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="confirmDocModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
+	<div class="modal-dialog">
+		<div class="modal-content popUp">
+			<div class="modal-body text-center">
+				<button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn-close"></button>
+				<h4 class="modal-title text-center message col-v-5">Do you want to verify this doc?</h4>
+				<button type="submit" style="margin-top: 40px;" class="button btn btn-danger accept">Verify</button>
+				<button type="button" style="margin-top: 40px;" data-bs-dismiss="modal" class="button btn btn-secondary cancel">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2941,6 +3069,8 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 
 {{-- Main partner-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/partner-detail.js') }}"></script>

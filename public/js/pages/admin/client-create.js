@@ -108,14 +108,18 @@
      * Initialize Select2 for related files
      */
     function initRelatedFilesSelect2() {
-        if (typeof $.fn.select2 === 'undefined') {
-            console.warn('Select2 is not loaded');
+        console.log('Initializing Related Files Select2 with URL:', getRecipientsUrl);
+
+        var $relatedSelect = $('.js-data-example-ajaxcc');
+        if (!$relatedSelect.length) {
             return;
         }
 
-        console.log('Initializing Related Files Select2 with URL:', getRecipientsUrl);
+        if ($relatedSelect.data('select2')) {
+            $relatedSelect.select2('destroy');
+        }
 
-        $('.js-data-example-ajaxcc').select2({
+        $relatedSelect.select2({
             multiple: true,
             closeOnSelect: false,
             minimumInputLength: 1,
@@ -144,6 +148,42 @@
         });
 
         console.log('Related Files Select2 initialized successfully');
+    }
+
+    function hasAjaxSelect2($select) {
+        var instance = $select.data('select2');
+        if (!instance || !instance.options || !instance.options.options) {
+            return false;
+        }
+        var ajaxOptions = instance.options.options.ajax;
+        return !!(ajaxOptions && ajaxOptions.url);
+    }
+
+    function ensureRelatedFilesSelect2(maxAttempts) {
+        var attempts = 0;
+        var limit = maxAttempts || 50; // ~2.5s at 50ms
+
+        var check = function() {
+            attempts += 1;
+            var $relatedSelect = $('.js-data-example-ajaxcc');
+            if (!$relatedSelect.length) {
+                return;
+            }
+
+            if (typeof $.fn.select2 === 'undefined') {
+                if (attempts < limit) {
+                    return setTimeout(check, 50);
+                }
+                console.warn('Select2 is not loaded');
+                return;
+            }
+
+            if (!hasAjaxSelect2($relatedSelect)) {
+                initRelatedFilesSelect2();
+            }
+        };
+
+        check();
     }
 
     /**
@@ -180,8 +220,14 @@
         // Initialize email validation
         initEmailValidation();
 
-        // Initialize Select2 for related files
-        initRelatedFilesSelect2();
+        // Initialize Select2 for related files (robust against late scripts)
+        ensureRelatedFilesSelect2();
+        $(window).on('load', function() {
+            ensureRelatedFilesSelect2(20);
+        });
+        setTimeout(function() {
+            ensureRelatedFilesSelect2(20);
+        }, 1000);
 
         // Initialize subagent toggle
         initSubagentToggle();

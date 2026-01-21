@@ -817,15 +817,16 @@ class ClientController extends Controller
 		$squery = $request->q ?? '';
 		if($squery != ''){
 			try {
+				$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 				$clients = Admin::where('is_archived', '=', 0)
 					->where('role', '=', 7)
 					->where(function($query) use ($squery) {
-						$query->where('email', 'ilike', '%'.$squery.'%')
-							->orWhere('first_name', 'ilike', '%'.$squery.'%')
-							->orWhere('last_name', 'ilike', '%'.$squery.'%')
-							->orWhere('client_id', 'ilike', '%'.$squery.'%')
-							->orWhere('phone', 'ilike', '%'.$squery.'%')
-							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', '%'.$squery.'%');
+						$query->where('email', $operator, '%'.$squery.'%')
+							->orWhere('first_name', $operator, '%'.$squery.'%')
+							->orWhere('last_name', $operator, '%'.$squery.'%')
+							->orWhere('client_id', $operator, '%'.$squery.'%')
+							->orWhere('phone', $operator, '%'.$squery.'%')
+							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, '%'.$squery.'%');
 					})
 					->get();
 
@@ -855,16 +856,17 @@ class ClientController extends Controller
 	public function getonlyclientrecipients(Request $request){
 		$squery = $request->q;
 		if($squery != ''){
+			$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 			$clients = Admin::where('is_archived', '=', 0)
 				->where('role', '=', 7)
 				->where(function($query) use ($squery) {
 					return $query
-						->where('email', 'ilike', '%'.$squery.'%')
-						->orwhere('first_name', 'ilike','%'.$squery.'%')
-						->orwhere('last_name', 'ilike','%'.$squery.'%')
-						->orwhere('client_id', 'ilike','%'.$squery.'%')
-						->orwhere('phone', 'ilike','%'.$squery.'%')
-						->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', "%".$squery."%");
+						->where('email', $operator, '%'.$squery.'%')
+						->orwhere('first_name', $operator, '%'.$squery.'%')
+						->orwhere('last_name', $operator, '%'.$squery.'%')
+						->orwhere('client_id', $operator, '%'.$squery.'%')
+						->orwhere('phone', $operator, '%'.$squery.'%')
+						->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, "%".$squery."%");
 				})
 				->get();
 
