@@ -820,7 +820,7 @@ class ClientController extends Controller
 				$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 				$clients = Admin::where('is_archived', '=', 0)
 					->where('role', '=', 7)
-					->where(function($query) use ($squery) {
+					->where(function($query) use ($squery, $operator) {
 						$query->where('email', $operator, '%'.$squery.'%')
 							->orWhere('first_name', $operator, '%'.$squery.'%')
 							->orWhere('last_name', $operator, '%'.$squery.'%')
@@ -859,7 +859,7 @@ class ClientController extends Controller
 			$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 			$clients = Admin::where('is_archived', '=', 0)
 				->where('role', '=', 7)
-				->where(function($query) use ($squery) {
+				->where(function($query) use ($squery, $operator) {
 					return $query
 						->where('email', $operator, '%'.$squery.'%')
 						->orwhere('first_name', $operator, '%'.$squery.'%')

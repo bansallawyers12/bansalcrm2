@@ -704,7 +704,7 @@
 							<div class="content-grid">
 								<div class="form-group" style="grid-column: span 2;">
 									<label for="related_files">Similar Related Files</label>
-									<select class="form-control js-data-example-ajaxcc select2" name="related_files[]" multiple>
+									<select class="form-control js-data-example-ajaxcc" name="related_files[]" multiple>
 									</select>
 									@if ($errors->has('related_files'))
 										<span class="text-danger">{{ @$errors->first('related_files') }}</span>
@@ -1112,6 +1112,91 @@ $(document).ready(function($){
             $('.is_subagent').hide();
         }
     });
+    
+    // Initialize Related Files Select2 with AJAX - Must run after all other scripts
+    setTimeout(function() {
+        var $relatedFiles = $('.js-data-example-ajaxcc');
+        
+        console.log('Found elements:', $relatedFiles.length);
+        
+        // Destroy any existing Select2 instance and remove ONLY its container
+        if ($relatedFiles.data('select2')) {
+            $relatedFiles.select2('destroy');
+        }
+        
+        // Remove only the orphaned container for THIS specific element
+        $relatedFiles.next('.select2-container').remove();
+        
+        // Make sure the original select is visible
+        $relatedFiles.show();
+        
+        // Initialize with AJAX configuration
+        $relatedFiles.select2({
+            multiple: true,
+            closeOnSelect: false,
+            minimumInputLength: 1,
+            placeholder: 'Search for clients...',
+            ajax: {
+                url: '{{ url("/clients/get-recipients") }}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    console.log('Searching for:', params.term);
+                    return {
+                        q: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data, params) {
+                    console.log('Raw response:', data);
+                    console.log('Items:', data.items);
+                    console.log('Items length:', data.items ? data.items.length : 0);
+                    
+                    // Make sure each item has id and text properties
+                    var results = [];
+                    if (data.items && data.items.length > 0) {
+                        results = data.items.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.text || item.name || 'Unknown',
+                                name: item.name,
+                                email: item.email,
+                                status: item.status
+                            };
+                        });
+                    }
+                    
+                    console.log('Processed results:', results);
+                    
+                    return {
+                        results: results,
+                        pagination: {
+                            more: false
+                        }
+                    };
+                },
+                cache: true
+            },
+            templateResult: function(repo) {
+                if (repo.loading) {
+                    return 'Searching...';
+                }
+                
+                var $container = $('<div class="select2-result-repository">');
+                $container.append($('<div>').text(repo.name || repo.text));
+                if (repo.email) {
+                    $container.append($('<small style="display:block;color:#666;">').text(repo.email));
+                }
+                
+                return $container;
+            },
+            templateSelection: function(repo) {
+                return repo.name || repo.text;
+            }
+        });
+        
+        console.log('Related Files Select2 initialized with AJAX');
+    }, 500);
 });
 </script>
 
