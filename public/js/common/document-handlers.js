@@ -184,8 +184,14 @@ if (typeof window !== 'undefined') {
 // DOCUMENT UPLOAD BUTTON HANDLERS
 // ============================================================================
 // Trigger file input when "Add Document" button is clicked in upload_client_receipt_document containers
-// This handles: Client Receipt, Student Invoice, Record Invoice, Record Payment documents
+// This handles: Student Invoice, Record Invoice, Record Payment documents
+// NOTE: Client Receipt uses .upload-receipt-doc-btn which has its own handler in blade-inline.js
 $(document).on('click', '.upload_client_receipt_document .btn-primary, .upload_client_receipt_document .btn-outline-primary', function(e) {
+    // Skip if this is the upload-receipt-doc-btn (has its own handler)
+    if ($(this).hasClass('upload-receipt-doc-btn')) {
+        return;
+    }
+    
     e.preventDefault();
     var fileInput = $(this).closest('.upload_client_receipt_document').find('.docclientreceiptupload');
     if (fileInput.length) {
