@@ -1956,10 +1956,6 @@ select.form-control:focus {
 }
 
 /* Prevent child elements from interfering with drag events */
-.bulk-upload-dropzone * {
-	pointer-events: none;
-}
-
 .bulk-upload-dropzone:hover {
 	border-color: #2563eb !important;
 	background-color: #eff6ff !important;

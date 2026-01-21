@@ -146,44 +146,78 @@ jQuery(document).ready(function($){
         }
     });
 
-    // Track drag enter/leave state to prevent flickering on child elements
-    let dragCounter = 0;
+    function isFileDrag(e) {
+        const dt = e.originalEvent && e.originalEvent.dataTransfer;
+        if (!dt || !dt.types) {
+            return false;
+        }
+        if (typeof dt.types.indexOf === 'function') {
+            return dt.types.indexOf('Files') !== -1;
+        }
+        return Array.from(dt.types).includes('Files');
+    }
 
+    // Allow file drag events on the page so drop works reliably
+    $(document).on('dragenter dragover', function(e) {
+        if (isFileDrag(e)) {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('drop', function(e) {
+        if (isFileDrag(e)) {
+            e.preventDefault();
+        }
+    });
+
+    // Keep drag state per dropzone to avoid flicker
     $(document).on('dragenter', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dragCounter++;
-        $(this).addClass('drag_over');
+        if (e.originalEvent && e.originalEvent.dataTransfer) {
+            e.originalEvent.dataTransfer.dropEffect = 'copy';
+        }
+        const $zone = $(this);
+        const count = ($zone.data('drag-count') || 0) + 1;
+        $zone.data('drag-count', count).addClass('drag_over');
     });
 
     $(document).on('dragover', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        // Ensure drag_over class stays on during drag
-        if (!$(this).hasClass('drag_over')) {
-            $(this).addClass('drag_over');
+        if (e.originalEvent && e.originalEvent.dataTransfer) {
+            e.originalEvent.dataTransfer.dropEffect = 'copy';
         }
+        $(this).addClass('drag_over');
     });
 
     $(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dragCounter--;
-        // Only remove class when completely leaving the dropzone
-        if (dragCounter === 0) {
-            $(this).removeClass('drag_over');
+        const $zone = $(this);
+        const count = Math.max(($zone.data('drag-count') || 1) - 1, 0);
+        $zone.data('drag-count', count);
+        if (count === 0) {
+            $zone.removeClass('drag_over');
         }
     });
 
     $(document).on('drop', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dragCounter = 0; // Reset counter
-        $(this).removeClass('drag_over');
+        const $zone = $(this);
+        $zone.data('drag-count', 0).removeClass('drag_over');
 
         const files = e.originalEvent.dataTransfer.files;
         if (files && files.length > 0) {
             handleBulkFilesSelectedPartner(files);
+        }
+    });
+
+    // Prevent browser from opening file on drop outside the dropzone
+    $(document).on('dragover drop', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
         }
     });
 

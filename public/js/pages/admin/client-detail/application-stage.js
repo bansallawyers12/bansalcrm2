@@ -390,6 +390,52 @@ jQuery(document).ready(function($){
         });
     });
 
+    // Handler for "Add Fee" button inside latest fee modal
+    $(document).on('click', '#new_fee_option_latest .fee_option_addbtn_latest a', function(e){
+        e.preventDefault();
+
+        var $modal = $('#new_fee_option_latest');
+        var $tbody = $modal.find('#productitemviewlatest tbody.tdata');
+        var $templateRow = $tbody.find('tr.add_fee_option').last();
+
+        if ($templateRow.length === 0) {
+            return;
+        }
+
+        var $newRow = $templateRow.clone();
+        var defaultCommission = $modal.find('#commission_percentage').val() || '';
+
+        $newRow.find('input').each(function(){
+            var $input = $(this);
+            var type = ($input.attr('type') || '').toLowerCase();
+
+            if (type === 'hidden') {
+                if ($input.hasClass('commission_cal_hidden') || $input.hasClass('commission_claimed_hidden')) {
+                    $input.val('');
+                }
+                return;
+            }
+
+            if ($input.hasClass('commission_percentage')) {
+                $input.val(defaultCommission);
+                return;
+            }
+
+            $input.val('');
+        });
+
+        $newRow.find('select').val('');
+
+        $tbody.append($newRow);
+
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr($newRow.find('.date_paid')[0], {
+                dateFormat: 'Y-m-d',
+                allowInput: true
+            });
+        }
+    });
+
     console.log('[application-stage.js] Application stage handlers initialized');
 });
 
