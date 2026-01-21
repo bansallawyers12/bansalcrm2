@@ -487,13 +487,16 @@ class ClientReceiptController extends Controller
         $id = $requestData['id'];
         $record_get = DB::table('account_client_receipts')->where('receipt_type',1)->where('id',$id)->get();
         if(!empty($record_get)) {
+            // Return data in consistent format with both property names for backward compatibility
             $response['record_get'] = $record_get;
+            $response['requestData'] = $record_get; // Add this for consistency with frontend expectations
             $response['status'] 	= 	true;
             $response['message']	=	'Record is exist';
             $last_record_id = DB::table('account_client_receipts')->where('receipt_type',1)->max('id');
             $response['last_record_id'] = $last_record_id;
         }else{
             $response['record_get'] = array();
+            $response['requestData'] = array(); // Add this for consistency
             $response['status'] 	= 	false;
             $response['message']	=	'Record is not exist.Please try again';
             $response['last_record_id'] = 0;

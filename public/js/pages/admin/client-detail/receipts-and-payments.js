@@ -60,6 +60,8 @@
             if ($('#create_client_receipt').length) {
                 $('#function_type').val('add');
                 $('#top_value_db').val('');
+                // Update modal title
+                $('#clientReceiptModalLabel').text('Create Client Receipt');
                 // Clear any existing rows from previous edits
                 // Remove only dynamically added rows, keep the template clonedrow
                 $('.productitem tr.product_field_clone').remove();
@@ -148,6 +150,10 @@
             $('#create_client_receipt')[0].reset();
             $('.total_deposit_amount_all_rows').text("");
             $('#sel_client_agent_id').val("").trigger('change');
+            // Reset modal title
+            $('#clientReceiptModalLabel').text('Create Client Receipt');
+            // Reset function type
+            $('#function_type').val('');
 
             if (typeof flatpickr !== 'undefined') {
                 flatpickr('.report_entry_date_fields', {

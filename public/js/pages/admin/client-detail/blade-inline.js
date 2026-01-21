@@ -871,6 +871,9 @@ $(document).on('click', '.updateclientreceipt', function() {
     // Set function_type to 'edit' for updating receipt
     $('#function_type').val('edit');
     
+    // Update modal title
+    $('#clientReceiptModalLabel').text('Edit Client Receipt');
+    
     // Clear any error messages
     $('.custom-error-msg').html('');
     
@@ -898,8 +901,9 @@ $(document).on('click', '.updateclientreceipt', function() {
                 // Clear existing rows
                 $('.productitem').html('');
                 
-                // Populate form with fetched data
-                $.each(obj.requestData, function(index, data) {
+                // Populate form with fetched data - Backend returns 'record_get', not 'requestData'
+                var receiptData = obj.record_get || obj.requestData || [];
+                $.each(receiptData, function(index, data) {
                     var clonedRow = `
                         <tr class="clonedrow">
                             <td>

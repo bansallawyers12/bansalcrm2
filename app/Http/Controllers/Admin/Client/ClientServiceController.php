@@ -364,7 +364,7 @@ class ClientServiceController extends Controller
 					</div>
 					<div class="serv_detail">
 						<h6>Service Details</h6>
-						<?php if($obj->status == 0){ ?><a href="javascript:;" data-id="<?php echo $obj->id; ?>" class="openeditservices"><i class="fa fa-edit"></i></a><?php } ?>
+						<a href="javascript:;" data-id="<?php echo $obj->id; ?>" class="openeditservices"><i class="fa fa-edit"></i></a>
 						<div class="clearfix"></div>
 						<div class="service_list">
 							<ul>
@@ -426,7 +426,7 @@ class ClientServiceController extends Controller
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			?>
 							<h5>Sales Forecast <span>AUD</span></h5>
-							<?php if($obj->status == 0){ ?><a href="javascript:;" data-id="<?php echo $obj->id; ?>" data-client_revenue="<?php echo $client_revenue; ?>" data-partner_revenue="<?php echo $partner_revenue; ?>" data-discounts="<?php echo $discounts; ?>" class="opensaleforcastservice"><i class="fa fa-edit"></i></a><?php } ?>
+							<a href="javascript:;" data-id="<?php echo $obj->id; ?>" data-client_revenue="<?php echo $client_revenue; ?>" data-partner_revenue="<?php echo $partner_revenue; ?>" data-discounts="<?php echo $discounts; ?>" class="opensaleforcastservice"><i class="fa fa-edit"></i></a>
 							<div class="clearfix"></div>
 						</div>
 						<p class="clearfix appsaleforcastserv">
