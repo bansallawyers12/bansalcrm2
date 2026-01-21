@@ -656,36 +656,44 @@ function customValidate(formName, savetype = '')
                                     {
                                         if(obj.requestData){
 											var reqData = obj.requestData;
-                                            var reqData = obj.requestData;
-                                            var awsUrl = obj.awsUrl; //console.log('awsUrl='+awsUrl);
-                                            var printUrl = obj.printUrl; //console.log('printUrl='+printUrl);
-                                            var lastInsertedId = obj.lastInsertedId; //console.log('lastInsertedId='+lastInsertedId);
+                                            var awsUrl = obj.awsUrl;
+                                            var printUrl = obj.printUrl;
+                                            var lastInsertedId = obj.lastInsertedId;
                                             var validate_receipt = obj.validate_receipt;
 
-											//var trRows = "";
+											// Fixed Issue #4: Update existing rows instead of emptying/rebuilding
 											$.each(reqData, function(index, subArray) {
-												$('#TrRow_'+subArray.id).empty();
+												var $existingRow = $('#TrRow_'+subArray.id);
+												
+												if($existingRow.length === 0) {
+													console.error('Row not found for receipt ID:', subArray.id);
+													return; // Skip this iteration
+												}
+												
+												// Build links
+												var awsLink = '';
+												var printLink = '';
+												var editLink = '';
+												
 												if(awsUrl != ""){
-                                                    var awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
-                                                } else {
-                                                    var awsLink = '';
+                                                    awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
                                                 }
 
                                                 if(printUrl != ""){
-                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
-                                                } else {
-                                                    var printLink = '';
+                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
                                                 }
 
                                                 if(validate_receipt != "1"){
-                                                	var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
-												} else {
-                                                    var editLink = '';
-                                                }
+                                                	editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
+												}
 
-                                                var trRows = "<td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+"</td>";
-
-												$('#TrRow_'+subArray.id).append(trRows);
+												// Update each TD cell instead of emptying the entire row
+												$existingRow.find('td:eq(0)').html(subArray.trans_date+" "+awsLink);
+												$existingRow.find('td:eq(1)').html(subArray.entry_date);
+												$existingRow.find('td:eq(2)').html(subArray.trans_no);
+												$existingRow.find('td:eq(3)').html(subArray.payment_method);
+												$existingRow.find('td:eq(4)').html(subArray.description);
+												$existingRow.find('td:eq(5)').html("$"+subArray.deposit_amount+" "+printLink+" "+editLink);
 											});
 										}
                                     }

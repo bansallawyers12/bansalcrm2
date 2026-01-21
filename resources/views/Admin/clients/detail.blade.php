@@ -3,6 +3,16 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
+<style>
+/* Fix: Make Select2 dropdown appear in front of modal */
+.select2-container--open {
+    z-index: 1060 !important;
+}
+
+.select2-dropdown {
+    z-index: 1060 !important;
+}
+</style>
 @endpush
 
 @section('content')

@@ -6,6 +6,15 @@
 <style>
     .filter_panel {background: #f7f7f7;margin-bottom: 10px;border: 1pxsolid #eee;display: none;}
 .card .card-body .filter_panel { padding: 20px;}
+
+/* Fix: Make Select2 dropdown appear in front of modal */
+.select2-container--open {
+    z-index: 1060 !important;
+}
+
+.select2-dropdown {
+    z-index: 1060 !important;
+}
 </style>
 <!-- Main Content -->
 <div class="main-content">

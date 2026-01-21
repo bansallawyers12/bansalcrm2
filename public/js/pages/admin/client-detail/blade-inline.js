@@ -859,48 +859,9 @@ function escapeHtml(text) {
 // CLIENT RECEIPT MODAL HANDLERS
 // ============================================================================
 
-// Handle "Create Client Receipt" button click
-$(document).on('click', '.createclientreceipt', function() {
-    // Reset form
-    $('#create_client_receipt')[0].reset();
-    
-    // Set function_type to 'add' for new receipt
-    $('#function_type').val('add');
-    
-    // Clear any existing rows except the first one
-    $('.productitem tr.clonedrow:not(:first)').remove();
-    
-    // Clear the first row values
-    $('.productitem tr.clonedrow:first').find('input, select').val('');
-    $('.productitem tr.clonedrow:first').find('.unique_trans_no').val('');
-    
-    // Reset totals
-    $('.total_deposit_amount_all_rows').html('');
-    
-    // Clear any error messages
-    $('.custom-error-msg').html('');
-    
-    // Reset document upload section
-    $('.docclientreceiptupload').val('');
-    $('.selected-file-info').hide();
-    $('.upload-receipt-doc-btn').html('<i class="fa fa-plus"></i> Add Document');
-    $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
-    
-    // Initialize flatpickr for date fields if not already initialized
-    if (typeof flatpickr !== 'undefined') {
-        $('.report_date_fields, .report_entry_date_fields').each(function() {
-            if (!this._flatpickr) {
-                flatpickr(this, {
-                    dateFormat: 'd/m/Y',
-                    allowInput: true
-                });
-            }
-        });
-    }
-    
-    // Open the modal
-    $('#createclientreceiptmodal').modal('show');
-});
+// NOTE: The "Create Client Receipt" button click handler has been moved to
+// receipts-and-payments.js to avoid duplicate modal opening.
+// This handler was causing the modal to open twice (Issue #3).
 
 // Handle "Edit Client Receipt" button click (from the pencil icon)
 $(document).on('click', '.updateclientreceipt', function() {
