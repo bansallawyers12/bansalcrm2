@@ -146,21 +146,39 @@ jQuery(document).ready(function($){
         }
     });
 
+    // Track drag enter/leave state to prevent flickering on child elements
+    let dragCounter = 0;
+
+    $(document).on('dragenter', '.bulk-upload-dropzone', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter++;
+        $(this).addClass('drag_over');
+    });
+
     $(document).on('dragover', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        $(this).addClass('drag_over');
+        // Ensure drag_over class stays on during drag
+        if (!$(this).hasClass('drag_over')) {
+            $(this).addClass('drag_over');
+        }
     });
 
     $(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        $(this).removeClass('drag_over');
+        dragCounter--;
+        // Only remove class when completely leaving the dropzone
+        if (dragCounter === 0) {
+            $(this).removeClass('drag_over');
+        }
     });
 
     $(document).on('drop', '.bulk-upload-dropzone', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        dragCounter = 0; // Reset counter
         $(this).removeClass('drag_over');
 
         const files = e.originalEvent.dataTransfer.files;

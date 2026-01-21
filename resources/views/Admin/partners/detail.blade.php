@@ -2,6 +2,7 @@
 @section('title', 'Partner Detail')
 
 @section('content')
+<link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
