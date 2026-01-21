@@ -322,16 +322,30 @@ jQuery(document).ready(function($){
                                     method: "GET",
                                     dataType: "json",
                                     data: {
-                                        start_date: dateStr,
+                                        from: dateStr,
+                                        datetype: 'start',
                                         appid: appid
                                     },
                                     success: function(result) {
                                         console.log("Start date updated");
-                                        // Update the displayed date
-                                        var date = new Date(dateStr);
-                                        $('.app_start_date .month').text(date.toLocaleString('default', { month: 'short' }));
-                                        $('.app_start_date .day').text(('0' + date.getDate()).slice(-2));
-                                        $('.app_start_date .year').text(date.getFullYear());
+                                        // Update the displayed date in the detail view
+                                        if (result.status && result.dates) {
+                                            $('.app_start_date .month').text(result.dates.month);
+                                            $('.app_start_date .day').text(result.dates.date);
+                                            $('.app_start_date .year').text(result.dates.year);
+                                        }
+                                        // Refresh the applications table to show the updated date
+                                        var clientId = App.getPageConfig('clientId');
+                                        var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
+                                        $.ajax({
+                                            url: url,
+                                            type: 'GET',
+                                            datatype: 'json',
+                                            data: {id: clientId},
+                                            success: function(responses) {
+                                                $('.applicationtdata').html(responses);
+                                            }
+                                        });
                                     },
                                     error: function() {
                                         console.error("Error updating start date");
@@ -353,16 +367,30 @@ jQuery(document).ready(function($){
                                     method: "GET",
                                     dataType: "json",
                                     data: {
-                                        end_date: dateStr,
+                                        from: dateStr,
+                                        datetype: 'end',
                                         appid: appid
                                     },
                                     success: function(result) {
                                         console.log("End date updated");
-                                        // Update the displayed date
-                                        var date = new Date(dateStr);
-                                        $('.app_end_date .month').text(date.toLocaleString('default', { month: 'short' }));
-                                        $('.app_end_date .day').text(('0' + date.getDate()).slice(-2));
-                                        $('.app_end_date .year').text(date.getFullYear());
+                                        // Update the displayed date in the detail view
+                                        if (result.status && result.dates) {
+                                            $('.app_end_date .month').text(result.dates.month);
+                                            $('.app_end_date .day').text(result.dates.date);
+                                            $('.app_end_date .year').text(result.dates.year);
+                                        }
+                                        // Refresh the applications table to show the updated date
+                                        var clientId = App.getPageConfig('clientId');
+                                        var url = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
+                                        $.ajax({
+                                            url: url,
+                                            type: 'GET',
+                                            datatype: 'json',
+                                            data: {id: clientId},
+                                            success: function(responses) {
+                                                $('.applicationtdata').html(responses);
+                                            }
+                                        });
                                     },
                                     error: function() {
                                         console.error("Error updating end date");

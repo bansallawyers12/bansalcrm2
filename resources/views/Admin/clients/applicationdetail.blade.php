@@ -523,7 +523,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</p>
 
             <div class="divider"></div>
-			<div class="cus_prod_fees ">
+			<div class="cus_prod_fees">
 				<h5>Commission Status <span>AUD</span></h5>
 				<?php
 			$client_revenue = '0.00';
@@ -540,12 +540,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			}
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			?>
-				<!--<a href="javascript:;" data-id="{{$fetchData->id}}" data-client_revenue="{{$client_revenue}}" data-partner_revenue="{{$partner_revenue}}" data-discounts="{{$discounts}}" class="opensaleforcast"><i class="fa fa-edit"></i></a>-->
-              
-              <a href="javascript:;" data-id="{{$fetchData->id}}" class="openpaymentfeeLatest"><i class="fa fa-edit"></i></a>
-
-				
-				
+				<a href="javascript:;" style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-id="{{$fetchData->id}}" class="openpaymentfeeLatest btn btn-primary btn-sm float-end"><i class="fa fa-plus"></i> Add Fee</a>
 				<div class="clearfix"></div>
 			</div>
           
