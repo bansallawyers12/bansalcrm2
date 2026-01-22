@@ -548,7 +548,6 @@ use App\Http\Controllers\Controller;
 									'activities',
 									'noteterm',
 									'application',
-									'interested_service',
 									'documents',
 									'migrationdocuments',
 									'alldocuments',
@@ -587,9 +586,6 @@ use App\Http\Controllers\Controller;
 
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="application" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'interested_service' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="interested_service" id="interested_service-tab" href="#interested_service" role="tab" aria-controls="interested_service" aria-selected="{{ $activeTab === 'interested_service' ? 'true' : 'false' }}">Interested Services</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="documents" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Education Documents</a>
@@ -1047,110 +1043,6 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
                                       
-								<div class="tab-pane fade {{ $activeTab === 'interested_service' ? 'show active' : '' }}" id="interested_service" role="tabpanel" aria-labelledby="interested_service-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_interested_service" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="interest_serv_list">
-
-									<?php
-									$inteservices = \App\Models\InterestedService::where('client_id',$fetchedData->id)->orderby('created_at', 'DESC')->get();
-									foreach($inteservices as $inteservice){
-										$workflowdetail = \App\Models\Workflow::where('id', $inteservice->workflow)->first();
-										 $productdetail = \App\Models\Product::where('id', $inteservice->product)->first();
-										$partnerdetail = \App\Models\Partner::where('id', $inteservice->partner)->first();
-										$PartnerBranch = \App\Models\PartnerBranch::where('id', $inteservice->branch)->first();
-										$admin = \App\Models\Admin::select('id','first_name', 'last_name')->where('id', $inteservice->user_id)->first();
-									?>
-										<div class="interest_column">
-											<?php
-												if($inteservice->status == 1){
-													?>
-													<div class="interest_serv_status status_active">
-														<span>Converted</span>
-													</div>
-													<?php
-												}else{
-													?>
-													<div class="interest_serv_status status_default">
-														<span>Draft</span>
-													</div>
-													<?php
-												}
-												?>
-											<?php
-												$client_revenue = '0.00';
-												if($inteservice->client_revenue != ''){
-													$client_revenue = $inteservice->client_revenue;
-												}
-												$partner_revenue = '0.00';
-												if($inteservice->partner_revenue != ''){
-													$partner_revenue = $inteservice->partner_revenue;
-												}
-												$discounts = '0.00';
-												if($inteservice->discounts != ''){
-													$discounts = $inteservice->discounts;
-												}
-												$nettotal = $client_revenue + $partner_revenue - $discounts;
-
-
-												$totl = 0.00;
-												$net = 0.00;
-												$discount = 0.00;
-												?>
-											<div class="interest_serv_info">
-												<h4>{{@$workflowdetail->name}}</h4>
-												<h6>{{@$productdetail->name}}</h6>
-												<p>{{@$partnerdetail->partner_name}}</p>
-												<p>{{@$PartnerBranch->name}}</p>
-											</div>
-											<div class="interest_serv_fees">
-												<div class="fees_col cus_col">
-													<span class="cus_label">Product Fees</span>
-													<span class="cus_value">AUD: <?php echo number_format($net,2,'.',''); ?></span>
-												</div>
-												<div class="fees_col cus_col">
-													<span class="cus_label">Sales Forecast</span>
-													<span class="cus_value">AUD: <?php echo number_format($nettotal,2,'.',''); ?></span>
-												</div>
-											</div>
-											<div class="interest_serv_date">
-												<div class="date_col cus_col">
-													<span class="cus_label">Expected Start Date</span>
-													<span class="cus_value">{{$inteservice->start_date}}</span>
-												</div>
-												<div class="fees_col cus_col">
-													<span class="cus_label">Expected Win Date</span>
-													<span class="cus_value">{{$inteservice->exp_date}}</span>
-												</div>
-											</div>
-											<div class="interest_serv_row">
-												<div class="serv_user_data">
-													<div class="serv_user_img"><?php echo substr($admin->first_name, 0, 1); ?></div>
-													<div class="serv_user_info">
-														<span class="serv_name">{{$admin->first_name}}</span>
-														<span class="serv_create">{{date('Y-m-d', strtotime($inteservice->exp_date))}}</span>
-													</div>
-												</div>
-												<div class="serv_user_action">
-													<a href="javascript:;" data-id="{{$inteservice->id}}" class="btn btn-primary interest_service_view">View</a>
-													<div class="dropdown d-inline dropdown_ellipsis_icon" style="margin-left:10px;">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-														<?php if($inteservice->status == 0){ ?>
-															<a class="dropdown-item converttoapplication" data-id="{{$inteservice->id}}" href="javascript:;">Create Appliation</a>
-														<?php } ?>
-															<a data-id="{{$inteservice->id}}" data-href="deleteservices" class="dropdown-item deletenote" href="javascript:;">Delete</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php } ?>
-
-									</div>
-									<div class="clearfix"></div>
-								</div>
 								<div class="tab-pane fade {{ $activeTab === 'documents' ? 'show active' : '' }}" id="documents" role="tabpanel" aria-labelledby="documents-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
@@ -2463,14 +2355,6 @@ use App\Http\Controllers\Controller;
 </div>
 
 
-<div class="modal fade  custom_modal" id="interest_service_view" tabindex="-1" role="dialog" aria-labelledby="interest_serviceModalLabel">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content showinterestedservice">
-
-		</div>
-	</div>
-</div>
-
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
@@ -3021,14 +2905,11 @@ use App\Http\Controllers\Controller;
         uploadAllDocument: '{{ url("/upload-alldocument") }}',
         documentsAutoChecklistMatches: '{{ route("clients.documents.getAutoChecklistMatches") }}',
         documentsBulkUpload: '{{ route("clients.documents.bulkUpload") }}',
-        convertApplication: '{{ url("/convertapplication") }}',
-        getServices: '{{ url("/get-services") }}',
         getApplicationLists: '{{ url("/get-application-lists") }}',
         renameDoc: '{{ url("/renamedoc") }}',
         renameAllDoc: '{{ url("/renamealldoc") }}',
         renameChecklistDoc: '{{ url("/renamechecklistdoc") }}',
         getBranch: '{{ url("/getbranch") }}',
-        getInterestedService: '{{ url("/getintrestedservice") }}',
         clientUpdateSession: '{{ url("/clients/update-session-completed") }}',
         clientFetchContact: '{{ url("/clients/fetchClientContactNo") }}',
         sendMail: '{{ url("/sendmail") }}',

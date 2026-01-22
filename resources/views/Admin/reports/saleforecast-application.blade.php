@@ -47,9 +47,6 @@
 								<li class="nav-item">
 									<a class="nav-link active" id="forecast_application-tab"  href="{{URL::to('/report/sale-forecast/application')}}" >Application</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="interested_service-tab"  href="{{URL::to('/report/sale-forecast/interested-service')}}" >Interested Service</a>
-								</li>								
 							</ul>  
 							<div class="tab-content" id="checkinContent">
 								<div class="tab-pane fade show active" id="forecast_application" role="tabpanel" aria-labelledby="forecast_application-tab">

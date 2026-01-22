@@ -2828,14 +2828,6 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
-<div class="modal fade  custom_modal " id="interest_service_view" tabindex="-1" role="dialog" aria-labelledby="interest_serviceModalLabel">
-	<div class="modal-dialog">
-		<div class="modal-content showinterestedservice">
-			
-		</div>
-	</div>
-</div>
-
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
@@ -3007,9 +2999,6 @@ use App\Http\Controllers\Controller;
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',
-        convertApplication: '{{ url("/convertapplication") }}',
-        getInterestedService: '{{ url("/getintrestedservice") }}',
-        getInterestedServiceEdit: '{{ url("/getintrestedserviceedit") }}',
         changePromotionStatus: '{{ url("/change-promotion-status") }}',
         getPromotionEditForm: '{{ url("/getpromotioneditform") }}',
         getPromotions: '{{ url("/get-promotions") }}',
@@ -3034,11 +3023,9 @@ use App\Http\Controllers\Controller;
         getpartnerbranch: '{{ URL::to("/getpartnerbranch") }}',
         getbranchproduct: '{{ URL::to("/getbranchproduct") }}',
         getTemplates: '{{ URL::to("/get-templates") }}',
-        getServices: '{{ url("/get-services") }}',
         getContacts: '{{ url("/get-contacts") }}',
         getBranches: '{{ url("/get-branches") }}',
         deletedocs: '{{ url("/deletedocs") }}',
-        deleteservices: '{{ url("/deleteservices") }}',
         deletecontact: '{{ url("/deletecontact") }}',
         deletebranch: '{{ url("/deletebranch") }}'
     };

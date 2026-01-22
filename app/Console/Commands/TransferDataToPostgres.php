@@ -57,7 +57,6 @@ class TransferDataToPostgres extends Command
                 'account_client_receipts' => 2689,
                 'invoice_payments' => 4805,
                 'leads' => 9802,
-                'interested_services' => 15087,
                 'applications' => 27797,
                 'admins' => 53095,
                 'test_scores' => 55,

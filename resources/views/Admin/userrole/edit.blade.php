@@ -151,29 +151,10 @@
 												<li><label><input type="checkbox" name="module_access[23]" <?php if(array_key_exists('23',  $module_access)) { echo "checked"; } ?> class="clients"> Can only view assigned clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[24]" <?php if(array_key_exists('24',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client.</label></li>
 												<li><label><input type="checkbox" name="module_access[25]" <?php if(array_key_exists('25',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client's comments.</label></li>
-												<li><label><input type="checkbox" name="module_access[26]" <?php if(array_key_exists('26',  $module_access)) { echo "checked"; } ?> class="clients">  Can delete client's interested services.</label></li>
 												<!-- Enquiries/Queries permissions removed - feature not in use -->
 												<!--<li><label><input type="checkbox" name="module_access[27]" <?php if(array_key_exists('27',  $module_access)) { echo "checked"; } ?> class="clients">  Can view, edit and archive enquiries.</label></li>-->
 												<!--<li><label><input type="checkbox" name="module_access[28]" <?php if(array_key_exists('28',  $module_access)) { echo "checked"; } ?> class="clients">  Can view archived enquiries.</label></li>-->
 												<!--<li><label><input type="checkbox" name="module_access[29]" <?php if(array_key_exists('29',  $module_access)) { echo "checked"; } ?> class="clients">  Can restore archived enquiries.</label></li>-->
-											</ul>
-										</div>
-									</div>
-
-									<div class="accordion">
-										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-7">
-											<h4>INTERESTED SERVICES</h4>
-										</div>
-										<div class="accordion-body collapse" id="panel-body-7" data-parent="#accordion">
-											<div class="select_toggle">
-												<a href="javascript:;" data-class="interested_service" class="btn btn-primary select_all">Select All</a>
-												<a href="javascript:;" data-class="interested_service" class="btn btn-secondary deselect_all">Deselect All</a>
-											</div>
-											<ul>
-												<li><label><input type="checkbox" name="module_access[30]" <?php if(array_key_exists('30',  $module_access)) { echo "checked"; } ?> class="interested_service"> Can view commission in product fees of Interested Services.</label></li>
-												<li><label><input type="checkbox" name="module_access[31]" <?php if(array_key_exists('31',  $module_access)) { echo "checked"; } ?> class="interested_service">  Can edit commission in product fees of Interested Services.</label></li>
-												<li><label><input type="checkbox" name="module_access[32]" <?php if(array_key_exists('32',  $module_access)) { echo "checked"; } ?> class="interested_service"> Can view sales forecast of interested services.</label></li>
-												<li><label><input type="checkbox" name="module_access[33]" <?php if(array_key_exists('33',  $module_access)) { echo "checked"; } ?> class="interested_service"> Can edit sales forecast of interested services.</label></li>
 											</ul>
 										</div>
 									</div>

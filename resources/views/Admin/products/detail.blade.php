@@ -370,14 +370,6 @@ use App\Http\Controllers\Controller;
 </div>
  
 
-<div class="modal fade  custom_modal " id="interest_service_view" tabindex="-1" role="dialog" aria-labelledby="interest_serviceModalLabel">
-	<div class="modal-dialog">
-		<div class="modal-content showinterestedservice">
-			
-		</div>
-	</div>
-</div>
-
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
@@ -461,19 +453,7 @@ function getallactivities(){
 				$('#confirmModal').modal('hide');
 				if(res.status){
 					$('#note_id_'+notid).remove();
-					if(delhref == 'deleteservices'){
-						$.ajax({
-						url: site_url+'/get-services',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.interest_serv_list').html(responses);
-						}
-					});
-					}else{
-						getallnotes();
-					}
+					getallnotes();
 					
 					//getallactivities();
 				}
@@ -919,45 +899,6 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 		}
 	}); 
 	
-	$(document).delegate('.converttoapplication','click', function(){
-		var v = $(this).attr('data-id');
-		if(v != ''){
-			$('.popuploader').show();
-			$.ajax({
-				url: '{{URL::to('/convertapplication')}}',
-				type:'GET',
-				data:{cat_id:v,clientid:'{{$fetchedData->id}}'},
-				success:function(response){
-					var res = typeof response === 'string' ? JSON.parse(response) : response;
-					if(!res || res.status !== true){
-						$('.popuploader').hide();
-						alert((res && res.message) ? res.message : 'Failed to create application. Please try again.');
-						return;
-					}
-					$.ajax({
-						url: site_url+'/get-services',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							$('.interest_serv_list').html(responses);
-							$('.popuploader').hide();
-							getallactivities();
-						},
-						error: function(){
-							$('.popuploader').hide();
-							alert('Application created, but failed to refresh services. Please refresh the page.');
-							getallactivities();
-						}
-					});
-				},
-				error: function(){
-					$('.popuploader').hide();
-					alert('Failed to create application. Please try again.');
-				}
-			});
-		}
-	});
-
 // Task system removed - December 2025 (dead code - modal is commented out)
 /*$(document).delegate('.opencreate_task', 'click', function () {
 	$('#tasktermform')[0].reset();
@@ -967,44 +908,6 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 	$('.ifselecttask select').attr('data-valid', '');
 	
 });*/
-	$(document).delegate('.interest_service_view', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedservice')}}',
-			type:'GET',
-			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedservice').html(response);
-			}
-		});
-	});
-	
-	
-	$(document).delegate('.openeditservices', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('hide');
-		$('#eidt_interested_service').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedserviceedit')}}',
-			type:'GET',
-			data:{id:v},
-		success:function(response){
-			$('.popuploader').hide();
-			$('.showinterestedserviceedit').html(response);
-			
-			if (typeof flatpickr !== 'undefined') {
-				flatpickr(".datepicker", {
-					dateFormat: "Y-m-d",
-					allowInput: true
-				});
-			}
-		}
-	});
-});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');

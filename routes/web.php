@@ -359,18 +359,19 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		//General Invoice Start 
 		Route::get('/invoice/general-invoice', [InvoiceController::class, 'general_invoice'])->name('invoice.general-invoice'); 
 		
-		Route::post('/interested-service', [ClientServiceController::class, 'interestedService']); 	 
-		Route::post('/edit-interested-service', [ClientServiceController::class, 'editinterestedService']); 	 
-		Route::get('/get-services', [ClientServiceController::class, 'getServices']); 	 
+		// Interested services removed - create applications directly
+		// Route::post('/interested-service', [ClientServiceController::class, 'interestedService']); 	 
+		// Route::post('/edit-interested-service', [ClientServiceController::class, 'editinterestedService']); 	 
+		// Route::get('/get-services', [ClientServiceController::class, 'getServices']); 	 
 		Route::post('/upload-mail', [ClientMessagingController::class, 'uploadmail']); 	 
 		Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('mail.enhance');
   
         Route::get('/pinnote', [ClientNoteController::class, 'pinnote']); 	 
   	    Route::get('/pinactivitylog', [ClientActivityController::class, 'pinactivitylog']);
   
-		Route::get('/getintrestedservice', [ClientServiceController::class, 'getintrestedservice']); 	 
-		Route::post('/application/saleforcastservice', [ClientServiceController::class, 'saleforcastservice']);
-	Route::get('/getintrestedserviceedit', [ClientServiceController::class, 'getintrestedserviceedit']); 	 
+		// Route::get('/getintrestedservice', [ClientServiceController::class, 'getintrestedservice']); 	 
+		// Route::post('/application/saleforcastservice', [ClientServiceController::class, 'saleforcastservice']);
+		// Route::get('/getintrestedserviceedit', [ClientServiceController::class, 'getintrestedserviceedit']); 	 
 	Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
 		Route::get('/application/invoice/{client_id}/{application}/{invoice_type}', [InvoiceController::class, 'getInvoice']); 	 
 		Route::get('/invoice/view/{id}', [InvoiceController::class, 'show']); 	 
@@ -512,7 +513,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::get('/report/invoice', [ReportController::class, 'invoice'])->name('reports.invoice');
 		Route::get('/report/office-visit', [ReportController::class, 'office_visit'])->name('reports.office-visit');
 		Route::get('/report/sale-forecast/application', [ReportController::class, 'saleforecast_application'])->name('reports.saleforecast-application');  
-		Route::get('/report/sale-forecast/interested-service', [ReportController::class, 'interested_service'])->name('reports.interested-service');
+		// Route::get('/report/sale-forecast/interested-service', [ReportController::class, 'interested_service'])->name('reports.interested-service');
 		// Task system reports removed - December 2025
 		// Route::get('/report/task/personal-task-report', [ReportController::class, 'personal_task'])->name('reports.personal-task-report');
 		// Route::get('/report/task/office-task-report', [ReportController::class, 'office_task'])->name('reports.office-task-report'); 

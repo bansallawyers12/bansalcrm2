@@ -494,14 +494,6 @@ use App\Http\Controllers\Controller;
 </div>
 
 
-<div class="modal fade  custom_modal " id="interest_service_view" tabindex="-1" role="dialog" aria-labelledby="interest_serviceModalLabel">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content showinterestedservice">
-			
-		</div>
-	</div>
-</div>
-
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
@@ -580,19 +572,7 @@ jQuery(document).ready(function($){
 					if(delhref == 'deletedocs'){
 						$('.documnetlist #id_'+notid).remove();
 					} 
-					if(delhref == 'deleteservices'){
-						$.ajax({
-						url: site_url+'/get-services', 
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.interest_serv_list').html(responses);
-						}
-					});
-					}else{
-						getallnotes();
-					}
+					getallnotes();
 					
 					getallactivities();
 				}
@@ -1053,44 +1033,6 @@ $(document).delegate('#intrested_workflow', 'change', function(){
 	$('.ifselecttask select').attr('data-valid', '');
 	
 });*/
-	$(document).delegate('.interest_service_view', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedservice')}}',
-			type:'GET',
-			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedservice').html(response);
-			}
-		});
-	});
-	
-	
-	$(document).delegate('.openeditservices', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('hide');
-		$('#eidt_interested_service').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedserviceedit')}}',
-			type:'GET',
-			data:{id:v},
-		success:function(response){
-			$('.popuploader').hide();
-			$('.showinterestedserviceedit').html(response);
-			
-			if (typeof flatpickr !== 'undefined') {
-				flatpickr(".datepicker", {
-					dateFormat: "Y-m-d",
-					allowInput: true
-				});
-			}
-		}
-	});
-});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');
