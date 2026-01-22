@@ -93,14 +93,14 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/renamedoc', [ClientDocumentController::class, 'renamedoc'])->name('clients.renamedoc');
     Route::get('/document/download/pdf/{id}', [ClientDocumentController::class, 'downloadpdf'])->name('clients.downloadpdf');
     
-    // AJAX routes - services
-    Route::post('/interested-service', [ClientServiceController::class, 'interestedService'])->name('clients.interested-service');
-    Route::post('/edit-interested-service', [ClientServiceController::class, 'editinterestedService'])->name('clients.edit-interested-service');
-    Route::get('/get-services', [ClientServiceController::class, 'getServices'])->name('clients.get-services');
+    // AJAX routes - services (interested services removed)
+    // Route::post('/interested-service', [ClientServiceController::class, 'interestedService'])->name('clients.interested-service');
+    // Route::post('/edit-interested-service', [ClientServiceController::class, 'editinterestedService'])->name('clients.edit-interested-service');
+    // Route::get('/get-services', [ClientServiceController::class, 'getServices'])->name('clients.get-services');
     Route::post('/upload-mail', [ClientMessagingController::class, 'uploadmail'])->name('clients.uploadmail');
-    Route::get('/getintrestedservice', [ClientServiceController::class, 'getintrestedservice'])->name('clients.getintrestedservice');
-    Route::post('/application/saleforcastservice', [ClientServiceController::class, 'saleforcastservice'])->name('clients.saleforcastservice');
-    Route::get('/getintrestedserviceedit', [ClientServiceController::class, 'getintrestedserviceedit'])->name('clients.getintrestedserviceedit');
+    // Route::get('/getintrestedservice', [ClientServiceController::class, 'getintrestedservice'])->name('clients.getintrestedservice');
+    // Route::post('/application/saleforcastservice', [ClientServiceController::class, 'saleforcastservice'])->name('clients.saleforcastservice');
+    // Route::get('/getintrestedserviceedit', [ClientServiceController::class, 'getintrestedserviceedit'])->name('clients.getintrestedserviceedit');
     
     // Session/Check-in routes
     Route::post('/clients/update-session-completed', [ClientController::class, 'updatesessioncompleted'])->name('clients.updatesessioncompleted');

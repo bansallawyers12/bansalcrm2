@@ -127,64 +127,6 @@ jQuery(document).ready(function($){
     });
 
     // ============================================================================
-    // CONVERT TO APPLICATION HANDLER
-    // ============================================================================
-    
-    $(document).on('click', '.converttoapplication', function(){
-        var v = $(this).attr('data-id');
-        if(v != ''){
-            $('.popuploader').show();
-            var url = App.getUrl('convertApplication') || App.getUrl('siteUrl') + '/convertapplication';
-            $.ajax({
-                url: url,
-                type:'GET',
-                data:{cat_id:v, clientid: App.getPageConfig('clientId')},
-                success:function(response){
-                    var res = typeof response === 'string' ? JSON.parse(response) : response;
-                    if(!res || res.status !== true){
-                        $('.popuploader').hide();
-                        alert((res && res.message) ? res.message : 'Failed to create application. Please try again.');
-                        return;
-                    }
-
-                    var servicesUrl = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
-                    $.ajax({
-                        url: servicesUrl,
-                        type:'GET',
-                        data:{clientid: App.getPageConfig('clientId')},
-                        success: function(responses){
-                            $('.interest_serv_list').html(responses);
-                            var appListsUrl = App.getUrl('getApplicationLists') || App.getUrl('siteUrl') + '/get-application-lists';
-                            $.ajax({
-                                url: appListsUrl,
-                                type:'GET',
-                                datatype:'json',
-                                data:{id: App.getPageConfig('clientId')},
-                                success: function(responses){
-                                    $('.applicationtdata').html(responses);
-                                    $('.popuploader').hide();
-                                },
-                                error: function(){
-                                    $('.popuploader').hide();
-                                    alert('Application created, but failed to refresh the application list. Please refresh the page.');
-                                }
-                            });
-                        },
-                        error: function(){
-                            $('.popuploader').hide();
-                            alert('Application created, but failed to refresh the services list. Please refresh the page.');
-                        }
-                    });
-                },
-                error: function(){
-                    $('.popuploader').hide();
-                    alert('Failed to create application. Please try again.');
-                }
-            });
-        }
-    });
-
-    // ============================================================================
     // APPLICATION TAB HANDLERS
     // ============================================================================
     

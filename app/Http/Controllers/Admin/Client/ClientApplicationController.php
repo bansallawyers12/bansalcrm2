@@ -15,9 +15,7 @@ use Auth;
  * Methods to move from ClientsController:
  * - saveapplication
  * - getapplicationlists
- * - convertapplication
  * - savetoapplication
- * - deleteservices
  * - saleforcastservice
  */
 class ClientApplicationController extends Controller
@@ -145,109 +143,4 @@ class ClientApplicationController extends Controller
 
 	}
 
-	public function convertapplication(Request $request){
-		$id = $request->cat_id;
-		$clientid = $request->clientid;
-
-		if(\App\Models\InterestedService::where('client_id',$clientid)->where('id',$id)->exists()){
-			$app = \App\Models\InterestedService::where('client_id',$clientid)->where('id',$id)->first();
-			$workflow = $app->workflow;
-			$workflowstage = \App\Models\WorkflowStage::where('w_id', $workflow)->orderby('id','ASC')->first();
-			if(!$workflowstage){
-				return response()->json([
-					'status' => false,
-					'message' => 'Workflow stage not found. Please try again.'
-				]);
-			}
-			$partner = $app->partner;
-			$branch = $app->branch;
-			$product = $app->product;
-			$client_id = $request->client_id;
-			$status = 0;
-			$stage = $workflowstage->name;
-			$sale_forcast = 0.00;
-			$obj = new \App\Models\Application;
-			$obj->user_id = Auth::user()->id;
-			$obj->workflow = $workflow;
-			$obj->partner_id = $partner;
-			$obj->branch = $branch;
-			$obj->product_id = $product;
-			$obj->status = $status;
-			$obj->stage = $stage;
-			$obj->client_id = $clientid;
-			$obj->client_revenue = @$app->client_revenue;
-			$obj->partner_revenue = @$app->partner_revenue;
-			$obj->discounts = @$app->discounts;
-
-			$saved = $obj->save();
-			if(!$saved){
-				return response()->json([
-					'status' => false,
-					'message' => 'Please try again'
-				]);
-			}
-
-			$app = \App\Models\InterestedService::find($id);
-			$app->status = 1;
-			$saved = $app->save();
-			if($saved){
-				$productdetail = \App\Models\Product::where('id', $product)->first();
-				$partnerdetail = \App\Models\Partner::where('id', $partner)->first();
-				$PartnerBranch = \App\Models\PartnerBranch::where('id', $branch)->first();
-				$subject = 'has started an application';
-				$objs = new ActivitiesLog;
-				$objs->client_id = $request->clientid;
-				$objs->created_by = Auth::user()->id;
-				$productName = $productdetail ? $productdetail->name : 'Unknown product';
-				$partnerName = $partnerdetail ? $partnerdetail->partner_name : 'Unknown partner';
-				$branchName = $PartnerBranch ? $PartnerBranch->name : 'Unknown branch';
-				$objs->description = '<span class="text-semi-bold">'.$productName.'</span><p>'.$partnerName.' ('.$branchName.')</p>';
-				$objs->subject = $subject;
-				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
-				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-				$objs->save();
-				$response['status'] 	= 	true;
-				$response['message']	=	'You\'ve successfully updated your client\'s information.';
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-		return response()->json($response);
-	}
-
-	public function deleteservices(Request $request){
-		$note_id = $request->note_id;
-		if(\App\Models\InterestedService::where('id',$note_id)->exists()){
-			$data = \App\Models\InterestedService::where('id',$note_id)->first();
-			$res = DB::table('interested_services')->where('id', @$note_id)->delete();
-			if($res){
-				$productdetail = \App\Models\Product::where('id', $data->product)->first();
-				$partnerdetail = \App\Models\Partner::where('id', $data->partner)->first();
-				$PartnerBranch = \App\Models\PartnerBranch::where('id', $data->branch)->first();
-				$subject = 'deleted an interested service';
-
-				$objs = new ActivitiesLog;
-				$objs->client_id = $data->client_id;
-				$objs->created_by = Auth::user()->id;
-				$objs->description = '<span class="text-semi-bold">'.@$productdetail->name.'</span><p>'.@$partnerdetail->partner_name.' ('.@$PartnerBranch->name.')</p>';
-				$objs->subject = $subject;
-				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
-				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-				$objs->save();
-			$response['status'] 	= 	true;
-			$response['data']	=	$data;
-			}else{
-				$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-		echo json_encode($response);
-	}
 }

@@ -79,15 +79,7 @@ class ReportController extends Controller
 		return view('Admin.reports.saleforecast-application', compact(['lists', 'totalData']));
 		//return view('Admin.reports.sale-forecast');
 	}
-	public function interested_service(Request $request)  
-	{		
-		$query 		= Application::query(); 		  
-		$totalData 	= $query->count();	//for all data
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
-		
-		return view('Admin.reports.interested-service', compact(['lists', 'totalData']));
-		//return view('Admin.reports.sale-forecast');
-	}
+	// Interested services report removed - applications are created directly
 	// Task system removed - December 2025 (inactive for 16+ months)
 	// Database tables preserved: tasks, task_logs, to_do_groups
 	/*

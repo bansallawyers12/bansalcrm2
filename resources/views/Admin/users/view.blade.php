@@ -718,17 +718,7 @@ function getallactivities(){
 					if(delhref == 'deletedocs'){
 						$('.documnetlist #id_'+notid).remove();
 					}
-					if(delhref == 'deleteservices'){
-						$.ajax({
-						url: site_url+'/get-services',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							
-							$('.interest_serv_list').html(responses);
-						}
-					});
-					}if(delhref == 'deletefee'){
+					if(delhref == 'deletefee'){
 						$.ajax({
 						url: site_url+'/get-all-fees',
 						type:'GET',
@@ -1214,45 +1204,6 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 		});
 	});
 	
-	$(document).delegate('.converttoapplication','click', function(){
-		var v = $(this).attr('data-id');
-		if(v != ''){
-			$('.popuploader').show();
-			$.ajax({
-				url: '{{URL::to('/convertapplication')}}',
-				type:'GET',
-				data:{cat_id:v,clientid:'{{$fetchedData->id}}'},
-				success:function(response){
-					var res = typeof response === 'string' ? JSON.parse(response) : response;
-					if(!res || res.status !== true){
-						$('.popuploader').hide();
-						alert((res && res.message) ? res.message : 'Failed to create application. Please try again.');
-						return;
-					}
-					$.ajax({
-						url: site_url+'/get-services',
-						type:'GET',
-						data:{clientid:'{{$fetchedData->id}}'},
-						success: function(responses){
-							$('.interest_serv_list').html(responses);
-							$('.popuploader').hide();
-							getallactivities();
-						},
-						error: function(){
-							$('.popuploader').hide();
-							alert('Application created, but failed to refresh services. Please refresh the page.');
-							getallactivities();
-						}
-					});
-				},
-				error: function(){
-					$('.popuploader').hide();
-					alert('Failed to create application. Please try again.');
-				}
-			});
-		}
-	});
-
 	$(document).on('click', '.documnetlist .renamedoc', function () {
 			var parent = $(this).closest('.drow').find('.doc-row');
 
@@ -1351,44 +1302,6 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 				}
 	});
 	
-	$(document).delegate('.interest_service_view', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedservice')}}',
-			type:'GET',
-			data:{id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.showinterestedservice').html(response);
-			}
-		});
-	});
-	
-	
-	$(document).delegate('.openeditservices', 'click', function(){
-		var v = $(this).attr('data-id');
-		$('.popuploader').show();
-		$('#interest_service_view').modal('hide');
-		$('#eidt_interested_service').modal('show');
-		$.ajax({
-			url: '{{URL::to('/getintrestedserviceedit')}}',
-			type:'GET',
-			data:{id:v},
-		success:function(response){
-			$('.popuploader').hide();
-			$('.showinterestedserviceedit').html(response);
-			
-			if (typeof flatpickr !== 'undefined') {
-				flatpickr(".datepicker", {
-					dateFormat: "Y-m-d",
-					allowInput: true
-				});
-			}
-		}
-	});
-});
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){
 		$('#opencommissionmodal').modal('show');

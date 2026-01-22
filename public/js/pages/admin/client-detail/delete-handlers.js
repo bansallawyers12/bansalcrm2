@@ -46,17 +46,7 @@
                         if(delhref == 'subagent'){
                             $('.subagent_data .client_info').remove();
                         }
-                        if(delhref == 'deleteservices'){
-                            var url = App.getUrl('getServices') || App.getUrl('siteUrl') + '/get-services';
-                            $.ajax({
-                                url: url,
-                                type:'GET',
-                                data:{clientid: App.getPageConfig('clientId')},
-                                success: function(responses){
-                                    $('.interest_serv_list').html(responses);
-                                }
-                            });
-                        }else if(delhref == 'deleteapplicationdocs'){
+                        if(delhref == 'deleteapplicationdocs'){
                             $('.mychecklistdocdata').html(res.doclistdata);
                             $('.checklistuploadcount').html(res.applicationuploadcount);
                             $('.'+res.type+'_checklists').html(res.checklistdata);

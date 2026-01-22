@@ -2999,9 +2999,6 @@ use App\Http\Controllers\Controller;
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',
-        convertApplication: '{{ url("/convertapplication") }}',
-        getInterestedService: '{{ url("/getintrestedservice") }}',
-        getInterestedServiceEdit: '{{ url("/getintrestedserviceedit") }}',
         changePromotionStatus: '{{ url("/change-promotion-status") }}',
         getPromotionEditForm: '{{ url("/getpromotioneditform") }}',
         getPromotions: '{{ url("/get-promotions") }}',
@@ -3026,11 +3023,9 @@ use App\Http\Controllers\Controller;
         getpartnerbranch: '{{ URL::to("/getpartnerbranch") }}',
         getbranchproduct: '{{ URL::to("/getbranchproduct") }}',
         getTemplates: '{{ URL::to("/get-templates") }}',
-        getServices: '{{ url("/get-services") }}',
         getContacts: '{{ url("/get-contacts") }}',
         getBranches: '{{ url("/get-branches") }}',
         deletedocs: '{{ url("/deletedocs") }}',
-        deleteservices: '{{ url("/deleteservices") }}',
         deletecontact: '{{ url("/deletecontact") }}',
         deletebranch: '{{ url("/deletebranch") }}'
     };

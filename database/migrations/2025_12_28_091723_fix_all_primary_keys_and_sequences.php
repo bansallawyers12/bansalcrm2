@@ -51,7 +51,6 @@ return new class extends Migration
         'followup_types',
         'followups',
         'income_sharings',
-        'interested_services',
         'invoice_details',
         'invoice_followups',
         'invoice_payments',

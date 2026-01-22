@@ -72,20 +72,6 @@ class ClientMergeController extends Controller
             }
 
 
-            //interested_services
-            $interested_services = DB::table('interested_services')->where('client_id', $request->merge_from)->get();
-            if(!empty($interested_services)){
-                foreach($interested_services as $intkey=>$intval){
-                    DB::table('interested_services')
-                    ->where('client_id', $request->merge_from)
-                    ->update([
-                        'client_id' => $request->merge_into,
-                        'updated_at' => now()
-                    ]);
-                }
-            }
-
-
             //education documents and migration documents
             $documents = DB::table('documents')->where('client_id', $request->merge_from)->get();
             if(!empty($documents)){
