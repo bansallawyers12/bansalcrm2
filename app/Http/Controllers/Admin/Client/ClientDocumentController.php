@@ -415,6 +415,18 @@ class ClientDocumentController extends Controller
                         $document->type = $type;
                         $document->doc_type = $doctype;
                         $document->checklist = $checklistName;
+                        
+                        // Add category_id if provided
+                        if ($request->has('category_id') && $request->category_id) {
+                            $document->category_id = $request->category_id;
+                        } else {
+                            // Default to "General" category
+                            $generalCategory = \App\Models\DocumentCategory::where('name', 'General')->where('is_default', true)->first();
+                            if ($generalCategory) {
+                                $document->category_id = $generalCategory->id;
+                            }
+                        }
+                        
                         $document->save();
                     }
                     
@@ -803,6 +815,18 @@ class ClientDocumentController extends Controller
                     $obj->type = $request->type;
                     $obj->doc_type = $doctype;
                     $obj->checklist = $item;
+                    
+                    // Add category_id if provided
+                    if ($request->has('category_id') && $request->category_id) {
+                        $obj->category_id = $request->category_id;
+                    } else {
+                        // Default to "General" category if no category specified
+                        $generalCategory = \App\Models\DocumentCategory::where('name', 'General')->where('is_default', true)->first();
+                        if ($generalCategory) {
+                            $obj->category_id = $generalCategory->id;
+                        }
+                    }
+                    
                     $saved = $obj->save();
                 } //end foreach
 
@@ -822,6 +846,11 @@ class ClientDocumentController extends Controller
 
                     $response['status'] 	= 	true;
                     $response['message']	=	'You have successfully added your document checklist';
+                    
+                    // Check if this is an AJAX request
+                    if($request->ajax() || $request->wantsJson()) {
+                        return response()->json($response, 200, ['Content-Type' => 'application/json']);
+                    }
 
                     $fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderBy('updated_at', 'DESC')->get();
                     ob_start();

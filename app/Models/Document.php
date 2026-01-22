@@ -24,6 +24,7 @@ class Document extends Model
         'file_size',
         'type',
         'doc_type',
+        'category_id',
         'folder_name',
         'mail_type',
         'office_id',
@@ -108,6 +109,11 @@ class Document extends Model
     public function notes(): HasMany
     {
         return $this->hasMany(DocumentNote::class)->orderBy('created_at', 'desc');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(DocumentCategory::class, 'category_id');
     }
 
     // ==================== Scopes ====================

@@ -27,6 +27,7 @@ use App\Http\Controllers\AdminConsole\WorkflowController;
 use App\Http\Controllers\AdminConsole\EmailController;
 use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
 use App\Http\Controllers\AdminConsole\DocumentChecklistController;
+use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
 
 Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
@@ -142,5 +143,15 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/documentchecklist/store', [DocumentChecklistController::class, 'store'])->name('adminconsole.documentchecklist.store');
     Route::get('/documentchecklist/edit/{id}', [DocumentChecklistController::class, 'edit'])->name('adminconsole.documentchecklist.edit');
     Route::post('/documentchecklist/edit', [DocumentChecklistController::class, 'edit'])->name('adminconsole.documentchecklist.update');
+    
+    //Document Category Routes (Personal Document Type)
+    Route::get('/documentcategory', [AdminConsoleDocumentCategoryController::class, 'index'])->name('adminconsole.documentcategory.index');
+    Route::get('/documentcategory/create', [AdminConsoleDocumentCategoryController::class, 'create'])->name('adminconsole.documentcategory.create');
+    Route::post('/documentcategory/store', [AdminConsoleDocumentCategoryController::class, 'store'])->name('adminconsole.documentcategory.store');
+    Route::get('/documentcategory/edit/{id}', [AdminConsoleDocumentCategoryController::class, 'edit'])->name('adminconsole.documentcategory.edit');
+    Route::post('/documentcategory/edit/{id}', [AdminConsoleDocumentCategoryController::class, 'update'])->name('adminconsole.documentcategory.update');
+    Route::delete('/documentcategory/{id}', [AdminConsoleDocumentCategoryController::class, 'destroy'])->name('adminconsole.documentcategory.destroy');
+    Route::get('/documentcategory/show/{id}', [AdminConsoleDocumentCategoryController::class, 'show'])->name('adminconsole.documentcategory.show');
+    Route::post('/documentcategory/toggle-status/{id}', [AdminConsoleDocumentCategoryController::class, 'toggleStatus'])->name('adminconsole.documentcategory.toggleStatus');
     
 });

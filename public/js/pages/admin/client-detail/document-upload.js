@@ -136,10 +136,16 @@ jQuery(document).ready(function($){
     });
 
     $(document).on('change', '.alldocupload', function() {
+        console.log('document-upload.js: File upload detected for .alldocupload');
         $('.popuploader').show();
         var fileidL = $(this).attr("data-fileid");
         var formData = new FormData($('#upload_form_'+fileidL)[0]);
         var url = App.getUrl('uploadAllDocument') || App.getUrl('siteUrl') + '/upload-alldocument';
+        
+        // Check if category system is active
+        var isCategorySystemActive = (typeof window.DocumentCategoryManager !== 'undefined');
+        console.log('document-upload.js: Category system active?', isCategorySystemActive);
+        
         $.ajax({
             url: url,
             type:'POST',
@@ -149,12 +155,23 @@ jQuery(document).ready(function($){
             contentType: false,
             processData: false,
             success: function(responses){
+                console.log('document-upload.js: Upload success response:', responses);
                 $('.popuploader').hide();
                 var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
                 if(ress.status){
                     $('.custom-error-msg').html('<span class="alert alert-success">'+ress.message+'</span>');
-                    $('.alldocumnetlist').html(ress.data);
-                    $('.allgriddata').html(ress.griddata);
+                    
+                    // If category system is active, reload current category documents
+                    if(isCategorySystemActive && window.DocumentCategoryManager.currentCategoryId) {
+                        console.log('document-upload.js: Reloading category documents for category:', window.DocumentCategoryManager.currentCategoryId);
+                        window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                        window.DocumentCategoryManager.loadCategories(true);
+                    } else {
+                        // Old behavior: update with server HTML (for non-category pages)
+                        console.log('document-upload.js: Using old HTML update method');
+                        $('.alldocumnetlist').html(ress.data);
+                        $('.allgriddata').html(ress.griddata);
+                    }
                 }else{
                     $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</span>');
                 }

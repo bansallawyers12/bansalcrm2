@@ -1451,6 +1451,7 @@
                     <input type="hidden" name="clientid" value="{{$fetchedData->id}}">
                     <input type="hidden" name="type" value="client">
                     <input type="hidden" name="doctype" value="documents">
+                    <input type="hidden" name="category_id" id="alldocs_category_id" value="">
 
                     <div class="row">
                         <div class="col-6 col-md-6 col-lg-6">

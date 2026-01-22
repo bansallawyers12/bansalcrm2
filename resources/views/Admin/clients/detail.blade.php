@@ -1241,6 +1241,12 @@ use App\Http\Controllers\Controller;
 
 
                                  <div class="tab-pane fade {{ $activeTab === 'alldocuments' ? 'show active' : '' }}" id="alldocuments" role="tabpanel" aria-labelledby="alldocuments-tab">
+                                    
+                                    <!-- Document Category Tabs -->
+                                    <div id="document-category-tabs" style="padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px;">
+                                        <!-- Categories will be loaded here via JavaScript -->
+                                    </div>
+                                    
                                     <div class="card-header-action text-end" style="padding-bottom:15px;">
                                         <div class="document_layout_type">
                                             <a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
@@ -2947,6 +2953,7 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/client-detail/document-upload.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-categories.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}"></script>
@@ -2968,6 +2975,28 @@ use App\Http\Controllers\Controller;
 
 {{-- Main client-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
+
+{{-- Initialize Document Category Manager --}}
+<script>
+$(document).ready(function() {
+    // Initialize Document Category Manager when Documents tab is active or clicked
+    const initCategoryManager = function() {
+        if (typeof window.DocumentCategoryManager !== 'undefined') {
+            window.DocumentCategoryManager.init({{ $fetchedData->id ?? 'null' }});
+        }
+    };
+    
+    // Check if Documents tab is active on page load
+    if ($('#alldocuments-tab').hasClass('active')) {
+        initCategoryManager();
+    }
+    
+    // Initialize when Documents tab is clicked
+    $('#alldocuments-tab').on('shown.bs.tab', function() {
+        initCategoryManager();
+    });
+});
+</script>
 
 {{-- Blade-specific inline code (loaded last, uses Blade variables) --}}
 <script src="{{ asset('js/pages/admin/client-detail/blade-inline.js') }}"></script>

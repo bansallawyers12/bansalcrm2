@@ -126,6 +126,14 @@ function customValidate(formName, savetype = '')
 	{
 		$(".popuploader").show(); //all form submit
 		
+		// IMPORTANT: Check if category system is handling this form
+		// If yes, validate the form but let document-categories.js handle submission
+		var isCategorySystemActive = (formName === 'alldocs_upload_form' && typeof window.DocumentCategoryManager !== 'undefined');
+		
+		if(isCategorySystemActive) {
+			console.log('customValidate: Category system IS active for alldocs_upload_form');
+		}
+		
 		var i = 0;	
 		$(".custom-error").remove(); //remove all errors when submit the button
 		
@@ -229,6 +237,16 @@ function customValidate(formName, savetype = '')
 			}	
 		else
 			{
+				// If category system is active for this form, trigger submit and let document-categories.js handle it
+				if(isCategorySystemActive) {
+					console.log('customValidate: Validation passed, triggering submit for category system');
+					$('.popuploader').hide();
+					$('#alldocs_upload_form').trigger('submit');
+					return false;
+				}
+				
+				// Otherwise proceed with form-specific handlers below
+				console.log('customValidate: Validation passed, using old form handler for:', formName);
 				if(formName == 'add-query')
 					{
 						$('#preloader').show();
@@ -2285,6 +2303,9 @@ $('#add_application').modal('hide');
 					}
 
 					else if(formName == 'alldocs_upload_form'){
+						// Old handler - only runs when category system is NOT loaded
+						// If category system IS loaded, it's already handled above after validation
+						console.log('customValidate: Using old AJAX handler for alldocs_upload_form (no category system)');
 						var client_id = $('#alldocs_upload_form input[name="client_id"]').val();
 						var myform = document.getElementById('alldocs_upload_form');
 						var fd = new FormData(myform);
@@ -2294,19 +2315,31 @@ $('#add_application').modal('hide');
 							processData: false,
 							contentType: false,
 							data: fd,
-							//datatype:'json',
+							dataType: 'json',
 							success: function(response){
+								console.log('customValidate old handler: AJAX success, response =', response);
 								$('.popuploader').hide();
-								var obj = $.parseJSON(response);
+								// Already parsed as JSON due to dataType
+								var obj = response;
 								$('#openalldocsmodal').modal('hide');
 								if(obj.status){
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-									$('.alldocumnetlist').html(obj.data);
-									$('.allgriddata').html(obj.griddata);
+									if(obj.data) {
+										console.log('customValidate old handler: Updating .alldocumnetlist with HTML from server');
+										$('.alldocumnetlist').html(obj.data);
+									}
+									if(obj.griddata) {
+										$('.allgriddata').html(obj.griddata);
+									}
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 								}
 								//getallactivities();
+							},
+							error: function(xhr, status, error) {
+								$('.popuploader').hide();
+								console.error('Form submission error:', error);
+								$('.custom-error-msg').html('<span class="alert alert-danger">Error submitting form. Please try again.</span>');
 							}
 						});
 					}

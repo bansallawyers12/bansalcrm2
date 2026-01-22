@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Client\ClientActivityController;
 use App\Http\Controllers\Admin\Client\ClientApplicationController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
 use App\Http\Controllers\Admin\Client\ClientDocumentController;
+use App\Http\Controllers\Admin\Client\DocumentCategoryController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientReceiptController;
 use App\Http\Controllers\Admin\Client\ClientMergeController;
@@ -154,6 +155,13 @@ Route::middleware(['auth:admin'])->group(function() {
     // Bulk upload routes for Documents tab
     Route::post('/documents/bulk-upload', [ClientDocumentController::class, 'bulkUploadDocuments'])->name('clients.documents.bulkUpload');
     Route::post('/documents/get-auto-checklist-matches', [ClientDocumentController::class, 'getAutoChecklistMatches'])->name('clients.documents.getAutoChecklistMatches');
+    
+    // Document Category routes (AJAX)
+    Route::get('/document-categories/get', [DocumentCategoryController::class, 'getCategories'])->name('clients.documentcategories.get');
+    Route::post('/document-categories/store', [DocumentCategoryController::class, 'store'])->name('clients.documentcategories.store');
+    Route::post('/document-categories/update/{id}', [DocumentCategoryController::class, 'update'])->name('clients.documentcategories.update');
+    Route::delete('/document-categories/{id}', [DocumentCategoryController::class, 'destroy'])->name('clients.documentcategories.destroy');
+    Route::get('/document-categories/documents', [DocumentCategoryController::class, 'getDocuments'])->name('clients.documentcategories.documents');
     
     // Merge records
     Route::post('/merge_records', [ClientMergeController::class, 'merge_records'])->name('clients.merge_records');
