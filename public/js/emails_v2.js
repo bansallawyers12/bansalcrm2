@@ -806,7 +806,7 @@
 
             const requestBody = {
                 client_id: clientId,
-                entity_type: getEntityType(),
+                type: getEntityType(),
                 search: currentSearch,
                 status: '', // Keep for backward compatibility (mail_is_read)
                 label_id: currentLabelId
