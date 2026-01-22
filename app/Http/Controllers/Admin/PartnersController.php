@@ -2429,7 +2429,10 @@ class PartnersController extends Controller
         $followup 				    = new \App\Models\Note;
         $followup->client_id		= @$requestData['partner_id'];
 		$followup->user_id			= Auth::user()->id;
-        $followup->description		= $requestData['assignnote'];
+        
+        // Get description from assignnote field
+        $description = isset($requestData['assignnote']) ? $requestData['assignnote'] : '';
+        $followup->description		= $description;
 
         //Get assigner name
         $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat123'])->first();
@@ -2503,7 +2506,8 @@ class PartnersController extends Controller
                 $subject = 'Partner assigned action in group '.$requestData['task_group'].' to '.@$assignee_name;
             }
             $objs->subject = $subject;
-            $objs->description = '<span class="text-semi-bold">'.@$title.'</span><p>'.$requestData['assignnote'].'</p>';
+            // Use the cleaned description variable instead of raw request data
+            $objs->description = '<span class="text-semi-bold">'.@$title.'</span><p>'.$description.'</p>';
             if(Auth::user()->id != @$requestData['rem_cat123']){
                 $objs->use_for = @$requestData['rem_cat123'];
             } else {

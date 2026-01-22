@@ -105,7 +105,8 @@ class ActionController extends Controller
             }
 
             $objs->followup_date = @$note->updated_at;
-            $objs->task_group = @$note->task_group;
+            // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
+            $objs->task_group = ($note->type == 'partner') ? 'partner' : @$note->task_group;
             $objs->task_status = 0; // Activity, not task
             $objs->pin = 0;
             $objs->save();
@@ -176,15 +177,76 @@ class ActionController extends Controller
     //Update task to be not complete
     public function markIncomplete(Request $request,Note $note)
     {
-        $data = $request->all(); //dd($data['id']);
-        $note = Note::where('id',$data['id'])->update(['status'=>'0']);
-        if($note){
-            $response['status'] 	= 	true;
-            $response['message']	=	'Task updated successfully';
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'Please try again';
+        try {
+            $data = $request->all();
+            
+            if (!isset($data['id'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Action ID is required'
+                ]);
+            }
+            
+            // Get the note before updating
+            $noteRecord = Note::find($data['id']);
+            
+            if (!$noteRecord) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Action not found'
+                ]);
+            }
+            
+            // Store note details before update
+            $clientId = $noteRecord->client_id;
+            $noteType = $noteRecord->type;
+            $taskGroup = $noteRecord->task_group;
+            $assignedTo = $noteRecord->assigned_to;
+            
+            // Update status to incomplete
+            $updated = Note::where('id', $data['id'])->update(['status' => '0']);
+            
+            if($updated){
+                // Create activity log entry for marking incomplete
+                $admin_data = Admin::where('id', $assignedTo)->first();
+                if($admin_data){
+                    $assignee_name = $admin_data->first_name." ".$admin_data->last_name;
+                } else {
+                    $assignee_name = 'N/A';
+                }
+                
+                $objs = new ActivitiesLog;
+                $objs->client_id = $clientId;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = 'Marked action as incomplete';
+                $objs->description = '<span class="text-semi-bold">Action marked as incomplete</span><p>This action was marked as incomplete and moved back to active tasks.</p>';
+                
+                if(Auth::user()->id != $assignedTo){
+                    $objs->use_for = $assignedTo;
+                } else {
+                    $objs->use_for = null;
+                }
+
+                $objs->followup_date = now();
+                // Set task_group to 'partner' if note type is partner, otherwise use note's task_group
+                $objs->task_group = ($noteType == 'partner') ? 'partner' : $taskGroup;
+                $objs->task_status = 0; // Activity, not task
+                $objs->pin = 0;
+                $objs->save();
+                
+                $response['status'] = true;
+                $response['message'] = 'Task updated successfully';
+            } else {
+                $response['status'] = false;
+                $response['message'] = 'Please try again';
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Error marking incomplete: ' . $e->getMessage());
+            $response['status'] = false;
+            $response['message'] = 'An error occurred while updating the task';
         }
+        
         echo json_encode($response);
     }
 
@@ -428,7 +490,6 @@ class ActionController extends Controller
          ->with('i', (request()->input('page', 1) - 1) * 20);
     }*/
 
-    //All completed activities list
     public function completed(Request $request)
     {   //dd($request->all());
         $req_data = $request->all();
@@ -441,38 +502,38 @@ class ActionController extends Controller
         if($task_group == 'All') {
             if(\Auth::user()->role == 1){
                 $assignees_completed = \App\Models\Note::sortable()
-                ->with(['noteUser','noteClient','assigned_user'])
+                ->with(['noteUser','noteClient','notePartner','assigned_user'])
                 ->where('status','1')
-                ->where('type','client')
+                ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->whereNotNull('client_id')
                 ->where('folloup',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
-                ->with(['noteUser','noteClient','assigned_user'])
+                ->with(['noteUser','noteClient','notePartner','assigned_user'])
                 ->where('status','1')
                 ->where('assigned_to',\Auth::user()->id)
-                ->where('type','client')
+                ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->where('folloup',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
         } else {
             if(\Auth::user()->role == 1){
                 $assignees_completed = \App\Models\Note::sortable()
-                ->with(['noteUser','noteClient','assigned_user'])
+                ->with(['noteUser','noteClient','notePartner','assigned_user'])
                 ->where('task_group','like',$task_group)
                 ->where('status','1')
-                ->where('type','client')
+                ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->whereNotNull('client_id')
                 ->where('folloup',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
-                ->with(['noteUser','noteClient','assigned_user'])
+                ->with(['noteUser','noteClient','notePartner','assigned_user'])
                 ->where('task_group','like',$task_group)
                 ->where('status','1')
                 ->where('assigned_to',\Auth::user()->id)
-                ->where('type','client')
+                ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->where('folloup',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
@@ -492,7 +553,7 @@ class ActionController extends Controller
         if ($request->ajax()) {
            if(\Auth::user()->role == 1)
             { //admin role
-            	$data = \App\Models\Note::with(['noteUser','noteClient','assigned_user'])
+            	$data = \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
             	->where('status','<>','1')
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
@@ -501,7 +562,7 @@ class ActionController extends Controller
             }
             else
             { //role is not admin
-            	$data = \App\Models\Note::with(['noteUser','noteClient','assigned_user'])
+            	$data = \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
             	->where('status','<>','1')
             	->where('assigned_to',\Auth::user()->id)
             	//->where('type','client')
@@ -570,25 +631,29 @@ class ActionController extends Controller
             })
               
             ->addColumn('note_description', function($data) {
-                if( isset($data->description) && $data->description != "" ){
-                    if (strlen($data->description) > 190) {
-                        $description = mb_convert_encoding($data->description, 'UTF-8', 'UTF-8'); // Ensure UTF-8
-                         // Step 1: Force UTF-8 encoding even if malformed
-                        //$description = @iconv('UTF-8', 'UTF-8//IGNORE', $data->description);
-
-                        // Step 2: Escape HTML safely
-                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); // Escape special chars
+                // Check if description exists and is not empty (trim whitespace)
+                if( isset($data->description) && trim($data->description) != "" ){
+                    // Strip HTML tags to get clean text
+                    $cleanDescription = strip_tags($data->description);
+                    $cleanDescription = trim($cleanDescription);
+                    
+                    // If after stripping tags it's empty, show N/P
+                    if($cleanDescription == ''){
+                        return "N/P";
+                    }
+                    
+                    if (strlen($cleanDescription) > 190) {
+                        $description = mb_convert_encoding($cleanDescription, 'UTF-8', 'UTF-8'); // Ensure UTF-8
+                        // Escape HTML safely for display
+                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
 
                         $full_description = $description;
                         $final_desc = substr($description, 0, 190);
                         $final_desc .= '<button type="button" class="btn btn-link btn_readmore" data-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
                     } else {
-                        $description = mb_convert_encoding($data->description, 'UTF-8', 'UTF-8'); // Ensure UTF-8
-                         // Step 1: Force UTF-8 encoding even if malformed
-                        //$description = @iconv('UTF-8', 'UTF-8//IGNORE', $data->description);
-
-                        // Step 2: Escape HTML safely
-                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); // Escape special chars
+                        $description = mb_convert_encoding($cleanDescription, 'UTF-8', 'UTF-8'); // Ensure UTF-8
+                        // Escape HTML safely for display
+                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
                         $final_desc =   $description;
                     }
                 } else {

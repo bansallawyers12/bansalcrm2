@@ -22,6 +22,11 @@ class Note extends Model
     {
         return $this->belongsTo('App\Models\Admin','client_id','id');
     }
+    
+    public function notePartner()
+    {
+        return $this->belongsTo('App\Models\Partner','client_id','id');
+    }
 
     public function noteUser()
     {

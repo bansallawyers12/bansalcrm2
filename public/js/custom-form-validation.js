@@ -2062,6 +2062,33 @@ function customValidate(formName, savetype = '')
                     else if(formName == 'partnerassignform'){
 						var partner_id = $('#partnerassignform input[name="partner_id"]').val();
 						var noteid = $('#partnerassignform input[name="noteid"]').val();
+						
+						// Sync Summernote/TinyMCE content to textarea before creating FormData
+						var $noteField = $('#partnerassignform textarea[name="assignnote"]');
+						if($noteField.length){
+							// Try Summernote first
+							if(typeof $noteField.summernote === 'function'){
+								try {
+									var noteContent = $noteField.summernote('code');
+									$noteField.val(noteContent);
+								} catch(e) {
+									console.log('Summernote sync failed, trying TinyMCE');
+								}
+							}
+							
+							// Try TinyMCE directly
+							if(typeof tinymce !== 'undefined'){
+								var editorId = $noteField.attr('id');
+								if(editorId){
+									var editor = tinymce.get(editorId);
+									if(editor){
+										var content = editor.getContent();
+										$noteField.val(content);
+									}
+								}
+							}
+						}
+						
 						var myform = document.getElementById('partnerassignform');
 						var fd = new FormData(myform);
 						$.ajax({

@@ -41,46 +41,46 @@
                                         <div class="col-md-12 group_type_section">
                                             <?php
                                             if(\Auth::user()->role == 1){
-                                                $assigneesCount_All_type = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                                ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                             } else {
-                                                $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                                ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
                                             } ?>
 
 
@@ -149,10 +149,25 @@
                                             ?>
                                             <tr>
                                                 <?php
-                                                if($list->noteClient){
-                                                    $user_name=$list->noteClient->first_name.' '.$list->noteClient->last_name;
-                                                }else{
-                                                    $user_name='N/P';
+                                                // Handle both client and partner types
+                                                if($list->type == 'partner'){
+                                                    $partnerInfo = \App\Models\Partner::select('partner_name')->where('id',$list->client_id)->first();
+                                                    if($partnerInfo){
+                                                        $user_name = $partnerInfo->partner_name;
+                                                        $reference_link = '<a href="'.route('partners.detail', base64_encode(convert_uuencode(@$list->client_id))).'" target="_blank" >'.$partnerInfo->partner_name.'</a>';
+                                                    } else {
+                                                        $user_name = 'N/P';
+                                                        $reference_link = 'N/P';
+                                                    }
+                                                } else {
+                                                    // Client type
+                                                    if($list->noteClient){
+                                                        $user_name = $list->noteClient->first_name.' '.$list->noteClient->last_name;
+                                                        $reference_link = '<a href="'.URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id))).'" target="_blank" >'.$list->noteClient->client_id.'</a>';
+                                                    } else {
+                                                        $user_name = 'N/P';
+                                                        $reference_link = 'N/P';
+                                                    }
                                                 }
                                                 ?>
                                                 <td style="text-align: center;">{{ ++$i }}</td>
@@ -161,12 +176,7 @@
                                                 <td>
                                                     {{ $user_name }}
                                                     <br>
-                                                    <?php
-                                                    if($list->noteClient)
-                                                    { ?>
-                                                        <a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id)))}}" target="_blank" >{{ $list->noteClient->client_id }}</a>
-                                                    <?php
-                                                    } ?>
+                                                    {!! $reference_link !!}
                                                 </td>
                                                 <td>{{ date('d/m/Y',strtotime($list->followup_date)) ?? 'N/P'}} </td>
                                                 <td>{{ $list->task_group??'N/P' }}</td>
