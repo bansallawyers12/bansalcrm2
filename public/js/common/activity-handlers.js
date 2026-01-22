@@ -43,14 +43,25 @@ function getallactivities() {
             
             if (ress.data && ress.data.length > 0) {
                 $.each(ress.data, function(k, v) {
-                    // Build activity HTML (simplified - actual implementation may vary)
-                    html += '<div class="activity" id="activity_' + v.id + '">';
-                    html += '<p>' + (v.subject || '') + '</p>';
-                    html += '</div>';
+                    // Build activity HTML with proper structure
+                    html += '<div class="activity" id="activity_' + (v.activity_id || v.id) + '">';
+                    html += '<div class="activity-icon bg-primary text-white"><span>' + (v.createdname || '') + '</span></div>';
+                    html += '<div class="activity-detail">';
+                    html += '<div class="mb-2"><span class="text-job">' + (v.date || '') + '</span></div>';
+                    html += '<p><b>' + (v.name || '') + '</b> ' + (v.subject || '') + '</p>';
+                    if (v.message != null) {
+                        html += '<p>' + v.message + '</p>';
+                    }
+                    html += '</div></div>';
                 });
             }
             
-            $('.activitiesdata').html(html);
+            // Update activities container (support both .activities and .activitiesdata)
+            if ($('.activities').length) {
+                $('.activities').html(html);
+            } else if ($('.activitiesdata').length) {
+                $('.activitiesdata').html(html);
+            }
         }
     });
 }

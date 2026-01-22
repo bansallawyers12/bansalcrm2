@@ -455,48 +455,15 @@ function customValidate(formName, savetype = '')
                                 if(obj.status){
                                     $('#create_student_note').modal('hide');
                                     $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-                                    //Get Partner all activity logs
-                                    $.ajax({
-                                        url: site_url+'/get-partner-activities',
-                                        type:'GET',
-                                        datatype:'json',
-                                        data:{partner_id:partner_id},
-                                        success: function(responses){
-                                            var ress = JSON.parse(responses);
-                                            var html = '';
-                                            $.each(ress.data, function(k, v) {
-                                                if(v.subject != ""){
-                                                    if(v.subject === null){
-                                                        var subject =  "";
-                                                    } else {
-                                                        var subject =  v.subject;
-                                                    }
-                                                } else {
-                                                    var subject =  "";
-                                                }
-
-                                                if(v.pin == 1){
-                                                    html += '<div class="activity" id="activity_'+v.activity_id+'" ><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail" style="border: 1px solid #dbdbdb;"><div class="activity-head"><div class="activity-title"><p><b>'+v.name+'</b> '+ subject+'</p></div><div class="activity-date"><span class="text-job">'+v.date+'</span></div></div><div class="right" style="float: right;margin-top: -40px;"><div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div><div class="dropdown d-inline dropdown_ellipsis_icon"><a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a><div class="dropdown-menu"><a data-id="'+v.activity_id+'" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a><a data-id="'+v.activity_id+'"  class="dropdown-item pinactivitylog" href="javascript:;" >UnPin</a></div></div></div>';
-                                                } else {
-                                                    html += '<div class="activity" id="activity_'+v.activity_id+'" ><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail" style="border: 1px solid #dbdbdb;"><div class="activity-head"><div class="activity-title"><p><b>'+v.name+'</b> '+ subject+'</p></div><div class="activity-date"><span class="text-job">'+v.date+'</span></div></div><div class="right" style="float: right;margin-top: -40px;"><div class="dropdown d-inline dropdown_ellipsis_icon"><a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a><div class="dropdown-menu"><a data-id="'+v.activity_id+'" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a><a data-id="'+v.activity_id+'"  class="dropdown-item pinactivitylog" href="javascript:;" >Pin</a></div></div></div>';
-                                                }
-
-                                                if(v.message != null){
-                                                    html += '<p>'+v.message+'</p>';
-                                                }
-                                                if(v.followup_date != null){
-                                                    html += '<p>'+v.followup_date+'</p>';
-                                                }
-                                                if(v.task_group != null){
-                                                    html += '<p>'+v.task_group+'</p>';
-                                                }
-                                                html += '</div></div>';
-                                            });
-
-                                            $('.activities').html(html);
-                                            $('.popuploader').hide();
-                                        }
-                                    });
+                                    
+									// Refresh activities using the global function if available
+									if(typeof getallactivities === 'function') {
+										getallactivities();
+									}
+									// Refresh notes if function is available
+									if(typeof getallnotes === 'function') {
+										getallnotes();
+									}
                                 } else {
                                     $('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
                                 }
@@ -1946,30 +1913,15 @@ function customValidate(formName, savetype = '')
                                 if(obj.success){
 									$('#create_partneraction').modal('hide');
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-                                    $.ajax({
-                                        url: site_url+'/get-partner-activities',
-                                        type:'GET',
-                                        datatype:'json',
-                                        data:{partner_id:obj.partner_id},
-                                        success: function(responses){
-                                            var ress = JSON.parse(responses);
-                                            var html = '';
-                                            $.each(ress.data, function(k, v) {
-                                                html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-                                                if(v.message != null){
-                                                    html += '<p>'+v.message+'</p>';
-                                                }
-                                                if(v.followup_date != null){
-                                                    html += '<p>'+v.followup_date+'</p>';
-                                                }
-                                                if(v.task_group != null){
-                                                    html += '<p>'+v.task_group+'</p>';
-                                                }
-                                                html += '</div></div>';
-                                            });
-                                            $('.activities').html(html);
-                                        }
-                                    });
+                                    
+									// Refresh activities using the global function if available
+									if(typeof getallactivities === 'function') {
+										getallactivities();
+									}
+									// Refresh notes if function is available
+									if(typeof getallnotes === 'function') {
+										getallnotes();
+									}
                                 }else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
                                 }
