@@ -37,6 +37,7 @@
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,
+            browser_spellcheck: true,
             setup: function(editor) {
                 // Ensure editor is ready
                 editor.on('init', function() {
@@ -84,6 +85,7 @@
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,
+            browser_spellcheck: true,
             setup: function(editor) {
                 // Auto-save content to textarea when it changes
                 editor.on('change', function() {
@@ -117,7 +119,8 @@
                 'removeformat | link image media table | code preview fullscreen | help',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
-            promotion: false
+            promotion: false,
+            browser_spellcheck: true
         });
     }
 
