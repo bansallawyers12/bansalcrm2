@@ -1644,7 +1644,7 @@ use App\Http\Controllers\Controller;
                                                                     'application_fee_options.commission_pending'
                                                                 )
                                                                 ->where('applications.partner_id', $fetchedData->id)
-                                                                ->where('applications.overall_status', 0) //overall status = Active
+                                                                //->where('applications.overall_status', 0) //overall status = Active
                                                                 ->where(function ($query) {
                                                                     $query->where('applications.stage', 'Coe issued')
                                                                           ->orWhere('applications.stage', 'Enrolled')
