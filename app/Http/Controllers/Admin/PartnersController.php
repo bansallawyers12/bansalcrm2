@@ -3017,6 +3017,7 @@ class PartnersController extends Controller
             
             $doctype = isset($request->doctype) ? $request->doctype : 'documents';
             $checklist = $request->input('checklist');
+            $debugId = $request->input('debug_id');
 
             if (!empty($checklist)) {
                 // Handle single checklist string or array
@@ -3068,80 +3069,166 @@ class PartnersController extends Controller
 
     //Upload all document for partners (with checklist support for bulk upload)
     public function uploadalldocument(Request $request){ 
-        if ($request->hasfile('document_upload')) {
-            $partnerid = $request->clientid;
-            $partner_info = \App\Models\Partner::select('email')->where('id', $partnerid)->first();
-            if(!empty($partner_info)){
-                $partner_unique_email = $partner_info->email;
-            } else {
-                $partner_unique_email = "";
-            }
-            
-            $doctype = isset($request->doctype) ? $request->doctype : 'documents';
-            $checklist = $request->input('checklist');
-            
-            $files = $request->file('document_upload');
-            $size = $files->getSize();
-            $fileName = $files->getClientOriginalName();
-            $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-            $fileExtension = $files->getClientOriginalExtension();
-            $name = time() . $files->getClientOriginalName();
-            $filePath = $partner_unique_email.'/'.$doctype.'/'. $name;
-            Storage::disk('s3')->put($filePath, file_get_contents($files));
+        try {
+            if ($request->hasfile('document_upload')) {
+                $partnerid = $request->clientid;
+                $partner_info = \App\Models\Partner::select('email')->where('id', $partnerid)->first();
+                if(!empty($partner_info)){
+                    $partner_unique_email = $partner_info->email;
+                } else {
+                    $partner_unique_email = "";
+                }
+                
+                $doctype = isset($request->doctype) ? $request->doctype : 'documents';
+                $checklist = $request->input('checklist');
+                $debugId = $request->input('debug_id');
+                
+                $files = $request->file('document_upload');
+                $size = $files->getSize();
+                $fileName = $files->getClientOriginalName();
+                $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
+                $fileExtension = $files->getClientOriginalExtension();
+                $name = time() . $files->getClientOriginalName();
+                $filePath = $partner_unique_email.'/'.$doctype.'/'. $name;
 
-            $req_file_id = $request->fileid;
-            
-            // If fileid provided, update existing entry
-            if (!empty($req_file_id)) {
-                $obj = \App\Models\Document::find($req_file_id);
-                if (!$obj) {
+                \Log::error('partners.uploadalldocument start', [
+                    'debug_id' => $debugId,
+                    'client_id' => $partnerid,
+                    'doctype' => $doctype,
+                    'checklist' => $checklist,
+                    'fileid' => $request->fileid,
+                    'has_file' => $request->hasfile('document_upload'),
+                    'file_original_name' => $fileName,
+                    'file_extension' => $fileExtension,
+                    'user_id' => Auth::user()->id,
+                ]);
+
+                Storage::disk('s3')->put($filePath, file_get_contents($files));
+
+                $req_file_id = $request->fileid;
+                
+                // If fileid provided, update existing entry
+                if (!empty($req_file_id)) {
+                    $obj = \App\Models\Document::find($req_file_id);
+                    if (!$obj) {
+                        $response['status'] = false;
+                        $response['message'] = 'Document not found';
+                        \Log::error('partners.uploadalldocument missing document', [
+                            'debug_id' => $debugId,
+                            'fileid' => $req_file_id,
+                        ]);
+                        echo json_encode($response);
+                        return;
+                    }
+                    \Log::error('partners.uploadalldocument update existing', [
+                        'debug_id' => $debugId,
+                        'document_id' => $obj->id,
+                        'existing_checklist' => $obj->checklist,
+                    ]);
+                } else {
+                    $obj = null;
+                    if (!empty($checklist)) {
+                        $obj = \App\Models\Document::where('client_id', $partnerid)
+                            ->where('type', 'partner')
+                            ->where('doc_type', $doctype)
+                            ->where('checklist', $checklist)
+                            ->whereNull('not_used_doc')
+                            ->whereNull('file_name')
+                            ->first();
+                    }
+
+                    // Create new entry (for bulk upload with checklist)
+                    if (!$obj) {
+                        $obj = new \App\Models\Document;
+                        if (!empty($checklist)) {
+                            $obj->checklist = $checklist;
+                        }
+                        \Log::error('partners.uploadalldocument create new', [
+                            'debug_id' => $debugId,
+                            'checklist' => $checklist,
+                        ]);
+                    } else {
+                        \Log::error('partners.uploadalldocument reuse checklist placeholder', [
+                            'debug_id' => $debugId,
+                            'document_id' => $obj->id,
+                            'checklist' => $obj->checklist,
+                        ]);
+                    }
+                }
+                
+                $obj->file_name = $nameWithoutExtension;
+                $obj->filetype = $fileExtension;
+                $obj->user_id = Auth::user()->id;
+                $fileUrl = Storage::disk('s3')->url($filePath);
+                $obj->myfile = $fileUrl;
+                $obj->myfile_key = $name;
+                $obj->client_id = $partnerid;
+                $obj->type = 'partner';
+                $obj->file_size = $size;
+                $obj->doc_type = $doctype;
+                $saved = $obj->save();
+                \Log::error('partners.uploadalldocument saved', [
+                    'debug_id' => $debugId,
+                    'document_id' => $obj->id,
+                    'saved' => (bool) $saved,
+                    'final_checklist' => $obj->checklist,
+                    'final_file_name' => $obj->file_name,
+                ]);
+                if ($saved) {
+                    $dupes = \App\Models\Document::where('client_id', $partnerid)
+                        ->where('type', 'partner')
+                        ->where('doc_type', $doctype)
+                        ->where('file_name', $nameWithoutExtension)
+                        ->whereNull('not_used_doc')
+                        ->get(['id', 'checklist', 'file_name', 'created_at']);
+                    if ($dupes->count() > 1) {
+                        \Log::error('partners.uploadalldocument duplicates detected', [
+                            'debug_id' => $debugId,
+                            'duplicate_count' => $dupes->count(),
+                            'records' => $dupes->map(function ($row) {
+                                return [
+                                    'id' => $row->id,
+                                    'checklist' => $row->checklist,
+                                    'file_name' => $row->file_name,
+                                    'created_at' => $row->created_at,
+                                ];
+                            })->values(),
+                        ]);
+                    }
+                }
+
+                if($saved){
+                    if($request->type == 'partner'){
+                        $subject = 'uploaded document';
+                        $objs = new \App\Models\ActivitiesLog;
+                        $objs->client_id = $partnerid;
+                        $objs->created_by = Auth::user()->id;
+                        $objs->description = '';
+                        $objs->subject = $subject;
+                        $objs->task_group = 'partner';
+                        $objs->task_status = 0;
+                        $objs->pin = 0;
+                        $objs->save();
+                    }
+                    $response['status'] = true;
+                    $response['message'] = 'You have successfully uploaded your document';
+                } else {
                     $response['status'] = false;
-                    $response['message'] = 'Document not found';
-                    echo json_encode($response);
-                    return;
+                    $response['message'] = 'Please try again';
                 }
-            } else {
-                // Create new entry (for bulk upload with checklist)
-                $obj = new \App\Models\Document;
-                if (!empty($checklist)) {
-                    $obj->checklist = $checklist;
-                }
-            }
-            
-            $obj->file_name = $nameWithoutExtension;
-            $obj->filetype = $fileExtension;
-            $obj->user_id = Auth::user()->id;
-            $fileUrl = Storage::disk('s3')->url($filePath);
-            $obj->myfile = $fileUrl;
-            $obj->myfile_key = $name;
-            $obj->client_id = $partnerid;
-            $obj->type = 'partner';
-            $obj->file_size = $size;
-            $obj->doc_type = $doctype;
-            $saved = $obj->save();
-
-            if($saved){
-                if($request->type == 'partner'){
-                    $subject = 'uploaded document';
-                    $objs = new \App\Models\ActivitiesLog;
-                    $objs->client_id = $partnerid;
-                    $objs->created_by = Auth::user()->id;
-                    $objs->description = '';
-                    $objs->subject = $subject;
-                    $objs->task_group = 'partner';
-                    $objs->task_status = 0;
-                    $objs->pin = 0;
-                    $objs->save();
-                }
-                $response['status'] = true;
-                $response['message'] = 'You have successfully uploaded your document';
             } else {
                 $response['status'] = false;
                 $response['message'] = 'Please try again';
             }
-        } else {
+        } catch (\Throwable $e) {
+            \Log::error('partners.uploadalldocument exception', [
+                'debug_id' => $request->input('debug_id'),
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
             $response['status'] = false;
-            $response['message'] = 'Please try again';
+            $response['message'] = 'Upload failed: ' . $e->getMessage();
         }
         echo json_encode($response);
     }

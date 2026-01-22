@@ -39,6 +39,12 @@
 // ============================================================================
 
 jQuery(document).ready(function($){
+    if (window.partnerBulkUploadInitialized) {
+        console.warn('[bulk-upload.js] Already initialized, skipping duplicate registration');
+        return;
+    }
+    window.partnerBulkUploadInitialized = true;
+
     let bulkUploadFilesPartner = [];
     let currentPartnerId = PageConfig.partnerId;
 
@@ -86,8 +92,40 @@ jQuery(document).ready(function($){
 
     $(document).on('change', '.alldocupload', function() {
         $('.popuploader').show();
-        var fileidL = $(this).attr("data-fileid");
-        var formData = new FormData($('#upload_form_' + fileidL)[0]);
+        const $input = $(this);
+        if ($input.data('uploading')) {
+            return;
+        }
+        const debugId = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+        console.log('[bulk-upload.js] Upload change fired', {
+            debugId,
+            inputFileId: $input.attr('data-fileid'),
+            inputName: $input.attr('name'),
+            fileCount: ($input[0] && $input[0].files) ? $input[0].files.length : 0
+        });
+        const form = $input.closest('form')[0];
+        if (!form) {
+            console.warn('[bulk-upload.js] Upload form not found for input.');
+            $('.popuploader').hide();
+            return;
+        }
+        $input.data('uploading', true);
+
+        const formData = new FormData(form);
+        if (!formData.has('fileid')) {
+            const fileidL = $input.attr('data-fileid');
+            if (fileidL) {
+                formData.append('fileid', fileidL);
+            }
+        }
+        formData.append('debug_id', debugId);
+        console.log('[bulk-upload.js] Upload payload', {
+            debugId,
+            formId: $(form).attr('id'),
+            formFileId: $(form).find('input[name="fileid"]').val(),
+            formChecklist: $(form).find('input[name="checklist"]').val(),
+            hasFileIdInFormData: formData.has('fileid')
+        });
 
         $.ajax({
             url: App.getUrl('partnersUploadAllDocument'),
@@ -99,7 +137,9 @@ jQuery(document).ready(function($){
             processData: false,
             success: function(responses) {
                 $('.popuploader').hide();
+                $input.data('uploading', false);
                 var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+                console.log('[bulk-upload.js] Upload response', { debugId, status: ress.status, message: ress.message });
                 if (ress.status) {
                     $('.custom-error-msg').html('<span class="alert alert-success">' + ress.message + '</span>');
                     location.reload();
@@ -109,6 +149,8 @@ jQuery(document).ready(function($){
             },
             error: function() {
                 $('.popuploader').hide();
+                $input.data('uploading', false);
+                console.warn('[bulk-upload.js] Upload error', { debugId });
                 $('.custom-error-msg').html('<span class="alert alert-danger">Error uploading document. Please try again.</span>');
             }
         });

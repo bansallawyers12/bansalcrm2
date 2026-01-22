@@ -37,11 +37,11 @@ jQuery(document).ready(function($){
         $(this).closest('.upload_document').find('input[name=document_upload]').click();
     });
 
-    $(document).delegate('input[name=document_upload]', 'click', function() {
+    $(document).delegate('.upload_document input[name=document_upload]', 'click', function() {
         $(this).attr("value", "");
     });
 
-    $(document).delegate('input[name=document_upload]', 'change', function() {
+    $(document).delegate('.upload_document input[name=document_upload]', 'change', function() {
         $('.popuploader').show();
         var formData = new FormData($(this).closest('form')[0]);
         $.ajax({

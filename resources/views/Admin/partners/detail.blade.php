@@ -948,6 +948,7 @@ use App\Http\Controllers\Controller;
 																			<input type="hidden" name="fileid" value="{{$fetch->id}}">
 																			<input type="hidden" name="type" value="partner">
 																			<input type="hidden" name="doctype" value="documents">
+																			<input type="hidden" name="checklist" value="<?php echo htmlspecialchars($fetch->checklist ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 																			<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
 																			<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
 																		</form>
@@ -3053,6 +3054,7 @@ use App\Http\Controllers\Controller;
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
+<script src="{{ asset('js/common/document-handlers.js') }}"></script>
 
 {{-- Page-Specific JavaScript Modules --}}
 <script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}"></script>
