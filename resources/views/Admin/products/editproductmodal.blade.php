@@ -90,24 +90,6 @@
 	</div>
 </div> 
 
-<!-- Interested Service Modal -->
-<div class="modal fade  custom_modal" id="eidt_interested_service" tabindex="-1" role="dialog" aria-labelledby="create_interestModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="interestModalLabel">Edit Interested Services</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body showinterestedserviceedit">
-				 
-			</div>
-		</div>
-	</div>
-</div>
-
-
 <div class="modal fade custom_modal" id="editfeeoption" tabindex="-1" role="dialog" aria-labelledby="feeoptionModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl"> 
 		<div class="modal-content">

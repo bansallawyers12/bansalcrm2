@@ -2828,14 +2828,6 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
-<div class="modal fade  custom_modal " id="interest_service_view" tabindex="-1" role="dialog" aria-labelledby="interest_serviceModalLabel">
-	<div class="modal-dialog">
-		<div class="modal-content showinterestedservice">
-			
-		</div>
-	</div>
-</div>
-
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
 		<div class="modal-content popUp">
