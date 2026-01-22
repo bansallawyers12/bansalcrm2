@@ -36,6 +36,16 @@ class Partner extends Model
         return $this->hasMany(Product::class, 'partner', 'id');
     }
     
+    public function agreements()
+    {
+        return $this->hasMany(PartnerAgreement::class, 'partner_id');
+    }
+    
+    public function activeAgreements()
+    {
+        return $this->hasMany(PartnerAgreement::class, 'partner_id')->where('status', 'active');
+    }
+    
     /**
      * =========================================
      * PHONE COUNTRY CODE ACCESSORS/MUTATORS

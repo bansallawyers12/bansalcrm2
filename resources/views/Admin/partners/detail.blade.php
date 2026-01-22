@@ -3,6 +3,8 @@
 
 @section('content')
 <link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
+<!-- jQuery UI for datepicker -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -587,138 +589,37 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>	
 								<div class="tab-pane fade <?php echo ($activeTab === 'agreements') ? 'show active' : ''; ?>" id="agreements" role="tabpanel" aria-labelledby="agreements-tab">
-									<div class="agreement_info">
-										<h4>Contact Information</h4>
-										<form method="post"  action="{{URL::to('/partner/saveagreement')}}" autocomplete="off" name="saveagreement" id="saveagreement" enctype="multipart/form-data">
-										@csrf
-										<input type="hidden" name="partner_id" value="{{$fetchedData->id}}">
-										<div class="row">
-                                            <div class="col-md-4">
-												<div class="form-group">
-													<label for="contract_start">Contract Start Date</label>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
-														{!! Form::text('contract_start', @$fetchedData->contract_start, array('id' => 'contract_start','class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
-														@if ($errors->has('contract_start'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('contract_start') }}</strong>
-															</span>
-														@endif
-													</div>
-												</div>
-											</div>
-                                          
-											<div class="col-md-4">
-												<div class="form-group">
-													<label for="contract_expiry">Contract Expiry Date</label>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">
-																<i class="fas fa-calendar-alt"></i>
-															</div>
-														</div>
-														{!! Form::text('contract_expiry', @$fetchedData->contract_expiry, array('id' => 'contract_expiry', 'class' => 'form-control contract_expiry', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
-														@if ($errors->has('contract_expiry'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('contract_expiry') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-											</div>
-											<div class="col-md-4">
-												<div class="form-group">
-													<label for="represent_region">Representing Regions</label>
-													<select class="form-control represent_region select2" multiple name="represent_region[]" >
-														<option value="">Select</option>
-														<?php
-														$represent_region = explode(',',$fetchedData->represent_region);
-														foreach(\App\Models\Country::all() as $list){
-															?>
-															<option <?php if(in_array($list->name, $represent_region)){ echo 'selected'; } ?> value="{{@$list->name}}">{{@$list->name}}</option>
-															<?php
-														}
-														?>
-													</select>
-													@if ($errors->has('represent_region'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('represent_region') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-md-3">
-												<div class="form-group">
-													<label for="commission_percentage">Commission Percentage</label>
-													{!! Form::number('commission_percentage', @$fetchedData->commission_percentage, array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Commission Percentage', 'step'=>'0.01' ))  !!}
-													@if ($errors->has('commission_percentage'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('commission_percentage') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-											<div class="col-md-1">
-												<div class="form-group">
-													<label for="gst">GST</label>
-													<input type="checkbox" <?php if(@$fetchedData->gst == 1){ echo 'checked'; } ?> name="gst" value="1">
-												</div>
-											</div>
-											<div class="col-md-3">
-												<div class="form-group">
-													<label for="default_super_agent">Default Super Agent</label>
-													<select class="form-control default_super_agent select2" name="default_super_agent" >
-														<option value="">Select</option>
-													</select>
-													@if ($errors->has('default_super_agent'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('default_super_agent') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-                                          
-                                            <div class="col-md-3">
-												<div class="form-group">
-													<label for="default_super_agent">Document upload</label>
-													<input type="file" name="file_upload"/>
-												</div>
-											</div>
-                                          
-											<div class="col-12 col-md-12 col-lg-12">
-												<div class="form-group float-end">
-													<button onclick="customValidate('saveagreement')" type="button" class="btn btn-primary">Save Changes</button>
-												</div>
-                                              
-                                                <?php
-                                                if( isset($fetchedData->file_upload ) && $fetchedData->file_upload != ""){
-                                                    // Check if it's a full URL (S3) or just filename (old local)
-                                                    if(filter_var($fetchedData->file_upload, FILTER_VALIDATE_URL)){
-                                                        // It's a full S3 URL
-                                                        $file_url = $fetchedData->file_upload;
-                                                        $file_display_name = basename(parse_url($fetchedData->file_upload, PHP_URL_PATH));
-                                                    } else {
-                                                        // Old local file - backward compatibility
-                                                        $file_url = "https://bansalcrm.com/public/img/documents/".$fetchedData->file_upload;
-                                                        $file_display_name = $fetchedData->file_upload;
-                                                    }
-                                                ?>
-                                                    <a href="<?php echo $file_url;?>" target="_blank"><?php echo $file_display_name;?></a>
-                                                <?php
-                                                }
-                                                ?>
-
-											</div>
+									<!-- Add Agreement Button -->
+									<div class="card-header-action text-end" style="padding-bottom:15px;">
+										<a href="javascript:;" class="btn btn-primary add_agreement_btn"><i class="fa fa-plus"></i> Add Agreement</a>
+									</div>
+									
+									<!-- Agreements List -->
+									<div class="agreements_list_container">
+										<div class="table-responsive">
+											<table class="table table-striped" id="agreements_table">
+												<thead>
+													<tr>
+														<th>#</th>
+														<th>Contract Start</th>
+														<th>Contract Expiry</th>
+														<th>Commission %</th>
+														<th>Bonus</th>
+														<th>Status</th>
+														<th>Document</th>
+														<th>Actions</th>
+													</tr>
+												</thead>
+												<tbody id="agreements_tbody">
+													<!-- Agreements will be loaded here via AJAX -->
+												</tbody>
+											</table>
 										</div>
-										</form>
 									</div>
 									
 									<div class="clearfix"></div>
 								</div>
+								
 								<div class="tab-pane fade <?php echo ($activeTab === 'contacts') ? 'show active' : ''; ?>" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">  
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;"  class="btn btn-primary add_clientcontact"><i class="fa fa-plus"></i> Add</a>
@@ -2894,6 +2795,139 @@ use App\Http\Controllers\Controller;
 </div>
 
 
+<!-- Partner Agreement Modal -->
+<div class="modal fade" id="agreementModal" tabindex="-1" aria-labelledby="agreementModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="agreementModalLabel">Add Agreement</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form method="post" id="agreementForm" enctype="multipart/form-data">
+				<div class="modal-body">
+					@csrf
+					<input type="hidden" name="partner_id" id="agreement_partner_id" value="{{$fetchedData->id}}">
+					<input type="hidden" name="agreement_id" id="agreement_id" value="">
+					
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label for="agreement_contract_start">Contract Start Date <span class="text-danger">*</span></label>
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
+									<input type="text" name="contract_start" id="agreement_contract_start" class="form-control datepicker" placeholder="Select Date" autocomplete="off">
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label for="agreement_contract_expiry">Contract Expiry Date <span class="text-danger">*</span></label>
+								<div class="input-group">
+									<span class="input-group-text">
+										<i class="fas fa-calendar-alt"></i>
+									</span>
+									<input type="text" name="contract_expiry" id="agreement_contract_expiry" class="form-control datepicker" placeholder="Select Date" autocomplete="off">
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label for="agreement_commission_percentage">Commission Percentage</label>
+								<input type="number" name="commission_percentage" id="agreement_commission_percentage" class="form-control" placeholder="Enter Commission Percentage" step="0.01" autocomplete="off">
+							</div>
+						</div>
+						
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label for="agreement_bonus">Bonus</label>
+								<input type="number" name="bonus" id="agreement_bonus" class="form-control" placeholder="Enter Bonus Amount" step="0.01" autocomplete="off">
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group mb-3">
+								<label for="agreement_represent_region">Representing Regions</label>
+								<select class="form-control select2" multiple name="represent_region[]" id="agreement_represent_region">
+									<option value="">Select</option>
+									<?php
+									foreach(\App\Models\Country::all() as $list){
+										?>
+										<option value="{{@$list->name}}">{{@$list->name}}</option>
+										<?php
+									}
+									?>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group mb-3">
+								<label for="agreement_description">Description</label>
+								<textarea name="description" id="agreement_description" class="form-control" rows="3" placeholder="Enter agreement description or notes"></textarea>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label for="agreement_gst">GST</label>
+								<div>
+									<input type="checkbox" name="gst" id="agreement_gst" value="1">
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label for="agreement_default_super_agent">Default Super Agent</label>
+								<select class="form-control select2" name="default_super_agent" id="agreement_default_super_agent">
+									<option value="">Select</option>
+								</select>
+							</div>
+						</div>
+						
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label for="agreement_status">Status</label>
+								<select class="form-control" name="status" id="agreement_status">
+									<option value="active">Active</option>
+									<option value="inactive">Inactive</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group mb-3">
+								<label for="agreement_file_upload">Document Upload</label>
+								<input type="file" name="file_upload" id="agreement_file_upload" class="form-control">
+								<small id="current_file_display" class="form-text text-muted"></small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="saveAgreementBtn">Save Agreement</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
 <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -3037,7 +3071,409 @@ use App\Http\Controllers\Controller;
     PageConfig.defaultCountryCode = '{{ \App\Helpers\PhoneHelper::getDefaultCountryCode() }}';
     PageConfig.contractStart = '{{ @$fetchedData->contract_start ?? "" }}';
     PageConfig.contractExpiry = '{{ @$fetchedData->contract_expiry ?? "" }}';
+    
+    // ============================================================================
+    // PARTNER AGREEMENTS HANDLER
+    // ============================================================================
+    
+    $(document).ready(function() {
+        // Load agreements on page load if on agreements tab
+        if ($('#agreements').hasClass('active')) {
+            loadPartnerAgreements();
+        }
+        
+        // Load agreements when tab is clicked
+        $('a[href="#agreements"]').on('shown.bs.tab', function() {
+            loadPartnerAgreements();
+        });
+        
+        // Add Agreement Button Click
+        $('.add_agreement_btn').on('click', function() {
+            resetAgreementForm();
+            $('#agreementModalLabel').text('Add Agreement');
+            // Use Bootstrap 5 native API or jQuery bridge
+            var agreementModal = document.getElementById('agreementModal');
+            if (agreementModal) {
+                var modal = new bootstrap.Modal(agreementModal);
+                modal.show();
+            }
+        });
+        
+        // Save Agreement Button Click
+        $('#saveAgreementBtn').on('click', function() {
+            saveAgreement();
+        });
+        
+        // Edit Agreement
+        $(document).on('click', '.edit_agreement', function() {
+            var agreementId = $(this).data('id');
+            loadAgreementData(agreementId);
+        });
+        
+        // Delete Agreement
+        $(document).on('click', '.delete_agreement', function() {
+            var agreementId = $(this).data('id');
+            deleteAgreement(agreementId);
+        });
+        
+        // Set Active Agreement
+        $(document).on('click', '.set_active_agreement', function() {
+            var agreementId = $(this).data('id');
+            setActiveAgreement(agreementId);
+        });
+        
+        // View Agreement Document
+        $(document).on('click', '.view_agreement_doc', function() {
+            var docUrl = $(this).data('url');
+            window.open(docUrl, '_blank');
+        });
+        
+        // Initialize datepickers for agreement modal
+        $('#agreement_contract_start, #agreement_contract_expiry').datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            yearRange: '-100:+10'
+        });
+    });
+    
+    // Load all partner agreements
+    function loadPartnerAgreements() {
+        $.ajax({
+            url: '{{ url("/partner/agreements/list") }}',
+            type: 'GET',
+            data: {
+                partner_id: PageConfig.partnerId
+            },
+            success: function(response) {
+                if (response.status) {
+                    displayAgreements(response.agreements);
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Failed to load agreements',
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert('Failed to load agreements');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Error loading agreements',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Error loading agreements');
+                }
+            }
+        });
+    }
+    
+    // Display agreements in table
+    function displayAgreements(agreements) {
+        var tbody = $('#agreements_tbody');
+        tbody.empty();
+        
+        if (agreements.length === 0) {
+            tbody.append('<tr><td colspan="8" class="text-center">No agreements found</td></tr>');
+            return;
+        }
+        
+        $.each(agreements, function(index, agreement) {
+            var statusBadge = agreement.status === 'active' 
+                ? '<span class="badge bg-success">Active</span>' 
+                : '<span class="badge bg-secondary">Inactive</span>';
+            
+            var contractStart = agreement.contract_start ? formatDate(agreement.contract_start) : 'N/A';
+            var contractExpiry = agreement.contract_expiry ? formatDate(agreement.contract_expiry) : 'N/A';
+            var commission = agreement.commission_percentage ? agreement.commission_percentage + '%' : 'N/A';
+            var bonus = agreement.bonus ? '$' + parseFloat(agreement.bonus).toFixed(2) : 'N/A';
+            
+            var documentLink = 'N/A';
+            if (agreement.file_upload) {
+                var fileName = agreement.file_upload.split('/').pop();
+                documentLink = '<a href="javascript:;" class="view_agreement_doc" data-url="' + agreement.file_upload + '"><i class="fa fa-file"></i> View</a>';
+            }
+            
+            var actions = '<div class="btn-group" role="group">';
+            actions += '<button type="button" class="btn btn-sm btn-primary edit_agreement" data-id="' + agreement.id + '" title="Edit"><i class="fa fa-edit"></i></button>';
+            
+            if (agreement.status === 'inactive') {
+                actions += '<button type="button" class="btn btn-sm btn-success set_active_agreement" data-id="' + agreement.id + '" title="Set Active"><i class="fa fa-check"></i></button>';
+            }
+            
+            actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete"><i class="fa fa-trash"></i></button>';
+            actions += '</div>';
+            
+            var row = '<tr>';
+            row += '<td>' + (index + 1) + '</td>';
+            row += '<td>' + contractStart + '</td>';
+            row += '<td>' + contractExpiry + '</td>';
+            row += '<td>' + commission + '</td>';
+            row += '<td>' + bonus + '</td>';
+            row += '<td>' + statusBadge + '</td>';
+            row += '<td>' + documentLink + '</td>';
+            row += '<td>' + actions + '</td>';
+            row += '</tr>';
+            
+            tbody.append(row);
+        });
+    }
+    
+    // Reset agreement form
+    function resetAgreementForm() {
+        $('#agreementForm')[0].reset();
+        $('#agreement_id').val('');
+        $('#agreement_gst').prop('checked', false);
+        $('#agreement_represent_region').val(null).trigger('change');
+        $('#agreement_status').val('active');
+        $('#current_file_display').text('');
+    }
+    
+    // Load agreement data for editing
+    function loadAgreementData(agreementId) {
+        $.ajax({
+            url: '{{ url("/partner/agreement/get") }}',
+            type: 'GET',
+            data: {
+                agreement_id: agreementId
+            },
+            success: function(response) {
+                if (response.status) {
+                    var agreement = response.agreement;
+                    
+                    $('#agreement_id').val(agreement.id);
+                    $('#agreement_contract_start').val(agreement.contract_start);
+                    $('#agreement_contract_expiry').val(agreement.contract_expiry);
+                    $('#agreement_commission_percentage').val(agreement.commission_percentage);
+                    $('#agreement_bonus').val(agreement.bonus);
+                    $('#agreement_description').val(agreement.description);
+                    $('#agreement_gst').prop('checked', agreement.gst == 1);
+                    $('#agreement_default_super_agent').val(agreement.default_super_agent).trigger('change');
+                    $('#agreement_status').val(agreement.status);
+                    
+                    // Set representing regions
+                    if (agreement.represent_region) {
+                        var regions = agreement.represent_region.split(',');
+                        $('#agreement_represent_region').val(regions).trigger('change');
+                    }
+                    
+                    // Display current file
+                    if (agreement.file_upload) {
+                        var fileName = agreement.file_upload.split('/').pop();
+                        $('#current_file_display').html('Current file: <a href="' + agreement.file_upload + '" target="_blank">' + fileName + '</a>');
+                    }
+                    
+                    $('#agreementModalLabel').text('Edit Agreement');
+                    // Use Bootstrap 5 native API or jQuery bridge
+                    var agreementModal = document.getElementById('agreementModal');
+                    if (agreementModal) {
+                        var modal = new bootstrap.Modal(agreementModal);
+                        modal.show();
+                    }
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Failed to load agreement data',
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert('Failed to load agreement data');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Error loading agreement data',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Error loading agreement data');
+                }
+            }
+        });
+    }
+    
+    // Save agreement
+    function saveAgreement() {
+        var formData = new FormData($('#agreementForm')[0]);
+        
+        $.ajax({
+            url: '{{ url("/partner/agreement/store") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status) {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                    // Use Bootstrap 5 native API to hide modal
+                    var agreementModal = document.getElementById('agreementModal');
+                    if (agreementModal) {
+                        var modal = bootstrap.Modal.getInstance(agreementModal);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                    loadPartnerAgreements();
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            },
+            error: function(xhr) {
+                var errorMsg = 'Error saving agreement';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: errorMsg,
+                        position: 'topRight'
+                    });
+                } else {
+                    alert(errorMsg);
+                }
+            }
+        });
+    }
+    
+    // Delete agreement
+    function deleteAgreement(agreementId) {
+        if (!confirm('Are you sure you want to delete this agreement?')) {
+            return;
+        }
+        
+        $.ajax({
+            url: '{{ url("/partner/agreement/delete") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                agreement_id: agreementId
+            },
+            success: function(response) {
+                if (response.status) {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                    loadPartnerAgreements();
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            },
+            error: function() {
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Error deleting agreement',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Error deleting agreement');
+                }
+            }
+        });
+    }
+    
+    // Set agreement as active
+    function setActiveAgreement(agreementId) {
+        $.ajax({
+            url: '{{ url("/partner/agreement/set-active") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                agreement_id: agreementId
+            },
+            success: function(response) {
+                if (response.status) {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                    loadPartnerAgreements();
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: response.message,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            },
+            error: function() {
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Error setting active agreement',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Error setting active agreement');
+                }
+            }
+        });
+    }
+    
+    // Format date helper function
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        var date = new Date(dateString);
+        var day = String(date.getDate()).padStart(2, '0');
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var year = date.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
 </script>
+
+<!-- jQuery UI for datepicker functionality -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>

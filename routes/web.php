@@ -438,6 +438,14 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		// The duplicate routes that were here (lines 436-532) have been removed to prevent conflicts and errors
 		
 		Route::post('/partner/saveagreement', [PartnersController::class, 'saveagreement']);
+		
+		// New multiple agreements routes
+		Route::post('/partner/agreement/store', [PartnersController::class, 'storePartnerAgreement']);
+		Route::get('/partner/agreements/list', [PartnersController::class, 'getPartnerAgreements']);
+		Route::get('/partner/agreement/get', [PartnersController::class, 'getPartnerAgreement']);
+		Route::post('/partner/agreement/delete', [PartnersController::class, 'deletePartnerAgreement']);
+		Route::post('/partner/agreement/set-active', [PartnersController::class, 'setActiveAgreement']);
+		
 		Route::post('/partner/create-contact', [PartnersController::class, 'createcontact']);
 		Route::get('/get-contacts', [PartnersController::class, 'getcontacts']);
 		Route::get('/deletecontact', [PartnersController::class, 'deletecontact']);

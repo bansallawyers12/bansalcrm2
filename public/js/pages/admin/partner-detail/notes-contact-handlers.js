@@ -152,7 +152,6 @@ jQuery(document).ready(function($){
                     $('#note_id_'+notid).remove();
                     if(delhref == 'deletedocs'){
                         $('.documnetlist #id_'+notid).remove();
-                    }
                     }else if(delhref == 'deletecontact'){
                         $.ajax({
                             url: App.getUrl('getContacts'),

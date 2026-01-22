@@ -11,6 +11,7 @@ use App\Models\Admin;
 use App\Models\Partner;
 use App\Models\Contact;
 use App\Models\PartnerBranch;
+use App\Models\PartnerAgreement;
 // use App\Models\Task; // Task system removed - December 2025
 // use App\Models\TaskLog; // Task system removed - December 2025
 //use App\Models\ActivitiesLog;
@@ -916,12 +917,261 @@ class PartnersController extends Controller
 				$response['status'] 	= 	false;
 				$response['message']	=	'Please try again';
 			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Record Not Found';
 		}
 		
 		 echo json_encode($response);
+	}
+	
+	/**
+	 * Store or update a partner agreement (New multiple agreements system)
+	 */
+	public function storePartnerAgreement(Request $request)
+	{
+		try {
+			// Validate partner exists
+			if (!Partner::where('id', '=', $request->partner_id)->exists()) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Partner not found'
+				]);
+			}
+
+			// Create or update agreement
+			if (isset($request->agreement_id) && $request->agreement_id != '') {
+				$agreement = PartnerAgreement::find($request->agreement_id);
+				if (!$agreement) {
+					return response()->json([
+						'status' => false,
+						'message' => 'Agreement not found'
+					]);
+				}
+			} else {
+				$agreement = new PartnerAgreement();
+				$agreement->partner_id = $request->partner_id;
+			}
+
+			// Set agreement fields
+			$agreement->contract_start = $request->contract_start;
+			$agreement->contract_expiry = $request->contract_expiry;
+			
+			if (isset($request->represent_region) && !empty($request->represent_region)) {
+				$agreement->represent_region = implode(',', $request->represent_region);
+			} else {
+				$agreement->represent_region = null;
+			}
+			
+			$agreement->gst = isset($request->gst) ? 1 : 0;
+			$agreement->commission_percentage = $request->commission_percentage;
+			$agreement->bonus = $request->bonus;
+			$agreement->description = $request->description;
+			$agreement->default_super_agent = $request->default_super_agent;
+			$agreement->status = $request->status ?? 'active';
+
+			// Handle file upload
+			if ($request->hasfile('file_upload')) {
+				// Get partner info for S3 path structure
+				$partner_info = Partner::select('id', 'partner_name', 'email')->where('id', $request->partner_id)->first();
+				$partner_unique_id = !empty($partner_info->email) ? $partner_info->email : "";
+
+				// Handle old file deletion (S3)
+				if (!empty($agreement->file_upload)) {
+					$old_file = $agreement->file_upload;
+					
+					// Check if old file is S3 URL
+					if (filter_var($old_file, FILTER_VALIDATE_URL) && strpos($old_file, 'amazonaws.com') !== false) {
+						$parsedUrl = parse_url($old_file);
+						if (isset($parsedUrl['path'])) {
+							$s3Key = ltrim($parsedUrl['path'], '/');
+							if (Storage::disk('s3')->exists($s3Key)) {
+								Storage::disk('s3')->delete($s3Key);
+							}
+						}
+					}
+				}
+
+				$file = $request->file('file_upload');
+				$name = time() . '_' . $file->getClientOriginalName();
+				$filePath = $partner_unique_id . '/agreements/' . $name;
+				Storage::disk('s3')->put($filePath, file_get_contents($file));
+				
+				$fileUrl = Storage::disk('s3')->url($filePath);
+				$agreement->file_upload = $fileUrl;
+			}
+
+			$saved = $agreement->save();
+
+			if ($saved) {
+				// Also update partners table for backward compatibility (keep latest agreement data)
+				$this->syncPartnerTableWithLatestAgreement($request->partner_id);
+				
+				return response()->json([
+					'status' => true,
+					'message' => 'Agreement saved successfully',
+					'agreement_id' => $agreement->id
+				]);
+			} else {
+				return response()->json([
+					'status' => false,
+					'message' => 'Failed to save agreement'
+				]);
+			}
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Error: ' . $e->getMessage()
+			]);
+		}
+	}
+
+	/**
+	 * Get all agreements for a partner
+	 */
+	public function getPartnerAgreements(Request $request)
+	{
+		$partner_id = $request->partner_id;
+		
+		$agreements = PartnerAgreement::where('partner_id', $partner_id)
+			->orderBy('created_at', 'DESC')
+			->get();
+
+		return response()->json([
+			'status' => true,
+			'agreements' => $agreements
+		]);
+	}
+
+	/**
+	 * Get a single agreement
+	 */
+	public function getPartnerAgreement(Request $request)
+	{
+		$agreement_id = $request->agreement_id;
+		
+		$agreement = PartnerAgreement::find($agreement_id);
+
+		if ($agreement) {
+			return response()->json([
+				'status' => true,
+				'agreement' => $agreement
+			]);
+		} else {
+			return response()->json([
+				'status' => false,
+				'message' => 'Agreement not found'
+			]);
+		}
+	}
+
+	/**
+	 * Delete a partner agreement
+	 */
+	public function deletePartnerAgreement(Request $request)
+	{
+		$agreement_id = $request->agreement_id;
+		
+		$agreement = PartnerAgreement::find($agreement_id);
+
+		if (!$agreement) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Agreement not found'
+			]);
+		}
+
+		// Delete file from S3 if exists
+		if (!empty($agreement->file_upload)) {
+			if (filter_var($agreement->file_upload, FILTER_VALIDATE_URL) && strpos($agreement->file_upload, 'amazonaws.com') !== false) {
+				$parsedUrl = parse_url($agreement->file_upload);
+				if (isset($parsedUrl['path'])) {
+					$s3Key = ltrim($parsedUrl['path'], '/');
+					if (Storage::disk('s3')->exists($s3Key)) {
+						Storage::disk('s3')->delete($s3Key);
+					}
+				}
+			}
+		}
+
+		$deleted = $agreement->delete();
+
+		if ($deleted) {
+			// Update partners table for backward compatibility
+			$this->syncPartnerTableWithLatestAgreement($agreement->partner_id);
+			
+			return response()->json([
+				'status' => true,
+				'message' => 'Agreement deleted successfully'
+			]);
+		} else {
+			return response()->json([
+				'status' => false,
+				'message' => 'Failed to delete agreement'
+			]);
+		}
+	}
+
+	/**
+	 * Set an agreement as active (and deactivate others)
+	 */
+	public function setActiveAgreement(Request $request)
+	{
+		$agreement_id = $request->agreement_id;
+		
+		$agreement = PartnerAgreement::find($agreement_id);
+
+		if (!$agreement) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Agreement not found'
+			]);
+		}
+
+		// Deactivate all agreements for this partner
+		PartnerAgreement::where('partner_id', $agreement->partner_id)
+			->update(['status' => 'inactive']);
+
+		// Activate the selected agreement
+		$agreement->status = 'active';
+		$saved = $agreement->save();
+
+		if ($saved) {
+			// Update partners table for backward compatibility
+			$this->syncPartnerTableWithLatestAgreement($agreement->partner_id);
+			
+			return response()->json([
+				'status' => true,
+				'message' => 'Agreement set as active'
+			]);
+		} else {
+			return response()->json([
+				'status' => false,
+				'message' => 'Failed to update agreement status'
+			]);
+		}
+	}
+
+	/**
+	 * Sync partners table with latest active agreement for backward compatibility
+	 */
+	private function syncPartnerTableWithLatestAgreement($partner_id)
+	{
+		$latestAgreement = PartnerAgreement::where('partner_id', $partner_id)
+			->where('status', 'active')
+			->orderBy('created_at', 'DESC')
+			->first();
+
+		if ($latestAgreement) {
+			$partner = Partner::find($partner_id);
+			if ($partner) {
+				$partner->contract_start = $latestAgreement->contract_start;
+				$partner->contract_expiry = $latestAgreement->contract_expiry;
+				$partner->represent_region = $latestAgreement->represent_region;
+				$partner->commission_percentage = $latestAgreement->commission_percentage;
+				$partner->default_super_agent = $latestAgreement->default_super_agent;
+				$partner->gst = $latestAgreement->gst;
+				$partner->file_upload = $latestAgreement->file_upload;
+				$partner->save();
+			}
+		}
 	}
 	
 	public function createcontact(Request $request){
