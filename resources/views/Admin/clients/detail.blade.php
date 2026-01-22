@@ -1030,7 +1030,7 @@ use App\Http\Controllers\Controller;
 											<?php
 											}else{ ?>
 												<tr>
-													<td style="text-align:center;" colspan="10">
+													<td style="text-align:center;" colspan="6">
 														No Record found
 													</td>
 												</tr>

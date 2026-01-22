@@ -124,14 +124,6 @@ class ClientApplicationController extends Controller
 
 				<td><?php if(@$alist->start_date != ''){ echo date('d/m/Y', strtotime($alist->start_date)); } ?></td>
 				<td><?php if(@$alist->end_date != ''){ echo date('d/m/Y', strtotime($alist->end_date)); } ?></td>
-				<td>
-					<div class="dropdown d-inline">
-						<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-						<div class="dropdown-menu">
-							<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction(<?php echo @$alist->id; ?>, 'applications')"><i class="fas fa-trash"></i> Delete</a>
-						</div>
-					</div>
-				</td>
 			</tr>
 				<?php
 			}
