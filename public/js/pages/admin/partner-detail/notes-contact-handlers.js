@@ -153,15 +153,6 @@ jQuery(document).ready(function($){
                     if(delhref == 'deletedocs'){
                         $('.documnetlist #id_'+notid).remove();
                     }
-                    else if(delhref == 'deleteservices'){
-                        $.ajax({
-                            url: App.getUrl('getServices'),
-                            type:'GET',
-                            data:{clientid: partnerId},
-                            success: function(responses){
-                                $('.interest_serv_list').html(responses);
-                            }
-                        });
                     }else if(delhref == 'deletecontact'){
                         $.ajax({
                             url: App.getUrl('getContacts'),
