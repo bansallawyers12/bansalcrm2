@@ -13,6 +13,7 @@ use App\Models\ActivitiesLog;
 use App\Models\Note;
 use App\Models\ClientPhone;
 use App\Mail\ClientVerifyMail;
+use App\Mail\GoogleReviewMail;
 
 use GuzzleHttp\Client;
 
@@ -222,6 +223,9 @@ class ClientMessagingController extends Controller
         $obj->title =  $subject;
         $obj->description = $request->message;
         $obj->type = $request->vtype;
+        $obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+        $obj->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+        $obj->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
         $saved = $obj->save();
 		if($saved){
             if($request->vtype == 'client'){
@@ -260,7 +264,7 @@ class ClientMessagingController extends Controller
                     'reviewLink'=> env('GOOGLE_REVIEW_LINK')
                 ];
 
-                if( \Mail::to($userInfo->email)->send(new \App\Models\Mail\GoogleReviewMail($details)) ) {
+                if( \Mail::to($userInfo->email)->send(new GoogleReviewMail($details)) ) {
                     $recExist = Admin::where('id', $data['id'])->update(['is_greview_mail_sent' => 1]);
                     if($recExist){
                         $objs = new ActivitiesLog;

@@ -233,7 +233,7 @@ jQuery(document).ready(function($){
     $('form[name="sendmail"]').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
-        var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/sendmsg';
+        var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/sendmail';
         
         // Get summernote content if available
         var emailContent = '';
@@ -243,26 +243,63 @@ jQuery(document).ready(function($){
             emailContent = $("#emailmodal .summernote-simple").val();
         }
         
-        var formData = {
-            _token: App.getCsrf(),
-            to: $('.js-data-example-ajax').val(),
-            cc: $('.js-data-example-ajaxcc').val(),
-            subject: $('.selectedsubject').val(),
-            message: emailContent,
-            client_id: App.getPageConfig('clientId')
-        };
+        // Validate required fields before submission
+        var emailFrom = $('select[name="email_from"]').val();
+        var emailTo = $('.js-data-example-ajax').val();
+        var subject = $('.selectedsubject').val();
+        
+        if (!emailFrom || emailFrom === '') {
+            alert('Please select a From email address');
+            $('.popuploader').hide();
+            return false;
+        }
+        
+        if (!emailTo || emailTo.length === 0) {
+            alert('Please select at least one recipient');
+            $('.popuploader').hide();
+            return false;
+        }
+        
+        if (!subject || subject.trim() === '') {
+            alert('Please enter email subject');
+            $('.popuploader').hide();
+            return false;
+        }
+        
+        if (!emailContent || emailContent.trim() === '') {
+            alert('Please enter email message');
+            $('.popuploader').hide();
+            return false;
+        }
+        
+        // Create FormData to handle file uploads
+        var formData = new FormData(form[0]);
+        
+        // Override/ensure message field has summernote content
+        formData.set('message', emailContent);
         
         $('.popuploader').show();
         $.ajax({
             url: url,
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
             success: function(response) {
                 $('.popuploader').hide();
                 var res = typeof response === 'string' ? $.parseJSON(response) : response;
                 if(res.status) {
                     alert(res.message || 'Email sent successfully');
                     $('#emailmodal').modal('hide');
+                    // Reset form
+                    form[0].reset();
+                    if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
+                        $("#emailmodal .summernote-simple").summernote('reset');
+                    }
                     if(typeof getallactivities === 'function') {
                         getallactivities();
                     }
@@ -270,9 +307,27 @@ jQuery(document).ready(function($){
                     alert(res.message || 'Failed to send email');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
                 $('.popuploader').hide();
-                alert('An error occurred while sending the email');
+                console.error('Email send error:', xhr.responseText);
+                var errorMessage = 'An error occurred while sending the email';
+                
+                // Try to parse error response
+                try {
+                    var errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.message) {
+                        errorMessage = errorResponse.message;
+                    }
+                } catch (e) {
+                    // If response is not JSON, check if it's HTML error page
+                    if (xhr.responseText && xhr.responseText.includes('<html')) {
+                        errorMessage = 'Server error occurred. Please check server logs.';
+                    } else if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
+                }
+                
+                alert(errorMessage);
             }
         });
         

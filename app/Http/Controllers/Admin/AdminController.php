@@ -1164,7 +1164,20 @@ class AdminController extends Controller
 
 	public function gettemplates(Request $request){
 		$id = $request->id;
-		$CrmEmailTemplate = \App\Models\CrmEmailTemplate::where('id',$id)->first();
+		
+		// Validate and sanitize the ID parameter - PostgreSQL requires valid integers
+		if (empty($id) || $id === '' || $id === null) {
+			echo json_encode(array('subject'=>'','description'=>''));
+			return;
+		}
+		
+		// Ensure ID is a valid integer
+		if (!is_numeric($id)) {
+			echo json_encode(array('subject'=>'','description'=>''));
+			return;
+		}
+		
+		$CrmEmailTemplate = \App\Models\CrmEmailTemplate::where('id', (int)$id)->first();
 		if($CrmEmailTemplate){
 			echo json_encode(array('subject'=>$CrmEmailTemplate->subject, 'description'=>$CrmEmailTemplate->description));
 		}else{
@@ -1175,8 +1188,38 @@ class AdminController extends Controller
 	public function sendmail(Request $request){
 		$requestData = $request->all();
 		//echo '<pre>'; print_r($requestData); die;
+		
+		// Validate required fields
+		if (!isset($requestData['email_from']) || empty($requestData['email_from'])) {
+			if($request->ajax() || $request->wantsJson()) {
+				return response()->json(['status' => false, 'message' => 'Please select a From email address']);
+			}
+			return redirect()->back()->with('error', 'Please select a From email address')->withInput();
+		}
+		
+		if (!isset($requestData['email_to']) || empty($requestData['email_to'])) {
+			if($request->ajax() || $request->wantsJson()) {
+				return response()->json(['status' => false, 'message' => 'Please select at least one recipient']);
+			}
+			return redirect()->back()->with('error', 'Please select at least one recipient')->withInput();
+		}
+		
+		if (!isset($requestData['subject']) || empty($requestData['subject'])) {
+			if($request->ajax() || $request->wantsJson()) {
+				return response()->json(['status' => false, 'message' => 'Please enter email subject']);
+			}
+			return redirect()->back()->with('error', 'Please enter email subject')->withInput();
+		}
+		
+		if (!isset($requestData['message']) || empty($requestData['message'])) {
+			if($request->ajax() || $request->wantsJson()) {
+				return response()->json(['status' => false, 'message' => 'Please enter email message']);
+			}
+			return redirect()->back()->with('error', 'Please enter email message')->withInput();
+		}
+		
 		$user_id = @Auth::user()->id;
-		$reciept_id = '';
+		$reciept_id = null; // Initialize as NULL for PostgreSQL integer column compatibility
 		$array = array();
 
         if(isset($requestData['receipt'])){
@@ -1257,18 +1300,23 @@ class AdminController extends Controller
 
 		$obj = new \App\Models\MailReport;
 		$obj->user_id 		=  $user_id;
-		$obj->from_mail 	=  $requestData['email_from'];
-		$obj->to_mail 		=  implode(',',$requestData['email_to']);
+		$obj->from_mail 	=  isset($requestData['email_from']) ? $requestData['email_from'] : '';
+		$obj->to_mail 		=  isset($requestData['email_to']) ? implode(',',$requestData['email_to']) : '';
 		if(isset($requestData['email_cc'])){
 		$obj->cc 			=  implode(',',@$requestData['email_cc']);
 		}
-		$obj->template_id 	=  $requestData['template'];
+		// Handle template_id - PostgreSQL integer column cannot accept empty strings, must be NULL or valid integer
+		$obj->template_id 	=  (isset($requestData['template']) && $requestData['template'] !== '' && $requestData['template'] !== null) 
+								? (int)$requestData['template'] 
+								: null;
 		$obj->reciept_id 	=  $reciept_id;
-		$obj->subject		=  $requestData['subject'];
+		$obj->subject		=  isset($requestData['subject']) ? $requestData['subject'] : '';
 		if(isset($requestData['type'])){
 		$obj->type 			=  @$requestData['type'];
 		}
-		$obj->message		 =  $requestData['message'];
+		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
+		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
+		$obj->mail_type		=  1;
       
 		$attachments = array();
       
@@ -1320,6 +1368,8 @@ class AdminController extends Controller
                 $objs->client_id = $obj->to_mail;
                 $objs->created_by = Auth::user()->id;
                 $objs->subject = "Checklist sent to client";
+                $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                 $objs->save();
             }
         }
@@ -1331,6 +1381,8 @@ class AdminController extends Controller
                 $objs->client_id = $obj->to_mail;
                 $objs->created_by = Auth::user()->id;
                 $objs->subject = "Document Checklist sent to client";
+                $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
                 $objs->save();
             }
         }
@@ -1462,8 +1514,16 @@ class AdminController extends Controller
                     @unlink($array['file']);
                 }
 
+                // Return JSON response for AJAX requests
+                if($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['status' => true, 'message' => 'Email sent successfully!']);
+                }
                 return redirect()->back()->with('success', 'Email sent successfully!');
             } catch (\Exception $e) {
+                // Return JSON response for AJAX requests
+                if($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['status' => false, 'message' => 'Failed to send email: ' . $e->getMessage()]);
+                }
                 return redirect()->back()->with('error', 'Failed to send email: ' . $e->getMessage())->withInput();
             }
 		}
@@ -1471,8 +1531,16 @@ class AdminController extends Controller
             unset($array['file']);
         }
         if(!$saved) {
+            // Return JSON response for AJAX requests
+            if($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => false, 'message' => Config::get('constants.server_error')]);
+            }
             return redirect()->back()->with('error', Config::get('constants.server_error'));
         } else {
+            // Return JSON response for AJAX requests
+            if($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => true, 'message' => 'Email Sent Successfully']);
+            }
             return redirect()->back()->with('success', 'Email Sent Successfully');
         }
 	}
