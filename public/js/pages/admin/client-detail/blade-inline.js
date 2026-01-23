@@ -217,7 +217,7 @@ jQuery(document).ready(function($) {
     $(document).on('click', '.activity-type-dropdown-item', function(e) {
         e.preventDefault();
         var type = $(this).data('type');
-        var label = $(this).text();
+        var label = $(this).text().trim();
         
         // Remove active class from all buttons and dropdown items
         $('.activity-type-btn').removeClass('active');
@@ -226,7 +226,7 @@ jQuery(document).ready(function($) {
         // Add active class to clicked dropdown item
         $(this).addClass('active');
         
-        // Update dropdown button
+        // Update dropdown button - text and active class
         var $dropdownBtn = $('.activity-type-btn.dropdown-toggle');
         $dropdownBtn.text(label).addClass('active');
         

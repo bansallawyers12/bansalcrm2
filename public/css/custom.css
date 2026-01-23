@@ -1774,10 +1774,9 @@ select.form-control:focus {
 /* Bulk Upload Modal Responsive Fix
    ============================================================================= */
 .bulk-upload-modal-overlay {
-	padding: 20px;
-	align-items: flex-start;
-	justify-content: center;
-	overflow-y: auto;
+	padding: 20px !important;
+	align-items: flex-start !important;
+	justify-content: center !important;
 }
 
 /* When modal is visible, use flex layout */
@@ -1786,16 +1785,16 @@ select.form-control:focus {
 }
 
 .bulk-upload-modal-content {
-	margin: 10px auto;
-	max-width: 1200px;
-	width: calc(100% - 40px);
-	min-width: 600px;
-	background: white;
-	border-radius: 8px;
-	box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-	max-height: calc(100vh - 80px);
-	overflow-y: auto;
-	position: relative;
+	margin: 0 auto !important;
+	max-width: 1200px !important;
+	width: 95% !important;
+	min-width: 600px !important;
+	background: white !important;
+	border-radius: 8px !important;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+	max-height: calc(100vh - 40px) !important;
+	overflow-y: auto !important;
+	position: relative !important;
 }
 
 /* Table responsive wrapper */
@@ -1863,24 +1862,23 @@ select.form-control:focus {
 /* Responsive adjustments for smaller screens */
 @media (max-width: 1024px) {
 	.bulk-upload-modal-content {
-		margin: 10px;
-		width: calc(100% - 40px);
-		min-width: auto;
+		margin: 10px auto !important;
+		width: 95% !important;
+		min-width: auto !important;
 	}
 }
 
 /* Account for sidebar on medium screens */
 @media (max-width: 768px) {
 	.bulk-upload-modal-overlay {
-		left: 0 !important;
-		padding-left: 0 !important;
+		padding: 10px !important;
 	}
 	
 	.bulk-upload-modal-content {
-		margin: 10px;
-		width: calc(100% - 20px);
-		max-width: none;
-		max-height: calc(100vh - 20px);
+		margin: 5px auto !important;
+		width: 98% !important;
+		min-width: auto !important;
+		max-height: calc(100vh - 20px) !important;
 	}
 	
 	/* Ensure table is scrollable horizontally */
@@ -2008,5 +2006,40 @@ select.form-control:focus {
 .checklist-select {
 	width: 100%;
 	min-width: 180px;
+}
+
+/* ============================================================================
+   ACTIVITY FILTER BUTTON STYLES
+   ============================================================================
+   Fix for activity type filter buttons to show proper active state
+   Uses !important to override inline styles from blade template
+   ========================================================================= */
+
+/* Active state for main filter buttons (All, Notes) */
+.activity-type-btn.active {
+	background-color: #6777ef !important;
+	color: #fff !important;
+	border-color: #6777ef !important;
+}
+
+/* Hover state for filter buttons */
+.activity-type-btn:not(.active):hover {
+	background-color: #f8f9fa !important;
+	border-color: #6777ef !important;
+}
+
+/* Active state for dropdown items */
+.activity-type-dropdown-item.active {
+	background-color: #6777ef !important;
+	color: #fff !important;
+}
+
+/* Hover state for dropdown items */
+.activity-type-dropdown-item:hover {
+	background-color: #f0f0f0 !important;
+}
+
+.activity-type-dropdown-item.active:hover {
+	background-color: #5568d3 !important;
 }
 

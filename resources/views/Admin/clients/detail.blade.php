@@ -820,12 +820,11 @@ use App\Http\Controllers\Controller;
 												case 'applications':
 													$query->where('activities_logs.subject', 'like', '%started an application%');
 													break;
-												case 'services':
-													$query->where(function($q) {
-														$q->where('activities_logs.subject', 'like', '%interested service%')
-														  ->orWhere('activities_logs.subject', 'like', '%service%');
-													});
-													break;
+											case 'services':
+												$query->where(function($q) {
+													$q->where('activities_logs.subject', 'like', '%an interested service%');
+												});
+												break;
 												case 'status':
 													$query->where(function($q) {
 														$q->where('activities_logs.subject', 'like', '%status%')
@@ -1429,7 +1428,7 @@ use App\Http\Controllers\Controller;
                                     </div>
                                     
                                     <!-- Bulk Upload Mapping Modal -->
-                                    <div id="bulk-upload-mapping-modal" class="bulk-upload-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto;">
+                                    <div id="bulk-upload-mapping-modal" class="bulk-upload-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow-y: auto; padding: 20px 0;">
                                         <div class="bulk-upload-modal-content">
                                             <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                                                 <h3 style="margin: 0; color: #333;">Map Files to Checklists</h3>
