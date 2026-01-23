@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.adminconsole')
 @section('title', 'Create Roles and Permissions')
 
 @section('content')
@@ -22,7 +22,7 @@
 							</div>
 						</div>
 					</div>	
-					<div class="col-12 col-md-12 col-lg-12">
+					<div class="col-12">
 						<div class="card">
 							<div class="card-body">
 								<div class="row">

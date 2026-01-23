@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.adminconsole')
 @section('title', 'Teams')
 
 @section('content')
@@ -14,7 +14,7 @@
 			{!! Form::open(array('url' => 'teams/store', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
 			@endif
 				<div class="row">   
-					<div class="col-12 col-md-12 col-lg-12">
+					<div class="col-12">
 						<div class="card">
 							<div class="card-header">
 								<h4>Checklists</h4>
