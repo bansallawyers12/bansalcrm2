@@ -2,6 +2,36 @@
 @section('title', 'Partner Detail')
 
 @section('content')
+@php
+	// Determine active tab early for layout conditionals
+	$allowedTabs = [
+		'application',
+		'partner-activities',
+		'products',
+		'branches',
+		'agreements',
+		'contacts',
+		'noteterm',
+		'documents',
+		'notuseddocuments',
+		'accounts',
+		'conversations',
+		'promotions',
+		'student',
+		'invoice',
+		'email-v2'
+	];
+	$tabAliases = [
+		'activities' => 'partner-activities',
+		'notestrm' => 'noteterm'
+	];
+	$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
+	$requestedTab = Request::route('tab') ?? Request::get('tab');
+	if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
+		$requestedTab = 'application';
+	}
+	$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
+@endphp
 <link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
 <!-- jQuery UI for datepicker -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
@@ -36,6 +66,11 @@
 .dt-buttons .btn i {
     margin-right: 5px;
 }
+/* Full width for email tab */
+.partner-main-content.email-tab-full-width {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
 </style>
 <?php
 use App\Http\Controllers\Controller;
@@ -65,7 +100,7 @@ use App\Http\Controllers\Controller;
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-3 col-md-3 col-lg-3">
+				<div class="col-3 col-md-3 col-lg-3 partner-left-sidebar <?php echo ($activeTab === 'email-v2') ? 'd-none' : ''; ?>">
 					<div class="card author-box left_section_upper">
 						<div class="card-body">
 							<div class="author-box-center">
@@ -204,37 +239,10 @@ use App\Http\Controllers\Controller;
 						</div>
 					</div>
 				</div>
-				<div class="col-9 col-md-9 col-lg-9">
+				<div class="col-9 col-md-9 col-lg-9 partner-main-content <?php echo ($activeTab === 'email-v2') ? 'email-tab-full-width' : ''; ?>">
 					<div class="card">
 						<div class="card-body">
 							@php
-								$allowedTabs = [
-									'application',
-									'partner-activities',
-									'products',
-									'branches',
-									'agreements',
-									'contacts',
-									'noteterm',
-									'documents',
-									'notuseddocuments',
-									'accounts',
-									'conversations',
-									'promotions',
-									'student',
-									'invoice',
-									'email-v2'
-								];
-								$tabAliases = [
-									'activities' => 'partner-activities',
-									'notestrm' => 'noteterm'
-								];
-								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
-								$requestedTab = Request::route('tab') ?? Request::get('tab');
-								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
-									$requestedTab = 'application';
-								}
-								$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 								$partnerId = base64_encode(convert_uuencode($fetchedData->id));
 							@endphp
 							<ul class="nav nav-pills" id="partner_tabs" role="tablist">
