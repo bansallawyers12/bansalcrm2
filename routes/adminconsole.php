@@ -18,9 +18,7 @@ use App\Http\Controllers\AdminConsole\PartnerTypeController;
 use App\Http\Controllers\AdminConsole\VisaTypeController;
 use App\Http\Controllers\AdminConsole\MasterCategoryController;
 use App\Http\Controllers\AdminConsole\LeadServiceController;
-use App\Http\Controllers\AdminConsole\SubjectController;
 use App\Http\Controllers\AdminConsole\SourceController;
-use App\Http\Controllers\AdminConsole\TagController;
 use App\Http\Controllers\AdminConsole\ChecklistController;
 use App\Http\Controllers\AdminConsole\FeeTypeController;
 use App\Http\Controllers\AdminConsole\WorkflowController;
@@ -79,12 +77,8 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     // NOTE: Subject Area routes have been removed
     // SubjectAreaController and subject_areas table have been dropped
     
-    //Subject Routes
-    Route::get('/subject', [SubjectController::class, 'index'])->name('adminconsole.subject.index');
-    Route::get('/subject/create', [SubjectController::class, 'create'])->name('adminconsole.subject.create');  
-    Route::post('/subject/store', [SubjectController::class, 'store'])->name('adminconsole.subject.store');  
-    Route::get('/subject/edit/{id}', [SubjectController::class, 'edit'])->name('adminconsole.subject.edit');
-    Route::post('/subject/edit', [SubjectController::class, 'edit'])->name('adminconsole.subject.update');
+    // NOTE: Subject routes have been removed
+    // SubjectController and subjects table have been dropped
     
     //Source Routes
     Route::get('/source', [SourceController::class, 'index'])->name('adminconsole.source.index');  
@@ -93,12 +87,7 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::get('/source/edit/{id}', [SourceController::class, 'edit'])->name('adminconsole.source.edit');
     Route::post('/source/edit', [SourceController::class, 'edit'])->name('adminconsole.source.update');
     
-    //Tags Routes
-    Route::get('/tags', [TagController::class, 'index'])->name('adminconsole.tags.index');  
-    Route::get('/tags/create', [TagController::class, 'create'])->name('adminconsole.tags.create');  
-    Route::post('/tags/store', [TagController::class, 'store'])->name('adminconsole.tags.store');     
-    Route::get('/tags/edit/{id}', [TagController::class, 'edit'])->name('adminconsole.tags.edit');
-    Route::post('/tags/edit', [TagController::class, 'edit'])->name('adminconsole.tags.update');
+    // NOTE: Tags routes have been removed - tags work differently and don't need backend
     
     //Checklist Routes
     Route::get('/checklist', [ChecklistController::class, 'index'])->name('adminconsole.checklist.index');  

@@ -46,7 +46,7 @@ class ChecklistController extends Controller
 		
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
 		
-		return view('Admin.checklist.index',compact(['lists', 'totalData'])); 	
+		return view('AdminConsole.checklist.index',compact(['lists', 'totalData'])); 	
 		
 		//return view('AdminConsole.producttype.index');	 
 	}
@@ -56,7 +56,7 @@ class ChecklistController extends Controller
 		//check authorization end
 		//return view('Admin.users.create',compact(['usertype']));	
 		
-		return view('Admin.checklist.create');	
+		return view('AdminConsole.checklist.create');	
 	}
 	 
 	public function store(Request $request)
@@ -84,7 +84,7 @@ class ChecklistController extends Controller
 			}				
 		}	
 
-		return view('Admin.checklist.create');	
+		return view('AdminConsole.checklist.create');	
 	}
 	
 	public function edit(Request $request, $id = NULL)
@@ -125,7 +125,7 @@ class ChecklistController extends Controller
 				if(Checklist::where('id', '=', $id)->exists()) 
 				{
 					$fetchedData = Checklist::find($id);
-					return view('Admin.checklist.edit', compact(['fetchedData']));
+					return view('AdminConsole.checklist.edit', compact(['fetchedData']));
 				}
 				else 
 				{

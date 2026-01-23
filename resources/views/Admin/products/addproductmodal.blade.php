@@ -152,29 +152,6 @@
 				<div class="row">
 					<div class="col-12 col-md-6 col-lg-6">
 						<div class="form-group">
-							<label for="degree_level">Subject Area</label> 	
-							<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
-									<option value="">Please Select Subject Area</option>
-									<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
-								</select>
-							<span class="custom-error degree_level_error" role="alert">
-								<strong></strong>
-							</span> 
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-6">
-						<div class="form-group">
-							<label for="degree_level">Subject<span class="span_req">*</span></label> 	
-							<select data-valid="" class="form-control subject select2" id="subject" name="subject">
-									<option value="">Please Select Subject</option>
-								</select>
-							<span class="custom-error degree_level_error" role="alert">
-								<strong></strong>
-							</span> 
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-6">
-						<div class="form-group">
 							<label for="degree_level">Degree Level</label> 	
 							<select data-valid="required" class="form-control degree_level select2" name="degree_level">
 								<option value=""></option>
