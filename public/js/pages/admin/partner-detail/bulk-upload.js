@@ -327,8 +327,8 @@ jQuery(document).ready(function($){
         const tableContainer = $('#bulk-upload-mapping-table-partner');
 
         let html = '<div class="table-responsive" style="overflow-x: auto;">';
-        html += '<table class="table table-bordered" style="width: 100%; min-width: 600px; margin-bottom: 0;">';
-        html += '<thead><tr><th style="min-width: 150px;">File Name</th><th style="min-width: 200px;">Checklist Assignment</th><th style="min-width: 100px;">Status</th><th style="min-width: 80px;">Action</th></tr></thead>';
+        html += '<table class="table table-bordered bulk-upload-table" style="width: 100%; min-width: 600px; margin-bottom: 0;">';
+        html += '<thead><tr><th>File Name</th><th>Checklist Assignment</th><th>Status</th><th>Action</th></tr></thead>';
         html += '<tbody>';
 
         Array.from(files).forEach((file, index) => {
@@ -336,19 +336,19 @@ jQuery(document).ready(function($){
             const fileSize = formatFileSizePartner(file.size);
 
             html += '<tr class="bulk-upload-file-item">';
-            html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2;"></i><div><div class="file-name">' + escapeHtmlPartner(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666;">' + fileSize + '</div></div></div></td>';
-            html += '<td style="min-width: 200px;">';
-            html += '<select class="form-control checklist-select" data-file-index="' + index + '" style="width: 100%;">';
+            html += '<td><div class="file-info"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name">' + escapeHtmlPartner(fileName) + '</div><div class="file-size">' + fileSize + '</div></div></div></td>';
+            html += '<td>';
+            html += '<select class="form-control checklist-select" data-file-index="' + index + '">';
             html += '<option value="">-- Select Checklist --</option>';
             html += '<option value="__NEW__">+ Create New Checklist</option>';
             checklists.forEach(checklist => {
                 html += '<option value="' + escapeHtmlPartner(checklist.name) + '">' + escapeHtmlPartner(checklist.name) + '</option>';
             });
             html += '</select>';
-            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none; width: 100%;">';
+            html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none;">';
             html += '</td>';
-            html += '<td style="white-space: nowrap;"><span class="match-status manual">Manual selection</span></td>';
-            html += '<td style="white-space: nowrap;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
+            html += '<td><span class="match-status manual">Manual selection</span></td>';
+            html += '<td><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
             html += '</tr>';
         });
 

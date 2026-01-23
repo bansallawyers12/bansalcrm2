@@ -1784,10 +1784,10 @@ select.form-control:focus {
 	display: flex !important;
 }
 
-.bulk-upload-modal-content {
-	margin: 0 auto !important;
-	max-width: 1200px !important;
-	width: 95% !important;
+.bulk-upload-modal-content{
+	/*margin: 0 auto !important;
+	max-width: 1200px !important;*/
+	width: 65% !important;
 	min-width: 600px !important;
 	background: white !important;
 	border-radius: 8px !important;
@@ -1795,6 +1795,16 @@ select.form-control:focus {
 	max-height: calc(100vh - 40px) !important;
 	overflow-y: auto !important;
 	position: relative !important;
+	margin-top: 100px;
+    margin-left: 200px;
+}
+
+#bulk-upload-mapping-modal-partner {
+	margin-left: 100px;
+}
+
+.bulk-upload-file-item{
+	height: 132px;
 }
 
 /* Table responsive wrapper */
