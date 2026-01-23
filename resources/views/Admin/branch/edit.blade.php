@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.adminconsole')
 @section('title', 'Edit Branch')
 
 @section('content')
@@ -9,7 +9,7 @@
 			{!! Form::open(array('url' => 'branch/edit', 'name'=>"edit-branch", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			{!! Form::hidden('id', @$fetchedData->id)  !!}
 				<div class="row">
-					<div class="col-12 col-md-12 col-lg-12">
+					<div class="col-12">
 						<div class="card">
 							<div class="card-header">
 								<h4>Edit Branch</h4>

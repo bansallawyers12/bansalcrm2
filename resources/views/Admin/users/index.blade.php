@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.adminconsole')
 @section('title', 'Users')
 
 @section('content')
@@ -9,9 +9,9 @@
 		<div class="section-body">
 			<div class="row">
 				@if(isset($viewType) && ($viewType == 'active' || $viewType == 'inactive'))
-				<div class="col-12 col-md-12 col-lg-12"><div class="custom-error-msg"></div></div>
+				<div class="col-12"><div class="custom-error-msg"></div></div>
 				@endif
-				<div class="col-12 col-md-12 col-lg-12">
+				<div class="col-12">
 					<div class="card">
 						<div class="card-header">
 							<h4>Users</h4>
