@@ -1680,93 +1680,148 @@ class ApplicationsController extends Controller
                             if($appfeeoption)
                             {
                                 $appfeeoptiontype = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)->where('fee_option_type', 2)->get();
-                                foreach($appfeeoptiontype as $fee)
+                                
+                                // Check if there are any records to display
+                                if($appfeeoptiontype->count() > 0)
                                 {
-                                    $totl += $fee->total_fee;
+                                    foreach($appfeeoptiontype as $fee)
+                                    {
+                                        $totl += $fee->total_fee;
 
-                                    //Total Commission
-                                    if( isset($fee->total_fee) && $fee->total_fee != ""){
-                                        $total_fee_per_line = $fee->total_fee;
+                                        //Total Commission
+                                        if( isset($fee->total_fee) && $fee->total_fee != ""){
+                                            $total_fee_per_line = $fee->total_fee;
 
-                                        //if commission per line is not empty
-                                        if( isset($fee->commission_percentage) && $fee->commission_percentage != ""){
-                                            $commission_per_line  = $fee->commission;
-                                        } else  {
-                                            $commission_per_line  = ($total_fee_per_line * $commission_percentage)/100;
+                                            //if commission per line is not empty
+                                            if( isset($fee->commission_percentage) && $fee->commission_percentage != ""){
+                                                $commission_per_line  = $fee->commission;
+                                            } else  {
+                                                $commission_per_line  = ($total_fee_per_line * $commission_percentage)/100;
+                                            }
+                                        } else {
+                                            $commission_per_line  = 0;
                                         }
-                                    } else {
-                                        $commission_per_line  = 0;
-                                    }
-                                    $totl_commission += $commission_per_line;
+                                        $totl_commission += $commission_per_line;
 
-                                    $sum_of_adjustment += $fee->adjustment_discount_entry;
-                                    $total_commission_claimed  += $fee->commission_claimed;
+                                        $sum_of_adjustment += $fee->adjustment_discount_entry;
+                                        $total_commission_claimed  += $fee->commission_claimed;
 
-                                    //Paid Commission
-                                    if( $fee->claimed_or_not == 'Yes') {
-                                        $sum_of_paid_commission +=  $fee->commission_claimed;
-                                    }
-                                    //Pending Commission
-                                    if( $fee->claimed_or_not == 'No' ) {
-                                        $sum_of_pending_commission +=  $fee->commission_claimed;
-                                    }
-                                    //Anticipated Commission
-                                    if( $fee->claimed_or_not == 'Anticipated' ) {
-                                        $sum_of_anticipated_commission +=  $fee->commission_claimed;
-                                    }
+                                        //Paid Commission
+                                        if( $fee->claimed_or_not == 'Yes') {
+                                            $sum_of_paid_commission +=  $fee->commission_claimed;
+                                        }
+                                        //Pending Commission
+                                        if( $fee->claimed_or_not == 'No' ) {
+                                            $sum_of_pending_commission +=  $fee->commission_claimed;
+                                        }
+                                        //Anticipated Commission
+                                        if( $fee->claimed_or_not == 'Anticipated' ) {
+                                            $sum_of_anticipated_commission +=  $fee->commission_claimed;
+                                        }
+                                        ?>
+
+                                        <tr class="add_fee_option cus_fee_option">
+                                            <td>
+                                                <input type="hidden" value="2"  name="fee_option_type[]">
+                                                <input type="text" data-valid="required" value="<?php echo $fee->date_paid;?>" class="form-control date_paid" name="date_paid[]">
+                                            </td>
+                                            <td>
+                                                <input type="number" data-valid="required" value="<?php echo $fee->total_fee;?>" class="form-control total_fee_am_2nd" name="total_fee[]">
+                                            </td>
+                                            <td>
+                                                <?php
+                                                //if commission per line is not empty
+                                                if( isset($fee->commission_percentage) && $fee->commission_percentage != ""){ ?>
+                                                    <input type="number" data-valid="required" value="<?php echo $fee->commission_percentage;?>" class="form-control commission_percentage" name="commission_percentage[]">
+                                                <?php } else { ?>
+                                                    <input type="number" data-valid="required" value="<?php echo $commission_percentage;?>" class="form-control commission_percentage" name="commission_percentage[]">
+                                                <?php } ?>
+                                            </td>
+                                            <td>
+                                                <input type="text" value="<?php echo $fee->commission;?>" class="form-control commission_cal" readonly>
+                                                <input type="hidden" value="<?php echo $fee->commission;?>" class="form-control commission_cal_hidden" name="commission[]">
+                                            </td>
+                                            <td>
+                                                <input type="number" data-valid="required" value="<?php echo $fee->adjustment_discount_entry;?>" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]">
+                                            </td>
+                                            <td>
+                                                <input type="text" value="<?php echo $fee->commission_claimed;?>" class="form-control commission_claimed" readonly>
+                                                <input type="hidden" value="<?php echo $fee->commission_claimed;?>" class="form-control commission_claimed_hidden" name="commission_claimed[]">
+                                            </td>
+
+                                            <td>
+                                                <select class="form-control" data-valid="required"  name="claimed_or_not[]" >
+                                                    <option value="">Select</option>
+                                                    <option value="Yes" <?php if( $fee->claimed_or_not == 'Yes' ) { echo ' selected="selected"'; } else { echo '';} ?> >Yes</option>
+                                                    <option value="No" <?php if( $fee->claimed_or_not == 'No' ) { echo ' selected="selected"'; } else { echo '';} ?> >No</option>
+                                                    <option value="Anticipated" <?php if( $fee->claimed_or_not == 'Anticipated' ) { echo ' selected="selected"'; } else { echo '';} ?> >Anticipated</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <select class="form-control" data-valid="required"  name="source[]" >
+                                                    <option value="">Select</option>
+                                                    <option value="Prededuct" <?php if( $fee->source == 'Prededuct' ) { echo ' selected="selected"'; } else { echo '';} ?> >Prededuct</option>
+                                                    <option value="Reported by college" <?php if( $fee->source == 'Reported by college' ) { echo ' selected="selected"'; } else { echo '';} ?> >Reported by college</option>
+                                                    <option value="Calculated by us" <?php if( $fee->source == 'Calculated by us' ) { echo ' selected="selected"'; } else { echo '';} ?> >Calculated by us</option>
+                                                    <option value="Told by student" <?php if( $fee->source == 'Told by student' ) { echo ' selected="selected"'; } else { echo '';} ?> >Told by student</option>
+                                                    <option value="Bonus" <?php if( $fee->source == 'Bonus' ) { echo ' selected="selected"'; } else { echo '';} ?> >Bonus</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <?php
+                                    } //end foreach
+                                }
+                                else
+                                {
+                                    // No fee records exist, create default empty row
                                     ?>
-
                                     <tr class="add_fee_option cus_fee_option">
                                         <td>
                                             <input type="hidden" value="2"  name="fee_option_type[]">
-                                            <input type="text" data-valid="required" value="<?php echo $fee->date_paid;?>" class="form-control date_paid" name="date_paid[]">
+                                            <input type="text" data-valid="required" value="" class="form-control date_paid" name="date_paid[]">
                                         </td>
                                         <td>
-                                            <input type="number" data-valid="required" value="<?php echo $fee->total_fee;?>" class="form-control total_fee_am_2nd" name="total_fee[]">
-                                        </td>
-                                        <td>
-                                            <?php
-                                            //if commission per line is not empty
-                                            if( isset($fee->commission_percentage) && $fee->commission_percentage != ""){ ?>
-                                                <input type="number" data-valid="required" value="<?php echo $fee->commission_percentage;?>" class="form-control commission_percentage" name="commission_percentage[]">
-                                            <?php } else { ?>
-                                                <input type="number" data-valid="required" value="<?php echo $commission_percentage;?>" class="form-control commission_percentage" name="commission_percentage[]">
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            <input type="text" value="<?php echo $fee->commission;?>" class="form-control commission_cal" readonly>
-                                            <input type="hidden" value="<?php echo $fee->commission;?>" class="form-control commission_cal_hidden" name="commission[]">
-                                        </td>
-                                        <td>
-                                            <input type="number" data-valid="required" value="<?php echo $fee->adjustment_discount_entry;?>" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]">
-                                        </td>
-                                        <td>
-                                            <input type="text" value="<?php echo $fee->commission_claimed;?>" class="form-control commission_claimed" readonly>
-                                            <input type="hidden" value="<?php echo $fee->commission_claimed;?>" class="form-control commission_claimed_hidden" name="commission_claimed[]">
+                                            <input type="number" data-valid="required" value="" class="form-control total_fee_am_2nd" name="total_fee[]">
                                         </td>
 
+                                        <td>
+                                            <input type="number" data-valid="required" value="<?php echo $commission_percentage;?>" class="form-control commission_percentage" name="commission_percentage[]">
+                                        </td>
+
+                                        <td>
+                                            <input type="text" value="" class="form-control commission_cal" readonly>
+                                            <input type="hidden" value="" class="form-control commission_cal_hidden" name="commission[]">
+                                        </td>
+
+                                        <td>
+                                            <input type="number" data-valid="required" value="" class="form-control adjustment_discount_entry" name="adjustment_discount_entry[]">
+                                        </td>
+                                        <td>
+                                            <input type="text" value="" class="form-control commission_claimed" readonly>
+                                            <input type="hidden" value="" class="form-control commission_claimed_hidden" name="commission_claimed[]">
+                                        </td>
                                         <td>
                                             <select class="form-control" data-valid="required"  name="claimed_or_not[]" >
                                                 <option value="">Select</option>
-                                                <option value="Yes" <?php if( $fee->claimed_or_not == 'Yes' ) { echo ' selected="selected"'; } else { echo '';} ?> >Yes</option>
-                                                <option value="No" <?php if( $fee->claimed_or_not == 'No' ) { echo ' selected="selected"'; } else { echo '';} ?> >No</option>
-                                                <option value="Anticipated" <?php if( $fee->claimed_or_not == 'Anticipated' ) { echo ' selected="selected"'; } else { echo '';} ?> >Anticipated</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                                <option value="Anticipated">Anticipated</option>
                                             </select>
                                         </td>
-
                                         <td>
                                             <select class="form-control" data-valid="required"  name="source[]" >
                                                 <option value="">Select</option>
-                                                <option value="Prededuct" <?php if( $fee->source == 'Prededuct' ) { echo ' selected="selected"'; } else { echo '';} ?> >Prededuct</option>
-                                                <option value="Reported by college" <?php if( $fee->source == 'Reported by college' ) { echo ' selected="selected"'; } else { echo '';} ?> >Reported by college</option>
-                                                <option value="Calculated by us" <?php if( $fee->source == 'Calculated by us' ) { echo ' selected="selected"'; } else { echo '';} ?> >Calculated by us</option>
-                                                <option value="Told by student" <?php if( $fee->source == 'Told by student' ) { echo ' selected="selected"'; } else { echo '';} ?> >Told by student</option>
-                                                <option value="Bonus" <?php if( $fee->source == 'Bonus' ) { echo ' selected="selected"'; } else { echo '';} ?> >Bonus</option>
+                                                <option value="Prededuct">Prededuct</option>
+                                                <option value="Reported by college">Reported by college</option>
+                                                <option value="Calculated by us">Calculated by us</option>
+                                                <option value="Told by student">Told by student</option>
+                                                <option value="Bonus">Bonus</option>
                                             </select>
                                         </td>
                                     </tr>
-									<?php
-								} //end foreach
+                                    <?php
+                                }
 							}
                             else
                             { ?>
