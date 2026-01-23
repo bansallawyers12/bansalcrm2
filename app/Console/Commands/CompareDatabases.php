@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 
 class CompareDatabases extends Command
 {
@@ -13,7 +14,7 @@ class CompareDatabases extends Command
      *
      * @var string
      */
-    protected $signature = 'db:compare {--table= : Compare specific table only} {--detailed : Show detailed missing records}';
+    protected $signature = 'db:compare {--table= : Compare specific table only} {--detailed : Show detailed missing records} {--from-file : Read tables from postgres_tables_list.md} {--count-only : Only compare row counts, skip data content comparison}';
 
     /**
      * The console command description.
@@ -48,7 +49,17 @@ class CompareDatabases extends Command
 
             // Get tables to compare
             $tableName = $this->option('table');
-            $tables = $tableName ? [$tableName] : $this->getAllTables('mysql');
+            
+            if ($this->option('from-file') || $tableName) {
+                // Read from markdown file if --from-file is set, or if specific table is requested
+                $tables = $tableName ? [$tableName] : $this->readTablesFromMarkdown();
+                if (empty($tables) && $this->option('from-file')) {
+                    $this->warn('No tables found in markdown file, falling back to all MySQL tables...');
+                    $tables = $this->getAllTables('mysql');
+                }
+            } else {
+                $tables = $tableName ? [$tableName] : $this->getAllTables('mysql');
+            }
 
             if (empty($tables)) {
                 $this->error('No tables found in MySQL database.');
@@ -156,6 +167,7 @@ class CompareDatabases extends Command
             'pgsql_count' => 0,
             'difference' => 0,
             'status' => 'unknown',
+            'data_match' => null,
         ];
 
         try {
@@ -170,6 +182,7 @@ class CompareDatabases extends Command
                 $result['pgsql_count'] = 0;
                 $result['difference'] = $mysqlCount;
                 $result['status'] = 'missing_table';
+                $result['data_match'] = false;
                 return $result;
             }
 
@@ -178,20 +191,311 @@ class CompareDatabases extends Command
             $result['pgsql_count'] = $pgsqlCount;
             $result['difference'] = $mysqlCount - $pgsqlCount;
 
-            if ($mysqlCount === $pgsqlCount) {
+            // If counts match, check if data content is the same (unless count-only mode)
+            if ($mysqlCount === $pgsqlCount && $mysqlCount > 0) {
+                if ($this->option('count-only')) {
+                    $result['data_match'] = null; // Not checked
+                    $result['status'] = 'match';
+                } else {
+                    $result['data_match'] = $this->compareDataContent($table, $mysqlConnection, $pgsqlConnection);
+                    $result['status'] = $result['data_match'] ? 'match' : 'data_different';
+                }
+            } elseif ($mysqlCount === $pgsqlCount && $mysqlCount === 0) {
                 $result['status'] = 'match';
+                $result['data_match'] = true; // Both empty
             } elseif ($mysqlCount > $pgsqlCount) {
                 $result['status'] = 'missing_in_pgsql';
+                $result['data_match'] = false;
             } else {
                 $result['status'] = 'extra_in_pgsql';
+                $result['data_match'] = false;
             }
 
         } catch (\Exception $e) {
             $result['error'] = $e->getMessage();
             $result['status'] = 'error';
+            $result['data_match'] = false;
         }
 
         return $result;
+    }
+
+    /**
+     * Compare data content between MySQL and PostgreSQL tables
+     *
+     * @param string $table
+     * @param \Illuminate\Database\Connection $mysqlConnection
+     * @param \Illuminate\Database\Connection $pgsqlConnection
+     * @return bool
+     */
+    private function compareDataContent($table, $mysqlConnection, $pgsqlConnection)
+    {
+        try {
+            $rowCount = $mysqlConnection->table($table)->count();
+            
+            // For very large tables (>10k rows), use hash-based comparison
+            if ($rowCount > 10000) {
+                return $this->compareDataByHash($table, $mysqlConnection, $pgsqlConnection);
+            }
+            
+            // For medium tables (1k-10k), use sample comparison
+            if ($rowCount > 1000) {
+                return $this->compareDataBySample($table, $mysqlConnection, $pgsqlConnection, 100);
+            }
+
+            // For small tables, do full comparison
+            // Get primary key
+            $primaryKey = $this->getPrimaryKey($table, 'mysql');
+            if (!$primaryKey) {
+                // If no primary key, compare by all columns (sample-based)
+                return $this->compareDataBySample($table, $mysqlConnection, $pgsqlConnection, 100);
+            }
+
+            // Get common columns
+            $mysqlColumns = $this->getTableColumns($table, 'mysql');
+            $pgsqlColumns = $this->getTableColumns($table, 'pgsql');
+            $commonColumns = array_intersect($mysqlColumns, $pgsqlColumns);
+            
+            if (empty($commonColumns)) {
+                return false;
+            }
+
+            // Compare records by primary key in chunks to avoid memory issues
+            $chunkSize = 500;
+            $allMatch = true;
+            
+            $mysqlConnection->table($table)
+                ->select($commonColumns)
+                ->orderBy($primaryKey)
+                ->chunk($chunkSize, function ($mysqlChunk) use ($table, $primaryKey, $pgsqlConnection, $commonColumns, &$allMatch) {
+                    if (!$allMatch) {
+                        return false; // Stop processing if mismatch found
+                    }
+                    
+                    $ids = $mysqlChunk->pluck($primaryKey)->toArray();
+                    $pgsqlChunk = $pgsqlConnection->table($table)
+                        ->select($commonColumns)
+                        ->whereIn($primaryKey, $ids)
+                        ->orderBy($primaryKey)
+                        ->get()
+                        ->keyBy($primaryKey);
+
+                    // Compare each record
+                    foreach ($mysqlChunk as $mysqlRecord) {
+                        $key = $mysqlRecord->$primaryKey;
+                        if (!isset($pgsqlChunk[$key])) {
+                            $allMatch = false;
+                            return false;
+                        }
+
+                        $mysqlData = $this->normalizeRecord((array)$mysqlRecord);
+                        $pgsqlData = $this->normalizeRecord((array)$pgsqlChunk[$key]);
+
+                        if ($mysqlData !== $pgsqlData) {
+                            $allMatch = false;
+                            return false;
+                        }
+                    }
+                });
+
+            return $allMatch;
+        } catch (\Exception $e) {
+            // If comparison fails, assume data is different
+            return false;
+        }
+    }
+
+    /**
+     * Compare data using hash-based approach (for large tables)
+     *
+     * @param string $table
+     * @param \Illuminate\Database\Connection $mysqlConnection
+     * @param \Illuminate\Database\Connection $pgsqlConnection
+     * @return bool
+     */
+    private function compareDataByHash($table, $mysqlConnection, $pgsqlConnection)
+    {
+        try {
+            // Get common columns
+            $mysqlColumns = $this->getTableColumns($table, 'mysql');
+            $pgsqlColumns = $this->getTableColumns($table, 'pgsql');
+            $commonColumns = array_intersect($mysqlColumns, $pgsqlColumns);
+            
+            if (empty($commonColumns)) {
+                return false;
+            }
+
+            // Calculate hash of all data in chunks
+            $mysqlHash = '';
+            $pgsqlHash = '';
+            
+            // MySQL hash
+            $mysqlConnection->table($table)
+                ->select($commonColumns)
+                ->orderBy($commonColumns[0])
+                ->chunk(1000, function ($chunk) use (&$mysqlHash) {
+                    foreach ($chunk as $record) {
+                        $normalized = $this->normalizeRecord((array)$record);
+                        $mysqlHash .= md5(json_encode($normalized));
+                    }
+                });
+
+            // PostgreSQL hash
+            $pgsqlConnection->table($table)
+                ->select($commonColumns)
+                ->orderBy($commonColumns[0])
+                ->chunk(1000, function ($chunk) use (&$pgsqlHash) {
+                    foreach ($chunk as $record) {
+                        $normalized = $this->normalizeRecord((array)$record);
+                        $pgsqlHash .= md5(json_encode($normalized));
+                    }
+                });
+
+            return md5($mysqlHash) === md5($pgsqlHash);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Compare data by sampling records (for tables without primary key or medium tables)
+     *
+     * @param string $table
+     * @param \Illuminate\Database\Connection $mysqlConnection
+     * @param \Illuminate\Database\Connection $pgsqlConnection
+     * @param int $sampleSize
+     * @return bool
+     */
+    private function compareDataBySample($table, $mysqlConnection, $pgsqlConnection, $sampleSize = 100)
+    {
+        try {
+            // Get common columns
+            $mysqlColumns = $this->getTableColumns($table, 'mysql');
+            $pgsqlColumns = $this->getTableColumns($table, 'pgsql');
+            $commonColumns = array_intersect($mysqlColumns, $pgsqlColumns);
+            
+            if (empty($commonColumns)) {
+                return false;
+            }
+
+            // Sample records from each database
+            $mysqlSample = $mysqlConnection->table($table)
+                ->select($commonColumns)
+                ->limit($sampleSize)
+                ->get();
+            
+            $pgsqlSample = $pgsqlConnection->table($table)
+                ->select($commonColumns)
+                ->limit($sampleSize)
+                ->get();
+
+            if ($mysqlSample->count() !== $pgsqlSample->count()) {
+                return false;
+            }
+
+            // Compare by hashing normalized records
+            $mysqlHashes = $mysqlSample->map(function($record) {
+                return md5(json_encode($this->normalizeRecord((array)$record)));
+            })->sort()->values();
+
+            $pgsqlHashes = $pgsqlSample->map(function($record) {
+                return md5(json_encode($this->normalizeRecord((array)$record)));
+            })->sort()->values();
+
+            return $mysqlHashes->toArray() === $pgsqlHashes->toArray();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Normalize record data for comparison (handle nulls, dates, etc.)
+     *
+     * @param array $record
+     * @return array
+     */
+    private function normalizeRecord(array $record)
+    {
+        $normalized = [];
+        
+        foreach ($record as $key => $value) {
+            // Convert null/empty strings to null
+            if ($value === null || $value === '' || (is_string($value) && trim($value) === '')) {
+                $normalized[$key] = null;
+            }
+            // Normalize dates/timestamps
+            elseif (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}/', $value)) {
+                // Try to normalize date format
+                try {
+                    $date = new \DateTime($value);
+                    $normalized[$key] = $date->format('Y-m-d H:i:s');
+                } catch (\Exception $e) {
+                    $normalized[$key] = $value;
+                }
+            }
+            // Handle boolean values
+            elseif (is_bool($value)) {
+                $normalized[$key] = $value ? 1 : 0;
+            }
+            // Everything else as-is
+            else {
+                $normalized[$key] = $value;
+            }
+        }
+        
+        ksort($normalized); // Sort keys for consistent comparison
+        return $normalized;
+    }
+
+    /**
+     * Get table columns for a database connection
+     *
+     * @param string $table
+     * @param string $connection
+     * @return array
+     */
+    private function getTableColumns($table, $connection)
+    {
+        $columns = [];
+        
+        try {
+            if ($connection === 'mysql') {
+                $database = config("database.connections.mysql.database");
+                $result = DB::connection('mysql')->select("
+                    SELECT COLUMN_NAME
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = ?
+                    AND TABLE_NAME = ?
+                    ORDER BY ORDINAL_POSITION
+                ", [$database, $table]);
+                
+                foreach ($result as $row) {
+                    $columns[] = $row->COLUMN_NAME;
+                }
+            } elseif ($connection === 'pgsql') {
+                $result = DB::connection('pgsql')->select("
+                    SELECT column_name
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name = ?
+                    ORDER BY ordinal_position
+                ", [$table]);
+                
+                foreach ($result as $row) {
+                    $columns[] = $row->column_name;
+                }
+            }
+        } catch (\Exception $e) {
+            // If we can't get columns, try using Schema facade
+            try {
+                $schemaColumns = Schema::connection($connection)->getColumnListing($table);
+                $columns = $schemaColumns;
+            } catch (\Exception $e2) {
+                // Return empty array if we can't get columns
+            }
+        }
+        
+        return $columns;
     }
 
     /**
@@ -236,11 +540,12 @@ class CompareDatabases extends Command
         $this->info('=== COMPARISON RESULTS ===');
         $this->newLine();
 
-        $headers = ['Table', 'MySQL Count', 'PostgreSQL Count', 'Difference', 'Status'];
+        $headers = ['Table', 'MySQL Count', 'PostgreSQL Count', 'Difference', 'Data Match', 'Status'];
         $rows = [];
 
         $missingTables = [];
         $missingData = [];
+        $dataDifferent = [];
         $matches = [];
         $errors = [];
 
@@ -248,6 +553,7 @@ class CompareDatabases extends Command
             if (isset($result['error'])) {
                 $rows[] = [
                     $table,
+                    'N/A',
                     'N/A',
                     'N/A',
                     'N/A',
@@ -264,11 +570,17 @@ class CompareDatabases extends Command
                 $difference = '+' . $difference;
             }
 
+            $dataMatch = 'N/A';
+            if ($result['data_match'] !== null) {
+                $dataMatch = $result['data_match'] ? '✓ Same' : '✗ Different';
+            }
+
             $rows[] = [
                 $table,
                 number_format($result['mysql_count']),
                 number_format($result['pgsql_count']),
                 $difference,
+                $dataMatch,
                 $status
             ];
 
@@ -276,6 +588,8 @@ class CompareDatabases extends Command
                 $missingTables[] = $table;
             } elseif ($result['status'] === 'missing_in_pgsql') {
                 $missingData[] = $table;
+            } elseif ($result['status'] === 'data_different') {
+                $dataDifferent[] = $table;
             } elseif ($result['status'] === 'match') {
                 $matches[] = $table;
             }
@@ -287,11 +601,14 @@ class CompareDatabases extends Command
         // Summary
         $this->info('=== SUMMARY ===');
         $this->info('Total tables compared: ' . count($results));
-        $this->info('✓ Matching tables: ' . count($matches));
+        $this->info('✓ Matching tables (same count & data): ' . count($matches));
+        if (count($dataDifferent) > 0) {
+            $this->warn('⚠ Tables with different data (same count, different content): ' . count($dataDifferent));
+        }
         $this->info('⚠ Missing tables in PostgreSQL: ' . count($missingTables));
         $this->info('⚠ Tables with missing data: ' . count($missingData));
         if (count($errors) > 0) {
-            $this->info('✗ Tables with errors: ' . count($errors));
+            $this->error('✗ Tables with errors: ' . count($errors));
         }
 
         if (count($missingTables) > 0) {
@@ -310,6 +627,14 @@ class CompareDatabases extends Command
                 $this->line("  - {$table} (missing {$diff} records)");
             }
         }
+
+        if (count($dataDifferent) > 0) {
+            $this->newLine();
+            $this->warn('Tables with different data content (same row count but different values):');
+            foreach ($dataDifferent as $table) {
+                $this->line("  - {$table}");
+            }
+        }
     }
 
     /**
@@ -322,6 +647,7 @@ class CompareDatabases extends Command
     {
         $labels = [
             'match' => '✓ Match',
+            'data_different' => '⚠ Data Different',
             'missing_table' => '✗ Table Missing',
             'missing_in_pgsql' => '⚠ Missing Data',
             'extra_in_pgsql' => '⚠ Extra Data',
@@ -476,6 +802,34 @@ class CompareDatabases extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Read tables from markdown file
+     *
+     * @return array
+     */
+    private function readTablesFromMarkdown()
+    {
+        $markdownFile = base_path('postgres_tables_list.md');
+        
+        if (!File::exists($markdownFile)) {
+            $this->warn("Markdown file not found: {$markdownFile}");
+            return [];
+        }
+
+        $content = File::get($markdownFile);
+        $lines = explode("\n", $content);
+        $tables = [];
+
+        foreach ($lines as $line) {
+            // Match lines like: 1. `table_name` or 1. `table_name` - Status
+            if (preg_match('/^\d+\.\s+`([^`]+)`/', $line, $matches)) {
+                $tables[] = $matches[1];
+            }
+        }
+
+        return $tables;
     }
 }
 
