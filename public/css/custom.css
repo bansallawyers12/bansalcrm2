@@ -1774,17 +1774,26 @@ select.form-control:focus {
 /* Bulk Upload Modal Responsive Fix
    ============================================================================= */
 .bulk-upload-modal-overlay {
-	padding: 0 !important;
+	padding: 20px;
+	align-items: flex-start;
+	justify-content: center;
+	overflow-y: auto;
+}
+
+/* When modal is visible, use flex layout */
+.bulk-upload-modal-overlay[style*="display: flex"] {
+	display: flex !important;
 }
 
 .bulk-upload-modal-content {
-	margin: 50px auto;
+	margin: 10px auto;
 	max-width: 1200px;
+	width: calc(100% - 40px);
+	min-width: 600px;
 	background: white;
 	border-radius: 8px;
 	box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-	width: calc(100% - 40px);
-	max-height: calc(100vh - 100px);
+	max-height: calc(100vh - 80px);
 	overflow-y: auto;
 	position: relative;
 }
@@ -1854,9 +1863,9 @@ select.form-control:focus {
 /* Responsive adjustments for smaller screens */
 @media (max-width: 1024px) {
 	.bulk-upload-modal-content {
-		margin: 20px;
+		margin: 10px;
 		width: calc(100% - 40px);
-		max-width: none;
+		min-width: auto;
 	}
 }
 

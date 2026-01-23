@@ -819,6 +819,7 @@ td .dropdown-menu {
 /* Bulk Upload Styles */
 .bulk-upload-dropzone {
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .bulk-upload-dropzone:hover {
@@ -830,6 +831,7 @@ td .dropdown-menu {
     border-color: #10b981 !important;
     background-color: #d1fae5 !important;
     transform: scale(1.02);
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
 }
 
 .bulk-upload-file-item {
