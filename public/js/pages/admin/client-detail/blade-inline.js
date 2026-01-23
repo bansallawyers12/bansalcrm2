@@ -293,28 +293,108 @@ $(document).on('change', '.bulk-upload-file-input', function() {
     }
 });
 
-// Drag and drop handlers
-$(document).on('dragover', '.bulk-upload-dropzone', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).addClass('drag_over');
-});
-
-$(document).on('dragleave', '.bulk-upload-dropzone', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass('drag_over');
-});
-
-$(document).on('drop', '.bulk-upload-dropzone', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $(this).removeClass('drag_over');
+// Drag and drop handlers - Using proven partner implementation approach
+jQuery(document).ready(function($) {
+    console.log('[DRAG-DROP] Initializing drag and drop for client documents...');
     
-    const files = e.originalEvent.dataTransfer.files;
-    if (files && files.length > 0) {
-        handleBulkFilesSelected(files);
+    // CRITICAL: Window-level drag event prevention (required for Windows browsers)
+    $(window).on('dragenter dragover', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
+        }
+    });
+
+    $(window).on('drop', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
+        }
+    });
+    
+    // Prevent browser from opening file on drop outside the dropzone
+    $(document).on('dragover drop', function(e) {
+        if ($('.bulk-upload-dropzone:visible').length) {
+            e.preventDefault();
+        }
+    });
+    
+    // Bind drag and drop handlers to dropzone
+    function bindDropzoneDragHandlers() {
+        $('.bulk-upload-dropzone').each(function() {
+            // Skip if already bound
+            if (this.dataset.dragBound === '1') {
+                console.log('[DRAG-DROP] Handlers already bound, skipping');
+                return;
+            }
+            this.dataset.dragBound = '1';
+            console.log('[DRAG-DROP] Binding drag handlers to dropzone...');
+
+            let dragCount = 0;
+
+            // Drag enter - increment counter and show feedback
+            this.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount += 1;
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                this.classList.add('drag_over');
+            });
+
+            // Drag over - maintain feedback
+            this.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                this.classList.add('drag_over');
+            });
+
+            // Drag leave - decrement counter and remove feedback only when count = 0
+            this.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount = Math.max(dragCount - 1, 0);
+                if (dragCount === 0) {
+                    this.classList.remove('drag_over');
+                }
+            });
+
+            // Drop - process files
+            this.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCount = 0;
+                this.classList.remove('drag_over');
+                
+                console.log('[DRAG-DROP] Drop event fired');
+                const files = e.dataTransfer && e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    console.log('[DRAG-DROP] Files detected:', files.length, 'file(s)');
+                    handleBulkFilesSelected(files);
+                } else {
+                    console.warn('[DRAG-DROP] No files detected in drop event');
+                }
+            });
+            
+            console.log('[DRAG-DROP] ✅ Drag and drop handlers bound successfully');
+        });
     }
+
+    // Initialize immediately on page load
+    bindDropzoneDragHandlers();
+    
+    // Re-initialize when bulk upload button is clicked (when dropzone becomes visible)
+    $(document).on('click', '.bulk-upload-toggle-btn', function() {
+        const dropzoneContainer = $('.bulk-upload-dropzone-container');
+        
+        if (!dropzoneContainer.is(':visible')) {
+            // Dropzone will become visible after slideDown
+            console.log('[DRAG-DROP] Dropzone will become visible, binding handlers...');
+            setTimeout(bindDropzoneDragHandlers, 150);
+        }
+    });
 });
 
 // Handle files selected
@@ -478,7 +558,7 @@ function displayMappingInterface(files, checklists, matches) {
         }
         
         html += '<tr class="bulk-upload-file-item">';
-        html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name" style="word-break: break-word; overflow-wrap: break-word;">' + escapeHtml(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666;">' + fileSize + '</div></div></div></td>';
+        html += '<td style="word-break: break-word;"><div class="file-info" style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-file" style="color: #4a90e2; flex-shrink: 0;"></i><div style="min-width: 0; flex: 1;"><div class="file-name" style="word-break: break-word; overflow-wrap: break-word; line-height: 1.4;">' + escapeHtml(fileName) + '</div><div class="file-size" style="font-size: 12px; color: #666; margin-top: 2px;">' + fileSize + '</div></div></div></td>';
         html += '<td style="min-width: 200px;">';
         html += '<select class="form-control checklist-select" data-file-index="' + index + '" style="width: 100%;">';
         html += '<option value="">-- Select Checklist --</option>';
@@ -490,15 +570,15 @@ function displayMappingInterface(files, checklists, matches) {
         html += '</select>';
         html += '<input type="text" class="form-control mt-2 new-checklist-input" data-file-index="' + index + '" placeholder="Enter new checklist name" style="display: none; width: 100%;">';
         html += '</td>';
-        html += '<td style="white-space: nowrap;"><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
-        html += '<td style="white-space: nowrap;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
+        html += '<td style="white-space: nowrap; vertical-align: middle;"><span class="match-status ' + statusClass + '">' + statusText + '</span></td>';
+        html += '<td style="white-space: nowrap; vertical-align: middle; text-align: center;"><button type="button" class="btn btn-sm btn-outline-danger bulk-upload-remove-file" data-file-index="' + index + '">Remove</button></td>';
         html += '</tr>';
     });
     
     html += '</tbody></table>';
     html += '</div>';
     tableContainer.html(html);
-    modal.show();
+    modal.css('display', 'flex').show();
 }
 
 // Handle new checklist option
