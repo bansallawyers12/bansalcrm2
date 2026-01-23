@@ -53,6 +53,8 @@
     
     @stack('styles')
     
+    @include('../Elements/AdminConsole/styles')
+    
 <style>
 /* Admin Console Layout - Fixed Left Sidebar */
 .main-wrapper.adminconsole-wrapper {
@@ -62,7 +64,22 @@
 .main-wrapper.adminconsole-wrapper .main-content {
 	margin-left: 250px !important;
 	width: calc(100% - 250px) !important;
-	padding-top: 20px;
+	padding: 0 !important;
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	position: relative;
+	top: 0;
+}
+
+/* Ensure main-content starts immediately after header with no gap */
+.main-wrapper.adminconsole-wrapper {
+	padding-top: 0 !important;
+	margin-top: 0 !important;
+}
+
+.main-wrapper.adminconsole-wrapper .adminconsole-header {
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
 }
 
 /* Fixed Left Sidebar */
