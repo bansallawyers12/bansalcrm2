@@ -605,6 +605,8 @@ use App\Http\Controllers\Controller;
 														<th>Contract Expiry</th>
 														<th>Commission %</th>
 														<th>Bonus</th>
+														<th>Representing Regions</th>
+														<th>Description</th>
 														<th>Status</th>
 														<th>Document</th>
 														<th>Actions</th>
@@ -2996,6 +2998,24 @@ use App\Http\Controllers\Controller;
         padding: 5px;
         margin-top: 10px;
     }
+    
+    /* Fix Select2 dropdown z-index in modals */
+    .select2-container--open {
+        z-index: 9999 !important;
+    }
+    
+    .select2-dropdown {
+        z-index: 9999 !important;
+    }
+    
+    /* Ensure modal has proper z-index */
+    .modal {
+        z-index: 1050;
+    }
+    
+    .modal-backdrop {
+        z-index: 1040;
+    }
 </style>
 
 <script>
@@ -3135,6 +3155,19 @@ use App\Http\Controllers\Controller;
             changeYear: true,
             yearRange: '-100:+10'
         });
+        
+        // Initialize select2 for agreement modal dropdowns
+        $('#agreement_represent_region').select2({
+            placeholder: 'Select Representing Regions',
+            allowClear: true,
+            dropdownParent: $('#agreementModal')
+        });
+        
+        $('#agreement_default_super_agent').select2({
+            placeholder: 'Select Default Super Agent',
+            allowClear: true,
+            dropdownParent: $('#agreementModal')
+        });
     });
     
     // Load all partner agreements
@@ -3180,7 +3213,7 @@ use App\Http\Controllers\Controller;
         tbody.empty();
         
         if (agreements.length === 0) {
-            tbody.append('<tr><td colspan="8" class="text-center">No agreements found</td></tr>');
+            tbody.append('<tr><td colspan="10" class="text-center">No agreements found</td></tr>');
             return;
         }
         
@@ -3193,6 +3226,21 @@ use App\Http\Controllers\Controller;
             var contractExpiry = agreement.contract_expiry ? formatDate(agreement.contract_expiry) : 'N/A';
             var commission = agreement.commission_percentage ? agreement.commission_percentage + '%' : 'N/A';
             var bonus = agreement.bonus ? '$' + parseFloat(agreement.bonus).toFixed(2) : 'N/A';
+            
+            // Format representing regions
+            var representingRegions = 'N/A';
+            if (agreement.represent_region) {
+                var regions = agreement.represent_region.split(',')
+                    .map(function(region) { return region.trim(); })  // Trim whitespace
+                    .filter(function(region) { return region !== ''; });  // Remove empty strings
+                representingRegions = regions.join(', ');
+            }
+            
+            // Format description
+            var description = 'N/A';
+            if (agreement.description && agreement.description.trim() !== '') {
+                description = escapeHtml(agreement.description);
+            }
             
             var documentLink = 'N/A';
             if (agreement.file_upload) {
@@ -3210,12 +3258,15 @@ use App\Http\Controllers\Controller;
             actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete"><i class="fa fa-trash"></i></button>';
             actions += '</div>';
             
+            // Main agreement row
             var row = '<tr>';
             row += '<td>' + (index + 1) + '</td>';
             row += '<td>' + contractStart + '</td>';
             row += '<td>' + contractExpiry + '</td>';
             row += '<td>' + commission + '</td>';
             row += '<td>' + bonus + '</td>';
+            row += '<td>' + representingRegions + '</td>';
+            row += '<td>' + description + '</td>';
             row += '<td>' + statusBadge + '</td>';
             row += '<td>' + documentLink + '</td>';
             row += '<td>' + actions + '</td>';
@@ -3225,12 +3276,25 @@ use App\Http\Controllers\Controller;
         });
     }
     
+    // Helper function to escape HTML to prevent XSS
+    function escapeHtml(text) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+    
     // Reset agreement form
     function resetAgreementForm() {
         $('#agreementForm')[0].reset();
         $('#agreement_id').val('');
         $('#agreement_gst').prop('checked', false);
         $('#agreement_represent_region').val(null).trigger('change');
+        $('#agreement_default_super_agent').val(null).trigger('change');
         $('#agreement_status').val('active');
         $('#current_file_display').text('');
     }
@@ -3261,6 +3325,8 @@ use App\Http\Controllers\Controller;
                     if (agreement.represent_region) {
                         var regions = agreement.represent_region.split(',');
                         $('#agreement_represent_region').val(regions).trigger('change');
+                    } else {
+                        $('#agreement_represent_region').val(null).trigger('change');
                     }
                     
                     // Display current file
