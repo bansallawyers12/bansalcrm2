@@ -616,7 +616,7 @@
                     
                     // Only reload if some files were successfully uploaded
                     if (uploadedCount > 0) {
-                        loadEmails();
+                        loadEmailsFromServer();
                     }
                 } else {
                     // Complete success
@@ -747,7 +747,7 @@
         const debouncedSearch = debounce(function() {
             currentSearch = searchInput.value;
             currentPage = 1;
-            loadEmails();
+            loadEmailsFromServer();
         }, 500);
 
         searchInput.addEventListener('input', debouncedSearch);
@@ -757,7 +757,8 @@
             labelFilter.addEventListener('change', function() {
                 currentLabelId = this.value;
                 currentPage = 1;
-                loadEmails();
+                console.log('Label filter changed to:', currentLabelId);
+                loadEmailsFromServer();
             });
         }
 
@@ -1821,8 +1822,11 @@
      * Populate label filter dropdown
      */
     function populateLabelFilter() {
-        const labelFilter = document.getElementById('labelFilter');
-        if (!labelFilter) return;
+        const labelFilter = document.getElementById('labelV2Filter');
+        if (!labelFilter) {
+            console.warn('Label filter dropdown (labelV2Filter) not found');
+            return;
+        }
 
         // Clear existing options (except "All Labels")
         while (labelFilter.options.length > 1) {
@@ -1836,6 +1840,8 @@
             option.textContent = label.name;
             labelFilter.appendChild(option);
         });
+        
+        console.log(`Populated ${availableLabels.length} labels in filter dropdown`);
     }
 
     /**
@@ -2265,6 +2271,11 @@
 
         // Initialize context menu
         initializeContextMenu();
+        
+        // Initialize search functionality
+        if (typeof window.initializeSearch === 'function') {
+            window.initializeSearch();
+        }
 
         // Mail type filter (Inbox/Sent)
         const mailTypeFilter = document.getElementById('mailTypeFilter');
@@ -2274,13 +2285,10 @@
                 loadEmailsFromServer();
             });
         }
-
-        // Label filter
-        const labelFilter = document.getElementById('labelFilter');
-        if (labelFilter) {
-            labelFilter.addEventListener('change', function() {
-                currentLabelId = this.value;
-            });
+        
+        // Initialize search functionality
+        if (typeof window.initializeSearch === 'function') {
+            window.initializeSearch();
         }
 
         // Apply button removed - all filters auto-apply:

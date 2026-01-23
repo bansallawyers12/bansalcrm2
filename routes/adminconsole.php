@@ -26,6 +26,7 @@ use App\Http\Controllers\AdminConsole\EmailController;
 use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
 use App\Http\Controllers\AdminConsole\DocumentChecklistController;
 use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
+use App\Http\Controllers\AdminConsole\EmailLabelController;
 use App\Http\Controllers\Admin\BranchesController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TeamController;
@@ -177,5 +178,14 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     //Upload Checklists Routes
     Route::get('/upload-checklists', [UploadChecklistController::class, 'index'])->name('adminconsole.upload_checklists.index');
     Route::post('/upload-checklists/store', [UploadChecklistController::class, 'store'])->name('adminconsole.upload_checklists.store');
+    
+    //Email Labels Routes
+    Route::get('/email-labels', [EmailLabelController::class, 'index'])->name('adminconsole.emaillabels.index');
+    Route::get('/email-labels/create', [EmailLabelController::class, 'create'])->name('adminconsole.emaillabels.create');
+    Route::post('/email-labels/store', [EmailLabelController::class, 'store'])->name('adminconsole.emaillabels.store');
+    Route::get('/email-labels/edit/{id}', [EmailLabelController::class, 'edit'])->name('adminconsole.emaillabels.edit');
+    Route::post('/email-labels/edit/{id}', [EmailLabelController::class, 'update'])->name('adminconsole.emaillabels.update');
+    Route::delete('/email-labels/{id}', [EmailLabelController::class, 'destroy'])->name('adminconsole.emaillabels.destroy');
+    Route::post('/email-labels/toggle-status/{id}', [EmailLabelController::class, 'toggleStatus'])->name('adminconsole.emaillabels.toggleStatus');
     
 });

@@ -154,6 +154,23 @@ class EmailQueryV2Controller extends Controller
                     $emailArray['attachments'] = [];
                 }
                 
+                // Format labels explicitly
+                $labels = $email->labels;
+                if ($labels && method_exists($labels, 'count') && $labels->count() > 0) {
+                    $emailArray['labels'] = $labels->map(function ($label) {
+                        return [
+                            'id' => $label->id,
+                            'name' => $label->name,
+                            'color' => $label->color,
+                            'icon' => $label->icon,
+                            'type' => $label->type,
+                            'description' => $label->description,
+                        ];
+                    })->values()->toArray();
+                } else {
+                    $emailArray['labels'] = [];
+                }
+                
                 $emailArray['preview_url'] = $previewUrl;
                 
                 return $emailArray;
@@ -311,6 +328,23 @@ class EmailQueryV2Controller extends Controller
                     })->values()->toArray();
                 } else {
                     $emailArray['attachments'] = [];
+                }
+                
+                // Format labels explicitly
+                $labels = $email->labels;
+                if ($labels && method_exists($labels, 'count') && $labels->count() > 0) {
+                    $emailArray['labels'] = $labels->map(function ($label) {
+                        return [
+                            'id' => $label->id,
+                            'name' => $label->name,
+                            'color' => $label->color,
+                            'icon' => $label->icon,
+                            'type' => $label->type,
+                            'description' => $label->description,
+                        ];
+                    })->values()->toArray();
+                } else {
+                    $emailArray['labels'] = [];
                 }
                 
                 $emailArray['preview_url'] = $previewUrl;
