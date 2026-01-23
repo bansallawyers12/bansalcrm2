@@ -419,15 +419,18 @@ class InvoiceController extends Controller
 					$oshare = new \App\Models\IncomeSharing;
 					$oshare->invoice_id = $obj->id;
 				}
-					$oshare->rec_id = $request->share_user;
-					$oshare->amount = $request->incomeshare_amount;
-					if(isset($request->taxval)){
-						$oshare->is_tax = 1;
-					}else{
-						$oshare->is_tax = '';
-					}
-					$oshare->tax = '';
-					$oshare->save();
+			$oshare->rec_id = $request->share_user;
+			$oshare->amount = $request->incomeshare_amount;
+			$oshare->status = 0; // 0 = unpaid, 1 = paid
+			if(isset($request->taxval)){
+				$oshare->is_tax = 1;
+				// Calculate GST (10% of amount)
+				$oshare->tax = $request->incomeshare_amount * 0.10;
+			}else{
+				$oshare->is_tax = 0;
+				$oshare->tax = 0;
+			}
+			$oshare->save();
 			}else{
 				
 			}
@@ -591,15 +594,18 @@ class InvoiceController extends Controller
 					$oshare = new \App\Models\IncomeSharing;
 					$oshare->invoice_id = $obj->id;
 				}
-					$oshare->rec_id = $request->share_user;
-					$oshare->amount = $request->incomeshare_amount;
-					if(isset($request->taxval)){
-						$oshare->is_tax = 1;
-					}else{
-						$oshare->is_tax = '';
-					}
-					$oshare->tax = '';
-					$oshare->save();
+			$oshare->rec_id = $request->share_user;
+			$oshare->amount = $request->incomeshare_amount;
+			$oshare->status = 0; // 0 = unpaid, 1 = paid
+			if(isset($request->taxval)){
+				$oshare->is_tax = 1;
+				// Calculate GST (10% of amount)
+				$oshare->tax = $request->incomeshare_amount * 0.10;
+			}else{
+				$oshare->is_tax = 0;
+				$oshare->tax = 0;
+			}
+			$oshare->save();
 			}
 			
 			if($request->share_user == 'no'){
