@@ -481,6 +481,15 @@
             formData.append('client_id', clientId);
             formData.append('type', getEntityType());
 
+            // NEW: Add selected labels
+            const selectedLabels = getSelectedLabelIds();
+            if (selectedLabels.length > 0) {
+                selectedLabels.forEach(labelId => {
+                    formData.append('label_ids[]', labelId);
+                });
+                console.log('Uploading with labels:', selectedLabels);
+            }
+
             // Validate and add CSRF token (both in header and form data for compatibility)
             const csrfToken = getCsrfToken();
             if (!csrfToken) {
@@ -616,6 +625,9 @@
                     }
                     fileStatus.textContent = 'Upload successful!';
                     showNotification(data.message || 'Files uploaded successfully!', 'success');
+                    
+                    // Clear selected labels after successful upload
+                    clearAllSelectedLabels();
                     
                     // Reset form after delay
                     setTimeout(() => {
@@ -1797,6 +1809,8 @@
             if (data.success && Array.isArray(data.labels)) {
                 availableLabels = data.labels;
                 populateLabelFilter();
+                populateUploadLabelSelector(); // NEW
+                initializeUploadLabelSelector(); // NEW
             }
         } catch (error) {
             console.error('Error fetching labels:', error);
@@ -1829,6 +1843,237 @@
      * Use /adminconsole/features/email-labels to create/edit labels
      * Frontend only handles filtering and applying existing labels
      */
+
+    // =========================================================================
+    // Upload Label Selector Functions
+    // =========================================================================
+
+    // Track selected label IDs
+    let selectedLabelIds = new Set();
+
+    /**
+     * Populate the upload label selector dropdown
+     */
+    function populateUploadLabelSelector() {
+        const optionsList = document.getElementById('labelOptionsList');
+        if (!optionsList) return;
+        
+        // Clear existing options
+        optionsList.innerHTML = '';
+        
+        if (availableLabels.length === 0) {
+            optionsList.innerHTML = '<div style="padding: 12px; text-align: center; color: #6c757d;">No labels available</div>';
+            return;
+        }
+        
+        // Sort: system labels first, then alphabetically
+        const sortedLabels = [...availableLabels].sort((a, b) => {
+            if (a.type === 'system' && b.type !== 'system') return -1;
+            if (a.type !== 'system' && b.type === 'system') return 1;
+            return a.name.localeCompare(b.name);
+        });
+        
+        // Create option items
+        sortedLabels.forEach(label => {
+            const item = document.createElement('div');
+            item.className = 'label-option-item';
+            item.dataset.labelId = label.id;
+            item.dataset.labelName = label.name;
+            item.dataset.labelColor = label.color || '#3B82F6';
+            item.dataset.labelIcon = label.icon || 'fas fa-tag';
+            item.dataset.labelType = label.type || 'custom';
+            
+            item.innerHTML = `
+                <input type="checkbox" class="label-option-checkbox" id="label-opt-${label.id}">
+                <div class="label-option-color" style="background-color: ${label.color || '#3B82F6'}"></div>
+                <i class="${label.icon || 'fas fa-tag'} label-option-icon" style="color: ${label.color || '#3B82F6'}"></i>
+                <span class="label-option-name">${escapeHtml(label.name)}</span>
+                ${label.type === 'system' ? '<span class="label-option-type">System</span>' : ''}
+            `;
+            
+            // Click handler for the entire item
+            item.addEventListener('click', function(e) {
+                if (e.target.classList.contains('label-option-checkbox')) return;
+                const checkbox = this.querySelector('.label-option-checkbox');
+                checkbox.checked = !checkbox.checked;
+                toggleLabelSelection(label.id);
+            });
+            
+            // Checkbox change handler
+            const checkbox = item.querySelector('.label-option-checkbox');
+            checkbox.addEventListener('change', function() {
+                toggleLabelSelection(label.id);
+            });
+            
+            optionsList.appendChild(item);
+        });
+    }
+
+    /**
+     * Initialize upload label selector event listeners
+     */
+    function initializeUploadLabelSelector() {
+        const container = document.getElementById('uploadLabelSelectorContainer');
+        const trigger = document.getElementById('labelDropdownTrigger');
+        const menu = document.getElementById('labelDropdownMenu');
+        const searchInput = document.getElementById('labelSearchInput');
+        const clearBtn = document.getElementById('clearLabelsBtn');
+        
+        if (!container || !trigger || !menu) return;
+        
+        // Show container once labels are loaded
+        if (container.style.display === 'none') {
+            container.style.display = 'block';
+        }
+        
+        // Toggle dropdown on trigger click
+        trigger.addEventListener('click', function() {
+            const isActive = menu.style.display === 'block';
+            menu.style.display = isActive ? 'none' : 'block';
+            trigger.classList.toggle('active', !isActive);
+            
+            if (!isActive && searchInput) {
+                setTimeout(() => searchInput.focus(), 100);
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!container.contains(e.target)) {
+                menu.style.display = 'none';
+                trigger.classList.remove('active');
+            }
+        });
+        
+        // Search functionality
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const items = document.querySelectorAll('.label-option-item');
+                
+                items.forEach(item => {
+                    const labelName = item.dataset.labelName.toLowerCase();
+                    item.style.display = labelName.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+            
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        // Clear all labels button
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                clearAllSelectedLabels();
+            });
+        }
+    }
+
+    /**
+     * Toggle label selection
+     */
+    function toggleLabelSelection(labelId) {
+        if (selectedLabelIds.has(labelId)) {
+            selectedLabelIds.delete(labelId);
+        } else {
+            selectedLabelIds.add(labelId);
+        }
+        
+        // Update checkbox state
+        const checkbox = document.getElementById(`label-opt-${labelId}`);
+        if (checkbox) {
+            checkbox.checked = selectedLabelIds.has(labelId);
+            checkbox.closest('.label-option-item').classList.toggle('selected', selectedLabelIds.has(labelId));
+        }
+        
+        updateSelectedLabelsPreview();
+        updateDropdownTriggerText();
+    }
+
+    /**
+     * Update selected labels preview (badges)
+     */
+    function updateSelectedLabelsPreview() {
+        const preview = document.getElementById('selectedLabelsPreview');
+        if (!preview) return;
+        
+        preview.innerHTML = '';
+        
+        selectedLabelIds.forEach(labelId => {
+            const label = availableLabels.find(l => l.id == labelId);
+            if (!label) return;
+            
+            const badge = document.createElement('div');
+            badge.className = 'selected-label-badge';
+            badge.style.backgroundColor = `${label.color}20`;
+            badge.style.borderColor = label.color;
+            badge.style.color = label.color;
+            
+            badge.innerHTML = `
+                <i class="${label.icon || 'fas fa-tag'}"></i>
+                <span>${escapeHtml(label.name)}</span>
+                <i class="fas fa-times remove-label" data-label-id="${label.id}"></i>
+            `;
+            
+            const removeBtn = badge.querySelector('.remove-label');
+            removeBtn.addEventListener('click', function() {
+                toggleLabelSelection(label.id);
+            });
+            
+            preview.appendChild(badge);
+        });
+    }
+
+    /**
+     * Update dropdown trigger text
+     */
+    function updateDropdownTriggerText() {
+        const trigger = document.getElementById('labelDropdownTrigger');
+        const placeholder = trigger?.querySelector('.dropdown-placeholder');
+        if (!placeholder) return;
+        
+        const count = selectedLabelIds.size;
+        if (count === 0) {
+            placeholder.textContent = 'Select labels...';
+            placeholder.style.color = '#6c757d';
+        } else {
+            placeholder.textContent = `${count} label${count > 1 ? 's' : ''} selected`;
+            placeholder.style.color = '#212529';
+            placeholder.style.fontWeight = '500';
+        }
+    }
+
+    /**
+     * Clear all selected labels
+     */
+    function clearAllSelectedLabels() {
+        selectedLabelIds.clear();
+        
+        document.querySelectorAll('.label-option-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+            checkbox.closest('.label-option-item')?.classList.remove('selected');
+        });
+        
+        updateSelectedLabelsPreview();
+        updateDropdownTriggerText();
+    }
+
+    /**
+     * Get selected label IDs as array
+     */
+    function getSelectedLabelIds() {
+        return Array.from(selectedLabelIds);
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
     /**
      * Apply label to email

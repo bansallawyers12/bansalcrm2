@@ -283,36 +283,6 @@ class ProductsController extends Controller
 		$ac = null;
 		ob_start();
 		?>
-		<div class="col-12 col-md-6 col-lg-6">
-						<div class="form-group">
-							<label for="degree_level">Subject Area</label> 	
-							<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
-									<option value="">Please Select Subject Area</option>
-									<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
-								</select>
-							<span class="custom-error degree_level_error" role="alert">
-								<strong></strong>
-							</span> 
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-6">
-						<div class="form-group">
-							<label for="degree_level">Subject<span class="span_req">*</span></label> 	
-							<select data-valid="" class="form-control subject select2" id="subject" name="subject">
-									<option value="">Please Select Subject</option>
-									<?php
-									foreach(\App\Models\Subject::where('subject_area',$ac->subject_area) ->orderby('name','ASC')->get() as $sublist){
-										?>
-										<option <?php if($ac->subject == $sublist->id){ echo 'selected'; } ?> value="<?php echo $sublist->id; ?>"><?php echo $sublist->name; ?></option>
-										<?php
-									}
-									?>
-								</select>
-							<span class="custom-error degree_level_error" role="alert">
-								<strong></strong>
-							</span> 
-						</div>
-					</div>
 					<div class="col-12 col-md-6 col-lg-6">
 						<div class="form-group">
 							<label for="degree_level">Degree Level</label> 	

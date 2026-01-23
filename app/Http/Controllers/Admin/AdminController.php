@@ -1044,53 +1044,7 @@ class AdminController extends Controller
 		die;
 	}
 
-	public function getChapters(Request $request)
-	{
-		$status 			= 	0;
-		$data				=	array();
-		$method 			= 	$request->method();
-
-		if ($request->isMethod('post'))
-		{
-			$requestData 	= 	$request->all();
-
-			$requestData['id'] = trim($requestData['id']);
-
-			if(isset($requestData['id']) && !empty($requestData['id']))
-			{
-				$recordExist = McqSubject::where('id', $requestData['id'])->exists();
-
-				if($recordExist)
-				{
-					$data 	= 	McqChapter::where('subject_id', '=', $requestData['id'])->get();
-
-					if($data)
-					{
-						$status = 1;
-						$message = 'Record has been fetched successfully.';
-					}
-					else
-					{
-						$message = Config::get('constants.server_error');
-					}
-				}
-				else
-				{
-					$message = 'ID does not exist, please check it once again.';
-				}
-			}
-			else
-			{
-				$message = 'ID does not exist, please check it once again.';
-			}
-		}
-		else
-		{
-			$message = Config::get('constants.post_method');
-		}
-		echo json_encode(array('status'=>$status, 'message'=>$message, 'data'=>$data));
-		die;
-	}
+	// Removed: getChapters() - McqSubject and McqChapter models/tables don't exist (dead code)
 
 	public function sessions(Request $request)
 	{
@@ -1589,22 +1543,7 @@ class AdminController extends Controller
 	}
 
 
-	public function getsubjects(Request $request){
-		$catid = $request->cat_id;
-		$lists = \App\Models\Subject::where('subject_area', $catid)->orderby('name','ASC')->get();
-		ob_start();
-		?>
-		<option value="">Please select a subject</option>
-		<?php
-		foreach($lists as $list){
-
-			?>
-			<option value="<?php echo $list->id; ?>"><?php echo $list->name; ?></option>
-			<?php
-
-		}
-		echo ob_get_clean();
-	}
+	// Removed: getsubjects() - subjects table has been dropped
 
 	public function getproductbranch(Request $request){
 		$catid = $request->cat_id;

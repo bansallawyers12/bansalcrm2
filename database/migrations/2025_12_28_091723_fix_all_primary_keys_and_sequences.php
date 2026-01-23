@@ -88,7 +88,7 @@ return new class extends Migration
         'states',
         'sub_categories',
         // 'subject_areas', // Removed - table dropped
-        'subjects',
+        // 'subjects', // Removed - table dropped
         // 'suburbs', // Removed - table dropped
         'tags',
         'task_logs',

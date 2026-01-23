@@ -50,7 +50,10 @@ class EmailUploadV2Controller extends Controller
                 'email_files' => 'required',
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
-                'type' => 'required|in:client,lead,partner'
+                'type' => 'required|in:client,lead,partner',
+                // NEW: Optional manual label selection
+                'label_ids' => 'nullable|array|max:10',
+                'label_ids.*' => 'integer|exists:email_labels,id|distinct',
             ]);
 
             if ($validator->fails()) {
@@ -59,6 +62,20 @@ class EmailUploadV2Controller extends Controller
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
                 ], 422);
+            }
+
+            // Additional validation: Ensure labels are active
+            if ($request->has('label_ids') && is_array($request->label_ids)) {
+                $activeLabelCount = \App\Models\EmailLabel::whereIn('id', $request->label_ids)
+                    ->where('is_active', true)
+                    ->count();
+                
+                if ($activeLabelCount !== count($request->label_ids)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'One or more selected labels are invalid or inactive',
+                    ], 422);
+                }
             }
 
             $clientId = $request->client_id;
@@ -202,7 +219,10 @@ class EmailUploadV2Controller extends Controller
                 'email_files' => 'required',
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
-                'type' => 'required|in:client,lead,partner'
+                'type' => 'required|in:client,lead,partner',
+                // NEW: Optional manual label selection
+                'label_ids' => 'nullable|array|max:10',
+                'label_ids.*' => 'integer|exists:email_labels,id|distinct',
             ]);
 
             if ($validator->fails()) {
@@ -211,6 +231,20 @@ class EmailUploadV2Controller extends Controller
                     'message' => 'Validation failed',
                     'errors' => $validator->errors(),
                 ], 422);
+            }
+
+            // Additional validation: Ensure labels are active
+            if ($request->has('label_ids') && is_array($request->label_ids)) {
+                $activeLabelCount = \App\Models\EmailLabel::whereIn('id', $request->label_ids)
+                    ->where('is_active', true)
+                    ->count();
+                
+                if ($activeLabelCount !== count($request->label_ids)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'One or more selected labels are invalid or inactive',
+                    ], 422);
+                }
             }
 
             $clientId = $request->client_id;
@@ -553,7 +587,12 @@ class EmailUploadV2Controller extends Controller
                 ]);
             }
 
-            // NEW: Auto-assign labels
+            // NEW: Assign manually selected labels first
+            if ($request->has('label_ids') && is_array($request->label_ids)) {
+                $this->assignLabels($mailReport, $request->label_ids, 'manual');
+            }
+
+            // Auto-assign labels (Sent/Inbox)
             $this->autoAssignLabels($mailReport, $mailType);
 
             // 5. Create activity log
@@ -953,6 +992,51 @@ class EmailUploadV2Controller extends Controller
             ]);
             // Don't re-throw - allow email upload to continue even if attachment fails
             // Attachment record will still be created (if we got that far) but without file
+        }
+    }
+
+    /**
+     * Assign multiple labels to a mail report (prevents duplicates)
+     * 
+     * @param \App\Models\MailReport $mailReport
+     * @param array $labelIds
+     * @param string $source ('manual'|'auto')
+     * @return int Number of labels assigned
+     */
+    protected function assignLabels($mailReport, $labelIds, $source = 'manual')
+    {
+        if (empty($labelIds) || !is_array($labelIds)) {
+            return 0;
+        }
+
+        try {
+            // Get currently attached label IDs
+            $existingLabelIds = $mailReport->labels()->pluck('email_labels.id')->toArray();
+            
+            // Filter out already attached labels
+            $newLabelIds = array_diff($labelIds, $existingLabelIds);
+            
+            if (empty($newLabelIds)) {
+                return 0;
+            }
+
+            // Attach new labels
+            $mailReport->labels()->attach($newLabelIds);
+            
+            Log::info('Labels assigned to email', [
+                'mail_report_id' => $mailReport->id,
+                'label_ids' => $newLabelIds,
+                'source' => $source,
+                'count' => count($newLabelIds)
+            ]);
+            
+            return count($newLabelIds);
+        } catch (\Exception $e) {
+            Log::warning('Failed to assign labels', [
+                'error' => $e->getMessage(),
+                'mail_report_id' => $mailReport->id
+            ]);
+            return 0;
         }
     }
 

@@ -46,7 +46,7 @@ class FeeTypeController extends Controller
 		
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
 		
-		return view('Admin.feetype.index',compact(['lists', 'totalData'])); 	
+		return view('AdminConsole.feetype.index',compact(['lists', 'totalData'])); 	
 		
 		//return view('AdminConsole.producttype.index');	 
 	}
@@ -56,7 +56,7 @@ class FeeTypeController extends Controller
 		//check authorization end
 		//return view('Admin.users.create',compact(['usertype']));	
 		
-		return view('Admin.feetype.create');	
+		return view('AdminConsole.feetype.create');	
 	}
 	 
 	public function store(Request $request)
@@ -84,7 +84,7 @@ class FeeTypeController extends Controller
 			}				
 		}	
 
-		return view('Admin.feetype.create');	
+		return view('AdminConsole.feetype.create');	
 	}
 	
 	public function edit(Request $request, $id = NULL)
@@ -125,7 +125,7 @@ class FeeTypeController extends Controller
 				if(FeeType::where('id', '=', $id)->exists()) 
 				{
 					$fetchedData = FeeType::find($id);
-					return view('Admin.feetype.edit', compact(['fetchedData']));
+					return view('AdminConsole.feetype.edit', compact(['fetchedData']));
 				}
 				else 
 				{

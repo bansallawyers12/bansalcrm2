@@ -1282,25 +1282,7 @@ $('.custom-error-msg').html('<span class="alert alert-danger">'+ress.message+'</
 	$('.ifselecttask select').attr('data-valid', '');
 	
 });*/
-    $(document).delegate('#other_info_add #subjectlist', 'change', function(){
-	
-				var v = $('#other_info_add #subjectlist option:selected').val();
-				if(v != ''){
-						$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getsubjects')}}',
-			type:'GET',
-			data:{cat_id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('#other_info_add #subject').html(response);
-				
-				$("#other_info_add #subject").val('').trigger('change');
-			
-			}
-		});
-				}
-	});
+	// Removed: Subject dropdown JavaScript - subjects functionality has been removed
 	
 	
 	$(document).delegate('.opencommissioninvoice', 'click', function(){

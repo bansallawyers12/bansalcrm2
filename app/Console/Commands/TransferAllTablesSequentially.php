@@ -5,22 +5,39 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
 
-class TransferDataToPostgres extends Command
+class TransferAllTablesSequentially extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'db:transfer {--table= : Transfer specific table only} {--batch=1000 : Batch size for inserts} {--dry-run : Show what would be transferred without actually transferring} {--delete-first : Delete existing data in PostgreSQL before transferring}';
+    protected $signature = 'db:transfer-all {--batch=1000 : Batch size for inserts}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Transfer data from MySQL to PostgreSQL database';
+    protected $description = 'Transfer all tables from MySQL to PostgreSQL sequentially, updating status in markdown file';
+
+    /**
+     * Tables to skip
+     */
+    private $skipTables = [
+        'activities_logs',
+        'followups',
+        'mail_reports',
+        'notes',
+        'application_activities_logs',
+    ];
+
+    /**
+     * Markdown file path
+     */
+    private $markdownFile;
 
     /**
      * Execute the console command.
@@ -29,7 +46,9 @@ class TransferDataToPostgres extends Command
      */
     public function handle()
     {
-        $this->info('Starting data transfer from MySQL to PostgreSQL...');
+        $this->markdownFile = base_path('postgres_tables_list.md');
+        
+        $this->info('Starting sequential data transfer from MySQL to PostgreSQL...');
         $this->newLine();
 
         try {
@@ -46,69 +65,110 @@ class TransferDataToPostgres extends Command
             $this->info('✓ PostgreSQL connection: OK');
             $this->newLine();
 
-            $isDryRun = $this->option('dry-run');
-            $batchSize = (int) $this->option('batch');
+            // Read tables from markdown file
+            $tables = $this->readTablesFromMarkdown();
+            
+            if (empty($tables)) {
+                $this->error('No tables found in markdown file.');
+                return 1;
+            }
 
-            // Define tables to transfer in order (smallest first)
-            $tablesToTransfer = [
-                'tasks' => 34,
-                'agents' => 146,
-                'partners' => 508,
-                'account_client_receipts' => 2689,
-                'invoice_payments' => 4805,
-                'leads' => 9802,
-                'applications' => 27797,
-                'admins' => 53095,
-                'test_scores' => 55,
-            ];
+            $this->info('Found ' . count($tables) . ' tables to process.');
+            $this->info('Skipping: ' . implode(', ', $this->skipTables));
+            $this->newLine();
 
-            $tableName = $this->option('table');
-            if ($tableName) {
-                // If table is specified, check if it exists in MySQL
-                if (!$this->tableExists($tableName, 'mysql')) {
-                    $this->error("Table '{$tableName}' does not exist in MySQL.");
-                    return 1;
+            // Mark skipped tables in markdown file
+            foreach ($tables as $table) {
+                $tableName = trim($table['name'], '`');
+                if (in_array($tableName, $this->skipTables)) {
+                    $this->updateMarkdownStatus($table['line'], $tableName, 'SKIPPED', 'Table in skip list');
                 }
-                // Get actual count from MySQL
-                $actualCount = $mysqlConnection->table($tableName)->count();
-                $tablesToTransfer = [$tableName => $actualCount];
             }
 
-            if ($isDryRun) {
-                $this->warn('DRY RUN MODE - No data will be transferred');
-                $this->newLine();
+            // Get table sizes and sort by size (ascending)
+            $this->info('Checking table sizes...');
+            $tablesWithSizes = [];
+            foreach ($tables as $table) {
+                $tableName = trim($table['name'], '`');
+                
+                // Skip specified tables
+                if (in_array($tableName, $this->skipTables)) {
+                    continue;
+                }
+
+                // Skip if already marked as COMPLETE
+                if (isset($table['status']) && $table['status'] === 'COMPLETE') {
+                    continue;
+                }
+
+                try {
+                    $size = $this->getTableSize($tableName, $mysqlConnection);
+                    $tablesWithSizes[] = [
+                        'table' => $table,
+                        'size' => $size,
+                        'name' => $tableName
+                    ];
+                } catch (\Exception $e) {
+                    // If we can't get size, set to 0 and continue
+                    $tablesWithSizes[] = [
+                        'table' => $table,
+                        'size' => 0,
+                        'name' => $tableName
+                    ];
+                }
             }
 
+            // Sort by size (ascending)
+            usort($tablesWithSizes, function($a, $b) {
+                return $a['size'] <=> $b['size'];
+            });
+
+            // Limit to first 45 smallest tables
+            $tablesWithSizes = array_slice($tablesWithSizes, 0, 45);
+
+            $this->info('Processing first 45 smallest tables (sorted by size):');
+            foreach ($tablesWithSizes as $item) {
+                $this->line("  - {$item['name']}: " . number_format($item['size']) . " records");
+            }
+            $this->newLine();
+
+            $batchSize = (int) $this->option('batch');
             $totalTransferred = 0;
             $totalSkipped = 0;
             $errors = [];
 
-            foreach ($tablesToTransfer as $table => $expectedCount) {
-                $this->info("Processing table: {$table}");
-                
-                // Delete existing data if requested
-                if ($this->option('delete-first') && !$isDryRun) {
-                    $this->info("  Deleting existing data from PostgreSQL...");
-                    $this->deleteTableData($table, $pgsqlConnection);
-                }
+            foreach ($tablesWithSizes as $index => $item) {
+                $table = $item['table'];
+                $tableName = $item['name'];
+
+                $this->info("[" . ($index + 1) . "/" . count($tablesWithSizes) . "] Processing: {$tableName} (" . number_format($item['size']) . " records)");
                 
                 try {
-                    $result = $this->transferTable($table, $mysqlConnection, $pgsqlConnection, $batchSize, $isDryRun);
+                    // Delete existing data from PostgreSQL table
+                    $this->info("  Deleting existing data from PostgreSQL...");
+                    $this->deleteTableData($tableName, $pgsqlConnection);
+                    
+                    $result = $this->transferTable($tableName, $mysqlConnection, $pgsqlConnection, $batchSize);
                     
                     if ($result['success']) {
                         $this->info("  ✓ Transferred: {$result['transferred']} records");
                         if ($result['skipped'] > 0) {
-                            $this->warn("  ⚠ Skipped: {$result['skipped']} records (already exist)");
+                            $this->warn("  ⚠ Skipped: {$result['skipped']} records (errors during insert)");
                         }
                         $totalTransferred += $result['transferred'];
                         $totalSkipped += $result['skipped'];
+                        $this->updateMarkdownStatus($table['line'], $tableName, 'COMPLETE', "Transferred: {$result['transferred']}" . ($result['skipped'] > 0 ? ", Errors: {$result['skipped']}" : ""));
                     } else {
-                        $this->error("  ✗ Error: {$result['error']}");
-                        $errors[$table] = $result['error'];
+                        $errorMsg = $result['error'];
+                        $this->error("  ✗ Error: {$errorMsg}");
+                        $errors[$tableName] = $errorMsg;
+                        $this->updateMarkdownStatus($table['line'], $tableName, 'ERROR', $errorMsg);
                     }
                 } catch (\Exception $e) {
-                    $this->error("  ✗ Exception: " . $e->getMessage());
-                    $errors[$table] = $e->getMessage();
+                    $errorMsg = $e->getMessage();
+                    $this->error("  ✗ Exception: {$errorMsg}");
+                    $errors[$tableName] = $errorMsg;
+                    $this->updateMarkdownStatus($table['line'], $tableName, 'ERROR', $errorMsg);
                 }
                 
                 $this->newLine();
@@ -127,11 +187,6 @@ class TransferDataToPostgres extends Command
                 }
             }
 
-            if ($isDryRun) {
-                $this->newLine();
-                $this->warn('This was a DRY RUN - No data was actually transferred');
-            }
-
             $this->newLine();
             $this->info('Transfer completed!');
             
@@ -144,16 +199,103 @@ class TransferDataToPostgres extends Command
     }
 
     /**
+     * Read tables from markdown file
+     *
+     * @return array
+     */
+    private function readTablesFromMarkdown()
+    {
+        if (!File::exists($this->markdownFile)) {
+            $this->error("Markdown file not found: {$this->markdownFile}");
+            return [];
+        }
+
+        $content = File::get($this->markdownFile);
+        $lines = explode("\n", $content);
+        $tables = [];
+
+        foreach ($lines as $lineNum => $line) {
+            // Match lines like: 1. `table_name` or 1. `table_name` - Status
+            if (preg_match('/^\d+\.\s+`([^`]+)`/', $line, $matches)) {
+                $status = null;
+                // Check if line has a status
+                if (preg_match('/- (✓|✗|⊘)\s*(COMPLETE|ERROR|SKIPPED)/', $line, $statusMatches)) {
+                    $status = $statusMatches[2];
+                }
+                
+                $tables[] = [
+                    'name' => $matches[1],
+                    'line' => $lineNum + 1,
+                    'original' => $line,
+                    'status' => $status
+                ];
+            }
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Update markdown file with status
+     *
+     * @param int $lineNumber
+     * @param string $tableName
+     * @param string $status
+     * @param string $message
+     * @return void
+     */
+    private function updateMarkdownStatus($lineNumber, $tableName, $status, $message = '')
+    {
+        try {
+            $content = File::get($this->markdownFile);
+            $lines = explode("\n", $content);
+
+            if (!isset($lines[$lineNumber - 1])) {
+                return;
+            }
+
+            $originalLine = $lines[$lineNumber - 1];
+            
+            // Remove existing status if any
+            $cleanLine = preg_replace('/\s*-\s*(COMPLETE|ERROR|SKIPPED).*$/', '', $originalLine);
+            $cleanLine = rtrim($cleanLine);
+
+            // Add status
+            $statusSymbol = '';
+            switch ($status) {
+                case 'COMPLETE':
+                    $statusSymbol = '✓';
+                    break;
+                case 'ERROR':
+                    $statusSymbol = '✗';
+                    break;
+                case 'SKIPPED':
+                    $statusSymbol = '⊘';
+                    break;
+            }
+
+            $newLine = $cleanLine . " - {$statusSymbol} {$status}";
+            if ($message) {
+                $newLine .= " ({$message})";
+            }
+
+            $lines[$lineNumber - 1] = $newLine;
+            File::put($this->markdownFile, implode("\n", $lines));
+        } catch (\Exception $e) {
+            $this->warn("Could not update markdown file: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Transfer data for a single table
      *
      * @param string $table
      * @param \Illuminate\Database\Connection $mysqlConnection
      * @param \Illuminate\Database\Connection $pgsqlConnection
      * @param int $batchSize
-     * @param bool $isDryRun
      * @return array
      */
-    private function transferTable($table, $mysqlConnection, $pgsqlConnection, $batchSize, $isDryRun)
+    private function transferTable($table, $mysqlConnection, $pgsqlConnection, $batchSize)
     {
         // Check if table exists in MySQL
         if (!$this->tableExists($table, 'mysql')) {
@@ -208,22 +350,6 @@ class TransferDataToPostgres extends Command
             ];
         }
 
-        // Get existing IDs in PostgreSQL (chunked for large tables)
-        $existingIds = [];
-        if (!$isDryRun) {
-            try {
-                $pgsqlConnection->table($table)
-                    ->select($primaryKey)
-                    ->chunk(10000, function ($chunk) use (&$existingIds, $primaryKey) {
-                        foreach ($chunk as $row) {
-                            $existingIds[$row->$primaryKey] = true;
-                        }
-                    });
-            } catch (\Exception $e) {
-                // Table might be empty, continue
-            }
-        }
-
         $transferred = 0;
         $skipped = 0;
         $processed = 0;
@@ -231,19 +357,12 @@ class TransferDataToPostgres extends Command
         // Process records in chunks to avoid memory issues
         $mysqlConnection->table($table)
             ->orderBy($primaryKey)
-            ->chunk($batchSize, function ($chunk) use ($table, $primaryKey, $pgsqlConnection, $isDryRun, &$transferred, &$skipped, &$processed, $existingIds, $totalRecords, $pgsqlColumns) {
+            ->chunk($batchSize, function ($chunk) use ($table, $primaryKey, $pgsqlConnection, &$transferred, &$skipped, &$processed, $totalRecords, $pgsqlColumns) {
                 $batch = [];
 
                 foreach ($chunk as $record) {
                     $processed++;
                     $recordArray = (array) $record;
-                    $recordId = $recordArray[$primaryKey];
-
-                    // Check if record already exists
-                    if (!$isDryRun && isset($existingIds[$recordId])) {
-                        $skipped++;
-                        continue;
-                    }
 
                     // Filter to only include columns that exist in PostgreSQL
                     $filteredRecord = [];
@@ -258,25 +377,21 @@ class TransferDataToPostgres extends Command
 
                 // Insert batch
                 if (count($batch) > 0) {
-                    if (!$isDryRun) {
-                        try {
-                            $this->insertBatch($table, $batch, $pgsqlConnection);
-                            $transferred += count($batch);
-                        } catch (\Exception $e) {
-                            // Try inserting one by one if batch fails
-                            foreach ($batch as $singleRecord) {
+                    try {
+                        $this->insertBatch($table, $batch, $pgsqlConnection);
+                        $transferred += count($batch);
+                    } catch (\Exception $e) {
+                        // Try inserting one by one if batch fails
+                        foreach ($batch as $singleRecord) {
                                 try {
                                     $this->insertRecord($table, $singleRecord, $pgsqlConnection);
                                     $transferred++;
                                 } catch (\Exception $e2) {
                                     $skipped++;
                                     // Log error but continue
-                                    $this->warn("    Failed to insert record ID {$singleRecord[$primaryKey]}: " . $e2->getMessage());
+                                    $this->warn("    Failed to insert record: " . $e2->getMessage());
                                 }
-                            }
                         }
-                    } else {
-                        $transferred += count($batch);
                     }
                 }
 
@@ -340,9 +455,7 @@ class TransferDataToPostgres extends Command
         
         foreach ($record as $key => $value) {
             // Handle required timestamp fields first (created_at, updated_at)
-            // These are required in PostgreSQL, so we must provide a value
             if ($key === 'created_at' || $key === 'updated_at') {
-                // Check for null, empty, or invalid MySQL dates
                 if ($value === null || 
                     $value === '' || 
                     (is_string($value) && trim($value) === '') ||
@@ -350,16 +463,14 @@ class TransferDataToPostgres extends Command
                     $cleaned[$key] = $currentTimestamp;
                     continue;
                 }
-                // If it's a valid date, use it
                 $cleaned[$key] = $value;
                 continue;
             }
             
-            // Handle null values - but check for required date fields
+            // Handle null values
             if ($value === null || $value === '') {
-                // For required date fields in PostgreSQL, use a default date
                 if (stripos($key, 'contract_expiry_date') !== false) {
-                    $cleaned[$key] = '2099-12-31'; // Far future date as default
+                    $cleaned[$key] = '2099-12-31';
                     continue;
                 }
                 $cleaned[$key] = null;
@@ -378,34 +489,30 @@ class TransferDataToPostgres extends Command
                 continue;
             }
 
-            // Handle dates - ensure proper format
+            // Handle dates
             if ($value instanceof \DateTime || $value instanceof \Carbon\Carbon) {
                 $cleaned[$key] = $value->format('Y-m-d H:i:s');
                 continue;
             }
 
-            // Handle invalid MySQL dates (0000-00-00, 0000-01-01, 0000-02-01, etc.)
+            // Handle invalid MySQL dates (0000-00-00, etc.)
             if (is_string($value)) {
-                // Check for invalid MySQL date formats - any date starting with 0000-
                 if (preg_match('/^0000-/', $value)) {
-                    // For required timestamp fields, use current timestamp
                     if ($key === 'created_at' || $key === 'updated_at') {
                         $cleaned[$key] = $currentTimestamp;
                     } elseif (stripos($key, 'contract_expiry_date') !== false) {
-                        $cleaned[$key] = '2099-12-31'; // Far future date as default
+                        $cleaned[$key] = '2099-12-31';
                     } else {
                         $cleaned[$key] = null;
                     }
                     continue;
                 }
                 
-                // Check for empty date strings
                 if (trim($value) === '' && (stripos($key, 'date') !== false || stripos($key, 'time') !== false)) {
-                    // For required timestamp fields, use current timestamp
                     if ($key === 'created_at' || $key === 'updated_at') {
                         $cleaned[$key] = $currentTimestamp;
                     } elseif (stripos($key, 'contract_expiry_date') !== false) {
-                        $cleaned[$key] = '2099-12-31'; // Far future date as default
+                        $cleaned[$key] = '2099-12-31';
                     } else {
                         $cleaned[$key] = null;
                     }
@@ -564,6 +671,25 @@ class TransferDataToPostgres extends Command
     }
 
     /**
+     * Get table size (row count) from MySQL
+     *
+     * @param string $table
+     * @param \Illuminate\Database\Connection $connection
+     * @return int
+     */
+    private function getTableSize($table, $connection)
+    {
+        try {
+            if (!$this->tableExists($table, 'mysql')) {
+                return 0;
+            }
+            return $connection->table($table)->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
      * Delete all existing data from PostgreSQL table
      *
      * @param string $table
@@ -603,4 +729,3 @@ class TransferDataToPostgres extends Command
         }
     }
 }
-

@@ -167,8 +167,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
          Route::post('/delete_slot_action', [AdminController::class, 'deleteSlotAction']);
 		Route::post('/move_action', [AdminController::class, 'moveAction']);
 		
-		
-		Route::post('/get_chapters', [AdminController::class, 'getChapters'])->name('get_chapters');
+		// Removed: /get_chapters route - McqSubject/McqChapter functionality removed (dead code)
 		Route::post('/get_states', [AdminController::class, 'getStates']);
 		Route::get('/settings/taxes/returnsetting', [AdminController::class, 'returnsetting'])->name('returnsetting');
 		Route::post('/settings/taxes/savereturnsetting', [AdminController::class, 'returnsetting'])->name('savereturnsetting');

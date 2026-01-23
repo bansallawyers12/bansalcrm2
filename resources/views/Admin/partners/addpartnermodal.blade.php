@@ -437,29 +437,6 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="subject_area">Subject Area</label> 	
-								<select data-valid="" class="form-control subject_area select2" id="subjectlist" name="subject_area">
-									<option value="">Please Select Subject Area</option>
-									<!-- Subject Area dropdown removed - subject_areas table has been dropped -->
-								</select>
-								<span class="custom-error subject_area_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="subject">Subject</label> 	
-								<select data-valid="" class="form-control subject select2" id="subject" name="subject">
-									<option value="">Please Select Subject</option>
-								</select>
-								<span class="custom-error subject_error" role="alert">
-									<strong></strong>
-								</span> 
-							</div>
-						</div>
-						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
 								<label class="d-block" for="academic_score">Academic Score</label> 
 								<div class="form-check form-check-inline">

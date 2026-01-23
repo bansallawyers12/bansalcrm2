@@ -60,6 +60,41 @@
                 <div id="upload-progress-v2" class="upload-progress">
                     <span id="fileStatusV2">Ready to upload</span>
                 </div>
+
+                <!-- Upload Label Selector -->
+                <div class="upload-label-selector" id="uploadLabelSelectorContainer" style="display: none;">
+                    <div class="upload-label-header">
+                        <label for="uploadLabelSelect">
+                            <i class="fas fa-tags"></i> Add Labels (Optional):
+                        </label>
+                        <button type="button" class="clear-labels-btn" id="clearLabelsBtn" title="Clear all labels">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Custom multi-select dropdown -->
+                    <div class="label-dropdown-wrapper">
+                        <div class="label-dropdown-trigger" id="labelDropdownTrigger">
+                            <span class="dropdown-placeholder">Select labels...</span>
+                            <i class="fas fa-chevron-down dropdown-icon"></i>
+                        </div>
+                        
+                        <!-- Dropdown menu (hidden by default) -->
+                        <div class="label-dropdown-menu" id="labelDropdownMenu" style="display: none;">
+                            <div class="label-search-box">
+                                <input type="text" id="labelSearchInput" placeholder="Search labels..." />
+                            </div>
+                            <div class="label-options-list" id="labelOptionsList">
+                                <!-- Populated dynamically via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected labels preview (badges) -->
+                    <div id="selectedLabelsPreview" class="selected-labels-preview">
+                        <!-- Show selected labels as removable badges -->
+                    </div>
+                </div>
             </div>
             
             <!-- Email List Header -->
