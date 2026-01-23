@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.adminconsole')
 @section('title', 'Edit Source')
 
 @section('content')
