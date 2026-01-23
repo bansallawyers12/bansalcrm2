@@ -12,6 +12,5 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(AdminUserSeeder::class);
-        $this->call(\Database\Seeders\EmailLabelSeeder::class);
     }
 }
