@@ -675,6 +675,13 @@ function uploadBulkFiles(files, mappings) {
     formData.append('doctype', 'documents');
     formData.append('type', 'client');
     
+    // Add category_id if category system is active and a category is selected
+    if (typeof window.DocumentCategoryManager !== 'undefined' && 
+        window.DocumentCategoryManager && 
+        window.DocumentCategoryManager.currentCategoryId) {
+        formData.append('category_id', window.DocumentCategoryManager.currentCategoryId);
+    }
+    
     $('#bulk-upload-progress').show();
     $('#bulk-upload-progress-bar').css('width', '0%').text('0%');
     $('#confirm-bulk-upload').prop('disabled', true);
@@ -710,8 +717,17 @@ function uploadBulkFiles(files, mappings) {
                 $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
                 bulkUploadFiles = [];
                 
-                // Reload the page to show new documents
-                location.reload();
+                // If category system is active, reload current category documents
+                if (typeof window.DocumentCategoryManager !== 'undefined' && 
+                    window.DocumentCategoryManager && 
+                    window.DocumentCategoryManager.currentCategoryId) {
+                    // Reload the current category to show new documents
+                    window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                    window.DocumentCategoryManager.loadCategories(true);
+                } else {
+                    // Fallback: Reload the page to show new documents
+                    location.reload();
+                }
             } else {
                 let errorMsg = 'Error: ' + (response.message || 'Upload failed.');
                 if (response.errors && response.errors.length > 0) {
