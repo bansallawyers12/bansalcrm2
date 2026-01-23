@@ -28,27 +28,27 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.crmemailtemplate.index' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.create' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.crmemailtemplate.index')}}">Crm Email Template</a></li> 
 		
 		<?php
-			if(Route::currentRouteName() == 'branch.index' || Route::currentRouteName() == 'branch.create' || Route::currentRouteName() == 'branch.edit' || Route::currentRouteName() == 'branch.userview' || Route::currentRouteName() == 'branch.clientview' || Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive' || Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit'){ 
+			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.users.active' || Route::currentRouteName() == 'adminconsole.users.inactive' || Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
 				$teamclasstype = 'active';
 			}  
 		?> 
 			<?php
 			if(array_key_exists('1',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'branch.index' || Route::currentRouteName() == 'branch.create' || Route::currentRouteName() == 'branch.edit' || Route::currentRouteName() == 'branch.userview' || Route::currentRouteName() == 'branch.clientview') ? 'active' : ''}}"><a class="nav-link" href="{{route('branch.index')}}">Offices</a></li> 
+			<li class="{{(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.branch.index')}}">Offices</a></li> 
 			<?php } ?>
 			<?php
 			if(array_key_exists('4',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'users.active' || Route::currentRouteName() == 'users.inactive') ? 'active' : ''}}"><a class="nav-link" href="{{route('users.active')}}">Users</a></li>
-			<li class="{{(Route::currentRouteName() == 'teams.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('teams.index')}}">Teams</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.users.active' || Route::currentRouteName() == 'adminconsole.users.inactive') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.users.active')}}">Users</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.teams.index')}}">Teams</a></li>
 			<?php } ?>
 			<?php
 			if(array_key_exists('6',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">Roles</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.userrole.index')}}">Roles</a></li>
 			<?php } ?>
-			<li class="{{(Route::currentRouteName() == 'upload_checklists.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('upload_checklists.index')}}">Upload Checklists</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.upload_checklists.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.upload_checklists.index')}}">Upload Checklists</a></li>
             
             <!--<li class="{{--(Route::currentRouteName() == 'admin.feature.appointmentdisabledate.index' ) ? 'active' : ''--}}"><a class="nav-link" href="{{--route('admin.feature.appointmentdisabledate.index')--}}">Block Slot</a></li>-->
       

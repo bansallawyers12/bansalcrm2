@@ -26,6 +26,11 @@ use App\Http\Controllers\AdminConsole\EmailController;
 use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
 use App\Http\Controllers\AdminConsole\DocumentChecklistController;
 use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
+use App\Http\Controllers\Admin\BranchesController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TeamController;
+use App\Http\Controllers\Admin\UserroleController;
+use App\Http\Controllers\Admin\UploadChecklistController;
 
 Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
@@ -142,5 +147,35 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::delete('/documentcategory/{id}', [AdminConsoleDocumentCategoryController::class, 'destroy'])->name('adminconsole.documentcategory.destroy');
     Route::get('/documentcategory/show/{id}', [AdminConsoleDocumentCategoryController::class, 'show'])->name('adminconsole.documentcategory.show');
     Route::post('/documentcategory/toggle-status/{id}', [AdminConsoleDocumentCategoryController::class, 'toggleStatus'])->name('adminconsole.documentcategory.toggleStatus');
+    
+    //Branch/Offices Routes
+    Route::get('/branch', [BranchesController::class, 'index'])->name('adminconsole.branch.index'); 
+    Route::get('/branch/create', [BranchesController::class, 'create'])->name('adminconsole.branch.create');  
+    Route::post('/branch/store', [BranchesController::class, 'store'])->name('adminconsole.branch.store');
+    Route::get('/branch/edit/{id}', [BranchesController::class, 'edit'])->name('adminconsole.branch.edit');
+    Route::get('/branch/view/{id}', [BranchesController::class, 'view'])->name('adminconsole.branch.userview');
+    Route::get('/branch/view/client/{id}', [BranchesController::class, 'viewclient'])->name('adminconsole.branch.clientview'); 
+    Route::post('/branch/edit', [BranchesController::class, 'edit'])->name('adminconsole.branch.update');
+    
+    //Users Routes
+    Route::get('/users/active', [UserController::class, 'active'])->name('adminconsole.users.active');
+    Route::get('/users/inactive', [UserController::class, 'inactive'])->name('adminconsole.users.inactive');
+    
+    //Teams Routes
+    Route::get('/teams', [TeamController::class, 'index'])->name('adminconsole.teams.index');
+    Route::get('/teams/edit/{id}', [TeamController::class, 'edit'])->name('adminconsole.teams.edit');
+    Route::post('/teams/edit', [TeamController::class, 'edit'])->name('adminconsole.teams.update');
+    Route::post('/teams/store', [TeamController::class, 'store'])->name('adminconsole.teams.store');
+    
+    //User Role Routes
+    Route::get('/userrole', [UserroleController::class, 'index'])->name('adminconsole.userrole.index');
+    Route::get('/userrole/create', [UserroleController::class, 'create'])->name('adminconsole.userrole.create');  
+    Route::post('/userrole/store', [UserroleController::class, 'store'])->name('adminconsole.userrole.store');
+    Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('adminconsole.userrole.edit');
+    Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('adminconsole.userrole.update');
+    
+    //Upload Checklists Routes
+    Route::get('/upload-checklists', [UploadChecklistController::class, 'index'])->name('adminconsole.upload_checklists.index');
+    Route::post('/upload-checklists/store', [UploadChecklistController::class, 'store'])->name('adminconsole.upload_checklists.store');
     
 });

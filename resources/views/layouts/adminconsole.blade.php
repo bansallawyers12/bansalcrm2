@@ -54,14 +54,64 @@
     @stack('styles')
     
 <style>
-/* Admin Console Layout - No Sidebar */
+/* Admin Console Layout - Fixed Left Sidebar */
 .main-wrapper.adminconsole-wrapper {
 	margin-left: 0 !important;
 }
 
 .main-wrapper.adminconsole-wrapper .main-content {
-	margin-left: 0 !important;
-	width: 100% !important;
+	margin-left: 250px !important;
+	width: calc(100% - 250px) !important;
+	padding-top: 20px;
+}
+
+/* Fixed Left Sidebar */
+.adminconsole-sidebar {
+	position: fixed;
+	top: 80px;
+	left: 0;
+	width: 250px;
+	height: calc(100vh - 80px);
+	background: #fff;
+	border-right: 1px solid #e3e6f0;
+	overflow-y: auto;
+	z-index: 999;
+	padding: 20px 0;
+}
+
+.adminconsole-sidebar .custom_nav_setting {
+	padding: 0 15px;
+}
+
+.adminconsole-sidebar .custom_nav_setting ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.adminconsole-sidebar .custom_nav_setting ul li {
+	margin-bottom: 5px;
+}
+
+.adminconsole-sidebar .custom_nav_setting ul li a {
+	display: block;
+	padding: 12px 15px;
+	color: #6c757d;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: all 0.3s ease;
+	font-size: 14px;
+}
+
+.adminconsole-sidebar .custom_nav_setting ul li a:hover {
+	background: #f8f9fa;
+	color: #495057;
+}
+
+.adminconsole-sidebar .custom_nav_setting ul li.active a {
+	background: #6777ef;
+	color: #fff;
+	font-weight: 500;
 }
 
 /* Exit Button Styles */
@@ -92,6 +142,13 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
+}
+
+.adminconsole-header .user-img-radious-style {
+	width: 45px;
+	height: 45px;
+	border-radius: 50%;
+	object-fit: cover;
 }
 
 /* Improved Color Contrast for Icons and Text - Better Readability */
@@ -138,7 +195,7 @@
 		<div class="main-wrapper main-wrapper-1 adminconsole-wrapper">
 			<div class="navbar-bg"></div>
 			
-			<!-- Admin Console Header with Exit Button -->
+				<!-- Admin Console Header with Exit Button -->
 			<div class="adminconsole-header">
 				<div class="logo-section">
 					<img alt="Bansal CRM" src="{{ asset('img/logo.png') }}" />
@@ -171,6 +228,11 @@
 						</div>
 					@endif
 				</div>
+			</div>
+
+			<!-- Fixed Left Sidebar -->
+			<div class="adminconsole-sidebar">
+				@include('../Elements/Admin/setting')
 			</div>
 
 			@yield('content')
