@@ -2,69 +2,69 @@
 
 Complete list of tables that exist in BOTH PostgreSQL (`bansalcrm_pg`) and MySQL (`bansal2`) databases:
 
-1. `account_client_receipts` - ✓ COMPLETE (Transferred: 2989, Skipped: 0) - ✓ COMPLETE (Transferred: 2989, Skipped: 0)
-2. `activities_logs` - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list)
-3. `admins` - ✓ COMPLETE (Transferred: 222, Skipped: 53096)
-4. `agents` - ✓ COMPLETE (Transferred: 3, Skipped: 147)
-5. `application_activities_logs` - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list)
-6. `application_document_lists` - ✓ COMPLETE (Transferred: 0, Skipped: 14)
-7. `application_documents` - ✓ COMPLETE (Transferred: 68618)
-8. `application_fee_option_types` - ✓ COMPLETE (Transferred: 120267)
-9. `application_fee_options` - ✓ COMPLETE (Transferred: 1103, Skipped: 18099)
-10. `applications` - ✓ COMPLETE (Transferred: 28672)
-11. `branches` - ✓ COMPLETE (Transferred: 0, Skipped: 3)
-12. `categories` - ✓ COMPLETE (Transferred: 0, Skipped: 11)
-13. `checkin_logs` - ✓ COMPLETE (Transferred: 334, Skipped: 10493)
-14. `checklists` - ✓ COMPLETE (Transferred: 0, Skipped: 8)
-15. `client_phones` - ✓ COMPLETE (Transferred: 485, Skipped: 17274)
-16. `client_service_takens` - ✓ COMPLETE (Transferred: 0, Skipped: 10693)
-17. `contacts` - ✓ COMPLETE (Transferred: 0, Skipped: 2288)
-18. `countries` - ✓ COMPLETE (Transferred: 0, Skipped: 246)
-19. `crm_email_templates` - ✓ COMPLETE (Transferred: 0, Skipped: 79)
-20. `document_checklists` - ✓ COMPLETE (Transferred: 0, Skipped: 14)
-21. `documents` - ✓ COMPLETE (Transferred: 198891)
-22. `email_templates` - ✓ COMPLETE (Transferred: 0, Skipped: 11)
-23. `emails` - ✓ COMPLETE (Transferred: 0, Skipped: 16)
-24. `fee_types` - ✓ COMPLETE (Transferred: 0, Skipped: 3)
-25. `followup_types` - ✓ COMPLETE (Transferred: 0, Skipped: 11)
-26. `followups` - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list)
-27. `income_sharings` - ✓ COMPLETE (Transferred: 136, Skipped: 2186)
-28. `interested_services` - ✓ COMPLETE (Transferred: 464, Skipped: 15087)
-29. `invoice_details` - ✓ COMPLETE (Transferred: 223, Skipped: 5379)
-30. `invoice_payments` - ✓ COMPLETE (Transferred: 208, Skipped: 4807)
-31. `invoices` - ✓ COMPLETE (Transferred: 198, Skipped: 4610)
-32. `lead_services` - ✓ COMPLETE (Transferred: 0, Skipped: 19)
-33. `leads` - ✓ COMPLETE (Transferred: 178, Skipped: 9802)
-34. `mail_reports` - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list)
-35. `migrations` - ✓ COMPLETE (Transferred: 0, Skipped: 11)
-36. `notes` - ⊘ SKIPPED (Table in skip list) - ⊘ SKIPPED (Table in skip list)
-37. `notifications` - ✓ COMPLETE (Transferred: 309159)
-38. `partner_branches` - ✓ COMPLETE (Transferred: 12, Skipped: 1350)
-39. `partner_emails` - ✓ COMPLETE (Transferred: 29, Skipped: 797)
-40. `partner_phones` - ✓ COMPLETE (Transferred: 25, Skipped: 608)
-41. `partner_student_invoices` - ✓ COMPLETE (Transferred: 243, Skipped: 7420)
-42. `partner_types` - ✓ COMPLETE (Transferred: 0, Skipped: 3)
-43. `partners` - ✓ COMPLETE (Transferred: 7, Skipped: 508)
-44. `product_types` - ✓ COMPLETE (Transferred: 0, Skipped: 8)
-45. `products` - ✓ COMPLETE (Transferred: 57, Skipped: 5476)
-46. `profiles` - ✓ COMPLETE (Transferred: 0, Skipped: 3)
-47. `promotions` - ✓ COMPLETE (Transferred: 0, Skipped: 10)
-48. `sessions` - ✓ COMPLETE (Transferred: 76, Skipped: 0)
-49. `share_invoices` - ✓ COMPLETE (Transferred: 0, Skipped: 44)
-50. `sources` - ✓ COMPLETE (Transferred: 0, Skipped: 21)
-51. `sub_categories` - ✓ COMPLETE (Transferred: 0, Skipped: 6)
-52. `subjects` - ✓ COMPLETE (Transferred: 0, Skipped: 23)
-53. `tags` - ✓ COMPLETE (Transferred: 2, Skipped: 8981)
-54. `teams` - ✓ COMPLETE (Transferred: 0, Skipped: 5)
-55. `test_scores` - ✓ COMPLETE (Transferred: 0, Skipped: 55)
-56. `upload_checklists` - ✓ COMPLETE (Transferred: 0, Skipped: 74)
-57. `user_logs` - ✓ COMPLETE (Transferred: 29466)
-58. `user_roles` - ✓ COMPLETE (Transferred: 0, Skipped: 8)
-59. `user_types` - ✓ COMPLETE (Transferred: 0, Skipped: 6)
-60. `verified_numbers` - ✓ COMPLETE (Transferred: 3, Skipped: 4261)
-61. `verify_users` - ✗ ERROR (Could not determine primary key) - ✗ ERROR (Could not determine primary key)
-62. `visa_types` - ✓ COMPLETE (Transferred: 0, Skipped: 36)
-63. `workflow_stages` - ✓ COMPLETE (Transferred: 0, Skipped: 36)
-64. `workflows` - ✓ COMPLETE (Transferred: 0, Skipped: 5)
+1. `account_client_receipts`
+2. `activities_logs` 
+3. `admins`
+4. `agents`
+5. `application_activities_logs`
+6. `application_document_lists`
+7. `application_documents`
+8. `application_fee_option_types`
+9. `application_fee_options`
+10. `applications`
+11. `branches`
+12. `categories`
+13. `checkin_logs`
+14. `checklists`
+15. `client_phones`
+16. `client_service_takens`
+17. `contacts`
+18. `countries`
+19. `crm_email_templates`
+20. `document_checklists`
+21. `documents`
+22. `email_templates`
+23. `emails`
+24. `fee_types`
+25. `followup_types`
+26. `followups`
+27. `income_sharings`
+28. `interested_services`
+29. `invoice_details`
+30. `invoice_payments`
+31. `invoices`
+32. `lead_services`
+33. `leads`
+34. `mail_reports`
+35. `migrations`
+36. `notes`
+37. `notifications`
+38. `partner_branches`
+39. `partner_emails`
+40. `partner_phones`
+41. `partner_student_invoices`
+42. `partner_types`
+43. `partners`
+44. `product_types`
+45. `products`
+46. `profiles`
+47. `promotions`
+48. `sessions`
+49. `share_invoices`
+50. `sources`
+51. `sub_categories`
+52. `subjects`
+53. `tags`
+54. `teams`
+55. `test_scores`
+56. `upload_checklists`
+57. `user_logs`
+58. `user_roles`
+59. `user_types`
+60. `verified_numbers`
+61. `verify_users`
+62. `visa_types`
+63. `workflow_stages`
+64. `workflows`
 
 **Total: 64 tables**
