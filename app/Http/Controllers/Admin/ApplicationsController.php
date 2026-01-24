@@ -1574,6 +1574,35 @@ class ApplicationsController extends Controller
     //Show Product Fee latest
     public function showproductfeelatest(Request $request){ //dd($request->all());
 		$id = $request->id;
+		
+		// DEBUG: Check for various date formats in this application
+		$appfeeoption_debug = ApplicationFeeOption::where('app_id', $id)->first();
+		if($appfeeoption_debug) {
+		    $appfeeoptiontype_debug = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeoption_debug->id)->where('fee_option_type', 2)->get();
+		    if($appfeeoptiontype_debug->count() > 0) {
+		        \Log::info('=== DATE FORMAT CHECK - APP ID: ' . $id . ' ===');
+		        foreach($appfeeoptiontype_debug as $idx => $fee_dbg) {
+		            $date_val = $fee_dbg->date_paid;
+		            \Log::info("Record #".($idx+1)." - Raw: '".$date_val."'");
+		            
+		            // Check format characteristics
+		            $has_slash = strpos($date_val, '/') !== false;
+		            $has_dot = strpos($date_val, '.') !== false;
+		            $has_dash = strpos($date_val, '-') !== false;
+		            $has_space = strpos($date_val, ' ') !== false;
+		            
+		            $format_info = [];
+		            if($has_slash) $format_info[] = 'slash';
+		            if($has_dot) $format_info[] = 'dot';
+		            if($has_dash) $format_info[] = 'dash';
+		            if($has_space) $format_info[] = 'space';
+		            
+		            \Log::info("Record #".($idx+1)." - Separators: " . implode(', ', $format_info));
+		            \Log::info("Record #".($idx+1)." - Length: " . strlen($date_val));
+		        }
+		    }
+		}
+		
 		ob_start();
 		$appfeeoption = ApplicationFeeOption::where('app_id', $id)->first(); //dd($appfeeoption);
         $appInfo = Application::join('partners', 'applications.partner_id', '=', 'partners.id')
