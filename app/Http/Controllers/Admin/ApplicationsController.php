@@ -1724,11 +1724,13 @@ class ApplicationsController extends Controller
                                             <td>
                                                 <input type="hidden" value="2"  name="fee_option_type[]">
                                                 <?php
-                                                // Convert date from DD/MM/YYYY to YYYY-MM-DD for flatpickr
+                                                // Convert date from DD/MM/YYYY or DD.MM.YYYY to YYYY-MM-DD for flatpickr
                                                 $formatted_date = '';
                                                 if (!empty($fee->date_paid)) {
                                                     try {
-                                                        $formatted_date = \Carbon\Carbon::createFromFormat('d/m/Y', $fee->date_paid)->format('Y-m-d');
+                                                        // Normalize: replace dots with slashes to handle both DD.MM.YYYY and DD/MM/YYYY formats
+                                                        $normalized_date = str_replace('.', '/', $fee->date_paid);
+                                                        $formatted_date = \Carbon\Carbon::createFromFormat('d/m/Y', $normalized_date)->format('Y-m-d');
                                                     } catch (\Exception $e) {
                                                         // If date parsing fails, keep original value to prevent data loss
                                                         $formatted_date = $fee->date_paid;
