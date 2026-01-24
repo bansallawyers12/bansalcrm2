@@ -124,6 +124,8 @@ class ClientReceiptController extends Controller
                         'description' => $requestData['description'][$i],
                         'deposit_amount' => $requestData['deposit_amount'][$i],
                         'uploaded_doc_id'=> $insertedDocId,
+                        'validate_receipt' => 0,
+                        'void_invoice' => 0,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
