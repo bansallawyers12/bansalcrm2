@@ -1723,7 +1723,19 @@ class ApplicationsController extends Controller
                                         <tr class="add_fee_option cus_fee_option">
                                             <td>
                                                 <input type="hidden" value="2"  name="fee_option_type[]">
-                                                <input type="text" data-valid="required" value="<?php echo $fee->date_paid;?>" class="form-control date_paid" name="date_paid[]">
+                                                <?php
+                                                // Convert date from DD/MM/YYYY to YYYY-MM-DD for flatpickr
+                                                $formatted_date = '';
+                                                if (!empty($fee->date_paid)) {
+                                                    try {
+                                                        $formatted_date = \Carbon\Carbon::createFromFormat('d/m/Y', $fee->date_paid)->format('Y-m-d');
+                                                    } catch (\Exception $e) {
+                                                        // If date parsing fails, keep original value to prevent data loss
+                                                        $formatted_date = $fee->date_paid;
+                                                    }
+                                                }
+                                                ?>
+                                                <input type="text" data-valid="required" value="<?php echo $formatted_date;?>" class="form-control date_paid" name="date_paid[]">
                                             </td>
                                             <td>
                                                 <input type="number" data-valid="required" value="<?php echo $fee->total_fee;?>" class="form-control total_fee_am_2nd" name="total_fee[]">
@@ -2005,7 +2017,17 @@ class ApplicationsController extends Controller
 					$objs = new ApplicationFeeOptionType;
 					$objs->fee_id = $obj->id;
 					$objs->fee_option_type = 2; //other fee
-                    $objs->date_paid = $requestData['date_paid'][$i];
+                    // Convert date from YYYY-MM-DD (flatpickr format) back to DD/MM/YYYY (database format)
+                    $date_to_save = $requestData['date_paid'][$i];
+                    if (!empty($date_to_save)) {
+                        try {
+                            $date_to_save = \Carbon\Carbon::createFromFormat('Y-m-d', $date_to_save)->format('d/m/Y');
+                        } catch (\Exception $e) {
+                            // If conversion fails, keep original value to prevent data loss
+                            $date_to_save = $requestData['date_paid'][$i];
+                        }
+                    }
+                    $objs->date_paid = $date_to_save;
                     $objs->total_fee = $requestData['total_fee'][$i];
                     $objs->commission_percentage = $requestData['commission_percentage'][$i];
 					$objs->commission = $requestData['commission'][$i];
@@ -2096,7 +2118,17 @@ class ApplicationsController extends Controller
 					$objs = new ApplicationFeeOptionType;
 					$objs->fee_id = $obj->id;
 					$objs->fee_option_type = 2; //other fee
-                    $objs->date_paid = $requestData['date_paid'][$i];
+                    // Convert date from YYYY-MM-DD (flatpickr format) back to DD/MM/YYYY (database format)
+                    $date_to_save = $requestData['date_paid'][$i];
+                    if (!empty($date_to_save)) {
+                        try {
+                            $date_to_save = \Carbon\Carbon::createFromFormat('Y-m-d', $date_to_save)->format('d/m/Y');
+                        } catch (\Exception $e) {
+                            // If conversion fails, keep original value to prevent data loss
+                            $date_to_save = $requestData['date_paid'][$i];
+                        }
+                    }
+                    $objs->date_paid = $date_to_save;
                     $objs->total_fee = $requestData['total_fee'][$i];
                     $objs->commission_percentage = $requestData['commission_percentage'][$i];
 					$objs->commission = $requestData['commission'][$i];
