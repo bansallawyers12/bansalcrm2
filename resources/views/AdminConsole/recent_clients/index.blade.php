@@ -37,14 +37,14 @@
 								@foreach (@$lists as $list)
 									<tr id="id_{{@$list->activity_id}}">
 										<td>
-											@if(@$list->firstname || @$list->lastname)
-												{{ @$list->firstname }} {{ @$list->lastname }}
+											@if(@$list->client_firstname || @$list->client_lastname)
+												{{ @$list->client_firstname }} {{ @$list->client_lastname }}
 											@else
 												<span class="text-muted">{{ config('constants.empty') }}</span>
 											@endif
 										</td> 	
-										<td>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '40', '...') }}</td> 	
-										<td>{{ @$list->phone == "" ? config('constants.empty') : @$list->phone }}</td> 	
+										<td>{{ @$list->client_email == "" ? config('constants.empty') : str_limit(@$list->client_email, '40', '...') }}</td> 	
+										<td>{{ @$list->client_phone == "" ? config('constants.empty') : @$list->client_phone }}</td> 	
 										<td>
 											<div style="max-width: 300px;">
 												<strong>{{ @$list->subject }}</strong>

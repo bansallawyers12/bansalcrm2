@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
-use App\Models\Client;
 use App\Models\ActivitiesLog;
   
 use Auth; 
@@ -36,7 +35,7 @@ class RecentlyModifiedClientsController extends Controller
 		$subQuery = ActivitiesLog::select('client_id', DB::raw('MAX(created_at) as last_activity'))
 			->groupBy('client_id');
 		
-		// Join with activities_logs to get the full activity details
+		// Clients live in admins table (role = 7). Join admins twice: client info + creator info.
 		$query = ActivitiesLog::select(
 				'activities_logs.id as activity_id',
 				'activities_logs.client_id',
@@ -44,10 +43,10 @@ class RecentlyModifiedClientsController extends Controller
 				'activities_logs.subject',
 				'activities_logs.description',
 				'activities_logs.created_at as activity_date',
-				'clients.firstname',
-				'clients.lastname',
-				'clients.email',
-				'clients.phone',
+				'client_admins.first_name as client_firstname',
+				'client_admins.last_name as client_lastname',
+				'client_admins.email as client_email',
+				'client_admins.phone as client_phone',
 				'admins.first_name as admin_firstname',
 				'admins.last_name as admin_lastname'
 			)
@@ -55,7 +54,10 @@ class RecentlyModifiedClientsController extends Controller
 				$join->on('activities_logs.client_id', '=', 'latest_activities.client_id')
 					 ->on('activities_logs.created_at', '=', 'latest_activities.last_activity');
 			})
-			->leftJoin('clients', 'activities_logs.client_id', '=', 'clients.id')
+			->leftJoin('admins as client_admins', function($join) {
+				$join->on('activities_logs.client_id', '=', 'client_admins.id')
+					 ->where('client_admins.role', '=', '7');
+			})
 			->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id')
 			->orderBy('activities_logs.created_at', 'desc');
 		
