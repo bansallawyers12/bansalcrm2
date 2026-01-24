@@ -51,7 +51,7 @@
                 <div id="upload-area-v2" class="drag-drop-zone">
                     <div class="drag-drop-content">
                         <i class="fas fa-cloud-upload-alt drag-drop-icon"></i>
-                        <div class="drag-drop-text">Drag & drop .msg files here</div>
+                        <div class="drag-drop-text">Drag11 & drop .msg files here</div>
                         <div class="drag-drop-subtext">or click to browse</div>
                         <div id="file-count-v2" class="file-count-badge">0</div>
                     </div>
