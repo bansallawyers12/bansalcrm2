@@ -61,9 +61,15 @@
 															<div class="form-group">
 																<label for="master_category">Master Category <span class="span_req">*</span></label>
 																<?php
-																$cat = \App\Models\Category::where('id', $fetchedData->master_category)->first();
+																// SAFE FIX: Check if master_category exists before querying
+																$cat = null;
+																if(!empty($fetchedData->master_category)) {
+																	$cat = \App\Models\Category::where('id', $fetchedData->master_category)->first();
+																}
+																// Display category name or fallback message (NO DATA MODIFICATION)
+																$categoryDisplay = $cat ? $cat->category_name : 'Not Set - Please contact admin';
 																?>
-																<input type="text" class="form-control" disabled name="" value="{{@$cat->category_name}}">
+																<input type="text" class="form-control" disabled name="" value="{{$categoryDisplay}}" style="{{!$cat ? 'background-color: #fff3cd; color: #856404;' : ''}}">
 																@if ($errors->has('master_category'))
 																	<span class="custom-error" role="alert">
 																		<strong>{{ @$errors->first('master_category') }}</strong>
@@ -72,17 +78,32 @@
 															</div>
 														</div>
 														<?php
-																$partner_type = \App\Models\PartnerType::where('category_id', $fetchedData->master_category)->get();
-																?>
+														// SAFE FIX: Get partner types - show all types if category exists, show warning if not
+														$partner_type = collect(); // Empty collection by default
+														$hasMasterCategory = !empty($fetchedData->master_category) && $fetchedData->master_category != '0';
+														
+														if($hasMasterCategory) {
+															// Get partner types for this category
+															$partner_type = \App\Models\PartnerType::where('category_id', $fetchedData->master_category)->get();
+														}
+														
+														// If still empty, get ALL partner types so user can select something
+														if($partner_type->isEmpty()) {
+															$partner_type = \App\Models\PartnerType::all();
+														}
+														?>
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="partner_type">Partner Type <span class="span_req">*</span></label>
-																<select data-valid="required" class="form-control addressselect2" name="partner_type">
+																<select data-valid="required" class="form-control addressselect2" name="partner_type" {{!$hasMasterCategory ? 'style=background-color:#fff3cd;' : ''}}>
 																<option value="">Select a Partner Type</option>
 																	@foreach($partner_type as $clist)
 																	<option <?php if($clist->id == $fetchedData->partner_type){ echo 'selected'; } ?> value="{{$clist->id}}">{{$clist->name}}</option>
 																@endforeach
 																</select>
+																@if(!$hasMasterCategory)
+																	<small class="text-warning">⚠️ Master Category not set. Showing all partner types.</small>
+																@endif
 																@if ($errors->has('partner_type'))
 																	<span class="custom-error" role="alert">
 																		<strong>{{ @$errors->first('partner_type') }}</strong>
@@ -115,12 +136,26 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="service_workflow">Service Workflow <span class="span_req">*</span></label>
-																<select class="form-control addressselect2" name="service_workflow">
+																<?php
+																// SAFE FIX: Get all workflows and check if current one is valid
+																$allWorkflows = \App\Models\Workflow::all();
+																$currentWorkflow = null;
+																$hasValidWorkflow = false;
+																
+																if(!empty($fetchedData->service_workflow) && $fetchedData->service_workflow != '0') {
+																	$currentWorkflow = $allWorkflows->where('id', $fetchedData->service_workflow)->first();
+																	$hasValidWorkflow = $currentWorkflow !== null;
+																}
+																?>
+																<select class="form-control addressselect2" name="service_workflow" {{!$hasValidWorkflow && !empty($fetchedData->service_workflow) ? 'style=background-color:#fff3cd;' : ''}}>
 																<option value="">Choose Service workflow</option>
-																	@foreach(\App\Models\Workflow::all() as $wlist)
+																	@foreach($allWorkflows as $wlist)
 																		<option <?php if($wlist->id == $fetchedData->service_workflow){ echo 'selected'; } ?> value="{{$wlist->id}}">{{$wlist->name}}</option>
 																	@endforeach
 																</select>
+																@if(!$hasValidWorkflow && !empty($fetchedData->service_workflow))
+																	<small class="text-warning">⚠️ Current workflow (ID: {{$fetchedData->service_workflow}}) not found. Please select a valid workflow.</small>
+																@endif
 																@if ($errors->has('service_workflow'))
 																	<span class="custom-error" role="alert">
 																		<strong>{{ @$errors->first('service_workflow') }}</strong>
@@ -1022,10 +1057,40 @@ jQuery(document).ready(function($){
         }
 	});
 
+    // Initialize Select2 on all select2 elements
     $(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
-    $(".addressselect2").select2({
-        minimumResultsForSearch: Infinity  // Disable search for small dropdown lists
-    });
+    
+    // FIX: Initialize addressselect2 with proper configuration to prevent options from disappearing
+    // IMPORTANT: Delay initialization slightly to ensure DOM is fully loaded
+    setTimeout(function() {
+        $(".addressselect2").each(function() {
+            var $select = $(this);
+            
+            // Check if already initialized
+            if ($select.hasClass("select2-hidden-accessible")) {
+                // Already initialized, skip
+                return;
+            }
+            
+            // Store current value before initializing
+            var currentValue = $select.val();
+            
+            // Initialize Select2 with preserved options
+            $select.select2({
+                minimumResultsForSearch: Infinity,  // Disable search
+                width: '100%',  // Ensure proper width
+                placeholder: $select.find('option:first').text(),  // Use first option as placeholder
+                allowClear: false,  // Don't allow clearing selection
+                // Keep existing data from HTML
+                data: null
+            });
+            
+            // Restore selected value after initialization
+            if (currentValue) {
+                $select.val(currentValue).trigger('change.select2');
+            }
+        });
+    }, 100);  // 100ms delay to ensure DOM is ready
 
 
     ////////////////////////////////////////
