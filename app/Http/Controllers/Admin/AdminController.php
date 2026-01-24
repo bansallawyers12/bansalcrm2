@@ -1942,6 +1942,27 @@ class AdminController extends Controller
             $activity->task_status = 0; // Activity, not task
             $activity->pin = 0;
             $activity->save();
+            
+            // If this action is related to an application, also log to ApplicationActivitiesLog
+            if (!empty($note->application_id)) {
+                // Get the application to determine the stage
+                $application = \App\Models\Application::find($note->application_id);
+                if ($application) {
+                    // Get the ORIGINAL note description (entered when assigning the task)
+                    $originalNoteDescription = strip_tags($note->description);
+                    
+                    $obj1 = new \App\Models\ApplicationActivitiesLog;
+                    $obj1->stage = $application->stage;
+                    $obj1->type = 'task';
+                    $obj1->comment = 'completed a task';
+                    $obj1->title = 'Action completed by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+                    // Show BOTH the original note description AND the completion message
+                    $obj1->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($originalNoteDescription) . '</p><hr><p><strong>Completion Note:</strong> ' . htmlspecialchars($request->completion_message) . '</p>';
+                    $obj1->app_id = $note->application_id;
+                    $obj1->user_id = Auth::user()->id;
+                    $obj1->save();
+                }
+            }
 
             return response()->json([
                 'status' => true,
