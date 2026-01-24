@@ -27,6 +27,7 @@ use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
 use App\Http\Controllers\AdminConsole\DocumentChecklistController;
 use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
 use App\Http\Controllers\AdminConsole\EmailLabelController;
+use App\Http\Controllers\AdminConsole\RecentlyModifiedClientsController;
 use App\Http\Controllers\Admin\BranchesController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TeamController;
@@ -187,5 +188,8 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/email-labels/edit/{id}', [EmailLabelController::class, 'update'])->name('adminconsole.emaillabels.update');
     Route::delete('/email-labels/{id}', [EmailLabelController::class, 'destroy'])->name('adminconsole.emaillabels.destroy');
     Route::post('/email-labels/toggle-status/{id}', [EmailLabelController::class, 'toggleStatus'])->name('adminconsole.emaillabels.toggleStatus');
+    
+    //Recently Modified Clients Routes
+    Route::get('/recent-clients', [RecentlyModifiedClientsController::class, 'index'])->name('adminconsole.recentclients.index');
     
 });

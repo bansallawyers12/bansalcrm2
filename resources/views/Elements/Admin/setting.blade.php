@@ -28,6 +28,8 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.crmemailtemplate.index' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.create' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.crmemailtemplate.index')}}">Crm Email Template</a></li> 
 		<li class="{{(Route::currentRouteName() == 'adminconsole.emaillabels.index' || Route::currentRouteName() == 'adminconsole.emaillabels.create' || Route::currentRouteName() == 'adminconsole.emaillabels.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.emaillabels.index')}}">Email Labels</a></li>
 		
+		<li class="{{(Route::currentRouteName() == 'adminconsole.recentclients.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.recentclients.index')}}">Recently Modified Clients</a></li>
+		
 		<?php
 			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.users.active' || Route::currentRouteName() == 'adminconsole.users.inactive' || Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
 				$teamclasstype = 'active';
