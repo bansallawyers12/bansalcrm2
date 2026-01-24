@@ -19,6 +19,57 @@
 							</div>
 						</div>
 						<div class="card-body">
+							<!-- Filter Panel -->
+							<div class="filter-panel mb-4" style="background: #f7f7f7; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+								<form method="GET" action="{{ route('adminconsole.recentclients.index') }}" id="filterForm">
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="from_date"><strong>From Date</strong></label>
+												<input type="text" 
+													   name="from_date" 
+													   id="from_date" 
+													   class="form-control filterdatepicker" 
+													   value="{{ @$fromDate }}" 
+													   placeholder="Select start date">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="to_date"><strong>To Date</strong></label>
+												<input type="text" 
+													   name="to_date" 
+													   id="to_date" 
+													   class="form-control filterdatepicker" 
+													   value="{{ @$toDate }}" 
+													   placeholder="Select end date">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="sort_order"><strong>Sort Order</strong></label>
+												<select name="sort_order" id="sort_order" class="form-control">
+													<option value="desc" {{ @$sortOrder == 'desc' ? 'selected' : '' }}>Newest First</option>
+													<option value="asc" {{ @$sortOrder == 'asc' ? 'selected' : '' }}>Oldest First</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label>&nbsp;</label>
+												<div>
+													<button type="submit" class="btn btn-primary">
+														<i class="fas fa-filter"></i> Apply Filters
+													</button>
+													<a href="{{ route('adminconsole.recentclients.index') }}" class="btn btn-secondary">
+														<i class="fas fa-times"></i> Clear
+													</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
 							<div class="table-responsive common_table"> 
 								<table class="table text_wrap table-striped">
 								<thead>
@@ -27,7 +78,14 @@
 										<th>Email</th>
 										<th>Phone</th>
 										<th>Last Activity</th>
-										<th>Activity Date</th>
+										<th class="sortable-header" data-sort-column="activity_date" style="cursor: pointer;">
+											Activity Date
+											@if(@$sortOrder == 'desc')
+												<i class="fas fa-sort-down ml-1" title="Sorted: Newest First"></i>
+											@else
+												<i class="fas fa-sort-up ml-1" title="Sorted: Oldest First"></i>
+											@endif
+										</th>
 										<th>Modified By</th>
 										<th>Action</th>
 									</tr> 
@@ -105,5 +163,39 @@
 		</div>
 	</section>
 </div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+	// Wait for flatpickr to be available (it's loaded via Vite)
+	function initDatePickers() {
+		if (typeof flatpickr !== 'undefined' && $(".filterdatepicker").length) {
+			$(".filterdatepicker").each(function() {
+				flatpickr(this, {
+					dateFormat: "Y-m-d",
+					allowInput: true
+				});
+			});
+		} else if ($(".filterdatepicker").length) {
+			// Retry after a short delay if flatpickr isn't loaded yet
+			setTimeout(initDatePickers, 100);
+		}
+	}
+	
+	// Initialize date pickers
+	initDatePickers();
+	
+	// Make Activity Date column header clickable for sorting
+	$('.sortable-header').on('click', function() {
+		var currentSort = '{{ @$sortOrder }}' || 'desc';
+		var newSort = currentSort === 'desc' ? 'asc' : 'desc';
+		
+		// Update the sort order in the form and submit
+		$('#sort_order').val(newSort);
+		$('#filterForm').submit();
+	});
+});
+</script>
+@endpush
  
 @endsection
