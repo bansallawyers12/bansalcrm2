@@ -269,7 +269,6 @@ jQuery(document).ready(function($){
 		$('.trans_date_fields').each(function() {
 			flatpickr(this, {
 				dateFormat: 'd/m/Y',
-				defaultDate: 'today',
 				allowInput: true
 			});
 		});
