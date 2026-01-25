@@ -22,35 +22,91 @@
 							<!-- Filter Panel -->
 							<div class="filter-panel mb-4" style="background: #f7f7f7; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
 								<form method="GET" action="{{ route('adminconsole.recentclients.index') }}" id="filterForm">
-									<div class="row">
+									<!-- Search Box -->
+									<div class="row mb-3">
+										<div class="col-md-12">
+											<div class="form-group">
+												<label for="search"><strong><i class="fas fa-search"></i> Search Clients</strong></label>
+												<input type="text" 
+													   name="search" 
+													   id="search" 
+													   class="form-control" 
+													   value="{{ @$search }}" 
+													   placeholder="Search by name, email, or phone...">
+											</div>
+										</div>
+									</div>
+									
+									<!-- Date Filters and Quick Buttons -->
+									<div class="row mb-3">
 										<div class="col-md-3">
 											<div class="form-group">
-												<label for="from_date"><strong>From Date</strong></label>
+												<label for="from_date"><strong><i class="fas fa-calendar-alt"></i> From Date</strong></label>
 												<input type="text" 
 													   name="from_date" 
 													   id="from_date" 
 													   class="form-control filterdatepicker" 
+													   style="font-size: 14px; padding: 10px; border: 2px solid #007bff;"
 													   value="{{ @$fromDate }}" 
 													   placeholder="Select start date">
 											</div>
 										</div>
 										<div class="col-md-3">
 											<div class="form-group">
-												<label for="to_date"><strong>To Date</strong></label>
+												<label for="to_date"><strong><i class="fas fa-calendar-alt"></i> To Date</strong></label>
 												<input type="text" 
 													   name="to_date" 
 													   id="to_date" 
 													   class="form-control filterdatepicker" 
+													   style="font-size: 14px; padding: 10px; border: 2px solid #007bff;"
 													   value="{{ @$toDate }}" 
 													   placeholder="Select end date">
 											</div>
 										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<label><strong><i class="fas fa-clock"></i> Quick Filters</strong></label>
+												<div class="btn-group" role="group">
+													<button type="button" class="btn btn-outline-primary quick-filter-btn" data-days="0">Today</button>
+													<button type="button" class="btn btn-outline-primary quick-filter-btn" data-days="7">This Week</button>
+													<button type="button" class="btn btn-outline-primary quick-filter-btn" data-days="30">This Month</button>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<!-- Activity Type and Sort Options -->
+									<div class="row mb-3">
 										<div class="col-md-3">
 											<div class="form-group">
-												<label for="sort_order"><strong>Sort Order</strong></label>
+												<label for="activity_type"><strong><i class="fas fa-filter"></i> Activity Type</strong></label>
+												<select name="activity_type" id="activity_type" class="form-control">
+													<option value="">All Activities</option>
+													<option value="note" {{ @$activityType == 'note' ? 'selected' : '' }}>Notes</option>
+													<option value="call" {{ @$activityType == 'call' ? 'selected' : '' }}>Calls</option>
+													<option value="email" {{ @$activityType == 'email' ? 'selected' : '' }}>Emails</option>
+													<option value="meeting" {{ @$activityType == 'meeting' ? 'selected' : '' }}>Meetings</option>
+													<option value="task" {{ @$activityType == 'task' ? 'selected' : '' }}>Tasks</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="sort_order"><strong><i class="fas fa-sort"></i> Sort Order</strong></label>
 												<select name="sort_order" id="sort_order" class="form-control">
 													<option value="desc" {{ @$sortOrder == 'desc' ? 'selected' : '' }}>Newest First</option>
 													<option value="asc" {{ @$sortOrder == 'asc' ? 'selected' : '' }}>Oldest First</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="per_page"><strong><i class="fas fa-list"></i> Per Page</strong></label>
+												<select name="per_page" id="per_page" class="form-control">
+													<option value="10" {{ @$perPage == 10 ? 'selected' : '' }}>10</option>
+													<option value="25" {{ @$perPage == 25 ? 'selected' : '' }}>25</option>
+													<option value="50" {{ @$perPage == 50 ? 'selected' : '' }}>50</option>
+													<option value="100" {{ @$perPage == 100 ? 'selected' : '' }}>100</option>
 												</select>
 											</div>
 										</div>
@@ -61,6 +117,9 @@
 													<button type="submit" class="btn btn-primary">
 														<i class="fas fa-filter"></i> Apply Filters
 													</button>
+													<button type="button" class="btn btn-info" id="refreshBtn" title="Refresh Data">
+														<i class="fas fa-sync-alt"></i> Refresh
+													</button>
 													<a href="{{ route('adminconsole.recentclients.index') }}" class="btn btn-secondary">
 														<i class="fas fa-times"></i> Clear
 													</a>
@@ -68,25 +127,76 @@
 											</div>
 										</div>
 									</div>
+									
+									<!-- Hidden field for sort column -->
+									<input type="hidden" name="sort_column" id="sort_column" value="{{ @$sortColumn }}">
 								</form>
 							</div>
 							<div class="table-responsive common_table"> 
 								<table class="table text_wrap table-striped">
 								<thead>
 									<tr>
-										<th>Client Name</th>
-										<th>Email</th>
-										<th>Phone</th>
+										<th class="sortable-header" data-sort-column="client_name" style="cursor: pointer;">
+											Client Name
+											@if(@$sortColumn == 'client_name')
+												@if(@$sortOrder == 'desc')
+													<i class="fas fa-sort-down ml-1"></i>
+												@else
+													<i class="fas fa-sort-up ml-1"></i>
+												@endif
+											@else
+												<i class="fas fa-sort ml-1 text-muted"></i>
+											@endif
+										</th>
+										<th class="sortable-header" data-sort-column="client_email" style="cursor: pointer;">
+											Email
+											@if(@$sortColumn == 'client_email')
+												@if(@$sortOrder == 'desc')
+													<i class="fas fa-sort-down ml-1"></i>
+												@else
+													<i class="fas fa-sort-up ml-1"></i>
+												@endif
+											@else
+												<i class="fas fa-sort ml-1 text-muted"></i>
+											@endif
+										</th>
+										<th class="sortable-header" data-sort-column="client_phone" style="cursor: pointer;">
+											Phone
+											@if(@$sortColumn == 'client_phone')
+												@if(@$sortOrder == 'desc')
+													<i class="fas fa-sort-down ml-1"></i>
+												@else
+													<i class="fas fa-sort-up ml-1"></i>
+												@endif
+											@else
+												<i class="fas fa-sort ml-1 text-muted"></i>
+											@endif
+										</th>
 										<th>Last Activity</th>
 										<th class="sortable-header" data-sort-column="activity_date" style="cursor: pointer;">
 											Activity Date
-											@if(@$sortOrder == 'desc')
-												<i class="fas fa-sort-down ml-1" title="Sorted: Newest First"></i>
+											@if(@$sortColumn == 'activity_date')
+												@if(@$sortOrder == 'desc')
+													<i class="fas fa-sort-down ml-1"></i>
+												@else
+													<i class="fas fa-sort-up ml-1"></i>
+												@endif
 											@else
-												<i class="fas fa-sort-up ml-1" title="Sorted: Oldest First"></i>
+												<i class="fas fa-sort ml-1 text-muted"></i>
 											@endif
 										</th>
-										<th>Modified By</th>
+										<th class="sortable-header" data-sort-column="modified_by" style="cursor: pointer;">
+											Modified By
+											@if(@$sortColumn == 'modified_by')
+												@if(@$sortOrder == 'desc')
+													<i class="fas fa-sort-down ml-1"></i>
+												@else
+													<i class="fas fa-sort-up ml-1"></i>
+												@endif
+											@else
+												<i class="fas fa-sort ml-1 text-muted"></i>
+											@endif
+										</th>
 										<th>Action</th>
 									</tr> 
 								</thead>
@@ -219,6 +329,57 @@
 	.btn-archive-client {
 		/* Small button - no min-width needed */
 	}
+	
+	/* Enhanced date picker styling */
+	.filterdatepicker {
+		font-weight: 500;
+		transition: all 0.3s ease;
+	}
+	.filterdatepicker:focus {
+		border-color: #0056b3 !important;
+		box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	}
+	
+	/* Quick filter buttons */
+	.quick-filter-btn {
+		margin-right: 5px;
+		margin-bottom: 5px;
+	}
+	.quick-filter-btn:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+	
+	/* Sortable header styling */
+	.sortable-header {
+		user-select: none;
+		position: relative;
+	}
+	.sortable-header:hover {
+		background-color: #f8f9fa;
+	}
+	.sortable-header i {
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+	.sortable-header:hover i {
+		opacity: 1;
+	}
+	
+	/* Search box styling */
+	#search {
+		font-size: 15px;
+		padding: 12px;
+	}
+	#search:focus {
+		border-color: #007bff;
+		box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+	}
+	
+	/* Refresh button animation */
+	#refreshBtn i.fa-spin {
+		animation: fa-spin 1s infinite linear;
+	}
 </style>
 @endpush
 
@@ -243,13 +404,81 @@ $(document).ready(function() {
 	// Initialize date pickers
 	initDatePickers();
 	
-	// Make Activity Date column header clickable for sorting
-	$('.sortable-header').on('click', function() {
-		var currentSort = '{{ @$sortOrder }}' || 'desc';
-		var newSort = currentSort === 'desc' ? 'asc' : 'desc';
+	// Quick filter buttons (Today, This Week, This Month)
+	$('.quick-filter-btn').on('click', function() {
+		var days = $(this).data('days');
+		var today = new Date();
+		var fromDate = new Date();
 		
-		// Update the sort order in the form and submit
-		$('#sort_order').val(newSort);
+		if (days === 0) {
+			// Today
+			fromDate.setHours(0, 0, 0, 0);
+		} else {
+			// This Week or This Month
+			fromDate.setDate(today.getDate() - days);
+			fromDate.setHours(0, 0, 0, 0);
+		}
+		
+		var toDate = new Date(today);
+		toDate.setHours(23, 59, 59, 999);
+		
+		// Format dates as YYYY-MM-DD
+		var formatDate = function(date) {
+			var year = date.getFullYear();
+			var month = String(date.getMonth() + 1).padStart(2, '0');
+			var day = String(date.getDate()).padStart(2, '0');
+			return year + '-' + month + '-' + day;
+		};
+		
+		$('#from_date').val(formatDate(fromDate));
+		$('#to_date').val(formatDate(toDate));
+		
+		// Update flatpickr if it's initialized
+		if (typeof flatpickr !== 'undefined') {
+			var fromPicker = $('#from_date')[0]._flatpickr;
+			var toPicker = $('#to_date')[0]._flatpickr;
+			if (fromPicker) {
+				fromPicker.setDate(fromDate, false);
+			}
+			if (toPicker) {
+				toPicker.setDate(toDate, false);
+			}
+		}
+	});
+	
+	// Column header sorting
+	$('.sortable-header').on('click', function() {
+		var sortColumn = $(this).data('sort-column');
+		var currentSortColumn = $('#sort_column').val();
+		var currentSort = $('#sort_order').val() || 'desc';
+		
+		// If clicking the same column, toggle sort order; otherwise, set to desc
+		if (sortColumn === currentSortColumn) {
+			var newSort = currentSort === 'desc' ? 'asc' : 'desc';
+			$('#sort_order').val(newSort);
+		} else {
+			$('#sort_column').val(sortColumn);
+			$('#sort_order').val('desc');
+		}
+		
+		$('#filterForm').submit();
+	});
+	
+	// Refresh button
+	$('#refreshBtn').on('click', function() {
+		var $btn = $(this);
+		var $icon = $btn.find('i');
+		
+		// Add spinning animation
+		$icon.addClass('fa-spin');
+		$btn.prop('disabled', true);
+		
+		// Reload the page with current filters
+		window.location.reload();
+	});
+	
+	// Auto-submit on per_page change
+	$('#per_page').on('change', function() {
 		$('#filterForm').submit();
 	});
 	
@@ -379,15 +608,58 @@ $(document).ready(function() {
 		});
 	}
 	
-	// Handle archive button click (placeholder - will be implemented in next step)
+	// Handle archive button click
 	$(document).on('click', '.btn-archive-client', function() {
-		var clientId = $(this).data('client-id');
-		var action = $(this).data('action');
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		var action = $btn.data('action');
 		var actionText = action === 'archive' ? 'archive' : 'unarchive';
+		var $detailsContent = $('#client-details-content-' + clientId);
 		
 		if (confirm('Are you sure you want to ' + actionText + ' this client?')) {
-			// This will be implemented in the next step
-			alert('Archive functionality will be implemented in the next step. Client ID: ' + clientId);
+			// Disable button and show loading
+			$btn.prop('disabled', true);
+			var originalHtml = $btn.html();
+			$btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+			
+			$.ajax({
+				url: '{{ route("adminconsole.recentclients.togglearchive") }}',
+				type: 'POST',
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data: {
+					client_id: clientId,
+					action: action
+				},
+				success: function(response) {
+					if (response.success) {
+						// Show success message
+						alert(response.message);
+						
+						// Reload the client details to reflect the new archive status
+						if ($detailsContent.length) {
+							loadClientDetails(clientId, $detailsContent);
+						}
+						
+						// Optionally reload the page to refresh the list
+						// window.location.reload();
+					} else {
+						alert('Error: ' + (response.message || 'Failed to ' + actionText + ' client'));
+						$btn.prop('disabled', false);
+						$btn.html(originalHtml);
+					}
+				},
+				error: function(xhr) {
+					var errorMsg = 'Failed to ' + actionText + ' client';
+					if (xhr.responseJSON && xhr.responseJSON.message) {
+						errorMsg = xhr.responseJSON.message;
+					}
+					alert('Error: ' + errorMsg);
+					$btn.prop('disabled', false);
+					$btn.html(originalHtml);
+				}
+			});
 		}
 	});
 });
