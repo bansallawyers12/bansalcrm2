@@ -1,0 +1,525 @@
+{
+    "version": "1.0",
+    "exported_at": "2026-01-25T21:28:10+11:00",
+    "exported_from": "migrationmanager2",
+    "client": {
+        "first_name": "Jasmeet",
+        "last_name": "Kaur",
+        "email": "jasmeet0727@gmail.com",
+        "phone": "0451700026",
+        "country_code": "+61",
+        "telephone": null,
+        "dob": "1997-04-30",
+        "age": "28 years 8 months",
+        "gender": "Female",
+        "marital_status": "Married",
+        "address": null,
+        "city": null,
+        "state": null,
+        "country": null,
+        "zip": null,
+        "country_passport": null,
+        "att_email": null,
+        "att_phone": null,
+        "att_country_code": null,
+        "email_type": "Personal",
+        "contact_type": "Personal",
+        "source": null,
+        "type": "client",
+        "status": "1",
+        "profile_img": null,
+        "agent_id": null
+    },
+    "addresses": [],
+    "contacts": [
+        {
+            "contact_type": "Personal",
+            "country_code": "+61",
+            "phone": "0451700026",
+            "is_verified": false,
+            "verified_at": null
+        }
+    ],
+    "emails": [
+        {
+            "email_type": "Personal",
+            "email": "jasmeet0727@gmail.com",
+            "is_verified": false,
+            "verified_at": null
+        }
+    ],
+    "passport": null,
+    "travel": [],
+    "visa_countries": [],
+    "character": [],
+    "activities": [
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Credentials_1765428966' to 'Login'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:56:13.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Credentials' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:56:06.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Preview_1765428953' to 'E0028645649'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:56:00.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Preview' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:53.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Points Breakdown_1765428939' to 'E0028645649_points_28_03_2025'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:46.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Points Breakdown' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:39.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Credentials_1765428924' to 'Login'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:30.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Credentials' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:24.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Preview_1765428913' to 'E0029372929'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:20.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Preview' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:13.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_EOI Points Breakdown_1765428901' to 'E0029372929_points_31_05_2025'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:07.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'EOI Points Breakdown' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:55:01.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_Security Questions_1765428884' to 'Security question screenshot'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:51.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'Security Questions' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:44.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_Security Questions_1765428873' to 'Security question screenshot'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:39.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'Security Questions' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:33.000000Z"
+        },
+        {
+            "subject": "added visa checklist",
+            "description": "Added 4 visa document checklist items: EOI Points Breakdown, EOI Preview, EOI Credentials...",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:09.000000Z"
+        },
+        {
+            "subject": "added visa checklist",
+            "description": "Added 4 visa document checklist items: EOI Points Breakdown, EOI Preview, EOI Credentials...",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:54:06.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed visa document from 'Jasmeet_Client Cost Agreement_1765428763' to 'Admin Docs in general.AB.JASMEE.24.1724.28-Sep-2024'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:53:08.000000Z"
+        },
+        {
+            "subject": "updated visa document",
+            "description": "Uploaded 'Client Cost Agreement' visa document",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:52:43.000000Z"
+        },
+        {
+            "subject": "added visa checklist",
+            "description": "Added 1 visa document checklist items: Client Cost Agreement",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:52:28.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Dependent National ID_1765428715' to 'Farmaan Singh Kalra_Passport'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:52:02.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Dependent National ID' in '4' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:55.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Resume_1765428697' to 'Jasmeet Kaur_Resume'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:44.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Resume' in '4' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:37.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_NAATI_1765428683' to 'Jasmeet Kaur_NAATI Dated 16.08.2024'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:30.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'NAATI' in '4' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:23.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Skill Assessment_1765428668' to 'Jasmeet kaur_Skill Assessment Dated 4 March 2024'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:17.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Skill Assessment' in '4' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:51:08.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_PTE_1765428648' to 'Jasmeet kaur_PTE Dated 23.04.2024'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:50:55.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'PTE' in '4' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:50:48.000000Z"
+        },
+        {
+            "subject": "added personal checklist",
+            "description": "Added 5 personal document checklist items in '4' category: PTE, Skill Assessment, NAATI...",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:50:23.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Overseas bachelor_1765428512' to 'Jasmeet Kaur_Bachelor of Commerce'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:48:40.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Overseas bachelor' in '2' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:48:32.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Advance Diploma_1765428463' to 'Jasmeet Kaur_ Advanced Diploma of Civil construction Design'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:48:19.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Advance Diploma' in '2' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:47:43.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Masters_1765428426' to 'Jasmeet Kaur_Master of Accounting'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:47:16.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Masters' in '2' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:47:06.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Australian Cert III_1765428412' to 'Jasmeet Kaur_Certificate III in Individual Support - Ageing and Disability'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:47:00.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Australian Cert III' in '2' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:46:52.000000Z"
+        },
+        {
+            "subject": "added personal checklist",
+            "description": "Added 4 personal document checklist items in '2' category: Overseas bachelor, Australian Cert III, Masters...",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:45:01.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_National Identity Card_1765428243' to 'Jasmeet Kaur_PAN Card'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:44:10.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'National Identity Card' in '1' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:44:03.000000Z"
+        },
+        {
+            "subject": "added personal checklist",
+            "description": "Added 1 personal document checklist items in '1' category: National Identity Card",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:43:51.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Visa Grant Letter_1765428141' to 'Jasmeet Kaur_485 IMMI Grant'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:34.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_National Identity Card_1765428136' to 'Jasmeet kaur_Aadhaar Card'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:27.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Visa Grant Letter' in '1' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:21.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'National Identity Card' in '1' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:16.000000Z"
+        },
+        {
+            "subject": "renamed a document",
+            "description": "Renamed personal document from 'Jasmeet_Passport_1765428120' to 'Jasmeet Kaur_Passport'",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:08.000000Z"
+        },
+        {
+            "subject": "updated personal document",
+            "description": "Uploaded 'Passport' in '1' category",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:42:00.000000Z"
+        },
+        {
+            "subject": "added personal checklist",
+            "description": "Added 3 personal document checklist items in '1' category: Passport, National Identity Card, Visa Grant Letter",
+            "activity_type": "document",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:41:51.000000Z"
+        },
+        {
+            "subject": "Lead converted to client. Matter EOI_1 created",
+            "description": "Lead converted to client. Matter EOI_1 created",
+            "activity_type": "note",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2025-12-11T04:39:43.000000Z"
+        }
+    ]
+}
