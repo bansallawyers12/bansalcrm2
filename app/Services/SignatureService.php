@@ -403,9 +403,10 @@ class SignatureService
      */
     public function suggestAssociation(string $email): ?array
     {
-        // Try to find matching client (role = 7 is client in this system)
+        // Try to find matching client (role = 7 is client in this system, exclude archived)
         $client = Admin::where('email', $email)
             ->where('role', '=', 7)
+            ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->first();
 

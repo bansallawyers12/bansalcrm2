@@ -191,5 +191,6 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
     //Recently Modified Clients Routes
     Route::get('/recent-clients', [RecentlyModifiedClientsController::class, 'index'])->name('adminconsole.recentclients.index');
+    Route::post('/recent-clients/get-client-details', [RecentlyModifiedClientsController::class, 'getClientDetails'])->name('adminconsole.recentclients.getdetails');
     
 });

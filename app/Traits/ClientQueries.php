@@ -123,6 +123,40 @@ trait ClientQueries
     }
     
     /**
+     * Apply archived-specific filters (search + archived date/archived_by/assignee).
+     * Reuses applyClientFilters for name, email, phone, client_id, type.
+     *
+     * @param Builder $query  Archived client query (getArchivedClientQuery)
+     * @param Request $request
+     * @return Builder
+     */
+    protected function applyArchivedFilters(Builder $query, Request $request): Builder
+    {
+        $query = $this->applyClientFilters($query, $request);
+        
+        if ($request->has('archived_from') && trim($request->input('archived_from')) !== '') {
+            $query->whereDate('archived_on', '>=', $request->input('archived_from'));
+        }
+        if ($request->has('archived_to') && trim($request->input('archived_to')) !== '') {
+            $query->whereDate('archived_on', '<=', $request->input('archived_to'));
+        }
+        if ($request->has('archived_by') && trim($request->input('archived_by')) !== '') {
+            $query->where('archived_by', '=', $request->input('archived_by'));
+        }
+        if ($request->has('assignee') && trim($request->input('assignee')) !== '') {
+            $aid = $request->input('assignee');
+            $query->where(function ($q) use ($aid) {
+                $q->where('assignee', '=', $aid)
+                  ->orWhere('assignee', 'like', $aid . ',%')
+                  ->orWhere('assignee', 'like', '%,' . $aid . ',%')
+                  ->orWhere('assignee', 'like', '%,' . $aid);
+            });
+        }
+        
+        return $query;
+    }
+    
+    /**
      * Check if current context is agent
      * 
      * @return bool

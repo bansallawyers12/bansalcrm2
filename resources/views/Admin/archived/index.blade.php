@@ -2,6 +2,17 @@
 @section('title', 'Clients')
 
 @section('content')
+<style>
+.filter_panel {
+	background: #f7f7f7;
+	margin-bottom: 10px;
+	border: 1px solid #eee;
+	display: none;
+}
+.card .card-body .filter_panel {
+	padding: 20px;
+}
+</style>
 
 <!-- Main Content -->
 <div class="main-content">
@@ -22,20 +33,88 @@
 									<button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
 									<div class="dropdown_list">
 										<label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
-										<label class="dropdown-option"><input type="checkbox" value="3"checked /> Agent</label>
-										<label class="dropdown-option"><input type="checkbox" value="4"checked /> Tag(s)</label>
-										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Current City</label>
-										<label class="dropdown-option"><input type="checkbox" value="7" checked /> Assignee</label>
-										<label class="dropdown-option"><input type="checkbox" value="8" checked /> Archived By</label>
-										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Archived On</label>
-										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Added On</label>
+										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Assignee</label>
+										<label class="dropdown-option"><input type="checkbox" value="4" checked /> Archived By</label>
+										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Archived On</label>
 									</div>
 								</div>
-								<!-- REMOVED: Direct client creation - clients must be created via lead conversion -->
-								<!-- <a href="{{route('clients.create')}}" class="btn btn-primary">Create Client</a> -->
+								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
 						<div class="card-body">
+							<div class="filter_panel">
+								<h4>Search & Filter Archived Clients</h4>
+								<form action="{{URL::to('/archived')}}" method="get">
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="client_id" class="col-form-label">Client ID</label>
+												{!! Form::text('client_id', Request::get('client_id'), array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Client ID', 'id' => 'client_id' ))  !!}
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="name" class="col-form-label">Name</label>
+												{!! Form::text('name', Request::get('name'), array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="email" class="col-form-label">Email</label>
+												{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="phone" class="col-form-label">Phone</label>
+												{!! Form::text('phone', Request::get('phone'), array('class' => 'form-control', 'autocomplete'=>'off','placeholder'=>'Phone', 'id' => 'phone' ))  !!}
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="archived_from" class="col-form-label">Archived From</label>
+												{!! Form::date('archived_from', Request::get('archived_from'), array('class' => 'form-control', 'id' => 'archived_from' ))  !!}
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="archived_to" class="col-form-label">Archived To</label>
+												{!! Form::date('archived_to', Request::get('archived_to'), array('class' => 'form-control', 'id' => 'archived_to' ))  !!}
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="archived_by" class="col-form-label">Archived By</label>
+												<select class="form-control" name="archived_by" id="archived_by">
+													<option value="">All</option>
+													@foreach($archivedByUsers as $user)
+														<option value="{{$user->id}}" {{Request::get('archived_by') == $user->id ? 'selected' : ''}}>{{$user->first_name}} {{$user->last_name}}</option>
+													@endforeach
+												</select>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="assignee" class="col-form-label">Assignee</label>
+												<select class="form-control" name="assignee" id="assignee">
+													<option value="">All</option>
+													@foreach($assignees as $assignee)
+														<option value="{{$assignee->id}}" {{Request::get('assignee') == $assignee->id ? 'selected' : ''}}>{{$assignee->first_name}} {{$assignee->last_name}}</option>
+													@endforeach
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12 text-center">
+											{!! Form::submit('Search', ['class'=>'btn btn-primary btn-theme-lg' ])  !!}
+											<a class="btn btn-info" href="{{URL::to('/archived')}}">Reset</a>
+										</div>
+									</div>
+								</form>
+							</div>
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								
 								<li class="nav-item">
@@ -58,14 +137,9 @@
 														</div>
 													</th>	
 													<th>Name</th>
-													<th>Agent</th>
-													<th>Tag(s)</th>
-													<th>Current City</th>
-													
 													<th>Assignee</th>
 													<th>Archived By</th>
 													<th>Archived On</th>
-													<th>Added On</th>
 													<th></th>
 												</tr> 
 											</thead>
@@ -82,28 +156,36 @@
 													</td>
 													<td style="white-space: initial;">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</td>
 													<?php
-													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
-													?>
-													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
-													<td style="white-space: initial;">-</td>
-													<td style="white-space: initial;">{{@$list->city}}</td>
-													<?php
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
 													if(!empty(@$list->assignee) && @$list->assignee !== '') {
 														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
 													}
+													$archivedBy = null;
+													if(!empty(@$list->archived_by) && @$list->archived_by !== '') {
+														$archivedBy = \App\Models\Admin::where('id', @$list->archived_by)->first();
+													}
+													
+													// Check if archived for 6+ months (allow permanent deletion)
+													$canDelete = false;
+													if($list->archived_on) {
+														$archivedDate = \Carbon\Carbon::parse($list->archived_on);
+														$sixMonthsAgo = \Carbon\Carbon::now()->subMonths(6);
+														$canDelete = $archivedDate->lte($sixMonthsAgo);
+													}
 													?>
-													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
-													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->archived_on))}}</td>
-													<td style="white-space: initial;">-</td>
-													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->created_at))}}</td>
+													<td style="white-space: initial;">{{ $assignee ? (@$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...')) : '-' }}</td>
+													<td style="white-space: initial;">{{ $archivedBy ? (str_limit(trim(($archivedBy->first_name ?? '') . ' ' . ($archivedBy->last_name ?? '')), 50, '...') ?: '-') : '-' }}</td>
+													<td style="white-space: initial;">{{ $list->archived_on ? date('d/m/Y', strtotime($list->archived_on)) : '-' }}</td>
 													<td style="white-space: initial;">
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
+																<a class="dropdown-item has-icon" href="javascript:;" onclick="movetoclientAction({{$list->id}}, 'admins','is_archived')"><i class="fas fa-undo"></i> Move to clients</a>
 																
-																<a class="dropdown-item has-icon" href="javascript:;" onclick="movetoclientAction({{$list->id}}, 'admins','is_archived')">Move to clients</a>
+																@if($canDelete)
+																	<a class="dropdown-item has-icon text-danger" href="javascript:;" onclick="permanentDeleteAction({{$list->id}}, 'admins')"><i class="fas fa-trash"></i> Permanently Delete</a>
+																@endif
 															</div>
 														</div>								  
 													</td>
@@ -113,11 +195,20 @@
 											@else		
 											<tbody>
 												<tr>
-													<td style="text-align:center;" colspan="10">
+													<td style="text-align:center;" colspan="6">
 														No Record found
 													</td>
 												</tr>
 											</tbody>
+											@endif
+											@if(@$totalData > 0)
+											<tfoot>
+												<tr>
+													<td colspan="6" style="text-align:center; padding: 10px;">
+														<strong>Total: {{$totalData}} archived client(s)</strong>
+													</td>
+												</tr>
+											</tfoot>
 											@endif
 										</table>
 									</div>	
@@ -133,5 +224,14 @@
 		</div>
 	</section> 
 </div>
+
+<script>
+$(document).ready(function() {
+	// Toggle filter panel
+	$('.filter_btn').on('click', function(){
+		$('.filter_panel').slideToggle();
+	});
+});
+</script>
 
 @endsection

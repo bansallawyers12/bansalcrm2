@@ -446,9 +446,18 @@ class AdminController extends Controller
 
 						if($recordExist)
 						{
-
-
-							$response 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->update([$requestData['col'] => 0]);
+							// When un-archiving clients, also clear archive metadata for consistency
+							if($requestData['table'] == 'admins' && $requestData['col'] == 'is_archived') {
+								$response = DB::table($requestData['table'])->where('id', $requestData['id'])->update([
+									'is_archived' => 0,
+									'archived_on' => null,
+									'archived_by' => null
+								]);
+							} else {
+								// For other tables/columns, keep existing behavior
+								$response = DB::table($requestData['table'])->where('id', $requestData['id'])->update([$requestData['col'] => 0]);
+							}
+							
 							if($response)
 							{
 								$status = 1;
@@ -763,6 +772,110 @@ class AdminController extends Controller
 		die;
 	}
 
+	public function permanentDeleteAction(Request $request)
+	{
+		$status = 0;
+		$message = '';
+		
+		if ($request->isMethod('post'))
+		{
+			$requestData = $request->all();
+			$requestData['id'] = trim($requestData['id']);
+			$requestData['table'] = trim($requestData['table']);
+			
+			$role = Auth::user()->role;
+			
+			// Only admin (role 1) can permanently delete
+			if($role == 1)
+			{
+				if(isset($requestData['id']) && !empty($requestData['id']) && isset($requestData['table']) && !empty($requestData['table']))
+				{
+					$tableExist = Schema::hasTable(trim($requestData['table']));
+					
+					if($tableExist)
+					{
+						// Additional safety check for admins table (clients)
+						if($requestData['table'] == 'admins')
+						{
+							$client = \App\Models\Admin::where('id', $requestData['id'])->first();
+							
+							if($client)
+							{
+								// Verify client is archived
+								if($client->is_archived != 1)
+								{
+									$message = 'Only archived clients can be permanently deleted.';
+								}
+								// Verify archived for at least 6 months
+								elseif($client->archived_on)
+								{
+									$archivedDate = \Carbon\Carbon::parse($client->archived_on);
+									$sixMonthsAgo = \Carbon\Carbon::now()->subMonths(6);
+									
+									if($archivedDate->lte($sixMonthsAgo))
+									{
+										// Safe to delete - archived for 6+ months
+										// Set is_deleted timestamp instead of actual deletion for audit trail
+										$response = DB::table($requestData['table'])
+											->where('id', $requestData['id'])
+											->update(['is_deleted' => date('Y-m-d H:i:s')]);
+										
+										if($response)
+										{
+											$status = 1;
+											$message = 'Client has been permanently deleted successfully.';
+										}
+										else
+										{
+											$message = Config::get('constants.server_error');
+										}
+									}
+									else
+									{
+										$daysArchived = \Carbon\Carbon::now()->diffInDays($archivedDate);
+										$daysRemaining = 180 - $daysArchived;
+										$message = 'Client must be archived for at least 6 months before permanent deletion. ' . $daysRemaining . ' days remaining.';
+									}
+								}
+								else
+								{
+									$message = 'Client must be archived before permanent deletion.';
+								}
+							}
+							else
+							{
+								$message = 'Client not found.';
+							}
+						}
+						else
+						{
+							$message = 'Permanent deletion is only allowed for clients.';
+						}
+					}
+					else
+					{
+						$message = 'Table does not exist.';
+					}
+				}
+				else
+				{
+					$message = 'ID or Table parameter is missing.';
+				}
+			}
+			else
+			{
+				$message = 'You are not authorized to perform this action. Only administrators can permanently delete records.';
+			}
+		}
+		else
+		{
+			$message = Config::get('constants.post_method');
+		}
+		
+		echo json_encode(array('status'=>$status, 'message'=>$message));
+		die;
+	}
+
 	public function deleteAction(Request $request)
 	{
 		$status 			= 	0;
@@ -800,10 +913,12 @@ class AdminController extends Controller
 							$o = \App\Models\Admin::where('id', $requestData['id'])->first();
 							if($o->is_archived == 1){
 								$is_archived = 0;
+								$updateData = ['is_archived' => $is_archived, 'archived_on' => null, 'archived_by' => null];
 							}else{
 								$is_archived = 1;
+								$updateData = ['is_archived' => $is_archived, 'archived_on' => date('Y-m-d'), 'archived_by' => Auth::user()->id];
 							}
-							$response 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->update(['is_archived' => $is_archived, 'archived_on' => date('Y-m-d')]);
+							$response 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->update($updateData);
 							if($response)
 							{
 								$status = 1;

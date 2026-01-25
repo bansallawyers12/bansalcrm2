@@ -318,7 +318,7 @@
 	
 	
 	function movetoclientAction( id, table, col ) {
-		var conf = confirm('Are you sure, you would like to move this record.');
+		var conf = confirm('Are you sure you want to restore this client to the active list?');
 		if(conf){	 
 			if(id == '') {
 				alert('Please select ID to delete the record.');
@@ -344,6 +344,60 @@
 							
 							
 							
+						} else{
+							var html = errorMessage(obj.message);
+							$(".custom-error-msg").html(html);
+						}
+						$("#loader").hide();
+					},
+					beforeSend: function() {
+						$("#loader").show();
+					}
+				});
+				$('html, body').animate({scrollTop:0}, 'slow');
+			}
+		} else{
+			$("#loader").hide();
+		}
+	}
+
+
+	function permanentDeleteAction( id, table ) {
+		var conf = confirm('WARNING: This will permanently delete this client and all related data. This action cannot be undone. Are you absolutely sure?');
+		if(conf){	 
+			if(id == '') {
+				alert('Please select ID to permanently delete the record.');
+				return false;	
+			} else {
+				$('.popuploader').show();
+				$(".server-error").html(''); //remove server error.
+				$(".custom-error-msg").html(''); //remove custom error.
+				$.ajax({
+					type:'post',
+					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+					url:site_url+'/permanent_delete_action',
+					data:{'id': id, 'table' : table},
+					success:function(resp) {
+						$('.popuploader').hide();
+						var obj = $.parseJSON(resp);
+						if(obj.status == 1) {
+							$("#id_"+id).remove();
+							
+							//show success msg 
+							var html = successMessage(obj.message);
+							$(".custom-error-msg").html(html);
+							
+							//show count
+							var old_count = $(".count").text();
+							var new_count = old_count - 1;
+							$(".count").text(new_count);
+							
+							//when all data has been deleted
+							if(new_count == 0){
+								$(".tdata").html('<tr><td colspan="6">There are no data in this table.</td></tr>');
+							}
+							
+							location.reload();
 						} else{
 							var html = errorMessage(obj.message);
 							$(".custom-error-msg").html(html);

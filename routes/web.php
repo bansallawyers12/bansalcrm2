@@ -164,6 +164,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/archive_action', [AdminController::class, 'archiveAction']);
 		Route::post('/declined_action', [AdminController::class, 'declinedAction']);
 		Route::post('/delete_action', [AdminController::class, 'deleteAction']);
+		Route::post('/permanent_delete_action', [AdminController::class, 'permanentDeleteAction']);
          Route::post('/delete_slot_action', [AdminController::class, 'deleteSlotAction']);
 		Route::post('/move_action', [AdminController::class, 'moveAction']);
 		

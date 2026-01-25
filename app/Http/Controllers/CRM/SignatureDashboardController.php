@@ -88,8 +88,9 @@ class SignatureDashboardController extends Controller
             'all_pending' => Document::forSignatureWorkflow()->byStatus('sent')->notArchived()->count(),
         ];
 
-        // Load clients for attach modal
+        // Load clients for attach modal (exclude archived)
         $clients = Admin::where('role', 7)
+            ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->select('id', 'first_name', 'last_name', 'email')
             ->get();
@@ -101,8 +102,8 @@ class SignatureDashboardController extends Controller
     {
         $user = Auth::guard('admin')->user();
         
-        // Get clients for association dropdown
-        $clients = Admin::where('role', '=', 7)->whereNull('is_deleted')->get(['id', 'first_name', 'last_name', 'email']);
+        // Get clients for association dropdown (exclude archived)
+        $clients = Admin::where('role', '=', 7)->where('is_archived', 0)->whereNull('is_deleted')->get(['id', 'first_name', 'last_name', 'email']);
 
         // Check if we're sending an existing document for signing
         $document = null;
@@ -308,8 +309,9 @@ class SignatureDashboardController extends Controller
         $document = Document::with(['creator', 'signers', 'documentable', 'signatureFields', 'notes.creator'])
             ->findOrFail($id);
 
-        // Load clients for attach functionality
+        // Load clients for attach functionality (exclude archived)
         $clients = Admin::where('role', 7)
+            ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->select('id', 'first_name', 'last_name', 'email')
             ->orderBy('first_name')
@@ -530,9 +532,10 @@ class SignatureDashboardController extends Controller
 
         $matches = [];
         
-        // Find all clients with this email
+        // Find all clients with this email (exclude archived)
         $clients = Admin::where('email', $request->email)
             ->where('role', '=', 7)
+            ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->get();
             

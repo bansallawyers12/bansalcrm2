@@ -151,6 +151,7 @@ class SearchService
             ->groupBy('client_id');
 
         $clients = Admin::where('admins.role', '=', 7)
+            ->where('admins.is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')
                   ->orWhere('admins.is_deleted', 0);
@@ -301,6 +302,7 @@ class SearchService
     protected function searchByClientId($clientId)
     {
         $clients = Admin::where('role', '=', 7)
+            ->where('is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
@@ -342,8 +344,9 @@ class SearchService
     {
         $results = [];
 
-        // Search clients
+        // Search clients (exclude archived)
         $clients = Admin::where('role', '=', 7)
+            ->where('is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
@@ -463,8 +466,9 @@ class SearchService
             ->select('client_id', DB::raw("STRING_AGG(client_phone, ', ') as phones"))
             ->groupBy('client_id');
 
-        // Search clients
+        // Search clients (exclude archived)
         $clients = Admin::where('admins.role', '=', 7)
+            ->where('admins.is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')->orWhere('admins.is_deleted', 0);
             })

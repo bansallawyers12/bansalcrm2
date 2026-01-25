@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
+use App\Models\Document;
   
 use Auth; 
 use Config;
@@ -37,7 +38,9 @@ class RecentlyModifiedClientsController extends Controller
 		$sortOrder = $request->input('sort_order', 'desc'); // Default to descending (newest first)
 		
 		// Get the most recent activity for each client
+		// Filter out NULL client_id to avoid orphaned activities
 		$subQuery = ActivitiesLog::select('client_id', DB::raw('MAX(created_at) as last_activity'))
+			->whereNotNull('client_id')
 			->groupBy('client_id');
 		
 		// Clients live in admins table (role = 7). Join admins twice: client info + creator info.
@@ -61,7 +64,8 @@ class RecentlyModifiedClientsController extends Controller
 			})
 			->leftJoin('admins as client_admins', function($join) {
 				$join->on('activities_logs.client_id', '=', 'client_admins.id')
-					 ->where('client_admins.role', '=', '7');
+					 ->where('client_admins.role', '=', '7')
+					 ->where('client_admins.is_archived', '=', '0');
 			})
 			->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id');
 		
@@ -84,5 +88,66 @@ class RecentlyModifiedClientsController extends Controller
 			->appends($request->query());
 		
 		return view('AdminConsole.recent_clients.index', compact(['lists', 'totalData', 'fromDate', 'toDate', 'sortOrder'])); 	
+	}
+	
+	/**
+     * Get client details for expandable row (AJAX)
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+	public function getClientDetails(Request $request)
+	{
+		$clientId = $request->input('client_id');
+		
+		if (!$clientId) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Client ID is required'
+			], 400);
+		}
+		
+		// Get client info
+		$client = Admin::where('id', $clientId)
+			->where('role', '7')
+			->first();
+		
+		if (!$client) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Client not found'
+			], 404);
+		}
+		
+		// Get last activity with creator info
+		$lastActivity = ActivitiesLog::where('client_id', $clientId)
+			->with('createdBy')
+			->orderBy('created_at', 'desc')
+			->first();
+		
+		// Get document count
+		$documentCount = Document::where('client_id', $clientId)
+			->whereNull('archived_at') // Only count non-archived documents
+			->count();
+		
+		// Check if client is archived
+		$isArchived = $client->is_archived == 1;
+		
+		return response()->json([
+			'success' => true,
+			'data' => [
+				'client_id' => $clientId,
+				'last_activity' => $lastActivity ? [
+					'subject' => $lastActivity->subject,
+					'description' => $lastActivity->description,
+					'date' => $lastActivity->created_at->format('d/m/Y h:i A'),
+					'created_by' => $lastActivity->createdBy ? 
+						($lastActivity->createdBy->first_name . ' ' . $lastActivity->createdBy->last_name) : 
+						'N/A'
+				] : null,
+				'document_count' => $documentCount,
+				'is_archived' => $isArchived
+			]
+		]);
 	}
 }

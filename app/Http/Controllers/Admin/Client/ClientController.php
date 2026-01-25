@@ -79,13 +79,29 @@ class ClientController extends Controller
 	{
 		// Get archived clients query with automatic agent filtering
 		$query = $this->getArchivedClientQuery();
+		
+		// Apply search and filters
+		$query = $this->applyArchivedFilters($query, $request);
+		
 		$totalData = $query->count();
+		$lists = $query->sortable(['id' => 'desc'])->paginate(20)->appends($request->except('page'));
 		
-		// Paginate results
-		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
+		// Assignees for filter dropdown (admins except clients)
+		$assignees = \App\Models\Admin::select('id', 'first_name', 'last_name')
+			->where('role', '!=', 7)
+			->where('status', 1)
+			->orderBy('first_name')
+			->get();
 		
-		// Return appropriate view based on context
-		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData']));
+		// Users who have archived at least one client (for "Archived by" filter)
+		$archivedByUsers = \App\Models\Admin::select('admins.id', 'admins.first_name', 'admins.last_name')
+			->whereIn('admins.id', function ($q) {
+				$q->select('archived_by')->from('admins')->where('is_archived', 1)->whereNotNull('archived_by');
+			})
+			->orderBy('first_name')
+			->get();
+		
+		return view($this->getClientViewPath('archived.index'), compact(['lists', 'totalData', 'assignees', 'archivedByUsers']));
 	}
 
     public function edit(Request $request, $id = NULL)
