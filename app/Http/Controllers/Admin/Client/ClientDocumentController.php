@@ -1045,6 +1045,17 @@ class ClientDocumentController extends Controller
             $obj->type = $request->type;
             $obj->file_size = $size;
             $obj->doc_type = $doctype;
+            
+            // Assign to default "General" category if doc_type is 'documents' and no category_id is set
+            if ($doctype == 'documents' && !$obj->category_id) {
+                $generalCategory = \App\Models\DocumentCategory::where('name', 'General')
+                    ->where('is_default', true)
+                    ->first();
+                if ($generalCategory) {
+                    $obj->category_id = $generalCategory->id;
+                }
+            }
+            
             $saved = $obj->save();
 
 			if($saved){
@@ -1259,6 +1270,20 @@ class ClientDocumentController extends Controller
 				$obj->type = $request->type;
 				$obj->file_size = $size;
 				$obj->doc_type = $doctype;
+				
+				// Assign to default "General" category if doc_type is 'documents' and no category_id is set
+				if ($doctype == 'documents' && !$request->has('category_id')) {
+					$generalCategory = \App\Models\DocumentCategory::where('name', 'General')
+						->where('is_default', true)
+						->first();
+					if ($generalCategory) {
+						$obj->category_id = $generalCategory->id;
+					}
+				} elseif ($request->has('category_id')) {
+					// Use provided category_id if available
+					$obj->category_id = $request->category_id;
+				}
+				
 				$saved = $obj->save();
 
 			}

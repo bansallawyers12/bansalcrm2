@@ -138,7 +138,15 @@ class DocumentCategory extends Model
      */
     public function getDocumentCount($clientId = null): int
     {
-        $query = $this->documents()->whereNull('not_used_doc');
+        $query = $this->documents()
+            ->whereNull('not_used_doc')
+            ->where(function ($q) {
+                // Count only documents with doc_type='documents' or NULL/empty
+                $q->where('doc_type', 'documents')
+                    ->orWhere(function ($subQ) {
+                        $subQ->whereNull('doc_type')->orWhere('doc_type', '');
+                    });
+            });
         
         if ($clientId) {
             $query->where('client_id', $clientId);

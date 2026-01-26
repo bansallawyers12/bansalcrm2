@@ -265,6 +265,13 @@ class DocumentCategoryController extends Controller
                 ->where('category_id', $categoryId)
                 ->whereNull('not_used_doc')
                 ->where('type', 'client')
+                ->where(function ($query) {
+                    // Include documents with doc_type='documents' or NULL/empty (for backwards compatibility)
+                    $query->where('doc_type', 'documents')
+                        ->orWhere(function ($q) {
+                            $q->whereNull('doc_type')->orWhere('doc_type', '');
+                        });
+                })
                 ->orderBy('updated_at', 'DESC')
                 ->with('user')
                 ->get();
