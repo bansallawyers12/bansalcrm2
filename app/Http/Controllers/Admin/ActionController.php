@@ -84,6 +84,16 @@ class ActionController extends Controller
             $note->status = 1;
             $note->save();
             
+            // Get application and stage name if this is a stage-type action
+            $stageName = null;
+            $application = null;
+            if (!empty($note->application_id)) {
+                $application = \App\Models\Application::find($note->application_id);
+                if ($application) {
+                    $stageName = $application->stage;
+                }
+            }
+            
             // Create activity log entry
             $admin_data = Admin::where('id', $note->assigned_to)->first();
             if($admin_data){
@@ -95,7 +105,14 @@ class ActionController extends Controller
             $objs = new ActivitiesLog;
             $objs->client_id = $clientId;
             $objs->created_by = Auth::user()->id;
-            $objs->subject = 'Completed action';
+            
+            // For stage-type actions, include the stage name in the subject
+            if ($note->task_group == 'stage' && !empty($stageName)) {
+                $objs->subject = 'Completed ' . $stageName . ' stage action';
+            } else {
+                $objs->subject = 'Completed action';
+            }
+            
             $objs->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($completionMessage) . '</p>';
             
             if(Auth::user()->id != @$note->assigned_to){
@@ -112,24 +129,20 @@ class ActionController extends Controller
             $objs->save();
             
             // If this action is related to an application, also log to ApplicationActivitiesLog
-            if (!empty($note->application_id)) {
-                // Get the application to determine the stage
-                $application = \App\Models\Application::find($note->application_id);
-                if ($application) {
-                    // Get the ORIGINAL note description (entered when assigning the task)
-                    $originalNoteDescription = strip_tags($note->description);
-                    
-                    $obj1 = new \App\Models\ApplicationActivitiesLog;
-                    $obj1->stage = $application->stage;
-                    $obj1->type = 'task';
-                    $obj1->comment = 'completed a task';
-                    $obj1->title = 'Action completed by '.Auth::user()->first_name.' '.Auth::user()->last_name;
-                    // Show BOTH the original note description AND the completion message
-                    $obj1->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($originalNoteDescription) . '</p><hr><p><strong>Completion Note:</strong> ' . htmlspecialchars($completionMessage) . '</p>';
-                    $obj1->app_id = $note->application_id;
-                    $obj1->user_id = Auth::user()->id;
-                    $obj1->save();
-                }
+            if (!empty($note->application_id) && $application) {
+                // Get the ORIGINAL note description (entered when assigning the task)
+                $originalNoteDescription = strip_tags($note->description);
+                
+                $obj1 = new \App\Models\ApplicationActivitiesLog;
+                $obj1->stage = $application->stage;
+                $obj1->type = 'task';
+                $obj1->comment = 'completed a task';
+                $obj1->title = 'Action completed by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+                // Show BOTH the original note description AND the completion message
+                $obj1->description = '<span class="text-semi-bold">Action Completed</span><p>' . htmlspecialchars($originalNoteDescription) . '</p><hr><p><strong>Completion Note:</strong> ' . htmlspecialchars($completionMessage) . '</p>';
+                $obj1->app_id = $note->application_id;
+                $obj1->user_id = Auth::user()->id;
+                $obj1->save();
             }
 
             return response()->json([
