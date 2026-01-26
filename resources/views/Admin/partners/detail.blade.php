@@ -1060,44 +1060,55 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="tdata invoicedatalist">
 												<?php
-												$applications = \App\Models\Application::where('partner_id',$fetchedData->id)->get();
+												// OPTIMIZED: Use eager loading to avoid N+1 query problem
+												// Fetch all applications with their related invoices, invoice details, and payments in fewer queries
+												$applications = \App\Models\Application::where('partner_id',$fetchedData->id)
+													->with([
+														'invoices' => function($query) {
+															$query->orderby('created_at','DESC')
+																->with(['invoiceDetails', 'invoicePayments']);
+														}
+													])
+													->get();
+												
+												// Pre-fetch workflows and partners to avoid repeated queries
+												$applicationIds = $applications->flatMap(function($app) {
+													return $app->invoices->pluck('application_id');
+												})->unique();
+												
+												$workflows = \App\Models\Workflow::whereIn('id', $applicationIds)->get()->keyBy('id');
+												$partners = \App\Models\Partner::where('id', $fetchedData->id)->first();
 												
 												foreach($applications as $application){
-													$invoicelists = \App\Models\Invoice::where('application_id',$application->id)->orderby('created_at','DESC')->get();
-													
-														foreach($invoicelists as $invoicelist){
-															if($invoicelist->type == 3){
-																$workflowdaa = \App\Models\Workflow::where('id', $invoicelist->application_id)->first();
-															}else{
-																$applicationdata = \App\Models\Application::where('id', $invoicelist->application_id)->first();
-																$workflowdaa = \App\Models\Workflow::where('id', $invoicelist->application_id)->first();
-																$partnerdata = \App\Models\Partner::where('id', $applicationdata->partner_id)->first();
-															}
-															$invoiceitemdetails = \App\Models\InvoiceDetail::where('invoice_id', $invoicelist->id)->orderby('id','ASC')->get();
-															$netamount = 0;
-															$coom_amt = 0;
-															$total_fee = 0;
-															foreach($invoiceitemdetails as $invoiceitemdetail){
-																$netamount += $invoiceitemdetail->netamount;
-																$coom_amt += $invoiceitemdetail->comm_amt;
-																$total_fee += $invoiceitemdetail->total_fee;
-															}
-													
-													$paymentdetails = \App\Models\InvoicePayment::where('invoice_id', $invoicelist->id)->orderby('created_at', 'DESC')->get();
-													$amount_rec = 0;
-													foreach($paymentdetails as $paymentdetail){
-														$amount_rec += $paymentdetail->amount_rec;
-													} 
-													if($invoicelist->type == 1){
-														$totaldue = $total_fee - $coom_amt;
-													} if($invoicelist->type == 2){
-														$totaldue = $netamount - $amount_rec;
-													}else{
-														$totaldue = $netamount - $amount_rec;
-													}
-													
-													
-												?>
+													foreach($application->invoices as $invoicelist){
+														// Use pre-fetched data instead of querying
+														$workflowdaa = $workflows->get($invoicelist->application_id);
+														$partnerdata = $partners;
+														
+														// Use eager loaded relationships
+														$netamount = 0;
+														$coom_amt = 0;
+														$total_fee = 0;
+														foreach($invoicelist->invoiceDetails as $invoiceitemdetail){
+															$netamount += $invoiceitemdetail->netamount;
+															$coom_amt += $invoiceitemdetail->comm_amt;
+															$total_fee += $invoiceitemdetail->total_fee;
+														}
+												
+												$amount_rec = 0;
+												foreach($invoicelist->invoicePayments as $paymentdetail){
+													$amount_rec += $paymentdetail->amount_rec;
+												} 
+												if($invoicelist->type == 1){
+													$totaldue = $total_fee - $coom_amt;
+												} if($invoicelist->type == 2){
+													$totaldue = $netamount - $amount_rec;
+												}else{
+													$totaldue = $netamount - $amount_rec;
+												}
+												
+												
+											?>
 												<tr id="iid_{{$invoicelist->id}}">
 													<td>{{$invoicelist->id}}</td>
 													<td>{{$invoicelist->invoice_date}}
@@ -2278,9 +2289,24 @@ use App\Http\Controllers\Controller;
                                                         </thead>
                                                         <tbody class="productitemList">
                                                             <?php
+                                                            // FIXED: Added missing columns to SELECT to avoid undefined property errors
                                                             $receipts_lists = DB::table('partner_student_invoices')
-                                                            ->select('invoice_id', DB::raw('COUNT(student_id) as student_count'), DB::raw('SUM(amount_aud) as total_amount_aud'))
-                                                            ->where('partner_id',$fetchedData->id)->where('invoice_type',1)->groupBy('invoice_id')->get();
+                                                            ->select(
+                                                                'invoice_id',
+                                                                'invoice_date',
+                                                                'invoice_no',
+                                                                'invoice_type',
+                                                                'partner_id',
+                                                                'sent_option',
+                                                                'sent_date',
+                                                                DB::raw('MAX(uploaded_doc_id) as uploaded_doc_id'),
+                                                                DB::raw('COUNT(student_id) as student_count'),
+                                                                DB::raw('SUM(amount_aud) as total_amount_aud')
+                                                            )
+                                                            ->where('partner_id',$fetchedData->id)
+                                                            ->where('invoice_type',1)
+                                                            ->groupBy('invoice_id', 'invoice_date', 'invoice_no', 'invoice_type', 'partner_id', 'sent_option', 'sent_date')
+                                                            ->get();
                                                             //dd($receipts_lists);
                                                             if(!empty($receipts_lists) && count($receipts_lists)>0 )
                                                             {

@@ -44,5 +44,15 @@ class Invoice extends Model
     {
         return $this->hasMany('App\Models\InvoiceDetail','invoice_id','id');
     }
+	
+	public function invoiceDetails() 
+    {
+        return $this->hasMany('App\Models\InvoiceDetail','invoice_id','id');
+    }
+	
+	public function invoicePayments() 
+    {
+        return $this->hasMany('App\Models\InvoicePayment','invoice_id','id');
+    }
 }
 

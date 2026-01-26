@@ -47,5 +47,10 @@ class Application extends Model
 		return $this->belongsTo('App\Models\Workflow', 'workflow', 'id');
 	}
 	
+	public function invoices()
+	{
+		return $this->hasMany('App\Models\Invoice', 'application_id', 'id');
+	}
+	
 }
 
