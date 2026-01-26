@@ -540,7 +540,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			}
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			?>
-				<a href="javascript:;" style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-id="{{$fetchData->id}}" class="openpaymentfeeLatest btn btn-primary btn-sm float-end"><i class="fa fa-plus"></i> Add Fee</a>
+				<a href="javascript:;"  data-id="{{$fetchData->id}}" class="openpaymentfeeLatest btn btn-primary btn-sm float-end"><i class="fa fa-plus"></i> Add Fee</a>
 				<div class="clearfix"></div>
 			</div>
           
