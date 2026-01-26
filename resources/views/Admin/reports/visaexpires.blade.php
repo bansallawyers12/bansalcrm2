@@ -120,6 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
         events: events,
         eventClick: function(info) {
             console.log(info);
+            
+            // Prevent default FullCalendar behavior
+            info.jsEvent.preventDefault();
+            
             var id = info.event.id;
 
             if (!!scheds[id]) {
@@ -132,10 +136,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
                 }
                 
-                // Always open URL regardless of modal existence
+                // Always open URL in new tab
                 if (scheds[id].url) {
-                    window.open(scheds[id].url, "_blank");
-                    return false;
+                    window.open(scheds[id].url, "_blank", "noopener,noreferrer");
                 }
             } else {
                 alert("Event is undefined");
