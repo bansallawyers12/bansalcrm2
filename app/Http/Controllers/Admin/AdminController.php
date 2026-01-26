@@ -1701,30 +1701,30 @@ class AdminController extends Controller
 		echo json_encode($agents);
 	}
 
-		public function getassigneeajax(Request $request){
-		    $squery = $request->likevalue;
-		     $fetchedData = \App\Models\Admin::where('role', '!=', 7)
+	public function getassigneeajax(Request $request){
+	    $squery = $request->likevalue;
+	     $fetchedData = \App\Models\Admin::where('role', '!=', 7)
        ->where(
            function($query) use ($squery) {
              return $query
-                    ->where('email', 'LIKE', '%'.$squery.'%')
-                    ->orwhere('first_name', 'LIKE','%'.$squery.'%')->orwhere('last_name', 'LIKE','%'.$squery.'%')->orwhere('client_id', 'LIKE','%'.$squery.'%')->orwhere('phone', 'LIKE','%'.$squery.'%')->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'LIKE', "%".$squery."%");
+                    ->where('email', 'ILIKE', '%'.$squery.'%')
+                    ->orwhere('first_name', 'ILIKE','%'.$squery.'%')->orwhere('last_name', 'ILIKE','%'.$squery.'%')->orwhere('client_id', 'ILIKE','%'.$squery.'%')->orwhere('phone', 'ILIKE','%'.$squery.'%')->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ILIKE', "%".$squery."%");
 
             })
             ->get();
 
 
-		$agents = array();
-		foreach($fetchedData as $list){
-			$agents[] = array(
-				'id' => $list->id,
-				'agent_id' => $list->first_name.' '.$list->last_name,
-				'assignee' => $list->first_name.' '.$list->last_name,
-			);
-		}
-
-		echo json_encode($agents);
+	$agents = array();
+	foreach($fetchedData as $list){
+		$agents[] = array(
+			'id' => $list->id,
+			'agent_id' => $list->first_name.' '.$list->last_name,
+			'assignee' => $list->first_name.' '.$list->last_name,
+		);
 	}
+
+	echo json_encode($agents);
+}
 
 	public function allnotification(Request $request){
 		$query = \App\Models\Notification::where('receiver_id', Auth::user()->id);

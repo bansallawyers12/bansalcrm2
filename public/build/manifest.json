@@ -7,22 +7,6 @@
     "file": "assets/jquery-CEMonh9Y.js",
     "name": "jquery"
   },
-  "node_modules/intl-tel-input/build/img/flags.webp": {
-    "file": "assets/flags-Cx4r8tdH.webp",
-    "src": "node_modules/intl-tel-input/build/img/flags.webp"
-  },
-  "node_modules/intl-tel-input/build/img/flags@2x.webp": {
-    "file": "assets/flags@2x-CiSx7kJd.webp",
-    "src": "node_modules/intl-tel-input/build/img/flags@2x.webp"
-  },
-  "node_modules/intl-tel-input/build/img/globe.webp": {
-    "file": "assets/globe-CKC-qWvL.webp",
-    "src": "node_modules/intl-tel-input/build/img/globe.webp"
-  },
-  "node_modules/intl-tel-input/build/img/globe@2x.webp": {
-    "file": "assets/globe@2x-CEs4Xftd.webp",
-    "src": "node_modules/intl-tel-input/build/img/globe@2x.webp"
-  },
   "resources/js/app.js": {
     "file": "assets/app-Cvc5z_Z_.js",
     "name": "app",
@@ -52,9 +36,15 @@
     ]
   },
   "resources/js/legacy-init.js": {
-    "file": "assets/legacy-init-Bi75h2rG.js",
+    "file": "assets/legacy-init-DEU416o_.js",
     "name": "legacy-init",
     "src": "resources/js/legacy-init.js",
+    "isEntry": true
+  },
+  "resources/js/pages/admin/account.js": {
+    "file": "assets/account-CccHk4Jb.js",
+    "name": "account",
+    "src": "resources/js/pages/admin/account.js",
     "isEntry": true
   },
   "resources/js/ui-libs.js": {
@@ -68,7 +58,7 @@
     ]
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-BxW1NPxY.js",
+    "file": "assets/vendor-libs-BV0mUoWv.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,
@@ -76,13 +66,7 @@
       "__commonjsHelpers-Cpj98o6Y.js"
     ],
     "css": [
-      "assets/vendor-libs-DbZoJNUw.css"
-    ],
-    "assets": [
-      "assets/flags-Cx4r8tdH.webp",
-      "assets/flags@2x-CiSx7kJd.webp",
-      "assets/globe-CKC-qWvL.webp",
-      "assets/globe@2x-CEs4Xftd.webp"
+      "assets/vendor-libs-CK8CL8qG.css"
     ]
   }
 }
