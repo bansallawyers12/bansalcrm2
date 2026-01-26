@@ -2110,35 +2110,36 @@ function customValidate(formName, savetype = '')
 								}
 							}
 						});		
-					}else if(formName == 'notetermform')
-					{
-						
-						var client_id = $('input[name="client_id"]').val(); 	
-						var myform = document.getElementById('notetermform');
-						syncEditorContent($(myform));
-						var fd = new FormData(myform);
-						$.ajax({
-							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
-							success: function(response){
-								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
-								
-								if(obj.status){
-									$('#create_note').modal('hide');
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-								$.ajax({
-		url: site_url+'/get-notes',
-		type:'GET',
-		data:{clientid:client_id,type:'client'},
-		success: function(responses){
-			
-			$('.note_term_list').html(responses);
-		}
-	});
+				}else if(formName == 'notetermform')
+				{
+					
+					var client_id = $('input[name="client_id"]').val();
+					var note_type = $('input[name="vtype"]').val() || 'client'; // Get type from form, default to 'client'
+					var myform = document.getElementById('notetermform');
+					syncEditorContent($(myform));
+					var fd = new FormData(myform);
+					$.ajax({
+						type:'post',
+						url:$("form[name="+formName+"]").attr('action'),
+						processData: false,
+						contentType: false,
+						data: fd,
+						success: function(response){
+							$('.popuploader').hide(); 
+							var obj = $.parseJSON(response);
+							
+							if(obj.status){
+								$('#create_note').modal('hide');
+							$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+							$.ajax({
+	url: site_url+'/get-notes',
+	type:'GET',
+	data:{clientid:client_id,type:note_type},
+	success: function(responses){
+		
+		$('.note_term_list').html(responses);
+	}
+});
 									$.ajax({
 										url: site_url+'/get-activities',
 										type:'GET',

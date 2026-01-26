@@ -540,7 +540,7 @@ jQuery(document).ready(function($){
 		$.ajax({
 			url: site_url+'/get-notes',
 			type:'GET',
-			data:{clientid:'{{$fetchedData->id}}',type:'client'},
+			data:{clientid:'{{$fetchedData->id}}',type:'agent'},
 			success: function(responses){
 				
 				$('.note_term_list').html(responses);

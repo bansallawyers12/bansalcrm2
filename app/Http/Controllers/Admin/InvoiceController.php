@@ -894,16 +894,25 @@ class InvoiceController extends Controller
 			$invoicedetail = Invoice::where('id', '=', $id)->first();
 			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
 			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
+			
+			// Check if client data exists
+			if(!$clientdata) {
+				return redirect()->back()->with('error', 'Client data not found for this invoice');
+			}
+			
 			if($invoicedetail->type == 3){
 				$workflowdaa = \App\Models\Workflow::where('id', $invoicedetail->application_id)->first();
 				
 				return view('Admin.invoice.edit-gen',compact(['workflowdaa','clientdata','invoicedetail','admindata'])); 
 			}else{
 				$applicationdata = \App\Models\Application::where('id', $invoicedetail->application_id)->first();
+				
+				// Provide default empty objects if data is missing
 				$partnerdata = \App\Models\Partner::where('id', @$applicationdata->partner_id)->first();
 				$productdata = \App\Models\Product::where('id', @$applicationdata->product_id)->first();
 				$branchdata = \App\Models\PartnerBranch::where('id', @$applicationdata->branch)->first();
 				$workflowdaa = \App\Models\Workflow::where('id', @$applicationdata->workflow)->first();
+				
 				return view('Admin.invoice.edit',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata'])); 
 			}
 			

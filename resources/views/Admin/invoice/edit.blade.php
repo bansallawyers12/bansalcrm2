@@ -24,13 +24,13 @@
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
-	<div class="section-body">
-	<form method="POST" action="{{ url('invoice/com-store') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
-	@csrf
-	<input type="hidden" name="id" value="{{$invoicedetail->id}}">
-	<input type="hidden" name="client_id" value="{{$invoicedetail->client_id}}">
-	<input type="hidden" name="applicationid" value="{{$invoicedetail->application_id}}">
-	<input type="hidden" name="type" value="{{$invoicedetail->type}}">
+		<div class="section-body">
+			<form method="POST" action="{{ url('invoice/com-store') }}" name="invoiceform" autocomplete="off" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" name="id" value="{{$invoicedetail->id}}">
+				<input type="hidden" name="client_id" value="{{$invoicedetail->client_id}}">
+				<input type="hidden" name="applicationid" value="{{$invoicedetail->application_id}}">
+				<input type="hidden" name="type" value="{{$invoicedetail->type}}">
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -602,10 +602,10 @@
 							</div>
 						</div>
 					</div>
-				</form>
-			</div>
+				</div>
+			</form>
 		</div>
-	</div>
+	</section>
 </div>
 
 @endsection

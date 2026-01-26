@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!!scheds && typeof scheds === 'object') {
         Object.keys(scheds).map(k => {
             var row = scheds[k]
-            events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end });
+            events.push({ id: row.id, title: row.stitle, start: row.startdate, end: row.end, url: row.url });
         });
     }
     
@@ -120,16 +120,19 @@ document.addEventListener('DOMContentLoaded', function() {
         events: events,
         eventClick: function(info) {
             console.log(info);
-            var details = document.getElementById('event-details-modal');
-            if (!details) return;
-            
             var id = info.event.id;
 
             if (!!scheds[id]) {
-                var titleEl = details.querySelector('#title');
-                var startEl = details.querySelector('#start');
-                if (titleEl) titleEl.textContent = scheds[id].stitle;
-                if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
+                // Populate modal if it exists (preserves existing functionality)
+                var details = document.getElementById('event-details-modal');
+                if (details) {
+                    var titleEl = details.querySelector('#title');
+                    var startEl = details.querySelector('#start');
+                    if (titleEl) titleEl.textContent = scheds[id].stitle;
+                    if (startEl) startEl.textContent = scheds[id].displayDate || scheds[id].startdate;
+                }
+                
+                // Always open URL regardless of modal existence
                 if (scheds[id].url) {
                     window.open(scheds[id].url, "_blank");
                     return false;

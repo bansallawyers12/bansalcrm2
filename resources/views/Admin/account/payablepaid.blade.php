@@ -136,38 +136,35 @@
 @endsection
 @push('scripts')
 	@vite(['resources/js/pages/admin/account.js'])
-@endpush
-@section('scripts')
-
-<script>
-jQuery(document).ready(function($){ 
-	var notid = '';
-	$(document).delegate('.revertinvoice', 'click', function(){
-		$('#confirmModal').modal('show');
-		notid = $(this).attr('data-id');
-	});
-	
-	$(document).delegate('#confirmModal .accept', 'click', function(){
-	
-		$('.popuploader').show(); 
-		$.ajax({
-			url: '{{URL::to('/')}}/revert-payment',
-			type:'GET',
-			datatype:'json',
-			data:{id:notid},
-			success:function(response){
-				$('.popuploader').hide(); 
-				var res = JSON.parse(response);
-				$('#confirmModal').modal('hide');
-				if(res.status){
-					$('#id_'+notid).remove();
-					$('.custom-error-msg')('<span class="alert alert-success">'+res.message+'</span>');
-				}else{
-					$('.custom-error-msg')('<span class="alert alert-danger">'+res.message+'</span>');
-				}
-			}
+	<script>
+	jQuery(document).ready(function($){ 
+		var notid = '';
+		$(document).delegate('.revertinvoice', 'click', function(){
+			$('#confirmModal').modal('show');
+			notid = $(this).attr('data-id');
 		});
-	});
-});	
-</script>
-@endsection
+		
+		$(document).delegate('#confirmModal .accept', 'click', function(){
+		
+			$('.popuploader').show(); 
+			$.ajax({
+				url: '{{URL::to('/')}}/revert-payment',
+				type:'GET',
+				datatype:'json',
+				data:{id:notid},
+				success:function(response){
+					$('.popuploader').hide(); 
+					var res = JSON.parse(response);
+					$('#confirmModal').modal('hide');
+					if(res.status){
+						$('#id_'+notid).remove();
+						$('.custom-error-msg').html('<span class="alert alert-success">'+res.message+'</span>');
+					}else{
+						$('.custom-error-msg').html('<span class="alert alert-danger">'+res.message+'</span>');
+					}
+				}
+			});
+		});
+	});	
+	</script>
+@endpush
