@@ -5,13 +5,10 @@ namespace App\Services;
 use App\Models\Admin;
 // use App\Models\ClientAddress; // Removed: client_addresses table doesn't exist in bansalcrm2 - addresses are stored in admins table
 use App\Models\ClientPhone; // bansalcrm2 uses ClientPhone
-use App\Models\ClientEmail;
-use App\Models\ClientPassportInformation;
-use App\Models\ClientTravelInformation;
-use App\Models\ClientCharacter;
-use App\Models\ClientVisaCountry;
+// Removed: ClientEmail, ClientPassportInformation, ClientTravelInformation, ClientCharacter, ClientVisaCountry - tables don't exist
 use App\Models\ActivitiesLog;
 use App\Models\TestScore; // bansalcrm2 has TestScore table
+use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -81,6 +78,12 @@ class ClientImportService
             $client->country_passport = $clientData['country_passport'] ?? null;
             $client->passport_number = $clientData['passport_number'] ?? null; // bansalcrm2 has this in admins table
             
+            // Visa Information
+            $client->visa_type = $clientData['visa_type'] ?? null;
+            $client->visa_opt = $clientData['visa_opt'] ?? null;
+            $client->visaexpiry = $this->parseDate($clientData['visaExpiry'] ?? null); // Column is visaexpiry, JSON uses visaExpiry
+            $client->preferredintake = $this->parseDate($clientData['preferredIntake'] ?? null); // Column is preferredintake, JSON uses preferredIntake
+            
             // Professional Details (bansalcrm2 specific)
             $client->nomi_occupation = $clientData['nomi_occupation'] ?? null;
             $client->skill_assessment = $clientData['skill_assessment'] ?? null;
@@ -93,6 +96,18 @@ class ClientImportService
             $client->att_email = $clientData['att_email'] ?? null;
             $client->att_phone = $clientData['att_phone'] ?? null;
             $client->att_country_code = $clientData['att_country_code'] ?? null;
+            $client->email_type = $clientData['email_type'] ?? null;
+            
+            // Internal Information
+            $client->service = $clientData['service'] ?? null;
+            $client->assignee = $clientData['assignee'] ?? null;
+            $client->lead_quality = $clientData['lead_quality'] ?? null;
+            $client->comments_note = $clientData['comments_note'] ?? null;
+            $client->married_partner = $clientData['married_partner'] ?? null;
+            $client->followers = $clientData['followers'] ?? null;
+            $client->tagname = $clientData['tagname'] ?? null;
+            $client->related_files = $clientData['related_files'] ?? null;
+            $client->applications = $clientData['applications'] ?? null;
             
             // Other
             $client->naati_py = $clientData['naati_py'] ?? null;
@@ -100,9 +115,6 @@ class ClientImportService
             $client->total_points = $clientData['total_points'] ?? null;
             $client->start_process = $clientData['start_process'] ?? null;
             $client->source = $clientData['source'] ?? null;
-            
-            // Email and contact types (these exist in database)
-            $client->email_type = $clientData['email_type'] ?? null;
             $client->contact_type = $clientData['contact_type'] ?? null;
             $client->type = $clientData['type'] ?? 'client';
             // Ensure status is an integer (handle string "1" from JSON)
@@ -122,19 +134,33 @@ class ClientImportService
             $client->decrypt_password = null;
             // Status already set above, don't override
             
-            // Required fields for new clients (set defaults if not provided)
-            $client->is_archived = 0; // Not archived by default
-            $client->verified = 0; // New clients are not verified yet
-            $client->show_dashboard_per = 0; // Clients don't have dashboard access
-            $client->office_id = Auth::user()->office_id ?? null; // Use current user's office_id if available
+            // System Fields
+            $client->office_id = $clientData['office_id'] ?? Auth::user()->office_id ?? null;
+            // Fix: Use null coalescing operator consistently to avoid "Undefined array key" error
+            $verifiedValue = $clientData['verified'] ?? 0;
+            $client->verified = is_numeric($verifiedValue) ? (int)$verifiedValue : 0;
+            
+            $showDashboardValue = $clientData['show_dashboard_per'] ?? 0;
+            $client->show_dashboard_per = is_numeric($showDashboardValue) ? (int)$showDashboardValue : 0;
+            
+            // Note: Archive status (is_archived, archived_by) is NOT imported - imported clients start fresh (not archived)
+            // Set default value: imported clients are not archived
+            $client->is_archived = 0;
+            
+            // Client ID (if provided, otherwise will be generated)
+            if (!empty($clientData['client_id'])) {
+                $client->client_id = $clientData['client_id'];
+            }
             
             $client->save();
             $newClientId = $client->id;
 
-            // Generate client_id after saving (format: FIRSTNAME + YYMM + ID)
-            $first_name = $clientData['first_name'] ?? 'CLIENT';
-            $client->client_id = strtoupper($first_name) . date('ym') . $newClientId;
-            $client->save();
+            // Generate client_id after saving if not provided (format: FIRSTNAME + YYMM + ID)
+            if (empty($client->client_id)) {
+                $first_name = $clientData['first_name'] ?? 'CLIENT';
+                $client->client_id = strtoupper($first_name) . date('ym') . $newClientId;
+                $client->save();
+            }
 
             // Skip addresses import - bansalcrm2 doesn't have a separate client_addresses table
             // Addresses are stored directly in the admins table (address, city, state, country, zip)
@@ -149,84 +175,74 @@ class ClientImportService
                     if (class_exists(\App\Models\ClientPhone::class)) {
                         \App\Models\ClientPhone::create([
                             'client_id' => $newClientId,
-                            'admin_id' => Auth::id(),
+                            'user_id' => Auth::id(), // Note: client_phones table uses user_id, not admin_id
                             'contact_type' => $contactData['contact_type'] ?? null,
                             'client_country_code' => $contactData['country_code'] ?? null,
                             'client_phone' => $contactData['phone'] ?? null,
-                            'is_verified' => $contactData['is_verified'] ?? false,
-                            'verified_at' => $this->parseDateTime($contactData['verified_at'] ?? null),
+                            // Note: is_verified and verified_at columns don't exist in client_phones table
                         ]);
                     }
                 }
             }
 
-            // Import emails
+            // Import emails - bansalcrm2 stores emails in admins table, not separate client_emails table
             if (isset($importData['emails']) && is_array($importData['emails'])) {
                 foreach ($importData['emails'] as $emailData) {
-                    ClientEmail::create([
-                        'client_id' => $newClientId,
-                        'admin_id' => Auth::id(),
-                        'email_type' => $emailData['email_type'] ?? null,
-                        'email' => $emailData['email'] ?? null,
-                        'is_verified' => $emailData['is_verified'] ?? false,
-                        'verified_at' => $this->parseDateTime($emailData['verified_at'] ?? null),
-                    ]);
+                    // Update primary email if it's the main email
+                    if (!empty($emailData['email']) && empty($client->email)) {
+                        $client->email = $emailData['email'];
+                        $client->email_type = $emailData['email_type'] ?? $client->email_type;
+                        // Handle email verification
+                        if (isset($emailData['is_verified']) && $emailData['is_verified']) {
+                            $client->manual_email_phone_verified = 1;
+                        }
+                        if (!empty($emailData['verified_at'])) {
+                            $client->email_verified_at = $this->parseDateTime($emailData['verified_at']);
+                        }
+                        $client->save();
+                    }
+                    // Update additional email if it's the att_email
+                    elseif (!empty($emailData['email']) && empty($client->att_email) && $emailData['email'] !== $client->email) {
+                        $client->att_email = $emailData['email'];
+                        $client->save();
+                    }
                 }
             }
 
-            // Import passport
+            // Import passport - bansalcrm2 stores passport in admins table, not separate client_passport_informations table
             if (!empty($importData['passport']) && is_array($importData['passport'])) {
-                ClientPassportInformation::create([
-                    'client_id' => $newClientId,
-                    'admin_id' => Auth::id(),
-                    'passport' => $importData['passport']['passport_number'] ?? $importData['passport']['passport'] ?? null,
-                    'passport_country' => $importData['passport']['passport_country'] ?? null,
-                    'passport_issue_date' => $this->parseDate($importData['passport']['passport_issue_date'] ?? null),
-                    'passport_expiry_date' => $this->parseDate($importData['passport']['passport_expiry_date'] ?? null),
-                ]);
+                if (empty($client->passport_number) && !empty($importData['passport']['passport_number'])) {
+                    $client->passport_number = $importData['passport']['passport_number'] ?? $importData['passport']['passport'] ?? null;
+                }
+                if (empty($client->country_passport) && !empty($importData['passport']['passport_country'])) {
+                    $client->country_passport = $importData['passport']['passport_country'] ?? null;
+                }
+                // Note: passport_issue_date and passport_expiry_date are not stored in bansalcrm2 admins table
+                $client->save();
             }
 
-            // Import travel information
-            if (isset($importData['travel']) && is_array($importData['travel'])) {
-                foreach ($importData['travel'] as $travelData) {
-                    ClientTravelInformation::create([
-                        'client_id' => $newClientId,
-                        'admin_id' => Auth::id(),
-                        'travel_country_visited' => $travelData['travel_country_visited'] ?? null,
-                        'travel_arrival_date' => $this->parseDate($travelData['travel_arrival_date'] ?? null),
-                        'travel_departure_date' => $this->parseDate($travelData['travel_departure_date'] ?? null),
-                        'travel_purpose' => $travelData['travel_purpose'] ?? null,
-                    ]);
+            // Import travel information - bansalcrm2 doesn't have client_travel_informations table
+            // Skip travel import - table doesn't exist
+
+            // Import visa countries - bansalcrm2 stores visa data in admins table, not separate client_visa_countries table
+            if (isset($importData['visa_countries']) && is_array($importData['visa_countries']) && !empty($importData['visa_countries'])) {
+                // Use first visa entry to populate admins table fields
+                $visaData = $importData['visa_countries'][0];
+                if (empty($client->visa_type) && !empty($visaData['visa_type'])) {
+                    $client->visa_type = $visaData['visa_type'];
                 }
+                if (empty($client->visa_opt) && !empty($visaData['visa_description'])) {
+                    $client->visa_opt = $visaData['visa_description'];
+                }
+                if (empty($client->visaexpiry) && !empty($visaData['visa_expiry_date'])) {
+                    $client->visaexpiry = $this->parseDate($visaData['visa_expiry_date']);
+                }
+                // Note: visa_grant_date is not stored in bansalcrm2 admins table
+                $client->save();
             }
 
-            // Import visa countries
-            if (isset($importData['visa_countries']) && is_array($importData['visa_countries'])) {
-                foreach ($importData['visa_countries'] as $visaData) {
-                    ClientVisaCountry::create([
-                        'client_id' => $newClientId,
-                        'admin_id' => Auth::id(),
-                        'visa_country' => $visaData['visa_country'] ?? null,
-                        'visa_type' => $visaData['visa_type'] ?? null,
-                        'visa_description' => $visaData['visa_description'] ?? null,
-                        'visa_expiry_date' => $this->parseDate($visaData['visa_expiry_date'] ?? null),
-                        'visa_grant_date' => $this->parseDate($visaData['visa_grant_date'] ?? null),
-                    ]);
-                }
-            }
-
-            // Import character information
-            if (isset($importData['character']) && is_array($importData['character'])) {
-                foreach ($importData['character'] as $characterData) {
-                    ClientCharacter::create([
-                        'client_id' => $newClientId,
-                        'admin_id' => Auth::id(),
-                        'type_of_character' => $characterData['type_of_character'] ?? null,
-                        'character_detail' => $characterData['character_detail'] ?? null,
-                        'character_date' => $this->parseDate($characterData['character_date'] ?? null),
-                    ]);
-                }
-            }
+            // Import character information - bansalcrm2 doesn't have client_characters table
+            // Skip character import - table doesn't exist
 
             // Import test scores (bansalcrm2 specific)
             if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\TestScore::class)) {
@@ -257,21 +273,53 @@ class ClientImportService
                 }
             }
 
-            // Import activities (if structure matches)
+            // Import services (bansalcrm2 specific - client_service_takens table)
+            if (isset($importData['services']) && is_array($importData['services']) && class_exists(\App\Models\clientServiceTaken::class)) {
+                foreach ($importData['services'] as $serviceData) {
+                    $serviceRecord = [
+                        'client_id' => $newClientId,
+                        'service_type' => $serviceData['service_type'] ?? null,
+                    ];
+                    
+                    // Add migration-specific fields
+                    if ($serviceData['service_type'] === 'Migration') {
+                        $serviceRecord['mig_ref_no'] = $serviceData['mig_ref_no'] ?? null;
+                        $serviceRecord['mig_service'] = $serviceData['mig_service'] ?? null;
+                        $serviceRecord['mig_notes'] = $serviceData['mig_notes'] ?? null;
+                    }
+                    
+                    // Add education-specific fields
+                    if ($serviceData['service_type'] === 'Education') {
+                        $serviceRecord['edu_course'] = $serviceData['edu_course'] ?? null;
+                        $serviceRecord['edu_college'] = $serviceData['edu_college'] ?? null;
+                        $serviceRecord['edu_service_start_date'] = $serviceData['edu_service_start_date'] ?? null;
+                        $serviceRecord['edu_notes'] = $serviceData['edu_notes'] ?? null;
+                    }
+                    
+                    \App\Models\clientServiceTaken::create($serviceRecord);
+                }
+            }
+
+            // Import activities - bansalcrm2 activities_logs table structure
             if (isset($importData['activities']) && is_array($importData['activities'])) {
                 foreach ($importData['activities'] as $activityData) {
                     $activityCreatedAt = $this->parseDateTime($activityData['created_at'] ?? null);
+                    
+                    // Fix: Use null coalescing operator consistently to avoid "Undefined array key" error
+                    $taskStatusValue = $activityData['task_status'] ?? 0;
+                    $pinValue = $activityData['pin'] ?? 0;
+                    
                     ActivitiesLog::create([
                         'client_id' => $newClientId,
-                        'created_by' => Auth::id(),
+                        'created_by' => $activityData['created_by'] ?? Auth::id(),
                         'subject' => $activityData['subject'] ?? 'Imported Activity',
                         'description' => $activityData['description'] ?? null,
-                        'activity_type' => $activityData['activity_type'] ?? 'activity',
-                        'followup_date' => $this->parseDateTime($activityData['followup_date'] ?? null),
-                        'task_group' => $activityData['task_group'] ?? null,
-                        'task_status' => $activityData['task_status'] ?? 0,
-                        'created_at' => $activityCreatedAt,
+                        'use_for' => $activityData['use_for'] ?? null,
+                        'task_status' => is_numeric($taskStatusValue) ? (int)$taskStatusValue : 0,
+                        'pin' => is_numeric($pinValue) ? (int)$pinValue : 0,
+                        'created_at' => $activityCreatedAt ?? now(),
                         'updated_at' => $activityCreatedAt ?? now(),
+                        // Note: activity_type, followup_date, task_group columns don't exist in bansalcrm2 activities_logs table
                     ]);
                 }
             }

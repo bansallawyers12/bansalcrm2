@@ -5,13 +5,10 @@ namespace App\Services;
 use App\Models\Admin;
 // use App\Models\ClientAddress; // Removed: client_addresses table doesn't exist in bansalcrm2 - addresses are stored in admins table
 use App\Models\ClientPhone; // Note: bansalcrm2 uses ClientPhone instead of ClientContact
-use App\Models\ClientEmail;
-use App\Models\ClientPassportInformation;
-use App\Models\ClientTravelInformation;
-use App\Models\ClientCharacter;
-use App\Models\ClientVisaCountry;
 use App\Models\ActivitiesLog;
 use App\Models\TestScore; // bansalcrm2 has TestScore table
+use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
+use App\Models\VerifiedNumber; // bansalcrm2 has VerifiedNumber table for phone verification
 use Illuminate\Support\Facades\Log;
 
 class ClientExportService
@@ -46,6 +43,7 @@ class ClientExportService
                 'visa_countries' => $this->getClientVisaCountries($clientId),
                 'character' => $this->getClientCharacter($clientId),
                 'test_scores' => $this->getClientTestScores($clientId), // bansalcrm2 has TestScore table
+                'services' => $this->getClientServices($clientId), // bansalcrm2 has client_service_takens table
                 'activities' => $this->getClientActivities($clientId),
             ];
 
@@ -66,6 +64,7 @@ class ClientExportService
     {
         return [
             // Basic Identity
+            'client_id' => $client->client_id ?? null,
             'first_name' => $client->first_name,
             'last_name' => $client->last_name,
             'email' => $client->email,
@@ -77,7 +76,7 @@ class ClientExportService
             'dob' => $client->dob,
             'age' => $client->age,
             'gender' => $client->gender,
-            'marital_status' => $client->marital_status ?? $client->martial_status ?? null, // Note: bansalcrm2 might use martial_status
+            'marital_status' => $client->marital_status ?? $client->martial_status ?? null, // Note: bansalcrm2 uses martial_status
             
             // Address
             'address' => $client->address,
@@ -89,6 +88,12 @@ class ClientExportService
             // Passport
             'country_passport' => $client->country_passport ?? null,
             'passport_number' => $client->passport_number ?? null, // bansalcrm2 has passport_number in admins table
+            
+            // Visa Information
+            'visa_type' => $client->visa_type ?? null,
+            'visa_opt' => $client->visa_opt ?? null,
+            'visaExpiry' => $client->visaExpiry ?? null, // Uses accessor, column is visaexpiry
+            'preferredIntake' => $client->preferredIntake ?? null, // Uses accessor, column is preferredintake
             
             // Professional Details (bansalcrm2 specific)
             'nomi_occupation' => $client->nomi_occupation ?? null,
@@ -102,15 +107,29 @@ class ClientExportService
             'att_email' => $client->att_email ?? null,
             'att_phone' => $client->att_phone ?? null,
             'att_country_code' => $client->att_country_code ?? null,
+            'email_type' => $client->email_type ?? null,
+            
+            // Internal Information
+            'service' => $client->service ?? null,
+            'assignee' => $client->assignee ?? null,
+            'lead_quality' => $client->lead_quality ?? null,
+            'comments_note' => $client->comments_note ?? null,
+            'married_partner' => $client->married_partner ?? null,
+            'followers' => $client->followers ?? null,
+            'tagname' => $client->tagname ?? null,
+            'related_files' => $client->related_files ?? null,
+            'applications' => $client->applications ?? null,
+            
+            // System Fields
+            'office_id' => $client->office_id ?? null,
+            // Note: 'verified' field may not exist in bansalcrm2 admins table
+            // Verification is handled separately for email (manual_email_phone_verified) and phone (VerifiedNumber table)
+            'verified' => isset($client->attributes['verified']) ? $client->attributes['verified'] : 0,
+            'show_dashboard_per' => isset($client->attributes['show_dashboard_per']) ? $client->attributes['show_dashboard_per'] : 0,
+            // Note: Archive status (is_archived, archived_by) is NOT exported - archive status should not transfer between systems
             
             // Other
             'naati_py' => $client->naati_py ?? null,
-            'naati_test' => $client->naati_test ?? null,
-            'naati_date' => $client->naati_date,
-            'nati_language' => $client->nati_language ?? null,
-            'py_test' => $client->py_test ?? null,
-            'py_date' => $client->py_date,
-            'py_field' => $client->py_field ?? null,
             'total_points' => $client->total_points ?? null,
             'start_process' => $client->start_process ?? null,
             'source' => $client->source,
@@ -118,17 +137,6 @@ class ClientExportService
             'status' => $client->status,
             'profile_img' => $client->profile_img,
             'agent_id' => $client->agent_id ?? null,
-            
-            // Verification metadata (dates only, not staff IDs)
-            'dob_verified_date' => $client->dob_verified_date ?? null,
-            'dob_verify_document' => $client->dob_verify_document ?? null,
-            'phone_verified_date' => $client->phone_verified_date ?? null,
-            'visa_expiry_verified_at' => $client->visa_expiry_verified_at ?? null,
-            
-            // Emergency Contact (if exists)
-            'emergency_country_code' => $client->emergency_country_code ?? null,
-            'emergency_contact_no' => $client->emergency_contact_no ?? null,
-            'emergency_contact_type' => $client->emergency_contact_type ?? null,
         ];
     }
 
@@ -149,35 +157,34 @@ class ClientExportService
     /**
      * Get client contacts (phone numbers)
      * Note: bansalcrm2 uses ClientPhone model
+     * Phone verification is stored in VerifiedNumber table
      */
     private function getClientContacts($clientId)
     {
-        // Check if ClientPhone model exists, otherwise use ClientContact
-        if (class_exists(\App\Models\ClientPhone::class)) {
-            return \App\Models\ClientPhone::where('client_id', $clientId)
-                ->get()
-                ->map(function ($contact) {
-                    return [
-                        'contact_type' => $contact->contact_type ?? $contact->phone_type ?? null,
-                        'country_code' => $contact->client_country_code ?? $contact->country_code ?? null,
-                        'phone' => $contact->client_phone ?? $contact->phone ?? null,
-                        'is_verified' => $contact->is_verified ?? false,
-                        'verified_at' => $contact->verified_at ?? null,
-                    ];
-                })
-                ->toArray();
+        if (!class_exists(\App\Models\ClientPhone::class)) {
+            return [];
         }
         
-        // Fallback to ClientContact if ClientPhone doesn't exist
-        return \App\Models\ClientContact::where('client_id', $clientId)
+        return \App\Models\ClientPhone::where('client_id', $clientId)
             ->get()
             ->map(function ($contact) {
+                // Build full phone number for verification lookup
+                $fullPhoneNumber = ($contact->client_country_code ?? '') . ($contact->client_phone ?? '');
+                
+                // Check if phone is verified in VerifiedNumber table
+                $verifiedNumber = null;
+                if (!empty($fullPhoneNumber) && class_exists(\App\Models\VerifiedNumber::class)) {
+                    $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number', $fullPhoneNumber)
+                        ->where('is_verified', true)
+                        ->first();
+                }
+                
                 return [
                     'contact_type' => $contact->contact_type ?? null,
-                    'country_code' => $contact->country_code ?? null,
-                    'phone' => $contact->phone ?? null,
-                    'is_verified' => $contact->is_verified ?? false,
-                    'verified_at' => $contact->verified_at ?? null,
+                    'country_code' => $contact->client_country_code ?? null, // Note: column is client_country_code
+                    'phone' => $contact->client_phone ?? null, // Note: column is client_phone
+                    'is_verified' => $verifiedNumber ? true : false,
+                    'verified_at' => $verifiedNumber ? $verifiedNumber->verified_at : null,
                 ];
             })
             ->toArray();
@@ -185,93 +192,112 @@ class ClientExportService
 
     /**
      * Get client emails
+     * Note: bansalcrm2 stores emails in admins table, not in separate client_emails table
      */
     private function getClientEmails($clientId)
     {
-        return ClientEmail::where('client_id', $clientId)
-            ->get()
-            ->map(function ($email) {
-                return [
-                    'email_type' => $email->email_type ?? null,
-                    'email' => $email->email,
-                    'is_verified' => $email->is_verified ?? false,
-                    'verified_at' => $email->verified_at ?? null,
-                ];
-            })
-            ->toArray();
+        $client = Admin::find($clientId);
+        if (!$client) {
+            return [];
+        }
+        
+        $emails = [];
+        
+        // Main email from admins table
+        if (!empty($client->email)) {
+            $emails[] = [
+                'email' => $client->email,
+                'email_type' => $client->email_type ?? 'Personal',
+                'is_verified' => ($client->manual_email_phone_verified ?? 0) == 1,
+                'verified_at' => $client->email_verified_at ?? null, // email_verified_at exists in admins table
+            ];
+        }
+        
+        // Additional email from admins table
+        if (!empty($client->att_email)) {
+            $emails[] = [
+                'email' => $client->att_email,
+                'email_type' => 'Additional',
+                'is_verified' => false, // att_email doesn't have separate verification
+                'verified_at' => null,
+            ];
+        }
+        
+        return $emails;
     }
 
     /**
      * Get client passport information
+     * Note: bansalcrm2 stores passport data in admins table, not in separate client_passport_informations table
      */
     private function getClientPassport($clientId)
     {
-        $passport = ClientPassportInformation::where('client_id', $clientId)->first();
-        
-        if (!$passport) {
+        $client = Admin::find($clientId);
+        if (!$client) {
             return null;
         }
-
+        
+        // If no passport data, return null
+        if (empty($client->country_passport) && empty($client->passport_number)) {
+            return null;
+        }
+        
         return [
-            'passport_number' => $passport->passport ?? $passport->passport_number ?? null,
-            'passport_country' => $passport->passport_country ?? null,
-            'passport_issue_date' => $passport->passport_issue_date ?? null,
-            'passport_expiry_date' => $passport->passport_expiry_date ?? null,
+            'passport_number' => $client->passport_number ?? null,
+            'passport_country' => $client->country_passport ?? null,
+            'passport_issue_date' => null, // Not stored in bansalcrm2
+            'passport_expiry_date' => null, // Not stored in bansalcrm2
         ];
     }
 
     /**
      * Get client travel information
+     * Note: bansalcrm2 doesn't have client_travel_informations table
      */
     private function getClientTravel($clientId)
     {
-        return ClientTravelInformation::where('client_id', $clientId)
-            ->get()
-            ->map(function ($travel) {
-                return [
-                    'travel_country_visited' => $travel->travel_country_visited ?? null,
-                    'travel_arrival_date' => $travel->travel_arrival_date ?? null,
-                    'travel_departure_date' => $travel->travel_departure_date ?? null,
-                    'travel_purpose' => $travel->travel_purpose ?? null,
-                ];
-            })
-            ->toArray();
+        // bansalcrm2 doesn't have client_travel_informations table
+        // Return empty array to maintain JSON structure compatibility
+        return [];
     }
 
     /**
      * Get client visa countries
+     * Note: bansalcrm2 stores visa data in admins table, not in separate client_visa_countries table
      */
     private function getClientVisaCountries($clientId)
     {
-        return ClientVisaCountry::where('client_id', $clientId)
-            ->get()
-            ->map(function ($visa) {
-                return [
-                    'visa_country' => $visa->visa_country ?? null,
-                    'visa_type' => $visa->visa_type ?? null,
-                    'visa_description' => $visa->visa_description ?? null,
-                    'visa_expiry_date' => $visa->visa_expiry_date ?? null,
-                    'visa_grant_date' => $visa->visa_grant_date ?? null,
-                ];
-            })
-            ->toArray();
+        $client = Admin::find($clientId);
+        if (!$client) {
+            return [];
+        }
+        
+        // If no visa data, return empty array
+        if (empty($client->visa_type) && empty($client->visa_opt) && empty($client->visaExpiry)) {
+            return [];
+        }
+        
+        // Convert admins table visa fields to visa_countries array format
+        return [
+            [
+                'visa_country' => $client->country ?? null, // Use client's country as visa country
+                'visa_type' => $client->visa_type ?? null,
+                'visa_description' => $client->visa_opt ?? null,
+                'visa_expiry_date' => $client->visaExpiry ?? null, // Uses accessor for visaexpiry column
+                'visa_grant_date' => null, // Not stored in bansalcrm2
+            ]
+        ];
     }
 
     /**
      * Get client character information
+     * Note: bansalcrm2 doesn't have client_characters table
      */
     private function getClientCharacter($clientId)
     {
-        return ClientCharacter::where('client_id', $clientId)
-            ->get()
-            ->map(function ($character) {
-                return [
-                    'type_of_character' => $character->type_of_character ?? null,
-                    'character_detail' => $character->character_detail ?? null,
-                    'character_date' => $character->character_date ?? null,
-                ];
-            })
-            ->toArray();
+        // bansalcrm2 doesn't have client_characters table
+        // Return empty array to maintain JSON structure compatibility
+        return [];
     }
 
     /**
@@ -313,7 +339,47 @@ class ClientExportService
     }
 
     /**
-     * Get client activities (if structure matches)
+     * Get client services taken (bansalcrm2 specific)
+     */
+    private function getClientServices($clientId)
+    {
+        if (!class_exists(\App\Models\clientServiceTaken::class)) {
+            return [];
+        }
+        
+        return \App\Models\clientServiceTaken::where('client_id', $clientId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($service) {
+                $serviceData = [
+                    'service_type' => $service->service_type ?? null,
+                    'created_at' => $service->created_at ?? null,
+                    'updated_at' => $service->updated_at ?? null,
+                ];
+                
+                // Add migration-specific fields
+                if ($service->service_type === 'Migration') {
+                    $serviceData['mig_ref_no'] = $service->mig_ref_no ?? null;
+                    $serviceData['mig_service'] = $service->mig_service ?? null;
+                    $serviceData['mig_notes'] = $service->mig_notes ?? null;
+                }
+                
+                // Add education-specific fields
+                if ($service->service_type === 'Education') {
+                    $serviceData['edu_course'] = $service->edu_course ?? null;
+                    $serviceData['edu_college'] = $service->edu_college ?? null;
+                    $serviceData['edu_service_start_date'] = $service->edu_service_start_date ?? null;
+                    $serviceData['edu_notes'] = $service->edu_notes ?? null;
+                }
+                
+                return $serviceData;
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get client activities
+     * Note: bansalcrm2 activities_logs table doesn't have activity_type, followup_date, task_group columns
      */
     private function getClientActivities($clientId)
     {
@@ -325,11 +391,11 @@ class ClientExportService
                 return [
                     'subject' => $activity->subject ?? null,
                     'description' => $activity->description ?? null,
-                    'activity_type' => $activity->activity_type ?? null,
-                    'followup_date' => $activity->followup_date ?? null,
-                    'task_group' => $activity->task_group ?? null,
+                    'use_for' => $activity->use_for ?? null,
                     'task_status' => $activity->task_status ?? 0,
+                    'pin' => $activity->pin ?? 0,
                     'created_at' => $activity->created_at ?? null,
+                    'created_by' => $activity->created_by ?? null,
                 ];
             })
             ->toArray();

@@ -14,6 +14,13 @@ class ClientPhone extends Model
      *
      * @var array
      */
+    protected $fillable = [
+        'client_id',
+        'user_id',
+        'contact_type',
+        'client_country_code',
+        'client_phone',
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
