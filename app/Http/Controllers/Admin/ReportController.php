@@ -106,9 +106,9 @@ class ReportController extends Controller
 	{	
 		return view('Admin.reports.visaexpires');
 	}
-	public function followupdates(Request $request)  
+	public function actionCalendar(Request $request)  
 	{	
-		return view('Admin.reports.followup');
+		return view('Admin.reports.action_calendar');
 	}
 	public function agreementexpires(Request $request)  
 	{	

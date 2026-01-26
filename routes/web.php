@@ -526,7 +526,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		// Route::get('/report/task/personal-task-report', [ReportController::class, 'personal_task'])->name('reports.personal-task-report');
 		// Route::get('/report/task/office-task-report', [ReportController::class, 'office_task'])->name('reports.office-task-report'); 
 		Route::get('/reports/visaexpires', [ReportController::class, 'visaexpires']); 
-		Route::get('/followup-dates', [ReportController::class, 'followupdates']); 
+		Route::get('/action-calendar', [ReportController::class, 'actionCalendar']); 
 		Route::get('/reports/agreementexpires', [ReportController::class, 'agreementexpires']);
 		Route::get('/report/noofpersonofficevisit', [ReportController::class, 'noofpersonofficevisit'])->name('reports.noofpersonofficevisit');
 
@@ -639,7 +639,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::get('/applications-finalize', [ApplicationsController::class, 'finalizeApplicationList'])->name('applications.finalize');
   
         //partner assign user
-        Route::post('/partners/followup_partner/store_partner', [PartnersController::class, 'followupstore_partner']);
+        Route::post('/partners/action_partner/store_partner', [PartnersController::class, 'actionstore_partner']);
         //Route::get('/get-partner-activities', [PartnersController::class, 'partnerActivities')->name('partners.activities');
   
         // Client routes moved to routes/clients.php (unified routes): fetchClientContactNo

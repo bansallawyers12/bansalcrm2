@@ -2672,17 +2672,17 @@ class PartnersController extends Controller
     }
   
   
-    //Asssign partner action and save
-	public function followupstore_partner(Request $request){
+    //Assign partner action and save
+	public function actionstore_partner(Request $request){
 	    $requestData = $request->all(); //echo '<pre>'; print_r($requestData); die;
         $partner_decode_id = base64_encode(convert_uuencode($requestData['partner_id'])); //dd($partner_decode_id);
-        $followup 				    = new \App\Models\Note;
-        $followup->client_id		= @$requestData['partner_id'];
-		$followup->user_id			= Auth::user()->id;
+        $action 				    = new \App\Models\Note;
+        $action->client_id		= @$requestData['partner_id'];
+		$action->user_id			= Auth::user()->id;
         
         // Get description from assignnote field
         $description = isset($requestData['assignnote']) ? $requestData['assignnote'] : '';
-        $followup->description		= $description;
+        $action->description		= $description;
 
         //Get assigner name
         $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat123'])->first();
@@ -2700,38 +2700,38 @@ class PartnersController extends Controller
             $recurring_type = "";
         }
 
-		$followup->title		    = $title;
-        $followup->folloup	        = 1;
-        $followup->task_group       =  $requestData['task_group'];
-		$followup->assigned_to	    =  @$requestData['rem_cat123'];
+		$action->title		    = $title;
+        $action->folloup	        = 1;
+        $action->task_group       =  $requestData['task_group'];
+		$action->assigned_to	    =  @$requestData['rem_cat123'];
         if( isset($requestData['popoverdate']) && $requestData['popoverdate'] != "" ){
             $popoverdateArr = explode("/",$requestData['popoverdate']);
             $popoverdateFormated = $popoverdateArr[2]."-".$popoverdateArr[1]."-".$popoverdateArr[0];
         } else {
             $popoverdateFormated = "";
         }
-		$followup->followup_date	=  $popoverdateFormated;
-        $followup->type	            =  $requestData['type'];
+		$action->followup_date	=  $popoverdateFormated;
+        $action->type	            =  $requestData['type'];
 
         //add note deadline
         if(isset($requestData['note_deadline_checkbox']) && $requestData['note_deadline_checkbox'] != ''){
             if($requestData['note_deadline_checkbox'] == 1){
                 $note_deadlineArr = explode("/",$requestData['note_deadline']);
                 $note_deadlineArrFormated = $note_deadlineArr[2]."-".$note_deadlineArr[1]."-".$note_deadlineArr[0];
-                $followup->note_deadline = $note_deadlineArrFormated;
-                $followup->deadline_recurring_type = $recurring_type;
+                $action->note_deadline = $note_deadlineArrFormated;
+                $action->deadline_recurring_type = $recurring_type;
             } else {
-                $followup->note_deadline = NULL;
-                $followup->deadline_recurring_type = NULL;
+                $action->note_deadline = NULL;
+                $action->deadline_recurring_type = NULL;
             }
         } else {
-            $followup->note_deadline = NULL;
-            $followup->deadline_recurring_type = NULL;
+            $action->note_deadline = NULL;
+            $action->deadline_recurring_type = NULL;
         }
-		$followup->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-		$followup->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
+		$action->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+		$action->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 
-        $saved	=  $followup->save();
+        $saved	=  $action->save();
         if(!$saved) {
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'clientID' => $partner_decode_id));
 		} else {
@@ -2741,7 +2741,7 @@ class PartnersController extends Controller
 	    	$o->module_id = $requestData['partner_id'];
             $o->url = route('partners.detail', $partner_decode_id);
 	    	$o->notification_type = 'partner';
-	    	$o->message = 'Followup Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A');
+	    	$o->message = 'Action Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A');
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 

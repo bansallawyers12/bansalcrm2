@@ -33,13 +33,13 @@
                 flag = false;
             }
             if(flag){
-                var url = App.getUrl('clientFollowup') || App.getUrl('siteUrl') + '/clients/followup/store';
+                var url = App.getUrl('clientAction') || App.getUrl('siteUrl') + '/clients/action/store';
                 $.ajax({
                     type:'post',
                     url: url,
                     headers: { 'X-CSRF-TOKEN': App.getCsrf()},
                     data: {
-                        note_type:'follow_up',
+                        note_type:'action',
                         description:$('#assignnote').val(),
                         client_id:$('#assign_client_id').val(),
                         followup_datetime:$('#popoverdatetime').val(),

@@ -62,7 +62,7 @@
                                                 <th width="25px" style="text-align: center;">Done</th>
                                                 <th width="140px">Assignee Name</th>
                                                 <th width="140px">Client Reference</th>
-                                                <th width="120px" class="sort_col">@sortablelink('followup_date','Assign Date')</th>
+                                                <th width="120px" class="sort_col">@sortablelink('followup_date','Action Date')</th>
                                                 <th width="100px" class="sort_col">@sortablelink('task_group','Type')</th>
                                                 <th>Note</th>
                                                 <th width="140px">Action</th>
@@ -357,9 +357,9 @@
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/reassignfollowup/store",
+                url:"{{URL::to('/')}}/clients/reassignaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_id:$('#assign_note_id').val(),note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
+                data: {note_id:$('#assign_note_id').val(),note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
                 success: function(response){
                     console.log(response);
                     $('.popuploader').hide();
@@ -411,9 +411,9 @@
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/updatefollowup/store",
+                url:"{{URL::to('/')}}/clients/updateaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_id:$('#assign_note_id').val(),note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
+                data: {note_id:$('#assign_note_id').val(),note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
                 success: function(response){
                     console.log(response);
                     $('.popuploader').hide();

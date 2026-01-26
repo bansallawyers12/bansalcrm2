@@ -48,13 +48,13 @@ Route::middleware(['auth:admin'])->group(function() {
     // Status views
     Route::get('/archived', [ClientController::class, 'archived'])->name('clients.archived');
     
-    // Follow-up routes
-    Route::post('/clients/followup/store', [ClientActionController::class, 'followupstore'])->name('clients.followup.store');
-    Route::post('/clients/followup_application/store_application', [ClientActionController::class, 'followupstore_application'])->name('clients.followup.store_application');
-    Route::post('/clients/followup/retagfollowup', [ClientActionController::class, 'retagfollowup'])->name('clients.followup.retagfollowup');
-    Route::post('/clients/personalfollowup/store', [ClientActionController::class, 'personalfollowup'])->name('clients.personalfollowup.store');
-    Route::post('/clients/updatefollowup/store', [ClientActionController::class, 'updatefollowup'])->name('clients.updatefollowup.store');
-    Route::post('/clients/reassignfollowup/store', [ClientActionController::class, 'reassignfollowupstore'])->name('clients.reassignfollowup.store');
+    // Action routes
+    Route::post('/clients/action/store', [ClientActionController::class, 'actionstore'])->name('clients.action.store');
+    Route::post('/clients/action_application/store_application', [ClientActionController::class, 'actionstore_application'])->name('clients.action.store_application');
+    Route::post('/clients/action/retag', [ClientActionController::class, 'retagaction'])->name('clients.action.retag');
+    Route::post('/clients/personalaction/store', [ClientActionController::class, 'personalaction'])->name('clients.personalaction.store');
+    Route::post('/clients/updateaction/store', [ClientActionController::class, 'updateaction'])->name('clients.updateaction.store');
+    Route::post('/clients/reassignaction/store', [ClientActionController::class, 'reassignactionstore'])->name('clients.reassignaction.store');
     
     // Client management
     Route::get('/clients/changetype/{id}/{type}', [ClientController::class, 'changetype'])->name('clients.changetype');

@@ -18,11 +18,11 @@ use Carbon\Carbon;
 class DashboardService
 {
     /**
-     * Get today's followup count
+     * Get today's action count
      *
      * @return int
      */
-    public function getTodayFollowupCount()
+    public function getTodayActionCount()
     {
         try {
             // Use whereBetween instead of whereDate for better index usage
@@ -37,7 +37,7 @@ class DashboardService
                     ->count();
             }
         } catch (\Exception $e) {
-            \Log::error('Error getting today followup count: ' . $e->getMessage());
+            \Log::error('Error getting today action count: ' . $e->getMessage());
             return 0;
         }
     }
@@ -63,7 +63,7 @@ class DashboardService
             $query = Note::with(['noteUser', 'noteClient', 'assigned_user'])
                 ->where('status', '<>', 1) // Not completed
                 ->whereIn('type', ['client', 'partner'])
-                ->where('folloup', 1) // Active followup
+                ->where('folloup', 1) // Active action
                 ->whereNotNull('followup_date');
 
             // Filter by assigned user (unless super admin - role == 1)
@@ -77,7 +77,7 @@ class DashboardService
             }
             // For super admin (role == 1), no additional filter - shows all actions
 
-            // Apply date filter based on followup_date
+            // Apply date filter based on action date (followup_date column)
             // Note: Removed strict date filtering to show all pending actions
             // If you want to filter by date, uncomment the switch statement below
             switch ($dateFilter) {

@@ -834,11 +834,11 @@ jQuery(document).ready(function($){
 			
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/reassignfollowup/store",
+                url:"{{URL::to('/')}}/clients/reassignaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: {
 					note_id: noteId,
-					note_type: 'follow_up',
+					note_type: 'action',
 					description: noteDescription,
 					client_id: clientId,
 					followup_datetime: followupDateTime,
@@ -904,9 +904,9 @@ jQuery(document).ready(function($){
 		if(flag){
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/updatefollowup/store",
+                url:"{{URL::to('/')}}/clients/updateaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_id:$('#assign_note_id').val(),note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
+                data: {note_id:$('#assign_note_id').val(),note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
                 success: function(response){
                     console.log(response);
                     $('.popuploader').hide();
@@ -955,9 +955,9 @@ jQuery(document).ready(function($){
 			
 			$.ajax({
 				type:'post',
-                url:"{{URL::to('/')}}/clients/personalfollowup/store",
+                url:"{{URL::to('/')}}/clients/personalaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_type:'follow_up',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group').val()},
+                data: {note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group').val()},
                 success: function(response){
                     //console.log(response);
                     $('.popuploader').hide();

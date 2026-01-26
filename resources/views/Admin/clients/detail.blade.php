@@ -2893,7 +2893,7 @@ use App\Http\Controllers\Controller;
         getDisabledDateTime: '{{ url("/getdisableddatetime") }}',
         clientUpdateEmailVerified: '{{ url("/clients/update-email-verified") }}',
         clientChangeAssignee: '{{ url("/clients/change_assignee") }}',
-        clientFollowup: '{{ url("/clients/followup/store") }}',
+        clientAction: '{{ url("/clients/action/store") }}',
         pinNote: '{{ url("/pinnote") }}',
         pinActivityLog: '{{ url("/pinactivitylog") }}',
         getNoteDetail: '{{ url("/getnotedetail") }}',

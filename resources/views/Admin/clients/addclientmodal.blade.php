@@ -1508,7 +1508,7 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" action="{{URL::to('/clients/followup_application/store_application')}}" name="appliassignform" id="appliassignform" autocomplete="off" enctype="multipart/form-data">
+				<form method="post" action="{{URL::to('/clients/action_application/store_application')}}" name="appliassignform" id="appliassignform" autocomplete="off" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="client_id" value="{{$fetchedData->id}}">
                     <input type="hidden" id="assign_application_id" name="application_id" value="">

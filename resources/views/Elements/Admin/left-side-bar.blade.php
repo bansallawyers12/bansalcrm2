@@ -190,18 +190,18 @@
 			}  
 			
 				/*	if(Auth::user()->role == 1){
-						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->count();					
+						$countaction = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->count();					
 					}else{
-						$countfollowup = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
+						$countaction = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
 					}*/
 					
 	
 									?>
 			<!--<li class="dropdown {{--@$clientclasstype--}}">
-				<a href="{{--URL::to('/followup-dates/')--}}" class="nav-link"><i class="fas fa-user"></i><span>Today Followup <span class="countfollowup" style="background: #1f1655;
+				<a href="{{--URL::to('/action-calendar/')--}}" class="nav-link"><i class="fas fa-user"></i><span>Today Actions <span class="countaction" style="background: #1f1655;
     padding: 0px 5px;
     border-radius: 50%;
-    color: #fff;">{{--$countfollowup--}}</span></span></a>
+    color: #fff;">{{--$countaction--}}</span></span></a>
 			</li>-->
 			<?php
 			if(Route::currentRouteName() == 'products.index' || Route::currentRouteName() == 'products.create' || Route::currentRouteName() == 'products.edit' || Route::currentRouteName() == 'products.detail'){
