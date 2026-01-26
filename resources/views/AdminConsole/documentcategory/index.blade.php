@@ -71,7 +71,10 @@
 										</td>
 										<td>
 											@if($category->client)
-												{{ $category->client->first_name }} {{ $category->client->last_name }}
+												<div>{{ $category->client->first_name }} {{ $category->client->last_name }}</div>
+												@if(!$category->is_default && $category->client->client_id)
+													<small class="text-muted">{{ $category->client->client_id }}</small>
+												@endif
 											@else
 												<span class="text-muted">All Clients</span>
 											@endif
