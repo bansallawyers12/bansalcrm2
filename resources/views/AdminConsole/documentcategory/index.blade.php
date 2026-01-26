@@ -1,5 +1,5 @@
 @extends('layouts.adminconsole')
-@section('title', 'Personal Document Category')
+@section('title', 'Document Category')
 
 @section('content')
 
@@ -13,7 +13,7 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-header">
-							<h4>Personal Document Category</h4>
+							<h4>Document Category</h4>
 							<div class="card-header-action">
 								<a href="{{route('adminconsole.documentcategory.create')}}" class="btn btn-primary">Add New</a>
 							</div>
@@ -42,8 +42,11 @@
 											<option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
 										</select>
 									</div>
-									<div class="col-md-2">
+									<div class="col-md-1">
 										<button type="submit" class="btn btn-primary w-100">Filter</button>
+									</div>
+									<div class="col-md-1">
+										<a href="{{ route('adminconsole.documentcategory.index') }}" class="btn btn-secondary w-100">Reset</a>
 									</div>
 								</div>
 							</form>

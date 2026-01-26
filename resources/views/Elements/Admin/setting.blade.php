@@ -57,7 +57,7 @@
       
            <li class="{{(Route::currentRouteName() == 'adminconsole.documentchecklist.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.documentchecklist.index')}}">Document Checklist</a></li>
 
-           <li class="{{(Route::currentRouteName() == 'adminconsole.documentcategory.index' || Route::currentRouteName() == 'adminconsole.documentcategory.create' || Route::currentRouteName() == 'adminconsole.documentcategory.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.documentcategory.index')}}">Personal Document Category</a></li>
+           <li class="{{(Route::currentRouteName() == 'adminconsole.documentcategory.index' || Route::currentRouteName() == 'adminconsole.documentcategory.create' || Route::currentRouteName() == 'adminconsole.documentcategory.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.documentcategory.index')}}">Document Category</a></li>
 
     </ul>
 </div>

@@ -33,15 +33,13 @@ class DocumentCategoryController extends Controller
             $query = DocumentCategory::with(['user', 'client']);
 
             // Search by category name
-            if ($request->has('search') && $request->search) {
+            if ($request->filled('search')) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->where('name', 'ilike', '%' . $search . '%');
-                });
+                $query->where('name', 'ilike', '%' . $search . '%');
             }
 
             // Search by client ID or client name
-            if ($request->has('client_search') && $request->client_search) {
+            if ($request->filled('client_search')) {
                 $clientSearch = $request->client_search;
                 $query->whereHas('client', function($q) use ($clientSearch) {
                     $q->where('client_id', 'ilike', '%' . $clientSearch . '%')
@@ -52,12 +50,12 @@ class DocumentCategoryController extends Controller
             }
 
             // Filter by status
-            if ($request->has('status') && $request->status !== '') {
+            if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
 
             // Filter by type (default/custom)
-            if ($request->has('type')) {
+            if ($request->filled('type')) {
                 if ($request->type === 'default') {
                     $query->where('is_default', true);
                 } elseif ($request->type === 'custom') {
@@ -72,7 +70,8 @@ class DocumentCategoryController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error listing document categories: ' . $e->getMessage());
-            return back()->with('error', 'Error loading categories');
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->with('error', 'Error loading categories: ' . $e->getMessage());
         }
     }
 
