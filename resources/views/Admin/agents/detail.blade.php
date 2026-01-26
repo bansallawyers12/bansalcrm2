@@ -1272,4 +1272,8 @@ $(document).delegate('#notes-tab', 'click', function(){
     });
 });
 </script>
+
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
 @endsection
