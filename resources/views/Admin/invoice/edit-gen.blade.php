@@ -369,12 +369,12 @@
 				<div class="income_field">
 					<div class="income_col">
 						<select class="form-control" id="share_user" name="share_user">
-						<option <?php if($IncomeSharing && $IncomeSharing == $branch->id){ echo 'selected'; } ?> value="no">Select a receiver</option>
+						<option value="no">Select a receiver</option>
 						<?php
 						$branches = \App\Models\Branch::where('id','!=', '1')->get();
 						foreach($branches as $branch){
 						?>
-							<option <?php if($IncomeSharing && $IncomeSharing->rec_id == $branch->id){ echo 'selected'; } ?> value="{{$branch->id}}">{{$branch->office_name}}</option>
+							<option <?php if(isset($IncomeSharing) && $IncomeSharing && isset($IncomeSharing->rec_id) && $IncomeSharing->rec_id == $branch->id){ echo 'selected'; } ?> value="{{$branch->id}}">{{$branch->office_name}}</option>
 						<?php } ?>
 							<option value="no">None</option>
 						</select>

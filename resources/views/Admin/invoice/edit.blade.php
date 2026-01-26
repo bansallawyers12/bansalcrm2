@@ -545,15 +545,15 @@
 												$branches = \App\Models\Agent::all();
 												foreach($branches as $branch){
 													?>
-														<option data-v="{{$branch->income_sharing}}" <?php if($IncomeSharing && $IncomeSharing->rec_id == $branch->id){ echo 'selected'; } ?> value="{{$branch->id}}">{{$branch->full_name}}</option>
+														<option data-v="{{$branch->income_sharing}}" <?php if(isset($IncomeSharing) && $IncomeSharing && isset($IncomeSharing->rec_id) && $IncomeSharing->rec_id == $branch->id){ echo 'selected'; } ?> value="{{$branch->id}}">{{$branch->full_name}}</option>
 													<?php } ?>
 														
 													</select>
 												</div>
 												<div class="income_col">
-													<div class="label_input"><span class="currencyinput">$
+													<div class="label_input">
+														<span class="currencyinput">$</span>
 														<input disabled type="number" name="incomeshare_amount" placeholder="Amount" class="incomeAmount" />
-													</span>
 														<div class="basic_label">AUD</div>
 													</div>
 												</div>
