@@ -25,13 +25,12 @@ class DocumentCategoryController extends Controller
 
     /**
      * Get categories for a specific client
-     * Returns default categories and user-specific categories
+     * Returns default categories and all client-specific categories (regardless of creator)
      */
     public function getCategories(Request $request)
     {
         try {
             $clientId = $request->input('client_id');
-            $userId = Auth::user()->id;
 
             if (!$clientId) {
                 return response()->json([
@@ -40,14 +39,11 @@ class DocumentCategoryController extends Controller
                 ], 400);
             }
 
-            // Get all categories (default + user-specific for this client)
+            // Get all categories (default + all categories for this client, regardless of who created them)
             $categories = DocumentCategory::active()
-                ->where(function($query) use ($userId, $clientId) {
+                ->where(function($query) use ($clientId) {
                     $query->where('is_default', true) // Default categories
-                          ->orWhere(function($subQuery) use ($userId, $clientId) {
-                              $subQuery->where('user_id', $userId)
-                                       ->where('client_id', $clientId);
-                          });
+                          ->orWhere('client_id', $clientId); // All client-specific categories
                 })
                 ->orderBy('is_default', 'DESC')
                 ->orderBy('name', 'ASC')
@@ -93,14 +89,11 @@ class DocumentCategoryController extends Controller
             $userId = Auth::user()->id;
             $name = $request->input('name');
 
-            // Check if category name already exists for this client
+            // Check if category name already exists for this client (across all users)
             $exists = DocumentCategory::where('name', $name)
-                ->where(function($query) use ($userId, $clientId) {
-                    $query->where('is_default', true)
-                          ->orWhere(function($subQuery) use ($userId, $clientId) {
-                              $subQuery->where('user_id', $userId)
-                                       ->where('client_id', $clientId);
-                          });
+                ->where(function($query) use ($clientId) {
+                    $query->where('is_default', true) // Check default categories
+                          ->orWhere('client_id', $clientId); // Check all categories for this client
                 })
                 ->exists();
 
