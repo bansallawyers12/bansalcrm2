@@ -21,18 +21,21 @@
 						<div class="card-body">
 							<!-- Search and Filter -->
 							<form method="GET" action="{{ route('adminconsole.documentcategory.index') }}" class="mb-3">
-								<div class="row">
-									<div class="col-md-4">
+								<div class="row mb-2">
+									<div class="col-md-3">
 										<input type="text" name="search" class="form-control" placeholder="Search by category name..." value="{{ request('search') }}">
 									</div>
 									<div class="col-md-3">
+										<input type="text" name="client_search" class="form-control" placeholder="Search by Client ID or Name..." value="{{ request('client_search') }}">
+									</div>
+									<div class="col-md-2">
 										<select name="type" class="form-control">
 											<option value="">All Types</option>
-											<option value="default" {{ request('type') == 'default' ? 'selected' : '' }}>Default Categories</option>
-											<option value="custom" {{ request('type') == 'custom' ? 'selected' : '' }}>Custom Categories</option>
+											<option value="default" {{ request('type') == 'default' ? 'selected' : '' }}>Default</option>
+											<option value="custom" {{ request('type') == 'custom' ? 'selected' : '' }}>Custom</option>
 										</select>
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-2">
 										<select name="status" class="form-control">
 											<option value="">All Status</option>
 											<option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
