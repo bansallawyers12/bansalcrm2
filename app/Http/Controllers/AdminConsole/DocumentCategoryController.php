@@ -36,7 +36,7 @@ class DocumentCategoryController extends Controller
             if ($request->has('search') && $request->search) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%');
+                    $q->where('name', 'ilike', '%' . $search . '%');
                 });
             }
 
@@ -44,10 +44,10 @@ class DocumentCategoryController extends Controller
             if ($request->has('client_search') && $request->client_search) {
                 $clientSearch = $request->client_search;
                 $query->whereHas('client', function($q) use ($clientSearch) {
-                    $q->where('client_id', 'like', '%' . $clientSearch . '%')
-                      ->orWhere('first_name', 'like', '%' . $clientSearch . '%')
-                      ->orWhere('last_name', 'like', '%' . $clientSearch . '%')
-                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%' . $clientSearch . '%']);
+                    $q->where('client_id', 'ilike', '%' . $clientSearch . '%')
+                      ->orWhere('first_name', 'ilike', '%' . $clientSearch . '%')
+                      ->orWhere('last_name', 'ilike', '%' . $clientSearch . '%')
+                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) ilike ?", ['%' . $clientSearch . '%']);
                 });
             }
 
