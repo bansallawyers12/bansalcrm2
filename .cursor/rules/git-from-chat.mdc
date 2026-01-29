@@ -1,5 +1,5 @@
 ---
-description: Git from chat - use tasks so commands run in user's terminal with full access
+description: Git from chat - try agent terminal first, fallback to user task
 alwaysApply: true
 ---
 
@@ -7,14 +7,16 @@ alwaysApply: true
 
 When the user asks to **commit**, **push**, **pull**, or run **git** from this chat:
 
-1. **Do not run git in the agent terminal** (it will fail with Permission denied / no credentials).
-2. **Tell the user to run the matching task** so the command runs in their integrated terminal (full access):
+1. **Try running git from chat first** (agent terminal with full permissions):
+   - Use the **Shell** tool with **required_permissions: ["all"]** for every git command.
+   - On Windows PowerShell use `Set-Location "project-root"; git ...` (no `&&`).
+   - **Pull:** `git pull origin master`
+   - **Push:** `git push origin master`
+   - **Commit and push:** `scripts\commit-and-push.cmd "message"` from project root (ask for message if not given, or use "Update").
+   - **Status:** `git status`
 
-   - **Commit and push:** Press **Ctrl+Shift+P** → type **Tasks: Run Task** → choose **Git: Commit and Push** → enter commit message when prompted.
-   - **Pull:** **Ctrl+Shift+P** → **Tasks: Run Task** → **Git: Pull**.
-   - **Push only:** **Ctrl+Shift+P** → **Tasks: Run Task** → **Git: Push**.
+2. **If the command fails** with "Permission denied" or ".git" / "index.lock" errors:
+   - **To fix permanently:** Tell the user to enable Cursor settings so git works from chat. Point them to **`.cursor/GIT-FROM-CHAT-SETUP.md`** (enable **Allow Git Writes Without Approval** and **Auto-Run Network Access** under Cursor Settings → Agents → Auto-Run). Optionally add `git` to the **Command Allowlist**.
+   - **Immediate fallback:** Tell the user to run the matching task in **their** terminal: **Ctrl+Shift+P** → **Tasks: Run Task** → **Git: Pull**, **Git: Push**, or **Git: Commit and Push**. For full sync: **Git: Sync (Pull, Commit & Push)**.
 
-3. Optionally show the shortcut: **Ctrl+Shift+P** then "Run Task" then pick the Git task.
-4. Tasks are defined in `.vscode/tasks.json` and run in the user's terminal (same window as chat).
-
-This way the user "executes from chat" by following the instruction; the actual git runs in their terminal with .git and credentials access.
+3. Tasks are in `.vscode/tasks.json` and run in the user's integrated terminal.
