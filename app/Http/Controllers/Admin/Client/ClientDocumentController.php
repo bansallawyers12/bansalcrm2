@@ -364,8 +364,8 @@ class ClientDocumentController extends Controller
                     $fileName = $file->getClientOriginalName();
                     $size = $file->getSize();
                     
-                    // Validate filename
-                    if (!preg_match('/^[a-zA-Z0-9_\-\.\s\$]+$/', $fileName)) {
+                    // Validate filename (allow letters, digits, _ - . space $ ( ) , + #; block path/shell-unsafe chars)
+                    if (!preg_match('/^[a-zA-Z0-9_\-\.\s\$(),+#]+$/', $fileName)) {
                         $errors[] = "File '{$fileName}' has invalid characters in name";
                         continue;
                     }

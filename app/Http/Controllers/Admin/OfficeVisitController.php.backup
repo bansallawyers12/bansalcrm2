@@ -9,9 +9,8 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\CheckinLog;
-use App\Models\CheckinHistory;
+// use App\Models\CheckinHistory; // Removed - table dropped
 use App\Models\ActivitiesLog;
-use App\Events\OfficeVisitNotificationCreated;
  
 use Auth;
 use Config;
@@ -33,206 +32,54 @@ class OfficeVisitController extends Controller
      * @return \Illuminate\Http\Response
      */
 	 
-	public function checkin(Request $request){
-		try {
-			// Handle Select2 multiple select - get first value if array
-			$contactValue = $request->input('contact');
-			if (is_array($contactValue)) {
-				$contactValue = !empty($contactValue) ? $contactValue[0] : null;
-			}
-			
-			// Validate required fields
-			$rules = [
-				'assignee' => 'required|integer',
-				'message' => 'required|string',
-				'office' => 'required|integer',
-				'utype' => 'required|string',
-			];
-			
-			$messages = [
-				'assignee.required' => 'Please select an assignee.',
-				'assignee.integer' => 'Invalid assignee selected.',
-				'message.required' => 'Visit purpose is required.',
-				'office.required' => 'Please select an office.',
-				'office.integer' => 'Invalid office selected.',
-				'utype.required' => 'Contact type is required. Please select a contact.',
-			];
-			
-			// Validate contact separately
-			if (empty($contactValue)) {
-				return redirect()->back()
-					->withErrors(['contact' => 'Please select a contact.'])
-					->withInput();
-			}
-			
-			$contactId = (int) $contactValue;
-			if ($contactId <= 0) {
-				return redirect()->back()
-					->withErrors(['contact' => 'Please select a valid contact.'])
-					->withInput();
-			}
-			
-			// Validate other fields
-			$validated = $request->validate($rules, $messages);
-
-			// Get validated data
-			$assigneeId = (int) $validated['assignee'];
-			$officeId = (int) $validated['office'];
-			$visitPurpose = trim($validated['message'] ?? '');
-			
-			// Normalize contact type
-			$utypeRaw = strtolower(trim($validated['utype'] ?? ''));
-			if ($utypeRaw === 'lead') {
-				$contactType = 'Lead';
-			} elseif ($utypeRaw === 'client') {
-				$contactType = 'Client';
-			} else {
-				$contactType = 'Client';
-			}
-
-			// Verify contact exists based on type
-			if ($contactType == 'Lead') {
-				$clientExists = \App\Models\Lead::where('id', $contactId)->exists();
-			} else {
-				$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
-			}
-
-			if (!$clientExists) {
-				return redirect()->back()->with('error', 'Selected contact does not exist.');
-			}
-
-			// Verify assignee exists
-			$assigneeExists = Admin::where('role', '!=', '7')->where('id', $assigneeId)->exists();
-			if (!$assigneeExists) {
-				return redirect()->back()->with('error', 'Selected assignee does not exist.');
-			}
-
-			// Verify office exists
-			$officeExists = \App\Models\Branch::where('id', $officeId)->exists();
-			if (!$officeExists) {
-				return redirect()->back()->with('error', 'Selected office does not exist.');
-			}
-
-			// Wrap all database operations in a transaction
-			DB::beginTransaction();
-
-			try {
-				// Create CheckinLog
-				$obj = new \App\Models\CheckinLog;
-				$obj->client_id = $contactId;
-				$obj->user_id = $assigneeId;
-				$obj->visit_purpose = $visitPurpose;
-				$obj->office = $officeId;
-				$obj->contact_type = $contactType;
-				$obj->status = 0;
-				$obj->is_archived = 0; // FIX: Required NOT NULL constraint
-				$obj->date = date('Y-m-d');
-				
-				if (!$obj->save()) {
-					throw new \Exception('Failed to save check-in log.');
-				}
-
-				// Create Notification
-				$notification = new \App\Models\Notification;
-				$notification->sender_id = Auth::user()->id;
-				$notification->receiver_id = $assigneeId;
-				$notification->module_id = $obj->id;
-				$notification->url = \URL::to('/office-visits/waiting');
-				$notification->notification_type = 'officevisit';
-				$notification->message = 'Office visit Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name;
-				$notification->seen = 0;
-				$notification->receiver_status = 0;
-				$notification->sender_status = 1;
-				
-				if (!$notification->save()) {
-					throw new \Exception('Failed to save notification.');
-				}
-
-				// Get client information for broadcasting
-				$client = $contactType == 'Lead' 
-					? \App\Models\Lead::find($contactId)
-					: Admin::where('role', '7')->find($contactId);
-
-				// Broadcast real-time notification (optional - wrap in try-catch)
-				try {
-					broadcast(new OfficeVisitNotificationCreated(
-						$notification->id,
-						$notification->receiver_id,
-						[
-							'id' => $notification->id,
-							'checkin_id' => $obj->id,
-							'message' => $notification->message,
-							'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-							'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
-							'visit_purpose' => $obj->visit_purpose,
-							'created_at' => $notification->created_at ? $notification->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
-							'url' => $notification->url
-						]
-					));
-				} catch (\Exception $broadcastException) {
-					// Log broadcast error but don't fail the entire operation
-					\Log::warning('Failed to broadcast office visit notification', [
-						'notification_id' => $notification->id,
-						'error' => $broadcastException->getMessage()
-					]);
-				}
-
-				// Create CheckinHistory
-				$checkinHistory = new CheckinHistory;
-				$checkinHistory->subject = 'has created check-in';
-				$checkinHistory->created_by = Auth::user()->id;
-				$checkinHistory->checkin_id = $obj->id;
-				
-				if (!$checkinHistory->save()) {
-					throw new \Exception('Failed to save check-in history.');
-				}
-
-				// OPTIONAL: Keep ActivitiesLog for backward compatibility
-				// Create activity log for clients (not leads)
-				if($contactType == 'Client') {
-					$activityLog = new ActivitiesLog;
-					$activityLog->client_id = $contactId;
-					$activityLog->created_by = Auth::user()->id;
-					$activityLog->subject = 'has created check-in';
-					$activityLog->description = !empty($visitPurpose) ? 'Visit Purpose: ' . $visitPurpose : '';
-					$activityLog->task_status = 0;
-					$activityLog->pin = 0;
-					$activityLog->save();
-				}
-
-				// Commit transaction
-				DB::commit();
-
-				return redirect()->back()->with('success', 'Checkin updated successfully');
-
-			} catch (\Exception $e) {
-				// Rollback transaction on any error
-				DB::rollBack();
-				
-				// Log the error for debugging
-				\Log::error('Checkin creation failed', [
-					'error' => $e->getMessage(),
-					'trace' => $e->getTraceAsString(),
-					'request_data' => $request->except(['_token'])
-				]);
-
-				return redirect()->back()->with('error', 'Failed to create check-in. Please try again.');
-			}
-
-		} catch (\Illuminate\Validation\ValidationException $e) {
-			// Return validation errors
-			return redirect()->back()
-				->withErrors($e->errors())
-				->withInput();
-		} catch (\Exception $e) {
-			// Catch any unexpected errors
-			\Log::error('Unexpected error in checkin method', [
-				'error' => $e->getMessage(),
-				'trace' => $e->getTraceAsString()
-			]);
-			
+	 public function checkin(Request $request){
+		$requestData 		= 	$request->all();
+		$obj = new \App\Models\CheckinLog;
+		$obj->client_id = $requestData['contact'];
+		$obj->user_id = $requestData['assignee'];
+		$obj->visit_purpose = $requestData['message'];
+		$obj->office = $requestData['office'];
+		$obj->contact_type = $requestData['utype'];
+		$obj->status = 0;
+		$obj->date = date('Y-m-d');
+		$saved = $obj->save();
+		
+		if(!$saved)
+		{
 			return redirect()->back()->with('error', Config::get('constants.server_error'));
 		}
+		else
+		{
+		    $o = new \App\Models\Notification;
+	    	$o->sender_id = Auth::user()->id;
+	    	$o->receiver_id = $requestData['assignee'];
+	    	$o->module_id = $obj->id;
+	    	$o->url = \URL::to('/office-visits/waiting');
+	    	$o->notification_type = 'officevisit';
+	    	$o->message = 'Office visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
+	    	$o->save();
+			// NOTE: CheckinHistory removed - table dropped
+			// $objs = new CheckinHistory;
+			// $objs->subject = 'has created check-in';
+			// $objs->created_by = Auth::user()->id;
+			// $objs->checkin_id = $obj->id;
+			// $objs->save();
+			
+			// Create activity log for clients (not leads)
+			if($requestData['utype'] == 'Client') {
+				$activityLog = new ActivitiesLog;
+				$activityLog->client_id = $requestData['contact'];
+				$activityLog->created_by = Auth::user()->id;
+				$activityLog->subject = 'has created check-in';
+				$activityLog->description = !empty($requestData['message']) ? 'Visit Purpose: ' . $requestData['message'] : '';
+				$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+				$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
+				$activityLog->save();
+			}
+			
+			return redirect()->back()->with('success', 'Checkin updated successfully');
+		}	
 	}
 	
 	public function index(Request $request)
@@ -400,27 +247,29 @@ class OfficeVisitController extends Controller
 						<h4>Logs</h4>
 						<div class="logsdata">
 						<?php
-						$logslist = CheckinHistory::where('checkin_id',$CheckinLog->id)->orderby('created_at', 'DESC')->get();						
-						foreach($logslist as $llist){
-							$admin = \App\Models\Admin::where('id', $llist->created_by)->first();
-						?>
-							<div class="logsitem">
-								<div class="row">
-									<div class="col-md-7">
-										<span class="ag-avatar"><?php echo substr($admin->first_name, 0, 1); ?></span>
-										<span class="text_info"><span><?php echo $admin->first_name; ?></span><?php echo $llist->subject; ?></span>
-									</div>
-									<div class="col-md-5">
-										<span class="logs_date"><?php echo date('d M Y h:i A', strtotime($llist->created_at)); ?></span>
-									</div>
-									<?php if($llist->description != ''){ ?>
-									<div class="col-md-12 logs_comment">
-										<p><?php echo $llist->description; ?></p>
-									</div>
-									<?php } ?>
-								</div>
-							</div>
-						<?php } ?> 
+						// NOTE: CheckinHistory removed - table dropped
+						// $logslist = CheckinHistory::where('checkin_id',$CheckinLog->id)->orderby('created_at', 'DESC')->get();						
+						// foreach($logslist as $llist){
+						// 	$admin = \App\Models\Admin::where('id', $llist->created_by)->first();
+						// ?>
+						// 	<div class="logsitem">
+						// 		<div class="row">
+						// 			<div class="col-md-7">
+						// 				<span class="ag-avatar"><?php echo substr($admin->first_name, 0, 1); ?></span>
+						// 				<span class="text_info"><span><?php echo $admin->first_name; ?></span><?php echo $llist->subject; ?></span>
+						// 			</div>
+						// 			<div class="col-md-5">
+						// 				<span class="logs_date"><?php echo date('d M Y h:i A', strtotime($llist->created_at)); ?></span>
+						// 			</div>
+						// 			<?php if($llist->description != ''){ ?>
+						// 			<div class="col-md-12 logs_comment">
+						// 				<p><?php echo $llist->description; ?></p>
+						// 			</div>
+						// 			<?php } ?>
+						// 		</div>
+						// 	</div>
+						// <?php } ?> 
+						<p class="text-muted">Check-in history logs have been removed.</p>
 						</div>
 					</div>
 				</div>
@@ -498,19 +347,22 @@ class OfficeVisitController extends Controller
 	}
 	
 	public function update_visit_comment(Request $request){
-		$objs = new CheckinHistory;
-		$objs->subject = 'has commented';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$objs->description = $request->visit_comment;
-		$saved = $objs->save();
-		if($saved){
-			$response['status'] 	= 	true;
-			$response['message']	=	'saved successfully';
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has commented';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $objs->description = $request->visit_comment;
+		// $saved = $objs->save();
+		// if($saved){
+		// 	$response['status'] 	= 	true;
+		// 	$response['message']	=	'saved successfully';
+		// }else{
+		// 	$response['status'] 	= 	false;
+		// 	$response['message']	=	'Please try again';
+		// }
+		$response['status'] 	= 	true;
+		$response['message']	=	'Comment feature disabled - CheckinHistory table removed';
 		echo json_encode($response);
 	}
 	
@@ -534,37 +386,8 @@ class OfficeVisitController extends Controller
 	    	$o->url = \URL::to('/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
-	    	$o->seen = 0;
-	    	$o->receiver_status = 0;
-	    	$o->sender_status = 1;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
-	    	
-	    	// Broadcast notification (optional)
-	    	try {
-	    	    $client = $objs->contact_type == 'Lead' 
-	    	        ? \App\Models\Lead::find($objs->client_id)
-	    	        : Admin::where('role', '7')->find($objs->client_id);
-	    	    
-	    	    broadcast(new OfficeVisitNotificationCreated(
-	    	        $o->id,
-	    	        $o->receiver_id,
-	    	        [
-	    	            'id' => $o->id,
-	    	            'checkin_id' => $objs->id,
-	    	            'message' => $o->message,
-	    	            'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-	    	            'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
-	    	            'visit_purpose' => $objs->visit_purpose,
-	    	            'created_at' => $o->created_at ? $o->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
-	    	            'url' => $o->url
-	    	        ]
-	    	    ));
-	    	} catch (\Exception $e) {
-	    	    \Log::warning('Failed to broadcast change assignee notification', [
-	    	        'error' => $e->getMessage()
-	    	    ]);
-	    	}
-	    	
 			$response['status'] 	= 	true;
 			$response['message']	=	'Updated successfully';
 		}else{
@@ -603,10 +426,12 @@ class OfficeVisitController extends Controller
 
         if($request->waitingtype == 1){ //waiting type = Pls send
             $obj->status = 2; //attending session
+
             $t = 'attending';
         } else {  //waiting type = waiting
             $obj->status = 0; //waiting session
             $obj->wait_type = 1; //waiting type = Pls send
+
             $t = 'waiting';
         }
 
@@ -615,60 +440,34 @@ class OfficeVisitController extends Controller
         if($saved){
 		    $o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
-	    	// Use assignee instead of hardcoded ID
-	    	$o->receiver_id = $obj->user_id;
+	    	$o->receiver_id = 22136;
 	    	$o->module_id = $request->id;
 	    	$o->url = \URL::to('/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
-	    	$o->seen = 0;
-	    	$o->receiver_status = 0;
-	    	$o->sender_status = 1;
+	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
-	    	
-	    	// Broadcast notification (optional)
-	    	try {
-	    	    $client = $obj->contact_type == 'Lead' 
-	    	        ? \App\Models\Lead::find($obj->client_id)
-	    	        : Admin::where('role', '7')->find($obj->client_id);
-	    	    
-	    	    broadcast(new OfficeVisitNotificationCreated(
-	    	        $o->id,
-	    	        $o->receiver_id,
-	    	        [
-	    	            'id' => $o->id,
-	    	            'checkin_id' => $obj->id,
-	    	            'message' => $o->message,
-	    	            'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-	    	            'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
-	    	            'visit_purpose' => $obj->visit_purpose,
-	    	            'created_at' => $o->created_at ? $o->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
-	    	            'url' => $o->url
-	    	        ]
-	    	    ));
-	    	} catch (\Exception $e) {
-	    	    \Log::warning('Failed to broadcast attend session notification', [
-	    	        'error' => $e->getMessage()
-	    	    ]);
-	    	}
+			//$response['status'] 	= 	true;
+			//$response['message']	=	'Updated successfully';
 		}
 
-		// Create CheckinHistory
-		$objs = new CheckinHistory;
-		$objs->subject = 'has started session';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has started session';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $saved = $objs->save();
+		$saved = true; // Set to true since we're not saving to CheckinHistory anymore
 		
-		// Keep ActivitiesLog for backward compatibility
+		// Create activity log for clients
 		if($obj->contact_type == 'Client') {
 			$activityLog = new ActivitiesLog;
 			$activityLog->client_id = $obj->client_id;
 			$activityLog->created_by = Auth::user()->id;
 			$activityLog->subject = 'has started check-in session';
 			$activityLog->description = !empty($obj->visit_purpose) ? 'Visit Purpose: ' . $obj->visit_purpose : '';
-			$activityLog->task_status = 0;
-			$activityLog->pin = 0;
+			$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+			$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 			$activityLog->save();
 		}
 		
@@ -689,14 +488,14 @@ class OfficeVisitController extends Controller
 		$obj->status = 1;
 		$saved = $obj->save();
 		
-		// Create CheckinHistory
-		$objs = new CheckinHistory;
-		$objs->subject = 'has completed session';
-		$objs->created_by = Auth::user()->id;
-		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		// NOTE: CheckinHistory removed - table dropped
+		// $objs = new CheckinHistory;
+		// $objs->subject = 'has completed session';
+		// $objs->created_by = Auth::user()->id;
+		// $objs->checkin_id = $request->id;
+		// $saved = $objs->save();
 		
-		// Keep ActivitiesLog for backward compatibility
+		// Create activity log for clients
 		if($obj->contact_type == 'Client') {
 			$activityLog = new ActivitiesLog;
 			$activityLog->client_id = $obj->client_id;
@@ -707,8 +506,8 @@ class OfficeVisitController extends Controller
 				$description .= ($description ? ' | ' : '') . 'Session Duration: ' . $obj->attend_time;
 			}
 			$activityLog->description = $description;
-			$activityLog->task_status = 0;
-			$activityLog->pin = 0;
+			$activityLog->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
+			$activityLog->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 			$activityLog->save();
 		}
 		

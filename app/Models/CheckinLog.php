@@ -5,19 +5,43 @@ use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 
 class CheckinLog extends Model
-{	use Sortable;
+{	
+    use Sortable;
 
 	protected $fillable = [
-        'id', 'created_at', 'updated_at'
+        'id', 'client_id', 'user_id', 'visit_purpose', 'office',
+        'contact_type', 'status', 'date', 'sesion_start', 'sesion_end',
+        'wait_time', 'attend_time', 'wait_type', 'is_archived',
+        'created_at', 'updated_at'
     ];
 	
-	public $sortable = ['id','created_at', 'updated_at'];
+	public $sortable = ['id', 'created_at', 'updated_at'];
 	
 	/**
      * Get the client for this check-in
      */
     public function client()
     {
-        return $this->belongsTo('App\Models\Admin', 'client_id', 'id');
+        if ($this->contact_type == 'Lead') {
+            return $this->belongsTo('App\Models\Lead', 'client_id');
+        } else {
+            return $this->belongsTo('App\Models\Admin', 'client_id')->where('role', '7');
+        }
+    }
+    
+    /**
+     * Get the assignee for this check-in
+     */
+    public function assignee()
+    {
+        return $this->belongsTo('App\Models\Admin', 'user_id');
+    }
+    
+    /**
+     * Get the history entries for this check-in
+     */
+    public function histories()
+    {
+        return $this->hasMany('App\Models\CheckinHistory', 'checkin_id');
     }
 }
