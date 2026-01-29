@@ -480,7 +480,7 @@ class OfficeVisitController extends Controller
 			<?php
 			return ob_get_clean();
 		}
-		 
+	}
 	
 	
 	public function update_visit_purpose(Request $request){
