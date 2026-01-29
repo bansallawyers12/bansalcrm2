@@ -1061,57 +1061,71 @@
 										<?php
 											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
 										?>
-										<div class="english-test-wrapper">
-											<div class="row g-3 mb-3">
-												<div class="col-md-3 col-sm-6">
-													<div class="form-group">
-														<label for="test_type">Test Type</label>
-														<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
-															<option value="toefl">TOEFL</option>
-															<option value="ilets">IELTS</option>
-															<option value="pte">PTE</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-md-auto col-sm-4 col-6">
-													<div class="form-group">
-														<label for="listening_edit">L</label>
-														<input type="number" class="form-control" name="listening" id="listening_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
-													</div>
-												</div>
-												<div class="col-md-auto col-sm-4 col-6">
-													<div class="form-group">
-														<label for="reading_edit">R</label>
-														<input type="number" class="form-control" name="reading" id="reading_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
-													</div>
-												</div>
-												<div class="col-md-auto col-sm-4 col-6">
-													<div class="form-group">
-														<label for="writing_edit">W</label>
-														<input type="number" class="form-control" name="writing" id="writing_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
-													</div>
-												</div>
-												<div class="col-md-auto col-sm-4 col-6">
-													<div class="form-group">
-														<label for="speaking_edit">S</label>
-														<input type="number" class="form-control" name="speaking" id="speaking_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
-													</div>
-												</div>
-												<div class="col-md-auto col-sm-4 col-6">
-													<div class="form-group">
-														<label for="overall_edit">O</label>
-														<input type="number" class="form-control" name="overall" id="overall_edit" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
-													</div>
+									<div class="english-test-wrapper">
+										<?php
+										// Determine which test type has data
+										$activeTestType = 'toefl'; // default
+										if ($testscores) {
+											if (!empty($testscores->ilets_Listening) || !empty($testscores->ilets_Reading) || 
+												!empty($testscores->ilets_Writing) || !empty($testscores->ilets_Speaking)) {
+												$activeTestType = 'ilets';
+											} elseif (!empty($testscores->pte_Listening) || !empty($testscores->pte_Reading) || 
+													  !empty($testscores->pte_Writing) || !empty($testscores->pte_Speaking)) {
+												$activeTestType = 'pte';
+											}
+										}
+										$activeTestType = old('test_type', $activeTestType); // Use old input if available
+										?>
+										<div class="row g-3 mb-3">
+											<div class="col-md-3 col-sm-6">
+												<div class="form-group">
+													<label for="test_type">Test Type</label>
+													<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
+														<option value="toefl" @if($activeTestType == 'toefl') selected @endif>TOEFL</option>
+														<option value="ilets" @if($activeTestType == 'ilets') selected @endif>IELTS</option>
+														<option value="pte" @if($activeTestType == 'pte') selected @endif>PTE</option>
+													</select>
 												</div>
 											</div>
-											<div class="row g-3">
-												<div class="col-md-3 col-sm-6">
-													<div class="form-group">
-														<label for="test_date_edit">Test Date</label>
-														<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" placeholder="Select date"/>
-													</div>
+											<div class="col-md-auto col-sm-4 col-6">
+												<div class="form-group">
+													<label for="listening_edit">L</label>
+													<input type="number" class="form-control" name="listening" id="listening_edit" value="{{ old('listening') }}" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
 												</div>
 											</div>
+											<div class="col-md-auto col-sm-4 col-6">
+												<div class="form-group">
+													<label for="reading_edit">R</label>
+													<input type="number" class="form-control" name="reading" id="reading_edit" value="{{ old('reading') }}" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+												</div>
+											</div>
+											<div class="col-md-auto col-sm-4 col-6">
+												<div class="form-group">
+													<label for="writing_edit">W</label>
+													<input type="number" class="form-control" name="writing" id="writing_edit" value="{{ old('writing') }}" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+												</div>
+											</div>
+											<div class="col-md-auto col-sm-4 col-6">
+												<div class="form-group">
+													<label for="speaking_edit">S</label>
+													<input type="number" class="form-control" name="speaking" id="speaking_edit" value="{{ old('speaking') }}" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+												</div>
+											</div>
+											<div class="col-md-auto col-sm-4 col-6">
+												<div class="form-group">
+													<label for="overall_edit">O</label>
+													<input type="number" class="form-control" name="overall" id="overall_edit" value="{{ old('overall') }}" step="0.01" placeholder="0.00" min="0" style="width: 80px;"/>
+												</div>
+											</div>
+											</div>
+										<div class="row g-3">
+											<div class="col-md-3 col-sm-6">
+												<div class="form-group">
+													<label for="test_date_edit">Test Date</label>
+													<input type="text" class="form-control datepicker" name="test_date" id="test_date_edit" value="{{ old('test_date') }}" placeholder="Select date"/>
+												</div>
+											</div>
+										</div>
 										</div>
 										<input type="hidden" name="test_score_client_id" value="{{$fetchedData->id}}">
 										<input type="hidden" name="test_score_type" value="client">

@@ -135,7 +135,7 @@ class ClientController extends Controller
           
              if ( isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'] , "Personal")) > 1) {
                 //echo "Error: 'Personal' contact type can only be used once.";
-                return redirect()->back()->with('error', "Error: 'Personal' contact type can only be used once.");
+                return redirect()->back()->withInput()->with('error', "Error: 'Personal' contact type can only be used once.");
             }
           
 			$related_files = '';
@@ -264,11 +264,58 @@ class ClientController extends Controller
 				$profile_img = @$requestData['old_profile_img'];
 			}
 		
-			$obj->profile_img			=	@$profile_img;
+		$obj->profile_img			=	@$profile_img;
+		
+		 //$obj->manual_email_phone_verified	=	@$requestData['manual_email_phone_verified'];
+		 
+		$saved							=	$obj->save();
+		
+		//////////////////////////////////////////////////////
+		//////////Code Start For Test Scores/////////////////
+		//////////////////////////////////////////////////////
+		// Save/Update Test Scores
+		if (isset($requestData['test_type'])) {
+			$testScoreData = [
+				'client_id' => $obj->id,
+				'user_id' => Auth::id(),
+				'type' => 'client',
+			];
 			
-			 //$obj->manual_email_phone_verified	=	@$requestData['manual_email_phone_verified'];
-			 
-			$saved							=	$obj->save();
+			$testType = $requestData['test_type'];
+			
+			// Map form fields to database columns based on test type
+			if ($testType === 'toefl') {
+				$testScoreData['toefl_Listening'] = $requestData['listening'] ?? null;
+				$testScoreData['toefl_Reading'] = $requestData['reading'] ?? null;
+				$testScoreData['toefl_Writing'] = $requestData['writing'] ?? null;
+				$testScoreData['toefl_Speaking'] = $requestData['speaking'] ?? null;
+				$testScoreData['score_1'] = $requestData['overall'] ?? null;
+				$testScoreData['toefl_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
+			} elseif ($testType === 'ilets') {
+				$testScoreData['ilets_Listening'] = $requestData['listening'] ?? null;
+				$testScoreData['ilets_Reading'] = $requestData['reading'] ?? null;
+				$testScoreData['ilets_Writing'] = $requestData['writing'] ?? null;
+				$testScoreData['ilets_Speaking'] = $requestData['speaking'] ?? null;
+				$testScoreData['score_2'] = $requestData['overall'] ?? null;
+				$testScoreData['ilets_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
+			} elseif ($testType === 'pte') {
+				$testScoreData['pte_Listening'] = $requestData['listening'] ?? null;
+				$testScoreData['pte_Reading'] = $requestData['reading'] ?? null;
+				$testScoreData['pte_Writing'] = $requestData['writing'] ?? null;
+				$testScoreData['pte_Speaking'] = $requestData['speaking'] ?? null;
+				$testScoreData['score_3'] = $requestData['overall'] ?? null;
+				$testScoreData['pte_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
+			}
+			
+			// UpdateOrCreate based on client_id and type
+			\App\Models\TestScore::updateOrCreate(
+				['client_id' => $obj->id, 'type' => 'client'],
+				$testScoreData
+			);
+		}
+		//////////////////////////////////////////////////////
+		//////////Code End For Test Scores///////////////////
+		//////////////////////////////////////////////////////
           
             //////////////////////////////////////////////////////
             //////////Code Start For client phone////////////////
