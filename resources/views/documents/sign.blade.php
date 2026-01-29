@@ -244,37 +244,6 @@
             display: block;
         }
 
-        /* Type Signature */
-        .type-signature-input {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .type-signature-input:focus {
-            outline: none;
-            border-color: #28a745;
-        }
-        .type-signature-preview {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            background: white;
-        }
-        .type-signature-text {
-            font-family: 'Brush Script MT', cursive;
-            font-size: 42px;
-            color: #333;
-        }
-
         /* Upload Signature */
         .upload-zone {
             border: 2px dashed #e9ecef;
@@ -436,7 +405,6 @@
             <div class="modal-body">
                 <div class="signature-tabs">
                     <div class="signature-tab active" data-tab="draw">Draw</div>
-                    <div class="signature-tab" data-tab="type">Type</div>
                     <div class="signature-tab" data-tab="upload">Upload</div>
                 </div>
 
@@ -445,14 +413,6 @@
                     <p class="signature-instruction">Use your mouse, touch, or stylus to draw your signature below</p>
                     <div class="signature-pad-container">
                         <canvas id="signaturePad"></canvas>
-                    </div>
-                </div>
-
-                <!-- Type Tab -->
-                <div class="tab-content" id="tab-type">
-                    <input type="text" class="type-signature-input" id="typeInput" placeholder="Type your full name" oninput="updateTypePreview()">
-                    <div class="type-signature-preview">
-                        <span class="type-signature-text" id="typePreview"></span>
                     </div>
                 </div>
 
@@ -605,8 +565,6 @@
             
             // Reset modal
             signaturePad.clear();
-            document.getElementById('typeInput').value = '';
-            document.getElementById('typePreview').textContent = '';
             uploadedImage = null;
             document.getElementById('uploadPreview').style.display = 'none';
             
@@ -629,19 +587,11 @@
         function clearCurrentSignature() {
             if (currentTab === 'draw') {
                 signaturePad.clear();
-            } else if (currentTab === 'type') {
-                document.getElementById('typeInput').value = '';
-                document.getElementById('typePreview').textContent = '';
             } else if (currentTab === 'upload') {
                 uploadedImage = null;
                 document.getElementById('uploadPreview').style.display = 'none';
                 document.getElementById('uploadInput').value = '';
             }
-        }
-
-        function updateTypePreview() {
-            const input = document.getElementById('typeInput');
-            document.getElementById('typePreview').textContent = input.value;
         }
 
         function handleUpload(input) {
@@ -667,28 +617,6 @@
                     return;
                 }
                 signatureData = signaturePad.toDataURL('image/png');
-            } else if (currentTab === 'type') {
-                const text = document.getElementById('typeInput').value.trim();
-                if (!text) {
-                    alert('Please type your name first.');
-                    return;
-                }
-                // Create canvas for typed signature
-                const canvas = document.createElement('canvas');
-                canvas.width = 400;
-                canvas.height = 120;
-                const ctx = canvas.getContext('2d');
-                
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = 'black';
-                ctx.font = '48px "Brush Script MT", cursive';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-                
-                signatureData = canvas.toDataURL('image/png');
             } else if (currentTab === 'upload') {
                 if (!uploadedImage) {
                     alert('Please upload a signature image first.');

@@ -208,6 +208,43 @@ jQuery(document).ready(function($){
     });
 
     // ============================================================================
+    // STUDENT ID - AUTO-SAVE ON BLUR
+    // ============================================================================
+    
+    $(document).on('blur', '#student_id', function() {
+        var studentId = $(this).val();
+        var applicationId = $(this).attr('data-applicationid');
+        
+        if (applicationId) {
+            $.ajax({
+                url: App.getUrl('siteUrl') + '/application/updateStudentId',
+                type: 'POST',
+                data: {
+                    application_id: applicationId,
+                    student_id: studentId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status) {
+                        console.log('Student ID saved:', response.student_id);
+                        // Optional: Show success message
+                        // iziToast.success({title: 'Saved', message: 'Student ID updated successfully'});
+                    } else {
+                        console.error('Failed to save Student ID:', response.message);
+                        // Optional: Show error message
+                        // iziToast.error({title: 'Error', message: response.message});
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error saving Student ID:', error);
+                    // Optional: Show error message
+                    // iziToast.error({title: 'Error', message: 'Failed to save Student ID'});
+                }
+            });
+        }
+    });
+
+    // ============================================================================
     // APPLICATION DETAIL VIEW HANDLERS
     // ============================================================================
     
