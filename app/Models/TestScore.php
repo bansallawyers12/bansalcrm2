@@ -13,6 +13,7 @@ class TestScore extends Model
         'user_id',
         'client_id',
         'type',
+        'last_test_type',
         'toefl_Listening', 'toefl_Reading', 'toefl_Writing', 'toefl_Speaking', 'toefl_Date',
         'ilets_Listening', 'ilets_Reading', 'ilets_Writing', 'ilets_Speaking', 'ilets_Date',
         'pte_Listening', 'pte_Reading', 'pte_Writing', 'pte_Speaking', 'pte_Date',

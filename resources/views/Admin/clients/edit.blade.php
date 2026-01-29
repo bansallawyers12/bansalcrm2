@@ -1063,18 +1063,23 @@
 										?>
 									<div class="english-test-wrapper">
 										<?php
-										// Determine which test type has data
+										// Show the test type that was last saved; fallback to detecting from data for existing rows
 										$activeTestType = 'toefl'; // default
 										if ($testscores) {
-											if (!empty($testscores->ilets_Listening) || !empty($testscores->ilets_Reading) || 
-												!empty($testscores->ilets_Writing) || !empty($testscores->ilets_Speaking)) {
-												$activeTestType = 'ilets';
-											} elseif (!empty($testscores->pte_Listening) || !empty($testscores->pte_Reading) || 
-													  !empty($testscores->pte_Writing) || !empty($testscores->pte_Speaking)) {
-												$activeTestType = 'pte';
+											if (!empty($testscores->last_test_type) && in_array($testscores->last_test_type, ['toefl', 'ilets', 'pte'], true)) {
+												$activeTestType = $testscores->last_test_type;
+											} else {
+												// Fallback: detect from which columns have data (existing rows before last_test_type was added)
+												if (!empty($testscores->ilets_Listening) || !empty($testscores->ilets_Reading) || 
+													!empty($testscores->ilets_Writing) || !empty($testscores->ilets_Speaking)) {
+													$activeTestType = 'ilets';
+												} elseif (!empty($testscores->pte_Listening) || !empty($testscores->pte_Reading) || 
+														  !empty($testscores->pte_Writing) || !empty($testscores->pte_Speaking)) {
+													$activeTestType = 'pte';
+												}
 											}
 										}
-										$activeTestType = old('test_type', $activeTestType); // Use old input if available
+										$activeTestType = old('test_type', $activeTestType); // Use old input if available (e.g. validation error)
 										?>
 										<div class="row g-3 mb-3">
 											<div class="col-md-3 col-sm-6">

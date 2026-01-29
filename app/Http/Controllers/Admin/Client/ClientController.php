@@ -282,6 +282,7 @@ class ClientController extends Controller
 			];
 			
 			$testType = $requestData['test_type'];
+			$testScoreData['last_test_type'] = $testType;
 			
 			// Map form fields to database columns based on test type
 			if ($testType === 'toefl') {
