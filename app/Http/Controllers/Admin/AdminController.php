@@ -1183,7 +1183,7 @@ class AdminController extends Controller
 
 	public function getpartnerbranch(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\Models\Partner::where('service_workflow', $catid)->orderby('partner_name','ASC')->get();
+		$lists = \App\Models\Partner::where('service_workflow', $catid)->where('status', 0)->orderby('partner_name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select Partner & Branch</option>
