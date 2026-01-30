@@ -713,6 +713,8 @@ class EmailUploadV2Controller extends Controller
             // Make error messages more user-friendly
             if (strpos($errorMessage, 'Failed to connect') !== false || strpos($errorMessage, 'Connection refused') !== false) {
                 $errorMessage = "Cannot connect to email processing service. Please ensure the Python service is running at {$this->pythonServiceUrl}";
+            } elseif (stripos($errorMessage, 'Access is denied') !== false || stripos($errorMessage, 'WinError 5') !== false) {
+                $errorMessage = "Email processing service could not access temporary files. The Python service has been updated to use the system temp folder; please restart the Python service and try again.";
             } elseif (strpos($errorMessage, 'Failed to parse email') !== false || strpos($errorMessage, 'Python service returned') !== false) {
                 $errorMessage = "Failed to parse email file. The file may be corrupted or in an unsupported format.";
             } elseif (strpos($errorMessage, 'S3') !== false || strpos($errorMessage, 'AWS') !== false || strpos($errorMessage, 'storage') !== false) {
@@ -782,14 +784,24 @@ class EmailUploadV2Controller extends Controller
                 }
                 return $result;
             } else {
+                $body = $response->body();
                 Log::error('Python service error', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $body
                 ]);
+
+                $errorMsg = 'Python service returned status: ' . $response->status();
+                $decoded = json_decode($body, true);
+                if (is_array($decoded) && isset($decoded['error'])) {
+                    $errorMsg = is_string($decoded['error']) ? $decoded['error'] : $errorMsg;
+                } elseif (is_array($decoded) && isset($decoded['detail'])) {
+                    $detail = $decoded['detail'];
+                    $errorMsg = is_string($detail) ? $detail : $errorMsg;
+                }
 
                 return [
                     'success' => false,
-                    'error' => 'Python service returned status: ' . $response->status()
+                    'error' => $errorMsg
                 ];
             }
 
@@ -1051,7 +1063,8 @@ class EmailUploadV2Controller extends Controller
         try {
             // Company domains that indicate emails WE sent
             $companyDomains = [
-                '@bansaleducation.com.au'
+                '@bansaleducation.com.au',
+                '@bansalimmigration.com.au',
             ];
             
             // Check if email is from our company domains

@@ -539,9 +539,26 @@
                             Object.values(errorData.errors || {}).flat().join(', ') : 
                             'Validation failed';
                         throw new Error(`Upload validation failed: ${errorMsg}`);
-                    } catch {
-                        throw new Error(`Upload validation failed. Please check your file format and try again.`);
+                    } catch (e) {
+                        if (e instanceof Error && e.message.startsWith('Upload validation failed:')) throw e;
+                        throw new Error('Upload validation failed. Please check your file format and try again.');
                     }
+                } else if (response.status === 400) {
+                    // Processing failure (e.g. all files failed) - parse JSON to show message + per-file errors
+                    let errMsg = `Upload failed: ${response.status} ${response.statusText}. ${errorText.substring(0, 200)}`;
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        if (errorData && (errorData.message || (errorData.errors && errorData.errors.length))) {
+                            errMsg = errorData.message || 'Upload failed.';
+                            if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+                                const details = errorData.errors.map((e, i) =>
+                                    `${i + 1}. ${e.filename || 'Unknown file'}: ${e.error || 'Unknown error'}`
+                                ).join('\n');
+                                errMsg += '\n\n' + details;
+                            }
+                        }
+                    } catch (_) { /* keep default errMsg */ }
+                    throw new Error(errMsg);
                 }
                 
                 throw new Error(`Upload failed: ${response.status} ${response.statusText}. ${errorText.substring(0, 200)}`);
@@ -707,7 +724,10 @@
                 uploadProgress.className = 'upload-progress error';
             }
             fileStatus.textContent = 'Upload failed';
-            showNotification('Upload failed: ' + error.message, 'error');
+            const msg = error && error.message ? String(error.message) : 'Unknown error';
+            const lower = msg.toLowerCase();
+            const displayMsg = (lower.startsWith('upload failed') || lower.startsWith('upload validation failed')) ? msg : 'Upload failed: ' + msg;
+            showNotification(displayMsg, 'error');
             
             // Reset after delay
             setTimeout(() => {

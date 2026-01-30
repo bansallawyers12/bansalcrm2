@@ -15,6 +15,8 @@ Version: 1.0.0
 
 import sys
 import logging
+import tempfile
+import uuid
 from pathlib import Path
 from typing import Dict, Any
 
@@ -411,9 +413,27 @@ async def convert_docx_to_pdf_json(file: UploadFile = File(...)):
 # Email Service Endpoints
 # ============================================================================
 
+def _temp_msg_path() -> Path:
+    """Return a unique temp .msg path in system temp dir. Avoids WinError 5 on project temp/."""
+    base = Path(tempfile.gettempdir()) / "python_services_email"
+    base.mkdir(parents=True, exist_ok=True)
+    return base / f"{uuid.uuid4().hex}.msg"
+
+
+def _safe_unlink_temp(path: Path) -> None:
+    """Remove temp file; log only on failure (e.g. WinError 5 Access denied)."""
+    if not path or not path.exists():
+        return
+    try:
+        path.unlink()
+    except (PermissionError, OSError) as e:
+        logger.warning(f"Could not delete temp file {path}: {e}")
+
+
 @app.post("/email/parse")
 async def parse_email(file: UploadFile = File(...)):
     """Parse .msg file and extract email data."""
+    temp_path = None
     try:
         logger.info(f"Parsing email file: {file.filename}")
         
@@ -421,24 +441,22 @@ async def parse_email(file: UploadFile = File(...)):
         if not validate_file_type(file.filename, ['.msg']):
             raise HTTPException(status_code=400, detail="Invalid file type. Only .msg files are allowed.")
         
-        # Save file temporarily
-        temp_path = Path(f"temp/{file.filename}")
-        temp_path.parent.mkdir(exist_ok=True)
-        
+        # Use system temp dir + unique name to avoid WinError 5 (Access denied) on project temp/
+        temp_path = _temp_msg_path()
         content = await file.read()
         temp_path.write_bytes(content)
         
-        # Parse email
         result = email_parser.parse_msg_file(str(temp_path))
-        
-        # Clean up
-        temp_path.unlink()
         
         return JSONResponse(content=result)
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error parsing email: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        _safe_unlink_temp(temp_path)
 
 
 @app.post("/email/analyze")
@@ -491,12 +509,8 @@ async def parse_analyze_render_email(file: UploadFile = File(...)):
         if not validate_file_type(file.filename, ['.msg']):
             raise HTTPException(status_code=400, detail="Invalid file type. Only .msg files are allowed.")
         
-        # Save file temporarily with unique name to avoid conflicts
-        import time
-        temp_filename = f"{int(time.time() * 1000)}_{file.filename}"
-        temp_path = Path(f"temp/{temp_filename}")
-        temp_path.parent.mkdir(exist_ok=True)
-        
+        # Use system temp dir + unique name (same as /email/parse) to avoid WinError 5
+        temp_path = _temp_msg_path()
         content = await file.read()
         temp_path.write_bytes(content)
         
@@ -520,32 +534,15 @@ async def parse_analyze_render_email(file: UploadFile = File(...)):
             'processing_status': 'success'
         }
         
-        # Clean up - retry mechanism for Windows file locking
-        if temp_path and temp_path.exists():
-            import time
-            for attempt in range(3):
-                try:
-                    temp_path.unlink()
-                    break
-                except PermissionError as pe:
-                    if attempt < 2:
-                        time.sleep(0.1)  # Wait 100ms before retry
-                    else:
-                        logger.warning(f"Could not delete temp file {temp_path}: {str(pe)}")
-                except Exception as cleanup_error:
-                    logger.warning(f"Error during cleanup of {temp_path}: {str(cleanup_error)}")
-        
         return JSONResponse(content=result)
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in email processing pipeline: {str(e)}")
-        # Attempt cleanup on error
-        if temp_path and temp_path.exists():
-            try:
-                temp_path.unlink()
-            except:
-                logger.warning(f"Could not clean up temp file on error: {temp_path}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        _safe_unlink_temp(temp_path)
 
 
 # ============================================================================
