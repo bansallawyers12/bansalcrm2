@@ -78,7 +78,7 @@
 							<span style="font-size: 18px;line-height: 21px;color: #000;margin: 0px 0px 20px;display:block;"><b>TAX INVOICE</b></span>
 							<p style="font-size: 13px;line-height: 16px;color: #000;font-weight: normal;margin: 10px 0px 5px;"><b>Invoice To:</b></p>
 							<p style="font-size: 14px;line-height: 21px;color: #000;font-weight: bold;margin: 0px;">{{@$partnerdata->partner_name}}</p>
-							<p style="font-size: 13px;line-height: 21px;color: #333;font-weight: normal;margin: 0px;">{{@$partnerdata->address}}<br/> {{@$partnerdata->city}} , {{@$partnerdata->state}}<br/> {{@$partnerdata->country}}</p>
+							<p style="font-size: 13px;line-height: 21px;color: #333;font-weight: normal;margin: 0px;">{{@$partnerdata->address}}<br/> {{@$partnerdata->city}} , {{@$partnerdata->state}}@if(!empty($partnerdata->zip)) {{@$partnerdata->zip}}@endif<br/> {{@$partnerdata->country}}</p>
 						</td>
 						<td>
 							<p style="font-size: 14px;line-height: 18px;color: #666;margin: 0px 0px 5px;"><b>Invoice No:</b> <span style="float:right;">{{$invoicedetail->invoice_no}}</span></p>
