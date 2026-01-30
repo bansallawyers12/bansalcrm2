@@ -228,8 +228,14 @@ class ClientImportService
             if (isset($importData['visa_countries']) && is_array($importData['visa_countries']) && !empty($importData['visa_countries'])) {
                 // Use first visa entry to populate admins table fields
                 $visaData = $importData['visa_countries'][0];
-                if (empty($client->visa_type) && !empty($visaData['visa_type'])) {
-                    $client->visa_type = $visaData['visa_type'];
+                if (empty($client->visa_type)) {
+                    // Resolve visa type: prefer portable nick_name/title from migrationmanager2 exports,
+                    // fall back to visa_type for backwards compatibility with older exports.
+                    // bansalcrm2 stores visa type as name string, not numeric ID.
+                    $resolvedVisaType = $this->resolveVisaTypeName($visaData);
+                    if (!empty($resolvedVisaType)) {
+                        $client->visa_type = $resolvedVisaType;
+                    }
                 }
                 if (empty($client->visa_opt) && !empty($visaData['visa_description'])) {
                     $client->visa_opt = $visaData['visa_description'];
@@ -450,5 +456,56 @@ class ClientImportService
         }
 
         return $country;
+    }
+
+    /**
+     * Resolve visa type name from visa data.
+     * 
+     * bansalcrm2 stores visa type as a name string (e.g., "600 - Visitor - Outside Australia"),
+     * while migrationmanager2 exports include:
+     * - visa_type: numeric Matter ID (not useful for bansalcrm2)
+     * - visa_type_matter_nick_name: portable identifier
+     * - visa_type_matter_title: human-readable title
+     * 
+     * Priority:
+     * 1. visa_type_matter_nick_name (most portable cross-system identifier)
+     * 2. visa_type_matter_title (human-readable fallback)
+     * 3. visa_type if it's a non-numeric string (backwards compat with older/same-system exports)
+     * 
+     * @param array $visaData
+     * @return string|null
+     */
+    private function resolveVisaTypeName(array $visaData)
+    {
+        // Prefer nick_name (most portable cross-system identifier)
+        $nickName = $visaData['visa_type_matter_nick_name'] ?? null;
+        if (is_string($nickName) && $nickName !== '') {
+            return $nickName;
+        }
+
+        // Fall back to title (human-readable)
+        $title = $visaData['visa_type_matter_title'] ?? null;
+        if (is_string($title) && $title !== '') {
+            return $title;
+        }
+
+        // Fall back to visa_type for backwards compatibility
+        // Only use if it's a non-empty string that doesn't look like a pure numeric ID
+        $visaType = $visaData['visa_type'] ?? null;
+        if ($visaType !== null && $visaType !== '') {
+            // If it's already a name string (not purely numeric), use it
+            // This handles older bansalcrm2 exports where visa_type is already the name
+            if (!is_numeric($visaType)) {
+                return $visaType;
+            }
+            // If it's numeric, it's likely a Matter ID from migrationmanager2
+            // We can't resolve it without the portable fields, so log a warning
+            Log::warning('Visa import: numeric visa_type without portable fields', [
+                'visa_type' => $visaType,
+                'hint' => 'Export may be from migrationmanager2 without visa_type_matter_title/nick_name'
+            ]);
+        }
+
+        return null;
     }
 }

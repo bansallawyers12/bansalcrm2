@@ -1,0 +1,132 @@
+{
+    "version": "1.0",
+    "exported_at": "2026-01-30T12:03:58+11:00",
+    "exported_from": "migrationmanager2",
+    "client": {
+        "first_name": "Lakhwinderjit Singh",
+        "last_name": "Bhullar",
+        "email": "demo-tarantoher_88@y7mail.com",
+        "phone": "0414 919 985",
+        "country_code": "+61",
+        "telephone": null,
+        "dob": "1959-01-04",
+        "age": "67 years 0 months",
+        "gender": "Male",
+        "marital_status": null,
+        "address": null,
+        "city": null,
+        "state": null,
+        "country": null,
+        "zip": null,
+        "country_passport": "India",
+        "att_email": null,
+        "att_phone": null,
+        "att_country_code": null,
+        "email_type": "Personal",
+        "contact_type": "Personal",
+        "source": null,
+        "type": "client",
+        "status": "1",
+        "profile_img": null,
+        "agent_id": null
+    },
+    "contacts": [
+        {
+            "contact_type": "Personal",
+            "country_code": "+61",
+            "phone": "0414 919 985",
+            "is_verified": false,
+            "verified_at": null
+        }
+    ],
+    "emails": [
+        {
+            "email_type": "Personal",
+            "email": "demo-tarantoher_88@y7mail.com",
+            "is_verified": false,
+            "verified_at": null
+        }
+    ],
+    "passport": {
+        "passport_number": "",
+        "passport_country": "India",
+        "passport_issue_date": null,
+        "passport_expiry_date": null
+    },
+    "travel": [],
+    "visa_countries": [
+        {
+            "visa_country": "India",
+            "visa_type": "77",
+            "visa_description": "",
+            "visa_expiry_date": null,
+            "visa_grant_date": "2022-06-03"
+        }
+    ],
+    "character": [],
+    "activities": [
+        {
+            "subject": "added Email Notes - APP_1",
+            "description": "<p>Client cost agreement and 804 checklist sent to client, charges $2750</p>",
+            "activity_type": "note",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:36:12.000000Z"
+        },
+        {
+            "subject": "created visa agreement",
+            "description": "<p>Visa agreement has been created for matter: <strong></strong></p>",
+            "activity_type": null,
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:19:39.000000Z"
+        },
+        {
+            "subject": "created cost assignment form",
+            "description": "<p>Cost assignment form has been created for matter: <strong></strong></p>",
+            "activity_type": null,
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:19:16.000000Z"
+        },
+        {
+            "subject": "Lead converted to client. Matter APP_1 created",
+            "description": "Lead converted to client. Matter APP_1 created",
+            "activity_type": null,
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:18:56.000000Z"
+        },
+        {
+            "subject": "updated address information",
+            "description": "<div style=\"margin-top: 5px;\"><div style=\"margin-bottom: 4px;\"><span style=\"color: #28a745; font-weight: 600;\">7 Meadowlea Crescent, Pakenham, VIC, 3810, Australia</span></div></div>",
+            "activity_type": "activity",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:17:04.000000Z"
+        },
+        {
+            "subject": "updated visa information",
+            "description": "<div style=\"margin-top: 5px;\"><div style=\"margin-bottom: 4px;\"><span style=\"color: #28a745; font-weight: 600;\">Type: 77, Country: India, Grant: 03/06/2022</span></div></div>",
+            "activity_type": "activity",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:16:18.000000Z"
+        },
+        {
+            "subject": "updated passport information",
+            "description": "<div style=\"margin-top: 5px;\"><div style=\"margin-bottom: 4px;\"><span style=\"color: #28a745; font-weight: 600;\">Country: India</span></div></div>",
+            "activity_type": "activity",
+            "followup_date": null,
+            "task_group": null,
+            "task_status": 0,
+            "created_at": "2026-01-29T08:15:49.000000Z"
+        }
+    ]
+}
