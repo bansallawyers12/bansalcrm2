@@ -9,6 +9,7 @@ use App\Models\ClientPhone; // bansalcrm2 uses ClientPhone
 use App\Models\ActivitiesLog;
 use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
+use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -36,18 +37,157 @@ class ClientImportService
 
             $clientData = $importData['client'];
 
-            // Check for duplicate email if skip_duplicates is enabled
-            if ($skipDuplicates && !empty($clientData['email'])) {
-                $existingClient = Admin::where('email', $clientData['email'])
-                    ->where('role', 7)
-                    ->first();
+            // Check for duplicate email and phone number if skip_duplicates is enabled
+            if ($skipDuplicates) {
+                $emailMatch = false;
+                $phoneMatch = false;
+                $matchedClient = null;
+                $matchedPhoneNumbers = [];
 
-                if ($existingClient) {
+                // Check for duplicate email
+                if (!empty($clientData['email'])) {
+                    $existingClientByEmail = Admin::where('email', $clientData['email'])
+                        ->where('role', 7)
+                        ->first();
+
+                    if ($existingClientByEmail) {
+                        $emailMatch = true;
+                        $matchedClient = $existingClientByEmail;
+                    }
+                }
+
+                // Check for duplicate phone numbers
+                $importPhoneNumbers = $this->extractPhoneNumbersFromImport($importData);
+                
+                if (!empty($importPhoneNumbers)) {
+                    foreach ($importPhoneNumbers as $importPhone) {
+                        $normalizedCountryCode = PhoneHelper::normalizeCountryCode($importPhone['country_code'] ?? '');
+                        $normalizedPhone = $this->normalizePhoneNumber($importPhone['phone'] ?? '');
+                        
+                        if (!empty($normalizedPhone)) {
+                            // Check ClientPhone table
+                            $existingPhones = ClientPhone::where('client_country_code', $normalizedCountryCode)->get();
+                            
+                            foreach ($existingPhones as $existingPhone) {
+                                // Normalize both sides for comparison
+                                $existingCountryCode = PhoneHelper::normalizeCountryCode($existingPhone->getAttributes()['client_country_code'] ?? '');
+                                $existingPhoneNumber = $this->normalizePhoneNumber($existingPhone->getAttributes()['client_phone'] ?? '');
+                                
+                                // Check if country code and phone number match (both normalized)
+                                if ($normalizedCountryCode === $existingCountryCode && 
+                                    $normalizedPhone === $existingPhoneNumber && 
+                                    !empty($existingPhoneNumber)) {
+                                    
+                                    // Get the client that owns this phone number
+                                    $existingClientByPhone = Admin::where('id', $existingPhone->client_id)
+                                        ->where('role', 7)
+                                        ->first();
+
+                                    if ($existingClientByPhone) {
+                                        $phoneMatch = true;
+                                        if (!$matchedClient) {
+                                            $matchedClient = $existingClientByPhone;
+                                        }
+                                        
+                                        // Format for display (use original phone format from import)
+                                        $displayPhone = PhoneHelper::formatPhoneNumber(
+                                            $normalizedCountryCode,
+                                            $importPhone['phone'] ?? $normalizedPhone
+                                        );
+                                        
+                                        // Avoid duplicates in matched phone numbers array
+                                        if (!in_array($displayPhone, $matchedPhoneNumbers)) {
+                                            $matchedPhoneNumbers[] = $displayPhone;
+                                        }
+                                        
+                                        // Break inner loop since we found a match
+                                        break 2; // Break both loops
+                                    }
+                                }
+                            }
+                            
+                            // Also check Admin table phone fields (phone and att_phone)
+                            // Note: Admin table stores phone without country code separation in some cases
+                            // We'll check if the normalized phone matches any client's phone or att_phone
+                            // Using a more efficient approach: query clients and check phone fields
+                            $clientsWithPhone = Admin::where('role', 7)
+                                ->where(function($query) use ($normalizedPhone) {
+                                    // Check if normalized phone matches phone field (after normalization)
+                                    // We'll need to normalize in PHP since DB doesn't have a normalize function
+                                    $query->whereNotNull('phone')
+                                          ->orWhereNotNull('att_phone');
+                                })
+                                ->get();
+                            
+                            foreach ($clientsWithPhone as $client) {
+                                // Check main phone field
+                                if (!empty($client->phone)) {
+                                    $clientPhoneNormalized = $this->normalizePhoneNumber($client->phone);
+                                    if ($normalizedPhone === $clientPhoneNormalized && !empty($clientPhoneNormalized)) {
+                                        $phoneMatch = true;
+                                        if (!$matchedClient) {
+                                            $matchedClient = $client;
+                                        }
+                                        
+                                        $displayPhone = PhoneHelper::formatPhoneNumber(
+                                            $normalizedCountryCode,
+                                            $importPhone['phone'] ?? $normalizedPhone
+                                        );
+                                        
+                                        if (!in_array($displayPhone, $matchedPhoneNumbers)) {
+                                            $matchedPhoneNumbers[] = $displayPhone;
+                                        }
+                                        break 2; // Break both loops
+                                    }
+                                }
+                                
+                                // Check att_phone field
+                                if (!empty($client->att_phone)) {
+                                    $clientAttPhoneNormalized = $this->normalizePhoneNumber($client->att_phone);
+                                    if ($normalizedPhone === $clientAttPhoneNormalized && !empty($clientAttPhoneNormalized)) {
+                                        $phoneMatch = true;
+                                        if (!$matchedClient) {
+                                            $matchedClient = $client;
+                                        }
+                                        
+                                        $displayPhone = PhoneHelper::formatPhoneNumber(
+                                            $normalizedCountryCode,
+                                            $importPhone['phone'] ?? $normalizedPhone
+                                        );
+                                        
+                                        if (!in_array($displayPhone, $matchedPhoneNumbers)) {
+                                            $matchedPhoneNumbers[] = $displayPhone;
+                                        }
+                                        break 2; // Break both loops
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // If either email or phone matches, skip import and return appropriate message
+                if ($emailMatch || $phoneMatch) {
                     DB::rollBack();
+                    
+                    $messages = [];
+                    if ($emailMatch) {
+                        $messages[] = 'email ' . $clientData['email'];
+                    }
+                    if ($phoneMatch) {
+                        if (count($matchedPhoneNumbers) === 1) {
+                            $messages[] = 'phone number ' . $matchedPhoneNumbers[0];
+                        } else {
+                            $messages[] = 'phone number(s) ' . implode(', ', $matchedPhoneNumbers);
+                        }
+                    }
+                    
+                    $message = 'Client with ' . implode(' and ', $messages) . ' already exists. Import skipped.';
+                    
                     return [
                         'success' => false,
                         'client_id' => null,
-                        'message' => 'Client with email ' . $clientData['email'] . ' already exists. Import skipped.'
+                        'message' => $message
                     ];
                 }
             }
@@ -507,5 +647,69 @@ class ClientImportService
         }
 
         return null;
+    }
+
+    /**
+     * Extract phone numbers from import data
+     * Checks both the contacts array and the client's direct phone fields
+     * 
+     * @param array $importData
+     * @return array Array of phone numbers with country_code and phone
+     */
+    private function extractPhoneNumbersFromImport(array $importData): array
+    {
+        $phoneNumbers = [];
+
+        // Extract from contacts array
+        if (isset($importData['contacts']) && is_array($importData['contacts'])) {
+            foreach ($importData['contacts'] as $contact) {
+                if (!empty($contact['phone'])) {
+                    $phoneNumbers[] = [
+                        'country_code' => $contact['country_code'] ?? null,
+                        'phone' => $contact['phone']
+                    ];
+                }
+            }
+        }
+
+        // Extract from client's direct phone fields (if present)
+        if (isset($importData['client'])) {
+            $clientData = $importData['client'];
+            
+            // Check main phone field
+            if (!empty($clientData['phone'])) {
+                $phoneNumbers[] = [
+                    'country_code' => $clientData['country_code'] ?? null,
+                    'phone' => $clientData['phone']
+                ];
+            }
+            
+            // Check att_phone (attendant phone)
+            if (!empty($clientData['att_phone'])) {
+                $phoneNumbers[] = [
+                    'country_code' => $clientData['att_country_code'] ?? null,
+                    'phone' => $clientData['att_phone']
+                ];
+            }
+        }
+
+        return $phoneNumbers;
+    }
+
+    /**
+     * Normalize phone number for comparison
+     * Removes spaces, dashes, parentheses, and other formatting
+     * 
+     * @param string|null $phone
+     * @return string Normalized phone number
+     */
+    private function normalizePhoneNumber(?string $phone): string
+    {
+        if (empty($phone)) {
+            return '';
+        }
+
+        // Remove all non-digit characters except + (though + should be in country code, not phone)
+        return preg_replace('/[^\d]/', '', trim($phone));
     }
 }

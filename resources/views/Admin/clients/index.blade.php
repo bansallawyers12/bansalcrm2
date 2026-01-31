@@ -479,7 +479,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="skip_duplicates" name="skip_duplicates" value="1" checked>
                             <label class="form-check-label" for="skip_duplicates">
-                                Skip if client with same email already exists
+                                Skip if client with same email or phone number already exists
                             </label>
                         </div>
                     </div>
