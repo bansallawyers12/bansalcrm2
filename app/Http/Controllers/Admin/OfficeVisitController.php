@@ -35,6 +35,7 @@ class OfficeVisitController extends Controller
 	 
 	public function checkin(Request $request){
 		try {
+			//dd($request->all());
 			// Handle Select2 multiple select - get first value if array
 			$contactValue = $request->input('contact');
 			if (is_array($contactValue)) {
@@ -89,10 +90,11 @@ class OfficeVisitController extends Controller
 			} else {
 				$contactType = 'Client';
 			}
-
+			//dd($contactType.'-'.$contactId);
 			// Verify contact exists based on type
 			if ($contactType == 'Lead') {
-				$clientExists = \App\Models\Lead::where('id', $contactId)->exists();
+				$leadId = Admin::where('role', 7)->where('id', $contactId)->value('lead_id');
+				$clientExists = \App\Models\Lead::where('id', $leadId)->exists();
 			} else {
 				$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
 			}
@@ -119,7 +121,11 @@ class OfficeVisitController extends Controller
 			try {
 				// Create CheckinLog
 				$obj = new \App\Models\CheckinLog;
-				$obj->client_id = $contactId;
+				if ($contactType == 'Lead') {
+					$obj->client_id = $leadId;
+				} else {
+					$obj->client_id = $contactId;
+				}
 				$obj->user_id = $assigneeId;
 				$obj->visit_purpose = $visitPurpose;
 				$obj->office = $officeId;
@@ -150,8 +156,10 @@ class OfficeVisitController extends Controller
 
 				// Get client information for broadcasting
 				$client = $contactType == 'Lead' 
-					? \App\Models\Lead::find($contactId)
+					? \App\Models\Lead::find($leadId)
 					: Admin::where('role', '7')->find($contactId);
+
+				
 
 				// Broadcast real-time notification (optional - wrap in try-catch)
 				try {
@@ -741,7 +749,6 @@ class OfficeVisitController extends Controller
 			}
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
-		
 		return view('Admin.officevisits.waiting',compact(['lists', 'totalData']));  
 	}
 	public function attending(Request $request)
