@@ -1049,22 +1049,55 @@ function customValidate(formName, savetype = '')
 					else if(formName == 'applicationfeeformlatest'){
                         var myform = document.getElementById('applicationfeeformlatest');
 						var fd = new FormData(myform);
+						var appIdForReload = $(myform).find('input[name="id"]').val();
 						$.ajax({
 							type:'post',
 							url:$("form[name="+formName+"]").attr('action'),
 							processData: false,
 							contentType: false,
 							data: fd,
-							success: function(response){
+							dataType: 'json',
+							success: function(obj){
 								$('.popuploader').hide();
 								$('#new_fee_option_latest').modal('hide');
-								var obj = $.parseJSON(response);
-                                if(obj.status){
+                                if(obj && obj.status){
                                     $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-      								$('.fee_reported_by_college').html(obj.totalfee);
+									// Update Total Fee Paid in Commission Status section
+									var totalfeeNum = parseFloat(obj.totalfee);
+									var totalfeeDisplay = (!isNaN(totalfeeNum) && isFinite(totalfeeNum))
+										? totalfeeNum.toFixed(2) : '0.00';
+									var $feeElement = $('.fee_reported_by_college');
+									if($feeElement.length){
+										$feeElement.html(totalfeeDisplay);
+									} else if(appIdForReload && $('.ifapplicationdetailnot').length){
+										// Fallback: element not in DOM, reload application detail to show updated Total Fee Paid
+										var detailUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('getApplicationDetail'))
+											? App.getUrl('getApplicationDetail') : ((typeof site_url !== 'undefined' ? site_url : '') + '/getapplicationdetail');
+										if(detailUrl){
+											$.ajax({
+												url: detailUrl,
+												type: 'GET',
+												data: {id: appIdForReload},
+												success: function(html){
+													$('.ifapplicationdetailnot').html(html);
+													if(typeof reinitializeAccordions === 'function') reinitializeAccordions();
+												}
+											});
+										}
+									}
 								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
+									$('.custom-error-msg').html('<span class="alert alert-danger">'+(obj && obj.message ? obj.message : 'An error occurred.')+'</span>');
                                 }
+							},
+							error: function(xhr){
+								$('.popuploader').hide();
+								$('#new_fee_option_latest').modal('hide');
+								var errMsg = 'Failed to save. Please try again.';
+								try{
+									var errResp = xhr.responseJSON || (xhr.responseText ? $.parseJSON(xhr.responseText) : null);
+									if(errResp && errResp.message) errMsg = errResp.message;
+								}catch(e){}
+								$('.custom-error-msg').html('<span class="alert alert-danger">'+errMsg+'</span>');
 							}
 						});
 					}
