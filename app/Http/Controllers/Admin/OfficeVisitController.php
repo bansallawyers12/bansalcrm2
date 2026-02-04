@@ -94,7 +94,11 @@ class OfficeVisitController extends Controller
 			// Verify contact exists based on type
 			if ($contactType == 'Lead') {
 				$leadId = Admin::where('role', 7)->where('id', $contactId)->value('lead_id');
-				$clientExists = \App\Models\Lead::where('id', $leadId)->exists();
+				if($leadId){
+					$clientExists = \App\Models\Lead::where('id', $leadId)->exists();
+				} else {
+					$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
+				}
 			} else {
 				$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
 			}
@@ -122,7 +126,11 @@ class OfficeVisitController extends Controller
 				// Create CheckinLog
 				$obj = new \App\Models\CheckinLog;
 				if ($contactType == 'Lead') {
-					$obj->client_id = $leadId;
+					if($leadId){
+						$obj->client_id = $leadId;
+					} else {
+						$obj->client_id = $contactId;
+					}
 				} else {
 					$obj->client_id = $contactId;
 				}
@@ -155,11 +163,19 @@ class OfficeVisitController extends Controller
 				}
 
 				// Get client information for broadcasting
-				$client = $contactType == 'Lead' 
+				/*$client = $contactType == 'Lead' 
 					? \App\Models\Lead::find($leadId)
-					: Admin::where('role', '7')->find($contactId);
+					: Admin::where('role', '7')->find($contactId);*/
 
-				
+				if ($contactType == 'Lead') {
+					if($leadId){
+						$client = \App\Models\Lead::find($leadId);
+					} else {
+						$client = Admin::where('role', '7')->find($contactId);
+					}
+				} else {
+					$client = Admin::where('role', '7')->find($contactId);
+				}
 
 				// Broadcast real-time notification (optional - wrap in try-catch)
 				try {
