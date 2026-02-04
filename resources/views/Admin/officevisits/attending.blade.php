@@ -108,21 +108,28 @@
 													<td style="white-space: initial;"><a id="{{@$list->id}}" class="opencheckindetail" href="javascript:;">#{{$list->id}}</a></td>
 													<td style="white-space: initial;"><a href="javascript:;">{{date('l',strtotime($list->created_at))}}</a><br>{{date('d/m/Y',strtotime($list->created_at))}}</td>
 													<td style="white-space: initial;"><?php if($list->sesion_start != ''){ echo date('h:i A',strtotime($list->sesion_start)); }else{ echo '-'; } ?></td>
-												<td style="white-space: initial;">
-													<?php
-													if($list->contact_type == 'Lead'){
-												$client = \App\Models\Lead::where('id', '=', $list->client_id)->first();
-												 ?>
-										    <a href="{{route('leads.detail', base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-										    <?php
-										}else{
-										    $client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
-										    ?>
-										    <a href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-										    <?php
-										}
-
-													?>
+													<td style="white-space: initial;">
+														<?php
+														if($list->contact_type == 'Lead'){
+															$client = \App\Models\Lead::where('id', '=', $list->client_id)->first(); 
+															if(!$client){ 
+																$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+																?>
+																<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+															<?php
+															} 
+															else 
+															{ ?>
+																<a target="_blank" href="{{route('leads.detail', base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+															<?php 
+															} 
+														} else {
+															$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+															?>
+															<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+														<?php
+														}
+														?>
 													<br>{{@$client->email}}
 													</td>
 													<td style="white-space: initial;">{{$list->contact_type}}</td>
