@@ -2,9 +2,6 @@
 @section('title', 'Ongoing Sheet')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/listing-container.css') }}">
-<link rel="stylesheet" href="{{ asset('css/listing-pagination.css') }}">
-<link rel="stylesheet" href="{{ asset('css/bootstrap-datepicker.min.css') }}">
 <style>
     /* Header row - light blue */
     .ongoing-sheet-header {
@@ -56,7 +53,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                        <button class="btn btn-primary mb-2" data-toggle="collapse" data-target="#filterPanel">
+                        <button class="btn btn-primary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
                             <i class="fas fa-filter"></i> Filters
                             @if($activeFilterCount > 0)
                                 <span class="badge badge-light">{{ $activeFilterCount }}</span>
@@ -100,13 +97,13 @@
                                     
                                     <div class="col-md-4 mb-3">
                                         <label>Visa Expiry From</label>
-                                        <input type="text" name="visa_expiry_from" class="form-control datepicker" 
+                                        <input type="text" name="visa_expiry_from" class="form-control dobdatepicker" 
                                                placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_from') }}" autocomplete="off">
                                     </div>
                                     
                                     <div class="col-md-4 mb-3">
                                         <label>Visa Expiry To</label>
-                                        <input type="text" name="visa_expiry_to" class="form-control datepicker" 
+                                        <input type="text" name="visa_expiry_to" class="form-control dobdatepicker" 
                                                placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}" autocomplete="off">
                                     </div>
                                     
@@ -219,14 +216,13 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
 <script>
 $(document).ready(function() {
-    // Initialize datepicker
-    $('.datepicker').datepicker({
-        format: 'dd/mm/yyyy',
-        autoclose: true,
-        todayHighlight: true
+    // Initialize flatpickr for date inputs
+    flatpickr('.dobdatepicker', {
+        dateFormat: 'd/m/Y',
+        allowInput: true,
+        clickOpens: true
     });
     
     // Initialize Select2 for office filter
@@ -235,6 +231,9 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
+    
+    // Bootstrap 5 collapse should work automatically with data-bs-toggle
+    // No additional JavaScript needed
 });
 </script>
 @endpush
