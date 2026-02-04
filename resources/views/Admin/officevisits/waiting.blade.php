@@ -113,7 +113,10 @@
 													<td style="white-space: initial;">
 													<?php
 													if($list->contact_type == 'Lead'){
-														$client = \App\Models\Lead::where('id', '=', $list->client_id)->first();
+														$client = \App\Models\Lead::where('id', '=', $list->client_id)->first(); 
+														if(!$client){ 
+															$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first(); 
+														}
 														?>
 														<a target="_blank" href="{{route('leads.detail', base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
 													<?php
