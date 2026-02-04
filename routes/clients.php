@@ -193,5 +193,14 @@ Route::middleware(['auth:admin'])->group(function() {
             Route::get('/email/{mailReportId}/download-all', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'downloadAll'])->name('download-all');
         });
     });
+    
+    // Sheets Routes (Ongoing Sheet)
+    Route::prefix('clients/sheets')->name('clients.sheets.')->group(function() {
+        Route::get('/ongoing', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->name('ongoing');
+        Route::get('/ongoing/insights', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'insights'])->name('ongoing.insights');
+        
+        // Optional: Update ongoing reference for a client
+        Route::post('/ongoing/{clientId}/update', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateReference'])->name('ongoing.update');
+    });
 });
 

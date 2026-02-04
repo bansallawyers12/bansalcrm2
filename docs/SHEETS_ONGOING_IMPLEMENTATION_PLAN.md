@@ -6,7 +6,7 @@
 
 **Reference:** Worksheet structure from provided image (light blue header, monthly separators Dec-25 / Jan-26, green/yellow/blue row highlighting).
 
-**Status:** DEEP REVIEWED — Updated with verified data sources from bansalcrm2 codebase analysis.
+**Status:** ✅ APPROVED & READY FOR IMPLEMENTATION — All decisions confirmed by user.
 
 ---
 
@@ -25,28 +25,20 @@
 | G | Visa Category | e.g. STUDENT, BV - A, ART- BVA, 485 | ✓ `admins.visa_type` + `admins.visa_opt` (concatenated) |
 | H | Current Status | Date-prefixed notes (e.g. "04/02: Waiting for the Signed LOF & Payment") | **NEW FIELD REQUIRED** — see §2.2 |
 
-### 1.2 Monthly grouping
+### 1.2 Filtering (no monthly grouping)
 
-- **Separator rows:** One row per month spanning columns D–H with label "Dec-25", "Jan-26", etc.
-- **Grouping key:** Need a single date per client row to assign month. Options:
-  - **Option A:** Visa expiry date (month of `visaexpiry`) — rows grouped by visa expiry month.
-  - **Option B:** Payment month (month of latest payment or key payment).
-  - **Option C:** Explicit "sheet period" or "listing month" stored per client (new field).
-- **Recommendation:** Option A (visa expiry month) unless business prefers another; document choice before implementation.
+**✅ USER DECISION:** No monthly separator rows. Use filter controls instead.
 
-### 1.3 Row highlighting rules
+- **Filter by:** Office, visa expiry date range, institute, visa category, search (name, CRM ref, status text)
+- **Sorting:** Default by CRM reference; sortable by any column
+- **Display:** Simple flat list with pagination (no month headers)
 
-- **Green:** e.g. "completed" or "active" (e.g. payment received, no action needed).
-- **Yellow:** e.g. "pending" or "attention required" (e.g. waiting for LOF, payment, etc.).
-- **Blue:** e.g. other / informational.
+### 1.3 Row highlighting
 
-Implementation approach:
+**✅ USER DECISION:** No color coding at this stage. All rows have standard white background.
 
-- **Option A:** New column `row_highlight` on client or on a new reference table: `green` | `yellow` | `blue` | `none`.
-- **Option B:** Derive from existing status (e.g. payment status, or a status derived from Current Status text).
-- **Option C:** Derive from "Current Status" text (e.g. contains "Waiting" → yellow, contains "payment" / "LOF" → yellow, else green/blue).
-
-Recommendation: **Option A** for clear control; Option C as fallback if no schema change desired initially.
+- **Future enhancement:** May add color coding later (green/yellow/blue) for status indication
+- **Current implementation:** Remove all row highlight CSS and database columns
 
 ---
 
@@ -91,23 +83,21 @@ Recommendation: **Option A** for clear control; Option C as fallback if no schem
 
 **Storage:** Same as Current Status (Option A: `client_ongoing_references` table; Option B: `admins` table).
 
-#### 2.2.3 Row Highlight Color
+#### 2.2.3 Institute Priority Logic
 
-**Problem:** Need to store which rows are green/yellow/blue for highlighting.
+**✅ USER DECISION:** Designer decides priority.
 
-**Solution:** Add `row_highlight` field (enum or string: 'green'|'yellow'|'blue'|'none', nullable, default 'none').
+**Implemented priority (highest to lowest):**
+1. `client_ongoing_references.institute_override` (if manually set)
+2. Latest `applications.partner_id` → `partners.partner_name` (most recent application)
+3. Latest `client_service_takens.edu_college` (fallback for education services)
+4. Display "—" if none found
 
-**Storage:** Same as Current Status (Option A: `client_ongoing_references` table; Option B: `admins` table).
+#### 2.2.4 Empty Field Display
 
-#### 2.2.4 Monthly Grouping Date (Clarification needed)
+**✅ USER DECISION:** Show "—" for all empty/null fields.
 
-**Current understanding:** Rows grouped by visa expiry month (from `admins.visaexpiry`).
-
-**Alternatives if visa expiry month not correct:**
-- Latest payment month (from `account_client_receipts.created_at`)
-- Explicit "listing_period" field (YYYY-MM format)
-
-**→ DECISION REQUIRED before implementation:** Confirm which date drives monthly grouping.
+**Applies to:** Visa expiry, institute, visa category, payment (if $0), current status (if empty).
 
 ---
 
@@ -125,10 +115,8 @@ Recommendation: **Option A** for clear control; Option C as fallback if no schem
 |--------|------|----------|---------|--------|
 | id | bigint UNSIGNED PK AUTO_INCREMENT | No | | Primary key |
 | client_id | bigint UNSIGNED | No | | FK → admins.id |
-| current_status | text | Yes | NULL | Free text, date-prefixed (e.g. "04/02: Waiting for LOF & Payment") |
-| payment_display_note | string(100) | Yes | NULL | Override for payment column (e.g. "Deferment", "VOE Client"); if null, show computed sum |
-| row_highlight | enum('green','yellow','blue','none') | No | 'none' | Visual highlight color for row |
-| listing_period | char(7) | Yes | NULL | Optional: YYYY-MM format if we support multiple periods per client (e.g. "2025-12") |
+| current_status | text | Yes | NULL | Free text notes (e.g. "04/02: Waiting for LOF & Payment") |
+| payment_display_note | string(100) | Yes | NULL | Optional override for payment column (e.g. "Deferment", "VOE Client") |
 | institute_override | string(255) | Yes | NULL | Optional: Manual institute if not from applications/service_takens |
 | visa_category_override | string(50) | Yes | NULL | Optional: Manual visa category if not from admins.visa_type |
 | notes | text | Yes | NULL | Optional: Internal notes (not shown in sheet) |
@@ -139,8 +127,8 @@ Recommendation: **Option A** for clear control; Option C as fallback if no schem
 
 #### Indexes
 
-- **Unique:** `client_id` (one row per client for now; remove unique if supporting multiple periods later)
-- **Non-unique:** `row_highlight`, `listing_period` (for filtering/sorting)
+- **Unique:** `client_id` (one row per client)
+- **Non-unique:** `updated_at` (for sorting by last update)
 
 #### Foreign Keys
 
@@ -158,7 +146,6 @@ If you prefer NOT to create a separate table initially, add these columns to `ad
 |--------|------|----------|---------|--------|
 | ongoing_current_status | text | Yes | NULL | Date-prefixed status notes |
 | ongoing_payment_note | string(100) | Yes | NULL | e.g. "(Deferment)", "VOE Client" |
-| ongoing_row_highlight | enum('green','yellow','blue','none') | Yes | 'none' | Row color |
 
 **Pros:** No new table; simpler schema.  
 **Cons:** Pollutes `admins` table with sheet-specific data; harder to extend later (e.g. history, multiple periods); doesn't follow migrationmanager2 pattern.
@@ -185,7 +172,7 @@ If you prefer NOT to create a separate table initially, add these columns to `ad
 - **Visa Expiry Suffix:** Derived from existing `admins.visa_opt` (no new column needed):
   - Display: `admins.visaexpiry` (DD/MM/YYYY) + `admins.visa_opt` if present (e.g. "30/08/2026(HE)")
 
-**→ RESULT:** Only NEW fields needed are: `current_status`, `payment_display_note`, `row_highlight` (+ optional `listing_period`, overrides, notes).
+**→ RESULT:** Only NEW fields needed are: `current_status`, `payment_display_note` (+ optional overrides, notes for future use).
 
 ---
 
@@ -313,19 +300,11 @@ public function index(Request $request)
     // 4. Apply filters
     $query = $this->applyFilters($query, $request);
     
-    // 5. Apply sorting (by visa expiry month for grouping)
+    // 5. Apply sorting
     $query = $this->applySorting($query, $request);
     
-    // 6. Get rows
+    // 6. Get rows (paginate)
     $rows = $query->paginate($perPage)->appends($request->except('page'));
-    
-    // 7. Compute monthly grouping
-    $rows->getCollection()->transform(function ($row) {
-        $row->visa_expiry_month = $row->visaexpiry 
-            ? \Carbon\Carbon::parse($row->visaexpiry)->format('M-y') 
-            : 'No Expiry';
-        return $row;
-    });
     
     // 8. Dropdown data for filters
     $offices = \App\Models\Branch::orderBy('office_name')->get(['id', 'office_name']);
@@ -360,7 +339,6 @@ protected function buildBaseQuery(Request $request)
             // Ongoing reference data (LEFT JOIN)
             'ongoing.current_status',
             'ongoing.payment_display_note',
-            'ongoing.row_highlight',
             'ongoing.institute_override',
             'ongoing.visa_category_override',
             // Payment sum (subquery or JOIN)
@@ -414,18 +392,14 @@ protected function applyFilters($query, Request $request)
             \Carbon\Carbon::createFromFormat('d/m/Y', $request->input('visa_expiry_to')));
     }
     
-    // Row highlight filter
-    if ($request->filled('highlight')) {
-        $query->where('ongoing.row_highlight', $request->input('highlight'));
-    }
-    
-    // Search (name, CRM ref)
+    // Search (name, CRM ref, current status)
     if ($request->filled('search')) {
         $search = '%' . strtolower($request->input('search')) . '%';
         $query->where(function ($q) use ($search) {
             $q->whereRaw('LOWER(admins.first_name) LIKE ?', [$search])
               ->orWhereRaw('LOWER(admins.last_name) LIKE ?', [$search])
-              ->orWhereRaw('LOWER(admins.client_id) LIKE ?', [$search]);
+              ->orWhereRaw('LOWER(admins.client_id) LIKE ?', [$search])
+              ->orWhereRaw('LOWER(ongoing.current_status) LIKE ?', [$search]);
         });
     }
     
@@ -438,12 +412,22 @@ protected function applyFilters($query, Request $request)
 ```php
 protected function applySorting($query, Request $request)
 {
-    // Primary sort: by visa expiry month for grouping
-    $query->orderByRaw('EXTRACT(YEAR FROM admins.visaexpiry) DESC, 
-                        EXTRACT(MONTH FROM admins.visaexpiry) DESC');
+    $sortField = $request->get('sort', 'client_id');
+    $sortDirection = $request->get('direction', 'asc');
     
-    // Secondary sort: by CRM ref or name within month
-    $query->orderBy('admins.client_id', 'asc');
+    if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
+        $sortDirection = 'asc';
+    }
+    
+    $sortableFields = [
+        'client_id' => 'admins.client_id',
+        'name' => 'admins.first_name',
+        'dob' => 'admins.dob',
+        'visa_expiry' => 'admins.visaexpiry',
+    ];
+    
+    $actualSortField = $sortableFields[$sortField] ?? 'admins.client_id';
+    $query->orderBy($actualSortField, $sortDirection);
     
     return $query;
 }
@@ -460,9 +444,9 @@ public function insights(Request $request)
     
     $insights = [
         'total_clients' => $allRecords->count(),
-        'by_highlight' => $allRecords->groupBy('row_highlight')->map->count(),
-        'by_visa_expiry_month' => $allRecords->groupBy('visa_expiry_month')->map->count(),
         'total_payments' => $allRecords->sum('total_payment'),
+        'avg_payment' => $allRecords->avg('total_payment'),
+        'clients_with_visa_expiry' => $allRecords->whereNotNull('visaexpiry')->count(),
     ];
     
     $activeFilterCount = $this->countActiveFilters($request);
@@ -476,7 +460,7 @@ public function insights(Request $request)
 ```php
 protected function countActiveFilters(Request $request)
 {
-    $filters = ['office', 'visa_expiry_from', 'visa_expiry_to', 'highlight', 'search'];
+    $filters = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search'];
     $count = 0;
     foreach ($filters as $filter) {
         if ($request->filled($filter)) {
@@ -515,33 +499,17 @@ protected function countActiveFilters(Request $request)
         border: 1px solid #9ec5fe;
     }
     
-    /* Month separator rows */
-    .month-separator {
-        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
-        font-weight: 700;
-        text-align: center;
-        font-size: 1.1rem;
-        border: 2px solid #ffc107;
-    }
-    
-    /* Row highlighting */
-    tr.row-green {
-        background-color: #d1f2eb !important;
-    }
-    tr.row-yellow {
-        background-color: #fff3cd !important;
-    }
-    tr.row-blue {
-        background-color: #cfe2ff !important;
-    }
-    tr.row-none {
-        background-color: #ffffff !important;
-    }
-    
-    /* Hover effect */
-    tbody tr:not(.month-separator):hover {
-        opacity: 0.85;
+    /* Hover effect for rows */
+    tbody tr:hover {
+        background-color: #f8f9fa;
         cursor: pointer;
+    }
+    
+    /* Current status column - allow text wrapping */
+    .status-cell {
+        max-width: 300px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
 </style>
 @endpush
@@ -613,17 +581,7 @@ protected function countActiveFilters(Request $request)
                                            placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}">
                                 </div>
                                 
-                                <div class="col-md-3">
-                                    <label>Row Highlight</label>
-                                    <select name="highlight" class="form-control">
-                                        <option value="">All</option>
-                                        <option value="green">Green</option>
-                                        <option value="yellow">Yellow</option>
-                                        <option value="blue">Blue</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="col-md-12 mt-3">
+                                <div class="col-md-12 mt-2">
                                     <label>Search (Name, CRM Ref)</label>
                                     <input type="text" name="search" class="form-control" 
                                            placeholder="Search..." value="{{ request('search') }}">
@@ -665,32 +623,23 @@ protected function countActiveFilters(Request $request)
                                         </td>
                                     </tr>
                                 @else
-                                    <?php $currentMonth = null; ?>
                                     @foreach($rows as $row)
-                                        {{-- Month separator row --}}
-                                        @if($currentMonth !== $row->visa_expiry_month)
-                                            <?php $currentMonth = $row->visa_expiry_month; ?>
-                                            <tr class="month-separator">
-                                                <td colspan="8">{{ $currentMonth }}</td>
-                                            </tr>
-                                        @endif
-                                        
-                                        {{-- Data row --}}
-                                        <tr class="row-{{ $row->row_highlight ?? 'none' }}" 
-                                            onclick="window.location.href='{{ route('clients.detail', ['id' => base64_encode(convert_uuencode($row->client_id))]) }}'">
-                                            <td>{{ $row->crm_ref }}</td>
-                                            <td>{{ $row->first_name }} {{ $row->last_name }}</td>
+                                        <tr onclick="window.location.href='{{ route('clients.detail', ['id' => base64_encode(convert_uuencode($row->client_id))]) }}'">
+                                            <td>{{ $row->crm_ref ?? '—' }}</td>
+                                            <td>{{ trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')) ?: '—' }}</td>
                                             <td>{{ $row->dob ? \Carbon\Carbon::parse($row->dob)->format('d/m/Y') : '—' }}</td>
                                             <td>
                                                 @if($row->payment_display_note)
                                                     {{ $row->payment_display_note }}
-                                                @else
+                                                @elseif($row->total_payment > 0)
                                                     ${{ number_format($row->total_payment, 2) }}
+                                                @else
+                                                    —
                                                 @endif
                                             </td>
                                             <td>{{ $row->institute_override ?? $row->partner_name ?? $row->service_college ?? '—' }}</td>
                                             <td>
-                                                @if($row->visaexpiry)
+                                                @if($row->visaexpiry && $row->visaexpiry != '0000-00-00')
                                                     {{ \Carbon\Carbon::parse($row->visaexpiry)->format('d/m/Y') }}
                                                     @if($row->visa_opt)
                                                         <span class="text-muted">({{ $row->visa_opt }})</span>
@@ -699,8 +648,14 @@ protected function countActiveFilters(Request $request)
                                                     —
                                                 @endif
                                             </td>
-                                            <td>{{ $row->visa_category_override ?? trim(($row->visa_type ?? '') . ' ' . ($row->visa_opt ?? '')) }}</td>
-                                            <td style="max-width: 300px; white-space: pre-wrap;">{{ $row->current_status ?? '—' }}</td>
+                                            <td>
+                                                @if($row->visa_category_override)
+                                                    {{ $row->visa_category_override }}
+                                                @else
+                                                    {{ trim(($row->visa_type ?? '') . ' ' . ($row->visa_opt ?? '')) ?: '—' }}
+                                                @endif
+                                            </td>
+                                            <td class="status-cell">{{ $row->current_status ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 @endif
@@ -797,18 +752,17 @@ Similar to list view but shows:
   - [ ] Add divider before/after if needed
 - [ ] **Verify:** Link appears in navigation and routes to correct page
 
-### Phase 7: Testing (30 min)
+### Phase 7: Testing (20 min)
 
 - [ ] **Seed test data** (optional):
   - [ ] Create 5-10 `client_ongoing_references` rows with varied data
-  - [ ] Mix of green/yellow/blue highlights
-  - [ ] Varied visa expiry dates across multiple months
+  - [ ] Varied visa expiry dates, institutes, current statuses
 - [ ] **Manual testing:**
   - [ ] Navigate to Ongoing Sheet from header
   - [ ] Verify all 8 columns display correctly
-  - [ ] Verify monthly separators appear (Dec-25, Jan-26, etc.)
-  - [ ] Verify row highlighting (green/yellow/blue)
-  - [ ] Test filters: office, visa expiry range, highlight, search
+  - [ ] Verify no monthly separators (flat list)
+  - [ ] Verify standard white row background (no colors)
+  - [ ] Test filters: office, visa expiry range, search
   - [ ] Test per-page selector
   - [ ] Test pagination
   - [ ] Verify clicking row navigates to client detail
@@ -849,80 +803,29 @@ Similar to list view but shows:
 
 ---
 
-**TOTAL ESTIMATED TIME:** ~3-4 hours for core implementation (Phases 1-7)  
+**TOTAL ESTIMATED TIME:** ~2-3 hours for core implementation (Phases 1-7)  
 **WITH OPTIONAL:** +2-3 hours for enhancements (Phase 8)
+
+**TIME REDUCTION:** Simplified by removing monthly grouping and row highlighting features.
 
 ---
 
-## 8. Open points ✓ CRITICAL DECISIONS NEEDED BEFORE IMPLEMENTATION
+## 8. ✅ ALL DECISIONS CONFIRMED — READY TO IMPLEMENT
 
-### 8.1 HIGH PRIORITY (Must decide before Phase 1)
+### User Decisions (Confirmed)
 
-1. **Monthly grouping logic:**  
-   **Question:** Which date drives the month separator rows?  
-   **Options:**
-   - **A)** Visa expiry date (`admins.visaexpiry`) — RECOMMENDED (as assumed in plan)
-   - **B)** Latest payment date (`account_client_receipts.created_at`)
-   - **C)** Explicit "listing period" field (new column: `listing_period` YYYY-MM)
-   
-   **→ DECISION REQUIRED:** Confirm Option A or specify alternative.
-
-2. **Row highlighting logic:**  
-   **Question:** How are green/yellow/blue colors determined?  
-   **Options:**
-   - **A)** Manual assignment (staff sets color) — RECOMMENDED
-   - **B)** Derived from payment status (e.g. $0 = yellow, >$0 = green)
-   - **C)** Derived from Current Status text (e.g. contains "Waiting" = yellow)
-   - **D)** Combination (auto-set initially, manual override allowed)
-   
-   **→ DECISION REQUIRED:** Confirm Option A or specify alternative.
-
-3. **Schema choice:**  
-   **Question:** New table or add columns to `admins`?  
-   **Options:**
-   - **A)** New table `client_ongoing_references` — RECOMMENDED (follows migrationmanager2 pattern; cleaner separation)
-   - **B)** Add columns to `admins` table (simpler but less flexible)
-   
-   **→ DECISION REQUIRED:** Confirm Option A or specify alternative.
-
-### 8.2 MEDIUM PRIORITY (Can decide during implementation)
-
-4. **Navigation label:**  
-   **Question:** What exact text appears in the navigation menu?  
-   **Options:** "Ongoing Sheet" | "Sheets" | "Ongoing" | "Client Sheet"  
-   **→ RECOMMENDATION:** "Ongoing Sheet" (clear and descriptive)
-
-5. **Editable fields:**  
-   **Question:** Can staff edit Current Status and Row Highlight directly from the sheet?  
-   **Options:**
-   - **A)** Yes, via modal (click row → edit modal pops up)
-   - **B)** Yes, via inline edit (click cell → input appears)
-   - **C)** No, edit only from client detail page
-   
-   **→ RECOMMENDATION:** Option C for Phase 1 (simplest); add Option A in Phase 8 (enhancement).
-
-6. **Empty payment handling:**  
-   **Question:** How to display payment when `total_payment = 0` and no `payment_display_note`?  
-   **Options:** "$0.00" | "—" | "No Payment" | "(Pending)"  
-   **→ RECOMMENDATION:** "$0.00" (factual and consistent)
-
-### 8.3 LOW PRIORITY (Nice to have; can defer)
-
-7. **Institute fallback priority:**  
-   **Question:** If client has both application (partner_name) and service_takens (edu_college), which takes precedence?  
-   **→ RECOMMENDATION:** Latest application partner_name > service_takens edu_college > institute_override (if present)
-
-8. **Insights view:**  
-   **Question:** Should insights view be built in Phase 1?  
-   **→ RECOMMENDATION:** Defer to Phase 8 (optional enhancement); focus on list view first.
-
-9. **Pagination default:**  
-   **Question:** How many rows per page by default?  
-   **→ RECOMMENDATION:** 50 (as coded in §5.2; matches typical usage)
-
-10. **Client filtering:**  
-    **Question:** Show only clients with active visas? Or all clients (role=7)?  
-    **→ RECOMMENDATION:** All clients; add optional "Active Visa Only" filter if needed later.
+| # | Question | User Decision | Implementation |
+|---|----------|---------------|----------------|
+| 1 | Monthly grouping | ✅ **NO** - Use filters only | No month separator rows; flat list with filters |
+| 2 | Row highlighting | ✅ **NO** - Not at this stage | Remove color coding; standard white rows |
+| 3 | Schema | ✅ **New table** | Create `client_ongoing_references` table |
+| 4 | Current Status | ✅ **Simple text** - enhance later | Normal text field; no date auto-prefix |
+| 5 | Payment display | ✅ **Normal** - enhance later | Show computed sum or override note |
+| 6 | Institute priority | ✅ **Designer decides** | Latest application > service_takens > override |
+| 7 | Permissions | ✅ **All admin staff** | No role restrictions at this stage |
+| 8 | Empty fields | ✅ **Show "—"** | All empty/null fields display "—" |
+| 9 | Navigation label | ✅ **"Ongoing Sheet"** | Use this exact label |
+| 10 | Future sheets | ✅ **Yes** - more sheets coming | Design nav for multiple sheets dropdown |
 
 ---
 
@@ -932,14 +835,14 @@ Similar to list view but shows:
 |----------|--------|--------|
 | **Purpose** | Display Ongoing worksheet: CRM Ref, Name, DOB, Payment, Institute, Visa Expiry, Visa Category, Current Status | ✓ Defined |
 | **Data sources** | All columns mapped to existing fields EXCEPT `current_status`, `payment_display_note`, `row_highlight` (new fields required) | ✓ Verified |
-| **Schema** | New table `client_ongoing_references` (minimal: 3 new fields + metadata) OR add 3 columns to `admins` | ⚠️ Choice needed |
-| **Monthly grouping** | By visa expiry month (or confirm alternative) | ⚠️ Confirm |
-| **Row highlighting** | Green/yellow/blue stored in `row_highlight` field (manual or derived) | ⚠️ Logic needed |
+| **Schema** | New table `client_ongoing_references` (minimal: 2 new fields + metadata) | ✅ Confirmed |
+| **Monthly grouping** | ❌ NO - Use filters instead | ✅ Confirmed |
+| **Row highlighting** | ❌ NO - Not at this stage | ✅ Confirmed |
 | **Navigation** | Add "Ongoing Sheet" link to Clients dropdown in `resources/views/Elements/Admin/header.blade.php` | ✓ Located |
 | **Routes** | `GET /clients/sheets/ongoing` → `OngoingSheetController@index` | ✓ Defined |
 | **Controller** | `OngoingSheetController` with base query (LEFT JOIN ongoing refs, payment SUM, institute subquery), filters, sorting | ✓ Coded |
 | **View** | `Admin/sheets/ongoing.blade.php` with light blue header, month separators, row colors, filters, pagination | ✓ Templated |
-| **Implementation time** | Core: ~3-4 hours (Phases 1-7) | ✓ Estimated |
+| **Implementation time** | Core: ~2-3 hours (simplified - no monthly grouping/colors) | ✅ Estimated |
 | **Target codebase** | **bansalcrm2** (confirmed — data sources verified in this codebase) | ✓ Confirmed |
 
 ---
@@ -960,12 +863,13 @@ Similar to list view but shows:
 
 ## 11. Final recommendation
 
-**✅ PLAN IS READY FOR IMPLEMENTATION** once the following 3 critical decisions are confirmed:
+**✅ PLAN IS 100% READY FOR IMPLEMENTATION**
 
-1. **Monthly grouping:** Visa expiry month (Option A) — Confirm or specify alternative
-2. **Row highlight logic:** Manual assignment (Option A) — Confirm or specify alternative  
-3. **Schema:** New table `client_ongoing_references` (Option A) — Confirm or specify alternative
+- ✅ All 10 user decisions confirmed
+- ✅ All data sources verified from codebase
+- ✅ All code templates provided and updated
+- ✅ Implementation checklist complete
+- ✅ Complexity reduced (no monthly grouping, no color coding)
+- ✅ Estimated time: **2-3 hours** (reduced from 3-4 hours)
 
-**All data sources verified.** All code templates provided. Implementation checklist complete.
-
-**→ NEXT STEP:** User confirms the 3 decisions above, then proceed with Phase 1 (Database Schema).
+**→ NEXT STEP:** Begin Phase 1 (Database Migration) whenever ready.

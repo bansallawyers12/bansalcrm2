@@ -117,6 +117,23 @@
 	?>
 
 		<?php
+		if(Route::currentRouteName() == 'clients.sheets.ongoing' || Route::currentRouteName() == 'clients.sheets.ongoing.insights'){
+			$sheetsclasstype = 'active';
+		}
+		?>
+		<li class="dropdown {{@$sheetsclasstype}}">
+			<a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-clipboard-list"></i><span>Sheets</span></a>
+			<ul class="dropdown-menu">
+				<li class="{{(Route::currentRouteName() == 'clients.sheets.ongoing' || Route::currentRouteName() == 'clients.sheets.ongoing.insights') ? 'active' : ''}}">
+					<a class="nav-link" href="{{route('clients.sheets.ongoing')}}">
+						<i class="fas fa-list"></i><span>Ongoing Sheet</span>
+					</a>
+				</li>
+				{{-- Future sheets will be added here: ART, EOI/ROI, TR, etc. --}}
+			</ul>
+		</li>
+
+		<?php
 		if(Route::currentRouteName() == 'signatures.index' || Route::currentRouteName() == 'signatures.create' || Route::currentRouteName() == 'signatures.show'){
 			$signatureclasstype = 'active';
 		}
