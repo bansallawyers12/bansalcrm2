@@ -1253,6 +1253,20 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
+											<label for="office">Office</label>
+											<select style="padding: 0px 5px;" name="office" id="office" class="form-control">
+												<option value="">Select Office</option>
+												@foreach(\App\Models\Branch::orderBy('office_name')->get() as $branch)
+													<option value="{{ $branch->id }}" @if(old('office', $fetchedData->office_id) == $branch->id) selected @endif>{{ $branch->office_name }}</option>
+												@endforeach
+											</select>
+											@if ($errors->has('office'))
+												<span class="custom-error" role="alert"><strong>{{ $errors->first('office') }}</strong></span>
+											@endif
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group">
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
                                           
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
