@@ -24,12 +24,98 @@
         word-wrap: break-word;
     }
     
-    /* Filter panel styling */
-    .filter-panel {
-        background: #f8f9fa;
-        padding: 20px;
+    /* Filter section design */
+    .ongoing-filter-card {
+        border: 1px solid #e3e6f0;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+    .ongoing-filter-card .card-body {
+        padding: 1rem 1.25rem;
+    }
+    .ongoing-filter-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
         border-radius: 8px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #5b4d96 0%, #6f5fb8 100%);
+        color: #fff;
+        border: none;
+        transition: box-shadow 0.2s, transform 0.1s;
+    }
+    .ongoing-filter-toggle:hover {
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(91, 77, 150, 0.35);
+    }
+    .ongoing-filter-toggle .badge {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+        font-size: 0.75rem;
+    }
+    .ongoing-filter-panel {
+        background: linear-gradient(180deg, #fafbfc 0%, #f4f6f9 100%);
+        border-top: 1px solid #e3e6f0;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0 0 10px 10px;
+    }
+    .ongoing-filter-panel .form-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.8125rem;
+        margin-bottom: 0.35rem;
+    }
+    .ongoing-filter-panel .form-control,
+    .ongoing-filter-panel .select2-container .select2-selection {
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+    }
+    .ongoing-filter-panel .form-control:focus {
+        border-color: #6f5fb8;
+        box-shadow: 0 0 0 3px rgba(111, 95, 184, 0.15);
+    }
+    .ongoing-filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        padding-top: 0.25rem;
+    }
+    .btn-ongoing-apply {
+        background: linear-gradient(135deg, #5b4d96 0%, #6f5fb8 100%);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: box-shadow 0.2s;
+    }
+    .btn-ongoing-apply:hover {
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(91, 77, 150, 0.35);
+    }
+    .btn-ongoing-reset {
+        background: #fff;
+        color: #4b5563;
+        border: 1px solid #d1d5db;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-ongoing-reset:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+        color: #374151;
+    }
+    .ongoing-per-page-select {
+        min-width: 120px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.875rem;
     }
 </style>
 @endpush
@@ -50,24 +136,25 @@
             </div>
             
             {{-- Filter Bar --}}
-            <div class="card">
+            <div class="card ongoing-filter-card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                        <button class="btn btn-primary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
-                            <i class="fas fa-filter"></i> Filters
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <button class="ongoing-filter-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
+                            <i class="fas fa-filter"></i>
+                            <span>Filters</span>
                             @if($activeFilterCount > 0)
-                                <span class="badge badge-light">{{ $activeFilterCount }}</span>
+                                <span class="badge">{{ $activeFilterCount }}</span>
                             @endif
                         </button>
                         
-                        <div class="d-flex gap-2 mb-2">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
                             @if($activeFilterCount > 0)
-                                <a href="{{ route('clients.sheets.ongoing') }}" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Clear Filters
+                                <a href="{{ route('clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
+                                    <i class="fas fa-times me-1"></i> Clear Filters
                                 </a>
                             @endif
                             
-                            <select name="per_page" class="form-control" style="width: auto;" 
+                            <select name="per_page" class="form-control ongoing-per-page-select" 
                                     onchange="window.location.href='{{ route('clients.sheets.ongoing') }}?per_page=' + this.value + '{{ request()->except('page', 'per_page') ? '&' . http_build_query(request()->except('page', 'per_page')) : '' }}';">
                                 @foreach([10, 25, 50, 100, 200] as $option)
                                     <option value="{{ $option }}" {{ $perPage == $option ? 'selected' : '' }}>
@@ -80,11 +167,12 @@
                     
                     {{-- Filter Panel (Collapsible) --}}
                     <div class="collapse {{ $activeFilterCount > 0 ? 'show' : '' }}" id="filterPanel">
-                        <div class="filter-panel">
+                        <div class="ongoing-filter-panel">
                             <form method="get" action="{{ route('clients.sheets.ongoing') }}">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label>Office</label>
+                                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Office</label>
                                         <select name="office[]" class="form-control select2" multiple>
                                             @foreach($offices as $office)
                                                 <option value="{{ $office->id }}" 
@@ -95,30 +183,30 @@
                                         </select>
                                     </div>
                                     
-                                    <div class="col-md-4 mb-3">
-                                        <label>Visa Expiry From</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Visa Expiry From</label>
                                         <input type="text" name="visa_expiry_from" class="form-control dobdatepicker" 
                                                placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_from') }}" autocomplete="off">
                                     </div>
                                     
-                                    <div class="col-md-4 mb-3">
-                                        <label>Visa Expiry To</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Visa Expiry To</label>
                                         <input type="text" name="visa_expiry_to" class="form-control dobdatepicker" 
                                                placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}" autocomplete="off">
                                     </div>
                                     
-                                    <div class="col-md-12 mb-3">
-                                        <label>Search (Name, CRM Ref, Current Status)</label>
+                                    <div class="col-12">
+                                        <label class="form-label">Search (Name, CRM Ref, Current Status)</label>
                                         <input type="text" name="search" class="form-control" 
-                                               placeholder="Search..." value="{{ request('search') }}">
+                                               placeholder="Search by name, CRM reference or current status..." value="{{ request('search') }}">
                                     </div>
                                     
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-search"></i> Apply Filters
+                                    <div class="col-12 ongoing-filter-actions">
+                                        <button type="submit" class="btn-ongoing-apply">
+                                            <i class="fas fa-search me-1"></i> Apply Filters
                                         </button>
-                                        <a href="{{ route('clients.sheets.ongoing') }}" class="btn btn-secondary">
-                                            <i class="fas fa-redo"></i> Reset
+                                        <a href="{{ route('clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
+                                            <i class="fas fa-redo me-1"></i> Reset
                                         </a>
                                     </div>
                                 </div>

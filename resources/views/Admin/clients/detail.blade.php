@@ -394,6 +394,17 @@ use App\Http\Controllers\Controller;
                                 //dd($assigneeArr);
                                 ?>
 							<div class="client_assign client_info_tags">
+								<span class="">Office:</span>
+								<span class="float-end text-muted">
+									@if($fetchedData->office)
+										<a href="{{ URL::to('/branch/view/'.$fetchedData->office->id) }}">{{ $fetchedData->office->office_name }}</a>
+									@else
+										-
+									@endif
+								</span>
+								<div class="clearfix"></div>
+							</div>
+							<div class="client_assign client_info_tags">
 								<span class="">Assignee:</span>
 								<span class="float-end text-muted">
 								      <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary openassigneeshow btn-sm"><i class="fa fa-plus"></i> Edit</a>

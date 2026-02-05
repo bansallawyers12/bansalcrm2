@@ -14,6 +14,7 @@ class Document extends Model
 
     protected $table = 'documents';
 
+    // office_id column exists in DB but is unused in this CRM; omit from fillable unless used later
     protected $fillable = [
         'file_name',
         'filetype', 
@@ -27,7 +28,6 @@ class Document extends Model
         'category_id',
         'folder_name',
         'mail_type',
-        'office_id',
         'checklist',
         'checklist_verified_by',
         'checklist_verified_at',

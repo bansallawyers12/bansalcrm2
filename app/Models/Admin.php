@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Admin extends Authenticatable
 {
@@ -19,7 +20,11 @@ class Admin extends Authenticatable
       * @var array
 	*/
 	protected $fillable = [
-        'id', 'role', 'first_name', 'last_name', 'email', 'password', 'decrypt_password', 'country', 'state', 'city', 'address', 'zip', 'profile_img', 'status', 'created_at', 'updated_at'
+        'id', 'role', 'first_name', 'last_name', 'email', 'password', 'decrypt_password',
+        'country', 'state', 'city', 'address', 'zip', 'profile_img', 'status',
+        'created_at', 'updated_at',
+        'office_id', 'position', 'team', 'telephone', 'permission', 'show_dashboard_per',
+        'verified', 'client_id', 'staff_id', 'phone', 'country_code',
     ];
     
 	/**
@@ -45,6 +50,22 @@ class Admin extends Authenticatable
 	public function usertype()
     {
         return $this->belongsTo('App\Models\UserRole', 'role', 'id');
+    }
+
+    /**
+     * Get the office (branch) this user belongs to.
+     */
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class, 'office_id');
+    }
+
+    /**
+     * Get the applications for this client (admins with role 7 are clients).
+     */
+    public function applications()
+    {
+        return $this->hasMany(\App\Models\Application::class, 'client_id', 'id');
     }
 	
 	/**

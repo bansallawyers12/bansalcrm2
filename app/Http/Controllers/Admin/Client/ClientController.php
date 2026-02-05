@@ -70,6 +70,11 @@ class ClientController extends Controller
 		// Apply filters using trait method
 		$query = $this->applyClientFilters($query, $request);
 		
+		// Eager-load count of applications that are in progress (status = 0) and office/branch
+		$query->withCount(['applications as in_progress_applications_count' => function ($q) {
+			$q->where('status', 0);
+		}])->with('office');
+		
 		// Paginate results
 		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
 		
@@ -130,6 +135,8 @@ class ClientController extends Controller
 
               'client_phone' => 'required|array',
               'client_phone.*' => 'required|max:255',
+
+              'office' => 'nullable|exists:branches,id',
 
             ]);
           
@@ -194,6 +201,7 @@ class ClientController extends Controller
 			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
 			$obj->applications	=	@$requestData['applications'];
           
+			$obj->office_id	=	!empty($requestData['office']) ? $requestData['office'] : null;
 			//$obj->assignee	=	@$requestData['assign_to'];
             if( isset($requestData['assign_to']) && is_array($requestData['assign_to']) ){
                 $assignToCount = count($requestData['assign_to']);
@@ -551,7 +559,7 @@ class ClientController extends Controller
 				$id = $this->decodeString($id);
 				if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
 				{
-					$fetchedData = Admin::find($id);
+					$fetchedData = Admin::with('office')->find($id);
                   
                     if(!empty($fetchedData) && $fetchedData->dob != ""){
                         $calculate_age  = $this->calculateAge($fetchedData->dob); //dd($age);
@@ -640,7 +648,7 @@ class ClientController extends Controller
             // Otherwise check admins table (old clients/leads)
             if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
             {
-                $fetchedData = Admin::find($id);
+                $fetchedData = Admin::with('office')->find($id);
                 
                 // Double check that fetchedData exists
                 if(empty($fetchedData))

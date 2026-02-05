@@ -187,9 +187,8 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="applicationtdata">
 											<?php
-											foreach(\App\Models\Admin::where('role', 7)->where('user_id',$fetchedData->id)->get() as $alist){
-												$admin = \App\Models\Admin::where('id', $alist->user_id)->first();
-											$branchx = \App\Models\Branch::where('id', '=', $admin->office_id)->first();
+											foreach(\App\Models\Admin::with('office')->where('role', 7)->where('user_id',$fetchedData->id)->get() as $alist){
+												$admin = \App\Models\Admin::with('office')->where('id', $alist->user_id)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
 													<td><a class="" data-id="{{$alist->id}}" href="{{URL::to('/clients/detail')}}/{{base64_encode(convert_uuencode(@$alist->id))}}" style="display:block;">{{$alist->first_name}} {{$alist->last_name}}</a> {{$alist->email}}</td> 
@@ -198,7 +197,7 @@ use App\Http\Controllers\Controller;
 													<td>
 													{{$admin->first_name}} {{$admin->last_name}}
 													</td> 
-													<td>{{$branchx->office_name}}</td>
+													<td>{{ $admin->office ? $admin->office->office_name : '' }}</td>
 													
 													<td>{{date('Y-m-d', strtotime($alist->created_at))}}</td> 
 													<td>

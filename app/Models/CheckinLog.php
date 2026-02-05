@@ -3,9 +3,10 @@ namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CheckinLog extends Model
-{	
+{
     use Sortable;
 
 	protected $fillable = [
@@ -16,6 +17,15 @@ class CheckinLog extends Model
     ];
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];
+
+    /**
+     * Get the office (branch) where this check-in occurred.
+     * Column is 'office' (not office_id) - stores branch id.
+     */
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class, 'office', 'id');
+    }
 	
 	/**
      * Get the client for this check-in

@@ -1164,10 +1164,10 @@ class ActionController extends Controller
                     <div class="col-md-8">
                         <select class="form-control select2" id="changeassignee" name="changeassignee">
                             <?php
-                                foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
-                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+                                foreach(\App\Models\Admin::with('office')->where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+                                    $officeName = $admin->office ? $admin->office->office_name : '';
                             ?>
-                                    <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                    <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.$officeName.')'; ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -1402,10 +1402,10 @@ public function update_apppointment_description(Request $request){
         $assignedto = $request->assignedto;
         
         $content1 = array();
-        foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+        foreach(\App\Models\Admin::with('office')->where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
         {
-            $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-            $option_value =  $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')';
+            $officeName = $admin->office ? $admin->office->office_name : '';
+            $option_value =  $admin->first_name.' '.$admin->last_name.' ('.$officeName.')';
 
             if($admin->id == $assignedto){
                 $content1[] = '<option value="'.$admin->id.'" selected>'.$option_value.'</option>';

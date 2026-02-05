@@ -261,7 +261,7 @@ class OfficeVisitController extends Controller
 	
 	public function index(Request $request)
 	{
-		$query 		= CheckinLog::query();  
+		$query 		= CheckinLog::query()->with('office');  
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -279,7 +279,7 @@ class OfficeVisitController extends Controller
 	public function getcheckin(Request $request)
 	{
 	    
-		$CheckinLog 		= CheckinLog::where('id', '=', $request->id)->first();  
+		$CheckinLog 		= CheckinLog::with('office')->where('id', '=', $request->id)->first();  
 		
 		if($CheckinLog){
 			ob_start();
@@ -324,9 +324,8 @@ class OfficeVisitController extends Controller
 						<b><?php echo $CheckinLog->contact_type; ?></b>
 						<br>
 						<?php
-						$checkin = \App\Models\Branch::where('id', $CheckinLog->office)->first();
-						if($checkin){
-						echo '<a target="_blank" href="'.\URL::to('/branch/view/'.@$checkin->id).'">'.@$checkin->office_name.'</a>';
+						if($CheckinLog->office){
+						echo '<a target="_blank" href="'.\URL::to('/branch/view/'.$CheckinLog->office->id).'">'.$CheckinLog->office->office_name.'</a>';
 						}
 						?>
 						
@@ -385,10 +384,10 @@ class OfficeVisitController extends Controller
 						        <div class="col-md-8">
 						            <select class="form-control select2" id="changeassignee" name="changeassignee">
 						                 <?php 
-											foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
-												$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+											foreach(\App\Models\Admin::with('office')->where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+												$officeName = $admin->office ? $admin->office->office_name : '';
 										?>
-												<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+												<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.$officeName.')'; ?></option>
 										<?php } ?>
 									</select>
 								</div>
@@ -756,7 +755,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::where('status', '=', 0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', 0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -778,7 +777,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::where('status', '=', '2'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '2'); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -801,7 +800,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::where('status', '=', '1'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '1'); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -817,7 +816,7 @@ class OfficeVisitController extends Controller
 	}
 	public function archived(Request $request)
 	{
-		$query 		= CheckinLog::where('is_archived', '=', '1'); 
+		$query 		= CheckinLog::with('office')->where('is_archived', '=', '1'); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){

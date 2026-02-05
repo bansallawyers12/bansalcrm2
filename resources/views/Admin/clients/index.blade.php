@@ -73,18 +73,14 @@
 									<div class="dropdown_list client_dropdown_list">
 										<label class="dropdown-option all"><input type="checkbox" value="all" checked /> Display All</label>
 										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Agent</label>
-										<label class="dropdown-option"><input type="checkbox" value="4" checked /> Tag(s)</label>
-										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Rating</label>
-										<label class="dropdown-option"><input type="checkbox" value="6" checked /> Client Id</label>
-										<label class="dropdown-option"><input type="checkbox" value="7" checked /> Phone</label>
-										<label class="dropdown-option"><input type="checkbox" value="8" checked /> </label>
-										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Current City</label>
-										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Assignee</label>
-										<label class="dropdown-option"><input type="checkbox" value="11" checked /> Followers</label>
-										<label class="dropdown-option"><input type="checkbox" value="12" checked /> Status</label>
-										<label class="dropdown-option"><input type="checkbox" value="13" checked /> Applications</label>
-										<label class="dropdown-option"><input type="checkbox" value="14" checked /> Last Updated</label>
-										<label class="dropdown-option"><input type="checkbox" value="15" checked /> Preferred Intake</label>
+										<label class="dropdown-option"><input type="checkbox" value="4" checked /> Client Id</label>
+										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Phone</label>
+										<label class="dropdown-option"><input type="checkbox" value="6" checked /> City/Postcode/State</label>
+										<label class="dropdown-option"><input type="checkbox" value="7" checked /> Assignee</label>
+										<label class="dropdown-option"><input type="checkbox" value="8" checked /> Status</label>
+										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Applications</label>
+										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Last Updated</label>
+										<label class="dropdown-option"><input type="checkbox" value="11" checked /> Office</label>
 										
 									</div>
 								</div>
@@ -178,18 +174,13 @@
 													</th>	
 													<th>Name</th>
 													<th>Agent</th>
-													<th>Tag(s)</th>
-													<th>Rating</th>
 													<th>Client ID</th>
-													<!--<th>Phone</th>-->
-													<th>Current City</th>
+													<th>City/Postcode/State</th>
 													<th>Assignee</th>
-													<th>Followers</th>
 													<th>Status</th>
 													<th>Applications</th>
-                                                    <th>Created At</th>
 													<th>Last Updated</th>
-													<th>Preferred Intake</th>
+													<th>Office</th>
 													<th></th>
 												</tr> 
 											</thead>
@@ -210,93 +201,41 @@
 													$agent = \App\Models\Agent::where('id', $list->agent_id)->first();
 													?>
 													<td style="white-space: initial;">@if($agent) <a target="_blank" href="{{URL::to('/agent/detail/'.base64_encode(convert_uuencode(@$agent->id)))}}">{{@$agent->full_name}}<a/>@else - @endif</td>
-													<td style="white-space: initial;">
-													<?php if($list->tagname != ''){ 
-													$rs = explode(',', $list->tagname);
-													$counttag = count($rs);
-													if($counttag > 1){
-														$tag = '';
-														foreach($rs as $r){
-															$r = trim($r);
-															// Check if value is numeric (ID) or string (name)
-															if(is_numeric($r)){
-																$stagds = \App\Models\Tag::where('id','=',$r)->first();
-															} else {
-																$stagds = \App\Models\Tag::where('name','=',$r)->first();
-															}
-															if($stagds){
-																$tag .= '<li>'.@$stagds->name.'</li>';
-															}
-														}
-														$firstTag = trim($rs[0]);
-														// Check if first value is numeric (ID) or string (name)
-														if(is_numeric($firstTag)){
-															$stagd = \App\Models\Tag::where('id','=',$firstTag)->first();
-														} else {
-															$stagd = \App\Models\Tag::where('name','=',$firstTag)->first();
-														}
-														?>
-														
-														<div tabindex="0" data-html="true" data-bs-toggle="popover" data-trigger="hover focus" title="Tags" data-content="<ul><?php echo @$tag; ?></ul>" class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd ? $stagd->name : '-'}}</span> 
-															<span class="ui label counter">+ {{@$counttag - 1}}</span>
-														</div>
-														<?php
-													}else{
-														$singleTag = trim($rs[0]);
-														// Check if value is numeric (ID) or string (name)
-														if(is_numeric($singleTag)){
-															$stagd = \App\Models\Tag::where('id','=',$singleTag)->first();
-														} else {
-															$stagd = \App\Models\Tag::where('name','=',$singleTag)->first();
-														}
-														?>
-														<div class="ag-flex ag-align-center">
-															<span  title="ff" class="col-hr-1 truncate">{{@$stagd ? $stagd->name : '-'}}</span> 
-															
-														</div>
-														<?php
-													}
-													?>
-													
-													<?php }else{ echo '-'; } ?>
-													</td>
-													<td style="white-space: initial;"><?php echo @$list->rating; ?></td>
-													
 													<td style="white-space: initial;">{{ @$list->client_id == "" ? config('constants.empty') : str_limit(@$list->client_id, '50', '...') }}</td> 
 													{{--<td>{{ @$list->phone == "" ? config('constants.empty') : str_limit(@$list->phone, '50', '...') }}</td> --}}
 													
-													<td style="white-space: initial;">{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}</td>
+													<?php
+													$stateAbbrev = [
+														'Australian Capital Territory' => 'ACT',
+														'New South Wales' => 'NSW',
+														'Northern Territory' => 'NT',
+														'Queensland' => 'QLD',
+														'South Australia' => 'SA',
+														'Tasmania' => 'TAS',
+														'Victoria' => 'VIC',
+														'Western Australia' => 'WA',
+													];
+													$cityPart = trim(@$list->city ?? '') !== '' ? str_limit($list->city, 30, '...') : '-';
+													$zipPart = trim(@$list->zip ?? '') !== '' ? $list->zip : '-';
+													$stateVal = trim(@$list->state ?? '');
+													$statePart = $stateVal !== '' ? ($stateAbbrev[$stateVal] ?? $stateVal) : '-';
+													$locationDisplay = $cityPart . '/' . $zipPart . '/' . $statePart;
+													?>
+													<td style="white-space: initial;" title="{{ @$list->city }} {{ @$list->zip }} {{ @$list->state }}">{{ $locationDisplay }}</td>
 													<?php
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
 													if(!empty(@$list->assignee) && @$list->assignee !== '') {
 														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
 													}
-													
-													$followerss = '';
-													if(!empty($list->followers) && $list->followers !== '') {
-														$explode = explode(',', $list->followers);
-														foreach($explode as $exp){
-															// PostgreSQL doesn't accept empty strings for integer columns - filter empty values
-															if(!empty(trim($exp)) && trim($exp) !== '') {
-																$followers = \App\Models\Admin::where('id', trim($exp))->first();
-																if($followers) {
-																	$followerss .= @$followers->first_name.', ';
-																}
-															}
-														}
-													}
 													?>
 													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
-													<td style="white-space: initial;">{{ rtrim(@$followerss,', ') }}</td> 
 													<td ><span class="ag-label--circular" style="color: #6777ef" >
 														In Progress
 													</span></td>
-													<td style="white-space: initial;"> - </td>
-													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->created_at))}}</td>
-                                                    <td style="white-space: initial;">{{date('d/m/Y', strtotime($list->updated_at))}}</td>
-													<td style="white-space: initial;">{{ @$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...') }}</td>  	
+													<td style="white-space: initial;">{{ isset($list->in_progress_applications_count) ? (int) $list->in_progress_applications_count : 0 }}</td>
+													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->updated_at))}}</td>
+													<td style="white-space: initial;">{{ $list->office ? str_limit($list->office->office_name, 50, '...') : '-' }}</td>  	
 													<td style="white-space: initial;">
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
@@ -315,7 +254,7 @@
 											@else
 											<tbody>
 												<tr>
-													<td style="text-align:center;" colspan="17">
+													<td style="text-align:center;" colspan="11">
 														No Record found
 													</td>
 												</tr>

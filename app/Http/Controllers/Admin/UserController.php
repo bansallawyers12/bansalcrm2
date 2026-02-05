@@ -59,7 +59,7 @@ class UserController extends Controller
 										'password' => 'required|max:255|confirmed',
 										'phone' => 'required',
 										'role' => 'required',
-										
+										'office' => 'nullable|exists:branches,id',
 									  ]);
 			
 			
@@ -131,6 +131,7 @@ class UserController extends Controller
 										'first_name' => 'required|max:255',
 										'last_name' => 'required|max:255',
 										'phone' => 'required|max:255',
+										'office' => 'nullable|exists:branches,id',
 									]);
 								  					  
 			$obj				= 	Admin::find(@$requestData['id']);
@@ -185,7 +186,7 @@ class UserController extends Controller
 				//$id = $this->decodeString($id);	
 				if(Admin::where('id', '=', $id)->exists()) 
 				{
-					$fetchedData = Admin::find($id);
+					$fetchedData = Admin::with('office')->find($id);
 					return view('Admin.users.edit', compact(['fetchedData', 'usertype']));
 				}
 				else
@@ -237,7 +238,7 @@ class UserController extends Controller
 				
 				if(Admin::where('id', '=', $id)->exists()) 
 				{
-					$fetchedData = Admin::find($id);
+					$fetchedData = Admin::with('office')->find($id);
 					return view('Admin.users.view', compact(['fetchedData']));
 				}
 				else
@@ -262,10 +263,10 @@ class UserController extends Controller
             ->where(function($q) use($search_by) {
                 $q->where('first_name', 'LIKE', '%'.$search_by.'%')
                 ->orWhere('last_name', 'LIKE', '%'.$search_by.'%');
-            })->with(['usertype']);
+            })->with(['usertype', 'office']);
 
         } else {
-            $query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 1)->with(['usertype']);
+            $query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 1)->with(['usertype', 'office']);
         }
         
 		//$query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 1)->with(['usertype']); 		  
@@ -288,11 +289,11 @@ class UserController extends Controller
 			$query 		= Admin::Where('role', '!=', '7')
 			->Where('status', '=', 0)
 			->where(function($q) use($search_by) {
-				$q->where('first_name', 'LIKE', '%'.$search_by.'%')
-				->orWhere('last_name', 'LIKE', '%'.$search_by.'%');
-			})->with(['usertype']);
+                $q->where('first_name', 'LIKE', '%'.$search_by.'%')
+                ->orWhere('last_name', 'LIKE', '%'.$search_by.'%');
+            })->with(['usertype', 'office']);
 		} else {
-			$query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 0)->with(['usertype']);
+			$query 		= Admin::Where('role', '!=', '7')->Where('status', '=', 0)->with(['usertype', 'office']);
 		}
 		
 		$totalData 	= $query->count();	//for all data

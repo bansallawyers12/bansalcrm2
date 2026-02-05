@@ -62,13 +62,10 @@
 											@if(@$totalData !== 0)
 											<tbody class="tdata">
 											@foreach (@$lists as $list)
-											@php
-											$b = \App\Models\Branch::where('id', $list->office_id)->first();
-											@endphp
 												<tr id="id_{{@$list->id}}"> 
 													<td><a href="{{URL::to('/users/view')}}/{{$list->id}}">{{@$list->first_name}}</a><br>{{@$list->email}}</td> 
 													<td>{{@$list->position}}</td>
-													<td><a href="{{URL::to('/branch/view/')}}/{{@$b->id}}">{{@$b->office_name}}</a></td>
+													<td>@if($list->office)<a href="{{URL::to('/branch/view/')}}/{{$list->office->id}}">{{$list->office->office_name}}</a>@else{{ config('constants.empty') }}@endif</td>
 													
 													
 													<td>{{ @$list->usertype->name == "" ? config('constants.empty') : str_limit(@$list->usertype->name, '50', '...') }}</td>  
