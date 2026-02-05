@@ -75,7 +75,7 @@
 										<label class="dropdown-option"><input type="checkbox" value="3" checked /> Agent</label>
 										<label class="dropdown-option"><input type="checkbox" value="4" checked /> Client Id</label>
 										<label class="dropdown-option"><input type="checkbox" value="5" checked /> Phone</label>
-										<label class="dropdown-option"><input type="checkbox" value="6" checked /> Current City</label>
+										<label class="dropdown-option"><input type="checkbox" value="6" checked /> City/Postcode/State</label>
 										<label class="dropdown-option"><input type="checkbox" value="7" checked /> Assignee</label>
 										<label class="dropdown-option"><input type="checkbox" value="8" checked /> Status</label>
 										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Applications</label>
@@ -175,7 +175,7 @@
 													<th>Name</th>
 													<th>Agent</th>
 													<th>Client ID</th>
-													<th>Current City</th>
+													<th>City/Postcode/State</th>
 													<th>Assignee</th>
 													<th>Status</th>
 													<th>Applications</th>
@@ -204,7 +204,24 @@
 													<td style="white-space: initial;">{{ @$list->client_id == "" ? config('constants.empty') : str_limit(@$list->client_id, '50', '...') }}</td> 
 													{{--<td>{{ @$list->phone == "" ? config('constants.empty') : str_limit(@$list->phone, '50', '...') }}</td> --}}
 													
-													<td style="white-space: initial;">{{ @$list->city == "" ? config('constants.empty') : str_limit(@$list->city, '50', '...') }}</td>
+													<?php
+													$stateAbbrev = [
+														'Australian Capital Territory' => 'ACT',
+														'New South Wales' => 'NSW',
+														'Northern Territory' => 'NT',
+														'Queensland' => 'QLD',
+														'South Australia' => 'SA',
+														'Tasmania' => 'TAS',
+														'Victoria' => 'VIC',
+														'Western Australia' => 'WA',
+													];
+													$cityPart = trim(@$list->city ?? '') !== '' ? str_limit($list->city, 30, '...') : '-';
+													$zipPart = trim(@$list->zip ?? '') !== '' ? $list->zip : '-';
+													$stateVal = trim(@$list->state ?? '');
+													$statePart = $stateVal !== '' ? ($stateAbbrev[$stateVal] ?? $stateVal) : '-';
+													$locationDisplay = $cityPart . '/' . $zipPart . '/' . $statePart;
+													?>
+													<td style="white-space: initial;" title="{{ @$list->city }} {{ @$list->zip }} {{ @$list->state }}">{{ $locationDisplay }}</td>
 													<?php
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
