@@ -119,7 +119,7 @@
 										<div class="col-12 col-md-12 col-lg-12">
 											<div class="form-group"> 
 												<label for="note">Note</label>
-												<textarea class="form-control" name="note">{{$fetchedData->note}}</textarea>
+												<textarea class="form-control" name="note">{{ $fetchedData->note ?? '' }}</textarea>
 												
 											</div>
 										</div>

@@ -64,7 +64,12 @@ class ProfileController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$this->validate($request, [
-										'company_name' => 'required|max:255'
+										'company_name' => 'required|max:255',
+										'abn' => 'required|max:255',
+										'address' => 'required|max:500',
+										'phone' => 'required|max:50',
+										'other_phone' => 'required|max:50',
+										'email' => 'required|email|max:255',
 									  ]);
 			
 			$requestData 		= 	$request->all();
@@ -114,7 +119,12 @@ class ProfileController extends Controller
 			$requestData 		= 	$request->all();
 			
 			$this->validate($request, [										
-										'company_name' => 'required|max:255'
+										'company_name' => 'required|max:255',
+										'abn' => 'required|max:255',
+										'address' => 'required|max:500',
+										'phone' => 'required|max:50',
+										'other_phone' => 'required|max:50',
+										'email' => 'required|email|max:255',
 									  ]);
 				/* Profile Image Upload Function Start */						  
 				if($request->hasfile('profile_img')) 
@@ -164,7 +174,7 @@ class ProfileController extends Controller
 				}
 				else 
 				{
-					return Redirect::to('/adminconsole/profiles')->with('error', 'Product Type Not Exist');
+					return Redirect::to('/adminconsole/profiles')->with('error', 'Profile Not Exist');
 				}	
 			} 
 			else

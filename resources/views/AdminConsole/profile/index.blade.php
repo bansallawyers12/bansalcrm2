@@ -1,5 +1,5 @@
 @extends('layouts.adminconsole')
-@section('title', 'Product Type')
+@section('title', 'Profiles')
  
 @section('content')
 
@@ -56,6 +56,9 @@
 								</tbody>
 								@endif
 							</table> 
+						</div>
+						<div class="card-footer">
+							{!! $lists->appends(\Request::except('page'))->render() !!}
 						</div>
 					</div>
 				</div>
