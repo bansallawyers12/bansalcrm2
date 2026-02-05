@@ -70,6 +70,11 @@ class ClientController extends Controller
 		// Apply filters using trait method
 		$query = $this->applyClientFilters($query, $request);
 		
+		// Eager-load count of applications that are in progress (status = 0) and office/branch
+		$query->withCount(['applications as in_progress_applications_count' => function ($q) {
+			$q->where('status', 0);
+		}])->with('office');
+		
 		// Paginate results
 		$lists = $query->sortable(['id' => 'desc'])->paginate(20);
 		

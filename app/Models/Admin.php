@@ -59,6 +59,14 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo(Branch::class, 'office_id');
     }
+
+    /**
+     * Get the applications for this client (admins with role 7 are clients).
+     */
+    public function applications()
+    {
+        return $this->hasMany(\App\Models\Application::class, 'client_id', 'id');
+    }
 	
 	/**
      * Get the preferredIntake attribute (maps to preferredintake column)

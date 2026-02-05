@@ -80,7 +80,7 @@
 										<label class="dropdown-option"><input type="checkbox" value="8" checked /> Status</label>
 										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Applications</label>
 										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Last Updated</label>
-										<label class="dropdown-option"><input type="checkbox" value="11" checked /> Preferred Intake</label>
+										<label class="dropdown-option"><input type="checkbox" value="11" checked /> Office</label>
 										
 									</div>
 								</div>
@@ -180,7 +180,7 @@
 													<th>Status</th>
 													<th>Applications</th>
 													<th>Last Updated</th>
-													<th>Preferred Intake</th>
+													<th>Office</th>
 													<th></th>
 												</tr> 
 											</thead>
@@ -233,9 +233,9 @@
 													<td ><span class="ag-label--circular" style="color: #6777ef" >
 														In Progress
 													</span></td>
-													<td style="white-space: initial;"> - </td>
+													<td style="white-space: initial;">{{ isset($list->in_progress_applications_count) ? (int) $list->in_progress_applications_count : 0 }}</td>
 													<td style="white-space: initial;">{{date('d/m/Y', strtotime($list->updated_at))}}</td>
-													<td style="white-space: initial;">{{ @$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...') }}</td>  	
+													<td style="white-space: initial;">{{ $list->office ? str_limit($list->office->office_name, 50, '...') : '-' }}</td>  	
 													<td style="white-space: initial;">
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
