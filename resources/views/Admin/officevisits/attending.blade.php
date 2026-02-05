@@ -24,30 +24,18 @@
 							</div>
 						</div>
 						<div class="card-body">
-                            <?php  
-                            //if(\Auth::user()->role == 1){
-                                $InPersonCount_All_type = \App\Models\CheckinLog::orderBy('created_at', 'desc')->count();
+                            <?php
+                            $InPersonCount_All_type = \App\Models\CheckinLog::where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
 
-                            /*} else {
-                                $InPersonCount_All_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('id', '!=', '')->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_waiting_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',0)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_attending_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',2)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_completed_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',1)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
-
-                            } */?>
+                            ?>
 
 							<ul class="nav nav-pills" id="checkin_tabs" role="tablist">
 

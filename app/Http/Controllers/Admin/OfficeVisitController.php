@@ -231,7 +231,7 @@ class OfficeVisitController extends Controller
 	
 	public function index(Request $request)
 	{
-		$query 		= CheckinLog::query()->with('office');  
+		$query 		= CheckinLog::query()->with('office')->where('is_archived',0);  
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -718,7 +718,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', 0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', 0)->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -740,7 +740,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '2'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '2')->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -763,7 +763,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '1'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '1')->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -777,6 +777,23 @@ class OfficeVisitController extends Controller
 		
 		return view('Admin.officevisits.completed',compact(['lists', 'totalData']));  
 	}
+	/**
+	 * Archive a single office visit (set is_archived = 1).
+	 */
+	public function archive(Request $request)
+	{
+		$request->validate(['id' => 'required|integer|min:1']);
+		$obj = CheckinLog::find($request->id);
+		if (!$obj) {
+			return response()->json(['status' => false, 'message' => 'Office visit not found.']);
+		}
+		$obj->is_archived = 1;
+		if (!$obj->save()) {
+			return response()->json(['status' => false, 'message' => 'Failed to archive. Please try again.']);
+		}
+		return response()->json(['status' => true, 'message' => 'Moved to Archived list.']);
+	}
+
 	public function archived(Request $request)
 	{
 		$query 		= CheckinLog::with('office')->where('is_archived', '=', '1'); 

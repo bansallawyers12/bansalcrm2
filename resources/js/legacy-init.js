@@ -174,9 +174,10 @@
             });
             
             $(document).delegate('.opencheckindetail', 'click', function(){
+                var appliid = $(this).attr('id');
+                $('#checkindetailmodal').data('currentCheckinId', appliid);
                 $('#checkindetailmodal').modal('show');
                 $('.popuploader').show();
-                var appliid = $(this).attr('id');
                 $.ajax({
                         url: site_url+'/get-checkin-detail',
                         type:'GET',
@@ -186,6 +187,46 @@
                             $('.showchecindetail').html(responses);
                         }
                     });
+            });
+
+            $(document).delegate('.archive-checkin-detail', 'click', function(e){
+                e.preventDefault();
+                var id = $('#checkindetailmodal').data('currentCheckinId');
+                if (!id) {
+                    alert('No visit selected.');
+                    return;
+                }
+                if (!confirm('Are you sure you want to archive this office visit? It will be moved to the Archived list.')) {
+                    return;
+                }
+                $('.popuploader').show();
+                $.ajax({
+                    url: site_url + '/office-visits/archive',
+                    type: 'POST',
+                    data: { id: id, _token: $('meta[name="csrf-token"]').attr('content') },
+                    dataType: 'json',
+                    success: function(res){
+                        $('.popuploader').hide();
+                        if (res.status) {
+                            $('#checkindetailmodal').modal('hide');
+                            $('.checindata tr#id_' + id).remove();
+                            if (typeof res.message !== 'undefined') {
+                                alert(res.message);
+                            }
+                        } else {
+                            alert(res.message || 'Failed to archive. Please try again.');
+                        }
+                    },
+                    error: function(xhr){
+                        $('.popuploader').hide();
+                        var msg = 'Failed to archive. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        else if (xhr.responseText) {
+                            try { var j = JSON.parse(xhr.responseText); if (j.message) msg = j.message; } catch(e) {}
+                        }
+                        alert(msg);
+                    }
+                });
             });
             
             // intlTelInput plugin no longer used - replaced with country code select dropdowns
