@@ -75,7 +75,12 @@
 									</tr>
 								</tbody>
 								@endif
-							</table> 
+							</table>
+								@if(@$totalData > 0 && $lists->hasPages())
+								<div class="d-flex justify-content-center mt-3">
+									{{ $lists->links() }}
+								</div>
+								@endif
 						</div>
 					</div>
 				</div>

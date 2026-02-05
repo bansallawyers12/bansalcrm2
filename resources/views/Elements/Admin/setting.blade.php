@@ -37,7 +37,7 @@
 			<?php
 			if(array_key_exists('1',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.branch.index')}}">Offices</a></li> 
+			<li class="{{(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.branch.index')}}">Branches</a></li> 
 			<?php } ?>
 			<?php
 			if(array_key_exists('4',  $module_access)) {

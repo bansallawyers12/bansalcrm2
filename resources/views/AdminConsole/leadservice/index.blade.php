@@ -57,6 +57,9 @@
 								@endif
 							</table> 
 						</div>
+						<div class="card-footer">
+							{!! $lists->appends(\Request::except('page'))->render() !!}
+						</div>
 					</div>
 				</div>
 			</div>
