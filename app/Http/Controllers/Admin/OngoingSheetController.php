@@ -16,23 +16,48 @@ use Carbon\Carbon;
 
 class OngoingSheetController extends Controller
 {
+    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue'];
+
     public function __construct()
     {
         $this->middleware('auth:admin');
     }
 
-    /** Session key for persisting ongoing sheet filters */
+    /** Session key for persisting ongoing sheet filters (legacy) */
     const FILTER_SESSION_KEY = 'ongoing_sheet_filters';
 
+    /** @var string|null Session key for current request (set in index) */
+    protected $currentFilterSessionKey;
+
     /**
-     * Display the Ongoing Sheet - List view
+     * Config for each sheet type: title, route name, session key.
      */
-    public function index(Request $request)
+    public static function getSheetConfig(string $sheetType): array
     {
+        $configs = [
+            'ongoing'       => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
+            'coe_enrolled' => ['title' => 'COE Issued & Enrolled', 'route' => 'clients.sheets.coe-enrolled', 'session_key' => 'coe_enrolled_sheet_filters'],
+            'discontinue'   => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
+        ];
+        return $configs[$sheetType] ?? $configs['ongoing'];
+    }
+
+    /**
+     * Display a sheet (Ongoing, COE Issued & Enrolled, or Discontinue).
+     */
+    public function index(Request $request, $sheetType = null)
+    {
+        $sheetType = $sheetType ?? $request->route('sheetType', 'ongoing');
+        if (!in_array($sheetType, self::SHEET_TYPES, true)) {
+            $sheetType = 'ongoing';
+        }
+        $config = self::getSheetConfig($sheetType);
+        $this->currentFilterSessionKey = $config['session_key'];
+
         // Clear stored filters when user explicitly requests it
         if ($request->has('clear_filters')) {
-            session()->forget(self::FILTER_SESSION_KEY);
-            return redirect()->route('clients.sheets.ongoing');
+            session()->forget($this->currentFilterSessionKey);
+            return redirect()->route($config['route']);
         }
 
         // Merge request with session-stored filters (session as fallback when no query params)
@@ -53,8 +78,8 @@ class OngoingSheetController extends Controller
         // Persist current filters to session when filters are applied (has query params)
         $this->persistFiltersToSession($request);
 
-        // Build base query
-        $query = $this->buildBaseQuery($request);
+        // Build base query (depends on sheet type)
+        $query = $this->buildBaseQuery($request, $sheetType);
 
         // Apply filters
         $query = $this->applyFilters($query, $request);
@@ -71,19 +96,14 @@ class OngoingSheetController extends Controller
         $assignees = Admin::whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
-        // Ensure current user is in the list so they can select themselves by default
         $currentUser = Auth::user();
         if ($currentUser && $assignees->pluck('id')->doesntContain($currentUser->id)) {
             $assignees->push($currentUser);
             $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
         }
-        $currentStages = Application::select('stage')
-            ->whereNotIn('status', [2])
-            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
-            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        $currentStages = $this->getCurrentStagesForSheet($sheetType);
         $activeFilterCount = $this->countActiveFilters($request);
 
-        // Return view
         return view('Admin.sheets.ongoing', compact(
             'rows',
             'perPage',
@@ -91,8 +111,12 @@ class OngoingSheetController extends Controller
             'offices',
             'branches',
             'assignees',
-            'currentStages'
-        ));
+            'currentStages',
+            'sheetType'
+        ) + [
+            'sheetTitle' => $config['title'],
+            'sheetRoute' => $config['route'],
+        ]);
     }
 
     /**
@@ -111,7 +135,8 @@ class OngoingSheetController extends Controller
         if ($hasAnyParam) {
             return [];
         }
-        return session(self::FILTER_SESSION_KEY, []);
+        $key = $this->currentFilterSessionKey ?? self::FILTER_SESSION_KEY;
+        return session($key, []);
     }
 
     /**
@@ -135,14 +160,37 @@ class OngoingSheetController extends Controller
             }
             return $v !== null && $v !== '';
         });
-        session()->put(self::FILTER_SESSION_KEY, $payload);
+        $key = $this->currentFilterSessionKey ?? self::FILTER_SESSION_KEY;
+        session()->put($key, $payload);
+    }
+
+    /**
+     * Stage dropdown options for the current sheet type.
+     */
+    protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
+    {
+        if ($sheetType === 'coe_enrolled') {
+            return Application::select('stage')
+                ->whereNotIn('status', [2])
+                ->whereRaw('LOWER(TRIM(stage)) IN (?, ?)', ['coe issued', 'enrolled'])
+                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        }
+        if ($sheetType === 'discontinue') {
+            return Application::where('status', 2)
+                ->select('stage')
+                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        }
+        return Application::select('stage')
+            ->whereNotIn('status', [2])
+            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
     }
 
     /**
      * Build base query: one row per application (application-focused sheet).
-     * Clients with multiple applications get multiple rows; rows for the same client stay together when sorting.
+     * Criteria depend on sheet type: ongoing, coe_enrolled, or discontinue.
      */
-    protected function buildBaseQuery(Request $request)
+    protected function buildBaseQuery(Request $request, string $sheetType = 'ongoing')
     {
         $query = Application::query()
             ->select([
@@ -158,30 +206,23 @@ class OngoingSheetController extends Controller
                 'admins.visa_type',
                 'admins.visa_opt',
                 'admins.office_id',
-                // Institute for this application (from joined partner)
                 'partners.partner_name',
-                // Our office branch (client's assigned office)
                 'branches.office_name as branch_name',
-                // Assignee (user assigned to this application)
                 'assignee.first_name as assignee_first_name',
                 'assignee.last_name as assignee_last_name',
-                // Ongoing reference data (per client)
                 'ongoing.current_status',
                 'ongoing.payment_display_note',
                 'ongoing.institute_override',
                 'ongoing.visa_category_override',
-                // Payment sum (subquery, per client)
                 DB::raw('(SELECT COALESCE(SUM(deposit_amount), 0) 
                          FROM account_client_receipts 
                          WHERE client_id = admins.id 
                          AND receipt_type = 1) as total_payment'),
-                // Fallback institute from service_takens (per client)
                 DB::raw('(SELECT edu_college 
                          FROM client_service_takens 
                          WHERE client_id = admins.id 
                          ORDER BY id DESC 
                          LIMIT 1) as service_college'),
-                // Latest sheet comment (one per application, replaced on each new comment)
                 DB::raw("(SELECT aal.comment FROM application_activities_logs aal 
                          WHERE aal.app_id = applications.id AND aal.type = 'sheet_comment' 
                          ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
@@ -192,15 +233,24 @@ class OngoingSheetController extends Controller
             ->leftJoin('branches', 'admins.office_id', '=', 'branches.id')
             ->leftJoin('admins as assignee', 'applications.user_id', '=', 'assignee.id')
             ->leftJoin('client_ongoing_references as ongoing', 'ongoing.client_id', '=', 'admins.id')
-            ->whereNotIn('applications.status', [2]) // Exclude discontinued applications
-            ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
-                'coe issued',
-                'enrolled',
-                'coe cancelled',
-            ])
-            ->where('admins.role', 7) // Clients only
+            ->where('admins.role', 7)
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
+
+        if ($sheetType === 'discontinue') {
+            $query->where('applications.status', 2);
+        } else {
+            $query->whereNotIn('applications.status', [2]);
+            if ($sheetType === 'coe_enrolled') {
+                $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
+            } else {
+                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
+                    'coe issued',
+                    'enrolled',
+                    'coe cancelled',
+                ]);
+            }
+        }
 
         return $query;
     }

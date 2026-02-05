@@ -194,12 +194,13 @@ Route::middleware(['auth:admin'])->group(function() {
         });
     });
     
-    // Sheets Routes (Ongoing Sheet)
+    // Sheets Routes (Ongoing, COE Issued & Enrolled, Discontinue)
     Route::prefix('clients/sheets')->name('clients.sheets.')->group(function() {
-        Route::get('/ongoing', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->name('ongoing');
+        Route::get('/ongoing', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'ongoing')->name('ongoing');
+        Route::get('/coe-enrolled', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'coe_enrolled')->name('coe-enrolled');
+        Route::get('/discontinue', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'discontinue')->name('discontinue');
         Route::get('/ongoing/insights', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'insights'])->name('ongoing.insights');
-        
-        // Optional: Update ongoing reference for a client
+
         Route::post('/ongoing/{clientId}/update', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateReference'])->name('ongoing.update');
         Route::post('/ongoing/sheet-comment', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'storeSheetComment'])->name('ongoing.sheet-comment');
     });

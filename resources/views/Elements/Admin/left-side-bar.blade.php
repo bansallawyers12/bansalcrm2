@@ -117,7 +117,8 @@
 	?>
 
 		<?php
-		if(Route::currentRouteName() == 'clients.sheets.ongoing' || Route::currentRouteName() == 'clients.sheets.ongoing.insights'){
+		$sheetsRouteNames = ['clients.sheets.ongoing', 'clients.sheets.ongoing.insights', 'clients.sheets.coe-enrolled', 'clients.sheets.discontinue'];
+		if(in_array(Route::currentRouteName(), $sheetsRouteNames)){
 			$sheetsclasstype = 'active';
 		}
 		?>
@@ -129,7 +130,16 @@
 						<i class="fas fa-list"></i><span>Ongoing Sheet</span>
 					</a>
 				</li>
-				{{-- Future sheets will be added here: ART, EOI/ROI, TR, etc. --}}
+				<li class="{{ Route::currentRouteName() == 'clients.sheets.coe-enrolled' ? 'active' : '' }}">
+					<a class="nav-link" href="{{ route('clients.sheets.coe-enrolled') }}">
+						<i class="fas fa-graduation-cap"></i><span>COE Issued & Enrolled</span>
+					</a>
+				</li>
+				<li class="{{ Route::currentRouteName() == 'clients.sheets.discontinue' ? 'active' : '' }}">
+					<a class="nav-link" href="{{ route('clients.sheets.discontinue') }}">
+						<i class="fas fa-ban"></i><span>Discontinue</span>
+					</a>
+				</li>
 			</ul>
 		</li>
 

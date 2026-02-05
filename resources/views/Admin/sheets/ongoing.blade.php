@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Ongoing Sheet')
+@section('title', $sheetTitle ?? 'Ongoing Sheet')
 
 @push('styles')
 <style>
@@ -195,7 +195,7 @@
             
             {{-- Page title header --}}
             <div class="ongoing-sheet-page-header">
-                <h4><i class="fas fa-clipboard-list"></i> Ongoing Sheet</h4>
+                <h4><i class="fas fa-clipboard-list"></i> {{ $sheetTitle ?? 'Ongoing Sheet' }}</h4>
             </div>
             
             {{-- Filter Bar --}}
@@ -224,13 +224,13 @@
                         
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             @if($activeFilterCount > 0)
-                                <a href="{{ route('clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
+                                <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
                                     <i class="fas fa-times me-1"></i> Clear Filters
                                 </a>
                             @endif
                             
                             <select name="per_page" class="form-control ongoing-per-page-select" 
-                                    onchange="window.location.href='{{ route('clients.sheets.ongoing') }}?per_page=' + this.value + '{{ request()->except('page', 'per_page') ? '&' . http_build_query(request()->except('page', 'per_page')) : '' }}';">
+                                    onchange="window.location.href='{{ route($sheetRoute ?? 'clients.sheets.ongoing') }}?per_page=' + this.value + '{{ request()->except('page', 'per_page') ? '&' . http_build_query(request()->except('page', 'per_page')) : '' }}';">
                                 @foreach([10, 25, 50, 100, 200] as $option)
                                     <option value="{{ $option }}" {{ $perPage == $option ? 'selected' : '' }}>
                                         {{ $option }} per page
@@ -243,7 +243,7 @@
                     {{-- Filter Panel (Collapsible) --}}
                     <div class="collapse {{ $activeFilterCount > 0 ? 'show' : '' }}" id="filterPanel">
                         <div class="ongoing-filter-panel">
-                            <form method="get" action="{{ route('clients.sheets.ongoing') }}">
+                            <form method="get" action="{{ route($sheetRoute ?? 'clients.sheets.ongoing') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                                 <input type="hidden" name="assignee" value="{{ request('assignee') }}">
                                 <div class="row g-3">
@@ -305,7 +305,7 @@
                                         <button type="submit" class="btn-ongoing-apply">
                                             <i class="fas fa-search me-1"></i> Apply Filters
                                         </button>
-                                        <a href="{{ route('clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
+                                        <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
                                             <i class="fas fa-redo me-1"></i> Reset
                                         </a>
                                     </div>
@@ -342,7 +342,7 @@
                                     <tr>
                                         <td colspan="12" class="text-center py-4">
                                             <i class="fas fa-info-circle fa-2x text-muted mb-2 d-block"></i>
-                                            <p class="mb-0">No ongoing records found.</p>
+                                            <p class="mb-0">No records found.</p>
                                         </td>
                                     </tr>
                                 @else
@@ -472,7 +472,7 @@ $(document).ready(function() {
         var params = new URLSearchParams(window.location.search);
         params.set('assignee', assignee || 'all');
         params.delete('page');
-        window.location.href = '{{ route("clients.sheets.ongoing") }}?' + params.toString();
+        window.location.href = '{{ route($sheetRoute ?? "clients.sheets.ongoing") }}?' + params.toString();
     });
     
     // Sheet comment: open modal. Bind directly to the link (not delegated) because the
