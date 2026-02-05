@@ -20,7 +20,6 @@ use App\Http\Controllers\AdminConsole\MasterCategoryController;
 use App\Http\Controllers\AdminConsole\LeadServiceController;
 use App\Http\Controllers\AdminConsole\SourceController;
 use App\Http\Controllers\AdminConsole\ChecklistController;
-use App\Http\Controllers\AdminConsole\FeeTypeController;
 use App\Http\Controllers\AdminConsole\WorkflowController;
 use App\Http\Controllers\AdminConsole\EmailController;
 use App\Http\Controllers\AdminConsole\CrmEmailTemplateController;
@@ -102,13 +101,6 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/checklist/store', [ChecklistController::class, 'store'])->name('adminconsole.checklist.store');     
     Route::get('/checklist/edit/{id}', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.edit');
     Route::post('/checklist/edit', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.update');
-    
-    //FeeType Routes
-    Route::get('/feetype', [FeeTypeController::class, 'index'])->name('adminconsole.feetype.index');  
-    Route::get('/feetype/create', [FeeTypeController::class, 'create'])->name('adminconsole.feetype.create');  
-    Route::post('/feetype/store', [FeeTypeController::class, 'store'])->name('adminconsole.feetype.store');     
-    Route::get('/feetype/edit/{id}', [FeeTypeController::class, 'edit'])->name('adminconsole.feetype.edit');
-    Route::post('/feetype/edit', [FeeTypeController::class, 'edit'])->name('adminconsole.feetype.update');
     
     //Workflow Routes
     Route::get('/workflow', [WorkflowController::class, 'index'])->name('adminconsole.workflow.index');  

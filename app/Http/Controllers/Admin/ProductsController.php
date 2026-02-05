@@ -465,10 +465,7 @@ return ob_get_clean();
 											<td>
 												<select data-valid="required" class="form-control course_fee_type " name="course_fee_type[]">
 													<option value="">Select Type</option>
-													<?php foreach(\App\Models\FeeType::all() as $feetypes){ ?>
-													<option <?php if($feeoptiontype->fee_type == $feetypes->name){ echo 'selected'; } ?> value="<?php echo $feetypes->name; ?>"><?php echo $feetypes->name; ?></option>
-													<?php } ?>
-												
+													<option value="Tution Fees" <?php if($feeoptiontype->fee_type == 'Tution Fees'){ echo 'selected'; } ?>>Tution Fees</option>
 												</select>
 											</td>
 											<td>

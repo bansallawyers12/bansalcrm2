@@ -643,9 +643,7 @@
 											<div class="form-group">
 												<select class="form-control select2" name="fee_type" data-valid="required">
 													<option value="">Select Fee Type</option>
-														@foreach(\App\Models\FeeType::all() as $feetypes)
-												<option @if($feetypes->name == 'Tution fees') selected @endif value="{{$feetypes->name}}">{{$feetypes->name}}</option>
-												@endforeach
+													<option value="Tution Fees" selected>Tution Fees</option>
 												</select>
 											</div>
 										</div>
@@ -938,9 +936,7 @@
 											<td>
 												<select data-valid="required" class="form-control course_fee_type " name="course_fee_type[]">
 													<option value="">Select Type</option>
-												@foreach(\App\Models\FeeType::all() as $feetypes)
-												<option @if($feetypes->name == 'Tution fees') selected @endif value="{{$feetypes->name}}">{{$feetypes->name}}</option>
-												@endforeach
+													<option value="Tution Fees" selected>Tution Fees</option>
 												</select>
 											</td>
 											<td>
