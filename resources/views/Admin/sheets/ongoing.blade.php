@@ -475,15 +475,22 @@ $(document).ready(function() {
         window.location.href = '{{ route("clients.sheets.ongoing") }}?' + params.toString();
     });
     
-    // Sheet comment: open modal
-    $(document).on('click', '.sheet-comment-edit', function(e) {
+    // Sheet comment: open modal. Bind directly to the link (not delegated) because the
+    // td's onclick="event.stopPropagation()" prevents the event from bubbling to document.
+    $('.sheet-comment-edit').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var appId = $(this).data('app-id');
         var comment = $(this).data('comment') || '';
         $('#sheet_comment_application_id').val(appId);
         $('#sheet_comment_text').val(comment);
-        $('#sheetCommentModal').modal('show');
+        var modalEl = document.getElementById('sheetCommentModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        } else {
+            $(modalEl).modal('show');
+        }
     });
 
     $('#sheet_comment_save').on('click', function() {
@@ -503,7 +510,13 @@ $(document).ready(function() {
                 comment: comment
             },
             success: function() {
-                $('#sheetCommentModal').modal('hide');
+                var modalEl = document.getElementById('sheetCommentModal');
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                } else {
+                    $(modalEl).modal('hide');
+                }
                 location.reload();
             },
             error: function(xhr) {

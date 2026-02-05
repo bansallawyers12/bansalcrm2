@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\ActivitiesLog;
 use App\Models\Application;
 use App\Models\ApplicationActivitiesLog;
 use App\Models\ClientOngoingReference;
@@ -405,6 +406,18 @@ class OngoingSheetController extends Controller
                 'user_id' => Auth::id(),
             ]
         );
+
+        // Also log to client Activities feed so it appears on the client page
+        if ($app->client_id) {
+            ActivitiesLog::create([
+                'client_id' => $app->client_id,
+                'created_by' => Auth::id(),
+                'subject' => "added a sheet comment",
+                'description' => "<strong>Sheet comment</strong> ({$title}): " . e($request->comment),
+                'task_status' => 0,
+                'pin' => 0,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

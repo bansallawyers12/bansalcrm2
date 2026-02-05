@@ -471,6 +471,25 @@ jQuery(document).ready(function($){
     });
 
     // ============================================================================
+    // NOTES TAB - Load application notes (including sheet comments) when clicked
+    // ============================================================================
+    $(document).on('click', '#notes-tab', function(){
+        var appliid = $(this).attr('data-id');
+        if (!appliid) return;
+        var url = App.getUrl('getApplicationNotes');
+        if (!url) url = (App.getUrl('siteUrl') || '') + '/getapplicationnotes';
+        if (!url) return;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { id: appliid },
+            success: function(response){
+                $('#notes').html(response);
+            }
+        });
+    });
+
+    // ============================================================================
     // SELECT2 INITIALIZATION FOR APPLICATION FORMS
     // ============================================================================
     

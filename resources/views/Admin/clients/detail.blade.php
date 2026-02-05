@@ -2934,6 +2934,7 @@ use App\Http\Controllers\Controller;
         applicationChecklistUpload: '{{ url("/application/checklistupload") }}',
         getApplicationsLogs: '{{ url("/get-applications-logs") }}',
         getApplicationDetail: '{{ url("/getapplicationdetail") }}',
+        getApplicationNotes: '{{ url("/getapplicationnotes") }}',
         updateApplicationDates: '{{ url("/application/updatedates") }}',
         showProductFee: '{{ url("/showproductfee") }}',
         showProductFeeLatest: '{{ url("/showproductfeelatest") }}'

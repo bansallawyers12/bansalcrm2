@@ -720,14 +720,35 @@ class AdminController extends Controller
 					{
 						$recordExist = DB::table($requestData['table'])->where('id', $requestData['id'])->exists();
 
-						if($recordExist)
+					if($recordExist)
+					{
+						$updated_status = 1;
+						$message = 'Record has been archived successfully.';
+
+						// Handle admins table (clients/leads) separately - use correct column names and metadata
+						if($requestData['table'] == 'admins'){
+							// Archive clients/leads with proper metadata (same as deleteAction)
+							$updateData = [
+								'is_archived' => 1,
+								'archived_on' => date('Y-m-d'),
+								'archived_by' => Auth::user()->id
+							];
+							$response = DB::table($requestData['table'])->where('id', $requestData['id'])->update($updateData);
+							
+							if($response)
+							{
+								$status = 1;
+							}
+							else
+							{
+								$message = Config::get('constants.server_error');
+							}
+						}
+						else
 						{
-
-								$updated_status = 1;
-								$message = 'Record has been archived successfully.';
-
-							$response 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->update(['is_archive' => $updated_status]);
-							$getarchive 	= 	DB::table($requestData['table'])->where('id', $requestData['id'])->first();
+							// For other tables (quotations, etc.) - use existing logic with 'is_archive' column
+							$response = DB::table($requestData['table'])->where('id', $requestData['id'])->update(['is_archive' => $updated_status]);
+							$getarchive = DB::table($requestData['table'])->where('id', $requestData['id'])->first();
 							if($getarchive->status == 0){
 								$astatus = '<span title="draft" class="ui label uppercase">Draft</span><span> (Archived)</span>';
 							}else if($getarchive->status == 1){
@@ -744,6 +765,7 @@ class AdminController extends Controller
 								$message = Config::get('constants.server_error');
 							}
 						}
+					}
 						else
 						{
 							$message = 'ID does not exist, please check it once again.';
