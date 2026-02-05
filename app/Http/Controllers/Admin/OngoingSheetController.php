@@ -18,17 +18,32 @@ class OngoingSheetController extends Controller
         $this->middleware('auth:admin');
     }
 
+    /** Session key for persisting ongoing sheet filters */
+    const FILTER_SESSION_KEY = 'ongoing_sheet_filters';
+
     /**
      * Display the Ongoing Sheet - List view
      */
     public function index(Request $request)
     {
+        // Clear stored filters when user explicitly requests it
+        if ($request->has('clear_filters')) {
+            session()->forget(self::FILTER_SESSION_KEY);
+            return redirect()->route('clients.sheets.ongoing');
+        }
+
+        // Merge request with session-stored filters (session as fallback when no query params)
+        $request->merge($this->getFiltersFromSession($request));
+
         // Pagination
         $perPage = (int) $request->get('per_page', 50);
         $allowedPerPage = [10, 25, 50, 100, 200];
         if (!in_array($perPage, $allowedPerPage, true)) {
             $perPage = 50;
         }
+
+        // Persist current filters to session when filters are applied (has query params)
+        $this->persistFiltersToSession($request);
 
         // Build base query
         $query = $this->buildBaseQuery($request);
@@ -53,6 +68,46 @@ class OngoingSheetController extends Controller
             'activeFilterCount',
             'offices'
         ));
+    }
+
+    /**
+     * Get filters from session when request has no filter params (so back/return preserves filters).
+     */
+    protected function getFiltersFromSession(Request $request): array
+    {
+        $filterParams = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
+        $hasAnyParam = false;
+        foreach ($filterParams as $key) {
+            if ($request->has($key) && $request->input($key) !== null && $request->input($key) !== '') {
+                $hasAnyParam = true;
+                break;
+            }
+        }
+        if ($hasAnyParam) {
+            return [];
+        }
+        return session(self::FILTER_SESSION_KEY, []);
+    }
+
+    /**
+     * Persist current filter values to session for next visit.
+     */
+    protected function persistFiltersToSession(Request $request): void
+    {
+        $payload = [
+            'office' => $request->input('office'),
+            'visa_expiry_from' => $request->input('visa_expiry_from'),
+            'visa_expiry_to' => $request->input('visa_expiry_to'),
+            'search' => $request->input('search'),
+            'per_page' => $request->input('per_page'),
+        ];
+        $payload = array_filter($payload, function ($v) {
+            if (is_array($v)) {
+                return !empty($v);
+            }
+            return $v !== null && $v !== '';
+        });
+        session()->put(self::FILTER_SESSION_KEY, $payload);
     }
 
     /**
