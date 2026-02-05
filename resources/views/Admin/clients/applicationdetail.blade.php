@@ -150,7 +150,47 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</ul> 
 			<div class="tab-content" id="applicationContent">
 				<div class="tab-pane fade show active" id="applicate_activities" role="tabpanel" aria-labelledby="applicate_activities-tab">
-					<div id="accordion">
+					<?php
+					$sheetCommentLog = \App\Models\ApplicationActivitiesLog::where('app_id', $fetchData->id)->where('type', 'sheet_comment')->orderBy('updated_at', 'desc')->first();
+					?>
+					<div class="mb-3 d-flex align-items-center gap-2">
+						<label class="mb-0">Filter:</label>
+						<select id="activity_filter_type" class="form-control form-control-sm" style="width: auto;">
+							<option value="all">All activities</option>
+							<option value="sheet_comment">Sheet comments only</option>
+						</select>
+					</div>
+					<div id="activities_sheet_comment_section" class="activities-sheet-comment-list mb-3">
+						<div class="accordion cus_accrodian">
+							<div class="accordion-header app_green" role="button" data-bs-toggle="collapse" data-bs-target="#sheet_comment_accor" aria-expanded="true">
+								<h4>Sheet comment</h4>
+							</div>
+							<div class="accordion-body collapse show" id="sheet_comment_accor">
+								<div class="activity_list">
+									<?php if ($sheetCommentLog) {
+										$admin = \App\Models\Admin::where('id', $sheetCommentLog->user_id)->first();
+									?>
+									<div class="activity_col">
+										<div class="activity_txt_time">
+											<span class="span_txt"><b><?php echo $admin ? $admin->first_name : ''; ?></b> <?php echo e($sheetCommentLog->comment); ?></span>
+											<span class="span_time"><?php echo date('d D, M Y h:i A', strtotime($sheetCommentLog->updated_at)); ?></span>
+										</div>
+										<?php if (!empty($sheetCommentLog->title)) { ?>
+										<div class="app_description">
+											<div class="app_card">
+												<div class="app_title"><?php echo e($sheetCommentLog->title); ?></div>
+											</div>
+										</div>
+										<?php } ?>
+									</div>
+									<?php } else { ?>
+									<div class="activity_col text-muted">No sheet comment for this application.</div>
+									<?php } ?>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="accordion" class="activities-stage-list">
 					<?php
 			
 						
@@ -695,5 +735,18 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 	</div>
 </div>
 
-
+<script>
+(function() {
+	$(document).off('change', '#activity_filter_type').on('change', '#activity_filter_type', function() {
+		var val = $(this).val();
+		if (val === 'sheet_comment') {
+			$('#accordion').hide();
+			$('#activities_sheet_comment_section').show();
+		} else {
+			$('#accordion').show();
+			$('#activities_sheet_comment_section').hide();
+		}
+	});
+})();
+</script>
 

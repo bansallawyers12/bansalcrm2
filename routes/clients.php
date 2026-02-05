@@ -201,6 +201,7 @@ Route::middleware(['auth:admin'])->group(function() {
         
         // Optional: Update ongoing reference for a client
         Route::post('/ongoing/{clientId}/update', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateReference'])->name('ongoing.update');
+        Route::post('/ongoing/sheet-comment', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'storeSheetComment'])->name('ongoing.sheet-comment');
     });
 });
 

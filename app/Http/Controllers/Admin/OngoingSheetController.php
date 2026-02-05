@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Application;
+use App\Models\ApplicationActivitiesLog;
 use App\Models\ClientOngoingReference;
 use App\Models\Branch;
 use Illuminate\Http\Request;
@@ -35,6 +37,11 @@ class OngoingSheetController extends Controller
         // Merge request with session-stored filters (session as fallback when no query params)
         $request->merge($this->getFiltersFromSession($request));
 
+        // Default assignee to logged-in user when not set (first visit); "all" = show all assignees
+        if (!$request->has('assignee') || $request->input('assignee') === '') {
+            $request->merge(['assignee' => Auth::id()]);
+        }
+
         // Pagination
         $perPage = (int) $request->get('per_page', 50);
         $allowedPerPage = [10, 25, 50, 100, 200];
@@ -59,6 +66,20 @@ class OngoingSheetController extends Controller
 
         // Dropdown data for filters
         $offices = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $assignees = Admin::whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
+        // Ensure current user is in the list so they can select themselves by default
+        $currentUser = Auth::user();
+        if ($currentUser && $assignees->pluck('id')->doesntContain($currentUser->id)) {
+            $assignees->push($currentUser);
+            $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
+        }
+        $currentStages = Application::select('stage')
+            ->whereNotIn('status', [2])
+            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         $activeFilterCount = $this->countActiveFilters($request);
 
         // Return view
@@ -66,7 +87,10 @@ class OngoingSheetController extends Controller
             'rows',
             'perPage',
             'activeFilterCount',
-            'offices'
+            'offices',
+            'branches',
+            'assignees',
+            'currentStages'
         ));
     }
 
@@ -75,7 +99,7 @@ class OngoingSheetController extends Controller
      */
     protected function getFiltersFromSession(Request $request): array
     {
-        $filterParams = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
+        $filterParams = ['office', 'assignee', 'branch', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
         $hasAnyParam = false;
         foreach ($filterParams as $key) {
             if ($request->has($key) && $request->input($key) !== null && $request->input($key) !== '') {
@@ -96,6 +120,9 @@ class OngoingSheetController extends Controller
     {
         $payload = [
             'office' => $request->input('office'),
+            'assignee' => $request->input('assignee'),
+            'branch' => $request->input('branch'),
+            'current_stage' => $request->input('current_stage'),
             'visa_expiry_from' => $request->input('visa_expiry_from'),
             'visa_expiry_to' => $request->input('visa_expiry_to'),
             'search' => $request->input('search'),
@@ -111,12 +138,16 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Build base query: clients with optional LEFT JOIN to ongoing references
+     * Build base query: one row per application (application-focused sheet).
+     * Clients with multiple applications get multiple rows; rows for the same client stay together when sorting.
      */
     protected function buildBaseQuery(Request $request)
     {
-        $query = Admin::query()
+        $query = Application::query()
             ->select([
+                'applications.id as application_id',
+                'applications.stage as application_stage',
+                'products.name as course_name',
                 'admins.id as client_id',
                 'admins.client_id as crm_ref',
                 'admins.first_name',
@@ -126,31 +157,46 @@ class OngoingSheetController extends Controller
                 'admins.visa_type',
                 'admins.visa_opt',
                 'admins.office_id',
-                // Ongoing reference data (LEFT JOIN)
+                // Institute for this application (from joined partner)
+                'partners.partner_name',
+                // Our office branch (client's assigned office)
+                'branches.office_name as branch_name',
+                // Assignee (user assigned to this application)
+                'assignee.first_name as assignee_first_name',
+                'assignee.last_name as assignee_last_name',
+                // Ongoing reference data (per client)
                 'ongoing.current_status',
                 'ongoing.payment_display_note',
                 'ongoing.institute_override',
                 'ongoing.visa_category_override',
-                // Payment sum (subquery)
+                // Payment sum (subquery, per client)
                 DB::raw('(SELECT COALESCE(SUM(deposit_amount), 0) 
                          FROM account_client_receipts 
                          WHERE client_id = admins.id 
                          AND receipt_type = 1) as total_payment'),
-                // Institute from latest application (subquery)
-                DB::raw('(SELECT partners.partner_name 
-                         FROM applications 
-                         LEFT JOIN partners ON applications.partner_id = partners.id 
-                         WHERE applications.client_id = admins.id 
-                         ORDER BY applications.id DESC 
-                         LIMIT 1) as partner_name'),
-                // Fallback institute from service_takens
+                // Fallback institute from service_takens (per client)
                 DB::raw('(SELECT edu_college 
                          FROM client_service_takens 
                          WHERE client_id = admins.id 
                          ORDER BY id DESC 
-                         LIMIT 1) as service_college')
+                         LIMIT 1) as service_college'),
+                // Latest sheet comment (one per application, replaced on each new comment)
+                DB::raw("(SELECT aal.comment FROM application_activities_logs aal 
+                         WHERE aal.app_id = applications.id AND aal.type = 'sheet_comment' 
+                         ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
             ])
+            ->join('admins', 'applications.client_id', '=', 'admins.id')
+            ->leftJoin('products', 'applications.product_id', '=', 'products.id')
+            ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
+            ->leftJoin('branches', 'admins.office_id', '=', 'branches.id')
+            ->leftJoin('admins as assignee', 'applications.user_id', '=', 'assignee.id')
             ->leftJoin('client_ongoing_references as ongoing', 'ongoing.client_id', '=', 'admins.id')
+            ->whereNotIn('applications.status', [2]) // Exclude discontinued applications
+            ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
+                'coe issued',
+                'enrolled',
+                'coe cancelled',
+            ])
             ->where('admins.role', 7) // Clients only
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
@@ -169,6 +215,21 @@ class OngoingSheetController extends Controller
                 ? $request->input('office')
                 : [$request->input('office')];
             $query->whereIn('admins.office_id', $offices);
+        }
+
+        // Assignee filter ("all" = no filter)
+        if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
+            $query->where('applications.user_id', $request->input('assignee'));
+        }
+
+        // Branch filter (client's office/branch)
+        if ($request->filled('branch')) {
+            $query->where('admins.office_id', $request->input('branch'));
+        }
+
+        // Current stage filter
+        if ($request->filled('current_stage')) {
+            $query->where('applications.stage', $request->input('current_stage'));
         }
 
         // Visa expiry date range
@@ -197,7 +258,8 @@ class OngoingSheetController extends Controller
                 $q->whereRaw('LOWER(admins.first_name) LIKE ?', [$search])
                     ->orWhereRaw('LOWER(admins.last_name) LIKE ?', [$search])
                     ->orWhereRaw('LOWER(admins.client_id) LIKE ?', [$search])
-                    ->orWhereRaw('LOWER(ongoing.current_status) LIKE ?', [$search]);
+                    ->orWhereRaw('LOWER(ongoing.current_status) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(applications.stage) LIKE ?', [$search]);
             });
         }
 
@@ -205,7 +267,8 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Apply sorting to query
+     * Apply sorting to query. Rows for the same client always stay together:
+     * order by sort column (client-level), then client id, then application id.
      */
     protected function applySorting($query, Request $request)
     {
@@ -217,6 +280,7 @@ class OngoingSheetController extends Controller
         }
 
         $sortableFields = [
+            'application_id' => 'applications.id',
             'client_id' => 'admins.client_id',
             'name' => 'admins.first_name',
             'dob' => 'admins.dob',
@@ -224,7 +288,10 @@ class OngoingSheetController extends Controller
         ];
 
         $actualSortField = $sortableFields[$sortField] ?? 'admins.client_id';
-        $query->orderBy($actualSortField, $sortDirection);
+        // Keep all applications of the same client together: sort by chosen field, then client, then application
+        $query->orderBy($actualSortField, $sortDirection)
+              ->orderBy('admins.id', 'asc')
+              ->orderBy('applications.id', 'asc');
 
         return $query;
     }
@@ -234,12 +301,27 @@ class OngoingSheetController extends Controller
      */
     protected function countActiveFilters(Request $request)
     {
-        $filters = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search'];
         $count = 0;
-        foreach ($filters as $filter) {
-            if ($request->filled($filter)) {
-                $count++;
-            }
+        if ($request->filled('office')) {
+            $count++;
+        }
+        if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
+            $count++;
+        }
+        if ($request->filled('branch')) {
+            $count++;
+        }
+        if ($request->filled('current_stage')) {
+            $count++;
+        }
+        if ($request->filled('visa_expiry_from')) {
+            $count++;
+        }
+        if ($request->filled('visa_expiry_to')) {
+            $count++;
+        }
+        if ($request->filled('search')) {
+            $count++;
         }
         return $count;
     }
@@ -291,6 +373,43 @@ class OngoingSheetController extends Controller
             'success' => true,
             'message' => 'Ongoing reference updated successfully',
             'data' => $ongoingRef
+        ]);
+    }
+
+    /**
+     * Store or replace sheet comment for an application (Option A: one current comment per app).
+     * Appears in Notes & Activity with course and college name; filter by sheet_comment.
+     */
+    public function storeSheetComment(Request $request)
+    {
+        $request->validate([
+            'application_id' => 'required|integer|exists:applications,id',
+            'comment' => 'required|string|max:65535',
+        ]);
+
+        $app = Application::with(['product', 'partner'])->findOrFail($request->application_id);
+        $courseName = $app->product ? $app->product->name : '—';
+        $collegeName = $app->partner ? $app->partner->partner_name : '—';
+        $title = "Course: {$courseName}, College: {$collegeName}";
+
+        $log = ApplicationActivitiesLog::updateOrCreate(
+            [
+                'app_id' => $request->application_id,
+                'type' => 'sheet_comment',
+            ],
+            [
+                'stage' => 'Sheet comment',
+                'comment' => $request->comment,
+                'title' => $title,
+                'description' => '',
+                'user_id' => Auth::id(),
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment saved. Previous comment replaced.',
+            'data' => ['comment' => $log->comment, 'title' => $log->title],
         ]);
     }
 }

@@ -345,42 +345,73 @@ class ApplicationsController extends Controller
 	
 	public function getapplicationnotes(Request $request){
 		$noteid =  $request->id;
+		$filter = $request->get('filter', 'all'); // all | note | sheet_comment
 
-		
-		$lists = \App\Models\ApplicationActivitiesLog::where('type','note')->where('app_id',$noteid)->orderby('created_at', 'DESC')->get();
-		
+		$query = \App\Models\ApplicationActivitiesLog::where('app_id', $noteid);
+		if ($filter === 'note') {
+			$query->where('type', 'note');
+		} elseif ($filter === 'sheet_comment') {
+			$query->where('type', 'sheet_comment');
+		} else {
+			$query->whereIn('type', ['note', 'sheet_comment']);
+		}
+		$lists = $query->orderby('updated_at', 'DESC')->get();
+
+		$notesUrl = url('/getapplicationnotes');
 		ob_start();
 			?>
-			<div class="note_term_list"> 
+			<div class="notes-tab-content" data-app-id="<?php echo (int) $noteid; ?>" data-notes-url="<?php echo e($notesUrl); ?>">
+				<div class="mb-3">
+					<label class="me-2">Filter:</label>
+					<select id="notes_filter_type" class="form-control form-control-sm d-inline-block" style="width: auto;">
+						<option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All</option>
+						<option value="note" <?php echo $filter === 'note' ? 'selected' : ''; ?>>Notes only</option>
+						<option value="sheet_comment" <?php echo $filter === 'sheet_comment' ? 'selected' : ''; ?>>Sheet comments only</option>
+					</select>
+				</div>
+				<div class="note_term_list">
 				<?php
 				foreach($lists as $list){
 					$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+					$isSheetComment = ($list->type === 'sheet_comment');
+					$titleDisplay = $isSheetComment ? $list->title : (@$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...'));
+					$descDisplay = $isSheetComment ? $list->comment : (@$list->description == "" ? config('constants.empty') : str_limit(@$list->description, '15', '...'));
 				?>
-					<div class="note_col" id="note_id_<?php echo $list->id; ?>"> 
+					<div class="note_col" id="note_id_<?php echo $list->id; ?>">
 						<div class="note_content">
-							<h4><a class="viewapplicationnote" data-id="<?php echo $list->id; ?>" href="javascript:;"><?php echo @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...'); ?></a></h4>
-							<p><?php echo @$list->description == "" ? config('constants.empty') : str_limit(@$list->description, '15', '...'); ?></p>
+							<h4><a class="viewapplicationnote" data-id="<?php echo $list->id; ?>" href="javascript:;"><?php echo e($titleDisplay); ?></a></h4>
+							<p><?php echo e($descDisplay); ?></p>
 						</div>
 						<div class="extra_content">
 							<div class="left">
 								<div class="author">
-									<a href="#"><?php echo substr($admin->first_name, 0, 1); ?></a>
+									<a href="#"><?php echo $admin ? substr($admin->first_name, 0, 1) : ''; ?></a>
 								</div>
 								<div class="note_modify">
 									<small>Last Modified <span><?php echo date('Y-m-d', strtotime($list->updated_at)); ?></span></small>
 								</div>
-							</div>  
-							<div class="right">
-								
 							</div>
+							<div class="right"></div>
 						</div>
 					</div>
 				<?php } ?>
 				</div>
 				<div class="clearfix"></div>
+			</div>
+			<script>
+			(function(){
+				var $notes = $('#notes');
+				$(document).off('change', '#notes_filter_type').on('change', '#notes_filter_type', function(){
+					var appId = $(this).closest('.notes-tab-content').data('app-id');
+					var url = $(this).closest('.notes-tab-content').data('notes-url');
+					var filter = $(this).val();
+					if (!appId || !url) return;
+					$.get(url, { id: appId, filter: filter }, function(html){ $notes.html(html); });
+				});
+			})();
+			</script>
 			<?php
 			echo ob_get_clean();
-		
 	}
 	
 	public function applicationsendmail(Request $request){
