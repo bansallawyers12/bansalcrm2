@@ -37,6 +37,11 @@ class OngoingSheetController extends Controller
         // Merge request with session-stored filters (session as fallback when no query params)
         $request->merge($this->getFiltersFromSession($request));
 
+        // Default assignee to logged-in user when not set (first visit); "all" = show all assignees
+        if (!$request->has('assignee') || $request->input('assignee') === '') {
+            $request->merge(['assignee' => Auth::id()]);
+        }
+
         // Pagination
         $perPage = (int) $request->get('per_page', 50);
         $allowedPerPage = [10, 25, 50, 100, 200];
@@ -61,6 +66,20 @@ class OngoingSheetController extends Controller
 
         // Dropdown data for filters
         $offices = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $assignees = Admin::whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
+        // Ensure current user is in the list so they can select themselves by default
+        $currentUser = Auth::user();
+        if ($currentUser && $assignees->pluck('id')->doesntContain($currentUser->id)) {
+            $assignees->push($currentUser);
+            $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
+        }
+        $currentStages = Application::select('stage')
+            ->whereNotIn('status', [2])
+            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         $activeFilterCount = $this->countActiveFilters($request);
 
         // Return view
@@ -68,7 +87,10 @@ class OngoingSheetController extends Controller
             'rows',
             'perPage',
             'activeFilterCount',
-            'offices'
+            'offices',
+            'branches',
+            'assignees',
+            'currentStages'
         ));
     }
 
@@ -77,7 +99,7 @@ class OngoingSheetController extends Controller
      */
     protected function getFiltersFromSession(Request $request): array
     {
-        $filterParams = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
+        $filterParams = ['office', 'assignee', 'branch', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
         $hasAnyParam = false;
         foreach ($filterParams as $key) {
             if ($request->has($key) && $request->input($key) !== null && $request->input($key) !== '') {
@@ -98,6 +120,9 @@ class OngoingSheetController extends Controller
     {
         $payload = [
             'office' => $request->input('office'),
+            'assignee' => $request->input('assignee'),
+            'branch' => $request->input('branch'),
+            'current_stage' => $request->input('current_stage'),
             'visa_expiry_from' => $request->input('visa_expiry_from'),
             'visa_expiry_to' => $request->input('visa_expiry_to'),
             'search' => $request->input('search'),
@@ -192,6 +217,21 @@ class OngoingSheetController extends Controller
             $query->whereIn('admins.office_id', $offices);
         }
 
+        // Assignee filter ("all" = no filter)
+        if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
+            $query->where('applications.user_id', $request->input('assignee'));
+        }
+
+        // Branch filter (client's office/branch)
+        if ($request->filled('branch')) {
+            $query->where('admins.office_id', $request->input('branch'));
+        }
+
+        // Current stage filter
+        if ($request->filled('current_stage')) {
+            $query->where('applications.stage', $request->input('current_stage'));
+        }
+
         // Visa expiry date range
         if ($request->filled('visa_expiry_from')) {
             try {
@@ -261,12 +301,27 @@ class OngoingSheetController extends Controller
      */
     protected function countActiveFilters(Request $request)
     {
-        $filters = ['office', 'visa_expiry_from', 'visa_expiry_to', 'search'];
         $count = 0;
-        foreach ($filters as $filter) {
-            if ($request->filled($filter)) {
-                $count++;
-            }
+        if ($request->filled('office')) {
+            $count++;
+        }
+        if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
+            $count++;
+        }
+        if ($request->filled('branch')) {
+            $count++;
+        }
+        if ($request->filled('current_stage')) {
+            $count++;
+        }
+        if ($request->filled('visa_expiry_from')) {
+            $count++;
+        }
+        if ($request->filled('visa_expiry_to')) {
+            $count++;
+        }
+        if ($request->filled('search')) {
+            $count++;
         }
         return $count;
     }

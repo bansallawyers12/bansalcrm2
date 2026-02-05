@@ -136,6 +136,14 @@
         padding: 0.35rem 0.75rem;
         font-size: 0.875rem;
     }
+    .ongoing-assignee-select {
+        min-width: 160px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.875rem;
+        height: auto;
+    }
     
     /* Ongoing sheet table: wider, horizontal scroll */
     .ongoing-sheet-table-wrap {
@@ -194,13 +202,25 @@
             <div class="card ongoing-filter-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <button class="ongoing-filter-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
-                            <i class="fas fa-filter"></i>
-                            <span>Filters</span>
-                            @if($activeFilterCount > 0)
-                                <span class="badge">{{ $activeFilterCount }}</span>
-                            @endif
-                        </button>
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <button class="ongoing-filter-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}" aria-controls="filterPanel">
+                                <i class="fas fa-filter"></i>
+                                <span>Filters</span>
+                                @if($activeFilterCount > 0)
+                                    <span class="badge">{{ $activeFilterCount }}</span>
+                                @endif
+                            </button>
+                            <label class="mb-0 d-flex align-items-center gap-1">
+                                <span class="text-nowrap text-muted small">Assignee</span>
+                                <select id="ongoing-assignee-bar" class="form-control ongoing-assignee-select" aria-label="Assignee">
+                                    <option value="all" {{ request('assignee') === 'all' || request('assignee') === '' ? 'selected' : '' }}>All</option>
+                                    @foreach($assignees as $a)
+                                        @php $displayName = trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) ?: ($a->email ?? '—'); @endphp
+                                        <option value="{{ $a->id }}" {{ request('assignee') == $a->id ? 'selected' : '' }}>{{ $displayName }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                        </div>
                         
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             @if($activeFilterCount > 0)
@@ -225,6 +245,7 @@
                         <div class="ongoing-filter-panel">
                             <form method="get" action="{{ route('clients.sheets.ongoing') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
+                                <input type="hidden" name="assignee" value="{{ request('assignee') }}">
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label">Office</label>
@@ -248,6 +269,30 @@
                                         <label class="form-label">Visa Expiry To</label>
                                         <input type="text" name="visa_expiry_to" class="form-control dobdatepicker" 
                                                placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}" autocomplete="off">
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label">Branch</label>
+                                        <select name="branch" class="form-control select2-single">
+                                            <option value="">All branches</option>
+                                            @foreach($branches as $b)
+                                                <option value="{{ $b->id }}" {{ request('branch') == $b->id ? 'selected' : '' }}>
+                                                    {{ $b->office_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label">Current Stage</label>
+                                        <select name="current_stage" class="form-control select2-single">
+                                            <option value="">All stages</option>
+                                            @foreach($currentStages as $value => $label)
+                                                <option value="{{ $value }}" {{ request('current_stage') == $value ? 'selected' : '' }}>
+                                                    {{ $label ?: '—' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     
                                     <div class="col-12">
@@ -409,11 +454,25 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Initialize Select2 for office filter
+    // Initialize Select2 for office filter (multiple)
     $('.select2').select2({
         placeholder: 'Select offices',
         allowClear: true,
         width: '100%'
+    });
+    // Initialize Select2 for single-select filters
+    $('.select2-single').select2({
+        placeholder: 'Select...',
+        allowClear: true,
+        width: '100%'
+    });
+    // Assignee in top bar: navigate on change, preserve other params
+    $('#ongoing-assignee-bar').on('change', function() {
+        var assignee = $(this).val();
+        var params = new URLSearchParams(window.location.search);
+        params.set('assignee', assignee || 'all');
+        params.delete('page');
+        window.location.href = '{{ route("clients.sheets.ongoing") }}?' + params.toString();
     });
     
     // Sheet comment: open modal
