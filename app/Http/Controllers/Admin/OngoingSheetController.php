@@ -16,7 +16,7 @@ use Carbon\Carbon;
 
 class OngoingSheetController extends Controller
 {
-    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue'];
+    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue', 'checklist'];
 
     public function __construct()
     {
@@ -38,6 +38,7 @@ class OngoingSheetController extends Controller
             'ongoing'       => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
             'coe_enrolled' => ['title' => 'COE Issued & Enrolled', 'route' => 'clients.sheets.coe-enrolled', 'session_key' => 'coe_enrolled_sheet_filters'],
             'discontinue'   => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
+            'checklist'    => ['title' => 'Checklist', 'route' => 'clients.sheets.checklist', 'session_key' => 'checklist_sheet_filters'],
         ];
         return $configs[$sheetType] ?? $configs['ongoing'];
     }
