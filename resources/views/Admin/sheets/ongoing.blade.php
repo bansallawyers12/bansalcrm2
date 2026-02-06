@@ -233,6 +233,10 @@
         max-width: 220px;
         min-width: 120px;
     }
+    .checklist-status-cell .checklist-status-select {
+        min-width: 140px;
+        max-width: 180px;
+    }
     .comment-cell .sheet-comment-text {
         display: inline-block;
         max-height: 3.6em;
@@ -398,12 +402,15 @@
                                     <th>Visa Category</th>
                                     <th>Current Stage</th>
                                     <th>Comment</th>
+                                    @if(isset($sheetType) && $sheetType === 'checklist')
+                                    <th>Status</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @if($rows->isEmpty())
                                     <tr>
-                                        <td colspan="12" class="text-center py-4">
+                                        <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 13 : 12 }}" class="text-center py-4">
                                             <i class="fas fa-info-circle fa-2x text-muted mb-2 d-block"></i>
                                             <p class="mb-0">No records found.</p>
                                         </td>
@@ -458,6 +465,19 @@
                                                 <span class="sheet-comment-text">{{ $row->sheet_comment_text ?? '—' }}</span>
                                                 <a href="javascript:;" class="sheet-comment-edit ms-1" data-app-id="{{ $row->application_id }}" data-comment="{{ e($row->sheet_comment_text ?? '') }}" title="Add/Edit comment"><i class="fas fa-edit text-muted small"></i></a>
                                             </td>
+                                            @if(isset($sheetType) && $sheetType === 'checklist')
+                                            <td class="checklist-status-cell" onclick="event.stopPropagation();">
+                                                @php
+                                                    $currentStatus = $row->checklist_sheet_status ?? 'active';
+                                                    $statusLabels = ['active' => 'Active', 'convert_to_client' => 'Convert to client', 'discontinue' => 'Discontinue', 'hold' => 'Hold'];
+                                                @endphp
+                                                <select class="form-control form-control-sm checklist-status-select" data-app-id="{{ $row->application_id }}" title="Status">
+                                                    @foreach($statusLabels as $val => $label)
+                                                    <option value="{{ $val }}" {{ $currentStatus === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 @endif
@@ -706,6 +726,50 @@ $(document).ready(function() {
             },
             complete: function() { $btn.prop('disabled', false); }
         });
+    });
+
+    // Checklist sheet: Status dropdown — update status; reload if row leaves sheet or Hold (reorder)
+    $(document).on('change', '.checklist-status-select', function() {
+        var $select = $(this);
+        var appId = $select.data('app-id');
+        var status = $select.val();
+        var $selectParent = $select.closest('td');
+        $select.prop('disabled', true);
+        $.ajax({
+            url: '{{ route("clients.sheets.checklist.update-status") }}',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                _token: '{{ csrf_token() }}',
+                application_id: parseInt(appId, 10),
+                status: status
+            },
+            success: function(res) {
+                if (res && res.success) {
+                    if (res.data && res.data.leaves_sheet) {
+                        location.reload();
+                    } else if (status === 'hold') {
+                        location.reload();
+                    }
+                } else {
+                    alert((res && res.message) || 'Failed to update status.');
+                    $select.val($select.data('previous') || 'active');
+                }
+                $select.prop('disabled', false);
+            },
+            error: function(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update status.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                alert(msg);
+                $select.val($select.data('previous') || 'active');
+                $select.prop('disabled', false);
+            }
+        });
+    });
+    $(document).on('focus', '.checklist-status-select', function() {
+        $(this).data('previous', $(this).val());
     });
 });
 </script>

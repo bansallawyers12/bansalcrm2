@@ -86,7 +86,7 @@ class OngoingSheetController extends Controller
         $query = $this->applyFilters($query, $request);
 
         // Apply sorting
-        $query = $this->applySorting($query, $request);
+        $query = $this->applySorting($query, $request, $sheetType);
 
         // Get rows (paginate)
         $rows = $query->paginate($perPage)->appends($request->except('page'));
@@ -175,6 +175,18 @@ class OngoingSheetController extends Controller
     /**
      * Stage dropdown options for the current sheet type.
      */
+    /**
+     * Early stage names for Checklist sheet (first-stage / follow-up).
+     * Returns lowercase list from config for case-insensitive matching.
+     */
+    protected function getChecklistEarlyStages(): array
+    {
+        $stages = config('sheets.checklist_early_stages', []);
+        return array_values(array_map(function ($s) {
+            return strtolower(trim((string) $s));
+        }, is_array($stages) ? $stages : []));
+    }
+
     protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
     {
         if ($sheetType === 'coe_enrolled') {
@@ -189,17 +201,18 @@ class OngoingSheetController extends Controller
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
         if ($sheetType === 'checklist') {
+            $earlyStages = $this->getChecklistEarlyStages();
+            if (empty($earlyStages)) {
+                return collect();
+            }
+            $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
             return Application::select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
                 ->whereNotIn('applications.status', [2])
-                ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
-                ->whereExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('notes')
-                        ->whereColumn('notes.client_id', 'admins.id')
-                        ->whereNotNull('notes.followup_date')
-                        ->where('notes.status', 0)
-                        ->where('notes.type', 'client');
+                ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
+                ->where(function ($q) {
+                    $q->whereNull('applications.checklist_sheet_status')
+                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
                 })
                 ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
         }
@@ -250,7 +263,11 @@ class OngoingSheetController extends Controller
                 DB::raw("(SELECT aal.comment FROM application_activities_logs aal 
                          WHERE aal.app_id = applications.id AND aal.type = 'sheet_comment' 
                          ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
-            ])
+            ]);
+        if ($sheetType === 'checklist') {
+            $query->addSelect('applications.checklist_sheet_status');
+        }
+        $query
             ->join('admins', 'applications.client_id', '=', 'admins.id')
             ->leftJoin('products', 'applications.product_id', '=', 'products.id')
             ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
@@ -268,19 +285,18 @@ class OngoingSheetController extends Controller
             if ($sheetType === 'coe_enrolled') {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
             } elseif ($sheetType === 'checklist') {
-                // Checklist: only applications whose client has at least one pending follow-up (Note with followup_date set, status open)
-                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
-                    'coe issued',
-                    'enrolled',
-                    'coe cancelled',
-                ])
-                ->whereExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('notes')
-                        ->whereColumn('notes.client_id', 'admins.id')
-                        ->whereNotNull('notes.followup_date')
-                        ->where('notes.status', 0)
-                        ->where('notes.type', 'client');
+                // Checklist (first-stage / follow-up sheet): applications in early stages only, with or without follow-up.
+                // Status convert_to_client / discontinue = row moves to other sheets.
+                $earlyStages = $this->getChecklistEarlyStages();
+                if (!empty($earlyStages)) {
+                    $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
+                    $query->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages);
+                } else {
+                    $query->whereRaw('1 = 0'); // no early stages configured: show nothing
+                }
+                $query->where(function ($q) {
+                    $q->whereNull('applications.checklist_sheet_status')
+                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
                 });
             } else {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
@@ -359,8 +375,9 @@ class OngoingSheetController extends Controller
     /**
      * Apply sorting to query. Rows for the same client always stay together:
      * order by sort column (client-level), then client id, then application id.
+     * For checklist sheet: Hold status rows sort to the bottom.
      */
-    protected function applySorting($query, Request $request)
+    protected function applySorting($query, Request $request, string $sheetType = 'ongoing')
     {
         $sortField = $request->get('sort', 'client_id');
         $sortDirection = $request->get('direction', 'asc');
@@ -378,6 +395,12 @@ class OngoingSheetController extends Controller
         ];
 
         $actualSortField = $sortableFields[$sortField] ?? 'admins.client_id';
+
+        // Checklist: Hold rows at the bottom (order by hold last)
+        if ($sheetType === 'checklist') {
+            $query->orderByRaw("CASE WHEN COALESCE(applications.checklist_sheet_status, 'active') = 'hold' THEN 1 ELSE 0 END ASC");
+        }
+
         // Keep all applications of the same client together: sort by chosen field, then client, then application
         $query->orderBy($actualSortField, $sortDirection)
               ->orderBy('admins.id', 'asc')
@@ -512,6 +535,42 @@ class OngoingSheetController extends Controller
             'success' => true,
             'message' => 'Comment saved. Previous comment replaced.',
             'data' => ['comment' => $log->comment, 'title' => $log->title],
+        ]);
+    }
+
+    /**
+     * Update checklist sheet status for an application.
+     * active / hold = stay on Checklist (hold sorts to bottom).
+     * convert_to_client = leaves Checklist, appears on Ongoing.
+     * discontinue = leaves Checklist, appears on Discontinue; sets application status = 2.
+     */
+    public function updateChecklistStatus(Request $request)
+    {
+        $request->validate([
+            'application_id' => 'required|integer|exists:applications,id',
+            'status' => 'required|string|in:active,convert_to_client,discontinue,hold',
+        ]);
+
+        $app = Application::findOrFail($request->application_id);
+        $status = $request->input('status');
+
+        $app->checklist_sheet_status = $status;
+
+        if ($status === 'discontinue') {
+            $app->status = 2;
+        }
+
+        $app->save();
+
+        $leavesSheet = in_array($status, ['convert_to_client', 'discontinue'], true);
+
+        return response()->json([
+            'success' => true,
+            'message' => $leavesSheet ? 'Status updated. Row has moved to the respective sheet.' : 'Status updated.',
+            'data' => [
+                'status' => $status,
+                'leaves_sheet' => $leavesSheet,
+            ],
         ]);
     }
 }

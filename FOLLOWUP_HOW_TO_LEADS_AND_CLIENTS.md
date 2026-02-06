@@ -1,16 +1,17 @@
 # How to Add Follow-Up for Leads and Clients
 
-## Checklist sheet (follow-up only)
+## Checklist sheet (first-stage / follow-up sheet)
 
-The **Checklist** sheet (Sheets → Checklist) now shows **only applications whose client has a pending follow-up**:
+The **Checklist** sheet (Sheets → Checklist) is **separate from the follow-up system**. It shows applications that are in a **very early stage** (first-stage), with or without a follow-up:
 
-- Client has at least one **Note** (action) with:
-  - `followup_date` set
-  - `status` = 0 (open/pending)
-  - `type` = `client`
-- Application is not discontinued and stage is not COE Issued, Enrolled, or COE Cancelled.
+- Application **stage** is one of the configured “early stages” (e.g. New, Inquiry, Application received). Configure in **config/sheets.php** → `checklist_early_stages`.
+- Application is not discontinued; Checklist Status is **Active** or **Hold** (not Convert to client or Discontinue).
 
-So the Checklist is a “follow-up only” view: add a follow-up for a client (see below) and that client’s applications will appear on the Checklist until the follow-up is completed or the date is cleared.
+**New applications** get default Status **Active** and appear on Checklist when their stage is in the early-stages list. The last column **Status** lets you move rows:
+- **Active** – stays on Checklist (normal order).
+- **Hold** – stays on Checklist but sorts to the bottom.
+- **Convert to client** – row leaves Checklist and appears on **Ongoing** sheet.
+- **Discontinue** – row leaves Checklist and appears on **Discontinue** sheet; application is marked discontinued.
 
 ---
 
@@ -57,7 +58,7 @@ So the Checklist is a “follow-up only” view: add a follow-up for a client (s
 3. Fill **Subject**, **Description**, **Assignee**, and **Follow-up date/time** (`followup_datetime`).
 4. Save. The action is stored as a **Note** with `followup_date` set and `folloup` = 1, `type` = `client`, `status` = 0.
 
-When that client has at least one such **pending** follow-up (open, with a date), their applications will show on the **Checklist** sheet.
+Client follow-ups are used for the **Action** list and **Action calendar**; the **Checklist** sheet no longer depends on follow-ups (it shows by early stage + Status).
 
 ### Technical
 
@@ -79,6 +80,6 @@ When that client has at least one such **pending** follow-up (open, with a date)
 | **Storage**   | `followups` table (Followup model) | `notes` table (Note model)                       |
 | **Add from**  | Lead detail → follow-up / notes    | Client detail → Assign action, or Action module  |
 | **Date field**| `followup_date`                    | `followup_date` (and optional `followup_datetime` in request) |
-| **Checklist** | —                                  | Checklist sheet shows apps whose client has a pending Note follow-up |
+| **Checklist** | —                                  | Checklist sheet shows apps in early stages (config: `checklist_early_stages`); Status column moves rows to Ongoing / Discontinue or Hold at bottom. |
 
-To have a client’s applications appear on **Checklist**, add at least one **client action (Note)** with a **follow-up date** and leave it **open** (`status` = 0). Complete or remove the follow-up and they will drop off the Checklist (when no other pending follow-up exists for that client).
+The **Checklist** sheet is independent of follow-ups: applications appear when their **stage** is in the early-stages list. Adjust **config/sheets.php** → `checklist_early_stages` to match your workflow’s first stage names (e.g. New, Inquiry, Application received).

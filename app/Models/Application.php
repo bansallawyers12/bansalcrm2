@@ -17,7 +17,7 @@ class Application extends Model
 	
 	protected $fillable = [
         'id', 'client_id', 'user_id', 'product_id', 'partner_id', 'branch', 
-        'workflow', 'stage', 'status', 'created_at', 'updated_at'
+        'workflow', 'stage', 'status', 'checklist_sheet_status', 'created_at', 'updated_at'
     ];
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];

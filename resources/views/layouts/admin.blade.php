@@ -560,6 +560,9 @@ i[style*="color:rgba"] {
 	</script>
 	@endauth
 
+	<!-- Auto-logout after 15 minutes of inactivity -->
+	<script src="{{ asset('js/inactivity-logout.js') }}" defer></script>
+
 @stack('scripts')
 @yield('scripts')	
 	<!--<script src="{{--asset('js/custom-chart.js')--}}"></script>-->  

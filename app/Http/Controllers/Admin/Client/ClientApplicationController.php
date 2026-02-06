@@ -45,6 +45,7 @@ class ClientApplicationController extends Controller
 			$obj->product_id = $product;
 			$obj->status = $status;
 			$obj->stage = $stage;
+			$obj->checklist_sheet_status = 'active'; // first-stage sheet: new apps show on Checklist until status is changed
 			$obj->sale_forcast = $sale_forcast;
 			$obj->client_id = $client_id;
 			$saved = $obj->save();

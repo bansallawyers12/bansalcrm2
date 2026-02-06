@@ -204,6 +204,7 @@ Route::middleware(['auth:admin'])->group(function() {
 
         Route::post('/ongoing/{clientId}/update', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateReference'])->name('ongoing.update');
         Route::post('/ongoing/sheet-comment', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'storeSheetComment'])->name('ongoing.sheet-comment');
+        Route::post('/checklist/status', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateChecklistStatus'])->name('checklist.update-status');
     });
 });
 
