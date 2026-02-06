@@ -142,8 +142,8 @@ jQuery(document).ready(function($){
                 var subjct_message = res.subject.replace('{Client First Name}', client_firstname).replace('{client reference}', client_reference_number);
                 $('.selectedsubject').val(subjct_message);
       
-                if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                    $("#emailmodal .summernote-simple").summernote('reset');
+                if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                    TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
                 }
       
                 var subjct_description = res.description
@@ -153,10 +153,10 @@ jQuery(document).ready(function($){
                     .replace('{Client Assignee Name}', clientassignee_name)
                     .replace('{client reference}', client_reference_number);
       
-                if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                    $("#emailmodal .summernote-simple").summernote('code', subjct_description);
+                if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                    TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", subjct_description);
                 }
-                $("#emailmodal .summernote-simple").val(subjct_description);
+                $("#emailmodal .tinymce-simple").val(subjct_description);
             }
         });
     });
@@ -172,11 +172,11 @@ jQuery(document).ready(function($){
             success: function(response){
                 var res = typeof response === 'string' ? JSON.parse(response) : response;
                 $('.selectedappsubject').val(res.subject);
-                if($("#applicationemailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                    $("#applicationemailmodal .summernote-simple").summernote('reset');
-                    $("#applicationemailmodal .summernote-simple").summernote('code', res.description);
+                if($("#applicationemailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                    TinyMCEHelpers.resetBySelector("#applicationemailmodal .tinymce-simple");
+                    TinyMCEHelpers.setContentBySelector("#applicationemailmodal .tinymce-simple", res.description);
                 }
-                $("#applicationemailmodal .summernote-simple").val(res.description);
+                $("#applicationemailmodal .tinymce-simple").val(res.description);
             }
         });
     });
@@ -235,12 +235,12 @@ jQuery(document).ready(function($){
         var form = $(this);
         var url = form.attr('action') || App.getUrl('sendMail') || App.getUrl('siteUrl') + '/sendmail';
         
-        // Get summernote content if available
+        // Get TinyMCE content if available
         var emailContent = '';
-        if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-            emailContent = $("#emailmodal .summernote-simple").summernote('code');
+        if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+            emailContent = TinyMCEHelpers.getContentBySelector("#emailmodal .tinymce-simple");
         } else {
-            emailContent = $("#emailmodal .summernote-simple").val();
+            emailContent = $("#emailmodal .tinymce-simple").val();
         }
         
         // Validate required fields before submission
@@ -275,7 +275,7 @@ jQuery(document).ready(function($){
         // Create FormData to handle file uploads
         var formData = new FormData(form[0]);
         
-        // Override/ensure message field has summernote content
+        // Override/ensure message field has TinyMCE content
         formData.set('message', emailContent);
         
         $('.popuploader').show();
@@ -297,8 +297,8 @@ jQuery(document).ready(function($){
                     $('#emailmodal').modal('hide');
                     // Reset form
                     form[0].reset();
-                    if($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                        $("#emailmodal .summernote-simple").summernote('reset');
+                    if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                        TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
                     }
                     if(typeof getallactivities === 'function') {
                         getallactivities();

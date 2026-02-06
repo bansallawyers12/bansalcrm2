@@ -19,7 +19,7 @@
 		<div class="col-sm-12">
 		
 			<input name="lead_id" type="hidden" value="{{base64_encode(convert_uuencode(@$fetchedData->id))}}">
-			<textarea id="description" name="description" class="form-control summernote-simple" placeholder="Add note" style="">{{$fetchedData->note}}</textarea>
+			<textarea id="description" name="description" class="form-control tinymce-simple" placeholder="Add note" style="">{{$fetchedData->note}}</textarea>
 		</div>
 	</div>
 

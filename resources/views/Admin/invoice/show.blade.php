@@ -680,7 +680,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" name="message"></textarea>
+								<textarea class="tinymce-simple selectedmessage" name="message"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
@@ -935,9 +935,8 @@ $(document).delegate('.accepteducation', 'click', function(){
 			success: function(response){
 				var res = JSON.parse(response);
 				$('.selectedsubject').val(res.subject);
-				 $(".summernote-simple").summernote('reset');  
-						$(".summernote-simple").summernote('code', res.description);  
-						$(".summernote-simple").val(res.description); 
+				 if (typeof TinyMCEHelpers !== 'undefined') { TinyMCEHelpers.resetBySelector(".tinymce-simple"); TinyMCEHelpers.setContentBySelector(".tinymce-simple", res.description); }
+						$(".tinymce-simple").val(res.description); 
 				
 			}
 		});

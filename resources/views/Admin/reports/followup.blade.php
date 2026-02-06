@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Followup')
+@section('title', 'Action')
 
 @section('content')
 <style>
@@ -23,7 +23,7 @@
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
 						<div class="card-header">
-							<h4>Followup</h4>
+							<h4>Action</h4>
 							
 						</div>
 						<div class="card-body">

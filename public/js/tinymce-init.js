@@ -1,6 +1,6 @@
 /**
  * TinyMCE Initialization Script
- * Replaces Summernote and CKEditor
+ * Single rich-text editor; use .tinymce-simple (compact) or .tinymce-full (full toolbar).
  */
 
 (function() {
@@ -13,27 +13,26 @@
             return;
         }
 
-        // Ensure all summernote-simple elements have IDs
-        $('.summernote-simple, .tinymce-simple').each(function() {
+        // Ensure all tinymce-simple elements have IDs
+        $('.tinymce-simple').each(function() {
             if (!$(this).attr('id')) {
                 $(this).attr('id', 'tinymce_' + Math.random().toString(36).substr(2, 9));
             }
         });
 
-        // Simple mode configuration (replaces Summernote simple)
-        // Used with class: "summernote-simple" or "tinymce-simple"
+        // Simple mode: compact toolbar (e.g. email signature, short notes)
         tinymce.init({
-            selector: '.summernote-simple, .tinymce-simple',
+            selector: '.tinymce-simple',
             license_key: 'gpl',
             apiKey: 'hb79upb7jkaf2aid0a2roy4l51kl8kae9k5rn2wxwtl0jry9',
             height: 150,
             menubar: false,
             plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
                 'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
             ],
-            toolbar: 'bold italic underline strikethrough | bullist numlist | link | removeformat',
+            toolbar: 'bold italic underline strikethrough | bullist numlist | link image | removeformat',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,
@@ -56,17 +55,16 @@
             }
         });
 
-        // Ensure all summernote elements have IDs
-        $('.summernote, .tinymce-full').each(function() {
+        // Ensure all tinymce-full elements have IDs
+        $('.tinymce-full').each(function() {
             if (!$(this).attr('id')) {
                 $(this).attr('id', 'tinymce_' + Math.random().toString(36).substr(2, 9));
             }
         });
 
-        // Full mode configuration (replaces Summernote full and CKEditor)
-        // Used with class: "summernote" or "tinymce-full"
+        // Full mode: full toolbar (e.g. email body, descriptions)
         tinymce.init({
-            selector: '.summernote, .tinymce-full',
+            selector: '.tinymce-full',
             license_key: 'gpl',
             apiKey: 'hb79upb7jkaf2aid0a2roy4l51kl8kae9k5rn2wxwtl0jry9',
             height: 250,
@@ -99,7 +97,7 @@
             }
         });
 
-        // CKEditor replacement - for editor1 (used in custom-popover.js)
+        // Dedicated #editor1 instance (e.g. custom-popover.js)
         tinymce.init({
             selector: '#editor1',
             license_key: 'gpl',
@@ -131,9 +129,8 @@
         initTinyMCE();
     }
 
-    // Helper functions to replace Summernote/CKEditor methods
+    // TinyMCE helper API (use by ID selector e.g. '#email_signature', or use *BySelector for CSS selectors)
     window.TinyMCEHelpers = {
-        // Get content from editor (replaces summernote('code') and CKEDITOR.instances['editor1'].getData())
         getContent: function(selector) {
             if (typeof tinymce !== 'undefined') {
                 var editor = tinymce.get(selector);
@@ -156,7 +153,6 @@
             return '';
         },
 
-        // Set content in editor (replaces summernote('code', content) and CKEDITOR.instances['editor1'].setData())
         setContent: function(selector, content) {
             if (typeof tinymce !== 'undefined') {
                 var editor = tinymce.get(selector);
@@ -180,12 +176,29 @@
             }
         },
 
-        // Reset editor (replaces summernote('reset'))
         reset: function(selector) {
             this.setContent(selector, '');
         },
 
-        // Insert HTML (replaces CKEDITOR.instances.editor1.insertHtml())
+        // Resolve CSS selector to editor by ID, then get/set (e.g. "#emailmodal .tinymce-simple")
+        getContentBySelector: function(selector) {
+            var $el = $(selector).first();
+            if (!$el.length) return '';
+            var id = $el.attr('id');
+            if (id) return this.getContent('#' + id);
+            return $el.val() || '';
+        },
+        setContentBySelector: function(selector, content) {
+            var $el = $(selector).first();
+            if (!$el.length) return;
+            var id = $el.attr('id');
+            if (id) this.setContent('#' + id, content);
+            $el.val(content || '');
+        },
+        resetBySelector: function(selector) {
+            this.setContentBySelector(selector, '');
+        },
+
         insertHtml: function(selector, html) {
             if (typeof tinymce !== 'undefined') {
                 var editor = tinymce.get(selector);

@@ -19,15 +19,15 @@
             $('#create_note_d .customerror').html('');
             $('#create_note_d .custom-error').html('');
             
-            if($('#create_note_d .summernote-simple').length > 0){
+            if($('#create_note_d .tinymce-simple').length > 0){
                 try {
-                    if($('#create_note_d .summernote-simple').data('summernote')){
-                        $('#create_note_d .summernote-simple').summernote('code', '');
+                    if($('#create_note_d .tinymce-simple').attr('id')){
+                        TinyMCEHelpers.resetBySelector('#create_note_d .tinymce-simple');
                     } else {
-                        $('#create_note_d .summernote-simple').val('');
+                        $('#create_note_d .tinymce-simple').val('');
                     }
                 } catch(e) {
-                    $('#create_note_d .summernote-simple').val('');
+                    $('#create_note_d .tinymce-simple').val('');
                 }
             }
             
@@ -89,8 +89,8 @@
             $('#create_note input[name="title"]').val('');
             $('#create_note #createNoteModalLabel').html('Create Note');
             $('#create_note input[name="noteid"]').val('');
-            if($("#create_note .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                $("#create_note .summernote-simple").summernote('code','');
+            if($("#create_note .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                TinyMCEHelpers.resetBySelector("#create_note .tinymce-simple");
             }
             if($(this).attr('datatype') == 'note'){
                 $('.is_not_note').hide();
@@ -197,10 +197,10 @@
 
                     if(res.status){
                         $('#create_note input[name="title"]').val(res.data.title);
-                        if($("#create_note .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                            $("#create_note .summernote-simple").summernote('code',res.data.description);
+                        if($("#create_note .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                            TinyMCEHelpers.setContentBySelector("#create_note .tinymce-simple", res.data.description);
                         } else {
-                            $("#create_note .summernote-simple").val(res.data.description);
+                            $("#create_note .tinymce-simple").val(res.data.description);
                         }
                     }
                 }

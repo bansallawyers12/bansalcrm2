@@ -183,9 +183,9 @@ jQuery(document).ready(function($){
         $('#create_note input[name="mailid"]').val(0);
         $('#create_note input[name="title"]').val('');
         $('#create_note #appliationModalLabel').html('Create Note');
-        $("#create_note .summernote-simple").val('');
+        $("#create_note .tinymce-simple").val('');
         $('#create_note input[name="noteid"]').val('');
-        $("#create_note .summernote-simple").summernote('code','');
+        if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.resetBySelector("#create_note .tinymce-simple");
         if($(this).attr('datatype') == 'note'){
             $('.is_not_note').hide();
         }else{
@@ -243,9 +243,9 @@ jQuery(document).ready(function($){
         $('#create_student_note input[name="mailid"]').val(0);
         $('#create_student_note input[name="title"]').val('');
         $('#create_student_note #studentappliationModalLabel').html('Add Note To Student');
-        $("#create_student_note .summernote-simple").val('');
+        $("#create_student_note .tinymce-simple").val('');
         $('#create_student_note input[name="noteid"]').val('');
-        $("#create_student_note .summernote-simple").summernote('code','');
+        if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.resetBySelector("#create_student_note .tinymce-simple");
         if($(this).attr('datatype') == 'note'){
             $('.is_not_note').hide();
         } else {
@@ -385,8 +385,8 @@ jQuery(document).ready(function($){
                 var res = JSON.parse(response);
                 if(res.status){
                     $('#create_note input[name="title"]').val(res.data.title);
-                    $("#create_note .summernote-simple").val(res.data.description);
-                    $("#create_note .summernote-simple").summernote('code',res.data.description);
+                    $("#create_note .tinymce-simple").val(res.data.description);
+                    if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.setContentBySelector("#create_note .tinymce-simple", res.data.description);
                 }
             }
         });
@@ -533,9 +533,8 @@ jQuery(document).ready(function($){
             success: function(response){
                 var res = JSON.parse(response);
                 $('.selectedsubject').val(res.subject);
-                $("#emailmodal .summernote-simple").summernote('reset');
-                $("#emailmodal .summernote-simple").summernote('code', res.description);
-                $("#emailmodal .summernote-simple").val(res.description);
+                if (typeof TinyMCEHelpers !== 'undefined') { TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple"); TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", res.description); }
+                $("#emailmodal .tinymce-simple").val(res.description);
             }
         });
     });
@@ -550,9 +549,8 @@ jQuery(document).ready(function($){
             success: function(response){
                 var res = JSON.parse(response);
                 $('.selectedappsubject').val(res.subject);
-                $("#applicationemailmodal .summernote-simple").summernote('reset');
-                $("#applicationemailmodal .summernote-simple").summernote('code', res.description);
-                $("#applicationemailmodal .summernote-simple").val(res.description);
+                if (typeof TinyMCEHelpers !== 'undefined') { TinyMCEHelpers.resetBySelector("#applicationemailmodal .tinymce-simple"); TinyMCEHelpers.setContentBySelector("#applicationemailmodal .tinymce-simple", res.description); }
+                $("#applicationemailmodal .tinymce-simple").val(res.description);
             }
         });
     });

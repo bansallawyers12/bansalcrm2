@@ -16,7 +16,7 @@ use Carbon\Carbon;
 
 class OngoingSheetController extends Controller
 {
-    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue'];
+    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue', 'checklist'];
 
     public function __construct()
     {
@@ -38,6 +38,7 @@ class OngoingSheetController extends Controller
             'ongoing'       => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
             'coe_enrolled' => ['title' => 'COE Issued & Enrolled', 'route' => 'clients.sheets.coe-enrolled', 'session_key' => 'coe_enrolled_sheet_filters'],
             'discontinue'   => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
+            'checklist'    => ['title' => 'Checklist', 'route' => 'clients.sheets.checklist', 'session_key' => 'checklist_sheet_filters'],
         ];
         return $configs[$sheetType] ?? $configs['ongoing'];
     }
@@ -187,6 +188,21 @@ class OngoingSheetController extends Controller
                 ->select('stage')
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
+        if ($sheetType === 'checklist') {
+            return Application::select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->whereNotIn('applications.status', [2])
+                ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+                ->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('notes')
+                        ->whereColumn('notes.client_id', 'admins.id')
+                        ->whereNotNull('notes.followup_date')
+                        ->where('notes.status', 0)
+                        ->where('notes.type', 'client');
+                })
+                ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
+        }
         return Application::select('stage')
             ->whereNotIn('status', [2])
             ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
@@ -251,6 +267,21 @@ class OngoingSheetController extends Controller
             $query->whereNotIn('applications.status', [2]);
             if ($sheetType === 'coe_enrolled') {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
+            } elseif ($sheetType === 'checklist') {
+                // Checklist: only applications whose client has at least one pending follow-up (Note with followup_date set, status open)
+                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
+                    'coe issued',
+                    'enrolled',
+                    'coe cancelled',
+                ])
+                ->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('notes')
+                        ->whereColumn('notes.client_id', 'admins.id')
+                        ->whereNotNull('notes.followup_date')
+                        ->where('notes.status', 0)
+                        ->where('notes.type', 'client');
+                });
             } else {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
                     'coe issued',

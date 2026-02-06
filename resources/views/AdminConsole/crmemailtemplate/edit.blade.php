@@ -55,7 +55,7 @@
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="description">Description</label><br>
-														<textarea class="form-control summernote-simple" name="description">{{@$fetchedData->description}}</textarea>
+														<textarea class="form-control tinymce-simple" name="description">{{@$fetchedData->description}}</textarea>
 													</div>
 												</div>
 											</div>

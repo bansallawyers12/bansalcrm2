@@ -117,7 +117,7 @@
 	?>
 
 		<?php
-		$sheetsRouteNames = ['clients.sheets.ongoing', 'clients.sheets.ongoing.insights', 'clients.sheets.coe-enrolled', 'clients.sheets.discontinue'];
+		$sheetsRouteNames = ['clients.sheets.ongoing', 'clients.sheets.ongoing.insights', 'clients.sheets.coe-enrolled', 'clients.sheets.discontinue', 'clients.sheets.checklist'];
 		if(in_array(Route::currentRouteName(), $sheetsRouteNames)){
 			$sheetsclasstype = 'active';
 		}
@@ -138,6 +138,11 @@
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.discontinue' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.discontinue') }}">
 						<i class="fas fa-ban"></i><span>Discontinue</span>
+					</a>
+				</li>
+				<li class="{{ Route::currentRouteName() == 'clients.sheets.checklist' ? 'active' : '' }}">
+					<a class="nav-link" href="{{ route('clients.sheets.checklist') }}">
+						<i class="fas fa-tasks"></i><span>Checklist</span>
 					</a>
 				</li>
 			</ul>

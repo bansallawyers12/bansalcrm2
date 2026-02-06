@@ -102,7 +102,7 @@ use App\Http\Controllers\Controller;
 								    <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
 										<label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
 										<div class=&quot;col-sm-9&quot;>
-										    <textarea id=&quot;assignnote&quot; class=&quot;form-control summernote-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+										    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
 										</div>
 										<div class=&quot;clearfix&quot;></div>
 								    </div>
@@ -111,7 +111,7 @@ use App\Http\Controllers\Controller;
 								    <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
 										<label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Date</label>
 										<div class=&quot;col-sm-9&quot;>
-											<input type=&quot;date&quot; class=&quot;form-control f13&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;<?php echo date('Y-m-d');?>&quot;name=&quot;popoverdate&quot;>
+											<input type="text" class="form-control f13 flatpickr-date" placeholder="yyyy-mm-dd" id="popoverdatetime" value="<?php echo date('Y-m-d');?>" name="popoverdate" autocomplete="off">
 										</div>
 										<div class=&quot;clearfix&quot;></div>
 								    </div>
@@ -2194,7 +2194,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" id="compose_email_message" name="message"></textarea>
+								<textarea class="tinymce-simple selectedmessage" id="compose_email_message" name="message"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
@@ -2351,7 +2351,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" name="message" data-valid="required"></textarea>
+								<textarea class="tinymce-simple selectedmessage" name="message" data-valid="required"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
