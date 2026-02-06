@@ -49,4 +49,7 @@ return [
 	'not_exist' => ' does not exist in our system, so please check it once again.',	
 	'added' => ' has been added successfully.',	
 	'edited' => ' has been edited successfully.',	
+
+	// Office visit / In Person: reception user ID (gets "Pls Send The Client" popup when assignee clicks Waiting)
+	'reception_user_id' => env('RECEPTION_USER_ID', null),
 ];

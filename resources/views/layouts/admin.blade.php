@@ -7,7 +7,8 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<meta name="keyword" content="Bansal CRM">
-	<meta name="csrf-token" content="{{ csrf_token() }}"> 
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="current-user-id" content="{{ optional(auth('admin')->user())->id }}"> 
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 https://cdn.jsdelivr.net; script-src-attr 'unsafe-inline' 'unsafe-hashes'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:5173 ws://127.0.0.1:5173 ws://localhost:5174 ws://127.0.0.1:5174 http://localhost:5173 http://127.0.0.1:5173 http://localhost:5174 http://127.0.0.1:5174 https://maps.googleapis.com;">
 	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<title>Bansal CRM | @yield('title')</title>
@@ -439,6 +440,126 @@ i[style*="color:rgba"] {
 		</div>
 	</div>
 </div>
+	<!-- Teams-style office visit notification popups -->
+	@auth('admin')
+	<div class="teams-notification-container" id="teamsNotificationContainer" aria-label="Office visit notifications"></div>
+	<style>
+		.teams-notification-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column-reverse; gap: 12px; max-width: 360px; }
+		.teams-notification-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.15); border-left: 4px solid #1f1655; overflow: hidden; animation: teamsNotificationIn 0.25s ease; }
+		@keyframes teamsNotificationIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+		.teams-notification-card.minimized { max-height: 48px; }
+		.teams-notification-card.minimized .teams-notification-body { display: none; }
+		.teams-notification-header { padding: 10px 12px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+		.teams-notification-header h6 { margin: 0; font-size: 14px; font-weight: 600; color: #1f1655; }
+		.teams-notification-actions { display: flex; gap: 4px; }
+		.teams-notification-actions button { padding: 2px 8px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
+		.teams-notification-body { padding: 12px; font-size: 13px; }
+		.teams-notification-body p { margin: 0 0 6px; }
+		.teams-notification-body .btn-group { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+		.teams-notification-body .btn-group .btn { font-size: 12px; padding: 6px 12px; }
+	</style>
+	<script>
+	(function() {
+		var container = document.getElementById('teamsNotificationContainer');
+		if (!container) return;
+		var currentUserId = document.querySelector('meta[name="current-user-id"]');
+		currentUserId = currentUserId ? (currentUserId.getAttribute('content') || '').trim() : '';
+		var baseUrl = document.querySelector('script[data-site-url]') ? document.querySelector('script[data-site-url]').getAttribute('data-site-url') : (typeof site_url !== 'undefined' ? site_url : '');
+		var fetchUrl = '{{ url("/fetch-office-visit-notifications") }}';
+		var markSeenUrl = '{{ url("/mark-notification-seen") }}';
+		var updateStatusUrl = '{{ url("/update-checkin-status") }}';
+		var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+
+		function showTeamsNotification(notification) {
+			if (!notification || !notification.id) return;
+			var id = 'ov-notif-' + notification.id;
+			if (document.getElementById(id)) return;
+			var card = document.createElement('div');
+			card.className = 'teams-notification-card';
+			card.id = id;
+			card.setAttribute('data-notification-id', notification.id);
+			card.setAttribute('data-checkin-id', notification.checkin_id || '');
+			card.innerHTML =
+				'<div class="teams-notification-header">' +
+					'<h6>Office Visit Assignment</h6>' +
+					'<div class="teams-notification-actions">' +
+						'<button type="button" class="btn btn-sm btn-outline-secondary teams-notification-minimize" aria-label="Minimize">−</button>' +
+						'<button type="button" class="btn btn-sm btn-outline-secondary teams-notification-close" aria-label="Close">×</button>' +
+					'</div>' +
+				'</div>' +
+				'<div class="teams-notification-body">' +
+					'<p><strong>' + (notification.sender_name || '') + '</strong></p>' +
+					'<p>Client: ' + (notification.client_name || '') + '</p>' +
+					'<p>Purpose: ' + (notification.visit_purpose || '') + '</p>' +
+					'<p>Time: ' + (notification.created_at || '') + '</p>' +
+					'<div class="btn-group">' +
+						'<button type="button" class="btn btn-success teams-notification-plssend">Pls Send The Client</button>' +
+						'<a href="' + (notification.url || baseUrl + '/office-visits/waiting') + '" class="btn btn-outline-primary">View Details</a>' +
+					'</div>' +
+				'</div>';
+			container.appendChild(card);
+
+			card.querySelector('.teams-notification-close').addEventListener('click', function() { closeNotification(notification.id); });
+			card.querySelector('.teams-notification-minimize').addEventListener('click', function() { card.classList.toggle('minimized'); });
+			card.querySelector('.teams-notification-plssend').addEventListener('click', function() {
+				attendSession(notification.checkin_id, notification.id, card);
+			});
+		}
+
+		function closeNotification(notificationId) {
+			var el = document.getElementById('ov-notif-' + notificationId);
+			if (el) el.remove();
+			if (notificationId && csrfToken) {
+				fetch(markSeenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify({ notification_id: notificationId }) });
+			}
+		}
+
+		function attendSession(checkinId, notificationId, cardEl) {
+			if (!checkinId) return;
+			if (cardEl) cardEl.remove();
+			if (csrfToken && updateStatusUrl) {
+				fetch(updateStatusUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+					body: JSON.stringify({ checkin_id: checkinId, notification_id: notificationId, status: 0, wait_type: 1 })
+				}).then(function(r) { return r.json(); }).then(function() {
+					if (notificationId && markSeenUrl) {
+						fetch(markSeenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ notification_id: notificationId }) });
+					}
+				});
+			}
+		}
+
+		function loadOfficeVisitNotifications() {
+			if (!fetchUrl) return;
+			fetch(fetchUrl, { headers: { 'Accept': 'application/json' } })
+				.then(function(r) { return r.json(); })
+				.then(function(data) {
+					if (data.notifications && data.notifications.length) {
+						data.notifications.forEach(function(n) { showTeamsNotification(n); });
+					}
+				})
+				.catch(function() {});
+		}
+
+		function setupOfficeVisitRealtimeNotifications() {
+			if (typeof window.Echo === 'undefined' || !currentUserId) return;
+			window.Echo.private('user.' + currentUserId)
+				.listen('.OfficeVisitNotificationCreated', function(e) {
+					if (e && e.notification) showTeamsNotification(e.notification);
+				});
+		}
+
+		loadOfficeVisitNotifications();
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', setupOfficeVisitRealtimeNotifications);
+		} else {
+			setupOfficeVisitRealtimeNotifications();
+		}
+	})();
+	</script>
+	@endauth
+
 @stack('scripts')
 @yield('scripts')	
 	<!--<script src="{{--asset('js/custom-chart.js')--}}"></script>-->  

@@ -11,6 +11,8 @@
 |
 */
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+// Private channel for office visit notifications: user.{id} (assignee or reception)
+Broadcast::channel('user.{id}', function ($user, $id) {
+    $admin = auth('admin')->user();
+    return $admin && (int) $admin->id === (int) $id;
 });

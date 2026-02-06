@@ -571,24 +571,25 @@ class OfficeVisitController extends Controller
 		$obj->sesion_start = date('Y-m-d H:i');
 		$obj->wait_time = $request->waitcountdata;
 
-        if($request->waitingtype == 1){ //waiting type = Pls send
+        if($request->waitingtype == 1){ // Pls send (reception sent client / assignee confirmed) → start attending
             $obj->status = 2; //attending session
             $t = 'attending';
-        } else {  //waiting type = waiting
-            $obj->status = 0; //waiting session
-            $obj->wait_type = 1; //waiting type = Pls send
+        } else {  // Assignee clicked "Waiting" → notify reception to send the client
+            $obj->status = 0; // keep waiting
+            $obj->wait_type = 1; // Pls send
             $t = 'waiting';
         }
 
         $saved = $obj->save();
 
-        if($saved){
+        // When assignee clicks "Waiting" (waitingtype != 1): notify reception to send the client. When "Pls send" (waitingtype == 1): no popup.
+        if ($saved && $request->waitingtype != 1) {
 		    $o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
-	    	// Use assignee instead of hardcoded ID
-	    	$o->receiver_id = $obj->user_id;
+	    	$receptionId = config('constants.reception_user_id');
+	    	$o->receiver_id = $receptionId ? (int) $receptionId : $obj->user_id;
 	    	$o->module_id = $request->id;
-	    	$o->url = \URL::to('/office-visits/'.$t);
+	    	$o->url = \URL::to('/office-visits/waiting');
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0;
@@ -596,12 +597,10 @@ class OfficeVisitController extends Controller
 	    	$o->sender_status = 1;
 	    	$o->save();
 	    	
-	    	// Broadcast notification (optional)
 	    	try {
 	    	    $client = $obj->contact_type == 'Lead' 
 	    	        ? \App\Models\Lead::find($obj->client_id)
 	    	        : Admin::where('role', '7')->find($obj->client_id);
-	    	    
 	    	    broadcast(new OfficeVisitNotificationCreated(
 	    	        $o->id,
 	    	        $o->receiver_id,
@@ -617,9 +616,7 @@ class OfficeVisitController extends Controller
 	    	        ]
 	    	    ));
 	    	} catch (\Exception $e) {
-	    	    \Log::warning('Failed to broadcast attend session notification', [
-	    	        'error' => $e->getMessage()
-	    	    ]);
+	    	    \Log::warning('Failed to broadcast attend session notification', ['error' => $e->getMessage()]);
 	    	}
 		}
 
@@ -691,6 +688,89 @@ class OfficeVisitController extends Controller
 		}
 		echo json_encode($response);
 	}
+	/**
+	 * GET: Fetch office visit notifications for current user (unread, checkin still waiting).
+	 * Used by Teams-style popup on load and for badge count.
+	 */
+	public function fetchOfficeVisitNotifications(Request $request)
+	{
+		$userId = Auth::user()->id;
+		$notifications = \App\Models\Notification::where('receiver_id', $userId)
+			->where('notification_type', 'officevisit')
+			->where('receiver_status', 0)
+			->whereHas('checkinLog', function ($q) {
+				$q->where('status', 0);
+			})
+			->orderBy('created_at', 'desc')
+			->get()
+			->map(function ($n) {
+				$log = $n->checkinLog;
+				$client = $log->contact_type == 'Lead'
+					? \App\Models\Lead::find($log->client_id)
+					: Admin::where('role', '7')->find($log->client_id);
+				$sender = Admin::find($n->sender_id);
+				return [
+					'id' => $n->id,
+					'checkin_id' => $log->id,
+					'message' => $n->message,
+					'sender_name' => $sender ? $sender->first_name . ' ' . $sender->last_name : '',
+					'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
+					'visit_purpose' => $log->visit_purpose,
+					'created_at' => $n->created_at ? $n->created_at->format('d/m/Y h:i A') : '',
+					'url' => $n->url,
+				];
+			});
+		return response()->json(['notifications' => $notifications, 'count' => $notifications->count()]);
+	}
+
+	/**
+	 * POST: Mark an office visit notification as seen (receiver_status = 1).
+	 */
+	public function markNotificationSeen(Request $request)
+	{
+		$n = \App\Models\Notification::where('id', $request->input('notification_id'))
+			->where('receiver_id', Auth::user()->id)
+			->where('notification_type', 'officevisit')
+			->first();
+		if ($n) {
+			$n->receiver_status = 1;
+			$n->save();
+		}
+		return response()->json(['status' => true]);
+	}
+
+	/**
+	 * POST: Update check-in status (e.g. reception "Pls Send The Client": status=0, wait_type=1).
+	 * Optionally pass notification_id to mark that notification seen.
+	 */
+	public function updateCheckinStatus(Request $request)
+	{
+		$checkinId = (int) $request->input('checkin_id');
+		$obj = CheckinLog::find($checkinId);
+		if (!$obj) {
+			return response()->json(['status' => false, 'message' => 'Check-in not found.'], 404);
+		}
+		if ($request->has('status')) {
+			$obj->status = (int) $request->input('status');
+		}
+		if ($request->has('wait_type')) {
+			$obj->wait_type = (int) $request->input('wait_type');
+		}
+		$obj->save();
+
+		$notificationId = $request->input('notification_id');
+		if ($notificationId) {
+			$n = \App\Models\Notification::where('id', $notificationId)
+				->where('receiver_id', Auth::user()->id)
+				->first();
+			if ($n) {
+				$n->receiver_status = 1;
+				$n->save();
+			}
+		}
+		return response()->json(['status' => true, 'message' => 'saved successfully']);
+	}
+
 	public function waiting(Request $request)
 	{
 	      if(isset($request->t)){

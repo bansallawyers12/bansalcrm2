@@ -524,8 +524,9 @@ $(document).ready(function() {
         }
     });
 
-    // Change assignee: open modal
-    $(document).on('click', '.ongoing-assignee-edit', function(e) {
+    // Change assignee: open modal. Direct binding (same as sheet-comment-edit) because
+    // the td's onclick="event.stopPropagation()" prevents bubbling to document.
+    $('.ongoing-assignee-edit').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var appId = $(this).data('app-id');
