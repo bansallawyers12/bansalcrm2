@@ -216,9 +216,10 @@ class OngoingSheetController extends Controller
                 })
                 ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
         }
+        // Ongoing: exclude COE/Enrolled/Cancelled and Awaiting document (Checklist only)
         return Application::select('stage')
             ->whereNotIn('status', [2])
-            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
             ->distinct()->orderBy('stage')->pluck('stage', 'stage');
     }
 
@@ -299,10 +300,12 @@ class OngoingSheetController extends Controller
                       ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
                 });
             } else {
-                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
+                // Ongoing: exclude COE/Enrolled/Cancelled and also "Awaiting document" (that stage is Checklist only)
+                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?, ?)', [
                     'coe issued',
                     'enrolled',
                     'coe cancelled',
+                    'awaiting document',
                 ]);
             }
         }
@@ -558,6 +561,11 @@ class OngoingSheetController extends Controller
 
         if ($status === 'discontinue') {
             $app->status = 2;
+        }
+
+        if ($status === 'convert_to_client') {
+            $nextStage = config('sheets.checklist_convert_to_client_stage', 'Document received');
+            $app->stage = $nextStage;
         }
 
         $app->save();

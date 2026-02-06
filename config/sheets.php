@@ -4,19 +4,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Checklist sheet (first-stage / follow-up sheet)
+    | Checklist sheet (Awaiting document = Checklist only)
     |--------------------------------------------------------------------------
     |
-    | Applications in these stages appear on the Checklist sheet when created,
-    | with or without a follow-up. Add your workflow's "first" or early stage
-    | names here (case-insensitive match). New applications get default
-    | Status "Active" and show here until status is changed.
+    | Checklist sheet shows only applications in "Awaiting document" stage.
+    | Ongoing sheet excludes this stage so those applications appear only
+    | on Checklist. When user sets "Convert to client", stage is set to
+    | checklist_convert_to_client_stage so the row moves to Ongoing.
     |
     */
     'checklist_early_stages' => [
-        'New',
-        'Inquiry',
-        'Application received',
+        'Awaiting document',
     ],
+
+    /*
+    | Stage to set when user selects "Convert to client" on Checklist sheet.
+    | Application moves to Ongoing (no longer in Awaiting document).
+    */
+    'checklist_convert_to_client_stage' => 'Document received',
 
 ];

@@ -1,16 +1,16 @@
 # How to Add Follow-Up for Leads and Clients
 
-## Checklist sheet (first-stage / follow-up sheet)
+## Checklist sheet (Awaiting document only)
 
-The **Checklist** sheet (Sheets → Checklist) is **separate from the follow-up system**. It shows applications that are in a **very early stage** (first-stage), with or without a follow-up:
+The **Checklist** sheet (Sheets → Checklist) shows only applications in stage **“Awaiting document”**. The **Ongoing** sheet excludes this stage, so “Awaiting document” applications appear only on Checklist.
 
-- Application **stage** is one of the configured “early stages” (e.g. New, Inquiry, Application received). Configure in **config/sheets.php** → `checklist_early_stages`.
-- Application is not discontinued; Checklist Status is **Active** or **Hold** (not Convert to client or Discontinue).
+- Application **stage** = **Awaiting document** (config: **config/sheets.php** → `checklist_early_stages`).
+- Checklist Status is **Active** or **Hold** (not Convert to client or Discontinue).
 
-**New applications** get default Status **Active** and appear on Checklist when their stage is in the early-stages list. The last column **Status** lets you move rows:
+The last column **Status** lets you move rows:
 - **Active** – stays on Checklist (normal order).
 - **Hold** – stays on Checklist but sorts to the bottom.
-- **Convert to client** – row leaves Checklist and appears on **Ongoing** sheet.
+- **Convert to client** – stage is set to the configured “next” stage (e.g. Document received); row leaves Checklist and appears on **Ongoing** sheet.
 - **Discontinue** – row leaves Checklist and appears on **Discontinue** sheet; application is marked discontinued.
 
 ---
@@ -80,6 +80,6 @@ Client follow-ups are used for the **Action** list and **Action calendar**; the 
 | **Storage**   | `followups` table (Followup model) | `notes` table (Note model)                       |
 | **Add from**  | Lead detail → follow-up / notes    | Client detail → Assign action, or Action module  |
 | **Date field**| `followup_date`                    | `followup_date` (and optional `followup_datetime` in request) |
-| **Checklist** | —                                  | Checklist sheet shows apps in early stages (config: `checklist_early_stages`); Status column moves rows to Ongoing / Discontinue or Hold at bottom. |
+| **Checklist** | —                                  | Checklist = stage "Awaiting document" only; Ongoing excludes that stage. Status: Convert to client (→ next stage / Ongoing), Discontinue, Hold at bottom. |
 
-The **Checklist** sheet is independent of follow-ups: applications appear when their **stage** is in the early-stages list. Adjust **config/sheets.php** → `checklist_early_stages` to match your workflow’s first stage names (e.g. New, Inquiry, Application received).
+The **Checklist** sheet is independent of follow-ups: applications appear when their **stage** is in the early-stages list. **Config:** **config/sheets.php** → `checklist_early_stages` (e.g. `['Awaiting document']`), `checklist_convert_to_client_stage` (e.g. `'Document received'`). Adjust **config/sheets.php** → `checklist_early_stages` to match your workflow’s first stage names (e.g. New, Inquiry, Application received).
