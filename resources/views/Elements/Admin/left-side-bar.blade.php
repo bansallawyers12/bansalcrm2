@@ -85,7 +85,7 @@
 			
           <?php
             
-			if(Route::currentRouteName() == 'officevisits.index' || Route::currentRouteName() == 'officevisits.waiting' || Route::currentRouteName() == 'officevisits.attending' || Route::currentRouteName() == 'officevisits.completed' || Route::currentRouteName() == 'officevisits.archived'){
+			if(Route::currentRouteName() == 'officevisits.waiting' || Route::currentRouteName() == 'officevisits.attending' || Route::currentRouteName() == 'officevisits.completed'){
 				$checlasstype = 'active'; 
 			}
 			 //if(\Auth::user()->role == 1){

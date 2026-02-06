@@ -490,11 +490,10 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		//Route::post('/product-type/store', [ProductTypeController::class, 'store'])->name('feature.producttype.store');   
 		//Route::get('/product-type/edit/{id}', [ProductTypeController::class, 'edit'])->name('feature.producttype.edit');
 		//Route::post('/product-type/edit', [ProductTypeController::class, 'edit'])->name('feature.producttype.edit');
-		Route::get('/office-visits', [OfficeVisitController::class, 'index'])->name('officevisits.index');  
+		Route::get('/office-visits', fn () => redirect()->route('officevisits.waiting'))->name('officevisits.index');  
 		Route::get('/office-visits/waiting', [OfficeVisitController::class, 'waiting'])->name('officevisits.waiting');  
 		Route::get('/office-visits/attending', [OfficeVisitController::class, 'attending'])->name('officevisits.attending');  
 		Route::get('/office-visits/completed', [OfficeVisitController::class, 'completed'])->name('officevisits.completed'); 
-		Route::get('/office-visits/archived', [OfficeVisitController::class, 'archived'])->name('officevisits.archived');   
 		Route::get('/office-visits/create', [OfficeVisitController::class, 'create'])->name('officevisits.create'); 
 		Route::post('/checkin', [OfficeVisitController::class, 'checkin']);	
 		Route::get('/get-checkin-detail', [OfficeVisitController::class, 'getcheckin']);	
@@ -502,7 +501,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::post('/update_visit_comment', [OfficeVisitController::class, 'update_visit_comment']);	
 		Route::post('/attend_session', [OfficeVisitController::class, 'attend_session']);	
 		Route::post('/complete_session', [OfficeVisitController::class, 'complete_session']);	
-		Route::post('/office-visits/archive', [OfficeVisitController::class, 'archive'])->name('officevisits.archive');
 		Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);  
 		//Route::post('/agents/store', 'Admin\AgentController@store')->name('agents.store'); 
 		//Route::get('/agent/detail/{id}', 'Admin\AgentController@detail')->name('agents.detail'); 

@@ -2,9 +2,18 @@
 @section('title', 'Office Check In')
 
 @section('content')
+
 <style>
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
 </style>
+
+@php
+	$baseUrl = '/office-visits/' . $activeTab;
+	$InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
+	$InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
+	$InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
+@endphp
+
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
@@ -24,34 +33,15 @@
 							</div>
 						</div>
 						<div class="card-body">
-                            <?php
-                            $InPersonCount_All_type = \App\Models\CheckinLog::where('is_archived',0)->orderBy('created_at', 'desc')->count();
-
-                            $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
-
-                            $InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
-
-                            $InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
-
-                            $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
-
-                            ?>
 							<ul class="nav nav-pills" id="checkin_tabs" role="tablist">
-
 								<li class="nav-item">
-									<a class="nav-link" id="waiting-tab"  href="{{URL::to('/office-visits/waiting')}}" >Waiting <span class="countAction">{{ $InPersonCount_waiting_type }}</span></a>
+									<a class="nav-link {{ $activeTab === 'waiting' ? 'active' : '' }}" id="waiting-tab" href="{{ URL::to('/office-visits/waiting') }}">Waiting <span class="countAction">{{ $InPersonCount_waiting_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="attending-tab"  href="{{URL::to('/office-visits/attending')}}" >Attending <span class="countAction">{{ $InPersonCount_attending_type }}</span></a>
+									<a class="nav-link {{ $activeTab === 'attending' ? 'active' : '' }}" id="attending-tab" href="{{ URL::to('/office-visits/attending') }}">Attending <span class="countAction">{{ $InPersonCount_attending_type }}</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" id="completed-tab"  href="{{URL::to('/office-visits/completed')}}" >Completed <span class="countAction">{{ $InPersonCount_completed_type }}</span></a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="archived-tab"  href="{{URL::to('/office-visits/archived')}}" >Archived <span class="countAction">{{ $InPersonCount_archived_type }}</span></a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link active" id="all-tab"  href="{{URL::to('/office-visits')}}" >All <span class="countAction">{{ $InPersonCount_All_type }}</span></a>
+									<a class="nav-link {{ $activeTab === 'completed' ? 'active' : '' }}" id="completed-tab" href="{{ URL::to('/office-visits/completed') }}">Completed <span class="countAction">{{ $InPersonCount_completed_type }}</span></a>
 								</li>
 							</ul>
 							<div class="tab-content" id="checkinContent">
@@ -60,14 +50,13 @@
 								  <?php echo isset($_GET['office_name']) ? $_GET['office_name'] : 'All Branches'; ?>
 								   <i style="font-size: 10px;" class="fa fa-arrow-down"></i></button>
 								  <div id="myDropdown" class="dropdown-content">
-								  <a href="{{URL::to('/office-visits/')}}">All Branches</a>
+								  <a href="{{ URL::to($baseUrl) }}">All Branches</a>
 								  <?php
 								  $branchs = \App\Models\Branch::all();
 								  foreach($branchs as $branch){
 									?>
-									<a href="{{URL::to('/office-visits/')}}?office={{$branch->id}}&office_name={{$branch->office_name}}">{{$branch->office_name}}</a>
+									<a href="{{ URL::to($baseUrl) }}?office={{ $branch->id }}&office_name={{ urlencode($branch->office_name) }}">{{ $branch->office_name }}</a>
 								  <?php } ?>
-
 								  </div>
 								</div>
 								<div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
@@ -75,20 +64,17 @@
 										<table class="table text_wrap">
 											<thead>
 												<tr>
-
 													<th>ID</th>
 													<th>Date</th>
 													<th>Start</th>
-													<th>End</th>
 													<th>Contact Name</th>
 													<th>Contact Type</th>
 													<th>Visit Purpose</th>
 													<th>Assignee</th>
-													<th>Status</th>
-
+													<th>Wait Time</th>
+													<th>Action</th>
 												</tr>
 											</thead>
-
 											<tbody class="tdata checindata">
 												@if(@$totalData !== 0)
 												@foreach (@$lists as $list)
@@ -96,13 +82,13 @@
 													<td style="white-space: initial;"><a id="{{@$list->id}}" class="opencheckindetail" href="javascript:;">#{{$list->id}}</a></td>
 													<td style="white-space: initial;"><a href="javascript:;">{{date('l',strtotime($list->created_at))}}</a><br>{{date('d/m/Y',strtotime($list->created_at))}}</td>
 													<td style="white-space: initial;"><?php if($list->sesion_start != ''){ echo date('h:i A',strtotime($list->sesion_start)); }else{ echo '-'; } ?></td>
-													<td style="white-space: initial;"><?php if($list->sesion_end != ''){ echo date('h:i A',strtotime($list->sesion_end)); }else{ echo '-'; } ?></td>
 													<td style="white-space: initial;">
 														<?php
 														$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
 														?>
 														<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-														<br>{{@$client->email}}
+													
+													<br>{{@$client->email}}
 													</td>
 													<td style="white-space: initial;">{{$list->contact_type}}</td>
 													<td style="white-space: initial;">{{$list->visit_purpose}}</td>
@@ -112,22 +98,16 @@
 													?>
 													<a href="{{URL::to('/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
 													</td>
-													<td style="white-space: initial;"><?php
-													if($list->status == 0){
-														?>
-														<span class="text-warning">Waiting</span>
-														<?php
-													}else if($list->status == 2){
-														?>
-														<span class="text-info">Attending</span>
-														<?php
-													}else if($list->status == 1){
-														?>
-														<span class="text-success">Completed</span>
-														<?php
-													}
-													?></td>
-
+													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else{ echo '<span >-</span>'; } ?></td>
+													<td style="white-space: initial;">
+													    <?php
+													    if($list->wait_type == 1){ ?>
+													        <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-success attendsessionforclient">Pls send</a>
+													    <?php } else { ?>
+													        <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-danger attendsessionforclient">Waiting</a>
+													    <?php } ?>
+														<input type="hidden" value="0-6h:0-24m:0-7s" id="lwaitcountdata{{@$list->id}}">
+													</td>
 												</tr>
 												@endforeach
 											</tbody>
@@ -143,7 +123,6 @@
 										</table>
 									</div>
 								</div>
-
 							</div>
 						</div>
 						<div class="card-footer">
@@ -226,49 +205,92 @@
 @section('scripts')
 <script>
 jQuery(document).ready(function($){
-    $(document).delegate('.openassignee', 'click', function(){
-        $('.assignee').show();
-    });
-     $(document).delegate('.closeassignee', 'click', function(){
-        $('.assignee').hide();
-    });
-     $(document).delegate('.saveassignee', 'click', function(){
-        var appliid = $(this).attr('data-id');
+	$(document).delegate('.attendsessionforclient', 'click', function(){
+		var waitingtype = $(this).attr('data-waitingtype');
+		var appliid = $(this).attr('data-id');
+		$('.popuploader').show();
+		$.ajax({
+			url: site_url+'/attend_session',
+			type:'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+			data:{id: appliid,waitcountdata: $('#waitcountdata').val(),waitingtype: waitingtype},
+			success: function(response){
+				var obj = $.parseJSON(response);
+				if(obj.status){
+					location.reload();
+				}else{
+					alert(obj.message);
+				}
+			}
+		});
+	});
+	
+	$(document).delegate('.openassignee', 'click', function(){
+		$('.assignee').show();
+	});
+	$(document).delegate('.closeassignee', 'click', function(){
+		$('.assignee').hide();
+	});
+	$(document).delegate('.saveassignee', 'click', function(){
+		var appliid = $(this).attr('data-id');
 		$('.popuploader').show();
 		$.ajax({
 			url: site_url+'/office-visits/change_assignee',
 			type:'GET',
 			data:{id: appliid,assinee: $('#changeassignee').val()},
 			success: function(response){
-
-				 var obj = $.parseJSON(response);
+				var obj = $.parseJSON(response);
 				if(obj.status){
-				    alert(obj.message);
-				location.reload();
-
+					alert(obj.message);
+					location.reload();
 				}else{
 					alert(obj.message);
 				}
 			}
 		});
-    });
+	});
+});
+function pretty_time_string(num) {
+	return ( num < 10 ? "0" : "" ) + num;
+}
+$('.checindata tr').each(function(){
+	var did = $(this).attr('did');
+	var time = $(this).find('#count'+did).attr('data-checkintime');
+	var start = new Date(time);
+	setInterval(function() {
+		var total_seconds = (new Date - start) / 1000;
+		var hours = Math.floor(total_seconds / 3600);
+		total_seconds = total_seconds % 3600;
+		var minutes = Math.floor(total_seconds / 60);
+		total_seconds = total_seconds % 60;
+		var seconds = Math.floor(total_seconds);
+		hours = pretty_time_string(hours);
+		minutes = pretty_time_string(minutes);
+		seconds = pretty_time_string(seconds);
+		var currentTimeString = hours + "h:" + minutes + "m:" + seconds+'s';
+		$('#count'+did).text(currentTimeString);
+		$('#lwaitcountdata'+did).text(currentTimeString);
+	}, 1000);
 });
 function myFunction() {
-  document.getElementById("myDropdown").classList.toggle("show");
+	document.getElementById("myDropdown").classList.toggle("show");
 }
-
-// Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
-  if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.classList.contains('show')) {
-        openDropdown.classList.remove('show');
-      }
-    }
-  }
+	if (!event.target.matches('.dropbtn')) {
+		var dropdowns = document.getElementsByClassName("dropdown-content");
+		var i;
+		for (i = 0; i < dropdowns.length; i++) {
+			var openDropdown = dropdowns[i];
+			if (openDropdown.classList.contains('show')) {
+				openDropdown.classList.remove('show');
+			}
+		}
+	}
 }
 </script>
+
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
+
 @endsection

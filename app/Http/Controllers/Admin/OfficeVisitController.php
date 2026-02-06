@@ -229,23 +229,6 @@ class OfficeVisitController extends Controller
 		}
 	}
 	
-	public function index(Request $request)
-	{
-		$query 		= CheckinLog::query()->with('office')->where('is_archived',0);  
-		 
-		$totalData 	= $query->count();	//for all data
-		if($request->has('office')){
-			$office 		= 	$request->input('office'); 
-			if(trim($office) != '')
-			{
-				$query->where('office', '=', $office);
-			}
-		}
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
-		
-		return view('Admin.officevisits.index',compact(['lists', 'totalData']));  
-	}
-	
 	public function getcheckin(Request $request)
 	{
 	    
@@ -729,7 +712,8 @@ class OfficeVisitController extends Controller
 			}
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
-		return view('Admin.officevisits.waiting',compact(['lists', 'totalData']));  
+		$activeTab = 'waiting';
+		return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));  
 	}
 	public function attending(Request $request)
 	{
@@ -752,7 +736,8 @@ class OfficeVisitController extends Controller
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));//dd($lists);
 		
-		return view('Admin.officevisits.attending',compact(['lists', 'totalData']));  
+		$activeTab = 'attending';
+		return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));  
 	}
 	public function completed(Request $request)
 	{
@@ -775,40 +760,8 @@ class OfficeVisitController extends Controller
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
 		
-		return view('Admin.officevisits.completed',compact(['lists', 'totalData']));  
-	}
-	/**
-	 * Archive a single office visit (set is_archived = 1).
-	 */
-	public function archive(Request $request)
-	{
-		$request->validate(['id' => 'required|integer|min:1']);
-		$obj = CheckinLog::find($request->id);
-		if (!$obj) {
-			return response()->json(['status' => false, 'message' => 'Office visit not found.']);
-		}
-		$obj->is_archived = 1;
-		if (!$obj->save()) {
-			return response()->json(['status' => false, 'message' => 'Failed to archive. Please try again.']);
-		}
-		return response()->json(['status' => true, 'message' => 'Moved to Archived list.']);
-	}
-
-	public function archived(Request $request)
-	{
-		$query 		= CheckinLog::with('office')->where('is_archived', '=', '1'); 
-		 
-		$totalData 	= $query->count();	//for all data
-		if($request->has('office')){
-			$office 		= 	$request->input('office'); 
-			if(trim($office) != '')
-			{
-				$query->where('office', '=', $office);
-			}
-		}
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
-		
-		return view('Admin.officevisits.archived',compact(['lists', 'totalData']));  
+		$activeTab = 'completed';
+		return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));  
 	}
 	public function create(Request $request){
 		return view('Admin.officevisits.create');	
