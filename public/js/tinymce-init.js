@@ -1,10 +1,45 @@
 /**
  * TinyMCE Initialization Script
  * Single rich-text editor; use .tinymce-simple (compact) or .tinymce-full (full toolbar).
+ * Image upload: actual file upload to server (not URL-only).
  */
 
 (function() {
     'use strict';
+
+    function getImageUploadHandler() {
+        return function(blobInfo, progress) {
+            return new Promise(function(resolve, reject) {
+                var url = typeof window.TINYMCE_UPLOAD_URL !== 'undefined' ? window.TINYMCE_UPLOAD_URL : '/tinymce/upload-image';
+                var token = typeof window.TINYMCE_CSRF_TOKEN !== 'undefined' ? window.TINYMCE_CSRF_TOKEN : (document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                var xhr = new XMLHttpRequest();
+                var formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                if (token) formData.append('_token', token);
+                xhr.open('POST', url);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                if (token) xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                xhr.onload = function() {
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject('Upload failed: ' + (xhr.status ? xhr.statusText : 'Network error'));
+                        return;
+                    }
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        if (json.location) resolve(json.location);
+                        else reject(json.message || 'Upload failed');
+                    } catch (e) {
+                        reject('Invalid server response');
+                    }
+                };
+                xhr.onerror = function() { reject('Upload failed'); };
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable && typeof progress === 'function') progress(e.loaded / e.total * 100);
+                };
+                xhr.send(formData);
+            });
+        };
+    }
 
     // Wait for TinyMCE to load
     function initTinyMCE() {
@@ -37,21 +72,11 @@
             branding: false,
             promotion: false,
             browser_spellcheck: true,
+            images_upload_handler: getImageUploadHandler(),
             setup: function(editor) {
-                // Ensure editor is ready
-                editor.on('init', function() {
-                    // Editor initialized
-                });
-                
-                // Auto-save content to textarea when it changes
-                editor.on('change', function() {
-                    editor.save(); // Syncs content back to textarea
-                });
-                
-                // Also save on blur
-                editor.on('blur', function() {
-                    editor.save();
-                });
+                editor.on('init', function() {});
+                editor.on('change', function() { editor.save(); });
+                editor.on('blur', function() { editor.save(); });
             }
         });
 
@@ -84,16 +109,10 @@
             branding: false,
             promotion: false,
             browser_spellcheck: true,
+            images_upload_handler: getImageUploadHandler(),
             setup: function(editor) {
-                // Auto-save content to textarea when it changes
-                editor.on('change', function() {
-                    editor.save(); // Syncs content back to textarea
-                });
-                
-                // Also save on blur
-                editor.on('blur', function() {
-                    editor.save();
-                });
+                editor.on('change', function() { editor.save(); });
+                editor.on('blur', function() { editor.save(); });
             }
         });
 
@@ -118,7 +137,8 @@
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,
-            browser_spellcheck: true
+            browser_spellcheck: true,
+            images_upload_handler: getImageUploadHandler()
         });
     }
 
