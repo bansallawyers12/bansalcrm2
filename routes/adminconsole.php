@@ -95,12 +95,12 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
     // NOTE: Tags routes have been removed - tags work differently and don't need backend
     
-    //Checklist Routes
-    Route::get('/checklist', [ChecklistController::class, 'index'])->name('adminconsole.checklist.index');  
-    Route::get('/checklist/create', [ChecklistController::class, 'create'])->name('adminconsole.checklist.create');  
-    Route::post('/checklist/store', [ChecklistController::class, 'store'])->name('adminconsole.checklist.store');     
-    Route::get('/checklist/edit/{id}', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.edit');
-    Route::post('/checklist/edit', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.update');
+    // Checklist section in admin console commented out
+    // Route::get('/checklist', [ChecklistController::class, 'index'])->name('adminconsole.checklist.index');  
+    // Route::get('/checklist/create', [ChecklistController::class, 'create'])->name('adminconsole.checklist.create');  
+    // Route::post('/checklist/store', [ChecklistController::class, 'store'])->name('adminconsole.checklist.store');     
+    // Route::get('/checklist/edit/{id}', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.edit');
+    // Route::post('/checklist/edit', [ChecklistController::class, 'edit'])->name('adminconsole.checklist.update');
     
     //Workflow Routes
     Route::get('/workflow', [WorkflowController::class, 'index'])->name('adminconsole.workflow.index');  
