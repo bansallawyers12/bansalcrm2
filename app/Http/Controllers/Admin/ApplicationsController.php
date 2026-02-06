@@ -103,7 +103,7 @@ class ApplicationsController extends Controller
 	 
 	public function getapplicationdetail(Request $request){
 		$fetchData = Application::find($request->id);
-		$assignees = Admin::where('role', '!=', 7)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']);
+		$assignees = Admin::where('role', '!=', 7)->where('status', 1)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']);
 		return view('Admin.clients.applicationdetail', compact(['fetchData', 'assignees']));
 	}
 	
@@ -801,9 +801,9 @@ class ApplicationsController extends Controller
 		$application = Application::findOrFail($request->application_id);
 		$assigneeId  = (int) $request->assignee_id;
 
-		$assignee = Admin::where('id', $assigneeId)->where('role', '!=', 7)->first();
+		$assignee = Admin::where('id', $assigneeId)->where('role', '!=', 7)->where('status', 1)->first();
 		if (!$assignee) {
-			return response()->json(['success' => false, 'message' => 'Invalid assignee. Select a staff member.']);
+			return response()->json(['success' => false, 'message' => 'Invalid assignee. Select an active staff member.']);
 		}
 
 		$application->user_id = $assigneeId;

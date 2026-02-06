@@ -93,7 +93,8 @@ class OngoingSheetController extends Controller
         // Dropdown data for filters (staff who have at least one application + current user)
         $offices = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
-        $assignees = Admin::whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
+        $assignees = Admin::where('status', 1)
+            ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
         $currentUser = Auth::user();
@@ -101,8 +102,9 @@ class OngoingSheetController extends Controller
             $assignees->push($currentUser);
             $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
         }
-        // Full staff list for Change assignee modal (same as Application tab so both show the same options)
+        // Full staff list for Change assignee modal (active only, same as Application tab)
         $assigneesForChangeModal = Admin::where('role', '!=', 7)
+            ->where('status', 1)
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
         $currentStages = $this->getCurrentStagesForSheet($sheetType);
