@@ -71,9 +71,10 @@ class WorkflowController extends Controller
 			
 			$requestData 		= 	$request->all();
 			
-			$obj				= 	new Workflow; 
+			$obj				= 	new Workflow;
 			$obj->name	=	@$requestData['name'];
-			
+			$obj->status	=	1; // 1 = active (DB column is integer)
+
 			$saved				=	$obj->save();  
 			$stages = $requestData['stage_name'];
 			
@@ -111,9 +112,9 @@ class WorkflowController extends Controller
 									  ]);
 								  					  
 			$obj			= 	Workflow::find(@$requestData['id']);
-						
+
 			$obj->name	=	@$requestData['name'];
-			
+
 			$saved							=	$obj->save();
 			$stages = $requestData['stage_name'];
 			$remove = WorkflowStage::where('w_id' , $requestData['id'])->delete();
@@ -156,5 +157,53 @@ class WorkflowController extends Controller
 			}		 
 		} 	
 		
+	}
+
+	/**
+	 * Deactivate a workflow (set status = 0).
+	 *
+	 * @param  string  $id  Encoded workflow id
+	 * @return \Illuminate\Http\RedirectResponse
+	 */
+	public function deactivateWorkflow($id = null)
+	{
+		if (empty($id)) {
+			return Redirect::to('/adminconsole/workflow')->with('error', Config::get('constants.unauthorized'));
+		}
+		$id = $this->decodeString($id);
+		if ($id === false || $id === '') {
+			return Redirect::to('/adminconsole/workflow')->with('error', 'Invalid workflow.');
+		}
+		if (!Workflow::where('id', '=', $id)->exists()) {
+			return Redirect::to('/adminconsole/workflow')->with('error', 'Workflow not found.');
+		}
+		$obj = Workflow::find($id);
+		$obj->status = 0;
+		$obj->save();
+		return Redirect::to('/adminconsole/workflow')->with('success', 'Workflow deactivated successfully.');
+	}
+
+	/**
+	 * Activate a workflow (set status = 1).
+	 *
+	 * @param  string  $id  Encoded workflow id
+	 * @return \Illuminate\Http\RedirectResponse
+	 */
+	public function activateWorkflow($id = null)
+	{
+		if (empty($id)) {
+			return Redirect::to('/adminconsole/workflow')->with('error', Config::get('constants.unauthorized'));
+		}
+		$id = $this->decodeString($id);
+		if ($id === false || $id === '') {
+			return Redirect::to('/adminconsole/workflow')->with('error', 'Invalid workflow.');
+		}
+		if (!Workflow::where('id', '=', $id)->exists()) {
+			return Redirect::to('/adminconsole/workflow')->with('error', 'Workflow not found.');
+		}
+		$obj = Workflow::find($id);
+		$obj->status = 1;
+		$obj->save();
+		return Redirect::to('/adminconsole/workflow')->with('success', 'Workflow activated successfully.');
 	}
 }
