@@ -15,7 +15,7 @@ class Workflow extends Model
      */
 	
 	protected $fillable = [
-        'id', 'name', 'created_at', 'updated_at'
+        'id', 'name', 'status', 'created_at', 'updated_at'
     ];
   
 	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
