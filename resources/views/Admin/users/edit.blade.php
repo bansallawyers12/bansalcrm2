@@ -205,10 +205,35 @@
 								</div> 
 							</div>
 						</div>
+					</div>
+					<div class="col-12 col-md-12 col-lg-12">
+						<div class="card">
+							<div class="card-body">
+								<h4>Email &amp; Signature</h4>
+								<div class="form-group">
+									<label for="default_email_id">Default email (from Admin Console &gt; Email)</label>
+									<select name="default_email_id" id="default_email_id" class="form-control">
+										<option value="">— Select default sending email —</option>
+										@foreach($emails as $mail)
+											<option value="{{ $mail->id }}" {{ old('default_email_id', $fetchedData->default_email_id) == $mail->id ? 'selected' : '' }}>{{ $mail->email }}{{ $mail->display_name ? ' (' . $mail->display_name . ')' : '' }}</option>
+										@endforeach
+									</select>
+									<p class="text-muted small mb-2">Used as "From" when this user sends emails (e.g. checklist, reminders). Emails are managed in Admin Console &gt; Email.</p>
+								</div>
+								<div class="form-group">
+									<label for="email_signature">Email signature (HTML allowed)</label>
+									<textarea name="email_signature" id="email_signature" class="form-control summernote-simple" rows="6" placeholder="e.g. Regards, {{ name }}">{{ old('email_signature', $fetchedData->email_signature ?? '') }}</textarea>
+									<p class="text-muted small">Used when this user sends emails. Leave blank for no signature.</p>
+								</div>
+							</div>
+						</div>
 					</div>	
 				</div>	
 			{!! Form::close()  !!}
 		</div>
 	</section>
 </div>
+@push('tinymce-scripts')
+@include('partials.tinymce')
+@endpush
 @endsection

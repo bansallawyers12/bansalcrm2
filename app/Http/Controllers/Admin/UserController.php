@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
+use App\Models\Email;
 use App\Models\UserRole;
 use App\Models\UserType;
  
@@ -36,7 +37,8 @@ class UserController extends Controller
 			}	
 		//check authorization end
 		$usertype 		= UserRole::all();
-		return view('Admin.users.create',compact(['usertype']));	
+		$emails 		= Email::where('status', 1)->orderBy('email')->get();
+		return view('Admin.users.create', compact(['usertype', 'emails']));
 	}
 	
 	public function store(Request $request)
@@ -60,6 +62,7 @@ class UserController extends Controller
 										'phone' => 'required',
 										'role' => 'required',
 										'office' => 'nullable|exists:branches,id',
+										'default_email_id' => 'nullable|exists:emails,id',
 									  ]);
 			
 			
@@ -85,7 +88,8 @@ class UserController extends Controller
 			}
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Users are verified by default
-			
+			$obj->email_signature = $request->input('email_signature');
+			$obj->default_email_id = $request->input('default_email_id') ?: null;
 			if(isset($requestData['permission']) && is_array($requestData['permission']) ){
                 $obj->permission		=	implode(",",$requestData['permission']);
 			}else{
@@ -132,6 +136,7 @@ class UserController extends Controller
 										'last_name' => 'required|max:255',
 										'phone' => 'required|max:255',
 										'office' => 'nullable|exists:branches,id',
+										'default_email_id' => 'nullable|exists:emails,id',
 									]);
 								  					  
 			$obj				= 	Admin::find(@$requestData['id']);
@@ -159,7 +164,8 @@ class UserController extends Controller
 			}else{
 			     $obj->show_dashboard_per		=	0;
 			}
-			
+			$obj->email_signature = $request->input('email_signature');
+			$obj->default_email_id = $request->input('default_email_id') ?: null;
 			if(!empty(@$requestData['password']))
 			{		
 				$obj->password				=	Hash::make(@$requestData['password']);
@@ -186,8 +192,9 @@ class UserController extends Controller
 				//$id = $this->decodeString($id);	
 				if(Admin::where('id', '=', $id)->exists()) 
 				{
-					$fetchedData = Admin::with('office')->find($id);
-					return view('Admin.users.edit', compact(['fetchedData', 'usertype']));
+					$fetchedData = Admin::with(['office', 'defaultEmail'])->find($id);
+					$emails = Email::where('status', 1)->orderBy('email')->get();
+					return view('Admin.users.edit', compact(['fetchedData', 'usertype', 'emails']));
 				}
 				else
 				{

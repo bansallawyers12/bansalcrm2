@@ -24,7 +24,8 @@ class Admin extends Authenticatable
         'country', 'state', 'city', 'address', 'zip', 'profile_img', 'status',
         'created_at', 'updated_at',
         'office_id', 'position', 'team', 'telephone', 'permission', 'show_dashboard_per',
-        'verified', 'client_id', 'staff_id', 'phone', 'country_code',
+        'verified', 'client_id', 'staff_id', 'phone', 'country_code', 'email_signature',
+        'default_email_id',
     ];
     
 	/**
@@ -58,6 +59,14 @@ class Admin extends Authenticatable
     public function office(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'office_id');
+    }
+
+    /**
+     * Get the default sending email (from Admin Console > Email tab).
+     */
+    public function defaultEmail(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Email::class, 'default_email_id');
     }
 
     /**

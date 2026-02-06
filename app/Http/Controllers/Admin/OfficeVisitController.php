@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
+use App\Models\Lead;
 use App\Models\CheckinLog;
 use App\Models\CheckinHistory;
 use App\Models\ActivitiesLog;
@@ -90,10 +91,13 @@ class OfficeVisitController extends Controller
 			} else {
 				$contactType = 'Client';
 			}
-			//dd($contactType.'-'.$contactId);
-			// Verify contact exists based on type
-			$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
-			if (!$clientExists) {
+			// Verify contact exists based on type (Lead or Client)
+			if ($contactType === 'Lead') {
+				$contactExists = Lead::where('id', $contactId)->exists();
+			} else {
+				$contactExists = Admin::where('role', '7')->where('id', $contactId)->exists();
+			}
+			if (!$contactExists) {
 				return redirect()->back()->with('error', 'Selected contact does not exist.');
 			}
 
@@ -143,8 +147,14 @@ class OfficeVisitController extends Controller
 					throw new \Exception('Failed to save notification.');
 				}
 
-				// Get client information for broadcasting
-				$client = Admin::where('role', '7')->find($contactId);
+				// Get contact name for broadcasting (Lead or Client)
+				if ($contactType === 'Lead') {
+					$contact = Lead::find($contactId);
+					$clientName = $contact ? $contact->name : 'Unknown Lead';
+				} else {
+					$contact = Admin::where('role', '7')->find($contactId);
+					$clientName = $contact ? $contact->first_name . ' ' . $contact->last_name : 'Unknown Client';
+				}
 
 				// Broadcast real-time notification (optional - wrap in try-catch)
 				try {
@@ -156,7 +166,7 @@ class OfficeVisitController extends Controller
 							'checkin_id' => $obj->id,
 							'message' => $notification->message,
 							'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-							'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
+							'client_name' => $clientName,
 							'visit_purpose' => $obj->visit_purpose,
 							'created_at' => $notification->created_at ? $notification->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
 							'url' => $notification->url
@@ -234,7 +244,18 @@ class OfficeVisitController extends Controller
 		$CheckinLog = CheckinLog::with('office')->where('id', '=', $request->id)->first(); 
 		if($CheckinLog){
 			ob_start();
-			$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $CheckinLog->client_id)->first();
+			// Resolve contact by type: Lead or Client
+			if ($CheckinLog->contact_type === 'Lead') {
+				$contact = Lead::find($CheckinLog->client_id);
+				$contactDetailUrl = $contact ? route('leads.detail', base64_encode(convert_uuencode($contact->id))) : '#';
+				$contactName = $contact ? $contact->name : '—';
+				$contactEmail = $contact && isset($contact->email) ? $contact->email : '';
+			} else {
+				$contact = Admin::where('role', '7')->where('id', $CheckinLog->client_id)->first();
+				$contactDetailUrl = $contact ? route('clients.detail', base64_encode(convert_uuencode($contact->id))) : '#';
+				$contactName = $contact ? $contact->first_name . ' ' . $contact->last_name : '—';
+				$contactEmail = $contact ? $contact->email : '';
+			}
 			?>
 			<div class="row">
 				<div class="col-md-12">
@@ -259,9 +280,11 @@ class OfficeVisitController extends Controller
 					<div class="col-md-6">
 						<b>Contact</b>
 						<div class="clientinfo">
-							<a href="<?php echo route('clients.detail', base64_encode(convert_uuencode(@$client->id))); ?>"><?php echo $client->first_name.' '.$client->last_name; ?></a>
+							<a href="<?php echo e($contactDetailUrl); ?>"><?php echo e($contactName); ?></a>
+							<?php if ($contactEmail !== '') { ?>
 							<br>
-							<?php echo $client->email; ?>
+							<?php echo e($contactEmail); ?>
+							<?php } ?>
 						</div>
 					</div>
 					<div class="col-md-6">
