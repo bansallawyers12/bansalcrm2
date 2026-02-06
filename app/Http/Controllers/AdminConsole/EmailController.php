@@ -47,7 +47,7 @@ class EmailController extends Controller
 			$totalData 	= 0;
 			$lists		= new \Illuminate\Pagination\LengthAwarePaginator([], 0, (int) config('constants.limit', 20));
 		}
-		dd($totalData,$lists->toArray());
+		//dd($totalData,$lists->toArray());
 		return view('AdminConsole.emails.index',compact(['lists', 'totalData'])); 	
 		
 		//return view('AdminConsole.producttype.index');	 
