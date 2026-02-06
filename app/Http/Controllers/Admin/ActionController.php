@@ -780,7 +780,7 @@ class ActionController extends Controller
                     $actionBtn = '';
                 }
 
-                $actionBtn .= ' <button class="btn btn-danger deleteNote" data-remote="/admin/action/destroy/'. $list->id.'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                $actionBtn .= ' <button class="btn btn-danger deleteNote" data-remote="'. route('action.destroy', $list->id) .'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
 
 
 
