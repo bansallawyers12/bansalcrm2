@@ -266,7 +266,7 @@ class OngoingSheetController extends Controller
                          ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
             ]);
         if ($sheetType === 'checklist') {
-            $query->addSelect('applications.checklist_sheet_status');
+            $query->addSelect('applications.checklist_sheet_status', 'applications.checklist_sent_at');
         }
         $query
             ->join('admins', 'applications.client_id', '=', 'admins.id')

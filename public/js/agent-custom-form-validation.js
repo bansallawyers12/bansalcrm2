@@ -1598,6 +1598,24 @@ $('#add_application').modal('hide');
 						$('.activities').html(html);
 					}
 				});
+									if ($('#send_checklist_after').is(':checked') && obj.application_id && $('#emailmodal').length) {
+										$('#sendmail_application_id').val(obj.application_id);
+										var clientId = obj.client_id || client_id;
+										var clientEmail = obj.client_email || '';
+										var clientName = obj.client_name || 'Client';
+										var array = [String(clientId)];
+										var data = [{
+											id: clientId,
+											text: clientName,
+											html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>",
+											title: clientName
+										}];
+										$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
+										$('.js-data-example-ajax').val(array).trigger('change');
+										$('#composechecklist-tab').tab('show');
+										$('#emailmodal').modal('show');
+										$('#send_checklist_after').prop('checked', false);
+									}
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									

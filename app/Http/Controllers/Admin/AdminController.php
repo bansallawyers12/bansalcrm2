@@ -1452,15 +1452,35 @@ class AdminController extends Controller
 
 		$saved	=	$obj->save();
 
+		// When checklist email is sent: update application checklist_sent_at and log to client activity
+		if(isset($requestData['checklistfile']) && !empty($requestData['checklistfile'])){
+            $clientIdForLog = null;
+            $logSubject = 'Checklist sent to client';
+            $sentDate = now()->format('d/m/Y');
+            $logDescription = 'Checklist sent on ' . $sentDate;
 
-		if(isset($requestData['checklistfile'])){
-            if(!empty($requestData['checklistfile'])){
+            if(!empty($requestData['application_id'])){
+                $app = \App\Models\Application::find((int)$requestData['application_id']);
+                if($app){
+                    $wasAlreadySent = $app->checklist_sent_at !== null;
+                    $app->checklist_sent_at = now()->toDateString();
+                    $app->save();
+                    $clientIdForLog = $app->client_id;
+                    $logSubject = $wasAlreadySent ? 'Checklist resent to client' : 'Checklist sent to client';
+                    $logDescription = $logSubject . ' on ' . $sentDate;
+                }
+            }
+            if($clientIdForLog === null && !empty($requestData['email_to'][0])){
+                $clientIdForLog = is_numeric($requestData['email_to'][0]) ? (int)$requestData['email_to'][0] : null;
+            }
+            if($clientIdForLog){
                 $objs = new \App\Models\ActivitiesLog;
-                $objs->client_id = $obj->to_mail;
+                $objs->client_id = $clientIdForLog;
                 $objs->created_by = Auth::user()->id;
-                $objs->subject = "Checklist sent to client";
-                $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
-                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
+                $objs->subject = $logSubject;
+                $objs->description = $logDescription;
+                $objs->task_status = 0;
+                $objs->pin = 0;
                 $objs->save();
             }
         }

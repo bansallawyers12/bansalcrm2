@@ -49,6 +49,15 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" name="send_checklist_after" id="send_checklist_after" value="1">
+									<label class="form-check-label" for="send_checklist_after">Send Checklist</label>
+								</div>
+								<small class="text-muted">Open email popup after creating so you can select template and attach checklist to send to client.</small>
+							</div>
+						</div>
+						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('applicationform')" type="button" class="btn btn-primary">Save</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>

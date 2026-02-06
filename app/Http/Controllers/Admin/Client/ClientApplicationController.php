@@ -64,6 +64,13 @@ class ClientApplicationController extends Controller
 				$objs->save();
 				$response['status'] 	= 	true;
 				$response['message']	=	'You\'ve successfully updated your client\'s information.';
+				$response['application_id'] = $obj->id;
+				$clientRow = Admin::where('id', $client_id)->first(['id', 'email', 'first_name', 'last_name']);
+				if ($clientRow) {
+					$response['client_id'] = $clientRow->id;
+					$response['client_email'] = $clientRow->email ?? '';
+					$response['client_name'] = trim(($clientRow->first_name ?? '') . ' ' . ($clientRow->last_name ?? ''));
+				}
 			}else{
 				$response['status'] 	= 	false;
 				$response['message']	=	'Please try again';

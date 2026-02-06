@@ -2078,6 +2078,7 @@ use App\Http\Controllers\Controller;
 			<div class="modal-body">
 				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
+				<input type="hidden" name="application_id" id="sendmail_application_id" value="">
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
@@ -3008,6 +3009,28 @@ $(document).ready(function() {
         initCategoryManager();
     });
 });
+</script>
+
+{{-- Open email modal for "Resend checklist" from sheet (URL: ?open_checklist_email=1&applicationId=xxx) --}}
+<script>
+(function(){
+	var params = new URLSearchParams(window.location.search);
+	var openChecklist = params.get('open_checklist_email');
+	var applicationId = params.get('applicationId');
+	if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
+		$(document).ready(function(){
+			$('#sendmail_application_id').val(applicationId);
+			var clientId = {{ $fetchedData->id ?? 'null' }};
+			var clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
+			var clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
+			var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
+			$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
+			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
+			$('#composechecklist-tab').tab('show');
+			$('#emailmodal').modal('show');
+		});
+	}
+})();
 </script>
 
 {{-- Blade-specific inline code (loaded last, uses Blade variables) --}}

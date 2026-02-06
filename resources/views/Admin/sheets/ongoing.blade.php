@@ -404,13 +404,14 @@
                                     <th>Comment</th>
                                     @if(isset($sheetType) && $sheetType === 'checklist')
                                     <th>Status</th>
+                                    <th>Checklist sent</th>
                                     @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @if($rows->isEmpty())
                                     <tr>
-                                        <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 13 : 12 }}" class="text-center py-4">
+                                        <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 14 : 12 }}" class="text-center py-4">
                                             <i class="fas fa-info-circle fa-2x text-muted mb-2 d-block"></i>
                                             <p class="mb-0">No records found.</p>
                                         </td>
@@ -476,6 +477,19 @@
                                                     <option value="{{ $val }}" {{ $currentStatus === $val ? 'selected' : '' }}>{{ $label }}</option>
                                                     @endforeach
                                                 </select>
+                                            </td>
+                                            <td class="checklist-sent-cell" onclick="event.stopPropagation();">
+                                                @php
+                                                    $clientEncodedIdForResend = base64_encode(convert_uuencode($row->client_id));
+                                                    $resendChecklistUrl = route('clients.detail', ['id' => $clientEncodedIdForResend]) . '?applicationId=' . $row->application_id . '&open_checklist_email=1';
+                                                @endphp
+                                                @if($row->checklist_sent_at)
+                                                    {{ \Carbon\Carbon::parse($row->checklist_sent_at)->format('d/m/Y') }}
+                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-secondary mt-1" onclick="event.stopPropagation();" title="Resend checklist email">Resend checklist</a>
+                                                @else
+                                                    Not sent
+                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-primary mt-1" onclick="event.stopPropagation();" title="Send checklist email">Send checklist</a>
+                                                @endif
                                             </td>
                                             @endif
                                         </tr>
