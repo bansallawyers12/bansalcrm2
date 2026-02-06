@@ -12,7 +12,7 @@ class CheckinLog extends Model
 	protected $fillable = [
         'id', 'client_id', 'user_id', 'visit_purpose', 'office',
         'contact_type', 'status', 'date', 'sesion_start', 'sesion_end',
-        'wait_time', 'attend_time', 'wait_type', 'is_archived',
+        'wait_time', 'attend_time', 'wait_type',
         'created_at', 'updated_at'
     ];
 	

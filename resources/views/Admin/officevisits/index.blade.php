@@ -9,9 +9,9 @@
 
 @php
 	$baseUrl = '/office-visits/' . $activeTab;
-	$InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
-	$InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
-	$InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
+	$InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->orderBy('created_at', 'desc')->count();
+	$InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->orderBy('created_at', 'desc')->count();
+	$InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->orderBy('created_at', 'desc')->count();
 @endphp
 
 <!-- Main Content -->

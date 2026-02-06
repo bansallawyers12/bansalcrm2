@@ -121,7 +121,6 @@ class OfficeVisitController extends Controller
 				$obj->office = $officeId;
 				$obj->contact_type = $contactType;
 				$obj->status = 0;
-				$obj->is_archived = 0; // FIX: Required NOT NULL constraint
 				$obj->date = date('Y-m-d');
 				
 				if (!$obj->save()) {
@@ -701,7 +700,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', 0)->where('is_archived',0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', 0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -724,7 +723,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '2')->where('is_archived',0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '2'); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -748,7 +747,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '1')->where('is_archived',0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '1'); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){

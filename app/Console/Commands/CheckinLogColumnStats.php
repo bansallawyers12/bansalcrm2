@@ -33,7 +33,6 @@ class CheckinLogColumnStats extends Command
                     count(wait_time) AS wait_time,
                     count(attend_time) AS attend_time,
                     count(wait_type) AS wait_type,
-                    count(is_archived) AS is_archived,
                     count(created_at) AS created_at,
                     count(updated_at) AS updated_at
                 ")
