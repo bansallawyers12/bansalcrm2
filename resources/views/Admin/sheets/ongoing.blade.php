@@ -145,14 +145,70 @@
         height: auto;
     }
     
-    /* Ongoing sheet table: wider, horizontal scroll */
+    /* Ongoing sheet table: wider, horizontal scroll (matches MigrationManager2 pattern) */
+    .ongoing-sheet-table-container {
+        position: relative;
+    }
     .ongoing-sheet-table-wrap {
+        position: relative;
         overflow-x: auto;
+        overflow-y: visible;
         -webkit-overflow-scrolling: touch;
     }
     .ongoing-sheet-table-wrap .table {
         min-width: 1400px;
         table-layout: auto;
+    }
+    /* Scroll indicators (left/right gradient overlays when content is scrollable) */
+    .ongoing-sheet-scroll-indicator {
+        position: absolute;
+        top: 0;
+        bottom: 20px;
+        width: 40px;
+        pointer-events: none;
+        z-index: 10;
+        transition: opacity 0.3s;
+    }
+    .ongoing-sheet-scroll-indicator-left {
+        left: 0;
+        background: linear-gradient(to right, rgba(255,255,255,0.95), transparent);
+        opacity: 0;
+    }
+    .ongoing-sheet-scroll-indicator-right {
+        right: 0;
+        background: linear-gradient(to left, rgba(255,255,255,0.95), transparent);
+    }
+    .ongoing-sheet-scroll-indicator-left.visible,
+    .ongoing-sheet-scroll-indicator-right.visible {
+        opacity: 1;
+    }
+    /* Custom scrollbar styling */
+    .ongoing-sheet-table-wrap::-webkit-scrollbar {
+        height: 12px;
+    }
+    .ongoing-sheet-table-wrap::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .ongoing-sheet-table-wrap::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #5b4d96 0%, #6f5fb8 100%);
+        border-radius: 10px;
+    }
+    .ongoing-sheet-table-wrap::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #6f5fb8 0%, #5b4d96 100%);
+    }
+    /* Scroll hint */
+    .ongoing-sheet-scroll-hint {
+        text-align: center;
+        padding: 10px;
+        background: #f4f1fa;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: #4a4063;
+    }
+    .ongoing-sheet-scroll-hint i {
+        margin-right: 6px;
     }
     .ongoing-sheet-table-wrap .table th.branch-cell,
     .ongoing-sheet-table-wrap .table td.branch-cell {
@@ -319,8 +375,15 @@
             {{-- Table --}}
             <div class="card">
                 <div class="card-body p-0">
-                    <div class="table-responsive ongoing-sheet-table-wrap">
-                        <table class="table table-striped table-bordered mb-0">
+                    {{-- Scroll hint --}}
+                    <div class="ongoing-sheet-scroll-hint px-3 pt-2">
+                        <i class="fas fa-arrows-alt-h"></i> Scroll horizontally to see all columns.
+                    </div>
+                    <div class="ongoing-sheet-table-container px-0">
+                        <div class="ongoing-sheet-scroll-indicator ongoing-sheet-scroll-indicator-left"></div>
+                        <div class="ongoing-sheet-scroll-indicator ongoing-sheet-scroll-indicator-right visible"></div>
+                        <div class="table-responsive ongoing-sheet-table-wrap" id="ongoing-sheet-scroll-container">
+                            <table class="table table-striped table-bordered mb-0">
                             <thead>
                                 <tr class="ongoing-sheet-header">
                                     <th>Course Name</th>
@@ -400,6 +463,7 @@
                                 @endif
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     
                     {{-- Pagination --}}
@@ -478,6 +542,33 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Horizontal scroll indicators (matches MigrationManager2 pattern)
+    var $scrollContainer = $('#ongoing-sheet-scroll-container');
+    var $leftIndicator = $('.ongoing-sheet-scroll-indicator-left');
+    var $rightIndicator = $('.ongoing-sheet-scroll-indicator-right');
+    function updateScrollIndicators() {
+        if (!$scrollContainer.length || !$scrollContainer[0]) return;
+        var scrollLeft = $scrollContainer.scrollLeft();
+        var scrollWidth = $scrollContainer[0].scrollWidth;
+        var clientWidth = $scrollContainer[0].clientWidth;
+        var maxScroll = scrollWidth - clientWidth;
+        $leftIndicator.toggleClass('visible', scrollLeft > 10);
+        $rightIndicator.toggleClass('visible', scrollLeft < maxScroll - 10);
+    }
+    $scrollContainer.on('scroll', updateScrollIndicators);
+    $(window).on('resize', updateScrollIndicators);
+    setTimeout(updateScrollIndicators, 100);
+    // Vertical mouse wheel scrolls horizontally when content overflows
+    $scrollContainer.on('wheel', function(e) {
+        if (e.originalEvent.deltaY !== 0 && !e.shiftKey) {
+            var el = this;
+            if (el.scrollWidth > el.clientWidth) {
+                e.preventDefault();
+                el.scrollLeft += e.originalEvent.deltaY;
+            }
+        }
+    });
+
     // Initialize flatpickr for date inputs
     flatpickr('.dobdatepicker', {
         dateFormat: 'd/m/Y',
