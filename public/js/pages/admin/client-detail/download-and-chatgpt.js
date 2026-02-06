@@ -107,8 +107,8 @@
                         composeEmailSubject.value = subject;
                     }
                     // Ensure Summernote is initialized before updating content
-                    if ($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                        $("#emailmodal .summernote-simple").summernote('code', body);
+                    if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                        TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", body);
                     }
 
                     // Close the ChatGPT section

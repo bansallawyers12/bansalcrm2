@@ -24,55 +24,28 @@ function reinitializeAccordions() {
 	});
 }
 
-// Helper function to sync TinyMCE/summernote content to textarea before form submission
+// Helper function to sync TinyMCE content to textarea before form submission
 function syncEditorContent($form) {
-	$form.find('textarea.summernote-simple, textarea.summernote').each(function() {
+	$form.find('textarea.tinymce-simple, textarea.tinymce-full').each(function() {
 		var $field = $(this);
-		
-		// Try to sync from TinyMCE first
 		if(typeof tinymce !== 'undefined') {
 			var editorId = $field.attr('id');
 			if(editorId) {
 				var editor = tinymce.get(editorId);
-				if(editor) {
-					var content = editor.getContent();
-					$field.val(content);
-					return;
-				}
+				if(editor) { $field.val(editor.getContent()); return; }
 			}
-			// Try to find editor by textarea element
 			try {
 				var editor = tinymce.get($field[0]);
-				if(editor) {
-					var content = editor.getContent();
-					$field.val(content);
-					return;
-				}
-			} catch(e) {
-				// Continue to next method
-			}
-		}
-		// Fallback to summernote method
-		if(typeof $.fn.summernote !== 'undefined') {
-			try {
-				var content = $field.summernote('code');
-				if(content !== undefined && content !== null) {
-					$field.val(content);
-					return;
-				}
-			} catch(e) {
-				// Continue
-			}
+				if(editor) { $field.val(editor.getContent()); }
+			} catch(e) {}
 		}
 	});
 }
 
-// Helper function to get value from summernote/tinymce fields
+// Helper function to get value from TinyMCE fields
 function getFieldValue($field) {
 	var for_class = $field.attr('class') || '';
-	
-	// Check if it's a summernote/tinymce field
-	if(for_class.indexOf('summernote-simple') !== -1 || for_class.indexOf('summernote') !== -1) {
+	if(for_class.indexOf('tinymce-simple') !== -1 || for_class.indexOf('tinymce-full') !== -1) {
 		// Try to get content from TinyMCE first
 		if(typeof tinymce !== 'undefined') {
 			var editorId = $field.attr('id');
@@ -97,28 +70,9 @@ function getFieldValue($field) {
 				// Continue to next method
 			}
 		}
-		// Fallback to summernote method
-		if(typeof $.fn.summernote !== 'undefined') {
-			try {
-				var content = $field.summernote('code');
-				if(content) {
-					var textContent = $('<div>').html(content).text();
-					return $.trim(textContent);
-				}
-			} catch(e) {
-				// Continue to next method
-			}
-		}
-		// Final fallback: check if textarea has value directly
 		var directValue = $.trim($field.val());
-		if(directValue) {
-			// Remove HTML tags if present
-			var textContent = $('<div>').html(directValue).text();
-			return $.trim(textContent);
-		}
+		if(directValue) return $.trim($('<div>').html(directValue).text());
 	}
-	
-	// Default to regular val() for other fields
 	return $.trim($field.val());
 }
 

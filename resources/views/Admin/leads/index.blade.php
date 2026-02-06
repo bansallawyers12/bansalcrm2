@@ -101,8 +101,8 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											<th>Client</th>
 											<th>Services</th>
 											<th>Level & Status</th>
-											<th>Followup</th>
 											<th>Action</th>
+											<th>Options</th>
 										</tr> 
 									</thead>
 									<tbody class="tdata">	

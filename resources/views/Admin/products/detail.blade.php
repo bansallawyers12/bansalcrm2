@@ -350,7 +350,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" name="message"></textarea>
+								<textarea class="tinymce-simple selectedmessage" name="message"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
@@ -468,9 +468,9 @@ function getallactivities(){
 		$('#create_note input[name="title"]').val('');
 		$('#create_note #appliationModalLabel').html('Create Note');
 		$('#create_note input[name="title"]').val('');
-					$("#create_note .summernote-simple").val('');
+					$("#create_note .tinymce-simple").val('');
 					$('#create_note input[name="noteid"]').val('');                    
-				$("#create_note .summernote-simple").summernote('code','');
+				if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.resetBySelector("#create_note .tinymce-simple");
 		if($(this).attr('datatype') == 'note'){
 			$('.is_not_note').hide();
 		}else{ 
@@ -586,8 +586,8 @@ function formatRepoSelection (repo) {
 				
 				if(res.status){
 					$('#create_note input[name="title"]').val(res.data.title);
-					$("#create_note .summernote-simple").val(res.data.description);                    
-				$("#create_note .summernote-simple").summernote('code',res.data.description);
+					$("#create_note .tinymce-simple").val(res.data.description);                    
+				if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.setContentBySelector("#create_note .tinymce-simple", res.data.description);
 				}
 			}
 		});
@@ -719,9 +719,8 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		success: function(response){
 			var res = JSON.parse(response);
 			$('.selectedsubject').val(res.subject);
-			 $("#emailmodal .summernote-simple").summernote('reset');  
-                    $("#emailmodal .summernote-simple").summernote('code', res.description);  
-					$("#emailmodal .summernote-simple").val(res.description); 
+			 if (typeof TinyMCEHelpers !== 'undefined') { TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple"); TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", res.description); }
+					$("#emailmodal .tinymce-simple").val(res.description); 
 			
 		}
 	});
@@ -737,9 +736,8 @@ $(document).delegate('.selectapplicationtemplate', 'change', function(){
 		success: function(response){
 			var res = JSON.parse(response);
 			$('.selectedappsubject').val(res.subject);
-			 $("#applicationemailmodal .summernote-simple").summernote('reset');  
-                    $("#applicationemailmodal .summernote-simple").summernote('code', res.description);  
-					$("#applicationemailmodal .summernote-simple").val(res.description); 
+			 if (typeof TinyMCEHelpers !== 'undefined') { TinyMCEHelpers.resetBySelector("#applicationemailmodal .tinymce-simple"); TinyMCEHelpers.setContentBySelector("#applicationemailmodal .tinymce-simple", res.description); }
+					$("#applicationemailmodal .tinymce-simple").val(res.description); 
 			
 		}
 	});

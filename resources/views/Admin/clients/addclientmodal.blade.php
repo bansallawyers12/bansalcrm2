@@ -171,7 +171,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Description <span class="span_req">*</span></label>
-								<textarea  class="summernote-simple" name="description" data-valid="required"></textarea>
+								<textarea  class="tinymce-simple" name="description" data-valid="required"></textarea>
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span>
@@ -256,7 +256,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Description <span class="span_req">*</span></label>
-								<textarea  class="summernote-simple" name="description" data-valid="required"></textarea>
+								<textarea  class="tinymce-simple" name="description" data-valid="required"></textarea>
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span>
@@ -554,7 +554,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Description <span class="span_req">*</span></label>
-								<textarea class="summernote-simple" name="description" data-valid="required"></textarea>
+								<textarea class="tinymce-simple" name="description" data-valid="required"></textarea>
 								<span class="custom-error title_error" role="alert">
 									<strong></strong>
 								</span>
@@ -962,7 +962,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" name="message"></textarea>
+								<textarea class="tinymce-simple selectedmessage" name="message"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
@@ -1189,7 +1189,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea data-valid="required" class="summernote-simple selectedmessage" name="message"></textarea>
+								<textarea data-valid="required" class="tinymce-simple selectedmessage" name="message"></textarea>
 
 							</div>
 						</div>

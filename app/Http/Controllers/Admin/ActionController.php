@@ -728,7 +728,7 @@ class ActionController extends Controller
                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                 <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
                                 <div class=&quot;col-sm-9&quot;>
-                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control summernote-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
                                 </div>
                                 <div class=&quot;clearfix&quot;></div>
                             </div>
@@ -738,7 +738,7 @@ class ActionController extends Controller
                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                 <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
                                 <div class=&quot;col-sm-9&quot;>
-                                    <input type=&quot;date&quot; class=&quot;form-control f13&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;'.$current_date1.'&quot; name=&quot;popoverdate&quot;>
+                                    <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;'.$current_date1.'&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
                                 </div>
                                 <div class=&quot;clearfix&quot;></div>
                             </div>
@@ -807,7 +807,7 @@ class ActionController extends Controller
                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                 <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
                                 <div class=&quot;col-sm-9&quot;>
-                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control summernote-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
                                 </div>
                                 <div class=&quot;clearfix&quot;></div>
                             </div>
@@ -817,7 +817,7 @@ class ActionController extends Controller
                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                 <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
                                 <div class=&quot;col-sm-9&quot;>
-                                    <input type=&quot;date&quot; class=&quot;form-control f13&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;'.$current_date1.'&quot;name=&quot;popoverdate&quot;>
+                                    <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;'.$current_date1.'&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
                                 </div>
                                 <div class=&quot;clearfix&quot;></div>
                             </div>

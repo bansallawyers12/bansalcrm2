@@ -778,6 +778,17 @@ $(function () {
         });
       });
     }
+
+    // Popover date (#popoverdatetime) – init when shown (e.g. action/partner popovers)
+    $(document).on('shown.bs.popover', function() {
+      var el = document.getElementById('popoverdatetime');
+      if (el && !el._flatpickr && typeof flatpickr !== 'undefined') {
+        flatpickr(el, {
+          dateFormat: 'Y-m-d',
+          allowInput: true
+        });
+      }
+    });
   }
 
   // Timepicker

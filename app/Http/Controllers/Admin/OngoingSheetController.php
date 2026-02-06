@@ -188,6 +188,21 @@ class OngoingSheetController extends Controller
                 ->select('stage')
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
+        if ($sheetType === 'checklist') {
+            return Application::select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->whereNotIn('applications.status', [2])
+                ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
+                ->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('notes')
+                        ->whereColumn('notes.client_id', 'admins.id')
+                        ->whereNotNull('notes.followup_date')
+                        ->where('notes.status', 0)
+                        ->where('notes.type', 'client');
+                })
+                ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
+        }
         return Application::select('stage')
             ->whereNotIn('status', [2])
             ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled'])
@@ -252,6 +267,21 @@ class OngoingSheetController extends Controller
             $query->whereNotIn('applications.status', [2]);
             if ($sheetType === 'coe_enrolled') {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
+            } elseif ($sheetType === 'checklist') {
+                // Checklist: only applications whose client has at least one pending follow-up (Note with followup_date set, status open)
+                $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
+                    'coe issued',
+                    'enrolled',
+                    'coe cancelled',
+                ])
+                ->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('notes')
+                        ->whereColumn('notes.client_id', 'admins.id')
+                        ->whereNotNull('notes.followup_date')
+                        ->where('notes.status', 0)
+                        ->where('notes.type', 'client');
+                });
             } else {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?)', [
                     'coe issued',

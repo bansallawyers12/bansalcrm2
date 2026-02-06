@@ -24,55 +24,35 @@ function reinitializeAccordions() {
 	});
 }
 
-// Helper function to sync TinyMCE/summernote content to textarea before form submission
+// Helper function to sync TinyMCE content to textarea before form submission
 function syncEditorContent($form) {
-	$form.find('textarea.summernote-simple, textarea.summernote').each(function() {
+	$form.find('textarea.tinymce-simple, textarea.tinymce-full').each(function() {
 		var $field = $(this);
-		
-		// Try to sync from TinyMCE first
 		if(typeof tinymce !== 'undefined') {
 			var editorId = $field.attr('id');
 			if(editorId) {
 				var editor = tinymce.get(editorId);
 				if(editor) {
-					var content = editor.getContent();
-					$field.val(content);
+					$field.val(editor.getContent());
 					return;
 				}
 			}
-			// Try to find editor by textarea element
 			try {
 				var editor = tinymce.get($field[0]);
 				if(editor) {
-					var content = editor.getContent();
-					$field.val(content);
-					return;
+					$field.val(editor.getContent());
 				}
-			} catch(e) {
-				// Continue to next method
-			}
-		}
-		// Fallback to summernote method
-		if(typeof $.fn.summernote !== 'undefined') {
-			try {
-				var content = $field.summernote('code');
-				if(content !== undefined && content !== null) {
-					$field.val(content);
-					return;
-				}
-			} catch(e) {
-				// Continue
-			}
+			} catch(e) {}
 		}
 	});
 }
 
-// Helper function to get value from summernote/tinymce fields
+// Helper function to get value from TinyMCE fields
 function getFieldValue($field) {
 	var for_class = $field.attr('class') || '';
 	
-	// Check if it's a summernote/tinymce field
-	if(for_class.indexOf('summernote-simple') !== -1 || for_class.indexOf('summernote') !== -1) {
+	// Check if it's a TinyMCE field
+	if(for_class.indexOf('tinymce-simple') !== -1 || for_class.indexOf('tinymce-full') !== -1) {
 		// Try to get content from TinyMCE first
 		if(typeof tinymce !== 'undefined') {
 			var editorId = $field.attr('id');
@@ -90,18 +70,6 @@ function getFieldValue($field) {
 				var editor = tinymce.get($field[0]);
 				if(editor) {
 					var content = editor.getContent();
-					var textContent = $('<div>').html(content).text();
-					return $.trim(textContent);
-				}
-			} catch(e) {
-				// Continue to next method
-			}
-		}
-		// Fallback to summernote method
-		if(typeof $.fn.summernote !== 'undefined') {
-			try {
-				var content = $field.summernote('code');
-				if(content) {
 					var textContent = $('<div>').html(content).text();
 					return $.trim(textContent);
 				}
@@ -1910,9 +1878,9 @@ function customValidate(formName, savetype = '')
 						var $noteField = $('#partnerassignform textarea[name="assignnote"]');
 						if($noteField.length){
 							// Try Summernote first
-							if(typeof $noteField.summernote === 'function'){
+							if(typeof TinyMCEHelpers !== 'undefined' && $noteField.attr('id')){
 								try {
-									var noteContent = $noteField.summernote('code');
+									var noteContent = TinyMCEHelpers.getContent('#' + $noteField.attr('id'));
 									$noteField.val(noteContent);
 								} catch(e) {
 									console.log('Summernote sync failed, trying TinyMCE');
@@ -2218,17 +2186,9 @@ function customValidate(formName, savetype = '')
 								if(obj.status){
 								    $('#create_note_d input[name="title"]').val('');
 								    $('#create_note_d input[name="title"]').val('');
-					$("#create_note_d .summernote-simple").val('');
+					$("#create_note_d .tinymce-simple").val('');
 				$('#create_note_d input[name="noteid"]').val('');                    
-			// TinyMCE replacement for summernote
-			if (typeof TinyMCEHelpers !== 'undefined') {
-				TinyMCEHelpers.setContent('#create_note_d .summernote-simple', '');
-			} else if (typeof tinymce !== 'undefined') {
-				var editor = tinymce.get($("#create_note_d .summernote-simple").attr('id') || 'create_note_d');
-				if (editor) {
-					editor.setContent('');
-				}
-			}
+			if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.resetBySelector('#create_note_d .tinymce-simple');
 									$('#create_note_d').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								$.ajax({

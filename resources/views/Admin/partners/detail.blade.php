@@ -33,8 +33,6 @@
 	$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 @endphp
 <link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
-<!-- jQuery UI for datepicker -->
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -2626,7 +2624,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="summernote-simple selectedmessage" name="message"></textarea>
+								<textarea class="tinymce-simple selectedmessage" name="message"></textarea>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>
@@ -3026,7 +3024,7 @@ use App\Http\Controllers\Controller;
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.css">
 
 <style>
-    /* Custom styles for datepicker fields */
+    /* Custom styles for date fields (Flatpickr) */
     .datepicker-input {
         width: 200px;
         padding: 5px;
@@ -3182,14 +3180,16 @@ use App\Http\Controllers\Controller;
             window.open(docUrl, '_blank');
         });
         
-        // Initialize datepickers for agreement modal
-        $('#agreement_contract_start, #agreement_contract_expiry').datepicker({
-            dateFormat: 'yy-mm-dd',
-            changeMonth: true,
-            changeYear: true,
-            yearRange: '-100:+10'
-        });
-        
+        // Initialize Flatpickr for agreement modal date fields (replaces jQuery UI datepicker)
+        if (typeof flatpickr !== 'undefined') {
+            $('#agreement_contract_start, #agreement_contract_expiry').each(function() {
+                flatpickr(this, {
+                    dateFormat: 'Y-m-d',
+                    allowInput: true
+                });
+            });
+        }
+
         // Initialize select2 for agreement modal dropdowns
         $('#agreement_represent_region').select2({
             placeholder: 'Select Representing Regions',
@@ -3571,9 +3571,6 @@ use App\Http\Controllers\Controller;
     }
 
 </script>
-
-<!-- jQuery UI for datepicker functionality -->
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>

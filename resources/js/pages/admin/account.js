@@ -149,11 +149,11 @@
                     const description = res.description || '';
 
                     $('.selectedsubject').val(subject);
-                    if ($("#emailmodal .summernote-simple").length && typeof $.fn.summernote !== 'undefined') {
-                        $("#emailmodal .summernote-simple").summernote('reset');
-                        $("#emailmodal .summernote-simple").summernote('code', description);
+                    if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                        TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
+                        TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", description);
                     }
-                    $("#emailmodal .summernote-simple").val(description);
+                    $("#emailmodal .tinymce-simple").val(description);
                 }
             });
         });

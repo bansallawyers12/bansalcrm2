@@ -159,7 +159,7 @@
 												<div class="col-12 col-md-6 col-lg-6">
 													<div class="form-group">
 														<label for="description">Description</label>
-														<textarea class="summernote-simple" name="description">{{@$fetchedData->description}}</textarea>
+														<textarea class="tinymce-simple" name="description">{{@$fetchedData->description}}</textarea>
 														@if ($errors->has('description'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('description') }}</strong>

@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
 use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\TinyMCEImageUploadController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\AddressController;
@@ -365,6 +366,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		// Route::get('/get-services', [ClientServiceController::class, 'getServices']); 	 
 		Route::post('/upload-mail', [ClientMessagingController::class, 'uploadmail']); 	 
 		Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('mail.enhance');
+		Route::post('/tinymce/upload-image', [TinyMCEImageUploadController::class, 'upload'])->name('tinymce.upload-image');
   
         Route::get('/pinnote', [ClientNoteController::class, 'pinnote']); 	 
   	    Route::get('/pinactivitylog', [ClientActivityController::class, 'pinactivitylog']);
