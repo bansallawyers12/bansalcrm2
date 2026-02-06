@@ -431,10 +431,8 @@ i[style*="color:rgba"] {
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientModalLabel">In Person Details</h5>
-				<a style="margin-left:10px;" href="javascript:;"><i class="fa fa-trash"></i> Archive</a>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<a href="javascript:;" class="archive-checkin-detail" style="margin-left:10px;" role="button"><i class="fa fa-trash"></i> Archive</a>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body showchecindetail">
 				

@@ -502,6 +502,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::post('/update_visit_comment', [OfficeVisitController::class, 'update_visit_comment']);	
 		Route::post('/attend_session', [OfficeVisitController::class, 'attend_session']);	
 		Route::post('/complete_session', [OfficeVisitController::class, 'complete_session']);	
+		Route::post('/office-visits/archive', [OfficeVisitController::class, 'archive'])->name('officevisits.archive');
 		Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);  
 		//Route::post('/agents/store', 'Admin\AgentController@store')->name('agents.store'); 
 		//Route::get('/agent/detail/{id}', 'Admin\AgentController@detail')->name('agents.detail'); 

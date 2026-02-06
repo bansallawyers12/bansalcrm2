@@ -25,29 +25,17 @@
 						</div>
 						<div class="card-body">
                             <?php
-                            //if(\Auth::user()->role == 1){
-                                $InPersonCount_All_type = \App\Models\CheckinLog::orderBy('created_at', 'desc')->count();
+                            $InPersonCount_All_type = \App\Models\CheckinLog::where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_waiting_type = \App\Models\CheckinLog::where('status',0)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_attending_type = \App\Models\CheckinLog::where('status',2)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_completed_type = \App\Models\CheckinLog::where('status',1)->where('is_archived',0)->orderBy('created_at', 'desc')->count();
 
-                                $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
+                            $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
 
-                            /*} else {
-                                $InPersonCount_All_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('id', '!=', '')->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_waiting_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',0)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_attending_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',2)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_completed_type = \App\Models\CheckinLog::where('user_id',Auth::user()->id)->where('status',1)->orderBy('created_at', 'desc')->count();
-
-                                $InPersonCount_archived_type = \App\Models\CheckinLog::where('is_archived',1)->orderBy('created_at', 'desc')->count();
-
-                            } */?>
+                            ?>
 							<ul class="nav nav-pills" id="checkin_tabs" role="tablist">
 
 								<li class="nav-item">
@@ -109,29 +97,12 @@
 													<td style="white-space: initial;"><a href="javascript:;">{{date('l',strtotime($list->created_at))}}</a><br>{{date('d/m/Y',strtotime($list->created_at))}}</td>
 													<td style="white-space: initial;"><?php if($list->sesion_start != ''){ echo date('h:i A',strtotime($list->sesion_start)); }else{ echo '-'; } ?></td>
 													<td style="white-space: initial;"><?php if($list->sesion_end != ''){ echo date('h:i A',strtotime($list->sesion_end)); }else{ echo '-'; } ?></td>
-												<td style="white-space: initial;">
-													<?php
-													if($list->contact_type == 'Lead'){
-														$client = \App\Models\Lead::where('id', '=', $list->client_id)->first(); 
-														if(!$client){ 
-															$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
-															?>
-															<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
+													<td style="white-space: initial;">
 														<?php
-														} 
-														else 
-														{ ?>
-															<a target="_blank" href="{{route('leads.detail', base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-														<?php 
-														} 
-													} else {
 														$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
 														?>
 														<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
-													<?php
-													}
-													?>
-													<br>{{@$client->email}}
+														<br>{{@$client->email}}
 													</td>
 													<td style="white-space: initial;">{{$list->contact_type}}</td>
 													<td style="white-space: initial;">{{$list->visit_purpose}}</td>

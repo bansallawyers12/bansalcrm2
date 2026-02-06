@@ -92,17 +92,7 @@ class OfficeVisitController extends Controller
 			}
 			//dd($contactType.'-'.$contactId);
 			// Verify contact exists based on type
-			if ($contactType == 'Lead') {
-				$leadId = Admin::where('role', 7)->where('id', $contactId)->value('lead_id');
-				if($leadId){
-					$clientExists = \App\Models\Lead::where('id', $leadId)->exists();
-				} else {
-					$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
-				}
-			} else {
-				$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
-			}
-
+			$clientExists = Admin::where('role', '7')->where('id', $contactId)->exists();
 			if (!$clientExists) {
 				return redirect()->back()->with('error', 'Selected contact does not exist.');
 			}
@@ -125,15 +115,7 @@ class OfficeVisitController extends Controller
 			try {
 				// Create CheckinLog
 				$obj = new \App\Models\CheckinLog;
-				if ($contactType == 'Lead') {
-					if($leadId){
-						$obj->client_id = $leadId;
-					} else {
-						$obj->client_id = $contactId;
-					}
-				} else {
-					$obj->client_id = $contactId;
-				}
+				$obj->client_id = $contactId;
 				$obj->user_id = $assigneeId;
 				$obj->visit_purpose = $visitPurpose;
 				$obj->office = $officeId;
@@ -163,19 +145,7 @@ class OfficeVisitController extends Controller
 				}
 
 				// Get client information for broadcasting
-				/*$client = $contactType == 'Lead' 
-					? \App\Models\Lead::find($leadId)
-					: Admin::where('role', '7')->find($contactId);*/
-
-				if ($contactType == 'Lead') {
-					if($leadId){
-						$client = \App\Models\Lead::find($leadId);
-					} else {
-						$client = Admin::where('role', '7')->find($contactId);
-					}
-				} else {
-					$client = Admin::where('role', '7')->find($contactId);
-				}
+				$client = Admin::where('role', '7')->find($contactId);
 
 				// Broadcast real-time notification (optional - wrap in try-catch)
 				try {
@@ -261,7 +231,7 @@ class OfficeVisitController extends Controller
 	
 	public function index(Request $request)
 	{
-		$query 		= CheckinLog::query()->with('office');  
+		$query 		= CheckinLog::query()->with('office')->where('is_archived',0);  
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -279,18 +249,10 @@ class OfficeVisitController extends Controller
 	public function getcheckin(Request $request)
 	{
 	    
-		$CheckinLog 		= CheckinLog::with('office')->where('id', '=', $request->id)->first();  
-		
+		$CheckinLog = CheckinLog::with('office')->where('id', '=', $request->id)->first(); 
 		if($CheckinLog){
 			ob_start();
-			if($CheckinLog->contact_type == 'Lead'){
-				$client = \App\Models\Lead::where('id', '=', $CheckinLog->client_id)->first();
-				if(!$client){
-					$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $CheckinLog->client_id)->first();
-				} 
-			}else{
-				$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $CheckinLog->client_id)->first();
-			}
+			$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $CheckinLog->client_id)->first();
 			?>
 			<div class="row">
 				<div class="col-md-12">
@@ -324,8 +286,9 @@ class OfficeVisitController extends Controller
 						<b><?php echo $CheckinLog->contact_type; ?></b>
 						<br>
 						<?php
-						if($CheckinLog->office){
-						echo '<a target="_blank" href="'.\URL::to('/branch/view/'.$CheckinLog->office->id).'">'.$CheckinLog->office->office_name.'</a>';
+						$branch = is_object($CheckinLog->office) ? $CheckinLog->office : \App\Models\Branch::find($CheckinLog->getAttribute('office'));
+						if ($branch) {
+							echo '<a target="_blank" href="'.\URL::to('/branch/view/'.$branch->id).'">'.$branch->office_name.'</a>';
 						}
 						?>
 						
@@ -755,7 +718,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', 0); 
+		$query 		= CheckinLog::with('office')->where('status', '=', 0)->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -777,7 +740,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '2'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '2')->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -800,7 +763,7 @@ class OfficeVisitController extends Controller
     	       $ovv->save();
     	    }
 	    }
-		$query 		= CheckinLog::with('office')->where('status', '=', '1'); 
+		$query 		= CheckinLog::with('office')->where('status', '=', '1')->where('is_archived',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if($request->has('office')){
@@ -814,6 +777,23 @@ class OfficeVisitController extends Controller
 		
 		return view('Admin.officevisits.completed',compact(['lists', 'totalData']));  
 	}
+	/**
+	 * Archive a single office visit (set is_archived = 1).
+	 */
+	public function archive(Request $request)
+	{
+		$request->validate(['id' => 'required|integer|min:1']);
+		$obj = CheckinLog::find($request->id);
+		if (!$obj) {
+			return response()->json(['status' => false, 'message' => 'Office visit not found.']);
+		}
+		$obj->is_archived = 1;
+		if (!$obj->save()) {
+			return response()->json(['status' => false, 'message' => 'Failed to archive. Please try again.']);
+		}
+		return response()->json(['status' => true, 'message' => 'Moved to Archived list.']);
+	}
+
 	public function archived(Request $request)
 	{
 		$query 		= CheckinLog::with('office')->where('is_archived', '=', '1'); 
