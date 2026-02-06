@@ -2,26 +2,36 @@
 ## Copying from migrationmanager2 to bansalcrm2
 
 **Date:** 2026-01-29  
+**Updated:** 2026-02-06 (is_archived removed from checkin_logs in both CRMs)  
 **Status:** Planning - Not Applied  
 **Source:** C:\xampp\htdocs\migrationmanager2  
 **Target:** C:\xampp\htdocs\bansalcrm2
 
 ---
 
+## is_archived removed from checkin_logs (2026-02-06)
+
+**Decision applied:** The `is_archived` column has been **removed** from the `checkin_logs` table in **both** bansalcrm2 and migrationmanager2. There is no archive feature for office visits; all check-ins appear in Waiting / Attending / Completed by status only.
+
+- **bansalcrm2:** Migration `2026_02_06_120000_drop_is_archived_from_checkin_logs.php` has been run; column removed. Controller does not set or filter by `is_archived`.
+- **migrationmanager2:** Migration `2026_02_06_000000_drop_is_archived_from_checkin_logs_table.php` has been run; column removed. Controller and view no longer set or filter by `is_archived`.
+
+**Status:** Migration run; column confirmed removed.
+
+---
+
 ## Executive Summary
 
-This plan outlines the steps to migrate the improved office check-in system from migrationmanager2 to bansalcrm2. The migration fixes the current `is_archived` NOT NULL constraint violation error and restores the CheckinHistory functionality that was previously removed.
+This plan outlines the steps to migrate the improved office check-in system from migrationmanager2 to bansalcrm2. CheckinHistory functionality is restored; **is_archived has been removed from checkin_logs** in both CRMs (no archive feature for office visits).
 
-**Current Problem in bansalcrm2:**
-- **Error:** `SQLSTATE[23502]: Not null violation: 7 ERROR: null value in column "is_archived" of relation "checkin_logs" violates not-null constraint`
-- **Cause:** `OfficeVisitController::checkin()` does not set `is_archived` when creating check-ins
-- **Impact:** Office check-ins cannot be created
+**Original problem (resolved by removing column):**
+- Previously, bansalcrm2 could hit a NOT NULL error on `checkin_logs.is_archived`. The fix adopted was to **drop the column** in both CRMs rather than add archive behaviour.
 
-**Solution from migrationmanager2:**
-- Sets `is_archived = 0` on check-in creation
-- Includes validation, error handling, and DB transactions
-- Maintains CheckinHistory for audit trail and comments
-- Implements real-time notifications via Reverb/broadcasting
+**Solution (current state):**
+- Validation, error handling, and DB transactions
+- CheckinHistory for audit trail and comments
+- Real-time notifications via Reverb/broadcasting
+- No `is_archived` on checkin_logs in either CRM
 
 ---
 
@@ -32,12 +42,11 @@ This plan outlines the steps to migrate the improved office check-in system from
 **CheckinLog Model:**
 ```php
 protected $fillable = ['id', 'created_at', 'updated_at'];
-// Missing: is_archived and other fields
+// (Original state; now has full fillable without is_archived)
 ```
 
 **Controller Issues:**
-- ❌ Does not set `is_archived` on create → causes NOT NULL violation
-- ❌ No validation on contact, assignee, office
+- ❌ No validation on contact, assignee, office (in original state)
 - ❌ No transaction wrapping
 - ❌ Limited error handling
 - ❌ CheckinHistory table dropped and disabled
@@ -60,7 +69,7 @@ class Notification extends Model {
 protected $fillable = [
     'id', 'client_id', 'user_id', 'visit_purpose', 'office', 
     'contact_type', 'status', 'date', 'sesion_start', 'sesion_end', 
-    'wait_time', 'attend_time', 'wait_type', 'is_archived', 
+    'wait_time', 'attend_time', 'wait_type', 
     'created_at', 'updated_at'
 ];
 
@@ -70,7 +79,6 @@ public function assignee() { ... }
 ```
 
 **Controller Features:**
-- ✅ Sets `is_archived = 0` on create
 - ✅ Validates contact (handles Select2 array), assignee, office, message
 - ✅ Verifies contact, assignee, and office exist
 - ✅ DB transaction with rollback on failure
@@ -164,7 +172,7 @@ class CheckinLog extends Model
     protected $fillable = [
         'id', 'client_id', 'user_id', 'visit_purpose', 'office',
         'contact_type', 'status', 'date', 'sesion_start', 'sesion_end',
-        'wait_time', 'attend_time', 'wait_type', 'is_archived',
+        'wait_time', 'attend_time', 'wait_type',
         'created_at', 'updated_at'
     ];
 
@@ -397,7 +405,6 @@ public function checkin(Request $request){
     $obj->office = $requestData['office'];
     $obj->contact_type = $requestData['utype'];
     $obj->status = 0;
-    // MISSING: $obj->is_archived = 0;
     $obj->date = date('Y-m-d');
     $saved = $obj->save();
     // ... rest of method
@@ -498,7 +505,6 @@ public function checkin(Request $request){
             $obj->office = $officeId;
             $obj->contact_type = $contactType;
             $obj->status = 0;
-            $obj->is_archived = 0; // FIX: Required NOT NULL constraint
             $obj->date = date('Y-m-d');
             
             if (!$obj->save()) {
@@ -998,7 +1004,7 @@ function updateNotificationCount() {
 ### Step 6: Testing
 
 **Test Checklist:**
-- [ ] Create new check-in (should not error with `is_archived` NULL)
+- [ ] Create new check-in (no is_archived column)
 - [ ] Verify check-in appears in "Waiting" tab
 - [ ] Click on check-in to view details modal
 - [ ] Verify "Logs" section shows "has created check-in" entry
@@ -1055,12 +1061,7 @@ If full migration is not desired, apply minimal fix:
 
 **File:** `app/Http/Controllers/Admin/OfficeVisitController.php`
 
-**Change ONLY line 45 in `checkin()` method:**
-```php
-$obj->is_archived = 0; // Add this single line
-```
-
-This fixes the NOT NULL violation without restoring CheckinHistory functionality.
+~~Minimal fix (obsolete):~~ The `is_archived` column has been removed from `checkin_logs` in both CRMs; no minimal fix needed.
 
 ---
 
@@ -1094,14 +1095,9 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 - ✅ Matches migrationmanager2 behavior
 - ❌ More complex migration
 
-**Option B: Minimal Fix Only**
-- ✅ Simple: just add `is_archived = 0`
-- ✅ No schema changes
-- ❌ No audit trail
-- ❌ No comments feature
-- ❌ Diverges from migrationmanager2
+**Option B: Minimal Fix Only** — Obsolete; is_archived has been removed from checkin_logs in both CRMs.
 
-**Recommendation:** Option A (Full Restoration) - The audit trail is valuable for compliance and debugging.
+**Recommendation:** Option A (Full Restoration) for CheckinHistory - The audit trail is valuable for compliance and debugging.
 
 ---
 
@@ -1166,10 +1162,7 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 
 ## Timeline Estimate
 
-**Minimal Fix (is_archived only):** 30 minutes
-- Add one line to controller
-- Test check-in creation
-- Deploy
+~~Minimal Fix (is_archived only):~~ N/A — is_archived removed from checkin_logs in both CRMs.
 
 **Full Migration (Recommended):** 4-6 hours
 - Phase 1 (Database & Models): 1-2 hours
@@ -1188,7 +1181,7 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 
 ## Success Criteria
 
-1. ✅ Office check-ins can be created without `is_archived` NOT NULL error
+1. ✅ Office check-ins can be created (no is_archived column)
 2. ✅ Check-in history logs appear in the detail modal
 3. ✅ Comments can be added to check-ins
 4. ✅ Attend session and complete session work correctly
@@ -1245,12 +1238,11 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 
 ---
 
-## Appendix: Key Differences Summary
+## Appendix: Key Differences Summary (Original – Pre-Migration)
 
 | Feature | bansalcrm2 (Current) | migrationmanager2 (Target) |
 |---------|----------------------|----------------------------|
-| **CheckinLog.$fillable** | `['id', 'created_at', 'updated_at']` | Full set of fields including `is_archived` |
-| **is_archived on create** | ❌ Missing (causes error) | ✅ Set to 0 |
+| **CheckinLog.$fillable** | Full set (no is_archived) | Full set (no is_archived) — **is_archived removed from both** |
 | **CheckinHistory** | ❌ Table dropped | ✅ Active and used |
 | **Validation** | ❌ Minimal | ✅ Comprehensive with custom messages |
 | **Error Handling** | ❌ Basic | ✅ Try-catch with logging and transaction |
@@ -1260,6 +1252,100 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 | **Comment Feature** | ❌ Disabled | ✅ Enabled |
 | **Audit Trail** | ❌ No CheckinHistory | ✅ Full CheckinHistory |
 | **Receptionist ID** | 22136 (hardcoded) | 36608 (hardcoded) - both need fix |
+
+---
+
+## Verification / Comparison (as of 2026-02-06)
+
+**Purpose:** Reflect actual codebase state after partial migration and compare both CRMs so the sheet is accurate. **Do not apply** — report only.
+
+### Current state: bansalcrm2
+
+| Item | Status | Notes |
+|------|--------|--------|
+| **CheckinLog model** | ✅ Updated | Full fillable (no `is_archived`). Has `client()`, `assignee()`, `office()`, `histories()`. Extends Model. |
+| **checkin_logs.is_archived** | ✅ Removed | Column dropped; no archive for office visits. |
+| **CheckinHistory model** | ✅ Exists | Fillable, `checkinLog()`, `creator()`. |
+| **checkin_histories table** | ⚠️ Depends on order | Restore migration `2026_01_29_000001_restore_checkin_histories_table.php` exists; drop in `2026_01_05_...`. Ensure restore has run. |
+| **Notification model** | ✅ Updated | Fillable includes `sender_status`; `checkinLog()`, `sender()`, `receiver()`. |
+| **OfficeVisitController checkin()** | ✅ Validation + transaction | **Missing:** Lead contact check and Lead client for broadcast (only Admin/Client). |
+| **getcheckin()** | ❌ No Lead support | Loads client only from Admin; uses `route('clients.detail', ...)` for all. Leads get wrong link/data. |
+| **waiting/attending/completed** | By status only | No is_archived (column removed). |
+| **Archive single visit** | N/A | is_archived removed; no archive feature. |
+| **attend_session()** | ✅ Config + wait_type | Uses `config('constants.reception_user_id')`; only notifies when `waitingtype != 1`. Broadcast in try-catch. |
+| **change_assignee()** | ✅ Broadcast try-catch | Sends notification and broadcast (wrapped in try-catch). |
+| **update_visit_comment(), complete_session()** | ✅ Use CheckinHistory / ActivitiesLog | As per plan. |
+| **OfficeVisitNotificationCreated** | ✅ Exists | `app/Events/OfficeVisitNotificationCreated.php`; used in controller and layout. |
+| **fetchOfficeVisitNotifications / markNotificationSeen / updateCheckinStatus** | ✅ In OfficeVisitController | Routes under office-visits. |
+
+### Current state: migrationmanager2
+
+| Item | Status | Notes |
+|------|--------|--------|
+| **CheckinLog model** | ⚠️ Wrong base class | Fillable has no `is_archived`. Extends **Authenticatable** (should be Model). No `office()` or `histories()`. |
+| **checkin_logs.is_archived** | ✅ Removed | Column dropped; controller and view no longer reference it (updated 2026-02-06). |
+| **CheckinHistory** | ✅ Used | Table and model used in controller. |
+| **Notification model** | ⚠️ sender_status | Code sets `sender_status`; confirm fillable has it. Extends Authenticatable (should be Model). |
+| **OfficeVisitController checkin()** | ✅ Lead + Client | Validates Lead vs Client; broadcast client from Lead or Admin. |
+| **getcheckin()** | ✅ Lead + Client | Loads client from Lead or Admin by `contact_type`. Uses single URL `/clients/detail/` for both (consider lead detail URL for Lead). |
+| **waiting/attending/completed** | By status only | No is_archived (column removed). |
+| **Archive single visit** | N/A | is_archived removed; no archive feature. |
+| **attend_session()** | ⚠️ Hardcoded receiver | `receiver_id = 36608` (receptionist). Always creates notification (no conditional on waitingtype). No try-catch around broadcast. |
+| **change_assignee()** | ⚠️ No try-catch | Broadcast without try-catch. |
+| **complete_session()** | No ActivitiesLog | No ActivitiesLog for clients (bansalcrm2 has it). |
+| **fetchOfficeVisitNotifications etc.** | ✅ In CRMUtilityController / DashboardController | Routes under dashboard. |
+
+### is_archived and archive behaviour
+
+- **Both CRMs:** The `is_archived` column has been **removed** from `checkin_logs`. Migrations drop the column; controller and view code no longer set or filter by it. There is no archive feature for office visits.
+
+---
+
+## What Is Left to Make Both Check-in Systems the Same
+
+**Do not apply** — checklist only.
+
+### In bansalcrm2
+
+1. **Lead support in `checkin()`**  
+   - Contact existence: if `contactType == 'Lead'` use `Lead::where('id', $contactId)->exists()`, else Admin.  
+   - Broadcast client: if Lead use `Lead::find($contactId)`, else Admin (so Lead name shows in notifications).
+
+2. **`getcheckin()` – Lead vs Client**  
+   - Resolve client by `contact_type`: Lead → `Lead` model + lead detail URL; Client → Admin + client detail route.  
+   - Avoid using client detail URL for leads.
+
+3. **`checkin_histories` table**  
+   - Ensure restore migration has run so the table exists (order: drop then restore).
+
+4. **Optional: restore `is_archived` and archive**  
+   - If you want parity with migrationmanager2’s current code (filter + archive): rollback or do not run `2026_02_06_120000_drop_is_archived_from_checkin_logs`; add `is_archived` to CheckinLog fillable; set `is_archived = 0` in `checkin()`; add `where('is_archived', 0)` in waiting/attending/completed; add `archive()` action and route.
+
+### In migrationmanager2
+
+1. **Models**  
+   - CheckinLog, Notification, CheckinHistory: extend `Model`, not Authenticatable.  
+   - Notification: ensure `sender_status` in fillable.  
+   - CheckinHistory: add `checkinLog()`, `creator()`.  
+   - CheckinLog: add `office()` (belongsTo Branch), `histories()` (hasMany CheckinHistory).
+
+2. **`attend_session()`**  
+   - Replace hardcoded `receiver_id = 36608` with config (e.g. `reception_user_id`) or assignee, and only create notification when assignee clicks “Waiting” (`waitingtype != 1`), like bansalcrm2.  
+   - Wrap `broadcast()` in try-catch.
+
+3. **`change_assignee()`**  
+   - Wrap `broadcast()` in try-catch.
+
+4. **Optional: ActivitiesLog**  
+   - On checkin, attend_session, complete_session: create ActivitiesLog for **clients** (not leads), like bansalcrm2.
+
+5. ~~Optional: is_archived~~ **Done** — Column dropped and all references removed in migrationmanager2 (2026-02-06). bansalcrm2 already had drop migration.
+
+### Both
+
+- **Archive single visit:** N/A — is_archived has been removed from checkin_logs; no archive feature for office visits.
+- **getcheckin() link for Lead:** migrationmanager2 uses `/clients/detail/` for both; consider lead-specific URL for Lead.
+- **Frontend:** View paths/layouts can stay different; align behaviour (tabs, counts, archive button if added).
 
 ---
 
@@ -1275,9 +1361,9 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 |------|--------|--------|-----|
 | Lead support in checkin() | Add | bansalcrm2 | migrationmanager2 validates Lead vs Client; bansalcrm2 only validates Client (Admin). |
 | getcheckin() client resolution | Align | bansalcrm2 | Support Lead + Client and correct detail URL for each (leads vs clients). |
-| is_archived filter on lists | Keep in bansalcrm2; add in migrationmanager2 | both | bansalcrm2 correctly excludes archived from index/waiting/attending/completed. |
-| attend_session receiver_id | Keep bansalcrm2; fix migrationmanager2 | both | bansalcrm2 uses assignee; migrationmanager2 uses hardcoded 36608. |
-| Archive single visit | Keep in bansalcrm2; add in migrationmanager2 | both | bansalcrm2 has archive() action and route; migrationmanager2 does not. |
+| is_archived filter on lists | N/A | both | is_archived removed from checkin_logs in both; no archive for office visits. |
+| attend_session receiver_id | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | bansalcrm2 uses config `reception_user_id`; migrationmanager2 uses hardcoded 36608. |
+| Archive single visit | N/A | both | is_archived removed; no office-visit archive feature. |
 | Models base class | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | CheckinLog/Notification/CheckinHistory must extend Model, not Authenticatable. |
 | Notification fillable | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | sender_status required for office visit notifications. |
 | CheckinHistory relationships | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | checkinLog(), creator() for consistency and possible eager loading. |
@@ -1331,20 +1417,17 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 - **Do:** Extend `Model`. Add `office()` (belongsTo Branch, foreign key `office`). Optionally add `histories()` (hasMany CheckinHistory) like bansalcrm2.  
 - **Why:** Aligns with bansalcrm2; `office()` avoids repeating Branch lookups in views/controllers.
 
-**2.5 `attend_session()` – receiver_id**  
-- **What:** migrationmanager2 uses hardcoded `$o->receiver_id = 36608` (receptionist).  
-- **Do:** Use assignee: `$o->receiver_id = $obj->user_id` (same as bansalcrm2). Optionally wrap broadcast in try-catch so a broadcast failure doesn’t affect the response.  
-- **Why:** Notifications should go to the assignee; hardcoded IDs are environment-specific and fragile. bansalcrm2 is correct.
+**2.5 `attend_session()` – receiver_id and behaviour**  
+- **What:** migrationmanager2 uses hardcoded `$o->receiver_id = 36608` and always creates a notification.  
+- **Do:** Use config (e.g. `config('constants.reception_user_id')`) with fallback to assignee (`$obj->user_id`), and only create/send notification when `waitingtype != 1` (assignee clicked "Waiting"), like bansalcrm2. Wrap broadcast in try-catch so a broadcast failure doesn’t affect the response.  
+- **Why:** bansalcrm2 uses config and conditional notification; hardcoded IDs are environment-specific and fragile.
 
-**2.6 List queries – filter by `is_archived`**  
-- **What:** migrationmanager2 `index()`, `waiting()`, `attending()`, and `completed()` do not filter by `is_archived`. Archived visits can appear in those lists.  
-- **Do:** Add `->where('is_archived', 0)` to the CheckinLog query in all four methods (same as bansalcrm2).  
-- **Why:** “Waiting”, “Attending”, “Completed”, and “All” should only show non-archived items; archived has its own screen.
+**2.6 ~~List queries – filter by is_archived~~**  
+- **N/A** — is_archived has been removed from checkin_logs in both CRMs. No filter by is_archived.  
+- **Why:** “Waiting”, “Attending”, “Completed”, and “All” should only show non-archived items; (Obsolete — is_archived removed.)
 
-**2.7 Archive single visit (action + route)**  
-- **What:** migrationmanager2 has no endpoint to archive one visit; it only has the `archived()` view.  
-- **Do:** Add `archive(Request $request)` in `OfficeVisitController`: validate `id`, find CheckinLog, set `is_archived = 1`, save, return JSON. Add POST (or appropriate) route, e.g. `/office-visits/archive` (match bansalcrm2 if you want identical APIs).  
-- **Why:** Parity with bansalcrm2; users can move a visit to archived without DB access.
+**2.7 ~~Archive single visit (action + route)~~**  
+- **N/A** — is_archived has been removed; there is no archive feature for office visits.
 
 **2.8 Broadcast try-catch**  
 - **What:** migrationmanager2 `change_assignee()` and `attend_session()` call `broadcast(...)` without try-catch.  
@@ -1359,15 +1442,15 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 ### 3. Frontend – Alignment (high level)
 
 - **View paths:** bansalcrm2 uses `Admin.officevisits.*` and `layouts.admin`; migrationmanager2 uses `crm.officevisits.*` and `layouts.crm_client_detail`. No change required unless you want a single shared layout.  
-- **Tabs / counts:** bansalcrm2 index view uses `is_archived` in count queries (Waiting, Attending, Completed, Archived, All). migrationmanager2 index should use the same filters so counts match the list behaviour after 2.6.  
-- **Archive button:** If migrationmanager2 gets an archive action (2.7), add a button/link in the list or detail UI that POSTs to the archive route and refreshes or updates the list (similar to bansalcrm2 if it has one).  
+- **Tabs / counts:** Both use status-only counts for Waiting, Attending, Completed (no is_archived).  
+- **Archive button:** N/A — no archive feature for office visits.  
 - **Create view:** bansalcrm2 references `Admin.officevisits.create`; migrationmanager2 references `crm.officevisits.create`. Ensure both exist and that form fields (contact, assignee, office, message, utype) and POST target match the respective `checkin()` implementation.
 
 ### 4. Order of Work (suggested)
 
 1. **Bansalcrm2:** Ensure `checkin_histories` restore migration has run. Add Lead support in `checkin()` (contact check + client for broadcast). Update `getcheckin()` to resolve Lead vs Client and use correct detail URLs.  
-2. **Migrationmanager2:** Fix model base classes and fillable/relationships (CheckinLog, Notification, CheckinHistory). Add `is_archived` filter to index/waiting/attending/completed. Fix `attend_session()` receiver_id and add broadcast try-catch; add try-catch in `change_assignee()`. Add `archive()` action and route; add archive UI if needed. Optionally add ActivitiesLog and `office()` / `histories()` where agreed.  
-3. **Both:** Smoke-test: create check-in (Lead and Client), wait → attend → complete, change assignee, archive, view archived list. Verify notifications and history logs in both apps.
+2. **Migrationmanager2:** Fix model base classes and fillable/relationships (CheckinLog, Notification, CheckinHistory). Fix `attend_session()` receiver_id and add broadcast try-catch; add try-catch in `change_assignee()`. Optionally add ActivitiesLog and `office()` / `histories()` where agreed. (is_archived already removed.)  
+3. **Both:** Smoke-test: create check-in (Lead and Client), wait → attend → complete, change assignee. Verify notifications and history logs in both apps. (No archive step.)
 
 ### 5. What Not to Change (without separate decision)
 
@@ -1390,7 +1473,7 @@ This plan provides a comprehensive path to migrate the improved check-in system 
 5. **Phase 5:** Skip frontend changes initially
 6. **Future:** Add broadcasting and real-time notifications after core is stable
 
-This fixes the immediate `is_archived` error while also restoring valuable CheckinHistory functionality that was previously removed.
+CheckinHistory functionality is restored; is_archived has been removed from checkin_logs in both CRMs.
 
 **Next Steps:**
 1. Review and approve this plan
@@ -1403,6 +1486,7 @@ This fixes the immediate `is_archived` error while also restoring valuable Check
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.2  
 **Created:** 2026-01-29  
+**Updated:** 2026-02-06 (verification; then is_archived removed from checkin_logs in both CRMs — code and doc updated)  
 **Status:** Awaiting Approval - Do Not Apply Yet

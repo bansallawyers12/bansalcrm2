@@ -52,7 +52,7 @@
 
 1. **Introduce `$activeTab` and single view**
    - Define allowed tabs: `'waiting'`, `'attending'`, `'completed'`.
-   - For `waiting()`, `attending()`, `completed()`: keep the same query logic (status 0, 2, 1 and `is_archived = 0`), but pass `activeTab` and return **one** view, e.g.:
+   - For `waiting()`, `attending()`, `completed()`: keep the same query logic (status 0, 2, 1), but pass `activeTab` and return **one** view, e.g.:
      - `return view('Admin.officevisits.index', compact('lists', 'totalData', 'activeTab'));`
    - Use `$activeTab` so the Blade can set the active tab and build branch filter URLs.
 
@@ -78,7 +78,7 @@
    - Keep: `@extends('layouts.admin')`, same section structure, flash message, card header "In Person", "Create In Person" button.
 
 2. **Counts**
-   - Only three counts: Waiting, Attending, Completed (all with `is_archived = 0`).
+   - Only three counts: Waiting, Attending, Completed.
    - Remove: `$InPersonCount_All_type`, `$InPersonCount_archived_type` (and any PHP that computes them in the view). Prefer moving count logic to the controller and passing counts in; if kept in view, only compute the three needed.
 
 3. **Tabs**
