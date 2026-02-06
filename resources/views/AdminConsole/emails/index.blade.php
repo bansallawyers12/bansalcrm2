@@ -32,7 +32,7 @@
 								</thead>
 								
 								@if(@$totalData !== 0 && $lists)
-								{{dd($lists)}}
+								
 								<?php $i=0; ?>
 								<tbody class="tdata">	
 								@foreach (($lists ?? []) as $list)
