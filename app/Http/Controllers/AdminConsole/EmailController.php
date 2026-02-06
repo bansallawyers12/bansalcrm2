@@ -67,7 +67,12 @@ class EmailController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$this->validate($request, [
-										'email' => 'required|max:255|unique:emails'
+										'email' => 'required|max:255|unique:emails',
+										'users' => 'required|array|min:1',
+										'users.*' => 'required'
+									  ], [
+										'users.required' => 'Please select at least one user for User Sharing.',
+										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
 			
 			$requestData 		= 	$request->all();
@@ -77,7 +82,7 @@ class EmailController extends Controller
 			$obj->email_signature	=	@$requestData['email_signature'];
 			$obj->display_name	=	@$requestData['display_name'];
             $obj->password	=	@$requestData['password'];
-			$obj->status	=	@$requestData['status'];
+			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
 			$obj->user_id	=	json_encode(@$requestData['users']);
 			
 			$saved				=	$obj->save();  
@@ -105,7 +110,12 @@ class EmailController extends Controller
 			$requestData 		= 	$request->all();
 			
 			$this->validate($request, [										
-										'email' => 'required|max:255|unique:emails,email,'.$requestData['id']
+										'email' => 'required|max:255|unique:emails,email,'.$requestData['id'],
+										'users' => 'required|array|min:1',
+										'users.*' => 'required'
+									  ], [
+										'users.required' => 'Please select at least one user for User Sharing.',
+										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
 								  					  
 			$obj			= 	Email::find(@$requestData['id']);
@@ -113,7 +123,7 @@ class EmailController extends Controller
 			$obj->email_signature	=	@$requestData['email_signature'];
 			$obj->display_name	=	@$requestData['display_name'];
             $obj->password	=	@$requestData['password'];
-			$obj->status	=	@$requestData['status'];
+			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
 			$obj->user_id	=	json_encode(@$requestData['users']);
 			
 			$saved							=	$obj->save();

@@ -74,7 +74,7 @@
 													<h4>User Sharing</h4>
 													<div class="form-group"> 
 														<label for="display_name">Select Users</label>
-														<select data-valid="required" multiple class="form-control select2" name="users[]">
+														<select data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
 															<option value="">Select User</option>
 															<?php
 																$users = \App\Models\Admin::Where('role', '!=', '7')->Where('status', '=', 1)->get();
@@ -85,7 +85,11 @@
 																}
 															?>
 														</select>
-														
+														@if ($errors->has('users'))
+															<span class="custom-error" role="alert">
+																<strong>{{ $errors->first('users') }}</strong>
+															</span>
+														@endif
 													</div>
 												</div>
 												<div class="col-12 col-md-12 col-lg-12">
