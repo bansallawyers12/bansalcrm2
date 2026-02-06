@@ -76,7 +76,7 @@ class ClientExportService
             'dob' => $client->dob,
             'age' => $client->age,
             'gender' => $client->gender,
-            'marital_status' => $client->marital_status ?? $client->martial_status ?? null, // Note: bansalcrm2 uses martial_status
+            'marital_status' => $client->marital_status ?? null,
             
             // Address
             'address' => $client->address,

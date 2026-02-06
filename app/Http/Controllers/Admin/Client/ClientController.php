@@ -169,7 +169,7 @@ class ClientController extends Controller
 			$obj->last_name	=	@$requestData['last_name'];
 			//$obj->age	=	@$requestData['age'];
 			$obj->gender	=	@$requestData['gender'];
-			$obj->martial_status	=	@$requestData['martial_status'];
+			$obj->marital_status	=	@$requestData['marital_status'];
 			
 			$obj->email_type	=	@$requestData['email_type'];
 			$obj->service	=	@$requestData['service'];
@@ -748,7 +748,7 @@ class ClientController extends Controller
                     $obj->office_id = $lead->staffuser->office_id ?? null;
                     $obj->att_email = $lead->att_email ?? null;
                     $obj->att_phone = $lead->att_phone ?? null;
-                    $obj->martial_status = $lead->martial_status ?? null;
+                    $obj->marital_status = $lead->marital_status ?? null;
                     //$obj->passport_no = $lead->passport_no ?? null;
                     $obj->address = $lead->address ?? null;
                     $obj->city = $lead->city ?? null;

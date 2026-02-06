@@ -377,21 +377,20 @@
 									
 									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
-											<label for="martial_status">Marital Status</label>
-											<select name="martial_status" id="martial_status" class="form-control">
+											<label for="marital_status">Marital Status</label>
+											<select name="marital_status" id="marital_status" class="form-control">
 												<option value="">Select Marital Status</option>
-												<option value="Married">Married</option>
 												<option value="Never Married">Never Married</option>
 												<option value="Engaged">Engaged</option>
-												<option value="Divorced">Divorced</option>
+												<option value="Married">Married</option>
+												<option value="De Facto">De Facto</option>
 												<option value="Separated">Separated</option>
-												<option value="De facto">De facto</option>
+												<option value="Divorced">Divorced</option>
 												<option value="Widowed">Widowed</option>
-												<option value="Others">Others</option>
 											</select>
-											@if ($errors->has('martial_status'))
+											@if ($errors->has('marital_status'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('martial_status') }}</strong>
+													<strong>{{ @$errors->first('marital_status') }}</strong>
 												</span> 
 											@endif
 										</div>

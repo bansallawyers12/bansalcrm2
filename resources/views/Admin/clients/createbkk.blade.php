@@ -354,22 +354,21 @@
 									</div>
 									<div class="col-sm-3">
 										<div class="form-group">
-											<label for="martial_status">
+											<label for="marital_status">
 													Marital Status</label>
-											<select style="padding: 0px 5px;" name="martial_status" id="martial_status" class="form-control">
+											<select style="padding: 0px 5px;" name="marital_status" id="marital_status" class="form-control">
 														<option value="">Select Marital Status</option>
-														<option value="Married" <?php if(old('martial_status') == 'Married'){ echo 'selected'; } ?>>Married</option>
-														<option <?php if(old('martial_status') == 'Never Married'){ echo 'selected'; } ?> value="Never Married">Never Married</option>
-														<option <?php if(old('martial_status') == 'Engaged'){ echo 'selected'; } ?> value="Engaged">Engaged</option>
-														<option <?php if(old('martial_status') == 'Divorced'){ echo 'selected'; } ?> value="Divorced">Divorced</option>
-														<option <?php if(old('martial_status') == 'Separated'){ echo 'selected'; } ?> value="Separated">Separated</option>
-														<option <?php if(old('martial_status') == 'De facto'){ echo 'selected'; } ?> value="De facto">De facto</option>
-														<option <?php if(old('martial_status') == 'Widowed'){ echo 'selected'; } ?> value="Widowed">Widowed</option>
-														<option <?php if(old('martial_status') == 'Others'){ echo 'selected'; } ?> value="Others">Others</option>
+														<option <?php if(old('marital_status') == 'Never Married'){ echo 'selected'; } ?> value="Never Married">Never Married</option>
+														<option <?php if(old('marital_status') == 'Engaged'){ echo 'selected'; } ?> value="Engaged">Engaged</option>
+														<option value="Married" <?php if(old('marital_status') == 'Married'){ echo 'selected'; } ?>>Married</option>
+														<option <?php if(old('marital_status') == 'De Facto'){ echo 'selected'; } ?> value="De Facto">De Facto</option>
+														<option <?php if(old('marital_status') == 'Separated'){ echo 'selected'; } ?> value="Separated">Separated</option>
+														<option <?php if(old('marital_status') == 'Divorced'){ echo 'selected'; } ?> value="Divorced">Divorced</option>
+														<option <?php if(old('marital_status') == 'Widowed'){ echo 'selected'; } ?> value="Widowed">Widowed</option>
 													</select>
-													@if ($errors->has('martial_status'))
+													@if ($errors->has('marital_status'))
 														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('martial_status') }}</strong>
+															<strong>{{ @$errors->first('marital_status') }}</strong>
 														</span> 
 													@endif
 												</div>

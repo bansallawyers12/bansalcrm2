@@ -365,21 +365,20 @@
 									
 									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
-											<label for="martial_status">Marital Status</label>
-											<select name="martial_status" id="martial_status" class="form-control">
+											<label for="marital_status">Marital Status</label>
+											<select name="marital_status" id="marital_status" class="form-control">
 												<option value="">Select Marital Status</option>
-												<option value="Married" {{ old('martial_status') == 'Married' ? 'selected' : '' }}>Married</option>
-												<option value="Never Married" {{ old('martial_status') == 'Never Married' ? 'selected' : '' }}>Never Married</option>
-												<option value="Engaged" {{ old('martial_status') == 'Engaged' ? 'selected' : '' }}>Engaged</option>
-												<option value="Divorced" {{ old('martial_status') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
-												<option value="Separated" {{ old('martial_status') == 'Separated' ? 'selected' : '' }}>Separated</option>
-												<option value="De facto" {{ old('martial_status') == 'De facto' ? 'selected' : '' }}>De facto</option>
-												<option value="Widowed" {{ old('martial_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
-												<option value="Others" {{ old('martial_status') == 'Others' ? 'selected' : '' }}>Others</option>
+												<option value="Never Married" {{ old('marital_status') == 'Never Married' ? 'selected' : '' }}>Never Married</option>
+												<option value="Engaged" {{ old('marital_status') == 'Engaged' ? 'selected' : '' }}>Engaged</option>
+												<option value="Married" {{ old('marital_status') == 'Married' ? 'selected' : '' }}>Married</option>
+												<option value="De Facto" {{ old('marital_status') == 'De Facto' ? 'selected' : '' }}>De Facto</option>
+												<option value="Separated" {{ old('marital_status') == 'Separated' ? 'selected' : '' }}>Separated</option>
+												<option value="Divorced" {{ old('marital_status') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
+												<option value="Widowed" {{ old('marital_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
 											</select>
-											@if ($errors->has('martial_status'))
+											@if ($errors->has('marital_status'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('martial_status') }}</strong>
+													<strong>{{ @$errors->first('marital_status') }}</strong>
 												</span> 
 											@endif
 										</div>

@@ -1263,6 +1263,122 @@ This fixes the NOT NULL violation without restoring CheckinHistory functionality
 
 ---
 
+## Check-in Alignment: What to Do and Why (Both CRMs Similar)
+
+**Goal:** Make bansalcrm2 and migrationmanager2 similar in backend and frontend for the check-in (office visit) feature. Primary direction: **modify bansalcrm2 to match migrationmanager2**. Where bansalcrm2 is better, use that approach in both (or keep in bansalcrm2 and add to migrationmanager2 later).
+
+**Status:** Planning only — **do not apply** until you are ready.
+
+### Alignment Summary Table
+
+| Area | Action | Where | Why |
+|------|--------|--------|-----|
+| Lead support in checkin() | Add | bansalcrm2 | migrationmanager2 validates Lead vs Client; bansalcrm2 only validates Client (Admin). |
+| getcheckin() client resolution | Align | bansalcrm2 | Support Lead + Client and correct detail URL for each (leads vs clients). |
+| is_archived filter on lists | Keep in bansalcrm2; add in migrationmanager2 | both | bansalcrm2 correctly excludes archived from index/waiting/attending/completed. |
+| attend_session receiver_id | Keep bansalcrm2; fix migrationmanager2 | both | bansalcrm2 uses assignee; migrationmanager2 uses hardcoded 36608. |
+| Archive single visit | Keep in bansalcrm2; add in migrationmanager2 | both | bansalcrm2 has archive() action and route; migrationmanager2 does not. |
+| Models base class | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | CheckinLog/Notification/CheckinHistory must extend Model, not Authenticatable. |
+| Notification fillable | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | sender_status required for office visit notifications. |
+| CheckinHistory relationships | Keep bansalcrm2; fix migrationmanager2 | migrationmanager2 | checkinLog(), creator() for consistency and possible eager loading. |
+| CheckinLog office() relation | Keep bansalcrm2; add in migrationmanager2 | migrationmanager2 | Cleaner code and consistent with bansalcrm2. |
+| Broadcast try-catch | Keep bansalcrm2; add in migrationmanager2 | migrationmanager2 | Avoid broadcast failures breaking main flow. |
+| ActivitiesLog for clients | Keep in bansalcrm2; add in migrationmanager2 (optional) | both | Audit trail for client activity; optional in migrationmanager2. |
+| Database: checkin_histories | Ensure restored in bansalcrm2 | bansalcrm2 | Table was dropped; restore migration exists — run if not yet run. |
+| Frontend structure | Document only | both | View paths differ (Admin. vs crm.); layout differs; align structure if you want identical UX. |
+
+### 1. Backend – Bansalcrm2 (to match migrationmanager2)
+
+**1.1 Lead support in `checkin()`**  
+- **What:** In `OfficeVisitController::checkin()`, contact existence check currently uses only `Admin::where('role', '7')->where('id', $contactId)`. When `utype` is Lead, the contact is in `leads` table, so validation wrongly fails.  
+- **Do:** Use the same logic as migrationmanager2: if `contactType == 'Lead'` check `Lead::where('id', $contactId)->exists()`, else check `Admin::where('role', '7')->where('id', $contactId)->exists()`.  
+- **Why:** Both CRMs support Lead and Client; check-in must accept both. migrationmanager2 already does this correctly.
+
+**1.2 Client used for broadcast in `checkin()`**  
+- **What:** When building broadcast payload, bansalcrm2 uses only `Admin::where('role', '7')->find($contactId)` for “client” name.  
+- **Do:** Resolve client by type: if Lead use `Lead::find($contactId)`, else `Admin::where('role', '7')->find($contactId)` (same as migrationmanager2).  
+- **Why:** Lead names must show correctly in real-time notifications.
+
+**1.3 `getcheckin()` – contact type and detail URL**  
+- **What:** getcheckin() currently loads client only from Admin and uses `route('clients.detail', ...)` for the contact link.  
+- **Do:** Resolve client by `contact_type`: if Lead, load from `Lead` and use the lead detail URL (same pattern as migrationmanager2); if Client, load from Admin and use client detail route. Use `CheckinLog::with('office')` if not already (bansalcrm2 already uses it). Ensure office is resolved via relationship or Branch like migrationmanager2.  
+- **Why:** Modal must show correct name and link for both Lead and Client; behaviour matches migrationmanager2.
+
+**1.4 Database: `checkin_histories` table**  
+- **What:** Table was dropped in `2026_01_05_202353_drop_suburbs_and_checkin_histories_tables.php`. A restore migration exists: `2026_01_29_000001_restore_checkin_histories_table.php`.  
+- **Do:** Run migrations so that the restore migration has run (e.g. `php artisan migrate`). If the drop was already run in production, ensure the restore is run there too.  
+- **Why:** CheckinHistory is used for comments and audit log in both systems; bansalcrm2 controller already expects this table.
+
+### 2. Backend – Migrationmanager2 (to match bansalcrm2 where it’s better)
+
+**2.1 Model base classes**  
+- **What:** In migrationmanager2, `CheckinLog`, `Notification`, and `CheckinHistory` extend `Authenticatable` (and use `Notifiable`). They are not auth entities.  
+- **Do:** Change all three to extend `Illuminate\Database\Eloquent\Model` only. Remove `Notifiable` from these models. Keep `Sortable` where used.  
+- **Why:** Prevents misuse of auth-related behaviour and matches bansalcrm2; these are plain data models.
+
+**2.2 Notification model**  
+- **What:** migrationmanager2 `Notification` is missing `sender_status` in `$fillable` and extends Authenticatable.  
+- **Do:** Extend `Model` (as above). Add `'sender_status'` to `$fillable` (bansalcrm2 already has it).  
+- **Why:** Office visit code sets `sender_status`; fillable must allow it. Same contract as bansalcrm2.
+
+**2.3 CheckinHistory model**  
+- **What:** migrationmanager2 `CheckinHistory` extends Authenticatable and has no `checkinLog()` or `creator()` relationships.  
+- **Do:** Extend `Model`. Add `checkinLog()` (belongsTo CheckinLog) and `creator()` (belongsTo Admin, `created_by`).  
+- **Why:** Matches bansalcrm2 and allows clearer code and eager loading.
+
+**2.4 CheckinLog model**  
+- **What:** migrationmanager2 `CheckinLog` extends Authenticatable. It has `assignee()` and `client()` but no `office()` or `histories()`.  
+- **Do:** Extend `Model`. Add `office()` (belongsTo Branch, foreign key `office`). Optionally add `histories()` (hasMany CheckinHistory) like bansalcrm2.  
+- **Why:** Aligns with bansalcrm2; `office()` avoids repeating Branch lookups in views/controllers.
+
+**2.5 `attend_session()` – receiver_id**  
+- **What:** migrationmanager2 uses hardcoded `$o->receiver_id = 36608` (receptionist).  
+- **Do:** Use assignee: `$o->receiver_id = $obj->user_id` (same as bansalcrm2). Optionally wrap broadcast in try-catch so a broadcast failure doesn’t affect the response.  
+- **Why:** Notifications should go to the assignee; hardcoded IDs are environment-specific and fragile. bansalcrm2 is correct.
+
+**2.6 List queries – filter by `is_archived`**  
+- **What:** migrationmanager2 `index()`, `waiting()`, `attending()`, and `completed()` do not filter by `is_archived`. Archived visits can appear in those lists.  
+- **Do:** Add `->where('is_archived', 0)` to the CheckinLog query in all four methods (same as bansalcrm2).  
+- **Why:** “Waiting”, “Attending”, “Completed”, and “All” should only show non-archived items; archived has its own screen.
+
+**2.7 Archive single visit (action + route)**  
+- **What:** migrationmanager2 has no endpoint to archive one visit; it only has the `archived()` view.  
+- **Do:** Add `archive(Request $request)` in `OfficeVisitController`: validate `id`, find CheckinLog, set `is_archived = 1`, save, return JSON. Add POST (or appropriate) route, e.g. `/office-visits/archive` (match bansalcrm2 if you want identical APIs).  
+- **Why:** Parity with bansalcrm2; users can move a visit to archived without DB access.
+
+**2.8 Broadcast try-catch**  
+- **What:** migrationmanager2 `change_assignee()` and `attend_session()` call `broadcast(...)` without try-catch.  
+- **Do:** Wrap broadcast calls in try-catch; on exception log and continue (do not fail the request). Same pattern as bansalcrm2.  
+- **Why:** Reverb/network issues should not break check-in or assignee change.
+
+**2.9 ActivitiesLog (optional)**  
+- **What:** bansalcrm2 creates ActivitiesLog entries for **clients** (not leads) on checkin, attend_session, and complete_session.  
+- **Do:** If migrationmanager2 has an `ActivitiesLog` (or equivalent) and you want the same audit trail, add the same logic after CheckinHistory creation in those three methods.  
+- **Why:** Keeps client activity history consistent across both CRMs; optional if migrationmanager2 doesn’t use activities.
+
+### 3. Frontend – Alignment (high level)
+
+- **View paths:** bansalcrm2 uses `Admin.officevisits.*` and `layouts.admin`; migrationmanager2 uses `crm.officevisits.*` and `layouts.crm_client_detail`. No change required unless you want a single shared layout.  
+- **Tabs / counts:** bansalcrm2 index view uses `is_archived` in count queries (Waiting, Attending, Completed, Archived, All). migrationmanager2 index should use the same filters so counts match the list behaviour after 2.6.  
+- **Archive button:** If migrationmanager2 gets an archive action (2.7), add a button/link in the list or detail UI that POSTs to the archive route and refreshes or updates the list (similar to bansalcrm2 if it has one).  
+- **Create view:** bansalcrm2 references `Admin.officevisits.create`; migrationmanager2 references `crm.officevisits.create`. Ensure both exist and that form fields (contact, assignee, office, message, utype) and POST target match the respective `checkin()` implementation.
+
+### 4. Order of Work (suggested)
+
+1. **Bansalcrm2:** Ensure `checkin_histories` restore migration has run. Add Lead support in `checkin()` (contact check + client for broadcast). Update `getcheckin()` to resolve Lead vs Client and use correct detail URLs.  
+2. **Migrationmanager2:** Fix model base classes and fillable/relationships (CheckinLog, Notification, CheckinHistory). Add `is_archived` filter to index/waiting/attending/completed. Fix `attend_session()` receiver_id and add broadcast try-catch; add try-catch in `change_assignee()`. Add `archive()` action and route; add archive UI if needed. Optionally add ActivitiesLog and `office()` / `histories()` where agreed.  
+3. **Both:** Smoke-test: create check-in (Lead and Client), wait → attend → complete, change assignee, archive, view archived list. Verify notifications and history logs in both apps.
+
+### 5. What Not to Change (without separate decision)
+
+- **Route names and URL paths** can stay different (e.g. under Admin vs CRM) as long as behaviour is aligned.  
+- **Layout and styling** can stay different per project unless you explicitly want one shared frontend.  
+- **Config constants** (e.g. `config('constants.limit')`, `Config::get('constants.server_error')`) can stay as-is; migrationmanager2 already uses similar patterns.
+
+This alignment list is intended so that both systems end up **similar in backend and frontend behaviour** for check-in, with bansalcrm2 updated to match migrationmanager2 where it was ahead, and migrationmanager2 updated to match bansalcrm2 where bansalcrm2 is better. **Do not apply yet** — use as a checklist when you are ready to implement.
+
+---
+
 ## Conclusion
 
 This plan provides a comprehensive path to migrate the improved check-in system from migrationmanager2 to bansalcrm2. The recommended approach is:

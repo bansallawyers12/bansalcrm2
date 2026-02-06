@@ -400,21 +400,20 @@
 									
 									<div class="col-md-3 col-sm-12">
 										<div class="form-group">
-											<label for="martial_status">Marital Status</label>
-											<select name="martial_status" id="martial_status" class="form-control">
+											<label for="marital_status">Marital Status</label>
+											<select name="marital_status" id="marital_status" class="form-control">
 												<option value="">Select Marital Status</option>
-												<option value="Married" @if(old('martial_status', @$fetchedData->martial_status) == "Married") selected @endif>Married</option>
-												<option value="Never Married" @if(old('martial_status', @$fetchedData->martial_status) == "Never Married") selected @endif>Never Married</option>
-												<option value="Engaged" @if(old('martial_status', @$fetchedData->martial_status) == "Engaged") selected @endif>Engaged</option>
-												<option value="Divorced" @if(old('martial_status', @$fetchedData->martial_status) == "Divorced") selected @endif>Divorced</option>
-												<option value="Separated" @if(old('martial_status', @$fetchedData->martial_status) == "Separated") selected @endif>Separated</option>
-												<option value="De facto" @if(old('martial_status', @$fetchedData->martial_status) == "De facto") selected @endif>De facto</option>
-												<option value="Widowed" @if(old('martial_status', @$fetchedData->martial_status) == "Widowed") selected @endif>Widowed</option>
-												<option value="Others" @if(old('martial_status', @$fetchedData->martial_status) == "Others") selected @endif>Others</option>
+												<option value="Never Married" @if(old('marital_status', @$fetchedData->marital_status) == "Never Married") selected @endif>Never Married</option>
+												<option value="Engaged" @if(old('marital_status', @$fetchedData->marital_status) == "Engaged") selected @endif>Engaged</option>
+												<option value="Married" @if(old('marital_status', @$fetchedData->marital_status) == "Married") selected @endif>Married</option>
+												<option value="De Facto" @if(old('marital_status', @$fetchedData->marital_status) == "De Facto") selected @endif>De Facto</option>
+												<option value="Separated" @if(old('marital_status', @$fetchedData->marital_status) == "Separated") selected @endif>Separated</option>
+												<option value="Divorced" @if(old('marital_status', @$fetchedData->marital_status) == "Divorced") selected @endif>Divorced</option>
+												<option value="Widowed" @if(old('marital_status', @$fetchedData->marital_status) == "Widowed") selected @endif>Widowed</option>
 											</select>
-											@if ($errors->has('martial_status'))
+											@if ($errors->has('marital_status'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('martial_status') }}</strong>
+													<strong>{{ @$errors->first('marital_status') }}</strong>
 												</span> 
 											@endif
 										</div>

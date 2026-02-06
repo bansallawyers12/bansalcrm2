@@ -205,7 +205,7 @@ class ClientImportService
             $client->dob = $this->parseDate($clientData['dob'] ?? null);
             $client->age = $clientData['age'] ?? null;
             $client->gender = $clientData['gender'] ?? null;
-            $client->martial_status = $clientData['marital_status'] ?? null; // Note: bansalcrm2 uses martial_status
+            $client->marital_status = $clientData['marital_status'] ?? null;
             
             // Address
             $client->address = $clientData['address'] ?? null;
