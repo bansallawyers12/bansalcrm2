@@ -185,5 +185,6 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::get('/recent-clients', [RecentlyModifiedClientsController::class, 'index'])->name('adminconsole.recentclients.index');
     Route::post('/recent-clients/get-client-details', [RecentlyModifiedClientsController::class, 'getClientDetails'])->name('adminconsole.recentclients.getdetails');
     Route::post('/recent-clients/toggle-archive', [RecentlyModifiedClientsController::class, 'toggleArchive'])->name('adminconsole.recentclients.togglearchive');
+    Route::post('/recent-clients/bulk-archive', [RecentlyModifiedClientsController::class, 'bulkArchive'])->name('adminconsole.recentclients.bulkarchive');
     
 });

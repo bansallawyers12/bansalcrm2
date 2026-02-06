@@ -75,9 +75,72 @@
 										</div>
 									</div>
 									
-									<!-- Activity Type and Sort Options -->
+									<!-- Document count, Phone, Email filters -->
 									<div class="row mb-3">
-										<div class="col-md-3">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label for="document_count"><strong><i class="fas fa-file"></i> Documents</strong></label>
+												<select name="document_count" id="document_count" class="form-control">
+													<option value="">All</option>
+													<option value="0" {{ (string)@$documentCount === '0' ? 'selected' : '' }}>0</option>
+													<option value="1" {{ (string)@$documentCount === '1' ? 'selected' : '' }}>1</option>
+													<option value="2" {{ (string)@$documentCount === '2' ? 'selected' : '' }}>2</option>
+													<option value="3" {{ (string)@$documentCount === '3' ? 'selected' : '' }}>3</option>
+													<option value="4" {{ (string)@$documentCount === '4' ? 'selected' : '' }}>4</option>
+													<option value="5" {{ (string)@$documentCount === '5' ? 'selected' : '' }}>5</option>
+													<option value="6" {{ (string)@$documentCount === '6' ? 'selected' : '' }}>6</option>
+													<option value="7" {{ (string)@$documentCount === '7' ? 'selected' : '' }}>7</option>
+													<option value="8" {{ (string)@$documentCount === '8' ? 'selected' : '' }}>8</option>
+													<option value="9" {{ (string)@$documentCount === '9' ? 'selected' : '' }}>9</option>
+													<option value="10+" {{ (string)@$documentCount === '10+' ? 'selected' : '' }}>10+</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label for="no_phone"><strong><i class="fas fa-phone"></i> Phone</strong></label>
+												<select name="no_phone" id="no_phone" class="form-control">
+													<option value="">All</option>
+													<option value="1" {{ @$noPhone === '1' ? 'selected' : '' }}>No phone number</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label for="no_email"><strong><i class="fas fa-envelope"></i> Email</strong></label>
+												<select name="no_email" id="no_email" class="form-control">
+													<option value="">All</option>
+													<option value="1" {{ @$noEmail === '1' ? 'selected' : '' }}>No email address</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									
+									<!-- Applications, Last Activity, Activity Type and Sort Options -->
+									<div class="row mb-3">
+										<div class="col-md-2">
+											<div class="form-group">
+												<label for="has_applications"><strong><i class="fas fa-file-alt"></i> Applications</strong></label>
+												<select name="has_applications" id="has_applications" class="form-control">
+													<option value="">All Clients</option>
+													<option value="0" {{ @$hasApplications === '0' ? 'selected' : '' }}>No applications created</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group">
+												<label for="last_activity_years"><strong><i class="fas fa-clock"></i> Last Activity</strong></label>
+												<select name="last_activity_years" id="last_activity_years" class="form-control">
+													<option value="">All</option>
+													<option value="1" {{ @$lastActivityYears === '1' || @$lastActivityYears === 1 ? 'selected' : '' }}>1+ years ago</option>
+													<option value="2" {{ @$lastActivityYears === '2' || @$lastActivityYears === 2 ? 'selected' : '' }}>2+ years ago</option>
+													<option value="3" {{ @$lastActivityYears === '3' || @$lastActivityYears === 3 ? 'selected' : '' }}>3+ years ago</option>
+													<option value="4" {{ @$lastActivityYears === '4' || @$lastActivityYears === 4 ? 'selected' : '' }}>4+ years ago</option>
+													<option value="5" {{ @$lastActivityYears === '5' || @$lastActivityYears === 5 ? 'selected' : '' }}>5+ years ago</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-2">
 											<div class="form-group">
 												<label for="activity_type"><strong><i class="fas fa-filter"></i> Activity Type</strong></label>
 												<select name="activity_type" id="activity_type" class="form-control">
@@ -90,7 +153,7 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<div class="form-group">
 												<label for="sort_order"><strong><i class="fas fa-sort"></i> Sort Order</strong></label>
 												<select name="sort_order" id="sort_order" class="form-control">
@@ -99,7 +162,7 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<div class="form-group">
 												<label for="per_page"><strong><i class="fas fa-list"></i> Per Page</strong></label>
 												<select name="per_page" id="per_page" class="form-control">
@@ -110,7 +173,7 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<div class="form-group">
 												<label>&nbsp;</label>
 												<div>
@@ -132,10 +195,24 @@
 									<input type="hidden" name="sort_column" id="sort_column" value="{{ @$sortColumn }}">
 								</form>
 							</div>
+							@if(@$totalData !== 0)
+							<div class="mb-3 d-flex align-items-center flex-wrap">
+								<button type="button" class="btn btn-danger mr-2" id="bulkArchiveBtn" disabled title="Select one or more clients to archive">
+									<i class="fas fa-archive"></i> Bulk Archive
+								</button>
+								<span class="text-muted small" id="selectedCountText">0 selected</span>
+							</div>
+							@endif
 							<div class="table-responsive common_table"> 
 								<table class="table text_wrap table-striped">
 								<thead>
 									<tr>
+										<th style="width: 40px;">
+											<label class="mb-0 d-flex align-items-center">
+												<input type="checkbox" id="selectAllClients" class="client-select-all" title="Select all on this page">
+												<span class="ml-1 small">All</span>
+											</label>
+										</th>
 										<th class="sortable-header" data-sort-column="client_name" style="cursor: pointer;">
 											Client Name
 											@if(@$sortColumn == 'client_name')
@@ -206,6 +283,13 @@
 									<tr id="id_{{@$list->activity_id}}" class="client-row">
 										<td>
 											@if(@$list->client_id)
+												<input type="checkbox" class="client-checkbox" name="client_ids[]" value="{{ @$list->client_id }}" data-client-id="{{ @$list->client_id }}">
+											@else
+												<span class="text-muted">—</span>
+											@endif
+										</td>
+										<td>
+											@if(@$list->client_id)
 												<a href="javascript:void(0);" 
 												   class="client-name-toggle" 
 												   data-client-id="{{ @$list->client_id }}"
@@ -225,7 +309,7 @@
 													<span class="text-muted">{{ config('constants.empty') }}</span>
 												@endif
 											@endif
-										</td> 	
+										</td>
 										<td>{{ empty(@$list->client_email) ? config('constants.empty') : \Illuminate\Support\Str::limit(@$list->client_email, 40, '...') }}</td> 	
 										<td>{{ @$list->client_phone == "" ? config('constants.empty') : @$list->client_phone }}</td> 	
 										<td>
@@ -267,7 +351,7 @@
 									<!-- Expandable row for client details -->
 									@if(@$list->client_id)
 									<tr id="client-details-{{ @$list->client_id }}" class="client-details-row" style="display: none;">
-										<td colspan="7" style="background-color: #f8f9fa; padding: 20px;">
+										<td colspan="8" style="background-color: #f8f9fa; padding: 20px;">
 											<div class="client-details-content" id="client-details-content-{{ @$list->client_id }}">
 												<div class="text-center">
 													<i class="fas fa-spinner fa-spin"></i> Loading...
@@ -281,7 +365,7 @@
 								@else
 								<tbody>
 									<tr>
-										<td style="text-align:center;" colspan="7">
+										<td style="text-align:center;" colspan="8">
 											No Record found
 										</td>
 									</tr>
@@ -607,6 +691,71 @@ $(document).ready(function() {
 			}
 		});
 	}
+	
+	// Bulk selection: select all on page
+	$('#selectAllClients').on('change', function() {
+		var checked = $(this).prop('checked');
+		$('.client-checkbox').prop('checked', checked);
+		updateBulkArchiveState();
+	});
+	
+	$('.client-checkbox').on('change', function() {
+		updateBulkArchiveState();
+	});
+	
+	function updateBulkArchiveState() {
+		var count = $('.client-checkbox:checked').length;
+		$('#selectedCountText').text(count + ' selected');
+		$('#bulkArchiveBtn').prop('disabled', count === 0);
+		$('#selectAllClients').prop('checked', count > 0 && count === $('.client-checkbox').length);
+	}
+	
+	// Bulk archive
+	$('#bulkArchiveBtn').on('click', function() {
+		var ids = [];
+		$('.client-checkbox:checked').each(function() {
+			ids.push($(this).data('client-id'));
+		});
+		if (ids.length === 0) {
+			alert('Please select at least one client to archive.');
+			return;
+		}
+		if (!confirm('Are you sure you want to archive ' + ids.length + ' client(s)? They will be moved to archived clients.')) {
+			return;
+		}
+		var $btn = $('#bulkArchiveBtn');
+		$btn.prop('disabled', true);
+		var originalHtml = $btn.html();
+		$btn.html('<i class="fas fa-spinner fa-spin"></i> Archiving...');
+		
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.bulkarchive") }}',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: { client_ids: ids },
+			success: function(response) {
+				if (response.success) {
+					alert(response.message);
+					window.location.reload();
+				} else {
+					alert('Error: ' + (response.message || 'Failed to archive clients'));
+					$btn.prop('disabled', false);
+					$btn.html(originalHtml);
+				}
+			},
+			error: function(xhr) {
+				var errorMsg = 'Failed to archive clients';
+				if (xhr.responseJSON && xhr.responseJSON.message) {
+					errorMsg = xhr.responseJSON.message;
+				}
+				alert('Error: ' + errorMsg);
+				$btn.prop('disabled', false);
+				$btn.html(originalHtml);
+			}
+		});
+	});
 	
 	// Handle archive button click
 	$(document).on('click', '.btn-archive-client', function() {

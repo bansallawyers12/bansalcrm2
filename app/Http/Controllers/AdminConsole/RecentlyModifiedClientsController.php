@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
+use App\Models\Application;
 use App\Models\Document;
-  
+use Carbon\Carbon;
+
 use Auth; 
 use Config;
 
@@ -40,6 +42,11 @@ class RecentlyModifiedClientsController extends Controller
 		$activityType = $request->input('activity_type', '');
 		$perPage = $request->input('per_page', config('constants.limit', 20));
 		$sortColumn = $request->input('sort_column', 'activity_date');
+		$hasApplications = $request->input('has_applications', ''); // '' = all, '0' = no applications
+		$lastActivityYears = $request->input('last_activity_years', ''); // 1, 2, 3, 4, 5 = X+ years ago
+		$documentCount = $request->input('document_count', ''); // '', '0', '1', ... '9', '10+' = documents count filter
+		$noPhone = $request->input('no_phone', ''); // '' = all, '1' = only clients with no phone number
+		$noEmail = $request->input('no_email', ''); // '' = all, '1' = only clients with no email address
 		
 		// Get the most recent activity for each client
 		// Filter out NULL client_id to avoid orphaned activities
@@ -73,6 +80,12 @@ class RecentlyModifiedClientsController extends Controller
 			})
 			->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id');
 		
+		// Subquery: document count per client (non-archived only) for document count filter
+		$docCountSubQuery = Document::select('client_id', DB::raw('COUNT(*) as doc_count'))
+			->whereNull('archived_at')
+			->groupBy('client_id');
+		$query->leftJoinSub($docCountSubQuery, 'doc_counts', 'activities_logs.client_id', '=', 'doc_counts.client_id');
+		
 		// Apply search filter (name, email, phone)
 		if (!empty($search)) {
 			$query->where(function($q) use ($search) {
@@ -97,6 +110,45 @@ class RecentlyModifiedClientsController extends Controller
 		}
 		if ($toDate) {
 			$query->whereDate('activities_logs.created_at', '<=', $toDate);
+		}
+		
+		// Filter: clients that have no applications created
+		if ($hasApplications === '0') {
+			$query->whereNotIn('activities_logs.client_id', Application::select('client_id'));
+		}
+		
+		// Filter: last activity X+ years ago (1 to 5 years on yearly basis)
+		if ($lastActivityYears !== '' && in_array((int) $lastActivityYears, [1, 2, 3, 4, 5], true)) {
+			$query->where('activities_logs.created_at', '<=', Carbon::now()->subYears((int) $lastActivityYears));
+		}
+		
+		// Filter: document count (0, 1, 2, ... 9, 10+)
+		if ($documentCount !== '') {
+			if ($documentCount === '0') {
+				$query->where(function ($q) {
+					$q->whereNull('doc_counts.doc_count')->orWhere('doc_counts.doc_count', 0);
+				});
+			} elseif ($documentCount === '10+') {
+				$query->whereNotNull('doc_counts.doc_count')->where('doc_counts.doc_count', '>=', 10);
+			} elseif (in_array($documentCount, ['1', '2', '3', '4', '5', '6', '7', '8', '9'], true)) {
+				$query->where('doc_counts.doc_count', '=', (int) $documentCount);
+			}
+		}
+		
+		// Filter: no phone number (only clients with missing/empty phone)
+		if ($noPhone === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.phone')
+				  ->orWhere(DB::raw("TRIM(COALESCE(client_admins.phone, ''))"), '=', '');
+			});
+		}
+		
+		// Filter: no email address (only clients with missing/empty email)
+		if ($noEmail === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.email')
+				  ->orWhere(DB::raw("TRIM(COALESCE(client_admins.email, ''))"), '=', '');
+			});
 		}
 		
 		// Apply column sorting
@@ -129,7 +181,12 @@ class RecentlyModifiedClientsController extends Controller
 			'search', 
 			'activityType', 
 			'perPage', 
-			'sortColumn'
+			'sortColumn',
+			'hasApplications',
+			'lastActivityYears',
+			'documentCount',
+			'noPhone',
+			'noEmail'
 		])); 	
 	}
 	
@@ -274,5 +331,63 @@ class RecentlyModifiedClientsController extends Controller
 				'message' => 'Failed to update client. Please try again.'
 			], 500);
 		}
+	}
+	
+	/**
+	 * Bulk archive selected clients
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function bulkArchive(Request $request)
+	{
+		$clientIds = $request->input('client_ids', []);
+		
+		if (empty($clientIds) || !is_array($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Please select at least one client to archive.'
+			], 400);
+		}
+		
+		$clientIds = array_map('intval', array_filter($clientIds));
+		
+		$clients = Admin::whereIn('id', $clientIds)
+			->where('role', '7')
+			->where('is_archived', '0')
+			->get();
+		
+		$archived = 0;
+		$updateData = [
+			'is_archived' => 1,
+			'archived_on' => date('Y-m-d'),
+			'archived_by' => Auth::user()->id
+		];
+		
+		foreach ($clients as $client) {
+			$updated = DB::table('admins')->where('id', $client->id)->update($updateData);
+			if ($updated) {
+				$archived++;
+				$subject = 'Client has been archived';
+				$activity = new ActivitiesLog();
+				$activity->client_id = $client->id;
+				$activity->created_by = Auth::user()->id;
+				$activity->subject = $subject;
+				$activity->description = $subject . ' by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name;
+				$activity->task_status = 0;
+				$activity->pin = 0;
+				$activity->save();
+			}
+		}
+		
+		$message = $archived === 1
+			? '1 client has been archived successfully.'
+			: $archived . ' clients have been archived successfully.';
+		
+		return response()->json([
+			'success' => true,
+			'message' => $message,
+			'archived_count' => $archived
+		]);
 	}
 }
