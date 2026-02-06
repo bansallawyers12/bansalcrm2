@@ -71,7 +71,7 @@ class TeamController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/teams')->with('success', 'Record update Successfully');
+				return redirect()->route('adminconsole.teams.index')->with('success', 'Record update Successfully');
 			}	
 		}else{
 	         if(isset($id) && !empty($id))
@@ -86,12 +86,12 @@ class TeamController extends Controller
 				    }
 				else 
 				{
-					return Redirect::to('/admin/teams')->with('error', 'Team Not Exist');
+					return redirect()->route('adminconsole.teams.index')->with('error', 'Team Not Exist');
 				}	
 			}
 			else
 			{
-				return Redirect::to('/admin/teams')->with('error', Config::get('constants.unauthorized'));
+				return redirect()->route('adminconsole.teams.index')->with('error', Config::get('constants.unauthorized'));
 			}
 		}
 	}
@@ -118,7 +118,7 @@ class TeamController extends Controller
 			}
 			else
 			{
-				return Redirect::to('/admin/teams')->with('success', 'Record Added Successfully');
+				return redirect()->route('adminconsole.teams.index')->with('success', 'Record Added Successfully');
 			}				
 		}	
 
