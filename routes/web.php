@@ -502,7 +502,10 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::post('/update_visit_comment', [OfficeVisitController::class, 'update_visit_comment']);	
 		Route::post('/attend_session', [OfficeVisitController::class, 'attend_session']);	
 		Route::post('/complete_session', [OfficeVisitController::class, 'complete_session']);	
-		Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);  
+		Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);
+		Route::get('/fetch-office-visit-notifications', [OfficeVisitController::class, 'fetchOfficeVisitNotifications'])->name('officevisits.fetch-notifications');
+		Route::post('/mark-notification-seen', [OfficeVisitController::class, 'markNotificationSeen'])->name('officevisits.mark-notification-seen');
+		Route::post('/update-checkin-status', [OfficeVisitController::class, 'updateCheckinStatus'])->name('officevisits.update-checkin-status');  
 		//Route::post('/agents/store', 'Admin\AgentController@store')->name('agents.store'); 
 		//Route::get('/agent/detail/{id}', 'Admin\AgentController@detail')->name('agents.detail'); 
 		

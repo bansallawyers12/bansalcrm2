@@ -90,7 +90,7 @@ class OngoingSheetController extends Controller
         // Get rows (paginate)
         $rows = $query->paginate($perPage)->appends($request->except('page'));
 
-        // Dropdown data for filters
+        // Dropdown data for filters (staff who have at least one application + current user)
         $offices = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $assignees = Admin::whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
@@ -101,6 +101,10 @@ class OngoingSheetController extends Controller
             $assignees->push($currentUser);
             $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
         }
+        // Full staff list for Change assignee modal (same as Application tab so both show the same options)
+        $assigneesForChangeModal = Admin::where('role', '!=', 7)
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
         $currentStages = $this->getCurrentStagesForSheet($sheetType);
         $activeFilterCount = $this->countActiveFilters($request);
 
@@ -111,6 +115,7 @@ class OngoingSheetController extends Controller
             'offices',
             'branches',
             'assignees',
+            'assigneesForChangeModal',
             'currentStages',
             'sheetType'
         ) + [

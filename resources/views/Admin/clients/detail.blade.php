@@ -2937,7 +2937,8 @@ use App\Http\Controllers\Controller;
         getApplicationNotes: '{{ url("/getapplicationnotes") }}',
         updateApplicationDates: '{{ url("/application/updatedates") }}',
         showProductFee: '{{ url("/showproductfee") }}',
-        showProductFeeLatest: '{{ url("/showproductfeelatest") }}'
+        showProductFeeLatest: '{{ url("/showproductfeelatest") }}',
+        changeApplicationAssignee: '{{ route("application.change-assignee") }}'
     };
     
     // Page-Specific Configuration

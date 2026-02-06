@@ -418,6 +418,71 @@ jQuery(document).ready(function($){
     }
 
     // ============================================================================
+    // APPLICATION DETAIL - CHANGE ASSIGNEE (delegated so it works when detail is loaded via AJAX)
+    // ============================================================================
+    $(document).on('click', '.application-change-assignee', function(e) {
+        e.preventDefault();
+        var appId = $(this).data('app-id');
+        var assigneeId = $(this).data('assignee-id') || '';
+        $('#application_assignee_app_id').val(appId);
+        $('#application_assignee_select').val(assigneeId);
+        var modalEl = document.getElementById('applicationChangeAssigneeModal');
+        if (modalEl) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } else {
+                $(modalEl).modal('show');
+            }
+        }
+    });
+    $(document).on('click', '#application_assignee_save', function() {
+        var appId = $('#application_assignee_app_id').val();
+        var assigneeId = $('#application_assignee_select').val();
+        if (!assigneeId) {
+            alert('Please select an assignee.');
+            return;
+        }
+        var $btn = $(this).prop('disabled', true);
+        var url = App.getUrl('changeApplicationAssignee') || (App.getUrl('siteUrl') || '') + '/application/change-assignee';
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                _token: App.getCsrf() || $('meta[name="csrf-token"]').attr('content'),
+                application_id: parseInt(appId, 10) || appId,
+                assignee_id: parseInt(assigneeId, 10) || assigneeId
+            },
+            success: function(res) {
+                if (res && res.success) {
+                    var modalEl = document.getElementById('applicationChangeAssigneeModal');
+                    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var m = bootstrap.Modal.getInstance(modalEl);
+                        if (m) m.hide();
+                    } else if (modalEl) {
+                        $(modalEl).modal('hide');
+                    }
+                    var name = (res.assignee_name || '').trim();
+                    $('#application_assignee_name').text(name);
+                    $('#application_assignee_initial').text(name ? name.charAt(0).toUpperCase() : '');
+                    $('.application-change-assignee').data('assignee-id', assigneeId);
+                } else {
+                    alert((res && res.message) || 'Failed to update assignee.');
+                }
+            },
+            error: function(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update assignee.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                alert(msg);
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
+    });
+
+    // ============================================================================
     // APPLICATION MODAL OPENERS
     // ============================================================================
     
