@@ -162,7 +162,7 @@
                                                 <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                     <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
                                                     <div class=&quot;col-sm-9&quot;>
-                                                        <input type="text" class="form-control f13 flatpickr-date" placeholder="yyyy-mm-dd" id="popoverdatetime" value="<?php echo date('Y-m-d');?>" name="popoverdate" autocomplete="off">
+                                                        <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;<?php echo date('Y-m-d'); ?>&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
                                                     </div>
                                                     <div class=&quot;clearfix&quot;></div>
                                                 </div>
