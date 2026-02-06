@@ -21,9 +21,9 @@
 		<!-- Tax routes removed - NOTE: Tax routes have been removed from adminconsole.php -->
 		<li class="{{(Route::currentRouteName() == 'adminconsole.source.index' || Route::currentRouteName() == 'adminconsole.source.create' || Route::currentRouteName() == 'adminconsole.source.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.source.index')}}">Source</a></li>
 		<!-- Tags menu removed - tags work differently and don't need backend -->
-		<!-- Checklist section in admin console commented out
+		{{-- Checklist section in admin console commented out - route adminconsole.checklist.index no longer defined
 		<li class="{{(Route::currentRouteName() == 'adminconsole.checklist.index' || Route::currentRouteName() == 'adminconsole.checklist.create' || Route::currentRouteName() == 'adminconsole.checklist.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.checklist.index')}}">Checklist</a></li>
-		-->
+		--}}
 		<li class="{{(Route::currentRouteName() == 'adminconsole.workflow.index' || Route::currentRouteName() == 'adminconsole.workflow.create' || Route::currentRouteName() == 'adminconsole.workflow.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.workflow.index')}}">Workflow</a></li>
 		<li class="{{(Route::currentRouteName() == 'adminconsole.emails.index' || Route::currentRouteName() == 'adminconsole.emails.create' || Route::currentRouteName() == 'adminconsole.emails.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.emails.index')}}">Email</a></li>
 		<li class="{{(Route::currentRouteName() == 'adminconsole.crmemailtemplate.index' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.create' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.crmemailtemplate.index')}}">Crm Email Template</a></li> 
