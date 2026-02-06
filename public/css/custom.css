@@ -691,6 +691,15 @@ text-overflow: ellipsis;white-space: nowrap;}
 .navbar ul.navbar-nav li.dropdown-list-toggle a.notification-toggle{position:relative;}
 .navbar ul.navbar-nav li.dropdown-list-toggle a.notification-toggle span.countbell{position: absolute;top: 0px;right: 5px;font-size: 11px;line-height: 14px;color: #fff;background: #1f1655;border-radius: 50%;display: inline-block;padding: 3px 6px;}
 
+/* Fix: Profile dropdown cutting off on the right - ensure dropdown isn't clipped by overflow */
+.main-navbar,
+.main-navbar .navbar-nav,
+.main-navbar .navbar-nav.navbar-right,
+.main-navbar .navbar-nav .dropdown { overflow: visible !important; }
+.main-wrapper { overflow-x: visible !important; }
+/* Profile dropdown: align right edge and ensure full width visible */
+.main-navbar .navbar-nav.navbar-right > li:last-child .dropdown-menu { right: 0 !important; left: auto !important; min-width: 12rem; }
+
 .text-muted {
     color: #061d28 !important;
 }
