@@ -648,9 +648,9 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			<div class="client_assign client_info_tags" id="application_assignee_block">
 				<span class="">Assignee:</span>
 				<div class="client_info">
-					<div class="cl_logo" id="application_assignee_initial">@if($admin){{ substr($admin->first_name, 0, 1) }}@endif</div>
+					<div class="cl_logo" id="application_assignee_initial">@if($admin){{ substr(trim($admin->first_name.' '.$admin->last_name), 0, 1) }}@endif</div>
 					<div class="cl_name">
-						<span class="name" id="application_assignee_name">@if($admin){{ $admin->first_name }}@endif</span>
+						<span class="name" id="application_assignee_name">@if($admin){{ trim($admin->first_name.' '.$admin->last_name) }}@endif</span>
 						<span class="email" id="application_assignee_email">@if($admin){{ $admin->email }}@endif</span>
 					</div>
 					@if(isset($assignees))

@@ -460,7 +460,7 @@
                     <label for="sheet_assignee_select" class="form-label">Assignee</label>
                     <select class="form-control" id="sheet_assignee_select">
                         <option value="">Select assignee</option>
-                        @foreach($assignees as $a)
+                        @foreach($assigneesForChangeModal ?? $assignees as $a)
                             <option value="{{ $a->id }}">{{ trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) }}</option>
                         @endforeach
                     </select>
@@ -553,13 +553,14 @@ $(document).ready(function() {
         $.ajax({
             url: '{{ route("application.change-assignee") }}',
             method: 'POST',
+            dataType: 'json',
             data: {
                 _token: '{{ csrf_token() }}',
-                application_id: appId,
-                assignee_id: assigneeId
+                application_id: parseInt(appId, 10) || appId,
+                assignee_id: parseInt(assigneeId, 10) || assigneeId
             },
             success: function(res) {
-                if (res.success) {
+                if (res && res.success) {
                     var modalEl = document.getElementById('sheetChangeAssigneeModal');
                     if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         var modal = bootstrap.Modal.getInstance(modalEl);
@@ -569,7 +570,7 @@ $(document).ready(function() {
                     }
                     location.reload();
                 } else {
-                    alert(res.message || 'Failed to update assignee.');
+                    alert((res && res.message) || 'Failed to update assignee.');
                 }
             },
             error: function(xhr) {

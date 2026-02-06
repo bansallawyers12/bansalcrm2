@@ -448,13 +448,14 @@ jQuery(document).ready(function($){
         $.ajax({
             url: url,
             method: 'POST',
+            dataType: 'json',
             data: {
                 _token: App.getCsrf() || $('meta[name="csrf-token"]').attr('content'),
-                application_id: appId,
-                assignee_id: assigneeId
+                application_id: parseInt(appId, 10) || appId,
+                assignee_id: parseInt(assigneeId, 10) || assigneeId
             },
             success: function(res) {
-                if (res.success) {
+                if (res && res.success) {
                     var modalEl = document.getElementById('applicationChangeAssigneeModal');
                     if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         var m = bootstrap.Modal.getInstance(modalEl);
@@ -462,12 +463,12 @@ jQuery(document).ready(function($){
                     } else if (modalEl) {
                         $(modalEl).modal('hide');
                     }
-                    var name = res.assignee_name || '';
+                    var name = (res.assignee_name || '').trim();
                     $('#application_assignee_name').text(name);
-                    $('#application_assignee_initial').text(name ? name.charAt(0) : '');
+                    $('#application_assignee_initial').text(name ? name.charAt(0).toUpperCase() : '');
                     $('.application-change-assignee').data('assignee-id', assigneeId);
                 } else {
-                    alert(res.message || 'Failed to update assignee.');
+                    alert((res && res.message) || 'Failed to update assignee.');
                 }
             },
             error: function(xhr) {
