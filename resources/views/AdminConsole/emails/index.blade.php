@@ -33,7 +33,7 @@
 								@if(@$totalData !== 0 && $lists)
 								<?php $i=0; ?>
 								<tbody class="tdata">	
-								@foreach ($lists as $list)
+								@foreach (($lists ?? []) as $list)
 									<?php
                                     if( isset($list->user_id) && $list->user_id != ''){
                                         $userids = json_decode($list->user_id);
