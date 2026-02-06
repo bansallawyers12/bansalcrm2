@@ -39,11 +39,14 @@ class EmailController extends Controller
 			} */	
 	//check authorization end 
 	
-	$query 		= Email::query();
-		 
-		$totalData 	= $query->count();	//for all data
-		
-		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
+	try {
+			$query 		= Email::query();
+			$totalData 	= $query->count();	//for all data
+			$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
+		} catch (\Throwable $e) {
+			$totalData 	= 0;
+			$lists		= new \Illuminate\Pagination\LengthAwarePaginator([], 0, (int) config('constants.limit', 20));
+		}
 		
 		return view('AdminConsole.emails.index',compact(['lists', 'totalData'])); 	
 		

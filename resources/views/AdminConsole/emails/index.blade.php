@@ -30,10 +30,10 @@
 										<th></th>
 									</tr> 
 								</thead>
-								@if(@$totalData !== 0)
+								@if(@$totalData !== 0 && $lists)
 								<?php $i=0; ?>
 								<tbody class="tdata">	
-								@foreach (@$lists as $list)
+								@foreach ($lists as $list)
 									<?php
                                     if( isset($list->user_id) && $list->user_id != ''){
                                         $userids = json_decode($list->user_id);
@@ -76,7 +76,7 @@
 								</tbody>
 								@endif
 							</table>
-								@if(@$totalData > 0 && $lists->hasPages())
+								@if(@$totalData > 0 && $lists && $lists->hasPages())
 								<div class="d-flex justify-content-center mt-3">
 									{{ $lists->links() }}
 								</div>
