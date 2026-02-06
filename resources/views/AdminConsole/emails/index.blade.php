@@ -30,7 +30,7 @@
 										<th></th>
 									</tr> 
 								</thead>
-								{{dd($totalData)}}
+								{{dd($lists)}}
 								@if(@$totalData !== 0 && $lists)
 								<?php $i=0; ?>
 								<tbody class="tdata">	
