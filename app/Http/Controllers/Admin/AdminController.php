@@ -1484,6 +1484,28 @@ class AdminController extends Controller
                 $objs->save();
             }
         }
+
+        // When email is sent with application_id: record email reminder and log for filters
+        if ($saved && !empty($requestData['application_id'])) {
+            $app = \App\Models\Application::find((int)$requestData['application_id']);
+            if ($app && $app->client_id) {
+                \App\Models\ApplicationReminder::create([
+                    'application_id' => $app->id,
+                    'type' => 'email',
+                    'reminded_at' => now(),
+                    'user_id' => Auth::user()->id,
+                ]);
+                $emailSentDate = now()->format('d/m/Y');
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $app->client_id;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = 'Email reminder sent';
+                $objs->description = 'Email reminder sent on ' . $emailSentDate;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+            }
+        }
       
       
         if(isset($requestData['checklistfile_document'])){

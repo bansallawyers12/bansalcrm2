@@ -391,20 +391,29 @@
                             <thead>
                                 <tr class="ongoing-sheet-header">
                                     <th>Course Name</th>
+                                    @if(!isset($sheetType) || $sheetType !== 'checklist')
                                     <th>CRM Reference</th>
+                                    @endif
                                     <th>Client Name</th>
                                     <th>Date of Birth</th>
                                     <th>Payment Received</th>
                                     <th>Institute</th>
+                                    @if(!isset($sheetType) || $sheetType !== 'checklist')
                                     <th class="branch-cell">Branch</th>
+                                    @endif
                                     <th>Assignee</th>
                                     <th>Visa Expiry Date</th>
                                     <th>Visa Category</th>
+                                    @if(!isset($sheetType) || $sheetType !== 'checklist')
                                     <th>Current Stage</th>
+                                    @endif
                                     <th>Comment</th>
                                     @if(isset($sheetType) && $sheetType === 'checklist')
                                     <th>Status</th>
                                     <th>Checklist sent</th>
+                                    <th>Email reminder</th>
+                                    <th>SMS reminder</th>
+                                    <th>Phone reminder</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -426,7 +435,9 @@
                                             <td class="ongoing-course-cell">
                                                 <a href="{{ $appDetailUrl }}" class="ongoing-course-link" onclick="event.stopPropagation();">{{ $row->course_name ?? '—' }}</a>
                                             </td>
+                                            @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td>{{ $row->crm_ref ?? '—' }}</td>
+                                            @endif
                                             <td>{{ trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')) ?: '—' }}</td>
                                             <td>{{ $row->dob ? \Carbon\Carbon::parse($row->dob)->format('d/m/Y') : '—' }}</td>
                                             <td>
@@ -439,7 +450,9 @@
                                                 @endif
                                             </td>
                                             <td>{{ $row->institute_override ?? $row->partner_name ?? $row->service_college ?? '—' }}</td>
+                                            @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td class="branch-cell">{{ $row->branch_name ?? '—' }}</td>
+                                            @endif
                                             <td onclick="event.stopPropagation();">
                                                 <span class="ongoing-assignee-display">{{ trim(($row->assignee_first_name ?? '') . ' ' . ($row->assignee_last_name ?? '')) ?: '—' }}</span>
                                                 <a href="javascript:;" class="ongoing-assignee-edit ms-1" data-app-id="{{ $row->application_id }}" data-assignee-id="{{ $row->assignee_id ?? '' }}" title="Change assignee"><i class="fas fa-edit text-muted small"></i></a>
@@ -461,7 +474,9 @@
                                                     {{ trim(($row->visa_type ?? '') . ' ' . ($row->visa_opt ?? '')) ?: '—' }}
                                                 @endif
                                             </td>
+                                            @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td class="status-cell">{{ $row->application_stage ?? '—' }}</td>
+                                            @endif
                                             <td class="comment-cell" onclick="event.stopPropagation();">
                                                 <span class="sheet-comment-text">{{ $row->sheet_comment_text ?? '—' }}</span>
                                                 <a href="javascript:;" class="sheet-comment-edit ms-1" data-app-id="{{ $row->application_id }}" data-comment="{{ e($row->sheet_comment_text ?? '') }}" title="Add/Edit comment"><i class="fas fa-edit text-muted small"></i></a>
@@ -482,6 +497,8 @@
                                                 @php
                                                     $clientEncodedIdForResend = base64_encode(convert_uuencode($row->client_id));
                                                     $resendChecklistUrl = route('clients.detail', ['id' => $clientEncodedIdForResend]) . '?applicationId=' . $row->application_id . '&open_checklist_email=1';
+                                                    $emailReminderUrl = route('clients.detail', ['id' => $clientEncodedIdForResend]) . '?applicationId=' . $row->application_id . '&open_email_reminder=1';
+                                                    $smsReminderUrl = route('clients.detail', ['id' => $clientEncodedIdForResend]) . '?applicationId=' . $row->application_id . '&open_sms_reminder=1';
                                                 @endphp
                                                 @if($row->checklist_sent_at)
                                                     {{ \Carbon\Carbon::parse($row->checklist_sent_at)->format('d/m/Y') }}
@@ -490,6 +507,30 @@
                                                     Not sent
                                                     <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-primary mt-1" onclick="event.stopPropagation();" title="Send checklist email">Send checklist</a>
                                                 @endif
+                                            </td>
+                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                                @if(!empty($row->email_reminder_latest))
+                                                    {{ \Carbon\Carbon::parse($row->email_reminder_latest)->format('d/m/Y') }}@if($row->email_reminder_count > 0) ({{ $row->email_reminder_count }})@endif
+                                                @else
+                                                    —
+                                                @endif
+                                                <br><a href="{{ $emailReminderUrl }}" class="btn btn-sm btn-outline-secondary mt-1 checklist-reminder-link" data-msg="Open email to send reminder?" title="Email reminder">Email reminder</a>
+                                            </td>
+                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                                @if(!empty($row->sms_reminder_latest))
+                                                    {{ \Carbon\Carbon::parse($row->sms_reminder_latest)->format('d/m/Y') }}@if($row->sms_reminder_count > 0) ({{ $row->sms_reminder_count }})@endif
+                                                @else
+                                                    —
+                                                @endif
+                                                <br><a href="{{ $smsReminderUrl }}" class="btn btn-sm btn-outline-secondary mt-1 checklist-reminder-link" data-msg="Open SMS to send reminder?" title="SMS reminder">SMS reminder</a>
+                                            </td>
+                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                                @if(!empty($row->phone_reminder_latest))
+                                                    {{ \Carbon\Carbon::parse($row->phone_reminder_latest)->format('d/m/Y') }}@if($row->phone_reminder_count > 0) ({{ $row->phone_reminder_count }})@endif
+                                                @else
+                                                    —
+                                                @endif
+                                                <br><button type="button" class="btn btn-sm btn-outline-secondary mt-1 checklist-phone-reminder-btn" data-app-id="{{ $row->application_id }}" data-msg="Record phone reminder now?" title="Phone reminder">Phone reminder</button>
                                             </td>
                                             @endif
                                         </tr>
@@ -784,6 +825,48 @@ $(document).ready(function() {
     });
     $(document).on('focus', '.checklist-status-select', function() {
         $(this).data('previous', $(this).val());
+    });
+
+    // Checklist sheet: Email/SMS reminder links — confirm then navigate
+    $(document).on('click', '.checklist-reminder-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var msg = $(this).data('msg') || 'Continue?';
+        if (confirm(msg)) {
+            window.location.href = $(this).attr('href');
+        }
+    });
+
+    // Checklist sheet: Phone reminder — confirm then AJAX
+    $(document).on('click', '.checklist-phone-reminder-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $btn = $(this);
+        var appId = $btn.data('app-id');
+        var msg = $btn.data('msg') || 'Record phone reminder now?';
+        if (!confirm(msg)) return;
+        $btn.prop('disabled', true);
+        $.ajax({
+            url: '{{ route("clients.sheets.checklist.phone-reminder") }}',
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', application_id: appId },
+            dataType: 'json',
+            success: function(res) {
+                if (res && res.success) {
+                    location.reload();
+                } else {
+                    alert((res && res.message) || 'Failed to record reminder.');
+                }
+            },
+            error: function(xhr) {
+                var errMsg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to record reminder.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errMsg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                alert(errMsg);
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
     });
 });
 </script>

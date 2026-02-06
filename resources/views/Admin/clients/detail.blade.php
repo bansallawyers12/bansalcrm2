@@ -678,6 +678,7 @@ use App\Http\Controllers\Controller;
 															'messages' => 'Messages',
 															'calls' => 'Calls',
 															'reviews' => 'Reviews',
+															'reminders' => 'Reminders',
 															'applications' => 'Applications',
 															'services' => 'Services',
 															'status' => 'Status',
@@ -805,6 +806,15 @@ use App\Http\Controllers\Controller;
 												case 'reviews':
 													$query->where('activities_logs.subject', 'like', '%review%');
 													break;
+												case 'reminders':
+													$query->where(function($q) {
+														$q->where('activities_logs.subject', 'like', '%Email reminder sent%')
+														  ->orWhere('activities_logs.subject', 'like', '%SMS reminder sent%')
+														  ->orWhere('activities_logs.subject', 'like', '%Phone reminder recorded%')
+														  ->orWhere('activities_logs.subject', 'like', '%Checklist sent to client%')
+														  ->orWhere('activities_logs.subject', 'like', '%Checklist resent to client%');
+													});
+													break;
 												case 'documents':
 													$query->where(function($q) {
 														$q->where('activities_logs.subject', 'like', '%document%')
@@ -865,7 +875,9 @@ use App\Http\Controllers\Controller;
 														  ->where('activities_logs.subject', 'not like', '%status%')
 														  ->where('activities_logs.subject', 'not like', '%check-in%')
 														  ->where('activities_logs.subject', 'not like', '%session%')
-														  ->where('activities_logs.subject', 'not like', '%review%');
+														  ->where('activities_logs.subject', 'not like', '%review%')
+														  ->where('activities_logs.subject', 'not like', '%reminder%')
+														  ->where('activities_logs.subject', 'not like', '%Checklist sent%');
 													});
 													break;
 											}
@@ -2347,6 +2359,7 @@ use App\Http\Controllers\Controller;
 				<form method="post" name="sendmsg" id="sendmsg" action="{{URL::to('/sendmsg')}}" autocomplete="off" enctype="multipart/form-data">
 				    @csrf
                     <input type="hidden" name="client_id" id="sendmsg_client_id" value="">
+                    <input type="hidden" name="application_id" id="sendmsg_application_id" value="">
                     <input type="hidden" name="vtype" value="client">
 					<div class="row">
 						<div class="col-12 col-md-12 col-lg-12">
@@ -3011,25 +3024,39 @@ $(document).ready(function() {
 });
 </script>
 
-{{-- Open email modal for "Resend checklist" from sheet (URL: ?open_checklist_email=1&applicationId=xxx) --}}
+{{-- Open email/SMS modal from sheet: ?open_checklist_email=1|open_email_reminder=1|open_sms_reminder=1&applicationId=xxx --}}
 <script>
 (function(){
 	var params = new URLSearchParams(window.location.search);
 	var openChecklist = params.get('open_checklist_email');
+	var openEmailReminder = params.get('open_email_reminder');
+	var openSmsReminder = params.get('open_sms_reminder');
 	var applicationId = params.get('applicationId');
-	if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
-		$(document).ready(function(){
+	var clientId = {{ $fetchedData->id ?? 'null' }};
+	var clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
+	var clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
+
+	$(document).ready(function(){
+		if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
 			$('#sendmail_application_id').val(applicationId);
-			var clientId = {{ $fetchedData->id ?? 'null' }};
-			var clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
-			var clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
 			var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
 			$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
 			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
 			$('#composechecklist-tab').tab('show');
 			$('#emailmodal').modal('show');
-		});
-	}
+		} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {
+			$('#sendmail_application_id').val(applicationId);
+			var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
+			$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
+			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
+			$('#emailmodal').modal('show');
+		}
+		if (openSmsReminder === '1' && applicationId && $('#sendmsgmodal').length) {
+			$('#sendmsg_client_id').val(clientId);
+			$('#sendmsg_application_id').val(applicationId);
+			$('#sendmsgmodal').modal('show');
+		}
+	});
 })();
 </script>
 

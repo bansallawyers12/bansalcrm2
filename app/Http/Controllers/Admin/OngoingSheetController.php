@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
 use App\Models\ApplicationActivitiesLog;
+use App\Models\ApplicationReminder;
 use App\Models\ClientOngoingReference;
 use App\Models\Branch;
 use Illuminate\Http\Request;
@@ -266,7 +267,13 @@ class OngoingSheetController extends Controller
                          ORDER BY aal.updated_at DESC LIMIT 1) as sheet_comment_text")
             ]);
         if ($sheetType === 'checklist') {
-            $query->addSelect('applications.checklist_sheet_status', 'applications.checklist_sent_at');
+            $query->addSelect('applications.checklist_sheet_status', 'applications.checklist_sent_at')
+                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'email') as email_reminder_latest"))
+                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'email') as email_reminder_count"))
+                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'sms') as sms_reminder_latest"))
+                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'sms') as sms_reminder_count"))
+                ->addSelect(DB::raw("(SELECT MAX(ar.reminded_at) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'phone') as phone_reminder_latest"))
+                ->addSelect(DB::raw("(SELECT COUNT(*) FROM application_reminders ar WHERE ar.application_id = applications.id AND ar.type = 'phone') as phone_reminder_count"));
         }
         $query
             ->join('admins', 'applications.client_id', '=', 'admins.id')
@@ -579,6 +586,44 @@ class OngoingSheetController extends Controller
                 'status' => $status,
                 'leaves_sheet' => $leavesSheet,
             ],
+        ]);
+    }
+
+    /**
+     * Record a phone reminder for an application (multiple allowed).
+     * Creates ApplicationReminder (type=phone) and ActivitiesLog for client.
+     */
+    public function storePhoneReminder(Request $request)
+    {
+        $request->validate([
+            'application_id' => 'required|integer|exists:applications,id',
+        ]);
+
+        $app = Application::findOrFail($request->application_id);
+
+        ApplicationReminder::create([
+            'application_id' => $app->id,
+            'type' => 'phone',
+            'reminded_at' => now(),
+            'user_id' => Auth::id(),
+        ]);
+
+        $sentDate = now()->format('d/m/Y');
+        if ($app->client_id) {
+            ActivitiesLog::create([
+                'client_id' => $app->client_id,
+                'created_by' => Auth::id(),
+                'subject' => 'Phone reminder recorded',
+                'description' => 'Phone reminder recorded on ' . $sentDate,
+                'task_status' => 0,
+                'pin' => 0,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Phone reminder recorded.',
+            'data' => ['reminded_at' => now()->toIso8601String()],
         ]);
     }
 }

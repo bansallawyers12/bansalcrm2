@@ -101,6 +101,7 @@ jQuery(document).ready(function($){
         $('#sendmsgmodal').modal('show');
         var client_id = $(this).attr('data-id');
         $('#sendmsg_client_id').val(client_id);
+        $('#sendmsg_application_id').val(''); // clear so normal SMS is not recorded as reminder
     });
 
     // ============================================================================

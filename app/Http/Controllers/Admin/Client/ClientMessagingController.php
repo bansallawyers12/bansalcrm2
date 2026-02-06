@@ -238,6 +238,27 @@ class ClientMessagingController extends Controller
                 $objs->pin = 0;
                 $objs->save();
             }
+            // When SMS is sent with application_id: record SMS reminder and log for filters
+            if (!empty($request->application_id)) {
+                $app = \App\Models\Application::find((int)$request->application_id);
+                if ($app && $app->client_id) {
+                    \App\Models\ApplicationReminder::create([
+                        'application_id' => $app->id,
+                        'type' => 'sms',
+                        'reminded_at' => now(),
+                        'user_id' => Auth::user()->id,
+                    ]);
+                    $smsSentDate = now()->format('d/m/Y');
+                    $objs = new ActivitiesLog;
+                    $objs->client_id = $app->client_id;
+                    $objs->created_by = Auth::user()->id;
+                    $objs->subject = 'SMS reminder sent';
+                    $objs->description = 'SMS reminder sent on ' . $smsSentDate;
+                    $objs->task_status = 0;
+                    $objs->pin = 0;
+                    $objs->save();
+                }
+            }
             $response['status'] 	= 	true;
             $response['message']	=	'You have successfully sent message';
         }else{
