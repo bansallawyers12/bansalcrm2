@@ -369,7 +369,10 @@
                                             </td>
                                             <td>{{ $row->institute_override ?? $row->partner_name ?? $row->service_college ?? '—' }}</td>
                                             <td class="branch-cell">{{ $row->branch_name ?? '—' }}</td>
-                                            <td>{{ trim(($row->assignee_first_name ?? '') . ' ' . ($row->assignee_last_name ?? '')) ?: '—' }}</td>
+                                            <td onclick="event.stopPropagation();">
+                                                <span class="ongoing-assignee-display">{{ trim(($row->assignee_first_name ?? '') . ' ' . ($row->assignee_last_name ?? '')) ?: '—' }}</span>
+                                                <a href="javascript:;" class="ongoing-assignee-edit ms-1" data-app-id="{{ $row->application_id }}" data-assignee-id="{{ $row->assignee_id ?? '' }}" title="Change assignee"><i class="fas fa-edit text-muted small"></i></a>
+                                            </td>
                                             <td>
                                                 @if($row->visaexpiry && $row->visaexpiry != '0000-00-00')
                                                     {{ \Carbon\Carbon::parse($row->visaexpiry)->format('d/m/Y') }}
@@ -442,6 +445,34 @@
         </div>
     </div>
 </div>
+
+{{-- Change assignee modal --}}
+<div class="modal fade" id="sheetChangeAssigneeModal" tabindex="-1" aria-labelledby="sheetChangeAssigneeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sheetChangeAssigneeModalLabel">Change assignee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="sheet_assignee_application_id" value="">
+                <div class="mb-3">
+                    <label for="sheet_assignee_select" class="form-label">Assignee</label>
+                    <select class="form-control" id="sheet_assignee_select">
+                        <option value="">Select assignee</option>
+                        @foreach($assignees as $a)
+                            <option value="{{ $a->id }}">{{ trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sheet_assignee_save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -491,6 +522,64 @@ $(document).ready(function() {
         } else {
             $(modalEl).modal('show');
         }
+    });
+
+    // Change assignee: open modal
+    $(document).on('click', '.ongoing-assignee-edit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var appId = $(this).data('app-id');
+        var assigneeId = $(this).data('assignee-id') || '';
+        $('#sheet_assignee_application_id').val(appId);
+        $('#sheet_assignee_select').val(assigneeId);
+        var modalEl = document.getElementById('sheetChangeAssigneeModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        } else {
+            $(modalEl).modal('show');
+        }
+    });
+
+    $('#sheet_assignee_save').on('click', function() {
+        var appId = $('#sheet_assignee_application_id').val();
+        var assigneeId = $('#sheet_assignee_select').val();
+        if (!assigneeId) {
+            alert('Please select an assignee.');
+            return;
+        }
+        var $btn = $(this).prop('disabled', true);
+        $.ajax({
+            url: '{{ route("application.change-assignee") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                application_id: appId,
+                assignee_id: assigneeId
+            },
+            success: function(res) {
+                if (res.success) {
+                    var modalEl = document.getElementById('sheetChangeAssigneeModal');
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+                    } else {
+                        $(modalEl).modal('hide');
+                    }
+                    location.reload();
+                } else {
+                    alert(res.message || 'Failed to update assignee.');
+                }
+            },
+            error: function(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update assignee.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+                }
+                alert(msg);
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
     });
 
     $('#sheet_comment_save').on('click', function() {

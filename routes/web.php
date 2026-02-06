@@ -407,7 +407,8 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::get('/application/getapplicationbycid', [ApplicationsController::class, 'getapplicationbycid']);		
 		Route::post('/application/spagent_application', [ApplicationsController::class, 'spagent_application']);		
 		Route::post('/application/sbagent_application', [ApplicationsController::class, 'sbagent_application']);		
-		Route::post('/application/application_ownership', [ApplicationsController::class, 'application_ownership']);		
+		Route::post('/application/application_ownership', [ApplicationsController::class, 'application_ownership']);
+		Route::post('/application/change-assignee', [ApplicationsController::class, 'changeApplicationAssignee'])->name('application.change-assignee');		
 		Route::post('/application/saleforcast', [ApplicationsController::class, 'saleforcast']);		
 		Route::get('/superagent', [ApplicationsController::class, 'superagent']);		
 		Route::get('/subagent', [ApplicationsController::class, 'subagent']);		

@@ -208,6 +208,7 @@ class OngoingSheetController extends Controller
                 'admins.office_id',
                 'partners.partner_name',
                 'branches.office_name as branch_name',
+                'applications.user_id as assignee_id',
                 'assignee.first_name as assignee_first_name',
                 'assignee.last_name as assignee_last_name',
                 'ongoing.current_status',

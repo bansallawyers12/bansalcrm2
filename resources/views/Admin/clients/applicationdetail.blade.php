@@ -645,14 +645,17 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 					</div>
 				</div> 
 			</div>
-			<div class="client_assign client_info_tags"> 
+			<div class="client_assign client_info_tags" id="application_assignee_block">
 				<span class="">Assignee:</span>
 				<div class="client_info">
-					<div class="cl_logo">{{substr($admin->first_name, 0, 1)}}</div>
+					<div class="cl_logo" id="application_assignee_initial">@if($admin){{ substr($admin->first_name, 0, 1) }}@endif</div>
 					<div class="cl_name">
-						<span class="name">{{$admin->first_name}}</span>
-						<span class="email">{{$admin->email}}</span>
+						<span class="name" id="application_assignee_name">@if($admin){{ $admin->first_name }}@endif</span>
+						<span class="email" id="application_assignee_email">@if($admin){{ $admin->email }}@endif</span>
 					</div>
+					@if(isset($assignees))
+					<a href="javascript:;" class="btn btn-outline-primary btn-sm ms-2 application-change-assignee" data-app-id="{{ $fetchData->id }}" data-assignee-id="{{ $fetchData->user_id ?? '' }}">Change</a>
+					@endif
 				</div>
 			</div>
 			<div class="divider"></div> 
@@ -735,6 +738,36 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 	</div>
 </div>
 
+@if(isset($assignees))
+{{-- Change assignee modal --}}
+<div class="modal fade" id="applicationChangeAssigneeModal" tabindex="-1" aria-labelledby="applicationChangeAssigneeModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="applicationChangeAssigneeModalLabel">Change assignee</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="application_assignee_app_id" value="">
+				<div class="mb-3">
+					<label for="application_assignee_select" class="form-label">Assignee</label>
+					<select class="form-control" id="application_assignee_select">
+						<option value="">Select assignee</option>
+						@foreach($assignees as $a)
+							<option value="{{ $a->id }}">{{ trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) }}</option>
+						@endforeach
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="application_assignee_save">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+@endif
+
 <script>
 (function() {
 	$(document).off('change', '#activity_filter_type').on('change', '#activity_filter_type', function() {
@@ -748,5 +781,68 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 		}
 	});
 })();
+
+@if(isset($assignees))
+(function() {
+	var changeAssigneeUrl = '{{ route("application.change-assignee") }}';
+	var csrfToken = '{{ csrf_token() }}';
+	$(document).on('click', '.application-change-assignee', function() {
+		var appId = $(this).data('app-id');
+		var assigneeId = $(this).data('assignee-id') || '';
+		$('#application_assignee_app_id').val(appId);
+		$('#application_assignee_select').val(assigneeId);
+		var modalEl = document.getElementById('applicationChangeAssigneeModal');
+		if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+			var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+			modal.show();
+		} else {
+			$(modalEl).modal('show');
+		}
+	});
+	$(document).on('click', '#application_assignee_save', function() {
+		var appId = $('#application_assignee_app_id').val();
+		var assigneeId = $('#application_assignee_select').val();
+		if (!assigneeId) {
+			alert('Please select an assignee.');
+			return;
+		}
+		var $btn = $(this).prop('disabled', true);
+		$.ajax({
+			url: changeAssigneeUrl,
+			method: 'POST',
+			data: {
+				_token: csrfToken,
+				application_id: appId,
+				assignee_id: assigneeId
+			},
+			success: function(res) {
+				if (res.success) {
+					var modalEl = document.getElementById('applicationChangeAssigneeModal');
+					if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+						var m = bootstrap.Modal.getInstance(modalEl);
+						if (m) m.hide();
+					} else {
+						$('#applicationChangeAssigneeModal').modal('hide');
+					}
+					var name = res.assignee_name || '';
+					$('#application_assignee_name').text(name);
+					$('#application_assignee_initial').text(name ? name.charAt(0) : '');
+					$('.application-change-assignee').data('assignee-id', assigneeId);
+				} else {
+					alert(res.message || 'Failed to update assignee.');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to update assignee.';
+				if (xhr.responseJSON && xhr.responseJSON.errors) {
+					msg = Object.values(xhr.responseJSON.errors).flat().join(' ');
+				}
+				alert(msg);
+			},
+			complete: function() { $btn.prop('disabled', false); }
+		});
+	});
+})();
+@endif
 </script>
 

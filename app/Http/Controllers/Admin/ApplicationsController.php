@@ -103,7 +103,8 @@ class ApplicationsController extends Controller
 	 
 	public function getapplicationdetail(Request $request){
 		$fetchData = Application::find($request->id);
-		return view('Admin.clients.applicationdetail', compact(['fetchData']));
+		$assignees = Admin::where('role', '!=', 7)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']);
+		return view('Admin.clients.applicationdetail', compact(['fetchData', 'assignees']));
 	}
 	
 	public function completestage(Request $request){
@@ -785,6 +786,38 @@ class ApplicationsController extends Controller
 			}
 		
 		echo json_encode($response);
+	}
+
+	/**
+	 * Change the assignee (user_id) for an application. Used by Ongoing Sheet and Application detail.
+	 */
+	public function changeApplicationAssignee(Request $request)
+	{
+		$request->validate([
+			'application_id' => 'required|integer|exists:applications,id',
+			'assignee_id'    => 'required|integer',
+		]);
+
+		$application = Application::findOrFail($request->application_id);
+		$assigneeId  = (int) $request->assignee_id;
+
+		$assignee = Admin::where('id', $assigneeId)->where('role', '!=', 7)->first();
+		if (!$assignee) {
+			return response()->json(['success' => false, 'message' => 'Invalid assignee. Select a staff member.']);
+		}
+
+		$application->user_id = $assigneeId;
+		$saved = $application->save();
+
+		if ($saved) {
+			return response()->json([
+				'success' => true,
+				'message' => 'Assignee updated successfully.',
+				'assignee_name' => trim($assignee->first_name . ' ' . $assignee->last_name),
+			]);
+		}
+
+		return response()->json(['success' => false, 'message' => 'Failed to update assignee.']);
 	}
 	
 	public function saleforcast(Request $request){
