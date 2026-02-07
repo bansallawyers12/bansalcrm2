@@ -98,15 +98,22 @@
             
             $(document).delegate('.attendsession', 'click', function(){
                 var appliid = $(this).attr('data-id');
+                var waitingtype = $(this).attr('data-waitingtype');
                 $('.popuploader').show();
                 $.ajax({
                     url: site_url+'/attend_session',
                     type:'POST',
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    data:{id: appliid,waitcountdata: $('#waitcountdata').val()},
+                    data:{id: appliid, waitcountdata: $('#waitcountdata').val(), waitingtype: waitingtype},
                     success: function(response){
                          var obj = $.parseJSON(response);
                         if(obj.status){
+                            // Update office-visits tab badges (Waiting / Attending / Completed) if counts returned
+                            if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
+                                $('#waiting-tab .countAction').text(obj.waiting);
+                                $('#attending-tab .countAction').text(obj.attending);
+                                $('#completed-tab .countAction').text(obj.completed);
+                            }
                             $.ajax({
                             url: site_url+'/get-checkin-detail',
                             type:'GET',
@@ -114,6 +121,8 @@
                             success: function(res){
                                  $('.popuploader').hide();
                                 $('.showchecindetail').html(res);
+                                $('#checkindetailmodal').modal('hide');
+                                alert(obj.message || 'Attend session successful!');
                             }
                         });
                             $('.checindata #id_'+appliid).remove();

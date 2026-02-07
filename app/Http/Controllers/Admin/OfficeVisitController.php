@@ -359,7 +359,7 @@ class OfficeVisitController extends Controller
 					<?php
 					if($CheckinLog->status == 0){
 					?>
-						<a data-id="<?php echo $CheckinLog->id; ?>" href="javascript:;" class="btn btn-success attendsession">Attend Session</a>
+						<a data-id="<?php echo $CheckinLog->id; ?>" data-waitingtype="<?php echo (int) $CheckinLog->wait_type; ?>" href="javascript:;" class="btn btn-success attendsession">Attend Session</a>
 					<?php }else if($CheckinLog->status == 2){ ?>
 						<a data-id="<?php echo $CheckinLog->id; ?>" href="javascript:;" class="btn btn-success completesession">Complete Session</a>
 					<?php } ?>
@@ -648,6 +648,10 @@ class OfficeVisitController extends Controller
 		if($saved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';
+			// Return updated counts so office-visits tab badges can refresh without full page reload
+			$response['waiting']   = CheckinLog::where('status', 0)->count();
+			$response['attending'] = CheckinLog::where('status', 2)->count();
+			$response['completed'] = CheckinLog::where('status', 1)->count();
 		}else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';
