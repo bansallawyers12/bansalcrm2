@@ -1799,6 +1799,8 @@ if($fetchedData->tagname != ''){
         siteUrl: '{{ url("/") }}',
         verifyEmail: '{{ route("verify.send-code") }}',
         checkCode: '{{ route("verify.check-code") }}',
+        verifySendCode: '{{ route("verify.send-code") }}',
+        verifyCheckCode: '{{ route("verify.check-code") }}',
         getRecipients: '{{ url("/clients/get-recipients") }}',
         checkClientExist: '{{ url("/checkclientexist") }}',
         getServiceTaken: '{{ url("/client/getservicetaken") }}',
