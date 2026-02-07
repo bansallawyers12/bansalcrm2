@@ -585,12 +585,19 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 			</div>
           
           
+            <?php
+			// Calculate Total Fee Paid from actual fee rows (source of truth) - fixes mismatch with Other Fee Option popup
+			$total_fee_paid_display = '0.00';
+			if ($appfeeoption) {
+				$total_fee_paid_sum = \App\Models\ApplicationFeeOptionType::where('fee_id', $appfeeoption->id)
+					->where('fee_option_type', 2)
+					->sum('total_fee');
+				$total_fee_paid_display = number_format((float) $total_fee_paid_sum, 2, '.', '');
+			}
+			?>
             <p class="clearfix appsaleforcast">
 				<span class="float-start">Total Fee Paid</span>
-				<span class="float-end text-muted fee_reported_by_college"><?php 
-				if( isset($appfeeoption['fee_reported_by_college']) &&  $appfeeoption['fee_reported_by_college'] != ''){
-					echo $appfeeoption['fee_reported_by_college'];
-				} else { echo "0.00";} ?></span>
+				<span class="float-end text-muted fee_reported_by_college"><?php echo $total_fee_paid_display; ?></span>
 			</p>
 
 			<!--<p class="clearfix appsaleforcast"> 
