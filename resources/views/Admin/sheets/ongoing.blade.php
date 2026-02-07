@@ -51,15 +51,16 @@
         overflow: hidden;
     }
     .ongoing-filter-card .card-body {
-        padding: 1rem 1.25rem;
+        padding: 0.5rem 0.75rem 0.75rem;
     }
     .ongoing-filter-toggle {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
         font-weight: 600;
-        border-radius: 8px;
+        font-size: 0.875rem;
+        border-radius: 6px;
         background: linear-gradient(135deg, #5b4d96 0%, #6f5fb8 100%);
         color: #fff;
         border: none;
@@ -72,42 +73,83 @@
     .ongoing-filter-toggle .badge {
         background: rgba(255,255,255,0.25);
         color: #fff;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
     .ongoing-filter-panel {
         background: linear-gradient(180deg, #fafbfc 0%, #f4f6f9 100%);
         border-top: 1px solid #e3e6f0;
-        padding: 1.25rem 1.5rem;
+        padding: 0.5rem 0.75rem 0.75rem;
         border-radius: 0 0 10px 10px;
     }
     .ongoing-filter-panel .form-label {
         font-weight: 600;
         color: #374151;
-        font-size: 0.8125rem;
-        margin-bottom: 0.35rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.2rem;
     }
-    .ongoing-filter-panel .form-control,
-    .ongoing-filter-panel .select2-container .select2-selection {
-        border-radius: 6px;
+    .ongoing-filter-panel .form-control {
+        border-radius: 5px;
         border: 1px solid #d1d5db;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.8125rem;
+        min-height: 34px;
+        height: 34px;
+        width: 100%;
+    }
+    /* First row: Branch, Visa From, Visa To, Current Stage – same size */
+    .ongoing-filter-panel .ongoing-filter-field {
+        display: flex;
+        flex-direction: column;
+    }
+    .ongoing-filter-panel .ongoing-filter-field .form-control,
+    .ongoing-filter-panel .ongoing-filter-field .select2-container {
+        width: 100% !important;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    .ongoing-filter-panel .ongoing-filter-field .form-control {
+        min-height: 34px;
+        height: 34px;
+    }
+    .ongoing-filter-panel .ongoing-filter-field .select2-container .select2-selection {
+        border-radius: 5px;
+        border: 1px solid #d1d5db;
+        min-height: 34px;
+        height: 34px;
+        padding: 0 0.5rem;
+    }
+    .ongoing-filter-panel .ongoing-filter-field .select2-container .select2-selection__rendered {
+        font-size: 0.8125rem;
+        line-height: 32px;
+    }
+    .ongoing-filter-panel .select2-container .select2-selection {
+        border-radius: 5px;
+        border: 1px solid #d1d5db;
+        min-height: 34px;
+        padding: 0 0.5rem;
+    }
+    .ongoing-filter-panel .select2-container .select2-selection__rendered {
+        font-size: 0.8125rem;
+        line-height: 32px;
     }
     .ongoing-filter-panel .form-control:focus {
         border-color: #6f5fb8;
-        box-shadow: 0 0 0 3px rgba(111, 95, 184, 0.15);
+        box-shadow: 0 0 0 2px rgba(111, 95, 184, 0.15);
     }
     .ongoing-filter-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.35rem;
         align-items: center;
-        padding-top: 0.25rem;
+        padding-top: 0;
     }
     .btn-ongoing-apply {
         background: linear-gradient(135deg, #5b4d96 0%, #6f5fb8 100%);
         color: #fff;
         border: none;
-        padding: 0.5rem 1.25rem;
-        border-radius: 6px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 5px;
         font-weight: 600;
         transition: box-shadow 0.2s;
     }
@@ -119,8 +161,9 @@
         background: #fff;
         color: #4b5563;
         border: 1px solid #d1d5db;
-        padding: 0.5rem 1.25rem;
-        border-radius: 6px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 5px;
         font-weight: 500;
         transition: background 0.2s, border-color 0.2s;
     }
@@ -306,44 +349,29 @@
                             <form method="get" action="{{ route($sheetRoute ?? 'clients.sheets.ongoing') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                                 <input type="hidden" name="assignee" value="{{ request('assignee') }}">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Office</label>
-                                        <select name="office[]" class="form-control select2" multiple>
-                                            @foreach($offices as $office)
-                                                <option value="{{ $office->id }}" 
-                                                    {{ in_array($office->id, (array)request('office', [])) ? 'selected' : '' }}>
-                                                    {{ $office->office_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <label class="form-label">Visa Expiry From</label>
-                                        <input type="text" name="visa_expiry_from" class="form-control dobdatepicker" 
-                                               placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_from') }}" autocomplete="off">
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <label class="form-label">Visa Expiry To</label>
-                                        <input type="text" name="visa_expiry_to" class="form-control dobdatepicker" 
-                                               placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}" autocomplete="off">
-                                    </div>
-                                    
-                                    <div class="col-md-4">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Branch</label>
-                                        <select name="branch" class="form-control select2-single">
-                                            <option value="">All branches</option>
+                                        <select name="branch[]" class="form-control select2" multiple>
                                             @foreach($branches as $b)
-                                                <option value="{{ $b->id }}" {{ request('branch') == $b->id ? 'selected' : '' }}>
+                                                <option value="{{ $b->id }}" 
+                                                    {{ in_array($b->id, (array)request('branch', [])) ? 'selected' : '' }}>
                                                     {{ $b->office_name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    
-                                    <div class="col-md-4">
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
+                                        <label class="form-label">Visa From</label>
+                                        <input type="text" name="visa_expiry_from" class="form-control dobdatepicker" 
+                                               placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_from') }}" autocomplete="off">
+                                    </div>
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
+                                        <label class="form-label">Visa To</label>
+                                        <input type="text" name="visa_expiry_to" class="form-control dobdatepicker" 
+                                               placeholder="DD/MM/YYYY" value="{{ request('visa_expiry_to') }}" autocomplete="off">
+                                    </div>
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Current Stage</label>
                                         <select name="current_stage" class="form-control select2-single">
                                             <option value="">All stages</option>
@@ -354,20 +382,21 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    
-                                    <div class="col-12">
-                                        <label class="form-label">Search (Name, CRM Ref, Current Stage)</label>
+                                    <div class="col-12 col-md-9">
+                                        <label class="form-label">Search (Name, CRM Ref, Stage)</label>
                                         <input type="text" name="search" class="form-control" 
-                                               placeholder="Search by name, CRM reference or current stage..." value="{{ request('search') }}">
+                                               placeholder="Search by name, CRM ref or stage..." value="{{ request('search') }}">
                                     </div>
-                                    
-                                    <div class="col-12 ongoing-filter-actions">
-                                        <button type="submit" class="btn-ongoing-apply">
-                                            <i class="fas fa-search me-1"></i> Apply Filters
-                                        </button>
-                                        <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
-                                            <i class="fas fa-redo me-1"></i> Reset
-                                        </a>
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label d-none d-md-block">&nbsp;</label>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <button type="submit" class="btn-ongoing-apply">
+                                                <i class="fas fa-search me-1"></i> Apply
+                                            </button>
+                                            <a href="{{ route($sheetRoute ?? 'clients.sheets.ongoing', ['clear_filters' => 1]) }}" class="btn-ongoing-reset text-decoration-none">
+                                                <i class="fas fa-redo me-1"></i> Reset
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -651,9 +680,9 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Initialize Select2 for office filter (multiple)
+    // Initialize Select2 for branch filter (multiple)
     $('.select2').select2({
-        placeholder: 'Select offices',
+        placeholder: 'Select branches',
         allowClear: true,
         width: '100%'
     });

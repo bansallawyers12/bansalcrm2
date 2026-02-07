@@ -93,7 +93,6 @@ class OngoingSheetController extends Controller
         $rows = $query->paginate($perPage)->appends($request->except('page'));
 
         // Dropdown data for filters (staff who have at least one application + current user)
-        $offices = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
         $assignees = Admin::where('status', 1)
             ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
@@ -116,7 +115,6 @@ class OngoingSheetController extends Controller
             'rows',
             'perPage',
             'activeFilterCount',
-            'offices',
             'branches',
             'assignees',
             'assigneesForChangeModal',
@@ -133,7 +131,7 @@ class OngoingSheetController extends Controller
      */
     protected function getFiltersFromSession(Request $request): array
     {
-        $filterParams = ['office', 'assignee', 'branch', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
+        $filterParams = ['branch', 'assignee', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
         $hasAnyParam = false;
         foreach ($filterParams as $key) {
             if ($request->has($key) && $request->input($key) !== null && $request->input($key) !== '') {
@@ -154,9 +152,8 @@ class OngoingSheetController extends Controller
     protected function persistFiltersToSession(Request $request): void
     {
         $payload = [
-            'office' => $request->input('office'),
-            'assignee' => $request->input('assignee'),
             'branch' => $request->input('branch'),
+            'assignee' => $request->input('assignee'),
             'current_stage' => $request->input('current_stage'),
             'visa_expiry_from' => $request->input('visa_expiry_from'),
             'visa_expiry_to' => $request->input('visa_expiry_to'),
@@ -188,40 +185,26 @@ class OngoingSheetController extends Controller
         }, is_array($stages) ? $stages : []));
     }
 
+    /**
+     * Stage filter options for the current sheet (config-driven).
+     * Returns stages from config so the dropdown always shows the same list.
+     */
     protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
     {
-        if ($sheetType === 'coe_enrolled') {
-            return Application::select('stage')
-                ->whereNotIn('status', [2])
-                ->whereRaw('LOWER(TRIM(stage)) IN (?, ?)', ['coe issued', 'enrolled'])
-                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        $key = match ($sheetType) {
+            'coe_enrolled' => 'sheets.coe_enrolled_stages',
+            'discontinue'   => 'sheets.discontinue_stages',
+            'checklist'     => 'sheets.checklist_early_stages',
+            default         => 'sheets.ongoing_stages',
+        };
+        $stages = config($key, []);
+        if (!is_array($stages)) {
+            $stages = [];
         }
-        if ($sheetType === 'discontinue') {
-            return Application::where('status', 2)
-                ->select('stage')
-                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
-        }
-        if ($sheetType === 'checklist') {
-            $earlyStages = $this->getChecklistEarlyStages();
-            if (empty($earlyStages)) {
-                return collect();
-            }
-            $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
-            return Application::select('applications.stage')
-                ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->whereNotIn('applications.status', [2])
-                ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
-                ->where(function ($q) {
-                    $q->whereNull('applications.checklist_sheet_status')
-                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
-                })
-                ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
-        }
-        // Ongoing: exclude COE/Enrolled/Cancelled and Awaiting document (Checklist only)
-        return Application::select('stage')
-            ->whereNotIn('status', [2])
-            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
-            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        return collect($stages)
+            ->filter(fn ($s) => $s !== null && trim((string) $s) !== '')
+            ->values()
+            ->mapWithKeys(fn ($s) => [trim((string) $s) => trim((string) $s)]);
     }
 
     /**
@@ -325,22 +308,17 @@ class OngoingSheetController extends Controller
      */
     protected function applyFilters($query, Request $request)
     {
-        // Office filter
-        if ($request->filled('office')) {
-            $offices = is_array($request->input('office'))
-                ? $request->input('office')
-                : [$request->input('office')];
-            $query->whereIn('admins.office_id', $offices);
+        // Branch filter (client's office/branch; multi-select)
+        if ($request->filled('branch')) {
+            $branchIds = is_array($request->input('branch'))
+                ? $request->input('branch')
+                : [$request->input('branch')];
+            $query->whereIn('admins.office_id', $branchIds);
         }
 
         // Assignee filter ("all" = no filter)
         if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
             $query->where('applications.user_id', $request->input('assignee'));
-        }
-
-        // Branch filter (client's office/branch)
-        if ($request->filled('branch')) {
-            $query->where('admins.office_id', $request->input('branch'));
         }
 
         // Current stage filter
@@ -425,13 +403,10 @@ class OngoingSheetController extends Controller
     protected function countActiveFilters(Request $request)
     {
         $count = 0;
-        if ($request->filled('office')) {
+        if ($request->filled('branch')) {
             $count++;
         }
         if ($request->filled('assignee') && $request->input('assignee') !== 'all') {
-            $count++;
-        }
-        if ($request->filled('branch')) {
             $count++;
         }
         if ($request->filled('current_stage')) {
