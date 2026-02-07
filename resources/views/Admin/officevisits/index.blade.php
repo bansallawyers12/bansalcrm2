@@ -78,7 +78,7 @@
 											<tbody class="tdata checindata">
 												@if(@$totalData !== 0)
 												@foreach (@$lists as $list)
-												<tr did="{{@$list->id}}" id="id_{{@$list->id}}">
+												<tr did="{{@$list->id}}" id="id_{{@$list->id}}" data-status="{{ $list->status }}">
 													<td style="white-space: initial;"><a id="{{@$list->id}}" class="opencheckindetail" href="javascript:;">#{{$list->id}}</a></td>
 													<td style="white-space: initial;"><a href="javascript:;">{{date('l',strtotime($list->created_at))}}</a><br>{{date('d/m/Y',strtotime($list->created_at))}}</td>
 													<td style="white-space: initial;"><?php if($list->sesion_start != ''){ echo date('h:i A',strtotime($list->sesion_start)); }else{ echo '-'; } ?></td>
@@ -98,7 +98,7 @@
 													?>
 													<a href="{{URL::to('/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
 													</td>
-													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else{ echo '<span >-</span>'; } ?></td>
+													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else if($list->status == 1){ echo '<span>'.($list->wait_time ?? '-').'</span>'; }else{ echo '<span>-</span>'; } ?></td>
 													<td style="white-space: initial;">
 													    <?php
 													    // Action column: based on status; when status=0 also check wait_type
@@ -262,6 +262,9 @@ function pretty_time_string(num) {
 }
 $('.checindata tr').each(function(){
 	var did = $(this).attr('did');
+	var status = $(this).attr('data-status');
+	// Only run live timer for waiting (status=0); completed/attending show stored duration
+	if (status !== '0') return;
 	var time = $(this).find('#count'+did).attr('data-checkintime');
 	var start = new Date(time);
 	setInterval(function() {
