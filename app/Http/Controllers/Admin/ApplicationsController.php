@@ -2132,9 +2132,13 @@ class ApplicationsController extends Controller
                     $objs->source = $requestData['source'][$i];
                     $saved = $objs->save();
                 }
+                // Recalculate from DB (source of truth) to avoid form/array sync issues
+                $recalculated_total = ApplicationFeeOptionType::where('fee_id', $obj->id)
+                    ->where('fee_option_type', 2)
+                    ->sum('total_fee');
                 //Update commision related col in table
                 $obj3 = ApplicationFeeOption::find($obj->id);
-                $obj3->fee_reported_by_college = $totl;  //Sum Of Fees paid in Commision Popup
+                $obj3->fee_reported_by_college = $recalculated_total;
 
                 $app_fee_info = ApplicationFeeOption::where('id', $obj->id)->first(); //dd($app_fee_info);
                 /*if(isset($app_fee_info['bonus_amount']) && $app_fee_info['bonus_amount'] !=""){
@@ -2170,7 +2174,7 @@ class ApplicationsController extends Controller
 				$discount = 0.00;
 				$response['status'] 	= 	true;
                 $response['message']	=	'Other Fee Option added successfully';
-                $response['totalfee']	=	$totl;
+                $response['totalfee']	=	$recalculated_total;
                 $response['discount']	=	$discount;
 			}else{
 				$response['status'] 	= 	false;
@@ -2234,9 +2238,13 @@ class ApplicationsController extends Controller
                     $saved = $objs->save();
                 }
 
-              	//Update commision related col in table
+              	// Recalculate from DB (source of truth) to avoid form/array sync issues
+                $recalculated_total = ApplicationFeeOptionType::where('fee_id', $obj->id)
+                    ->where('fee_option_type', 2)
+                    ->sum('total_fee');
+                //Update commision related col in table
                 $obj3 = ApplicationFeeOption::find($obj->id);
-                $obj3->fee_reported_by_college = $totl;  //Sum Of Fees paid in Commision Popup
+                $obj3->fee_reported_by_college = $recalculated_total;
 
                 $app_fee_info = ApplicationFeeOption::where('id', $obj->id)->first(); //dd($app_fee_info);
                 /*if(isset($app_fee_info['bonus_amount']) && $app_fee_info['bonus_amount'] !=""){
@@ -2271,7 +2279,7 @@ class ApplicationsController extends Controller
                 $discount = 0.00;
 				$response['status'] 	= 	true;
 				$response['message']	=	'Other Fee Option added successfully';
-				$response['totalfee']	=	$totl;
+				$response['totalfee']	=	$recalculated_total;
 				$response['discount']	=	$discount;
 			}else{
 				$response['status'] 	= 	false;
