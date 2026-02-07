@@ -472,24 +472,214 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Display insights view (optional - can be implemented later)
+     * Display sheets insights: conversions, clients seen, discontinues by assignee.
      */
-    public function insights(Request $request)
+    public function sheetsInsights(Request $request)
     {
-        $baseQuery = $this->buildBaseQuery($request);
-        $baseQuery = $this->applyFilters($baseQuery, $request);
-        $allRecords = $baseQuery->get();
+        $dateFrom = $this->parseDateFilter($request->input('date_from'));
+        $dateTo = $this->parseDateFilter($request->input('date_to'));
+        $branchFilter = $request->filled('branch')
+            ? (is_array($request->input('branch')) ? $request->input('branch') : [$request->input('branch')])
+            : null;
+        $assigneeFilter = $request->filled('assignee') && $request->input('assignee') !== 'all'
+            ? (int) $request->input('assignee')
+            : null;
 
-        $insights = [
-            'total_clients' => $allRecords->count(),
-            'total_payments' => $allRecords->sum('total_payment'),
-            'avg_payment' => $allRecords->avg('total_payment'),
-            'clients_with_visa_expiry' => $allRecords->whereNotNull('visaexpiry')->count(),
+        // Base application query (clients only)
+        $appBase = Application::query()
+            ->join('admins', 'applications.client_id', '=', 'admins.id')
+            ->where('admins.role', 7)
+            ->where('admins.is_archived', 0)
+            ->whereNull('admins.is_deleted');
+
+        if ($branchFilter) {
+            $appBase->whereIn('admins.office_id', $branchFilter);
+        }
+        if ($assigneeFilter) {
+            $appBase->where('applications.user_id', $assigneeFilter);
+        }
+
+        // Conversions: checklist_sheet_status = 'convert_to_client'
+        $conversionsQuery = (clone $appBase)->where('applications.checklist_sheet_status', 'convert_to_client');
+        if ($dateFrom) {
+            $conversionsQuery->where('applications.updated_at', '>=', $dateFrom->startOfDay());
+        }
+        if ($dateTo) {
+            $conversionsQuery->where('applications.updated_at', '<=', $dateTo->endOfDay());
+        }
+        $totalConversions = $conversionsQuery->count();
+
+        // Discontinued: checklist_sheet_status = 'discontinue' OR status = 2
+        $discontinueQuery = (clone $appBase)->where(function ($q) {
+            $q->where('applications.checklist_sheet_status', 'discontinue')
+              ->orWhere('applications.status', 2);
+        });
+        if ($dateFrom) {
+            $discontinueQuery->where('applications.updated_at', '>=', $dateFrom->startOfDay());
+        }
+        if ($dateTo) {
+            $discontinueQuery->where('applications.updated_at', '<=', $dateTo->endOfDay());
+        }
+        $totalDiscontinued = $discontinueQuery->count();
+
+        // Clients seen (from checkin_logs) - distinct clients per assignee
+        $seenQuery = CheckinLog::query()
+            ->select('user_id', DB::raw('COUNT(DISTINCT client_id) as seen_count'))
+            ->where('contact_type', 'Client')
+            ->groupBy('user_id');
+        if ($dateFrom) {
+            $seenQuery->where(function ($q) use ($dateFrom) {
+                $q->whereDate('date', '>=', $dateFrom)->orWhere('created_at', '>=', $dateFrom->startOfDay());
+            });
+        }
+        if ($dateTo) {
+            $seenQuery->where(function ($q) use ($dateTo) {
+                $q->whereDate('date', '<=', $dateTo)->orWhere('created_at', '<=', $dateTo->endOfDay());
+            });
+        }
+        if ($branchFilter) {
+            $seenQuery->whereIn('office', $branchFilter);
+        }
+        if ($assigneeFilter) {
+            $seenQuery->where('user_id', $assigneeFilter);
+        }
+        $seenByAssignee = $seenQuery->pluck('seen_count', 'user_id');
+        $totalSeen = $seenByAssignee->sum();
+
+        // Per-assignee breakdown (staff who have applications or did check-ins)
+        $assigneeIds = Application::select('user_id')->whereNotNull('user_id')->distinct()->pluck('user_id')
+            ->merge(CheckinLog::select('user_id')->distinct()->pluck('user_id'))
+            ->unique()->filter()->values();
+        $assignees = Admin::where('status', 1)
+            ->whereIn('id', $assigneeIds)
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
+
+        $assigneeData = [];
+        foreach ($assignees as $a) {
+            $aid = $a->id;
+            $convQ = (clone $appBase)->where('applications.user_id', $aid)
+                ->where('applications.checklist_sheet_status', 'convert_to_client');
+            $discQ = (clone $appBase)->where('applications.user_id', $aid)
+                ->where(function ($q) {
+                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhere('applications.status', 2);
+                });
+            if ($dateFrom) {
+                $convQ->where('applications.updated_at', '>=', $dateFrom->startOfDay());
+                $discQ->where('applications.updated_at', '>=', $dateFrom->startOfDay());
+            }
+            if ($dateTo) {
+                $convQ->where('applications.updated_at', '<=', $dateTo->endOfDay());
+                $discQ->where('applications.updated_at', '<=', $dateTo->endOfDay());
+            }
+            $conv = $convQ->count();
+            $disc = $discQ->count();
+            $seen = (int) ($seenByAssignee[$aid] ?? 0);
+            $load = Application::where('user_id', $aid)
+                ->whereNotIn('status', [2])
+                ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?)', ['coe issued', 'enrolled'])
+                ->count();
+            $total = $conv + $disc;
+            $rate = $total > 0 ? round(($conv / $total) * 100, 1) : 0;
+
+            $assigneeData[] = [
+                'id' => $aid,
+                'name' => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) ?: ($a->email ?? '—'),
+                'converted' => $conv,
+                'seen' => $seen,
+                'discontinued' => $disc,
+                'rate' => $rate,
+                'load' => $load,
+            ];
+        }
+        usort($assigneeData, fn ($x, $y) => $y['converted'] <=> $x['converted']);
+
+        // Chart data (exclude assignees with zero for cleaner charts)
+        $convChartData = array_values(array_filter($assigneeData, fn ($r) => $r['converted'] >= 1));
+        $chartConversionsByAssignee = [
+            'labels' => array_column($convChartData, 'name'),
+            'values' => array_column($convChartData, 'converted'),
+        ];
+        $seenChartData = array_values(array_filter($assigneeData, fn ($r) => $r['seen'] >= 1));
+        $chartSeenByAssignee = [
+            'labels' => array_column($seenChartData, 'name'),
+            'values' => array_column($seenChartData, 'seen'),
+        ];
+        $chartDiscontinueByAssignee = [
+            'labels' => array_column($assigneeData, 'name'),
+            'values' => array_column($assigneeData, 'discontinued'),
+        ];
+        $chartConvertVsDiscontinue = [
+            ['Converted', $totalConversions],
+            ['Discontinued', $totalDiscontinued],
         ];
 
-        $activeFilterCount = $this->countActiveFilters($request);
+        // Monthly trend (last 12 months)
+        $months = collect();
+        for ($i = 11; $i >= 0; $i--) {
+            $months->push(now()->subMonths($i)->format('M Y'));
+        }
+        $convByMonth = [];
+        $discByMonth = [];
+        foreach (range(11, 0) as $i) {
+            $mStart = now()->subMonths($i)->startOfMonth();
+            $mEnd = now()->subMonths($i)->endOfMonth();
+            $convByMonth[] = (clone $appBase)
+                ->where('applications.checklist_sheet_status', 'convert_to_client')
+                ->whereBetween('applications.updated_at', [$mStart, $mEnd])
+                ->count();
+            $discByMonth[] = (clone $appBase)
+                ->where(function ($q) {
+                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhere('applications.status', 2);
+                })
+                ->whereBetween('applications.updated_at', [$mStart, $mEnd])
+                ->count();
+        }
+        $chartMonthlyTrend = [
+            'labels' => $months->toArray(),
+            'conversions' => $convByMonth,
+            'discontinues' => $discByMonth,
+        ];
 
-        return view('Admin.sheets.ongoing-insights', compact('insights', 'activeFilterCount'));
+        $conversionRate = ($totalConversions + $totalDiscontinued) > 0
+            ? round(($totalConversions / ($totalConversions + $totalDiscontinued)) * 100, 1)
+            : 0;
+
+        $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
+        $assigneesForFilter = Admin::where('status', 1)
+            ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
+            ->orderBy('first_name')->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name']);
+
+        return view('Admin.sheets.insights', compact(
+            'totalConversions',
+            'totalSeen',
+            'totalDiscontinued',
+            'conversionRate',
+            'assigneeData',
+            'chartConversionsByAssignee',
+            'chartSeenByAssignee',
+            'chartDiscontinueByAssignee',
+            'chartConvertVsDiscontinue',
+            'chartMonthlyTrend',
+            'branches',
+            'assigneesForFilter'
+        ));
+    }
+
+    /**
+     * Parse d/m/Y date string to Carbon instance.
+     */
+    protected function parseDateFilter(?string $value): ?Carbon
+    {
+        if (!$value || trim($value) === '') {
+            return null;
+        }
+        try {
+            return Carbon::createFromFormat('d/m/Y', trim($value));
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

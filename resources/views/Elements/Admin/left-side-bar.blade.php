@@ -117,7 +117,7 @@
 	?>
 
 		<?php
-		$sheetsRouteNames = ['clients.sheets.ongoing', 'clients.sheets.ongoing.insights', 'clients.sheets.coe-enrolled', 'clients.sheets.discontinue', 'clients.sheets.checklist'];
+		$sheetsRouteNames = ['clients.sheets.ongoing', 'clients.sheets.coe-enrolled', 'clients.sheets.discontinue', 'clients.sheets.checklist', 'clients.sheets.insights'];
 		if(in_array(Route::currentRouteName(), $sheetsRouteNames)){
 			$sheetsclasstype = 'active';
 		}
@@ -125,8 +125,8 @@
 		<li class="dropdown {{@$sheetsclasstype}}">
 			<a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-clipboard-list"></i><span>Sheets</span></a>
 			<ul class="dropdown-menu">
-				<li class="{{(Route::currentRouteName() == 'clients.sheets.ongoing' || Route::currentRouteName() == 'clients.sheets.ongoing.insights') ? 'active' : ''}}">
-					<a class="nav-link" href="{{route('clients.sheets.ongoing')}}">
+				<li class="{{ Route::currentRouteName() == 'clients.sheets.ongoing' ? 'active' : '' }}">
+					<a class="nav-link" href="{{ route('clients.sheets.ongoing') }}">
 						<i class="fas fa-list"></i><span>Ongoing Sheet</span>
 					</a>
 				</li>
@@ -143,6 +143,11 @@
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.checklist' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.checklist') }}">
 						<i class="fas fa-tasks"></i><span>Checklist</span>
+					</a>
+				</li>
+				<li class="{{ Route::currentRouteName() == 'clients.sheets.insights' ? 'active' : '' }}">
+					<a class="nav-link" href="{{ route('clients.sheets.insights') }}">
+						<i class="fas fa-chart-bar"></i><span>Insights</span>
 					</a>
 				</li>
 			</ul>
