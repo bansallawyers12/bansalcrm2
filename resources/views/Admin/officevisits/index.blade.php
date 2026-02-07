@@ -101,10 +101,17 @@
 													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else{ echo '<span >-</span>'; } ?></td>
 													<td style="white-space: initial;">
 													    <?php
-													    if($list->wait_type == 1){ ?>
-													        <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-success attendsessionforclient">Pls send</a>
+													    // Action column: based on status; when status=0 also check wait_type
+													    if ($list->status == 0) {
+													        if ($list->wait_type == 1) { ?>
+													            <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-success attendsessionforclient">Pls send</a>
+													        <?php } else { ?>
+													            <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-danger attendsessionforclient">Waiting</a>
+													        <?php }
+													    } elseif ($list->status == 2) { ?>
+													        <span class="text-muted">Attending</span>
 													    <?php } else { ?>
-													        <a href="javascript:;" data-id="{{@$list->id}}" data-waitingtype="{{@$list->wait_type}}" class="btn btn-danger attendsessionforclient">Waiting</a>
+													        <span class="text-muted">Completed</span>
 													    <?php } ?>
 														<input type="hidden" value="0-6h:0-24m:0-7s" id="lwaitcountdata{{@$list->id}}">
 													</td>

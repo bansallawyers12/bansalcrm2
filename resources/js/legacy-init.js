@@ -152,6 +152,7 @@
                                     success: function(res){
                                         $('.popuploader').hide();
                                         $('.showchecindetail').html(res);
+                                        $('#checkindetailmodal').modal('hide');
                                         alert('Session completed successfully!');
                                     },
                                     error: function(xhr, status, error){
