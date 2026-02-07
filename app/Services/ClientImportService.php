@@ -215,8 +215,8 @@ class ClientImportService
             $client->country = $this->mapCountry($clientData['country'] ?? null);
             $client->zip = $clientData['zip'] ?? null;
             
-            // Passport
-            $client->country_passport = $clientData['country_passport'] ?? null;
+            // Passport (store country name for compatibility with migrationmanager2 import/export)
+            $client->country_passport = $this->normalizeCountryPassport($clientData['country_passport'] ?? null);
             $client->passport_number = $clientData['passport_number'] ?? null; // bansalcrm2 has this in admins table
             
             // Visa Information
@@ -355,7 +355,7 @@ class ClientImportService
                     $client->passport_number = $importData['passport']['passport_number'] ?? $importData['passport']['passport'] ?? null;
                 }
                 if (empty($client->country_passport) && !empty($importData['passport']['passport_country'])) {
-                    $client->country_passport = $importData['passport']['passport_country'] ?? null;
+                    $client->country_passport = $this->normalizeCountryPassport($importData['passport']['passport_country'] ?? null);
                 }
                 // Note: passport_issue_date and passport_expiry_date are not stored in bansalcrm2 admins table
                 $client->save();
@@ -585,6 +585,25 @@ class ClientImportService
         }
 
         return $country;
+    }
+
+    /**
+     * Normalize country_passport to country name (bansalcrm2 and migrationmanager2 use name, not sortname).
+     * If value is a 2–3 letter sortname (e.g. IN, AU), resolve to full name; otherwise return as-is.
+     */
+    private function normalizeCountryPassport(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') {
+            return null;
+        }
+        $value = trim($value);
+        if (strlen($value) <= 3) {
+            $country = Country::where('sortname', strtoupper($value))->first();
+            if ($country) {
+                return $country->name;
+            }
+        }
+        return $value;
     }
 
     /**
