@@ -148,29 +148,26 @@
                         try {
                             var obj = $.parseJSON(response);
                             if(obj.status){
+                                $('.popuploader').hide();
+                                // Close modal and show message immediately so popup always closes after success
+                                $('#checkindetailmodal').modal('hide');
+                                alert('Session completed successfully!');
                                 // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
                                 if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
                                     $('#attending-tab .countAction').text(obj.attending);
                                     $('#completed-tab .countAction').text(obj.completed);
                                     $('#waiting-tab .countAction').text(obj.waiting);
                                 }
+                                $('.checindata #id_'+appliid).remove();
+                                // Optionally refresh modal content in background for next open (no need to wait)
                                 $.ajax({
                                     url: site_url+'/get-checkin-detail',
                                     type:'GET',
                                     data:{id: appliid},
                                     success: function(res){
-                                        $('.popuploader').hide();
                                         $('.showchecindetail').html(res);
-                                        $('#checkindetailmodal').modal('hide');
-                                        alert('Session completed successfully!');
-                                    },
-                                    error: function(xhr, status, error){
-                                        $('.popuploader').hide();
-                                        console.error('Error fetching checkin detail:', error);
-                                        alert('Session completed but failed to refresh details.');
                                     }
                                 });
-                                $('.checindata #id_'+appliid).remove();
                             }else{
                                 $('.popuploader').hide();
                                 alert(obj.message);
