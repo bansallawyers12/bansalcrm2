@@ -173,11 +173,17 @@ class ClientMessagingController extends Controller
     /**
      * Fetch all contact list of any client at create note popup
      */
-    public function fetchClientContactNo(Request $request){
+    public function fetchClientContactNo(Request $request){ 
         if( ClientPhone::where('client_id', $request->client_id)->exists())
-        {
-            //Fetch All client contacts
-            $clientContacts = ClientPhone::select('client_phone','client_country_code','contact_type')->where('client_id', $request->client_id)->where('contact_type', '!=', 'Not In Use')->get();
+        { 
+            //Fetch All client contacts (include NULL contact_type so Send SMS dropdown shows all phones)
+            $clientContacts = ClientPhone::select('client_phone','client_country_code','contact_type')
+                ->where('client_id', $request->client_id)
+                ->where(function ($q) {
+                    $q->where('contact_type', '!=', 'Not In Use')->orWhereNull('contact_type');
+                })
+                ->get(); 
+            
             if( !empty($clientContacts) && count($clientContacts)>0 ){
                 $response['status'] 	= 	true;
                 $response['message']	=	'Client contact is successfully fetched.';
@@ -189,7 +195,7 @@ class ClientMessagingController extends Controller
             }
         }
         else
-        {
+        { 
             if( Admin::where('id', $request->client_id)->exists()){
                 //Fetch All client contacts
                 $clientContacts = Admin::select('phone as client_phone','country_code as client_country_code','contact_type')->where('id', $request->client_id)->get();

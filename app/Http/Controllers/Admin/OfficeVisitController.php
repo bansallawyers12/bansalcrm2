@@ -92,11 +92,8 @@ class OfficeVisitController extends Controller
 				$contactType = 'Client';
 			}
 			// Verify contact exists based on type (Lead or Client)
-			if ($contactType === 'Lead') {
-				$contactExists = Lead::where('id', $contactId)->exists();
-			} else {
-				$contactExists = Admin::where('role', '7')->where('id', $contactId)->exists();
-			}
+			$contactExists = Admin::where('role', '7')->where('id', $contactId)->exists();
+			
 			if (!$contactExists) {
 				return redirect()->back()->with('error', 'Selected contact does not exist.');
 			}
@@ -148,13 +145,9 @@ class OfficeVisitController extends Controller
 				}
 
 				// Get contact name for broadcasting (Lead or Client)
-				if ($contactType === 'Lead') {
-					$contact = Lead::find($contactId);
-					$clientName = $contact ? $contact->name : 'Unknown Lead';
-				} else {
-					$contact = Admin::where('role', '7')->find($contactId);
-					$clientName = $contact ? $contact->first_name . ' ' . $contact->last_name : 'Unknown Client';
-				}
+				$contact = Admin::where('role', '7')->find($contactId);
+				$clientName = $contact ? $contact->first_name . ' ' . $contact->last_name : 'Unknown Client';
+				
 
 				// Broadcast real-time notification (optional - wrap in try-catch)
 				try {
@@ -245,17 +238,11 @@ class OfficeVisitController extends Controller
 		if($CheckinLog){
 			ob_start();
 			// Resolve contact by type: Lead or Client
-			if ($CheckinLog->contact_type === 'Lead') {
-				$contact = Lead::find($CheckinLog->client_id);
-				$contactDetailUrl = $contact ? route('leads.detail', base64_encode(convert_uuencode($contact->id))) : '#';
-				$contactName = $contact ? $contact->name : '—';
-				$contactEmail = $contact && isset($contact->email) ? $contact->email : '';
-			} else {
-				$contact = Admin::where('role', '7')->where('id', $CheckinLog->client_id)->first();
-				$contactDetailUrl = $contact ? route('clients.detail', base64_encode(convert_uuencode($contact->id))) : '#';
-				$contactName = $contact ? $contact->first_name . ' ' . $contact->last_name : '—';
-				$contactEmail = $contact ? $contact->email : '';
-			}
+			$contact = Admin::where('role', '7')->where('id', $CheckinLog->client_id)->first();
+			$contactDetailUrl = $contact ? route('clients.detail', base64_encode(convert_uuencode($contact->id))) : '#';
+			$contactName = $contact ? $contact->first_name . ' ' . $contact->last_name : '—';
+			$contactEmail = $contact ? $contact->email : '';
+			
 			?>
 			<div class="row">
 				<div class="col-md-12">
@@ -534,9 +521,7 @@ class OfficeVisitController extends Controller
 	    	
 	    	// Broadcast notification (optional)
 	    	try {
-	    	    $client = $objs->contact_type == 'Lead' 
-	    	        ? \App\Models\Lead::find($objs->client_id)
-	    	        : Admin::where('role', '7')->find($objs->client_id);
+	    	    $client = Admin::where('role', '7')->find($objs->client_id);
 	    	    
 	    	    broadcast(new OfficeVisitNotificationCreated(
 	    	        $o->id,
@@ -621,9 +606,7 @@ class OfficeVisitController extends Controller
 	    	$o->save();
 	    	
 	    	try {
-	    	    $client = $obj->contact_type == 'Lead' 
-	    	        ? \App\Models\Lead::find($obj->client_id)
-	    	        : Admin::where('role', '7')->find($obj->client_id);
+	    	    $client = Admin::where('role', '7')->find($obj->client_id);
 	    	    broadcast(new OfficeVisitNotificationCreated(
 	    	        $o->id,
 	    	        $o->receiver_id,

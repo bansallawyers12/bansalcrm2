@@ -3122,6 +3122,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: fetchClientContactNoUrl,
 			method: 'POST',
+			dataType: 'json',
 			data: { _token: $('input[name="_token"]').val(), client_id: clientId },
 			success: function(res){
 				console.log('Phone response:', res);
