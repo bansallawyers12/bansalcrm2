@@ -231,7 +231,7 @@ class LeadController extends Controller
 			$this->validate($request, [
 										'first_name' => 'required|max:255',
 										'last_name' => 'required|max:255',
-										'gender' => 'required|max:255',
+										'gender' => 'required|in:Male,Female,Other',
 										'contact_type' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
 									'phone' => 'required|max:255|unique:admins,phone|unique:leads,phone',
 										'email_type' => 'required|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',

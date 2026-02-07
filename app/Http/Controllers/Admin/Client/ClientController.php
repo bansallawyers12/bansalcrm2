@@ -127,6 +127,7 @@ class ClientController extends Controller
 			$this->validate($request, [
               'first_name' => 'required|max:255',
               'last_name' => 'required|max:255',
+              'gender' => 'required|in:Male,Female,Other',
               'email' => 'required|max:255|unique:admins,email,'.$requestData['id'],
               //'phone' => 'required|max:255|unique:admins,phone,'.$requestData['id'],
               //'client_id' => 'required|max:255|unique:admins,client_id,'.$requestData['id']
