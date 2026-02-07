@@ -1706,9 +1706,16 @@ if($fetchedData->tagname != ''){
 								<select name="email_type_modal" id="email_type_modal" class="form-control">
 									<option value="">Select</option>
 									<option value="Personal">Personal</option>
+									<option value="Work">Work</option>
 									<option value="Business">Business</option>
 									<option value="Secondary">Secondary</option>
 									<option value="Additional">Additional</option>
+									<option value="Sister">Sister</option>
+									<option value="Brother">Brother</option>
+									<option value="Father">Father</option>
+									<option value="Mother">Mother</option>
+									<option value="Uncle">Uncle</option>
+									<option value="Auntie">Auntie</option>
 								</select>
 								@if ($errors->has('email_type_modal'))
 									<span class="custom-error" role="alert">

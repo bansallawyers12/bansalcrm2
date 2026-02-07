@@ -234,7 +234,7 @@ class LeadController extends Controller
 										'gender' => 'required|max:255',
 										'contact_type' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
 									'phone' => 'required|max:255|unique:admins,phone|unique:leads,phone',
-										'email_type' => 'required|max:255',
+										'email_type' => 'required|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
 										'email' => 'required|max:255|unique:admins,email|unique:leads,email',
 										'service' => 'required',
 										'assign_to' => 'required|array|min:1',

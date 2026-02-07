@@ -3112,22 +3112,69 @@ $(document).ready(function(){
 	var sendSmsTemplatesActiveUrl = '{{ route("adminconsole.features.sms.templates.active") }}';
 	var fetchClientContactNoUrl = '{{ route("clients.fetchClientContactNo") }}';
 
+	// Define helper functions first
+	function loadSendSmsPhones(clientId) {
+		console.log('loadSendSmsPhones called with clientId:', clientId);
+		if (!clientId) {
+			console.log('No clientId provided');
+			return;
+		}
+		$.ajax({
+			url: fetchClientContactNoUrl,
+			method: 'POST',
+			data: { _token: $('input[name="_token"]').val(), client_id: clientId },
+			success: function(res){
+				console.log('Phone response:', res);
+				var sel = $('#sendSms_phone');
+				sel.find('option:not(:first)').remove();
+				if (res.status && res.clientContacts && res.clientContacts.length) {
+					console.log('Adding ' + res.clientContacts.length + ' phone options');
+					$.each(res.clientContacts, function(i, c){
+						var cc = c.client_country_code || '';
+						var ph = c.client_phone || '';
+						var full = (cc + ph).replace(/\s/g,'');
+						var label = (c.contact_type || 'Phone') + ': ' + (cc + ' ' + ph).trim();
+						console.log('Adding phone option:', label, full);
+						sel.append('<option value="' + full + '">' + label + '</option>');
+					});
+				} else {
+					console.log('No phone contacts found or invalid response');
+				}
+			},
+			error: function(xhr, status, error){
+				console.error('Phone load error:', status, error, xhr.responseText);
+			}
+		});
+	}
+
+	function loadSendSmsTemplates() {
+		$.get(sendSmsTemplatesActiveUrl, function(res){
+			var sel = $('#sendSms_template_id');
+			sel.find('option:not(:first)').remove();
+			if (res.success && res.data && res.data.length) {
+				$.each(res.data, function(i, t){
+					sel.append('<option value="' + t.id + '">' + t.title + '</option>');
+				});
+			}
+		});
+	}
+
 	// Open Send SMS modal from URL: ?open_sms_reminder=1&applicationId=xxx
 	var urlParams = new URLSearchParams(window.location.search);
 	var openSmsReminder = urlParams.get('open_sms_reminder');
 	var applicationId = urlParams.get('applicationId');
 	var clientIdForSms = {{ $fetchedData->id ?? 'null' }};
+	console.log('URL check - openSmsReminder:', openSmsReminder, 'applicationId:', applicationId, 'clientIdForSms:', clientIdForSms);
+	console.log('Modal exists:', $('#sendSmsModal').length);
 	if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
+		console.log('Opening SMS modal from URL');
 		$('#sendSms_client_id').val(clientIdForSms);
 		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
 		$('#sendSms_message').val('');
 		$('#sendSms_charCount').text('0');
 		$('#sendSms_template_id').val('');
-		// Defer calls to ensure functions are defined
-		setTimeout(function() {
-			loadSendSmsPhones(clientIdForSms);
-			loadSendSmsTemplates();
-		}, 0);
+		loadSendSmsPhones(clientIdForSms);
+		loadSendSmsTemplates();
 		$('#sendSmsModal').modal('show');
 	}
 
@@ -3184,40 +3231,6 @@ $(document).ready(function(){
 			}
 		});
 	});
-
-	function loadSendSmsPhones(clientId) {
-		if (!clientId) return;
-		$.ajax({
-			url: fetchClientContactNoUrl,
-			method: 'POST',
-			data: { _token: $('input[name="_token"]').val(), client_id: clientId },
-			success: function(res){
-				var sel = $('#sendSms_phone');
-				sel.find('option:not(:first)').remove();
-				if (res.status && res.clientContacts && res.clientContacts.length) {
-					$.each(res.clientContacts, function(i, c){
-						var cc = c.client_country_code || '';
-						var ph = c.client_phone || '';
-						var full = (cc + ph).replace(/\s/g,'');
-						var label = (c.contact_type || 'Phone') + ': ' + (cc + ' ' + ph).trim();
-						sel.append('<option value="' + full + '">' + label + '</option>');
-					});
-				}
-			}
-		});
-	}
-
-	function loadSendSmsTemplates() {
-		$.get(sendSmsTemplatesActiveUrl, function(res){
-			var sel = $('#sendSms_template_id');
-			sel.find('option:not(:first)').remove();
-			if (res.success && res.data && res.data.length) {
-				$.each(res.data, function(i, t){
-					sel.append('<option value="' + t.id + '">' + t.title + '</option>');
-				});
-			}
-		});
-	}
 
 	// Lead phone verification OTP
 	var leadVerifyResendTimer;

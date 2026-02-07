@@ -445,6 +445,7 @@
 											<select name="email_type" id="email_type" class="form-control" data-valid="required">
 												<option value="">Select Email Type</option>
 												<option value="Personal" {{ old('email_type') == 'Personal' ? 'selected' : '' }}>Personal</option>
+												<option value="Work" {{ old('email_type') == 'Work' ? 'selected' : '' }}>Work</option>
 												<option value="Business" {{ old('email_type') == 'Business' ? 'selected' : '' }}>Business</option>
 											</select>
 											@if ($errors->has('email_type'))

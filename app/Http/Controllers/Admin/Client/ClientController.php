@@ -136,6 +136,10 @@ class ClientController extends Controller
               'client_phone' => 'required|array',
               'client_phone.*' => 'required|max:255',
 
+              'email_type' => 'nullable|array',
+              'email_type.*' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+              'email_type_modal' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+
               'office' => 'nullable|exists:branches,id',
 
             ]);

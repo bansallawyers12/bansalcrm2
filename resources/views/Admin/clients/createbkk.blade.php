@@ -415,6 +415,7 @@
 											Email Type <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="email_type" id="email_type" class="form-control" data-valid="required">	
 												<option value="Personal" <?php if(old('email_type') == 'Personal'){ echo 'selected'; } ?>> Personal</option>
+												<option value="Work" <?php if(old('email_type') == 'Work'){ echo 'selected'; } ?>>Work</option>
 												<option value="Business" <?php if(old('email_type') == 'Business'){ echo 'selected'; } ?>>Business</option>
 											</select>
 											@if ($errors->has('email_type'))
