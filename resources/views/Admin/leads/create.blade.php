@@ -406,6 +406,8 @@
 												<option value="">Select Contact Type</option>
 												<option value="Personal" {{ old('contact_type') == 'Personal' ? 'selected' : '' }}>Personal</option>
 												<option value="Office" {{ old('contact_type') == 'Office' ? 'selected' : '' }}>Office</option>
+												<option value="Work" {{ old('contact_type') == 'Work' ? 'selected' : '' }}>Work</option>
+												<option value="Mobile" {{ old('contact_type') == 'Mobile' ? 'selected' : '' }}>Mobile</option>
 											</select>
 											@if ($errors->has('contact_type'))
 												<span class="custom-error" role="alert">

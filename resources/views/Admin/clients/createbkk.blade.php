@@ -380,6 +380,8 @@
 											<select style="padding: 0px 5px;" name="contact_type" id="contact_type" class="form-control" data-valid="required">
 												<option value="Personal" <?php if(old('contact_type') == 'Personal'){ echo 'selected'; } ?>> Personal</option>
 												<option <?php if(old('contact_type') == 'Office'){ echo 'selected'; } ?> value="Office">Office</option>
+												<option value="Work" <?php if(old('contact_type') == 'Work'){ echo 'selected'; } ?>>Work</option>
+												<option value="Mobile" <?php if(old('contact_type') == 'Mobile'){ echo 'selected'; } ?>>Mobile</option>
 											</select>
 											@if ($errors->has('contact_type'))
 												<span class="custom-error" role="alert">

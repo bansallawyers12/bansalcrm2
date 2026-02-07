@@ -131,7 +131,7 @@ class ClientController extends Controller
               //'client_id' => 'required|max:255|unique:admins,client_id,'.$requestData['id']
 
               'contact_type' => 'required|array',
-              'contact_type.*' => 'required|max:255',
+              'contact_type.*' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
 
               'client_phone' => 'required|array',
               'client_phone.*' => 'required|max:255',

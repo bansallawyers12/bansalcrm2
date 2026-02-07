@@ -1624,6 +1624,9 @@ if($fetchedData->tagname != ''){
 								<select name="contact_type[]" id="contact_type" class="form-control">
                                     <option value="">Select</option>
                                     <option value="Personal">Personal</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Mobile">Mobile</option>
                                     <option value="Business">Business</option>
                                     <option value="Secondary">Secondary</option>
                                     <option value="Father">Father</option>

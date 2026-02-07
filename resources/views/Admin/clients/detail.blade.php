@@ -3101,12 +3101,6 @@ $(document).ready(function() {
 			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
 			$('#emailmodal').modal('show');
 		}
-		if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
-			$('#sendSms_client_id').val(clientId);
-			$('#sendSmsModal').modal('show');
-			loadSendSmsPhones(clientId);
-			loadSendSmsTemplates();
-		}
 	});
 })();
 </script>
@@ -3117,6 +3111,25 @@ $(document).ready(function(){
 	var sendSmsSendUrl = '{{ route("adminconsole.features.sms.send") }}';
 	var sendSmsTemplatesActiveUrl = '{{ route("adminconsole.features.sms.templates.active") }}';
 	var fetchClientContactNoUrl = '{{ route("clients.fetchClientContactNo") }}';
+
+	// Open Send SMS modal from URL: ?open_sms_reminder=1&applicationId=xxx
+	var urlParams = new URLSearchParams(window.location.search);
+	var openSmsReminder = urlParams.get('open_sms_reminder');
+	var applicationId = urlParams.get('applicationId');
+	var clientIdForSms = {{ $fetchedData->id ?? 'null' }};
+	if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
+		$('#sendSms_client_id').val(clientIdForSms);
+		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
+		$('#sendSms_message').val('');
+		$('#sendSms_charCount').text('0');
+		$('#sendSms_template_id').val('');
+		// Defer calls to ensure functions are defined
+		setTimeout(function() {
+			loadSendSmsPhones(clientIdForSms);
+			loadSendSmsTemplates();
+		}, 0);
+		$('#sendSmsModal').modal('show');
+	}
 
 	$('.send-sms-btn').on('click', function(){
 		var clientId = $(this).data('client-id');
