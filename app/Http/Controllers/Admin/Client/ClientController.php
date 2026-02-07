@@ -14,6 +14,7 @@ use App\Services\ClientExportService;
 use App\Services\ClientImportService;
 use App\Models\CheckinLog;
 use App\Models\ClientPhone;
+use App\Models\ClientTestScore;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -283,48 +284,28 @@ class ClientController extends Controller
 		$saved							=	$obj->save();
 		
 		//////////////////////////////////////////////////////
-		//////////Code Start For Test Scores/////////////////
+		//////////Code Start For Test Scores (client_testscore)/////////////////
 		//////////////////////////////////////////////////////
-		// Save/Update Test Scores
-		if (isset($requestData['test_type'])) {
-			$testScoreData = [
-				'client_id' => $obj->id,
-				'user_id' => Auth::id(),
-				'type' => 'client',
-			];
-			
-			$testType = $requestData['test_type'];
-			$testScoreData['last_test_type'] = $testType;
-			
-			// Map form fields to database columns based on test type
-			if ($testType === 'toefl') {
-				$testScoreData['toefl_Listening'] = $requestData['listening'] ?? null;
-				$testScoreData['toefl_Reading'] = $requestData['reading'] ?? null;
-				$testScoreData['toefl_Writing'] = $requestData['writing'] ?? null;
-				$testScoreData['toefl_Speaking'] = $requestData['speaking'] ?? null;
-				$testScoreData['score_1'] = $requestData['overall'] ?? null;
-				$testScoreData['toefl_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
-			} elseif ($testType === 'ilets') {
-				$testScoreData['ilets_Listening'] = $requestData['listening'] ?? null;
-				$testScoreData['ilets_Reading'] = $requestData['reading'] ?? null;
-				$testScoreData['ilets_Writing'] = $requestData['writing'] ?? null;
-				$testScoreData['ilets_Speaking'] = $requestData['speaking'] ?? null;
-				$testScoreData['score_2'] = $requestData['overall'] ?? null;
-				$testScoreData['ilets_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
-			} elseif ($testType === 'pte') {
-				$testScoreData['pte_Listening'] = $requestData['listening'] ?? null;
-				$testScoreData['pte_Reading'] = $requestData['reading'] ?? null;
-				$testScoreData['pte_Writing'] = $requestData['writing'] ?? null;
-				$testScoreData['pte_Speaking'] = $requestData['speaking'] ?? null;
-				$testScoreData['score_3'] = $requestData['overall'] ?? null;
-				$testScoreData['pte_Date'] = !empty($requestData['test_date']) ? date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date']))) : null;
+		if (isset($requestData['test_type']) && !empty(trim((string)$requestData['test_type']))) {
+			$testType = $this->normalizeTestType($requestData['test_type']);
+			$testDate = null;
+			if (!empty($requestData['test_date'])) {
+				$testDate = date('Y-m-d', strtotime(str_replace('/', '-', $requestData['test_date'])));
 			}
-			
-			// UpdateOrCreate based on client_id and type
-			\App\Models\TestScore::updateOrCreate(
-				['client_id' => $obj->id, 'type' => 'client'],
-				$testScoreData
-			);
+			// Replace single test score for this client (match migrationmanager2 structure)
+			ClientTestScore::where('client_id', $obj->id)->delete();
+			ClientTestScore::create([
+				'admin_id' => Auth::id(),
+				'client_id' => $obj->id,
+				'test_type' => $testType,
+				'listening' => $requestData['listening'] ?? null,
+				'reading' => $requestData['reading'] ?? null,
+				'writing' => $requestData['writing'] ?? null,
+				'speaking' => $requestData['speaking'] ?? null,
+				'overall_score' => $requestData['overall'] ?? null,
+				'test_date' => $testDate,
+				'relevant_test' => 1,
+			]);
 		}
 		//////////////////////////////////////////////////////
 		//////////Code End For Test Scores///////////////////
@@ -1229,5 +1210,23 @@ class ClientController extends Controller
                 ->withErrors(['import_file' => $errorMessage])
                 ->withInput();
         }
+    }
+
+    /**
+     * Normalize test type to canonical value (match migrationmanager2 stored values).
+     * Legacy and full names map to: IELTS, IELTS_A, PTE, TOEFL, CAE, OET, CELPIP, MET, LANGUAGECERT.
+     */
+    private function normalizeTestType(string $value): string
+    {
+        $v = trim($value);
+        $map = [
+            'toefl' => 'TOEFL', 'ilets' => 'IELTS', 'pte' => 'PTE',
+            'ielts academic' => 'IELTS_A', 'ielts_academic' => 'IELTS_A',
+            'celpip general' => 'CELPIP', 'celpip' => 'CELPIP',
+            'michigan english test (met)' => 'MET', 'met' => 'MET',
+            'languagecert academic' => 'LANGUAGECERT', 'languagecert' => 'LANGUAGECERT',
+        ];
+        $lower = strtolower($v);
+        return $map[$lower] ?? $v;
     }
 }

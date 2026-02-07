@@ -1053,36 +1053,20 @@
 									<section class="form-section">
 										<h3><i class="fas fa-language"></i> English Test Scores & Additional Information</h3>
 										<?php
-											$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+											$testScoreRows = \App\Models\ClientTestScore::where('client_id', $fetchedData->id)->orderBy('updated_at', 'desc')->get();
+											$testscores = $testScoreRows->first(); // single-row UX: show most recent
+											$activeTestType = old('test_type', $testscores ? $testscores->test_type : '');
 										?>
 									<div class="english-test-wrapper">
-										<?php
-										// Show the test type that was last saved; fallback to detecting from data for existing rows
-										$activeTestType = 'toefl'; // default
-										if ($testscores) {
-											if (!empty($testscores->last_test_type) && in_array($testscores->last_test_type, ['toefl', 'ilets', 'pte'], true)) {
-												$activeTestType = $testscores->last_test_type;
-											} else {
-												// Fallback: detect from which columns have data (existing rows before last_test_type was added)
-												if (!empty($testscores->ilets_Listening) || !empty($testscores->ilets_Reading) || 
-													!empty($testscores->ilets_Writing) || !empty($testscores->ilets_Speaking)) {
-													$activeTestType = 'ilets';
-												} elseif (!empty($testscores->pte_Listening) || !empty($testscores->pte_Reading) || 
-														  !empty($testscores->pte_Writing) || !empty($testscores->pte_Speaking)) {
-													$activeTestType = 'pte';
-												}
-											}
-										}
-										$activeTestType = old('test_type', $activeTestType); // Use old input if available (e.g. validation error)
-										?>
 										<div class="row g-3 mb-3">
 											<div class="col-md-3 col-sm-6">
 												<div class="form-group">
 													<label for="test_type">Test Type</label>
 													<select class="form-control" name="test_type" id="test_type" onchange="loadTestScoresEditPage()">
-														<option value="toefl" @if($activeTestType == 'toefl') selected @endif>TOEFL</option>
-														<option value="ilets" @if($activeTestType == 'ilets') selected @endif>IELTS</option>
-														<option value="pte" @if($activeTestType == 'pte') selected @endif>PTE</option>
+														<option value="">Select Test Type</option>
+														@foreach(\App\Models\ClientTestScore::TEST_TYPES as $value => $label)
+														<option value="{{ $value }}" @if($activeTestType == $value) selected @endif>{{ $label }}</option>
+														@endforeach
 													</select>
 												</div>
 											</div>
@@ -1132,44 +1116,15 @@
 										function loadTestScoresEditPage() {
 											var testType = document.getElementById('test_type').value;
 											var testscores = @json($testscores);
-											
-											if (!testscores) {
-												document.getElementById('listening_edit').value = '';
-												document.getElementById('reading_edit').value = '';
-												document.getElementById('writing_edit').value = '';
-												document.getElementById('speaking_edit').value = '';
-												document.getElementById('overall_edit').value = '';
-												document.getElementById('test_date_edit').value = '';
-												return;
-											}
-											
-											if (testType === 'toefl') {
-												document.getElementById('listening_edit').value = testscores.toefl_Listening || '';
-												document.getElementById('reading_edit').value = testscores.toefl_Reading || '';
-												document.getElementById('writing_edit').value = testscores.toefl_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.toefl_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_1 || '';
-												document.getElementById('test_date_edit').value = testscores.toefl_Date || '';
-											} else if (testType === 'ilets') {
-												document.getElementById('listening_edit').value = testscores.ilets_Listening || '';
-												document.getElementById('reading_edit').value = testscores.ilets_Reading || '';
-												document.getElementById('writing_edit').value = testscores.ilets_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.ilets_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_2 || '';
-												document.getElementById('test_date_edit').value = testscores.ilets_Date || '';
-											} else if (testType === 'pte') {
-												document.getElementById('listening_edit').value = testscores.pte_Listening || '';
-												document.getElementById('reading_edit').value = testscores.pte_Reading || '';
-												document.getElementById('writing_edit').value = testscores.pte_Writing || '';
-												document.getElementById('speaking_edit').value = testscores.pte_Speaking || '';
-												document.getElementById('overall_edit').value = testscores.score_3 || '';
-												document.getElementById('test_date_edit').value = testscores.pte_Date || '';
-											}
+											var show = testscores && testType === (testscores.test_type || '');
+											document.getElementById('listening_edit').value = show ? (testscores.listening || '') : '';
+											document.getElementById('reading_edit').value = show ? (testscores.reading || '') : '';
+											document.getElementById('writing_edit').value = show ? (testscores.writing || '') : '';
+											document.getElementById('speaking_edit').value = show ? (testscores.speaking || '') : '';
+											document.getElementById('overall_edit').value = show ? (testscores.overall_score || '') : '';
+											document.getElementById('test_date_edit').value = show ? (testscores.test_date || '') : '';
 										}
-										// Load initial data on page load
-										document.addEventListener('DOMContentLoaded', function() {
-											loadTestScoresEditPage();
-										});
+										document.addEventListener('DOMContentLoaded', function() { loadTestScoresEditPage(); });
 										</script>
 										
 										<div class="content-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; margin-top: 20px;">

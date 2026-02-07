@@ -779,9 +779,10 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl" {{ old('test_type') == 'toefl' ? 'selected' : '' }}>TOEFL</option>
-															<option value="ilets" {{ old('test_type') == 'ilets' ? 'selected' : '' }}>IELTS</option>
-															<option value="pte" {{ old('test_type') == 'pte' ? 'selected' : '' }}>PTE</option>
+															<option value="">Select Test Type</option>
+															@foreach(\App\Models\ClientTestScore::TEST_TYPES as $value => $label)
+															<option value="{{ $value }}" {{ old('test_type') == $value ? 'selected' : '' }}>{{ $label }}</option>
+															@endforeach
 														</select>
 													</div>
 												</div>

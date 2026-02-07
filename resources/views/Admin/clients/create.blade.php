@@ -707,9 +707,10 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl">TOEFL</option>
-															<option value="ilets">IELTS</option>
-															<option value="pte">PTE</option>
+															<option value="">Select Test Type</option>
+															@foreach(\App\Models\ClientTestScore::TEST_TYPES as $value => $label)
+															<option value="{{ $value }}">{{ $label }}</option>
+															@endforeach
 														</select>
 													</div>
 												</div>

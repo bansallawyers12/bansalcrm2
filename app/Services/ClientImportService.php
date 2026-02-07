@@ -390,31 +390,20 @@ class ClientImportService
             // Import character information - bansalcrm2 doesn't have client_characters table
             // Skip character import - table doesn't exist
 
-            // Import test scores (bansalcrm2 specific)
-            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\TestScore::class)) {
+            // Import test scores (client_testscore - match migrationmanager2)
+            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\ClientTestScore::class)) {
                 foreach ($importData['test_scores'] as $testData) {
-                    \App\Models\TestScore::create([
+                    \App\Models\ClientTestScore::create([
                         'client_id' => $newClientId,
-                        'user_id' => null,
-                        'type' => 'client',
-                        'toefl_Listening' => $testData['toefl_Listening'] ?? null,
-                        'toefl_Reading' => $testData['toefl_Reading'] ?? null,
-                        'toefl_Writing' => $testData['toefl_Writing'] ?? null,
-                        'toefl_Speaking' => $testData['toefl_Speaking'] ?? null,
-                        'toefl_Date' => $this->parseDate($testData['toefl_Date'] ?? null),
-                        'ilets_Listening' => $testData['ilets_Listening'] ?? null,
-                        'ilets_Reading' => $testData['ilets_Reading'] ?? null,
-                        'ilets_Writing' => $testData['ilets_Writing'] ?? null,
-                        'ilets_Speaking' => $testData['ilets_Speaking'] ?? null,
-                        'ilets_Date' => $this->parseDate($testData['ilets_Date'] ?? null),
-                        'pte_Listening' => $testData['pte_Listening'] ?? null,
-                        'pte_Reading' => $testData['pte_Reading'] ?? null,
-                        'pte_Writing' => $testData['pte_Writing'] ?? null,
-                        'pte_Speaking' => $testData['pte_Speaking'] ?? null,
-                        'pte_Date' => $this->parseDate($testData['pte_Date'] ?? null),
-                        'score_1' => $testData['score_1'] ?? null,
-                        'score_2' => $testData['score_2'] ?? null,
-                        'score_3' => $testData['score_3'] ?? null,
+                        'admin_id' => null,
+                        'test_type' => $testData['test_type'] ?? null,
+                        'listening' => $testData['listening'] ?? null,
+                        'reading' => $testData['reading'] ?? null,
+                        'writing' => $testData['writing'] ?? null,
+                        'speaking' => $testData['speaking'] ?? null,
+                        'overall_score' => $testData['overall_score'] ?? null,
+                        'test_date' => $this->parseDate($testData['test_date'] ?? null),
+                        'relevant_test' => 1,
                     ]);
                 }
             }
