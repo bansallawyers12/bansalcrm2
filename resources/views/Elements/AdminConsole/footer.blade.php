@@ -1,6 +1,6 @@
 <footer class="main-footer">
 	<div class="footer-left">
-		<a style="text-transform:none;" href="#">Bansal Immigration Consultant</a>
+		<a style="text-transform:none;" href="#">Bansal Education</a>
 	</div>
 	<div class="footer-right">
 	       

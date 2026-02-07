@@ -272,7 +272,7 @@ i[style*="color:rgba"] {
 
 			@yield('content')
 				
-			@include('../Elements/Admin/footer')
+			@include('../Elements/AdminConsole/footer')
 		</div>
 	</div>
 

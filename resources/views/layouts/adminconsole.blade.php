@@ -249,12 +249,12 @@
 
 			<!-- Fixed Left Sidebar -->
 			<div class="adminconsole-sidebar">
-				@include('../Elements/Admin/setting')
+				@include('../Elements/AdminConsole/setting')
 			</div>
 
 			@yield('content')
 				
-			@include('../Elements/Admin/footer')
+			@include('../Elements/AdminConsole/footer')
 		</div>
 	</div>
 
