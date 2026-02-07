@@ -688,6 +688,10 @@ class OfficeVisitController extends Controller
 		if($saved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';
+			// Return updated counts so office-visits tab badges can refresh without full page reload
+			$response['waiting']   = CheckinLog::where('status', 0)->count();
+			$response['attending'] = CheckinLog::where('status', 2)->count();
+			$response['completed'] = CheckinLog::where('status', 1)->count();
 		}else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';
@@ -711,9 +715,7 @@ class OfficeVisitController extends Controller
 			->get()
 			->map(function ($n) {
 				$log = $n->checkinLog;
-				$client = $log->contact_type == 'Lead'
-					? \App\Models\Lead::find($log->client_id)
-					: Admin::where('role', '7')->find($log->client_id);
+				$client = Admin::where('role', '7')->find($log->client_id);
 				$sender = Admin::find($n->sender_id);
 				return [
 					'id' => $n->id,

@@ -139,6 +139,12 @@
                         try {
                             var obj = $.parseJSON(response);
                             if(obj.status){
+                                // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
+                                if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
+                                    $('#attending-tab .countAction').text(obj.attending);
+                                    $('#completed-tab .countAction').text(obj.completed);
+                                    $('#waiting-tab .countAction').text(obj.waiting);
+                                }
                                 $.ajax({
                                     url: site_url+'/get-checkin-detail',
                                     type:'GET',
