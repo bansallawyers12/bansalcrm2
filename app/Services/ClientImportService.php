@@ -9,6 +9,7 @@ use App\Models\ClientPhone; // bansalcrm2 uses ClientPhone
 use App\Models\ActivitiesLog;
 use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
+use App\Models\Country;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -214,8 +215,8 @@ class ClientImportService
             $client->country = $this->mapCountry($clientData['country'] ?? null);
             $client->zip = $clientData['zip'] ?? null;
             
-            // Passport
-            $client->country_passport = $clientData['country_passport'] ?? null;
+            // Passport (store country name for compatibility with migrationmanager2 import/export)
+            $client->country_passport = $this->normalizeCountryPassport($clientData['country_passport'] ?? null);
             $client->passport_number = $clientData['passport_number'] ?? null; // bansalcrm2 has this in admins table
             
             // Visa Information
@@ -253,7 +254,6 @@ class ClientImportService
             $client->naati_py = $clientData['naati_py'] ?? null;
             // naati_test, naati_date, nati_language, py_test, py_date, py_field removed - columns don't exist in bansalcrm2 database
             $client->total_points = $clientData['total_points'] ?? null;
-            $client->start_process = $clientData['start_process'] ?? null;
             $client->source = $clientData['source'] ?? null;
             $client->contact_type = $clientData['contact_type'] ?? null;
             $client->type = $clientData['type'] ?? 'client';
@@ -355,7 +355,7 @@ class ClientImportService
                     $client->passport_number = $importData['passport']['passport_number'] ?? $importData['passport']['passport'] ?? null;
                 }
                 if (empty($client->country_passport) && !empty($importData['passport']['passport_country'])) {
-                    $client->country_passport = $importData['passport']['passport_country'] ?? null;
+                    $client->country_passport = $this->normalizeCountryPassport($importData['passport']['passport_country'] ?? null);
                 }
                 // Note: passport_issue_date and passport_expiry_date are not stored in bansalcrm2 admins table
                 $client->save();
@@ -390,31 +390,20 @@ class ClientImportService
             // Import character information - bansalcrm2 doesn't have client_characters table
             // Skip character import - table doesn't exist
 
-            // Import test scores (bansalcrm2 specific)
-            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\TestScore::class)) {
+            // Import test scores (client_testscore - match migrationmanager2)
+            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\ClientTestScore::class)) {
                 foreach ($importData['test_scores'] as $testData) {
-                    \App\Models\TestScore::create([
+                    \App\Models\ClientTestScore::create([
                         'client_id' => $newClientId,
-                        'user_id' => null,
-                        'type' => 'client',
-                        'toefl_Listening' => $testData['toefl_Listening'] ?? null,
-                        'toefl_Reading' => $testData['toefl_Reading'] ?? null,
-                        'toefl_Writing' => $testData['toefl_Writing'] ?? null,
-                        'toefl_Speaking' => $testData['toefl_Speaking'] ?? null,
-                        'toefl_Date' => $this->parseDate($testData['toefl_Date'] ?? null),
-                        'ilets_Listening' => $testData['ilets_Listening'] ?? null,
-                        'ilets_Reading' => $testData['ilets_Reading'] ?? null,
-                        'ilets_Writing' => $testData['ilets_Writing'] ?? null,
-                        'ilets_Speaking' => $testData['ilets_Speaking'] ?? null,
-                        'ilets_Date' => $this->parseDate($testData['ilets_Date'] ?? null),
-                        'pte_Listening' => $testData['pte_Listening'] ?? null,
-                        'pte_Reading' => $testData['pte_Reading'] ?? null,
-                        'pte_Writing' => $testData['pte_Writing'] ?? null,
-                        'pte_Speaking' => $testData['pte_Speaking'] ?? null,
-                        'pte_Date' => $this->parseDate($testData['pte_Date'] ?? null),
-                        'score_1' => $testData['score_1'] ?? null,
-                        'score_2' => $testData['score_2'] ?? null,
-                        'score_3' => $testData['score_3'] ?? null,
+                        'admin_id' => null,
+                        'test_type' => $testData['test_type'] ?? null,
+                        'listening' => $testData['listening'] ?? null,
+                        'reading' => $testData['reading'] ?? null,
+                        'writing' => $testData['writing'] ?? null,
+                        'speaking' => $testData['speaking'] ?? null,
+                        'overall_score' => $testData['overall_score'] ?? null,
+                        'test_date' => $this->parseDate($testData['test_date'] ?? null),
+                        'relevant_test' => 1,
                     ]);
                 }
             }
@@ -596,6 +585,25 @@ class ClientImportService
         }
 
         return $country;
+    }
+
+    /**
+     * Normalize country_passport to country name (bansalcrm2 and migrationmanager2 use name, not sortname).
+     * If value is a 2–3 letter sortname (e.g. IN, AU), resolve to full name; otherwise return as-is.
+     */
+    private function normalizeCountryPassport(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') {
+            return null;
+        }
+        $value = trim($value);
+        if (strlen($value) <= 3) {
+            $country = Country::where('sortname', strtoupper($value))->first();
+            if ($country) {
+                return $country->name;
+            }
+        }
+        return $value;
     }
 
     /**

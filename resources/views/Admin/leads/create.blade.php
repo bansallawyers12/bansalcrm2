@@ -592,9 +592,9 @@
 													<option value="">- Select Country -</option>
 												<?php
 													foreach(\App\Models\Country::all() as $list){
-														$selected = old('country_passport') == $list->sortname ? 'selected' : '';
+														$selected = old('country_passport') == $list->name ? 'selected' : '';
 														?>
-														<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
+														<option value="{{ @$list->name }}" <?php echo $selected; ?>>{{ @$list->name }}</option>
 														<?php
 													}
 													?>
@@ -779,9 +779,10 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl" {{ old('test_type') == 'toefl' ? 'selected' : '' }}>TOEFL</option>
-															<option value="ilets" {{ old('test_type') == 'ilets' ? 'selected' : '' }}>IELTS</option>
-															<option value="pte" {{ old('test_type') == 'pte' ? 'selected' : '' }}>PTE</option>
+															<option value="">Select Test Type</option>
+															@foreach(\App\Models\ClientTestScore::TEST_TYPES as $value => $label)
+															<option value="{{ $value }}" {{ old('test_type') == $value ? 'selected' : '' }}>{{ $label }}</option>
+															@endforeach
 														</select>
 													</div>
 												</div>
@@ -846,19 +847,6 @@
 												{!! Form::text('total_points', old('total_points'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
 												@if ($errors->has('total_points'))
 													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
-												@endif
-											</div>
-											<div class="form-group">
-												<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible" {{ old('start_process') == 'As soon As Possible' ? 'selected' : '' }}>As soon As Possible</option>
-													<option value="In Next 3 Months" {{ old('start_process') == 'In Next 3 Months' ? 'selected' : '' }}>In Next 3 Months</option>
-													<option value="In Next 6 Months" {{ old('start_process') == 'In Next 6 Months' ? 'selected' : '' }}>In Next 6 Months</option>
-													<option value="Advise Only" {{ old('start_process') == 'Advise Only' ? 'selected' : '' }}>Advise Only</option>
-												</select>
-												@if ($errors->has('start_process'))
-													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
 												@endif
 											</div>
 										</div>

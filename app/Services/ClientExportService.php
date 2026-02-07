@@ -131,7 +131,6 @@ class ClientExportService
             // Other
             'naati_py' => $client->naati_py ?? null,
             'total_points' => $client->total_points ?? null,
-            'start_process' => $client->start_process ?? null,
             'source' => $client->source,
             'type' => $client->type,
             'status' => $client->status,
@@ -301,38 +300,26 @@ class ClientExportService
     }
 
     /**
-     * Get client test scores (bansalcrm2 specific)
+     * Get client test scores (client_testscore table - match migrationmanager2)
      */
     private function getClientTestScores($clientId)
     {
-        if (!class_exists(\App\Models\TestScore::class)) {
+        if (!class_exists(\App\Models\ClientTestScore::class)) {
             return [];
         }
 
-        return \App\Models\TestScore::where('client_id', $clientId)
-            ->where('type', 'client')
+        return \App\Models\ClientTestScore::where('client_id', $clientId)
+            ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($test) {
                 return [
-                    'type' => $test->type ?? null,
-                    'toefl_Listening' => $test->toefl_Listening ?? null,
-                    'toefl_Reading' => $test->toefl_Reading ?? null,
-                    'toefl_Writing' => $test->toefl_Writing ?? null,
-                    'toefl_Speaking' => $test->toefl_Speaking ?? null,
-                    'toefl_Date' => $test->toefl_Date ?? null,
-                    'ilets_Listening' => $test->ilets_Listening ?? null,
-                    'ilets_Reading' => $test->ilets_Reading ?? null,
-                    'ilets_Writing' => $test->ilets_Writing ?? null,
-                    'ilets_Speaking' => $test->ilets_Speaking ?? null,
-                    'ilets_Date' => $test->ilets_Date ?? null,
-                    'pte_Listening' => $test->pte_Listening ?? null,
-                    'pte_Reading' => $test->pte_Reading ?? null,
-                    'pte_Writing' => $test->pte_Writing ?? null,
-                    'pte_Speaking' => $test->pte_Speaking ?? null,
-                    'pte_Date' => $test->pte_Date ?? null,
-                    'score_1' => $test->score_1 ?? null,
-                    'score_2' => $test->score_2 ?? null,
-                    'score_3' => $test->score_3 ?? null,
+                    'test_type' => $test->test_type ?? null,
+                    'listening' => $test->listening ?? null,
+                    'reading' => $test->reading ?? null,
+                    'writing' => $test->writing ?? null,
+                    'speaking' => $test->speaking ?? null,
+                    'overall_score' => $test->overall_score ?? null,
+                    'test_date' => $test->test_date ? $test->test_date->format('Y-m-d') : null,
                 ];
             })
             ->toArray();

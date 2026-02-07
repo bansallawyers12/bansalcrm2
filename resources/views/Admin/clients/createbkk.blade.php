@@ -524,7 +524,7 @@
 											<?php
 												foreach(\App\Models\Country::all() as $list){
 													?>
-													<option <?php if(@$list->sortname == 'IN'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
+													<option <?php if(@$list->name == 'India'){ echo 'selected'; } ?> value="{{ @$list->name }}">{{ @$list->name }}</option>
 													<?php
 												}
 												?>
@@ -758,23 +758,6 @@
 											@endif
 										</div>
 									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
-											</select>
-											@if ($errors->has('start_process'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('start_process') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
 								</div>
 								</section>
 								<section class="form-section">
@@ -892,23 +875,6 @@
 											@if ($errors->has('total_points'))
 												<span class="custom-error" role="alert">
 													<strong>{{ @$errors->first('total_points') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-sm-4">
-										<div class="form-group"> 
-											<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
-											</select>
-											@if ($errors->has('start_process'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('start_process') }}</strong>
 												</span> 
 											@endif
 										</div>

@@ -523,7 +523,7 @@
 												<?php
 													foreach(\App\Models\Country::all() as $list){
 														?>
-														<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+														<option value="{{ @$list->name }}">{{ @$list->name }}</option>
 														<?php
 													}
 												?>
@@ -707,9 +707,10 @@
 													<div class="form-group">
 														<label for="test_type">Test Type</label>
 														<select class="form-control" name="test_type" id="test_type">
-															<option value="toefl">TOEFL</option>
-															<option value="ilets">IELTS</option>
-															<option value="pte">PTE</option>
+															<option value="">Select Test Type</option>
+															@foreach(\App\Models\ClientTestScore::TEST_TYPES as $value => $label)
+															<option value="{{ $value }}">{{ $label }}</option>
+															@endforeach
 														</select>
 													</div>
 												</div>
@@ -774,19 +775,6 @@
 												{!! Form::text('total_points', old('total_points'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter points' ))  !!}
 												@if ($errors->has('total_points'))
 													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
-												@endif
-											</div>
-											<div class="form-group">
-												<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
-												</select>
-												@if ($errors->has('start_process'))
-													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
 												@endif
 											</div>
 										</div>

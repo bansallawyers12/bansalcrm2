@@ -362,11 +362,10 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix">
 								<span class="float-start">Overall English score: </span>
 								<?php
-									$testscores = \App\Models\TestScore::where('client_id', $fetchedData->id)->where('type', 'client')->first();
+									$testScoreRows = \App\Models\ClientTestScore::where('client_id', $fetchedData->id)->orderBy('updated_at', 'desc')->get();
+									$testscores = $testScoreRows->first();
 								?>
-								<span class="float-end text-muted">{{ isset($fetchedData->married_partner) ? $fetchedData->married_partner : '' }}
-
-                                  <?php /* if(@$testscores->score_2 != ''){ echo @$testscores->score_2; }else{ echo '-'; } ?> / <?php if(@$testscores->score_3 != ''){ echo @$testscores->score_3; }else{ echo '-'; } */ ?></span>
+								<span class="float-end text-muted">@if($testscores){{ $testscores->test_type }}: {{ $testscores->overall_score ?? '-' }}@else - @endif</span>
 							</p>
 							<p class="clearfix">
 								<span class="float-start">Preferred Intake:</span>
