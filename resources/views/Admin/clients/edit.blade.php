@@ -800,7 +800,7 @@
 													<?php
 														foreach(\App\Models\Country::all() as $list){
 															?>
-															<option <?php if(old('country_passport', @$fetchedData->country_passport) == $list->sortname){ echo 'selected'; } ?> value="{{@$list->sortname}}">{{@$list->name}}</option>
+															<option <?php if(old('country_passport', @$fetchedData->country_passport) == $list->name){ echo 'selected'; } ?> value="{{ @$list->name }}">{{ @$list->name }}</option>
 															<?php
 														}
 													?>

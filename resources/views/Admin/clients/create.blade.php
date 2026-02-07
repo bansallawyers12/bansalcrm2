@@ -523,7 +523,7 @@
 												<?php
 													foreach(\App\Models\Country::all() as $list){
 														?>
-														<option value="{{@$list->sortname}}">{{@$list->name}}</option>
+														<option value="{{ @$list->name }}">{{ @$list->name }}</option>
 														<?php
 													}
 												?>

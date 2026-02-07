@@ -524,7 +524,7 @@
 											<?php
 												foreach(\App\Models\Country::all() as $list){
 													?>
-													<option <?php if(@$list->sortname == 'IN'){ echo 'selected'; } ?> value="{{@$list->sortname}}" >{{@$list->name}}</option>
+													<option <?php if(@$list->name == 'India'){ echo 'selected'; } ?> value="{{ @$list->name }}">{{ @$list->name }}</option>
 													<?php
 												}
 												?>

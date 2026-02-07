@@ -592,9 +592,9 @@
 													<option value="">- Select Country -</option>
 												<?php
 													foreach(\App\Models\Country::all() as $list){
-														$selected = old('country_passport') == $list->sortname ? 'selected' : '';
+														$selected = old('country_passport') == $list->name ? 'selected' : '';
 														?>
-														<option value="{{@$list->sortname}}" <?php echo $selected; ?>>{{@$list->name}}</option>
+														<option value="{{ @$list->name }}" <?php echo $selected; ?>>{{ @$list->name }}</option>
 														<?php
 													}
 													?>
