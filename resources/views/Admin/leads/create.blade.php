@@ -849,19 +849,6 @@
 													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
 												@endif
 											</div>
-											<div class="form-group">
-												<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible" {{ old('start_process') == 'As soon As Possible' ? 'selected' : '' }}>As soon As Possible</option>
-													<option value="In Next 3 Months" {{ old('start_process') == 'In Next 3 Months' ? 'selected' : '' }}>In Next 3 Months</option>
-													<option value="In Next 6 Months" {{ old('start_process') == 'In Next 6 Months' ? 'selected' : '' }}>In Next 6 Months</option>
-													<option value="Advise Only" {{ old('start_process') == 'Advise Only' ? 'selected' : '' }}>Advise Only</option>
-												</select>
-												@if ($errors->has('start_process'))
-													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
-												@endif
-											</div>
 										</div>
 									</section>
 								</div>

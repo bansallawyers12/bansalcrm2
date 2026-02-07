@@ -777,19 +777,6 @@
 													<span class="text-danger">{{ @$errors->first('total_points') }}</span>
 												@endif
 											</div>
-											<div class="form-group">
-												<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option value="As soon As Possible">As soon As Possible</option>
-													<option value="In Next 3 Months">In Next 3 Months</option>
-													<option value="In Next 6 Months">In Next 6 Months</option>
-													<option value="Advise Only">Advise Only</option>
-												</select>
-												@if ($errors->has('start_process'))
-													<span class="text-danger">{{ @$errors->first('start_process') }}</span>
-												@endif
-											</div>
 										</div>
 									</section>
 								</div>

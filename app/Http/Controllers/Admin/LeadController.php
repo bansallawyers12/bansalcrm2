@@ -337,7 +337,6 @@ class LeadController extends Controller
 			}
 			$obj->married_partner			=	@$requestData['married_partner'];
     		$obj->total_points			=	@$requestData['total_points'];
-    		$obj->start_process			=	@$requestData['start_process'];
     		/* Profile Image Upload Function End */	
 			$saved				=	$obj->save();  
 			
@@ -436,7 +435,6 @@ class LeadController extends Controller
 			$obj->naati_py	=	@$enqdata->naati_py;
 			$obj->married_partner	=@$enqdata->married_partner;
 			$obj->total_points	=@$enqdata->total_points;
-			$obj->start_process	=@$enqdata->start_process;
 			$obj->source	=	@$enqdata->lead_source;
 			$obj->comments_note	=	@$enqdata->comments_note;
 			$obj->type	=	'lead';

@@ -233,7 +233,6 @@ class ClientController extends Controller
 
 			$obj->married_partner	=	@$requestData['married_partner'];
 			$obj->total_points	=	@$requestData['total_points'];
-			$obj->start_process	=	@$requestData['start_process'];
 			$obj->comments_note	=	@$requestData['comments_note'];
 			$obj->type	=	@$requestData['type'];
 			$followers = '';

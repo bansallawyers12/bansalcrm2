@@ -1156,21 +1156,6 @@
 													</span>
 												@endif
 											</div>
-											<div class="form-group">
-												<label for="start_process">When You want to start Process</label>
-												<select class="form-control" name="start_process">
-													<option value="">Select</option>
-													<option @if(old('start_process', $fetchedData->start_process) == 'As soon As Possible') selected @endif value="As soon As Possible">As soon As Possible</option>
-													<option @if(old('start_process', $fetchedData->start_process) == 'In Next 3 Months') selected @endif value="In Next 3 Months">In Next 3 Months</option>
-													<option @if(old('start_process', $fetchedData->start_process) == 'In Next 6 Months') selected @endif value="In Next 6 Months">In Next 6 Months</option>
-													<option @if(old('start_process', $fetchedData->start_process) == 'Advise Only') selected @endif value="Advise Only">Advise Only</option>
-												</select>
-												@if ($errors->has('start_process'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('start_process') }}</strong>
-													</span>
-												@endif
-											</div>
 										</div>
 									</section>
 								</div>

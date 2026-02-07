@@ -131,7 +131,6 @@ class ClientExportService
             // Other
             'naati_py' => $client->naati_py ?? null,
             'total_points' => $client->total_points ?? null,
-            'start_process' => $client->start_process ?? null,
             'source' => $client->source,
             'type' => $client->type,
             'status' => $client->status,

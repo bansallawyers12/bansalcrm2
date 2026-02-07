@@ -253,7 +253,6 @@ class ClientImportService
             $client->naati_py = $clientData['naati_py'] ?? null;
             // naati_test, naati_date, nati_language, py_test, py_date, py_field removed - columns don't exist in bansalcrm2 database
             $client->total_points = $clientData['total_points'] ?? null;
-            $client->start_process = $clientData['start_process'] ?? null;
             $client->source = $clientData['source'] ?? null;
             $client->contact_type = $clientData['contact_type'] ?? null;
             $client->type = $clientData['type'] ?? 'client';
