@@ -17,6 +17,68 @@ class PhoneVerificationController extends Controller
         $this->verificationService = $verificationService;
     }
 
+    /**
+     * Legacy verify modal: accept client_id + phone_number, resolve ClientPhone, send OTP.
+     */
+    public function sendCodeLegacy(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'phone_number' => 'required|string',
+        ]);
+        $clientPhone = $this->findClientPhoneByNumber($request->client_id, $request->phone_number);
+        if (!$clientPhone) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This phone number is not in the client\'s contact list. Please add it first, then verify.',
+            ]);
+        }
+        return response()->json($this->verificationService->sendOTP($clientPhone->id));
+    }
+
+    /**
+     * Legacy verify modal: accept client_id + phone_number + verification_code, resolve ClientPhone, verify OTP.
+     */
+    public function verifyCodeLegacy(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'phone_number' => 'required|string',
+            'verification_code' => 'required|string|size:6',
+        ]);
+        $clientPhone = $this->findClientPhoneByNumber($request->client_id, $request->phone_number);
+        if (!$clientPhone) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This phone number is not in the client\'s contact list.',
+            ]);
+        }
+        return response()->json($this->verificationService->verifyOTP($clientPhone->id, $request->verification_code));
+    }
+
+    /**
+     * Find ClientPhone for client by matching raw phone number (digits-only comparison).
+     */
+    protected function findClientPhoneByNumber(int $clientId, string $rawNumber): ?ClientPhone
+    {
+        $digits = preg_replace('/\D/', '', $rawNumber);
+        if ($digits === '') {
+            return null;
+        }
+        // Australian: 0412345678 -> 61412345678 for comparison
+        if (strlen($digits) === 10 && str_starts_with($digits, '0')) {
+            $digits = '61' . substr($digits, 1);
+        }
+        $phones = ClientPhone::where('client_id', $clientId)->get();
+        foreach ($phones as $cp) {
+            $stored = preg_replace('/\D/', '', ($cp->client_country_code ?? '') . ($cp->client_phone ?? ''));
+            if ($stored !== '' && $stored === $digits) {
+                return $cp;
+            }
+        }
+        return null;
+    }
+
     public function sendOTP(Request $request)
     {
         $request->validate(['client_phone_id' => 'required|exists:client_phones,id']);

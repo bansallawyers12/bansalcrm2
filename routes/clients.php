@@ -114,6 +114,9 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/clients/update-email-verified', [ClientMessagingController::class, 'updateemailverified'])->name('clients.updateemailverified');
     Route::post('/email-verify', [ClientMessagingController::class, 'emailVerify'])->name('emailVerify');
     Route::post('/clients/fetchClientContactNo', [ClientMessagingController::class, 'fetchClientContactNo'])->name('clients.fetchClientContactNo');
+    // Legacy verify modal (client edit): accept phone_number + client_id, delegate to phone OTP flow
+    Route::post('/verify/send-code', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'sendCodeLegacy'])->name('verify.send-code');
+    Route::post('/verify/check-code', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'verifyCodeLegacy'])->name('verify.check-code');
     Route::post('/phone-verification/send-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'sendOTP'])->name('clients.phone.sendOTP');
     Route::post('/phone-verification/verify-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'verifyOTP'])->name('clients.phone.verifyOTP');
     Route::post('/phone-verification/resend-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'resendOTP'])->name('clients.phone.resendOTP');

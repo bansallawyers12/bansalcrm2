@@ -795,8 +795,14 @@ jQuery(document).ready(function($){
             alert('Please enter a phone number');
             return;
         }
+        const clientId = (typeof App !== 'undefined' && App.getPageConfig && App.getPageConfig('clientId')) || null;
+        if (!clientId) {
+            alert('Client context is missing. Please refresh the page.');
+            return;
+        }
 
         $.post(App.getUrl('verifySendCode') || App.getUrl('siteUrl') + '/verify/send-code', {
+            client_id: clientId,
             phone_number: phoneNumber
         })
         .done(function(response) {
@@ -820,8 +826,14 @@ jQuery(document).ready(function($){
             alert('Please enter phone number and verification code');
             return;
         }
+        const clientId = (typeof App !== 'undefined' && App.getPageConfig && App.getPageConfig('clientId')) || null;
+        if (!clientId) {
+            alert('Client context is missing. Please refresh the page.');
+            return;
+        }
 
         $.post(App.getUrl('verifyCheckCode') || App.getUrl('siteUrl') + '/verify/check-code', {
+            client_id: clientId,
             phone_number: phoneNumber,
             verification_code: code
         })
