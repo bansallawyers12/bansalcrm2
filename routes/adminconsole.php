@@ -191,7 +191,7 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/recent-clients/bulk-archive', [RecentlyModifiedClientsController::class, 'bulkArchive'])->name('adminconsole.recentclients.bulkarchive');
 
     // Features - SMS Management (visible to all admins)
-    Route::prefix('features')->name('features.')->group(function () {
+    Route::prefix('features')->name('adminconsole.features.')->group(function () {
         Route::prefix('sms')->name('sms.')->group(function () {
             Route::get('/dashboard', [AdminConsoleSmsController::class, 'dashboard'])->name('dashboard');
             Route::get('/history', [AdminConsoleSmsController::class, 'history'])->name('history');
