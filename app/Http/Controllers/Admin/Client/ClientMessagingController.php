@@ -213,62 +213,6 @@ class ClientMessagingController extends Controller
 	}
   
     /**
-     * Send message
-     */
-    public function sendmsg(Request $request){
-        $obj = new Note;
-        $obj->client_id = $request->client_id;
-        $obj->user_id = Auth::user()->id;
-        $subject = 'sent a message';
-        $obj->title =  $subject;
-        $obj->description = $request->message;
-        $obj->type = $request->vtype;
-        $obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-        $obj->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
-        $obj->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
-        $saved = $obj->save();
-		if($saved){
-            if($request->vtype == 'client'){
-                $objs = new ActivitiesLog;
-                $objs->client_id = $request->client_id;
-                $objs->created_by = Auth::user()->id;
-                $objs->description = '<span class="text-semi-bold">'.$subject.'</span><p>'.$request->message.'</p>';
-                $objs->subject = $subject;
-                $objs->task_status = 0;
-                $objs->pin = 0;
-                $objs->save();
-            }
-            // When SMS is sent with application_id: record SMS reminder and log for filters
-            if (!empty($request->application_id)) {
-                $app = \App\Models\Application::find((int)$request->application_id);
-                if ($app && $app->client_id) {
-                    \App\Models\ApplicationReminder::create([
-                        'application_id' => $app->id,
-                        'type' => 'sms',
-                        'reminded_at' => now(),
-                        'user_id' => Auth::user()->id,
-                    ]);
-                    $smsSentDate = now()->format('d/m/Y');
-                    $objs = new ActivitiesLog;
-                    $objs->client_id = $app->client_id;
-                    $objs->created_by = Auth::user()->id;
-                    $objs->subject = 'SMS reminder sent';
-                    $objs->description = 'SMS reminder sent on ' . $smsSentDate;
-                    $objs->task_status = 0;
-                    $objs->pin = 0;
-                    $objs->save();
-                }
-            }
-            $response['status'] 	= 	true;
-            $response['message']	=	'You have successfully sent message';
-        }else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-        echo json_encode($response);
-	}
-  
-    /**
      * Google review email sent
      */
     public function isgreviewmailsent(Request $request){

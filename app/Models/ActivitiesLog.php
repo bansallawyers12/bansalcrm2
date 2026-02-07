@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
+use App\Models\SmsLog;
 use Illuminate\Database\Eloquent\Model;
 
 class ActivitiesLog extends Model
@@ -24,6 +25,8 @@ class ActivitiesLog extends Model
         'use_for',
         'task_status',
         'pin',
+        'sms_log_id',
+        'activity_type',
     ];
     
     /**
@@ -40,6 +43,14 @@ class ActivitiesLog extends Model
     public function createdBy()
     {
         return $this->belongsTo('App\Models\Admin', 'created_by', 'id');
+    }
+
+    /**
+     * Get the SMS log if this activity is SMS-related
+     */
+    public function smsLog()
+    {
+        return $this->belongsTo(SmsLog::class, 'sms_log_id');
     }
 
 }

@@ -28,6 +28,8 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.emails.index' || Route::currentRouteName() == 'adminconsole.emails.create' || Route::currentRouteName() == 'adminconsole.emails.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.emails.index')}}">Email</a></li>
 		<li class="{{(Route::currentRouteName() == 'adminconsole.crmemailtemplate.index' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.create' || Route::currentRouteName() == 'adminconsole.crmemailtemplate.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.crmemailtemplate.index')}}">Crm Email Template</a></li> 
 		<li class="{{(Route::currentRouteName() == 'adminconsole.emaillabels.index' || Route::currentRouteName() == 'adminconsole.emaillabels.create' || Route::currentRouteName() == 'adminconsole.emaillabels.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.emaillabels.index')}}">Email Labels</a></li>
+
+		<li class="{{(str_starts_with(Route::currentRouteName() ?? '', 'adminconsole.features.sms')) ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.features.sms.dashboard')}}">SMS Management</a></li>
 		
 		<li class="{{(Route::currentRouteName() == 'adminconsole.recentclients.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.recentclients.index')}}">Recently Modified Clients</a></li>
 		

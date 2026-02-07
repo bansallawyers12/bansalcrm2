@@ -25,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/adminconsole.php'));
+
+            Route::middleware('web')
+                ->namespace('App\Http\Controllers')
+                ->group(base_path('routes/sms.php'));
         },
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
@@ -37,9 +41,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkDobSession' => \App\Http\Middleware\CheckDobSession::class,
         ]);
         
-        // CSRF Token Exceptions for AJAX routes
+        // CSRF Token Exceptions for AJAX routes and webhooks
         $middleware->validateCsrfTokens(except: [
             'api/*',
+            'webhooks/sms/*',
             'update_visit_purpose',
             'update_visit_comment',
             'attend_session',

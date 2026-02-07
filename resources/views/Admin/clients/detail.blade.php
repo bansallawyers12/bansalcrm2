@@ -57,7 +57,7 @@ use App\Http\Controllers\Controller;
 							</div>
 								
 							<div class="author-mail_sms">
-								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="sendmsg" title="Send Message"><i class="fas fa-comment-alt"></i></a>
+								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS"><i class="fas fa-sms"></i></a>
 								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
 								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
 								@if($fetchedData->is_greview_mail_sent == 0)
@@ -231,15 +231,18 @@ use App\Http\Controllers\Controller;
 								<span class="float-end text-muted">
                                     {{--$fetchedData->phone--}} {{--@if($fetchedData->att_phone != '') / {{$fetchedData->att_phone}} @endif--}}
                                     <?php
+                                    $isLeadDetail = isset($fetchedData->type) && $fetchedData->type == 'lead';
                                     // For leads (type='lead'), use the phone from $fetchedData which comes from leads table
                                     // For clients, check ClientPhone table first, then admins table
-                                    if( isset($fetchedData->type) && $fetchedData->type == 'lead' ) {
+                                    if( $isLeadDetail ) {
                                         // Lead: use phone data passed from controller (already from leads table)
                                         $clientContacts = collect([
                                             (object)[
                                                 'client_phone' => $fetchedData->phone,
                                                 'client_country_code' => $fetchedData->country_code ?? '',
-                                                'contact_type' => $fetchedData->contact_type ?? 'Personal'
+                                                'contact_type' => $fetchedData->contact_type ?? 'Personal',
+                                                'is_lead_primary' => true,
+                                                'lead_id' => $fetchedData->id ?? null
                                             ]
                                         ]);
                                         // Add alternate phone if exists
@@ -262,9 +265,15 @@ use App\Http\Controllers\Controller;
                                     if( !empty($clientContacts) && count($clientContacts)>0 ){
                                         $phonenoStr = "";
                                         foreach($clientContacts as $conKey=>$conVal){
-                                            //Check phone is verified or not
-											$check_verified_phoneno = $conVal->client_country_code."".$conVal->client_phone;
-											$verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
+                                            //Check phone is verified or not (lead: use Lead model; client: use VerifiedNumber for legacy display)
+                                            $verifiedNumber = null;
+                                            if ( !empty($isLeadDetail) && !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
+                                                $leadRow = \App\Models\Lead::find($conVal->lead_id);
+                                                $verifiedNumber = $leadRow && $leadRow->is_verified ? (object)['is_verified' => true] : null;
+                                            } else {
+                                                $check_verified_phoneno = $conVal->client_country_code."".$conVal->client_phone;
+                                                $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
+                                            }
 
 
                                             if( isset($conVal->client_country_code) && $conVal->client_country_code != "" ){
@@ -276,10 +285,17 @@ use App\Http\Controllers\Controller;
                                             if( isset($conVal->contact_type) && $conVal->contact_type != "" ){
 												if( $conVal->contact_type == "Personal" ){
 													if ( $verifiedNumber) {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="fas fa-check-circle verified-icon fa-lg"></i> <br/>';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="fas fa-check-circle verified-icon fa-lg"></i>';
 													} else {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="far fa-circle unverified-icon fa-lg"></i> <br/>';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="far fa-circle unverified-icon fa-lg"></i>';
+														if ( !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
+															$leadRow = \App\Models\Lead::find($conVal->lead_id);
+															if ( $leadRow && $leadRow->needsVerification() ) {
+																$phonenoStr .= ' <a href="javascript:;" class="btn-lead-verify-phone" data-lead-id="'.(int)$conVal->lead_id.'" title="Verify">Verify</a>';
+															}
+														}
 													}
+													$phonenoStr .= ' <br/>';
 												} else {
 													$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <br/>';
 												}
@@ -2347,36 +2363,44 @@ use App\Http\Controllers\Controller;
 
 
 
-<!-- Send Message-->
-<div id="sendmsgmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+<!-- Send SMS Modal -->
+<div id="sendSmsModal" data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="messageModalLabel">Send Message</h5>
+				<h5 class="modal-title" id="sendSmsModalLabel">Send SMS</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form method="post" name="sendmsg" id="sendmsg" action="{{URL::to('/sendmsg')}}" autocomplete="off" enctype="multipart/form-data">
-				    @csrf
-                    <input type="hidden" name="client_id" id="sendmsg_client_id" value="">
-                    <input type="hidden" name="application_id" id="sendmsg_application_id" value="">
-                    <input type="hidden" name="vtype" value="client">
+				<form id="sendSmsForm" autocomplete="off">
+					@csrf
+					<input type="hidden" name="client_id" id="sendSms_client_id" value="">
 					<div class="row">
-						<div class="col-12 col-md-12 col-lg-12">
+						<div class="col-12 col-md-6">
 							<div class="form-group">
-								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="tinymce-simple selectedmessage" name="message" data-valid="required"></textarea>
-								@if ($errors->has('message'))
-									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('message') }}</strong>
-									</span>
-								@endif
+								<label for="sendSms_phone">Phone <span class="span_req">*</span></label>
+								<select class="form-control" id="sendSms_phone" name="phone" required>
+									<option value="">Select phone...</option>
+								</select>
 							</div>
 						</div>
-                        <div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('sendmsg')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<div class="col-12 col-md-6">
+							<div class="form-group">
+								<label for="sendSms_template_id">Template (optional)</label>
+								<select class="form-control" id="sendSms_template_id" name="template_id">
+									<option value="">Select template...</option>
+								</select>
+							</div>
 						</div>
+					</div>
+					<div class="form-group">
+						<label for="sendSms_message">Message <span class="span_req">*</span></label>
+						<textarea class="form-control" id="sendSms_message" name="message" rows="4" required placeholder="Enter your message..."></textarea>
+						<small class="form-text text-muted"><span id="sendSms_charCount">0</span>/1600 characters</small>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary" id="sendSms_submitBtn"><i class="fas fa-paper-plane"></i> Send SMS</button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 					</div>
 				</form>
 			</div>
@@ -2384,6 +2408,32 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
+<!-- Lead phone verification OTP modal -->
+<div id="leadVerifyOtpModal" data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Verify Lead Phone</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="lead_verify_otp_lead_id" value="">
+				<div id="leadVerifyOtpSendSection">
+					<p class="text-muted">Send a verification code to this phone.</p>
+					<button type="button" class="btn btn-primary" id="leadVerifyOtpSendBtn"><i class="fas fa-paper-plane"></i> Send Code</button>
+				</div>
+				<div id="leadVerifyOtpCodeSection" style="display: none;">
+					<label>Enter 6-digit code</label>
+					<div class="input-group mb-2">
+						<input type="text" class="form-control" id="lead_verify_otp_code" placeholder="000000" maxlength="6">
+						<button type="button" class="btn btn-primary" id="leadVerifyOtpVerifyBtn">Verify</button>
+					</div>
+					<button type="button" class="btn btn-sm btn-link" id="leadVerifyOtpResendBtn" disabled>Resend code (30s)</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <div id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="false" class="modal fade" >
 	<div class="modal-dialog">
@@ -3051,13 +3101,166 @@ $(document).ready(function() {
 			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
 			$('#emailmodal').modal('show');
 		}
-		if (openSmsReminder === '1' && applicationId && $('#sendmsgmodal').length) {
-			$('#sendmsg_client_id').val(clientId);
-			$('#sendmsg_application_id').val(applicationId);
-			$('#sendmsgmodal').modal('show');
+		if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
+			$('#sendSms_client_id').val(clientId);
+			$('#sendSmsModal').modal('show');
+			loadSendSmsPhones(clientId);
+			loadSendSmsTemplates();
 		}
 	});
 })();
+</script>
+
+{{-- Send SMS modal: open button, load phones/templates, submit --}}
+<script>
+$(document).ready(function(){
+	var sendSmsSendUrl = '{{ route("adminconsole.features.sms.send") }}';
+	var sendSmsTemplatesActiveUrl = '{{ route("adminconsole.features.sms.templates.active") }}';
+	var fetchClientContactNoUrl = '{{ route("clients.fetchClientContactNo") }}';
+
+	$('.send-sms-btn').on('click', function(){
+		var clientId = $(this).data('client-id');
+		$('#sendSms_client_id').val(clientId);
+		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
+		$('#sendSms_message').val('');
+		$('#sendSms_charCount').text('0');
+		$('#sendSms_template_id').val('');
+		loadSendSmsPhones(clientId);
+		loadSendSmsTemplates();
+		$('#sendSmsModal').modal('show');
+	});
+
+	$('#sendSms_message').on('input', function(){ $('#sendSms_charCount').text($(this).val().length); });
+
+	$('#sendSms_template_id').on('change', function(){
+		var id = $(this).val();
+		if (!id) return;
+		$.get('{{ url("adminconsole/features/sms/templates") }}/' + id, function(r){
+			if (r.success && r.data && r.data.message) {
+				$('#sendSms_message').val(r.data.message);
+				$('#sendSms_charCount').text(r.data.message.length);
+			}
+		});
+	});
+
+	$('#sendSmsForm').on('submit', function(e){
+		e.preventDefault();
+		var clientId = $('#sendSms_client_id').val();
+		var phone = $('#sendSms_phone').val();
+		var message = $('#sendSms_message').val();
+		if (!phone || !message) { alert('Please select a phone and enter a message.'); return; }
+		$('#sendSms_submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+		$.ajax({
+			url: sendSmsSendUrl,
+			method: 'POST',
+			data: { _token: $('input[name="_token"]').val(), client_id: clientId, phone: phone, message: message },
+			success: function(res){
+				if (res.success) {
+					alert('SMS sent successfully!');
+					$('#sendSmsModal').modal('hide');
+				} else {
+					alert('Error: ' + (res.message || 'Failed to send SMS'));
+				}
+			},
+			error: function(xhr){
+				var res = xhr.responseJSON;
+				alert(res && res.message ? 'Error: ' + res.message : 'Failed to send SMS');
+			},
+			complete: function(){
+				$('#sendSms_submitBtn').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send SMS');
+			}
+		});
+	});
+
+	function loadSendSmsPhones(clientId) {
+		if (!clientId) return;
+		$.ajax({
+			url: fetchClientContactNoUrl,
+			method: 'POST',
+			data: { _token: $('input[name="_token"]').val(), client_id: clientId },
+			success: function(res){
+				var sel = $('#sendSms_phone');
+				sel.find('option:not(:first)').remove();
+				if (res.status && res.clientContacts && res.clientContacts.length) {
+					$.each(res.clientContacts, function(i, c){
+						var cc = c.client_country_code || '';
+						var ph = c.client_phone || '';
+						var full = (cc + ph).replace(/\s/g,'');
+						var label = (c.contact_type || 'Phone') + ': ' + (cc + ' ' + ph).trim();
+						sel.append('<option value="' + full + '">' + label + '</option>');
+					});
+				}
+			}
+		});
+	}
+
+	function loadSendSmsTemplates() {
+		$.get(sendSmsTemplatesActiveUrl, function(res){
+			var sel = $('#sendSms_template_id');
+			sel.find('option:not(:first)').remove();
+			if (res.success && res.data && res.data.length) {
+				$.each(res.data, function(i, t){
+					sel.append('<option value="' + t.id + '">' + t.title + '</option>');
+				});
+			}
+		});
+	}
+
+	// Lead phone verification OTP
+	var leadVerifyResendTimer;
+	$('.btn-lead-verify-phone').on('click', function(){
+		var leadId = $(this).data('lead-id');
+		$('#lead_verify_otp_lead_id').val(leadId);
+		$('#leadVerifyOtpSendSection').show();
+		$('#leadVerifyOtpCodeSection').hide();
+		$('#lead_verify_otp_code').val('');
+		$('#leadVerifyOtpModal').modal('show');
+	});
+	$('#leadVerifyOtpSendBtn').on('click', function(){
+		var id = $('#lead_verify_otp_lead_id').val();
+		var btn = $(this);
+		btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+		$.post('{{ route("leads.phone.sendOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id }, function(r){
+			if (r.success) {
+				$('#leadVerifyOtpSendSection').hide();
+				$('#leadVerifyOtpCodeSection').show();
+				$('#leadVerifyOtpResendBtn').prop('disabled', true).text('Resend code (30s)');
+				var s = 30;
+				leadVerifyResendTimer = setInterval(function(){
+					s--; $('#leadVerifyOtpResendBtn').text(s ? 'Resend code ('+s+'s)' : 'Resend code');
+					if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
+				}, 1000);
+			} else { alert(r.message || 'Failed to send code'); }
+		}).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
+	});
+	$('#leadVerifyOtpVerifyBtn').on('click', function(){
+		var id = $('#lead_verify_otp_lead_id').val();
+		var code = $('#lead_verify_otp_code').val();
+		if (!code || code.length !== 6) { alert('Enter 6-digit code'); return; }
+		var btn = $(this);
+		btn.prop('disabled', true);
+		$.post('{{ route("leads.phone.verifyOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id, otp_code: code }, function(r){
+			if (r.success) {
+				alert('Phone verified successfully!');
+				$('#leadVerifyOtpModal').modal('hide');
+				location.reload();
+			} else { alert(r.message || 'Invalid code'); }
+		}).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false); });
+	});
+	$('#leadVerifyOtpResendBtn').on('click', function(){
+		if ($(this).prop('disabled')) return;
+		var id = $('#lead_verify_otp_lead_id').val();
+		$(this).prop('disabled', true).text('Resend code (30s)');
+		var s = 30;
+		leadVerifyResendTimer = setInterval(function(){
+			s--; $('#leadVerifyOtpResendBtn').text(s ? 'Resend code ('+s+'s)' : 'Resend code');
+			if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
+		}, 1000);
+		$.post('{{ route("leads.phone.resendOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id }, function(r){
+			if (!r.success) alert(r.message || 'Resend failed');
+		});
+	});
+});
 </script>
 
 {{-- Blade-specific inline code (loaded last, uses Blade variables) --}}

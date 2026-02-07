@@ -10,6 +10,7 @@ use App\Models\ApplicationActivitiesLog;
 use App\Models\ApplicationReminder;
 use App\Models\ClientOngoingReference;
 use App\Models\Branch;
+use App\Models\CheckinLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -186,8 +187,8 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Stage filter options for the current sheet (config-driven).
-     * Returns stages from config so the dropdown always shows the same list.
+     * Stage filter options for the current sheet (config-driven with DB fallback).
+     * Uses config first; if config is empty (e.g. cache, or production without updated config), falls back to DB.
      */
     protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
     {
@@ -201,10 +202,56 @@ class OngoingSheetController extends Controller
         if (!is_array($stages)) {
             $stages = [];
         }
-        return collect($stages)
+        $fromConfig = collect($stages)
             ->filter(fn ($s) => $s !== null && trim((string) $s) !== '')
             ->values()
             ->mapWithKeys(fn ($s) => [trim((string) $s) => trim((string) $s)]);
+
+        if ($fromConfig->isNotEmpty()) {
+            return $fromConfig;
+        }
+
+        // Fallback: load from DB when config is empty (e.g. config cache stale, or production config not updated)
+        return $this->getCurrentStagesFromDatabase($sheetType);
+    }
+
+    /**
+     * Load stage options from database (fallback when config is empty).
+     */
+    protected function getCurrentStagesFromDatabase(string $sheetType): \Illuminate\Support\Collection
+    {
+        if ($sheetType === 'coe_enrolled') {
+            return Application::select('stage')
+                ->whereNotIn('status', [2])
+                ->whereRaw('LOWER(TRIM(stage)) IN (?, ?)', ['coe issued', 'enrolled'])
+                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        }
+        if ($sheetType === 'discontinue') {
+            return Application::where('status', 2)
+                ->select('stage')
+                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        }
+        if ($sheetType === 'checklist') {
+            $earlyStages = $this->getChecklistEarlyStages();
+            if (empty($earlyStages)) {
+                return collect();
+            }
+            $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
+            return Application::select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->whereNotIn('applications.status', [2])
+                ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
+                ->where(function ($q) {
+                    $q->whereNull('applications.checklist_sheet_status')
+                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
+                })
+                ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
+        }
+        // Ongoing
+        return Application::select('stage')
+            ->whereNotIn('status', [2])
+            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
+            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
     }
 
     /**

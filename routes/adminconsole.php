@@ -27,6 +27,9 @@ use App\Http\Controllers\AdminConsole\DocumentChecklistController;
 use App\Http\Controllers\AdminConsole\DocumentCategoryController as AdminConsoleDocumentCategoryController;
 use App\Http\Controllers\AdminConsole\EmailLabelController;
 use App\Http\Controllers\AdminConsole\RecentlyModifiedClientsController;
+use App\Http\Controllers\AdminConsole\Sms\SmsController as AdminConsoleSmsController;
+use App\Http\Controllers\AdminConsole\Sms\SmsSendController;
+use App\Http\Controllers\AdminConsole\Sms\SmsTemplateController as AdminConsoleSmsTemplateController;
 use App\Http\Controllers\Admin\BranchesController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TeamController;
@@ -186,5 +189,28 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/recent-clients/get-client-details', [RecentlyModifiedClientsController::class, 'getClientDetails'])->name('adminconsole.recentclients.getdetails');
     Route::post('/recent-clients/toggle-archive', [RecentlyModifiedClientsController::class, 'toggleArchive'])->name('adminconsole.recentclients.togglearchive');
     Route::post('/recent-clients/bulk-archive', [RecentlyModifiedClientsController::class, 'bulkArchive'])->name('adminconsole.recentclients.bulkarchive');
-    
+
+    // Features - SMS Management (visible to all admins)
+    Route::prefix('features')->name('features.')->group(function () {
+        Route::prefix('sms')->name('sms.')->group(function () {
+            Route::get('/dashboard', [AdminConsoleSmsController::class, 'dashboard'])->name('dashboard');
+            Route::get('/history', [AdminConsoleSmsController::class, 'history'])->name('history');
+            Route::get('/history/{id}', [AdminConsoleSmsController::class, 'show'])->name('history.show');
+            Route::get('/statistics', [AdminConsoleSmsController::class, 'statistics'])->name('statistics');
+            Route::get('/status/{smsLogId}', [AdminConsoleSmsController::class, 'checkStatus'])->name('status.check');
+            Route::get('/send', [SmsSendController::class, 'create'])->name('send.create');
+            Route::post('/send', [SmsSendController::class, 'send'])->name('send');
+            Route::post('/send/template', [SmsSendController::class, 'sendFromTemplate'])->name('send.template');
+            Route::post('/send/bulk', [SmsSendController::class, 'sendBulk'])->name('send.bulk');
+            Route::get('/templates', [AdminConsoleSmsTemplateController::class, 'index'])->name('templates.index');
+            Route::get('/templates/create', [AdminConsoleSmsTemplateController::class, 'create'])->name('templates.create');
+            Route::post('/templates', [AdminConsoleSmsTemplateController::class, 'store'])->name('templates.store');
+            Route::get('/templates/{id}/edit', [AdminConsoleSmsTemplateController::class, 'edit'])->name('templates.edit');
+            Route::put('/templates/{id}', [AdminConsoleSmsTemplateController::class, 'update'])->name('templates.update');
+            Route::delete('/templates/{id}', [AdminConsoleSmsTemplateController::class, 'destroy'])->name('templates.destroy');
+            Route::get('/templates/{id}', [AdminConsoleSmsTemplateController::class, 'show'])->name('templates.show');
+            Route::get('/templates-active', [AdminConsoleSmsTemplateController::class, 'active'])->name('templates.active');
+        });
+    });
+
 });

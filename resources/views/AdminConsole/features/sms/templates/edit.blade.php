@@ -1,0 +1,110 @@
+@extends('layouts.adminconsole')
+@section('title', 'Edit SMS Template')
+
+@section('content')
+<div class="main-content">
+    <section class="section">
+        <div class="section-body">
+            <div class="server-error">@include('../Elements/flash-message')</div>
+            <div class="custom-error-msg"></div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-edit"></i> Edit SMS Template</h4>
+                            <div class="card-header-action">
+                                <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Templates</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="templateForm">
+                                @csrf
+                                @method('PUT')
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="title">Template Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="title" name="title" value="{{ $template->title }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="category">Category</label>
+                                            <input type="text" class="form-control" id="category" name="category" value="{{ $template->category }}" placeholder="e.g., Appointment, Reminder, Notification">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2">{{ $template->description }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Message Content <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="message" name="message" rows="4" required>{{ $template->message }}</textarea>
+                                    <small class="form-text text-muted"><span id="charCount">{{ strlen($template->message) }}</span>/1600 characters. Use variables like {client_name}, {appointment_date}, etc.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="variables">Available Variables (comma-separated or JSON)</label>
+                                    <textarea class="form-control" id="variables" name="variables" rows="2">{{ $template->variables }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ $template->is_active ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_active">Active (can be used for sending SMS)</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Update Template</button>
+                                    <a href="{{ route('adminconsole.features.sms.templates.index') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+$(document).ready(function() {
+    $('#message').on('input', function() { $('#charCount').text($(this).val().length); });
+    $('#templateForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = {
+            title: $('#title').val(),
+            message: $('#message').val(),
+            description: $('#description').val(),
+            category: $('#category').val(),
+            variables: $('#variables').val(),
+            is_active: $('#is_active').is(':checked') ? 1 : 0,
+            _token: $('input[name="_token"]').val(),
+            _method: 'PUT'
+        };
+        $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+        $.ajax({
+            url: '{{ route("adminconsole.features.sms.templates.update", $template->id) }}',
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    alert('Template updated successfully!');
+                    window.location.href = '{{ route("adminconsole.features.sms.templates.index") }}';
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                var response = xhr.responseJSON;
+                alert(response && response.message ? 'Error: ' + response.message : 'An error occurred while updating the template');
+            },
+            complete: function() {
+                $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Update Template');
+            }
+        });
+    });
+});
+</script>
+@endsection

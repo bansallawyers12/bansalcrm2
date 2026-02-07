@@ -114,7 +114,14 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/clients/update-email-verified', [ClientMessagingController::class, 'updateemailverified'])->name('clients.updateemailverified');
     Route::post('/email-verify', [ClientMessagingController::class, 'emailVerify'])->name('emailVerify');
     Route::post('/clients/fetchClientContactNo', [ClientMessagingController::class, 'fetchClientContactNo'])->name('clients.fetchClientContactNo');
-    Route::post('/sendmsg', [ClientMessagingController::class, 'sendmsg'])->name('clients.sendmsg');
+    Route::post('/phone-verification/send-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'sendOTP'])->name('clients.phone.sendOTP');
+    Route::post('/phone-verification/verify-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'verifyOTP'])->name('clients.phone.verifyOTP');
+    Route::post('/phone-verification/resend-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'resendOTP'])->name('clients.phone.resendOTP');
+    Route::get('/phone-verification/status/{clientPhoneId}', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'getStatus'])->name('clients.phone.status');
+    Route::post('/phone-verification/lead/send-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'sendOTPForLead'])->name('leads.phone.sendOTP');
+    Route::post('/phone-verification/lead/verify-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'verifyOTPForLead'])->name('leads.phone.verifyOTP');
+    Route::post('/phone-verification/lead/resend-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'resendOTPForLead'])->name('leads.phone.resendOTP');
+    Route::get('/phone-verification/lead/status/{leadId}', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'getStatusForLead'])->name('leads.phone.status');
     Route::post('/is_greview_mail_sent', [ClientMessagingController::class, 'isgreviewmailsent'])->name('clients.isgreviewmailsent');
     Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('clients.enhanceMessage');
     
@@ -194,13 +201,13 @@ Route::middleware(['auth:admin'])->group(function() {
         });
     });
     
-    // Sheets Routes (Ongoing, COE Issued & Enrolled, Discontinue)
+    // Sheets Routes (Ongoing, COE Issued & Enrolled, Discontinue, Insights)
     Route::prefix('clients/sheets')->name('clients.sheets.')->group(function() {
         Route::get('/ongoing', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'ongoing')->name('ongoing');
         Route::get('/coe-enrolled', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'coe_enrolled')->name('coe-enrolled');
         Route::get('/discontinue', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'discontinue')->name('discontinue');
         Route::get('/checklist', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'checklist')->name('checklist');
-        Route::get('/ongoing/insights', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'insights'])->name('ongoing.insights');
+        Route::get('/insights', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'sheetsInsights'])->name('insights');
 
         Route::post('/ongoing/{clientId}/update', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'updateReference'])->name('ongoing.update');
         Route::post('/ongoing/sheet-comment', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'storeSheetComment'])->name('ongoing.sheet-comment');

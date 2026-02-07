@@ -9,11 +9,11 @@ use Auth;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
-use App\Services\SmsService;
+use App\Services\Sms\UnifiedSmsManager;
 
 /**
  * Client activity log operations
- * 
+ *
  * Methods moved from ClientsController:
  * - activities (TODO - still in ClientsController)
  * - deleteactivitylog
@@ -22,50 +22,43 @@ use App\Services\SmsService;
  */
 class ClientActivityController extends Controller
 {
-    protected $smsService;
+    protected $smsManager;
 
-    public function __construct(SmsService $smsService)
+    public function __construct(UnifiedSmsManager $smsManager)
     {
         $this->middleware('auth:admin');
-        $this->smsService = $smsService;
+        $this->smsManager = $smsManager;
     }
 
     /**
-     * Not picked call button click
+     * Not picked call button click - send SMS via UnifiedSmsManager
      */
     public function notpickedcall(Request $request){
         $data = $request->all();
-        //Get user Phone no and send message via cellcast
         $userInfo = Admin::select('id','country_code','phone')->where('id', $data['id'])->first();
-        if ( $userInfo) {
-            $message = $data['message'];
-            $userPhone = $userInfo->country_code."".$userInfo->phone;
-            $this->smsService->sendSms($userPhone,$message);
+        $smsSent = false;
+        if ($userInfo && !empty($data['message'])) {
+            $userPhone = trim(($userInfo->country_code ?? '') . '' . ($userInfo->phone ?? ''));
+            if ($userPhone) {
+                $result = $this->smsManager->sendSms($userPhone, $data['message'], 'notification', ['client_id' => $data['id']]);
+                $smsSent = !empty($result['success']);
+            }
         }
         $recExist = Admin::where('id', $data['id'])->update(['not_picked_call' => $data['not_picked_call']]);
-        if($recExist){
-            if($data['not_picked_call'] == 1){ //if checked true
-                $objs = new ActivitiesLog;
-                $objs->client_id = $data['id'];
-                $objs->created_by = Auth::user()->id;
-                $objs->description = '<span class="text-semi-bold">Call not picked.SMS sent successfully!</span>';
-                $objs->task_status = 0;
-                $objs->pin = 0;
-                $objs->save();
-
-                $response['status'] 	= 	true;
-                $response['message']	=	'Call not picked.SMS sent successfully!';
-                $response['not_picked_call'] 	= 	$data['not_picked_call'];
-            }
-            else if($data['not_picked_call'] == 0){
-                $response['status'] 	= 	true;
-                $response['message']	=	'You have updated call not picked bit. Please try again';
-                $response['not_picked_call'] 	= 	$data['not_picked_call'];
+        if ($recExist) {
+            if ($data['not_picked_call'] == 1) {
+                $response['status'] = true;
+                $response['message'] = $smsSent ? 'Call not picked. SMS sent successfully!' : 'Call not picked. SMS failed to send.';
+                $response['not_picked_call'] = $data['not_picked_call'];
+            } else {
+                $response['status'] = true;
+                $response['message'] = 'You have updated call not picked bit. Please try again';
+                $response['not_picked_call'] = $data['not_picked_call'];
             }
         } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'Please try again';
-            $response['not_picked_call'] 	= 	$data['not_picked_call'];
+            $response['status'] = false;
+            $response['message'] = 'Please try again';
+            $response['not_picked_call'] = $data['not_picked_call'];
         }
         echo json_encode($response);
     }

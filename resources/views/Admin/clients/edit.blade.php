@@ -495,12 +495,11 @@
 																<i class="fa fa-edit"></i>
 															</a>
 															<?php if($contactType == "Personal") {
-																$check_verified_phoneno = $countryCode.$phone;
-																$verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
-																if ($verifiedNumber) {
-																	echo '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>';
-																} else {
-																	echo '<button type="button" class="btn-verify phone_verified" data-fname="'.$fetchedData->first_name.'" data-phone="'.$check_verified_phoneno.'" data-clientid="'.$fetchedData->id.'"><i class="fas fa-paper-plane"></i></button>';
+																$cp = !empty($phoneId) ? \App\Models\ClientPhone::find($phoneId) : null;
+																if ($cp && $cp->is_verified) {
+																	echo '<span class="verified-badge text-success" title="Verified"><i class="fas fa-check-circle"></i></span>';
+																} elseif ($cp && $cp->canVerify()) {
+																	echo '<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="'.(int)$phoneId.'" title="Verify"><i class="fas fa-paper-plane"></i></button>';
 																}
 															} ?>
 															<?php if($contactType != "Personal") { ?>
@@ -543,15 +542,11 @@
 																	title="Edit">
 																	<i class="fa fa-edit"></i>
 																</a>
-																<?php if( isset($clientphone->contact_type) && $clientphone->contact_type == "Personal" ) {
-																	$check_verified_phoneno = $clientphone->client_country_code."".$clientphone->client_phone;
-																	$verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
-																	if ($verifiedNumber) {
-																		echo '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>';
-																	} else {
-																		echo '<button type="button" class="btn-verify phone_verified" data-fname="'.$fetchedData->first_name.'" data-phone="'.$check_verified_phoneno.'" data-clientid="'.$fetchedData->id.'"><i class="fas fa-paper-plane"></i></button>';
-																	}
-																} ?>
+																@if($clientphone->is_verified)
+																<span class="verified-badge text-success" title="Verified"><i class="fas fa-check-circle"></i></span>
+															@elseif($clientphone->canVerify())
+																<button type="button" class="btn btn-sm btn-outline-primary btn-verify-phone" data-client-phone-id="{{ $clientphone->id }}" title="Verify"><i class="fas fa-paper-plane"></i></button>
+															@endif
 																<?php if( isset($clientphone->contact_type) && $clientphone->contact_type != "Personal" ) { ?>
 																	<a href="javascript:;" dataid="{{$iii}}" contactid="{{$clientphone->id}}" class="deletecontact btn-delete">
 																		<i class="fa fa-trash"></i>
@@ -1744,29 +1739,29 @@ if($fetchedData->tagname != ''){
 	</div>
 </div>
 
-<!-- Verify Phone-->
-<div id="verifyphonemodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
+<!-- Verify Phone OTP Modal (ClientPhone) -->
+<div id="verifyPhoneOtpModal" data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
+				<h5 class="modal-title">Verify Phone Number</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-                <div class="mb-4" id="verificationSection">
-                    <h5>Verify Phone Number</h5>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="verify_phone_number" placeholder="" value="">
-                        <button class="btn btn-outline-secondary" type="button" id="sendCodeBtn">Send Code</button>
-                    </div>
-
-                    <div id="verificationCodeSection" style="display: none;">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" id="verification_code" placeholder="Enter verification code">
-                            <button class="btn btn-outline-secondary" type="button" id="verifyCodeBtn">Verify Code</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+				<input type="hidden" id="verify_otp_client_phone_id" value="">
+				<div id="verifyOtpSendSection">
+					<p class="text-muted">Send a verification code to this phone.</p>
+					<button type="button" class="btn btn-primary" id="verifyOtpSendBtn"><i class="fas fa-paper-plane"></i> Send Code</button>
+				</div>
+				<div id="verifyOtpCodeSection" style="display: none;">
+					<label>Enter 6-digit code</label>
+					<div class="input-group mb-2">
+						<input type="text" class="form-control" id="verify_otp_code" placeholder="000000" maxlength="6">
+						<button type="button" class="btn btn-primary" id="verifyOtpVerifyBtn">Verify</button>
+					</div>
+					<button type="button" class="btn btn-sm btn-link" id="verifyOtpResendBtn" disabled>Resend code (30s)</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -1800,8 +1795,9 @@ if($fetchedData->tagname != ''){
         createServiceTaken: '{{ url("/client/createservicetaken") }}',
         removeServiceTaken: '{{ url("/client/removeservicetaken") }}',
         emailVerify: '{{ url("/email-verify") }}',
-        verifySendCode: '{{ route("verify.send-code") }}',
-        verifyCheckCode: '{{ route("verify.check-code") }}'
+        phoneSendOTP: '{{ route("clients.phone.sendOTP") }}',
+        phoneVerifyOTP: '{{ route("clients.phone.verifyOTP") }}',
+        phoneResendOTP: '{{ route("clients.phone.resendOTP") }}'
     };
     
     // Page-specific data
@@ -1835,6 +1831,65 @@ if($fetchedData->tagname != ''){
 @push('scripts')
     <script src="{{ asset('js/address-autocomplete.js') }}"></script>
 @endpush
+
+<!-- Phone verification OTP (ClientPhone) -->
+<script>
+jQuery(document).ready(function($){
+    var verifyResendTimer;
+    $('.btn-verify-phone').on('click', function(){
+        var id = $(this).data('client-phone-id');
+        $('#verify_otp_client_phone_id').val(id);
+        $('#verifyOtpSendSection').show();
+        $('#verifyOtpCodeSection').hide();
+        $('#verify_otp_code').val('');
+        $('#verifyPhoneOtpModal').modal('show');
+    });
+    $('#verifyOtpSendBtn').on('click', function(){
+        var id = $('#verify_otp_client_phone_id').val();
+        var btn = $(this);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+        $.post(AppConfig.urls.phoneSendOTP, { _token: AppConfig.csrf, client_phone_id: id }, function(r){
+            if (r.success) {
+                $('#verifyOtpSendSection').hide();
+                $('#verifyOtpCodeSection').show();
+                $('#verifyOtpResendBtn').prop('disabled', true).text('Resend code (30s)');
+                var s = 30;
+                verifyResendTimer = setInterval(function(){
+                    s--; $('#verifyOtpResendBtn').text(s ? 'Resend code ('+s+'s)' : 'Resend code');
+                    if (s <= 0) { clearInterval(verifyResendTimer); $('#verifyOtpResendBtn').prop('disabled', false); }
+                }, 1000);
+            } else { alert(r.message || 'Failed to send code'); }
+        }).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
+    });
+    $('#verifyOtpVerifyBtn').on('click', function(){
+        var id = $('#verify_otp_client_phone_id').val();
+        var code = $('#verify_otp_code').val();
+        if (!code || code.length !== 6) { alert('Enter 6-digit code'); return; }
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.post(AppConfig.urls.phoneVerifyOTP, { _token: AppConfig.csrf, client_phone_id: id, otp_code: code }, function(r){
+            if (r.success) {
+                alert('Phone verified successfully!');
+                $('#verifyPhoneOtpModal').modal('hide');
+                location.reload();
+            } else { alert(r.message || 'Invalid code'); }
+        }).fail(function(){ alert('Request failed'); }).always(function(){ btn.prop('disabled', false); });
+    });
+    $('#verifyOtpResendBtn').on('click', function(){
+        if ($(this).prop('disabled')) return;
+        var id = $('#verify_otp_client_phone_id').val();
+        $(this).prop('disabled', true).text('Resend code (30s)');
+        var s = 30;
+        verifyResendTimer = setInterval(function(){
+            s--; $('#verifyOtpResendBtn').text(s ? 'Resend code ('+s+'s)' : 'Resend code');
+            if (s <= 0) { clearInterval(verifyResendTimer); $('#verifyOtpResendBtn').prop('disabled', false); }
+        }, 1000);
+        $.post(AppConfig.urls.phoneResendOTP, { _token: AppConfig.csrf, client_phone_id: id }, function(r){
+            if (!r.success) alert(r.message || 'Resend failed');
+        });
+    });
+});
+</script>
 
 <!-- Naati/PY Checkbox Handling -->
 <script>

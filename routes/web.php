@@ -27,7 +27,6 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\UploadChecklistController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
-use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
 use App\Http\Controllers\Auth\AdminLoginController;
@@ -679,27 +678,9 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
         Route::get('/get-partner-notes', [PartnersController::class, 'getPartnerNotes'])->name('partners.getPartnerNotes');
   
   
-        //admin send msg
-        //Phone verification using Cellcast API
-        Route::post('/verify/is-phone-verify-or-not', [SmsController::class, 'isPhoneVerifyOrNot'])->name('verify.is-phone-verify-or-not');
-        //Route::get('/show-form', [SmsController::class, 'showForm'])->name('sms.form');
-        //Route::post('/send-sms', [SmsController::class, 'sendSMS'])->name('send.sms');
-        Route::post('/verify/send-code', [SmsController::class, 'sendVerificationCode'])->name('verify.send-code');
-        Route::post('/verify/check-code', [SmsController::class, 'verifyCode'])->name('verify.check-code');
+        // SMS and phone verification: now in AdminConsole (features.sms) and PhoneVerificationController (Phase 9)
 
-
-
-        //Cellcast api
-        //Route::post('/verify/is-phone-verify-or-not', [SmsController::class, 'isPhoneVerifyOrNot'])->name('verify.is-phone-verify-or-not');
-        //Route::post('/verify/send-code', [SmsController::class, 'sendVerificationCode'])->name('verify.send-code');
-        //Route::post('/verify/check-code', [SmsController::class, 'verifyCode'])->name('verify.check-code');
-        Route::get('/sms', [SmsController::class, 'showForm'])->name('sms.form');
-        Route::post('/sms', [SmsController::class, 'send'])->name('sms.send');
-        Route::get('/sms/status/{messageId}', [SmsController::class, 'checkStatus'])->name('sms.status');
-        Route::get('/sms/responses', [SmsController::class, 'getResponses'])->name('sms.responses');
-
-  
-       // Client routes moved to routes/clients.php (unified routes): sendmsg, is_greview_mail_sent, mail/enhance, download-document
+       // Client routes moved to routes/clients.php (unified routes): is_greview_mail_sent, mail/enhance, download-document
   
        //partner document upload
         Route::post('/upload-partner-document-upload', [PartnersController::class, 'uploadpartnerdocumentupload']);

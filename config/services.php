@@ -55,13 +55,17 @@ return [
     ],
   
     'twilio' => [
-       'sid' => env('TWILIO_SID'),
-       'token' => env('TWILIO_AUTH_TOKEN'),
-       'phone' => env('TWILIO_PHONE_NUMBER'),
+        'account_sid' => env('TWILIO_SID'),
+        'auth_token' => env('TWILIO_AUTH_TOKEN'),
+        'from' => env('TWILIO_PHONE_NUMBER'),
+        'timeout' => env('TWILIO_TIMEOUT', 30),
     ],
 
     'cellcast' => [
         'api_key' => env('CELLCAST_API_KEY'),
+        'base_url' => env('CELLCAST_BASE_URL', 'https://cellcast.com.au/api/v3'),
+        'sender_id' => env('CELLCAST_SENDER_ID', 'BANSALIMMI'),
+        'timeout' => env('CELLCAST_TIMEOUT', 30),
     ],
   
      'openai' => [

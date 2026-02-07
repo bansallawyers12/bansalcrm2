@@ -8,7 +8,13 @@ class Lead extends Model
 {	use Sortable;
 
 	protected $fillable = [
-        'id', 'name', 'status', 'created_at', 'updated_at'
+        'id', 'name', 'status', 'created_at', 'updated_at',
+        'is_verified', 'verified_at', 'verified_by',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'verified_at' => 'datetime',
     ];
 	
 	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
@@ -124,5 +130,20 @@ class Lead extends Model
             $this->attributes['att_phone'] ?? ''
         );
     }
-   
+
+    public function isAustralianNumber()
+    {
+        $cc = $this->country_code ?? '';
+        return $cc === '+61' || str_starts_with((string) $cc, '+61');
+    }
+
+    public function isPlaceholderNumber()
+    {
+        return \App\Helpers\PhoneValidationHelper::isPlaceholderNumber($this->phone ?? '');
+    }
+
+    public function needsVerification()
+    {
+        return $this->isAustralianNumber() && !$this->is_verified && !$this->isPlaceholderNumber();
+    }
 }

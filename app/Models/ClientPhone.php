@@ -20,6 +20,14 @@ class ClientPhone extends Model
         'contact_type',
         'client_country_code',
         'client_phone',
+        'is_verified',
+        'verified_at',
+        'verified_by',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'verified_at' => 'datetime',
     ];
 
     /**
@@ -66,4 +74,30 @@ class ClientPhone extends Model
         );
     }
 
+    public function verifications()
+    {
+        return $this->hasMany(PhoneVerification::class, 'client_phone_id');
+    }
+
+    public function isAustralianNumber()
+    {
+        $cc = $this->getClientCountryCodeAttribute($this->attributes['client_country_code'] ?? null);
+        return $cc === '+61' || str_starts_with((string) $cc, '+61');
+    }
+
+    public function isPlaceholderNumber()
+    {
+        return \App\Helpers\PhoneValidationHelper::isPlaceholderNumber($this->client_phone ?? '');
+    }
+
+    public function needsVerification()
+    {
+        return $this->isAustralianNumber() && !$this->is_verified && !$this->isPlaceholderNumber();
+    }
+
+    public function canVerify()
+    {
+        return $this->isAustralianNumber() && !$this->isPlaceholderNumber();
+    }
 }
+
