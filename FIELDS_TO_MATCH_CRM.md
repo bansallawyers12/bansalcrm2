@@ -17,23 +17,13 @@ Use this checklist to align lead/client form fields and allowed values so both C
 | **Start process** | Removed from bansalcrm2 (UI + column dropped). Not in migrationmanager2. |
 | **Country of Passport** | Both store **country name** (e.g. India, Australia). bansalcrm2 migration + views + import normalization done. |
 | **Gender** | Same options in both: Male, Female, Other. bansalcrm2 validation updated to `in:Male,Female,Other` on lead and client (edit). |
+| **Emergency contact** | Removed from migrationmanager2. Both systems align: bansalcrm2 uses multiple phone numbers; migrationmanager2 no longer has `emergency_contact_no` / `emergency_contact_type`. |
 
 ---
 
 ## To match (excluding Source)
 
-### 1. Emergency contact
-
-| Item | migrationmanager2 | bansalcrm2 |
-|------|-------------------|------------|
-| **emergency_contact_no** | Saved on client (admins). | Not on client/lead forms; handled via multiple phones if needed. |
-| **emergency_contact_type** | Saved from request (no validation). | Not on forms. |
-
-**Action:** Will be removed from migrationmanager2 later. bansalcrm2 uses multiple phone numbers instead.
-
----
-
-### 2. Date formats
+### 1. Date formats
 
 migrationmanager2 uses regex for dates: `\d{2}/\d{2}/\d{4}` (e.g. DD/MM/YYYY).
 
@@ -41,7 +31,7 @@ migrationmanager2 uses regex for dates: `\d{2}/\d{2}/\d{4}` (e.g. DD/MM/YYYY).
 
 ---
 
-### 3. Type (lead vs client)
+### 2. Type (lead vs client)
 
 | Field | migrationmanager2 | bansalcrm2 |
 |-------|-------------------|------------|
