@@ -5,7 +5,7 @@
 (function () {
 	'use strict';
 
-	var INACTIVITY_MINUTES = 15;
+	var INACTIVITY_MINUTES =30;
 	var MS = INACTIVITY_MINUTES * 60 * 1000;
 	var timer = null;
 
