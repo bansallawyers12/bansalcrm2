@@ -10,6 +10,7 @@ use App\Models\ActivitiesLog;
 use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use App\Models\Country;
+use App\Models\VisaType;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -364,26 +365,20 @@ class ClientImportService
             // Import travel information - bansalcrm2 doesn't have client_travel_informations table
             // Skip travel import - table doesn't exist
 
-            // Import visa countries - bansalcrm2 stores visa data in admins table, not separate client_visa_countries table
+            // Import visa countries - bansalcrm2 stores visa data in admins table (first entry only)
             if (isset($importData['visa_countries']) && is_array($importData['visa_countries']) && !empty($importData['visa_countries'])) {
-                // Use first visa entry to populate admins table fields
                 $visaData = $importData['visa_countries'][0];
-                if (empty($client->visa_type)) {
-                    // Resolve visa type: prefer portable nick_name/title from migrationmanager2 exports,
-                    // fall back to visa_type for backwards compatibility with older exports.
-                    // bansalcrm2 stores visa type as name string, not numeric ID.
-                    $resolvedVisaType = $this->resolveVisaTypeName($visaData);
-                    if (!empty($resolvedVisaType)) {
-                        $client->visa_type = $resolvedVisaType;
-                    }
-                }
+                $resolvedId = app(VisaTypeResolveService::class)->resolve($visaData);
+                $visaTypeModel = VisaType::find($resolvedId);
+                $client->visa_type_id = $resolvedId;
+                $client->visa_type = $visaTypeModel ? $visaTypeModel->name : $this->resolveVisaTypeName($visaData);
+                $client->visa_grant_date = $this->parseDate($visaData['visa_grant_date'] ?? null);
                 if (empty($client->visa_opt) && !empty($visaData['visa_description'])) {
                     $client->visa_opt = $visaData['visa_description'];
                 }
                 if (empty($client->visaexpiry) && !empty($visaData['visa_expiry_date'])) {
                     $client->visaexpiry = $this->parseDate($visaData['visa_expiry_date']);
                 }
-                // Note: visa_grant_date is not stored in bansalcrm2 admins table
                 $client->save();
             }
 

@@ -261,30 +261,38 @@ class ClientExportService
     }
 
     /**
-     * Get client visa countries
-     * Note: bansalcrm2 stores visa data in admins table, not in separate client_visa_countries table
+     * Get client visa countries (one visa per client).
+     * Same JSON shape as migrationmanager2 so both systems accept the same file.
      */
     private function getClientVisaCountries($clientId)
     {
-        $client = Admin::find($clientId);
+        $client = Admin::with('visaType')->find($clientId);
         if (!$client) {
             return [];
         }
         
         // If no visa data, return empty array
-        if (empty($client->visa_type) && empty($client->visa_opt) && empty($client->visaExpiry)) {
+        if (empty($client->visa_type_id) && empty($client->visa_type) && empty($client->visa_opt)
+            && empty($client->visaExpiry)) {
             return [];
         }
         
-        // Convert admins table visa fields to visa_countries array format
+        $visaExpiry = $client->visaExpiry ?? null;
+        $visaGrantDate = $client->visa_grant_date;
+        if ($visaGrantDate && method_exists($visaGrantDate, 'format')) {
+            $visaGrantDate = $visaGrantDate->format('Y-m-d');
+        }
+        
         return [
             [
-                'visa_country' => $client->country ?? null, // Use client's country as visa country
-                'visa_type' => $client->visa_type ?? null,
+                'visa_country' => null,
+                'visa_type' => $client->visa_type_id ?? null,
+                'visa_type_matter_title' => $client->visaType?->name ?? $client->visa_type ?? null,
+                'visa_type_matter_nick_name' => null,
                 'visa_description' => $client->visa_opt ?? null,
-                'visa_expiry_date' => $client->visaExpiry ?? null, // Uses accessor for visaexpiry column
-                'visa_grant_date' => null, // Not stored in bansalcrm2
-            ]
+                'visa_expiry_date' => $visaExpiry,
+                'visa_grant_date' => $visaGrantDate,
+            ],
         ];
     }
 

@@ -26,6 +26,16 @@ class Admin extends Authenticatable
         'office_id', 'position', 'team', 'telephone', 'permission', 'show_dashboard_per',
         'verified', 'client_id', 'staff_id', 'phone', 'country_code', 'email_signature',
         'default_email_id',
+        'visa_type_id', 'visa_grant_date',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'visa_grant_date' => 'date',
     ];
     
 	/**
@@ -67,6 +77,14 @@ class Admin extends Authenticatable
     public function defaultEmail(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Email::class, 'default_email_id');
+    }
+
+    /**
+     * Get the visa type (subclass) for this client/admin. Used for migrationmanager2 alignment.
+     */
+    public function visaType(): BelongsTo
+    {
+        return $this->belongsTo(VisaType::class, 'visa_type_id', 'id');
     }
 
     /**
