@@ -49,7 +49,10 @@ class Document extends Model
         'primary_signer_email',
         'signer_count',
         'last_activity_at',
-        'archived_at'
+        'archived_at',
+        'application_id',
+        'application_list_id',
+        'application_stage',
     ];
 
     protected $casts = [
