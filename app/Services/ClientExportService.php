@@ -70,7 +70,6 @@ class ClientExportService
             'email' => $client->email,
             'phone' => $client->phone,
             'country_code' => $client->country_code,
-            'telephone' => $client->telephone ?? null,
             
             // Personal Information
             'dob' => $client->dob,

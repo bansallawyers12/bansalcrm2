@@ -201,7 +201,6 @@ class ClientImportService
             $client->email = $clientData['email'];
             $client->phone = $clientData['phone'] ?? null;
             $client->country_code = $clientData['country_code'] ?? null;
-            $client->telephone = $clientData['telephone'] ?? null;
             
             // Personal Information
             $client->dob = $this->parseDate($clientData['dob'] ?? null);

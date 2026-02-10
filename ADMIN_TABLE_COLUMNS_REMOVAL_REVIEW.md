@@ -58,14 +58,14 @@
 
 ### 13. **time_zone**
 - **Usage:** `UserController` (timezone on update); `users/view.blade.php` (dropdown for staff timezone).
-- **Recommendation:** **Do not remove** if you still use per-user timezone for staff.
+- **Recommendation:** **Review later.** Data: only 3 rows filled (~0%). Keep if per-user timezone is needed; consider removal if not used.
 
 ### 14. **position**
 - **Usage:** In `Admin` `$fillable`; `users/index.blade.php`, `users/view.blade.php` (display staff position).
-- **Recommendation:** **Do not remove** if you display or filter by staff position.
+- **Recommendation:** **Review later.** Data: 261 rows filled (0.5%). Keep if displaying staff position; consider removal if rarely used.
 
 ### 15. **telephone**
-- **Usage:** In `Admin` `$fillable`; `ClientExportService` exports `telephone` for clients; `ClientImportService` sets `$client->telephone`.
+- **Usage:** Was used for normalized phone country code; duplicate of `country_code`. Code now uses `country_code` only (UserController, users/edit, ClientExportService, ClientImportService). Removed from Admin `$fillable`.
 - **Recommendation:** **Do not remove** if you still use “telephone” for clients (or staff). Confirm whether this is redundant with `phone`/`att_phone`; if redundant, you could deprecate after migrating data and references.
 
 ### 16. **user_id** (on admins)
@@ -73,8 +73,8 @@
 - **Recommendation:** **Do not remove** if you still assign clients to a specific staff member; removing would break “assigned agent” and “added by” behaviour.
 
 ### 17. **profile_img**
-- **Usage:** Client create/update and lead conversion in `ClientController`; `ClientExportService`, `ClientImportService`; `ClientReceiptController` (select for receipt).
-- **Recommendation:** **Do not remove** unless you move profile images to another store (e.g. media table) and update all code.
+- **Usage:** Client create/update and lead conversion in `ClientController`; `ClientExportService`, `ClientImportService`; `ClientReceiptController`; agents, partners, profile, header, invoices.
+- **Recommendation:** **Marked for deletion.** Migrate profile images to another store (e.g. media table) and update all references before dropping column.
 
 ### 18. **comments_note**
 - **Usage:** `ClientController` (save on create/update); `ClientExportService`, `ClientImportService`; `clients/edit.blade.php`; `LeadController` (copy from lead to client).
@@ -82,11 +82,11 @@
 
 ### 19. **rating**
 - **Usage:** `ClientController` (save rating, activity log); `users/view.blade.php` (display client rating in list).
-- **Recommendation:** **Do not remove** if you still use client rating.
+- **Recommendation:** **Marked for deletion.** Not using client rating; remove from ClientController, users/view, drop column.
 
 ### 20. **applications** (column)
-- **Usage:** `ClientController`: `$obj->applications = @$requestData['applications']`; `ClientExportService`, `ClientImportService`; `Admin` model has `applications()` relationship but that is for the `applications` table (hasMany), not the column. The **column** `applications` appears to be a legacy text/count field on the client record.
-- **Recommendation:** **Verify:** If the column is redundant with the actual `Application` model relationship (count of applications), you could remove after replacing any reads with `$client->applications()->count()` and removing writes. Check for any reports or exports that read the column.
+- **Usage:** `ClientController`: `$obj->applications = @$requestData['applications']`; `ClientExportService`, `ClientImportService`. Column is redundant with `applications()` relationship (hasMany to applications table).
+- **Recommendation:** **Marked for deletion.** Replace reads with `$client->applications()->count()`; remove writes from ClientController; update Export/Import; drop column..
 
 ### 21. **followers**
 - **Usage:** `ClientController` (saving from request); `ClientExportService`, `ClientImportService`; `Admin::setFollowersAttribute` mutator.
@@ -94,7 +94,7 @@
 
 ### 22. **preferredintake**
 - **Usage:** `Admin` model has `getPreferredIntakeAttribute` / `setPreferredIntakeAttribute`; `ClientExportService`, `ClientImportService`.
-- **Recommendation:** **Do not remove** if preferred intake is still part of client data.
+- **Recommendation:** **Marked for deletion.** Remove from Admin model (accessor/mutator), ClientExportService, ClientImportService, drop column.
 
 ### 23. **is_greview_mail_sent**
 - **Usage:** On admins (client record). Used in `ClientMessagingController::isgreviewmailsent()` (read/update), `clients/detail.blade.php` (Google Review button and `data-is_greview_mail_sent`), and `communications.js`.
@@ -154,7 +154,7 @@ These are **columns on the `admins` table**, not separate tables. Usage and data
 - **telephone** — Set from country_code; ClientExport/Import; may overlap with phone/att_phone. Can be sparse.
 - **time_zone** — UserController::savezone; users/view dropdown. Often empty if never set.
 - **user_id** — **Heavily used:** assigned staff, Added by, applications/leads assignee, Ongoing Sheet, documents. **Keep.**
-- **profile_img** — **Heavily used:** clients, leads, agents, partners, profile, header, invoices. Many rows NULL; **keep.**
+- **profile_img** — **Marked for deletion.** Heavily used; migrate to media store before removal.
 
 Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,320 admins): **position** 0.5%, **telephone** 0.5%, **time_zone** ~0%, **profile_img** ~0%, **user_id** (non-null > 0) ~0%. So most of these columns are **empty or rarely set** in current data; the code still uses them, so keep the columns unless you migrate usage elsewhere.
 
@@ -170,22 +170,22 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | remember_token | Auth required |
 | staff_id | Staff code (Staff UI); empty in DB if staff not used |
 | office_id | Branch assignment |
-| position | Staff position (User Management) |
+| position | **Review later** – staff position; 0.5% filled |
 | telephone | Client/staff telephone (or migrate then remove) |
-| time_zone | Staff timezone |
+| time_zone | **Review later** – staff timezone; ~0% filled |
 | user_id | Client's assigned staff |
-| profile_img | Client/staff image |
+| profile_img | **Marked for deletion** – migrate to media store first |
 | company_name | **Review later** – company profile / invoices |
 | company_website | **Review later** – company profile |
 | primary_email | **Marked for deletion** – no data; never saved by profile controller |
 | gst_no, gstin, gst_date, is_business_gst | GST/return settings |
-| preferredintake | Client preferred intake |
-| applications (column) | **Verify:** possibly redundant with Application relation |
+| preferredintake | **Marked for deletion** – remove from Admin model, Export/Import services |
+| applications (column) | **Marked for deletion** – redundant with applications() relationship |
 | followers | Client followers |
 | att_email, att_phone | Client/lead contact and search |
 | lead_id | Lead conversion and search |
 | comments_note | Client notes |
-| rating | Client rating |
+| rating | **Marked for deletion** – not using client rating |
 | default_email_id | **Marked for deletion** – was staff default sending email |
 | manual_email_phone_verified | Unless replaced by another verification |
 | is_greview_mail_sent | Google Review mail-sent flag (clients) |
@@ -196,6 +196,10 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 |--------|-------|
 | default_email_id | Marked for deletion; drop after removing from UserController, user create/edit views, Admin model |
 | primary_email | Marked for deletion; no data; remove from my_profile form, update invoice/receipt/application email templates |
+| profile_img | Marked for deletion; migrate images to media store, update ClientController, Export/Import, receipts, agents, partners, profile, header, invoices |
+| rating | Marked for deletion; remove from ClientController, users/view |
+| preferredintake | Marked for deletion; remove from Admin model, ClientExportService, ClientImportService |
+| applications (column) | Marked for deletion; replace with applications()->count(); remove from ClientController, Export/Import |
 | lead_status | No code usage |
 | followup_date (on admins) | Not used on admins |
 | decrypt_password | No critical usage |

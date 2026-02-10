@@ -23,7 +23,7 @@ class Admin extends Authenticatable
         'id', 'role', 'first_name', 'last_name', 'email', 'password', 'decrypt_password',
         'country', 'state', 'city', 'address', 'zip', 'profile_img', 'status',
         'created_at', 'updated_at',
-        'office_id', 'position', 'team', 'telephone', 'permission', 'show_dashboard_per',
+        'office_id', 'position', 'team', 'permission', 'show_dashboard_per',
         'verified', 'client_id', 'staff_id', 'phone', 'country_code', 'email_signature',
         'default_email_id',
         'visa_type_id', 'visa_grant_date',

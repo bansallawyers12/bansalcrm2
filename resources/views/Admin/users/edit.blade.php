@@ -79,7 +79,7 @@
 									<div class="country_code"> 
 										@include('partials.country-code-select', [
 											'name' => 'country_code',
-											'selected' => old('country_code', $fetchedData->telephone ?? \App\Helpers\PhoneHelper::getDefaultCountryCode())
+											'selected' => old('country_code', $fetchedData->country_code ?? \App\Helpers\PhoneHelper::getDefaultCountryCode())
 										])
 									</div>	
 									{!! Form::text('phone', @$fetchedData->phone, array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter Phone' ))  !!}
