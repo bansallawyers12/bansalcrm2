@@ -215,7 +215,8 @@
          */
         renderDocumentFile: function(doc) {
             if (doc.file_name) {
-                const fileUrl = doc.myfile_key ? doc.myfile : this.getAwsUrl(doc);
+                // Use backend-provided preview_url for Education/Migration public-path docs; else S3 or AWS URL
+                const fileUrl = doc.preview_url || (doc.myfile_key ? doc.myfile : this.getAwsUrl(doc));
                 return `
                     <div data-id="${doc.id}" data-name="${this.escapeHtml(doc.file_name)}" class="doc-row">
                         <a href="javascript:void(0);" onclick="previewFile('${doc.filetype}','${fileUrl}','preview-container-alldocumentlist')">

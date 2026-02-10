@@ -266,12 +266,21 @@ class DocumentCategoryController extends Controller
                         });
                 })
                 ->orderBy('updated_at', 'DESC')
-                ->with('user')
+                ->with(['user', 'category'])
                 ->get();
+
+            // Add preview_url for Education/Migration migrated docs with public path (no S3 myfile_key)
+            $documentsArray = $documents->map(function ($doc) {
+                $previewUrl = null;
+                if ($doc->category && in_array($doc->category->name, ['Education', 'Migration'], true) && empty($doc->myfile_key)) {
+                    $previewUrl = asset('img/documents/' . $doc->myfile);
+                }
+                return array_merge($doc->toArray(), ['preview_url' => $previewUrl]);
+            });
 
             return response()->json([
                 'status' => true,
-                'documents' => $documents
+                'documents' => $documentsArray
             ]);
 
         } catch (\Exception $e) {
