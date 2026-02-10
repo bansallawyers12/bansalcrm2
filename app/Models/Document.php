@@ -12,6 +12,13 @@ class Document extends Model
 {
     use Sortable;
 
+    /** @var int Default: not part of edu/mig migration */
+    const EDU_MIG_MIGRATE_DEFAULT = 0;
+    /** @var int Education/Migration doc migrated successfully to Documents tab */
+    const EDU_MIG_MIGRATE_SUCCESS = 1;
+    /** @var int Education/Migration doc migration failed */
+    const EDU_MIG_MIGRATE_FAILED = 2;
+
     protected $table = 'documents';
 
     // office_id column exists in DB but is unused in this CRM; omit from fillable unless used later
@@ -26,6 +33,7 @@ class Document extends Model
         'type',
         'doc_type',
         'category_id',
+        'is_edu_and_mig_doc_migrate',
         'folder_name',
         'mail_type',
         'checklist',

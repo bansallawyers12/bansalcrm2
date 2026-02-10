@@ -1403,13 +1403,14 @@ class AdminController extends Controller
                 $checklistfiles_documents = $requestData['checklistfile_document'];
                 $attachments2 = array();
                 foreach($checklistfiles_documents as $checklistfile1){
-                    $filechecklist_doc =  \App\Models\Document::where('id', $checklistfile1)->first();
+                    $filechecklist_doc = \App\Models\Document::with('category')->where('id', $checklistfile1)->first();
                     if($filechecklist_doc){
-                        if( $filechecklist_doc->doc_type == "education" || $filechecklist_doc->doc_type == "migration" ){
-                            $attachments2[] = array('file_name' => $filechecklist_doc->name,'file_url' => $filechecklist_doc->file);
-                        }
-                        else if( $filechecklist_doc->doc_type == "documents")  {
-                            $attachments2[] = array('file_name' => $filechecklist_doc->file_name,'file_url' => $filechecklist_doc->myfile);
+                        $useLocalPath = in_array($filechecklist_doc->doc_type, ['education', 'migration'])
+                            || ($filechecklist_doc->doc_type === 'documents' && $filechecklist_doc->category && in_array($filechecklist_doc->category->name, ['Education', 'Migration']));
+                        if ($useLocalPath) {
+                            $attachments2[] = array('file_name' => $filechecklist_doc->file_name, 'file_url' => public_path() . '/' . 'img/documents/' . $filechecklist_doc->myfile);
+                        } else {
+                            $attachments2[] = array('file_name' => $filechecklist_doc->file_name, 'file_url' => $filechecklist_doc->myfile);
                         }
                     }
                 }
@@ -1535,22 +1536,20 @@ class AdminController extends Controller
                 if(!empty($requestData['checklistfile_document'])){
                     $checklistfiles_documents = $requestData['checklistfile_document'];
                     foreach($checklistfiles_documents as $checklistfile1){
-                        $filechecklist_doc =  \App\Models\Document::where('id', $checklistfile1)->first();
+                        $filechecklist_doc = \App\Models\Document::with('category')->where('id', $checklistfile1)->first();
                         if($filechecklist_doc){
-                            if( $filechecklist_doc->doc_type == "education" || $filechecklist_doc->doc_type == "migration" ){
-                                $array['files'][] =  public_path() . '/' .'img/documents/'.$filechecklist_doc->myfile;
-                            }
-                            else if( $filechecklist_doc->doc_type == "documents") {
+                            $useLocalPath = in_array($filechecklist_doc->doc_type, ['education', 'migration'])
+                                || ($filechecklist_doc->doc_type === 'documents' && $filechecklist_doc->category && in_array($filechecklist_doc->category->name, ['Education', 'Migration']));
+                            if ($useLocalPath) {
+                                $array['files'][] = public_path() . '/' . 'img/documents/' . $filechecklist_doc->myfile;
+                            } elseif ($filechecklist_doc->doc_type == 'documents') {
                                 $fileUrl = $filechecklist_doc->myfile; // AWS S3 link
-
-                                // Check if it's a URL
-                                if(filter_var($fileUrl, FILTER_VALIDATE_URL)){
-                                    // Download and save to a temporary location
+                                if (filter_var($fileUrl, FILTER_VALIDATE_URL)) {
                                     $tempPath = sys_get_temp_dir() . '/' . basename($fileUrl);
                                     file_put_contents($tempPath, file_get_contents($fileUrl));
-                                    $array['files'][] = $tempPath; // Attach the temp file
+                                    $array['files'][] = $tempPath;
                                 } else {
-                                    $array['files'][] = $fileUrl; // Local file
+                                    $array['files'][] = $fileUrl;
                                 }
                             }
                         }

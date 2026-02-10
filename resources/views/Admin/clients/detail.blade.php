@@ -2282,7 +2282,7 @@ use App\Http\Controllers\Controller;
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach(\App\Models\Document::where('client_id',$fetchedData->id)->where('type','client')->whereIn('doc_type', ['education', 'migration', 'documents'])->whereNull('not_used_doc')->orderby('created_at', 'DESC')->get() as $composedoclist)
+                                                @foreach(\App\Models\Document::with('category')->where('client_id',$fetchedData->id)->where('type','client')->whereIn('doc_type', ['education', 'migration', 'documents'])->whereNull('not_used_doc')->orderby('created_at', 'DESC')->get() as $composedoclist)
                                                 <tr>
                                                     <td><input type="checkbox" name="checklistfile_document[]" value="{{$composedoclist->id}}" {{ old('checklistfile_document') && in_array($composedoclist->id, old('checklistfile_document', [])) ? 'checked' : '' }}></td>
                                                     <td style="white-space: initial;">{{$composedoclist->file_name}}</td>
@@ -2293,30 +2293,30 @@ use App\Http\Controllers\Controller;
                                                             'migration' => 'Migration',
                                                             'documents' => 'Document'
                                                         ];
-
-                                                        echo isset($composedoclist->doc_type)
-                                                            ? ($docTypes[$composedoclist->doc_type] ?? 'N/A')
-                                                            : 'N/A';
+                                                        // Show Education/Migration by category for migrated docs (doc_type is now 'documents')
+                                                        $displayType = 'N/A';
+                                                        if ($composedoclist->category && in_array($composedoclist->category->name, ['Education', 'Migration'])) {
+                                                            $displayType = $composedoclist->category->name;
+                                                        } elseif (isset($composedoclist->doc_type) && isset($docTypes[$composedoclist->doc_type])) {
+                                                            $displayType = $docTypes[$composedoclist->doc_type];
+                                                        }
+                                                        echo $displayType;
                                                         ?>
                                                     </td>
 
                                                     <td style="white-space: initial;">
                                                         <?php
-                                                        if( isset($composedoclist->doc_type) && $composedoclist->doc_type != "" )
-                                                        {
-                                                            if( $composedoclist->doc_type == "education" || $composedoclist->doc_type == "migration" ){ ?>
-                                                                <a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/{{$composedoclist->myfile}}">{{$composedoclist->file_name}}</a>
+                                                        $useLocalPath = ($composedoclist->doc_type == 'education' || $composedoclist->doc_type == 'migration')
+                                                            || ($composedoclist->doc_type == 'documents' && $composedoclist->category && in_array($composedoclist->category->name, ['Education', 'Migration']));
+                                                        if (isset($composedoclist->doc_type) && $composedoclist->doc_type != '') {
+                                                            if ($useLocalPath) { ?>
+                                                                <a target="_blank" class="dropdown-item" href="{{ asset('img/documents') }}/{{ $composedoclist->myfile }}">{{ $composedoclist->file_name }}</a>
                                                             <?php
-                                                            }
-                                                            else if( $composedoclist->doc_type == "documents")
-                                                            {
-                                                                if( isset($composedoclist->myfile_key) && $composedoclist->myfile_key != "")
-                                                                { ?>
-                                                                    <a target="_blank" href="<?php echo $composedoclist->myfile;?>">{{$composedoclist->file_name}}</a>
+                                                            } elseif ($composedoclist->doc_type == 'documents') {
+                                                                if (isset($composedoclist->myfile_key) && $composedoclist->myfile_key != '') { ?>
+                                                                    <a target="_blank" href="<?php echo e($composedoclist->myfile); ?>">{{ $composedoclist->file_name }}</a>
                                                                 <?php
-                                                                }
-                                                                else
-                                                                {
+                                                                } else {
                                                                     $clientInfo = \App\Models\Admin::where('id',$fetchedData->id)->select('client_id')->first();
                                                                     if($clientInfo){
                                                                         $client_unique_id = $clientInfo->client_id;
@@ -2325,12 +2325,10 @@ use App\Http\Controllers\Controller;
                                                                     }
                                                                     $doc_type = $composedoclist->doc_type;
                                                                     $myfile = $composedoclist->myfile;
-
                                                                     $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
-                                                                    $composedoclistUrl = $url.$client_unique_id.'/'.$doc_type.'/'.$myfile; //dd($awsUrl);
-
+                                                                    $composedoclistUrl = $url.$client_unique_id.'/'.$doc_type.'/'.$myfile;
                                                                     ?>
-                                                                    <a target="_blank" href="<?php echo $composedoclistUrl;?>"><?php echo $composedoclist->file_name;?></a>
+                                                                    <a target="_blank" href="<?php echo e($composedoclistUrl); ?>"><?php echo e($composedoclist->file_name); ?></a>
                                                                 <?php
                                                                 }
                                                             }
