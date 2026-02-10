@@ -89,8 +89,8 @@
 - **Recommendation:** **Marked for deletion.** Replace reads with `$client->applications()->count()`; remove writes from ClientController; update Export/Import; drop column..
 
 ### 21. **followers**
-- **Usage:** `ClientController` (saving from request); `ClientExportService`, `ClientImportService`; `Admin::setFollowersAttribute` mutator.
-- **Recommendation:** **Do not remove** unless you drop this feature and update/remove all references.
+- **Usage:** `ClientController` (saves from request but no form field exists); `ClientExportService`, `ClientImportService`; `Admin::setFollowersAttribute` mutator; display only in reports (application, saleforecast-application, client).
+- **Recommendation:** **Marked for deletion.** No UI form for followers; remove from ClientController, Export/Import, Admin model mutator, report views, drop column.
 
 ### 22. **preferredintake**
 - **Usage:** `Admin` model has `getPreferredIntakeAttribute` / `setPreferredIntakeAttribute`; `ClientExportService`, `ClientImportService`.
@@ -181,7 +181,7 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | gst_no, gstin, gst_date, is_business_gst | GST/return settings |
 | preferredintake | **Marked for deletion** – remove from Admin model, Export/Import services |
 | applications (column) | **Marked for deletion** – redundant with applications() relationship |
-| followers | Client followers |
+| followers | **Marked for deletion** – no form field; display only in reports |
 | att_email, att_phone | Client/lead contact and search |
 | lead_id | Lead conversion and search |
 | comments_note | Client notes |
@@ -200,6 +200,7 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | rating | Marked for deletion; remove from ClientController, users/view |
 | preferredintake | Marked for deletion; remove from Admin model, ClientExportService, ClientImportService |
 | applications (column) | Marked for deletion; replace with applications()->count(); remove from ClientController, Export/Import |
+| followers | Marked for deletion; no form field; remove from ClientController, Export/Import, Admin model, report views |
 | lead_status | No code usage |
 | followup_date (on admins) | Not used on admins |
 | decrypt_password | No critical usage |
