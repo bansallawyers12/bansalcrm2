@@ -93,14 +93,14 @@
 									</span> 
 								@endif
 							</div>
-								<div class="form-group"> 
-									<label for="invoice_due_date">Select Profile:</label>
-									<select class="form-control" name="profile">
-										@foreach(\App\Models\Profile::all() as $profiles)
-											<option value="{{$profiles->id}}">{{$profiles->company_name}}</option>
-										@endforeach
-									</select>
-								</div>
+							<div class="form-group"> 
+								<label for="invoice_due_date">Select Profile:</label>
+								<select class="form-control" name="profile">
+									@foreach(\App\Models\Profile::all() as $profiles)
+										<option value="{{$profiles->id}}" @if($profiles->id == 1) selected @endif>{{$profiles->company_name}}</option>
+									@endforeach
+								</select>
+							</div>
 							</div>
 						</div>
 					</div>
