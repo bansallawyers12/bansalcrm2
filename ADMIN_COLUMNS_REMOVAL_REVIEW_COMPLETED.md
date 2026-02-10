@@ -1,44 +1,29 @@
 # Review: Completed Column Removal – Errors and Gaps
 
-## Critical errors (will cause SQL/runtime failure after migration)
+## Critical errors (will cause SQL/runtime failure after migration) — **FIXED**
 
-### 1. **LeadController** still writes dropped columns
-- **Line 318:** `$obj->profile_img = @$profile_img;` → column dropped.
-- **Line 319:** `$obj->preferredIntake = @$requestData['preferredIntake'];` → column dropped.
-- **Line 418:** `$obj->preferredIntake = @$enqdata->preferredIntake;` (lead conversion).
-- **Line 441:** `$obj->profile_img = @$enqdata->profile_img;` (lead conversion).
-
-**Effect:** Creating/updating a lead or converting lead to client will trigger SQL error (unknown column).
+### 1. **LeadController** ~~still writes dropped columns~~ **FIXED**
+- Removed: `$obj->profile_img`, `$obj->preferredIntake` (create/update and lead conversion). Upload block removed; assignments replaced with comments.
 
 ---
 
-### 2. **StaffController** still requires and saves `profile_img`
-- **Line 84:** Validation `'profile_img' => 'required'`.
-- **Lines 102–111, 166–182:** Upload logic and `$obj->profile_img = ...`.
-
-**Effect:** Creating/editing staff will fail (validation and then SQL error).
+### 2. **StaffController** ~~still requires and saves `profile_img`~~ **FIXED**
+- Removed: `profile_img` validation rule, upload logic, and `$obj->profile_img` in store and update.
 
 ---
 
-### 3. **AgentController** still saves `profile_img`
-- **Lines 117–126, 206–222:** Upload and `$obj->profile_img = ...`.
-
-**Effect:** Creating/editing agents will trigger SQL error.
+### 3. **AgentController** ~~still saves `profile_img`~~ **FIXED**
+- Removed: Upload blocks and `$obj->profile_img` in store and update.
 
 ---
 
-### 4. **PartnersController** still saves `profile_img`
-- **Lines 234–240, 416–431:** Upload and `$obj->profile_img = ...`.
-- **Line 2207:** `DB::table('admins')->select('profile_img')->where('id',1)->first();` → column no longer exists.
-
-**Effect:** Partner create/edit and the code at 2207 will trigger SQL error.
+### 4. **PartnersController** ~~still saves `profile_img`~~ **FIXED**
+- Removed: Upload and `$obj->profile_img` in create/update. Replaced `select('profile_img')` with full admin row; pass `$logo = ''` to `studentinvoice` view.
 
 ---
 
-### 5. **ClientReceiptController** still selects `profile_img`
-- **Line 472:** `$admin = DB::table('admins')->select(..., 'profile_img', ...)->...`
-
-**Effect:** Receipt generation will trigger SQL error.
+### 5. **ClientReceiptController** ~~still selects `profile_img`~~ **FIXED**
+- Removed: `profile_img` from `admins` select in receipt generation.
 
 ---
 
@@ -48,8 +33,8 @@
 - **preferredIntake:** `clients/detail.blade.php`, `clients/edit.blade.php`, `clients/create.blade.php`, `leads/create.blade.php`, `clients/createbkk.blade.php`, `products/detail.blade.php` – form fields and display. After migration value is null; form still submits and LeadController tries to write → see #1.
 - **profile_img:** `my_profile.blade.php`, `clients/edit.blade.php`, `clients/create.blade.php`, `leads/create.blade.php`, `layouts/adminconsole.blade.php`, `Elements/Admin/header.blade.php`, `partners/edit.blade.php`, `agents/edit.blade.php`, `staff/edit.blade.php`, `staff/create.blade.php` – image display and file inputs. After migration: null/empty image, upload does nothing (or triggers error if controller still saves).
 
-### 7. **studentinvoice.blade.php**
-- **Line 32:** `<img ... src=".../{{$admin->profile_img}}" />` – after migration `profile_img` is missing; can cause broken image or notice if strict.
+### 7. **studentinvoice.blade.php** — **FIXED**
+- Logo now uses `$logo` (passed from controller as `''`). Image only shown when `@if(!empty($logo))`.
 
 ---
 
@@ -77,4 +62,4 @@
 | Medium   | Views + studentinvoice | Update views to stop displaying/using preferredIntake and profile_img; fix student invoice logo. |
 | Low      | processFollowers, GST form | Optional cleanup. |
 
-**Recommendation:** Fix all critical errors before running `php artisan migrate`, then adjust views and student invoice as needed.
+**Recommendation:** ~~Fix all critical errors before running `php artisan migrate`~~ **Critical fixes applied.** You can run `php artisan migrate`. Optionally adjust remaining views (preferredIntake/profile_img form fields and display) for consistency.

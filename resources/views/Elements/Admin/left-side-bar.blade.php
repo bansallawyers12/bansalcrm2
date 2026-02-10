@@ -414,14 +414,6 @@
 		<a href="{{route('managecontact.index')}}" class="nav-link"><i class="fas fa-phone"></i><span>Manage Contacts</span></a>
 	</li>
 	<?php
-	if(Route::currentRouteName() == 'staff.index'){
-		$staffclasstype = 'active';
-	}
-	?>
-		<li class="dropdown {{@$staffclasstype}}">
-			<a href="{{route('staff.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Staffs</span></a>
-		</li>
-		<?php
 		if(Route::currentRouteName() == 'email.index'){
 			$emtemclasstype = 'active';
 		}

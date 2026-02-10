@@ -6,6 +6,24 @@
 
 ---
 
+## Columns with zero data (database query)
+
+**Source:** Query run on `leads` table via `php artisan leads:column-stats`. **Total rows:** 9,980. **Total columns:** 55.
+
+These columns have **0 non-NULL values** across all rows:
+
+| Column | Filled | Null | Notes |
+|--------|--------|------|-------|
+| **profile_img** | 0 | 9,980 | Keep – Form and lead→client conversion use it. |
+| **preferredintake** | 0 | 9,980 | Keep – In create form and conversion. |
+| **lead_id** | 0 | 9,980 | **Remove** – Redundant; relationship is `admins.lead_id` → `leads.id`. |
+| **verified_at** | 0 | 9,980 | Keep – Part of phone verification feature. |
+| **verified_by** | 0 | 9,980 | Keep – Part of verification feature; required for audit. |
+
+**Conclusion:** Drop only **leads.lead_id**. Keep the rest for forms, conversion, or verification.
+
+---
+
 ## Do not remove (critical / actively used)
 
 ### 1. **id**
@@ -188,6 +206,7 @@
 | Candidate for removal | 2 | **name**, **agent_id** (verify no usage). |
 | Safe to remove | 4 | **social_type**, **social_link**, **advertisements_name**, **latest_comment**. |
 | Already removed | 1 | **start_process**. |
+| **Zero data (DB query)** | **5** | **profile_img**, **preferredintake**, **lead_id**, **verified_at**, **verified_by** – see section above. |
 
 **Suggested next steps (do not apply yet):**
 1. Confirm in the database which of the “candidate” and “safe to remove” columns actually exist on `leads`.

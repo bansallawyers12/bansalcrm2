@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\FollowupController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
@@ -205,12 +204,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/users/active', [UserController::class, 'active'])->name('users.active');
 		Route::get('/users/inactive', [UserController::class, 'inactive'])->name('users.inactive');  
 		
-	Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-	Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create'); 
-	Route::post('/staff/store', [StaffController::class, 'store'])->name('staff.store');
-	Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
-	Route::post('/staff/edit', [StaffController::class, 'edit'])->name('staff.update');
-	
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
