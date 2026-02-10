@@ -98,7 +98,7 @@
 
 ### 23. **is_greview_mail_sent**
 - **Usage:** On admins (client record). Used in `ClientMessagingController::isgreviewmailsent()` (read/update), `clients/detail.blade.php` (Google Review button and `data-is_greview_mail_sent`), and `communications.js`.
-- **Recommendation:** **Do not remove** if you still use the “Google Review” mail-sent tracking for clients.
+- **Recommendation:** **Marked for deletion.** Remove from ClientMessagingController, clients/detail.blade.php, communications.js, drop column.
 
 ---
 
@@ -188,7 +188,7 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | rating | **Marked for deletion** – not using client rating |
 | default_email_id | **Marked for deletion** – was staff default sending email |
 | manual_email_phone_verified | Unless replaced by another verification |
-| is_greview_mail_sent | Google Review mail-sent flag (clients) |
+| is_greview_mail_sent | **Marked for deletion** – remove from ClientMessagingController, detail view, communications.js |
 
 ### Removing (safe to drop after confirmation)
 
@@ -201,6 +201,7 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | preferredintake | Marked for deletion; remove from Admin model, ClientExportService, ClientImportService |
 | applications (column) | Marked for deletion; replace with applications()->count(); remove from ClientController, Export/Import |
 | followers | Marked for deletion; no form field; remove from ClientController, Export/Import, Admin model, report views |
+| is_greview_mail_sent | Marked for deletion; remove from ClientMessagingController, clients/detail.blade.php, communications.js |
 | lead_status | No code usage |
 | followup_date (on admins) | Not used on admins |
 | decrypt_password | No critical usage |
