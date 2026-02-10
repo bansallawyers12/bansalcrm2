@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inactivity Logout Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+        .danger {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Inactivity Logout Test</h1>
+        
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Active</span><br>
+            <strong>Time Until Logout:</strong> <span id="timer">30:00</span><br>
+            <strong>Last Activity:</strong> <span id="lastActivity">Just now</span>
+        </div>
+
+        <div class="info">
+            <h3>Test Instructions:</h3>
+            <ol>
+                <li><strong>Single Tab Test:</strong> Stay on this page for 30 minutes without activity to test logout</li>
+                <li><strong>Multi-Tab Test:</strong> Open this page in 2+ tabs. Be active in one tab, leave others idle. All tabs should stay logged in.</li>
+                <li><strong>Activity Test:</strong> Click the "Simulate Activity" button to reset the timer</li>
+                <li><strong>Clear Storage Test:</strong> Click "Clear Storage" to reset and start fresh</li>
+            </ol>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="simulateActivity()">✅ Simulate Activity</button>
+            <button onclick="clearStorage()">🗑️ Clear Storage</button>
+            <button onclick="openNewTab()">🔗 Open New Tab</button>
+            <button onclick="testLogout()" style="background: #f44336;">⚠️ Test Logout (5 sec)</button>
+        </div>
+
+        <div class="info">
+            <h3>📊 Debug Info:</h3>
+            <div id="debugInfo"></div>
+        </div>
+    </div>
+
+    <!-- Hidden logout form for testing -->
+    <form id="logout-form" action="#" method="POST" style="display: none;">
+        <input type="hidden" name="_token" value="test-token">
+    </form>
+
+    <script src="inactivity-logout.js"></script>
+    <script>
+        // Override form submit for testing
+        document.getElementById('logout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('status').textContent = 'LOGGED OUT!';
+            document.querySelector('.status').classList.add('danger');
+            alert('🔒 LOGOUT TRIGGERED!\n\nIn production, you would be redirected to login page.');
+        });
+
+        // Update timer display
+        function updateDisplay() {
+            try {
+                var lastActivity = localStorage.getItem('crm_last_activity_timestamp');
+                if (lastActivity) {
+                    var now = Date.now();
+                    var elapsed = now - parseInt(lastActivity, 10);
+                    var remaining = (30 * 60 * 1000) - elapsed;
+                    
+                    if (remaining > 0) {
+                        var minutes = Math.floor(remaining / 60000);
+                        var seconds = Math.floor((remaining % 60000) / 1000);
+                        document.getElementById('timer').textContent = 
+                            minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                        
+                        var lastActivityTime = Math.floor(elapsed / 1000);
+                        if (lastActivityTime < 60) {
+                            document.getElementById('lastActivity').textContent = lastActivityTime + ' seconds ago';
+                        } else {
+                            document.getElementById('lastActivity').textContent = 
+                                Math.floor(lastActivityTime / 60) + ' minutes ago';
+                        }
+
+                        // Warning when < 2 minutes
+                        if (remaining < 120000) {
+                            document.querySelector('.status').classList.add('warning');
+                        } else {
+                            document.querySelector('.status').classList.remove('warning');
+                        }
+                    } else {
+                        document.getElementById('timer').textContent = 'EXPIRED';
+                    }
+                }
+
+                // Debug info
+                var debugHtml = '<strong>localStorage Key:</strong> crm_last_activity_timestamp<br>';
+                debugHtml += '<strong>Current Value:</strong> ' + (lastActivity || 'Not set') + '<br>';
+                debugHtml += '<strong>Current Time:</strong> ' + Date.now() + '<br>';
+                debugHtml += '<strong>Tabs Synced:</strong> Yes (via localStorage events)<br>';
+                debugHtml += '<strong>Check Interval:</strong> Every 5 seconds';
+                document.getElementById('debugInfo').innerHTML = debugHtml;
+            } catch (e) {
+                console.error('Error updating display:', e);
+            }
+        }
+
+        function simulateActivity() {
+            // Trigger a click event to simulate activity
+            document.body.click();
+            alert('✅ Activity simulated! Timer reset in all tabs.');
+            updateDisplay();
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('crm_last_activity_timestamp');
+            location.reload();
+        }
+
+        function openNewTab() {
+            window.open(location.href, '_blank');
+        }
+
+        function testLogout() {
+            if (confirm('This will trigger logout in 5 seconds. Continue?')) {
+                // Set activity timestamp to 30 minutes ago
+                var fiveSecondsAgo = Date.now() - (30 * 60 * 1000) + 5000;
+                localStorage.setItem('crm_last_activity_timestamp', fiveSecondsAgo.toString());
+                alert('Timer set to expire in 5 seconds. Watch for logout!');
+            }
+        }
+
+        // Update display every second
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
+    </script>
+</body>
+</html>
