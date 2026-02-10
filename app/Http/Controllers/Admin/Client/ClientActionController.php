@@ -66,26 +66,19 @@ class ClientActionController extends Controller
 		}
 		else
 		{
-			if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
-                $Lead = Admin::find($this->decodeString($requestData['client_id']));
-                $Lead->followup_date = @$requestData['followup_datetime'];
-                $Lead->save();
-			}
-
 			$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['rem_cat'];
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
 	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
-	    	$o->message = 'Action Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
+	    	$o->message = 'Action Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.' '.date('d/M/Y h:i A',strtotime($requestData['followup_datetime']));
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
 
 			$objs = new ActivitiesLog;
             $objs->client_id = $this->decodeString(@$requestData['client_id']);
             $objs->created_by = Auth::user()->id;
-            //$objs->subject = 'Action set for '.date('d/M/Y h:i A',strtotime($Lead->followup_date));
             $objs->subject = 'set action for '.@$requestData['assignee_name'];
             $objs->description = '<span class="text-semi-bold">'.@$requestData['remindersubject'].'</span><p>'.@$requestData['description'].'</p>';
             $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
