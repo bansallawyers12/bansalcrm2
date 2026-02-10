@@ -92,7 +92,6 @@ class ClientExportService
             'visa_type' => $client->visa_type ?? null,
             'visa_opt' => $client->visa_opt ?? null,
             'visaExpiry' => $client->visaExpiry ?? null, // Uses accessor, column is visaexpiry
-            'preferredIntake' => $client->preferredIntake ?? null, // Uses accessor, column is preferredintake
             
             // Professional Details (bansalcrm2 specific)
             'nomi_occupation' => $client->nomi_occupation ?? null,
@@ -114,10 +113,8 @@ class ClientExportService
             'lead_quality' => $client->lead_quality ?? null,
             'comments_note' => $client->comments_note ?? null,
             'married_partner' => $client->married_partner ?? null,
-            'followers' => $client->followers ?? null,
             'tagname' => $client->tagname ?? null,
             'related_files' => $client->related_files ?? null,
-            'applications' => $client->applications ?? null,
             
             // System Fields
             'office_id' => $client->office_id ?? null,
@@ -133,7 +130,6 @@ class ClientExportService
             'source' => $client->source,
             'type' => $client->type,
             'status' => $client->status,
-            'profile_img' => $client->profile_img,
             'agent_id' => $client->agent_id ?? null,
         ];
     }

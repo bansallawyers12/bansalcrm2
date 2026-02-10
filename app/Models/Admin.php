@@ -20,12 +20,11 @@ class Admin extends Authenticatable
       * @var array
 	*/
 	protected $fillable = [
-        'id', 'role', 'first_name', 'last_name', 'email', 'password', 'decrypt_password',
-        'country', 'state', 'city', 'address', 'zip', 'profile_img', 'status',
+        'id', 'role', 'first_name', 'last_name', 'email', 'password',
+        'country', 'state', 'city', 'address', 'zip', 'status',
         'created_at', 'updated_at',
         'office_id', 'position', 'team', 'permission', 'show_dashboard_per',
         'verified', 'client_id', 'staff_id', 'phone', 'country_code', 'email_signature',
-        'default_email_id',
         'visa_type_id', 'visa_grant_date',
     ];
 
@@ -72,14 +71,6 @@ class Admin extends Authenticatable
     }
 
     /**
-     * Get the default sending email (from Admin Console > Email tab).
-     */
-    public function defaultEmail(): BelongsTo
-    {
-        return $this->belongsTo(\App\Models\Email::class, 'default_email_id');
-    }
-
-    /**
      * Get the visa type (subclass) for this client/admin. Used for migrationmanager2 alignment.
      */
     public function visaType(): BelongsTo
@@ -93,31 +84,6 @@ class Admin extends Authenticatable
     public function applications()
     {
         return $this->hasMany(\App\Models\Application::class, 'client_id', 'id');
-    }
-	
-	/**
-     * Get the preferredIntake attribute (maps to preferredintake column)
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-	public function getPreferredIntakeAttribute($value)
-    {
-        // Map preferredIntake to preferredintake column
-        return $this->attributes['preferredintake'] ?? null;
-    }
-	
-	/**
-     * Set the preferredIntake attribute (maps to preferredintake column)
-     *
-     * @param  mixed  $value
-     * @return void
-     */
-	public function setPreferredIntakeAttribute($value)
-    {
-        // Map preferredIntake to preferredintake column
-        // PostgreSQL doesn't accept empty strings for date columns - convert to NULL
-        $this->attributes['preferredintake'] = ($value === '' || $value === null) ? null : $value;
     }
 	
 	/**
@@ -160,19 +126,6 @@ class Admin extends Authenticatable
         } else {
             $this->attributes['agent_id'] = (int)$value;
         }
-    }
-	
-	/**
-     * Set the followers attribute
-     * Convert empty strings to NULL for consistency
-     *
-     * @param  mixed  $value
-     * @return void
-     */
-	public function setFollowersAttribute($value)
-    {
-        // Convert empty strings to NULL for consistency
-        $this->attributes['followers'] = ($value === '') ? null : $value;
     }
 	
 	/**

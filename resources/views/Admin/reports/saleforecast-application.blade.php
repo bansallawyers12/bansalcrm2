@@ -102,7 +102,6 @@
 													<td>{{@$clientdetail->client_id}} </td>
 													<td>{{date('d/m/Y',strtotime($clientdetail->dob))}}</td>
 													<td>{{@$clientdetail->phone}} </td>
-													<td>{{@$clientdetail->followers}} </td>
 													<td>-</td>
 													<td>{{ @$list->workflow == "" ? config('constants.empty') : str_limit(@$list->workflow, '50', '...') }} </td>
 													<td>{{@$partnerdetail->partner_name}}</td> 

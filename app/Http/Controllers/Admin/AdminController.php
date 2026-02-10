@@ -141,15 +141,7 @@ class AdminController extends Controller
 		{
 			$requestData 		= 	$request->all();
 			$obj							= 	Admin::find(Auth::user()->id);
-			if(@$requestData['is_business_gst'] == 'yes'){
-			$obj->is_business_gst				=	@$requestData['is_business_gst'];
-			$obj->gstin					=	@$requestData['gstin'];
-			$obj->gst_date						=	@$requestData['gst_date'];
-			}else{
-				$obj->is_business_gst				=	@$requestData['is_business_gst'];
-			$obj->gstin					=	'';
-			$obj->gst_date						=	'';
-			}
+			// GST columns removed from admins table
 			$saved							=	$obj->save();
 
 			if(!$saved)
@@ -189,25 +181,6 @@ class AdminController extends Controller
 										'zip' => 'required'
 									  ]);
 
-			/* Profile Image Upload Function Start */
-				if($request->hasfile('profile_img'))
-				{
-					/* Unlink File Function Start */
-						if($requestData['profile_img'] != '')
-							{
-								$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-							}
-					/* Unlink File Function End */
-
-					$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-				}
-				else
-				{
-					$profile_img = @$requestData['old_profile_img'];
-				}
-			/* Profile Image Upload Function End */
-
-
 			$obj							= 	Admin::find(Auth::user()->id);
 
 		$obj->first_name				=	@$requestData['first_name'];
@@ -222,7 +195,6 @@ class AdminController extends Controller
 			$obj->company_fax						=	@$requestData['company_fax'];
 			$obj->company_name						=	@$requestData['company_name'];
 			$obj->company_website						=	@$requestData['company_website'];
-			$obj->profile_img				=	@$profile_img;
 
 			$saved							=	$obj->save();
 

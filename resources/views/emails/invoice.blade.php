@@ -31,13 +31,13 @@
 	}
 	$name = @$admin->company_name;
 	$address = @$admin->address;
-	$email = @$admin->primary_email;
+	$email = @$admin->email;
 	$phone = @$admin->phone;
 	$other_phone = '';
 	$website = '';
 	$abn = '';
 	$note = '';
-	$logo = @$admin->profile_img;
+	$logo = '';
 	if($invoicedetail->profile != ''){
 		$profile = json_decode($invoicedetail->profile);
 		$name = $profile->name;

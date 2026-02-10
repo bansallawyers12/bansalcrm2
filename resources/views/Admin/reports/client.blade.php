@@ -46,7 +46,6 @@
 										<label class="dropdown-option"><input type="checkbox" value="24" checked /> Added By User</label>
 										<label class="dropdown-option"><input type="checkbox" value="26" checked /> Assignee</label>
 										<label class="dropdown-option"><input type="checkbox" value="27" checked /> Assignee Office</label>
-										<label class="dropdown-option"><input type="checkbox" value="28" checked /> Followers</label>
 									</div>
 								</div>
 							</div>
@@ -63,7 +62,6 @@
 												</div>
 											</th>
 											<th style="white-space: initial;">Client</th>
-											<th style="white-space: initial;">Rating</th>
 											<th style="white-space: initial;">Client ID</th>
 											<th style="white-space: initial;">Status</th>
 											<th style="white-space: initial;">Added From</th>
@@ -83,12 +81,10 @@
 											<th style="white-space: initial;">Prospect Date</th>
 											<th style="white-space: initial;">Client Date</th>
 											<th style="white-space: initial;">Visa Expiry Date</th>
-											<th style="white-space: initial;">Preferred Intake</th>
 											<th style="white-space: initial;">Added By User</th>
 											<th style="white-space: initial;">Added By Office</th>
 											<th style="white-space: initial;">Assignee</th>
 											<th style="white-space: initial;">Assignee Office</th>
-											<th style="white-space: initial;">Followers</th>
 										</tr> 
 									</thead>
 									@if(count($lists) >0)
@@ -104,7 +100,6 @@
 												</div>
 											</td>
 											<td style="white-space: initial;">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</td>
-											<td style="white-space: initial;">{{ @$list->rating == "" ? config('constants.empty') : str_limit(@$list->rating, '50', '...') }} </td>
 											<td style="white-space: initial;">{{ @$list->client_id == "" ? config('constants.empty') : str_limit(@$list->client_id, '50', '...') }} </td>
 											<td style="white-space: initial;">{{ @$list->status == "" ? config('constants.empty') : str_limit(@$list->status, '50', '...') }} </td>
 											<td>-</td>
@@ -124,12 +119,10 @@
 											<td>-</td>
 											<td>-</td>
 											<td style="white-space: initial;">{{ @$list->visaExpiry == "" ? config('constants.empty') : date('d/m/Y',strtotime(@$list->visaExpiry)) }}</td>
-											<td style="white-space: initial;">{{ @$list->preferredIntake == "" ? config('constants.empty') : str_limit(@$list->preferredIntake, '50', '...') }}</td>
 											<td>-</td>
 											<td>-</td>
 											<td style="white-space: initial;">{{ @$list->assignee == "" ? config('constants.empty') : str_limit(@$list->assignee, '50', '...') }}</td>
 											<td>-</td>
-											<td style="white-space: initial;">{{ @$list->followers == "" ? config('constants.empty') : str_limit(@$list->followers, '50', '...') }}</td>
 										</tr>
 										<?php $i++; ?>
 										@endforeach	

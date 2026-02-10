@@ -60,9 +60,6 @@ use App\Http\Controllers\Controller;
 								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS"><i class="fas fa-sms"></i></a>
 								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
 								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
-								@if($fetchedData->is_greview_mail_sent == 0)
-									<a class="googleReviewBtn" href="javascript:;" data-is_greview_mail_sent="{{@$fetchedData->is_greview_mail_sent}}" title="Google Review"><i class="fab fa-google"></i></a>
-								@endif
 								@if($fetchedData->is_archived == 0)
 									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
 								@else
@@ -2960,7 +2957,6 @@ use App\Http\Controllers\Controller;
         getNotes: '{{ url("/get-notes") }}',
         deleteActivityLog: '{{ url("/deleteactivitylog") }}',
         mailEnhance: '{{ route("clients.enhanceMessage") }}',
-        isGReviewMailSent: '{{ url("/is_greview_mail_sent") }}',
         clientGetTopReceipt: '{{ url("/clients/getTopReceiptValInDB") }}',
         notPickedCall: '{{ url("/not-picked-call") }}',
         getDateTimeBackend: '{{ url("/getdatetimebackend") }}',

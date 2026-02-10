@@ -139,16 +139,6 @@
 												</span>
 											@endif
 										</div>
-										<!--<div class="form-group">
-											<label for="state">Primary Email </label>
-												{!! Form::text('primary_email', @$fetchedData->primary_email, array('class' => 'form-control', 'data-valid'=>'email'))  !!}
-										
-											@if ($errors->has('primary_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ $errors->first('primary_email') }}</strong>
-												</span>
-											@endif
-										</div>	-->
 										<div class="form-group">
 											<label for="state">State <span style="color:#ff0000;">*</span></label>
 												{!! Form::text('state', @$fetchedData->state, array('class' => 'form-control', 'data-valid'=>'required'))  !!}

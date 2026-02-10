@@ -26,7 +26,6 @@
 										<label class="dropdown-option"><input type="checkbox" value="6" checked /> Internal Client ID</label>
 										<label class="dropdown-option"><input type="checkbox" value="8" checked /> DOB</label>
 										<label class="dropdown-option"><input type="checkbox" value="9" checked /> Client Phone</label>
-										<label class="dropdown-option"><input type="checkbox" value="10" checked /> Client Followers</label>
 										<label class="dropdown-option"><input type="checkbox" value="11" checked /> Partner's Client ID</label>
 										<label class="dropdown-option"><input type="checkbox" value="12" checked /> Workflow</label>
 										<label class="dropdown-option"><input type="checkbox" value="13" checked /> Partner</label>
@@ -76,7 +75,6 @@
 											<th style="white-space: initial;">Client ID</th>
 											<th style="white-space: initial;">D.O.B</th>
 											<th style="white-space: initial;">Client Phone</th>
-											<th style="white-space: initial;">Client Followers</th>
 											<th style="white-space: initial;">Partner's Client ID</th>
 											<th style="white-space: initial;">Workflow</th>
 											<th style="white-space: initial;">Partner</th>
@@ -131,7 +129,6 @@
 											<td style="white-space: initial;">{{@$clientdetail->client_id}} </td>
 											<td style="white-space: initial;">{{date('d/m/Y',strtotime(@$clientdetail->dob))}} </td>
 											<td style="white-space: initial;">{{@$clientdetail->phone}} </td>
-											<td style="white-space: initial;">{{@$clientdetail->followers}} </td>
 											<td>-</td>
 											<td style="white-space: initial;">{{ @$list->workflow == "" ? config('constants.empty') : str_limit(@$list->workflow, '50', '...') }} </td>
 											<td style="white-space: initial;">{{@$partnerdetail->partner_name}}</td> 

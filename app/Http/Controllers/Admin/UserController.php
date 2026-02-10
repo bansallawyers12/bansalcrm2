@@ -62,7 +62,6 @@ class UserController extends Controller
 										'phone' => 'required',
 										'role' => 'required',
 										'office' => 'nullable|exists:branches,id',
-										'default_email_id' => 'nullable|exists:emails,id',
 									  ]);
 			
 			
@@ -89,7 +88,6 @@ class UserController extends Controller
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Users are verified by default
 			$obj->email_signature = $request->input('email_signature');
-			$obj->default_email_id = $request->input('default_email_id') ?: null;
 			if(isset($requestData['permission']) && is_array($requestData['permission']) ){
                 $obj->permission		=	implode(",",$requestData['permission']);
 			}else{
@@ -136,7 +134,6 @@ class UserController extends Controller
 										'last_name' => 'required|max:255',
 										'phone' => 'required|max:255',
 										'office' => 'nullable|exists:branches,id',
-										'default_email_id' => 'nullable|exists:emails,id',
 									]);
 								  					  
 			$obj				= 	Admin::find(@$requestData['id']);
@@ -165,7 +162,6 @@ class UserController extends Controller
 			     $obj->show_dashboard_per		=	0;
 			}
 			$obj->email_signature = $request->input('email_signature');
-			$obj->default_email_id = $request->input('default_email_id') ?: null;
 			if(!empty(@$requestData['password']))
 			{		
 				$obj->password				=	Hash::make(@$requestData['password']);
@@ -196,7 +192,7 @@ class UserController extends Controller
 				}
 				if(Admin::where('id', '=', $id)->exists()) 
 				{
-					$fetchedData = Admin::with(['office', 'defaultEmail'])->find($id);
+					$fetchedData = Admin::with(['office'])->find($id);
 					$emails = Email::where('status', 1)->orderBy('email')->get();
 					return view('Admin.users.edit', compact(['fetchedData', 'usertype', 'emails']));
 				}

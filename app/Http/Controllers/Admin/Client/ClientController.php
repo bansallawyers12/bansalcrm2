@@ -199,13 +199,10 @@ class ClientController extends Controller
 			$obj->zip	=	@$requestData['zip'];
 			$obj->country	=	@$requestData['country'];
 			$obj->visa_opt = @$requestData['visa_opt'];
-			$obj->preferredIntake	=	@$requestData['preferredIntake'];
 			$obj->country_passport			=	@$requestData['country_passport'];
 			$obj->passport_number			=	@$requestData['passport_number'];
 			$obj->visa_type			=		@$requestData['visa_type'];
 			$obj->visaExpiry			=	($visaExpiry != '') ? $visaExpiry : null;
-			$obj->applications	=	@$requestData['applications'];
-          
 			$obj->office_id	=	!empty($requestData['office']) ? $requestData['office'] : null;
 			//$obj->assignee	=	@$requestData['assign_to'];
             if( isset($requestData['assign_to']) && is_array($requestData['assign_to']) ){
@@ -235,13 +232,6 @@ class ClientController extends Controller
 			$obj->total_points	=	@$requestData['total_points'];
 			$obj->comments_note	=	@$requestData['comments_note'];
 			$obj->type	=	@$requestData['type'];
-			$followers = '';
-			if(isset($requestData['followers']) && !empty($requestData['followers'])){
-				foreach($requestData['followers'] as $follows){
-					$followers .= $follows.',';
-				}
-			}
-			$obj->followers	=	rtrim($followers,',');
 			$obj->source	=	@$requestData['source'];
 			if(isset($requestData['tagname'])){
 				$obj->tagname = $this->normalizeTags($requestData['tagname']);
@@ -260,24 +250,7 @@ class ClientController extends Controller
 			}
 
 			
-			if($request->hasfile('profile_img'))
-			{
-				
-					if($requestData['profile_img'] != '')
-						{
-							$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-						}
-				
-
-				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-			}
-			else
-			{
-				$profile_img = @$requestData['old_profile_img'];
-			}
-		
-		$obj->profile_img			=	@$profile_img;
-		
+			// profile_img column removed from admins table
 		 //$obj->manual_email_phone_verified	=	@$requestData['manual_email_phone_verified'];
 		 
 		$saved							=	$obj->save();
@@ -721,7 +694,6 @@ class ClientController extends Controller
                     $obj->visa_type = $lead->visa_type ?? null;
                     //$obj->visa_expiry_date = $lead->visa_expiry_date;
                     $obj->type = 'lead'; // Mark as lead type
-                    $obj->profile_img = $lead->profile_img;
                     $obj->created_at = $lead->created_at;
                     $obj->updated_at = $lead->updated_at;
                     
@@ -828,14 +800,9 @@ class ClientController extends Controller
 			$client = Admin::where('role', '=', '7')->where('id', $request->id)->first();
 
 			$obj = Admin::find($request->id);
-			$obj->rating = $request->rating;
 			$saved = $obj->save();
 			if($saved){
-				if($client->rating == ''){
-					$subject = 'has rated Client as '.$request->rating;
-				}else{
-					$subject = 'has changed Client\'s rating from '.$client->rating.' to '.$request->rating;
-				}
+				$subject = 'has updated client status';
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
 				$objs->created_by = Auth::user()->id;

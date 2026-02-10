@@ -236,30 +236,24 @@ class ClientMessagingController extends Controller
                 ];
 
                 if( \Mail::to($userInfo->email)->send(new GoogleReviewMail($details)) ) {
-                    $recExist = Admin::where('id', $data['id'])->update(['is_greview_mail_sent' => 1]);
-                    if($recExist){
-                        $objs = new ActivitiesLog;
-                        $objs->client_id = $data['id'];
-                        $objs->created_by = Auth::user()->id;
-                        $objs->description = '<span class="text-semi-bold">Google review inviatation sent successfully</span>';
-                        $objs->subject = "Google review inviatation";
-                        $objs->task_status = 0;
-                        $objs->pin = 0;
-                        $objs->save();
+                    $objs = new ActivitiesLog;
+                    $objs->client_id = $data['id'];
+                    $objs->created_by = Auth::user()->id;
+                    $objs->description = '<span class="text-semi-bold">Google review inviatation sent successfully</span>';
+                    $objs->subject = "Google review inviatation";
+                    $objs->task_status = 0;
+                    $objs->pin = 0;
+                    $objs->save();
 
-                        $response['status'] 	= 	true;
-                        $response['message']	=	'Google review inviatation sent successfully';
-                        $response['is_greview_mail_sent'] 	= 	$data['is_greview_mail_sent'];
-                    }
+                    $response['status'] 	= 	true;
+                    $response['message']	=	'Google review inviatation sent successfully';
                 } else {
                     $response['status'] 	= 	false;
                     $response['message']	=	'Please try again';
-                    $response['is_greview_mail_sent'] 	= 	$data['is_greview_mail_sent'];
                 }
             } else {
                 $response['status'] 	= 	false;
                 $response['message']	=	'Please try again';
-                $response['is_greview_mail_sent'] 	= 	$data['is_greview_mail_sent'];
             }
         }
         echo json_encode($response);

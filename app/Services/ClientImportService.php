@@ -223,7 +223,6 @@ class ClientImportService
             $client->visa_type = $clientData['visa_type'] ?? null;
             $client->visa_opt = $clientData['visa_opt'] ?? null;
             $client->visaexpiry = $this->parseDate($clientData['visaExpiry'] ?? null); // Column is visaexpiry, JSON uses visaExpiry
-            $client->preferredintake = $this->parseDate($clientData['preferredIntake'] ?? null); // Column is preferredintake, JSON uses preferredIntake
             
             // Professional Details (bansalcrm2 specific)
             $client->nomi_occupation = $clientData['nomi_occupation'] ?? null;
@@ -245,10 +244,8 @@ class ClientImportService
             $client->lead_quality = $clientData['lead_quality'] ?? null;
             $client->comments_note = $clientData['comments_note'] ?? null;
             $client->married_partner = $clientData['married_partner'] ?? null;
-            $client->followers = $clientData['followers'] ?? null;
             $client->tagname = $clientData['tagname'] ?? null;
             $client->related_files = $clientData['related_files'] ?? null;
-            $client->applications = $clientData['applications'] ?? null;
             
             // Other
             $client->naati_py = $clientData['naati_py'] ?? null;
@@ -259,7 +256,6 @@ class ClientImportService
             $client->type = $clientData['type'] ?? 'client';
             // Ensure status is an integer (handle string "1" from JSON)
             $client->status = is_numeric($clientData['status'] ?? 1) ? (int)$clientData['status'] : 1;
-            $client->profile_img = $clientData['profile_img'] ?? null;
             $client->agent_id = $clientData['agent_id'] ?? null;
             
             // Verification metadata fields removed - columns don't exist in bansalcrm2 database:
@@ -271,7 +267,6 @@ class ClientImportService
             // System fields
             $client->role = 7; // Client role
             $client->password = Hash::make('CLIENT_IMPORT_' . time()); // Temporary password
-            $client->decrypt_password = null;
             // Status already set above, don't override
             
             // System Fields

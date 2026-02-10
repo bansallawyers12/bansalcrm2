@@ -125,7 +125,6 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/phone-verification/lead/verify-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'verifyOTPForLead'])->name('leads.phone.verifyOTP');
     Route::post('/phone-verification/lead/resend-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'resendOTPForLead'])->name('leads.phone.resendOTP');
     Route::get('/phone-verification/lead/status/{leadId}', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'getStatusForLead'])->name('leads.phone.status');
-    Route::post('/is_greview_mail_sent', [ClientMessagingController::class, 'isgreviewmailsent'])->name('clients.isgreviewmailsent');
     Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('clients.enhanceMessage');
     
     // Address routes
