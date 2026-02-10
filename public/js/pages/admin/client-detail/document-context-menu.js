@@ -83,12 +83,13 @@
 
         // Preview
         menu.appendChild(createMenuItem('Preview', function() {
-            if (myfileKey) {
+            // Full URL (e.g. public path or S3) - open directly
+            if (myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
+                window.open(myfile, '_blank');
+            } else if (myfileKey) {
                 // New file upload - open in new tab
                 let fileUrl = myfile;
-                // If myfile doesn't start with http, construct the full URL
                 if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
-                    // Ensure it starts with / for proper URL construction
                     if (!fileUrl.startsWith('/')) {
                         fileUrl = '/' + fileUrl;
                     }
@@ -114,7 +115,17 @@
 
         // Download
         menu.appendChild(createMenuItem('Download', function() {
-            if (myfileKey) {
+            if (myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
+                // Full URL (e.g. public path) - direct download
+                const a = document.createElement('a');
+                a.href = myfile;
+                a.download = fileName + (fileType ? '.' + fileType : '') || 'download';
+                a.target = '_blank';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { if (a.parentNode) document.body.removeChild(a); }, 100);
+            } else if (myfileKey) {
                 // New file upload - try to find download element first
                 const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
                 if (downloadEl) {
@@ -135,7 +146,7 @@
                     setTimeout(() => form.remove(), 100);
                 }
             } else {
-                // Old file upload
+                // Old file upload - S3 URL
                 const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
                 const clientId = window.PageConfig?.clientId || '';
                 const fileUrl = url + clientId + '/' + docType + '/' + myfile;
@@ -143,7 +154,6 @@
                 if (downloadEl) {
                     downloadEl.click();
                 } else {
-                    // Direct download via anchor
                     const a = document.createElement('a');
                     a.href = fileUrl;
                     a.download = fileName + '.' + fileType;

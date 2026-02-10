@@ -174,7 +174,8 @@
             let html = '';
             documents.forEach(doc => {
                 const addedBy = doc.user ? `${doc.user.first_name} on ${this.formatDate(doc.created_at)}` : 'N/A';
-                const fileUrl = doc.myfile || '';
+                // Resolved URL (public path or S3) so context menu and link use the same URL
+                const fileUrl = doc.preview_url || (doc.myfile_key ? doc.myfile : this.getAwsUrl(doc)) || '';
                 const fileName = doc.file_name || '';
                 const fileType = doc.filetype || '';
                 

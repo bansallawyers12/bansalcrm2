@@ -145,10 +145,21 @@ function previewFile(fileType, fileUrl, containerClass) {
             break;
 
         case 'pdf':
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
-            iframe.className = 'pdf-viewer';
-            container.appendChild(iframe);
+            const pdfIframe = document.createElement('iframe');
+            // Use direct iframe for same-origin/localhost (public path); Google viewer for external (e.g. S3)
+            const isLocalPdfUrl = fileUrl && (
+                fileUrl.startsWith(window.location.origin) ||
+                fileUrl.indexOf('127.0.0.1') !== -1 ||
+                fileUrl.indexOf('localhost') !== -1 ||
+                fileUrl.startsWith('/')
+            );
+            if (isLocalPdfUrl) {
+                pdfIframe.src = fileUrl;
+            } else {
+                pdfIframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+            }
+            pdfIframe.className = 'pdf-viewer';
+            container.appendChild(pdfIframe);
             break;
 
         case 'doc':
