@@ -8,7 +8,7 @@ class Lead extends Model
 {	use Sortable;
 
 	protected $fillable = [
-        'id', 'name', 'status', 'created_at', 'updated_at',
+        'id', 'status', 'created_at', 'updated_at',
         'is_verified', 'verified_at', 'verified_by',
     ];
 
@@ -17,16 +17,11 @@ class Lead extends Model
         'verified_at' => 'datetime',
     ];
 	
-	public $sortable = ['id', 'name', 'created_at', 'updated_at'];
+	public $sortable = ['id', 'created_at', 'updated_at'];
 	
 	public function user()
     {
         return $this->belongsTo('App\Models\User','user_id','id');
-    }
-	
-	public function agentdetail()
-    {
-        return $this->belongsTo('App\Models\User','agent_id','id');
     }
 	
 	public function staffuser()
@@ -41,32 +36,15 @@ class Lead extends Model
     {
         return $this->hasMany('App\Models\Followup','id');
     }
-    
+
     /**
-     * Get the preferredIntake attribute (maps to preferredintake column)
-     *
-     * @param  mixed  $value
-     * @return mixed
+     * Computed name from first_name + last_name.
      */
-    public function getPreferredIntakeAttribute($value)
+    public function getNameAttribute()
     {
-        // Map preferredIntake to preferredintake column
-        return $this->attributes['preferredintake'] ?? null;
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
     }
-    
-    /**
-     * Set the preferredIntake attribute (maps to preferredintake column)
-     *
-     * @param  mixed  $value
-     * @return void
-     */
-    public function setPreferredIntakeAttribute($value)
-    {
-        // Map preferredIntake to preferredintake column
-        // PostgreSQL doesn't accept empty strings for date columns - convert to NULL
-        $this->attributes['preferredintake'] = ($value === '' || $value === null) ? null : $value;
-    }
-    
+
     /**
      * =========================================
      * PHONE COUNTRY CODE ACCESSORS/MUTATORS

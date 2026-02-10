@@ -142,15 +142,7 @@ class LeadController extends Controller
 				});
 			}
 		}
-		if ($request->has('priority')) 
-		{
-			$priority 		= 	$request->input('priority'); 
-			if(trim($priority) != '')
-			{
-				$query->where('priority', '=', @$priority);
-			}
-		}
-	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status')|| $request->has('followupdate') || $request->has('priority')) 
+	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status')|| $request->has('followupdate')) 
 		{
 			$totalData 	= $query->count();//after search
 		}
@@ -287,8 +279,6 @@ class LeadController extends Controller
 			$obj->phone		=	@$requestData['phone'];
 			$obj->email_type		=	@$requestData['email_type'];
 			$obj->email		=	@$requestData['email'];			
-		    //$obj->social_type		=	@$requestData['social_type'];			
-			//$obj->social_link		=	@$requestData['social_link'];			
 			$obj->service		=	@$requestData['service'];			
 			// Handle assign_to - convert array to single value (take first selected admin)
 			if(isset($requestData['assign_to']) && is_array($requestData['assign_to'])){
@@ -304,7 +294,6 @@ class LeadController extends Controller
 				$obj->att_email		=	@$requestData['att_email'];
 			$obj->lead_source		=	@$requestData['source'];	
 			$obj->related_files	=	rtrim($related_files,',');
-		//	$obj->advertisements_name		=	@$requestData['advertisements_name'];
 			$obj->comments_note		=	@$requestData['comments_note'];				 
     		/* Profile Image Upload Function Start */						  
 // profile_img column removed from admins table
