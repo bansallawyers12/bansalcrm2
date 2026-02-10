@@ -49,8 +49,8 @@
 - **Recommendation:** **Marked for deletion.** No data; remove form field, update email templates to use alternative (e.g. `email` or company email source), drop column.
 
 ### 11. **gst_no**, **gstin**, **gst_date**, **is_business_gst**
-- **Usage:** `AdminController` (GST and profile); `AdminConsole` profile; `my_profile.blade.php` (gst_no); `returnsetting.blade.php` (is_business_gst, gstin, gst_date) for return settings.
-- **Recommendation:** **Do not remove** unless you move GST/business profile to a dedicated table and update all references.
+- **Usage:** `AdminController::returnsetting` and `returnsetting.blade.php` (is_business_gst, gstin, gst_date). `gst_no` field is commented out in `my_profile.blade.php` and never saved. GST Settings page has no nav link (Tax routes removed from admin console).
+- **Recommendation:** **Marked for deletion.** Columns are unreachable in UI and never populated. Remove/update returnsetting form and controller usage, then drop columns.
 
 ### 12. **staff_id**
 - **Usage:** `StaffController`: required, unique validation and assign on create/update; `staff/edit.blade.php`, `staff/create.blade.php` (“Staff Code”).

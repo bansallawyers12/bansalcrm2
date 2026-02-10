@@ -189,7 +189,11 @@ class UserController extends Controller
 		{	
 			if(isset($id) && !empty($id))
 			{
-				//$id = $this->decodeString($id);	
+				$id = $this->decodeString($id);
+				if($id === false || $id === '')
+				{
+					return redirect()->route('users.active')->with('error', 'Invalid User ID');
+				}
 				if(Admin::where('id', '=', $id)->exists()) 
 				{
 					$fetchedData = Admin::with(['office', 'defaultEmail'])->find($id);
