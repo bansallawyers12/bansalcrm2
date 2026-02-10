@@ -307,16 +307,7 @@ class LeadController extends Controller
 		//	$obj->advertisements_name		=	@$requestData['advertisements_name'];
 			$obj->comments_note		=	@$requestData['comments_note'];				 
     		/* Profile Image Upload Function Start */						  
-    			if($request->hasfile('profile_img')) 
-    			{	
-    				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-    			}
-    			else
-    			{
-    				$profile_img = NULL;
-    			}	
-    		$obj->profile_img			=	@$profile_img;
-    		$obj->preferredIntake			=	@$requestData['preferredIntake'];
+// profile_img column removed from admins table
     		$obj->country_passport			=	@$requestData['country_passport'];
     		$obj->address			=	@$requestData['address'];
     		$obj->city			=	@$requestData['city'];
@@ -415,7 +406,7 @@ class LeadController extends Controller
 			$obj->state	=	@$enqdata->state;
 			$obj->zip	=	@$enqdata->zip;
 			$obj->country	=	@$enqdata->country;
-			$obj->preferredIntake	=	@$enqdata->preferredIntake;
+			// preferredIntake column removed
 			$obj->country_passport			=	@$enqdata->country_passport;
 			$obj->passport_number			=	@$enqdata->passport_no;
 			$obj->visa_type			=	@$enqdata->visa_type;
@@ -438,7 +429,7 @@ class LeadController extends Controller
 			$obj->source	=	@$enqdata->lead_source;
 			$obj->comments_note	=	@$enqdata->comments_note;
 			$obj->type	=	'lead';
-			$obj->profile_img			=@$enqdata->profile_img;
+			// profile_img column removed
 			
 				$saved				=	$obj->save(); 
 			$objs							= 	Admin::find($obj->id);

@@ -29,7 +29,7 @@
                         </td>
 
                         <td style="text-align: right;">
-                            <img width="120" height="120" style="display:block;border:1px solid grey;" src="{{URL::to('public/img/profile_imgs')}}/{{$admin->profile_img}}" alt="Logo"/>
+                            @if(!empty($logo))<img width="120" height="120" style="display:block;border:1px solid grey;" src="{{URL::to('public/img/profile_imgs')}}/{{$logo}}" alt="Logo"/>@endif
                             <p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;margin: 10px 0px 0px;">
                                <?php if( !empty($record_get) ) { ?>
                             		Invoice Number: {{$record_get[0]->invoice_no}}

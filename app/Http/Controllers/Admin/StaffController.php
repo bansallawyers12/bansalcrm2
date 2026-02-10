@@ -81,7 +81,6 @@ class StaffController extends Controller
 										'staff_id' => 'required|max:255|unique:admins',
 										'password' => 'required|max:255',
 										'phone' => 'required|max:255',
-										'profile_img' => 'required'
 									  ]);
 			
 			$requestData 		= 	$request->all();
@@ -98,17 +97,7 @@ class StaffController extends Controller
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Staff members are verified
 		$obj->show_dashboard_per = 1; // Staff have dashboard access
-			/* Profile Image Upload Function Start */						  
-					if($request->hasfile('profile_img')) 
-					{	
-						$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-					}
-					else
-					{
-						$profile_img = NULL;
-					}		
-				/* Profile Image Upload Function End */	
-			$obj->profile_img			=	@$profile_img;
+			// profile_img column removed from admins table
 			$saved				=	$obj->save();  
 			
 			if(!$saved)
@@ -162,24 +151,7 @@ class StaffController extends Controller
 				}
 			$obj->phone						=	@$requestData['phone'];
 			
-			/* Profile Image Upload Function Start */						  
-			if($request->hasfile('profile_img')) 
-			{	
-				/* Unlink File Function Start */ 
-					if($requestData['profile_img'] != '')
-						{
-							$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-						}
-				/* Unlink File Function End */
-				
-				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-			}
-			else
-			{
-				$profile_img = @$requestData['old_profile_img'];
-			}		
-		/* Profile Image Upload Function End */
-			$obj->profile_img			=	@$profile_img;
+			// profile_img column removed from admins table
 			$saved							=	$obj->save();
 			
 			if(!$saved)

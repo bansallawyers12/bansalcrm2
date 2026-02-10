@@ -113,17 +113,7 @@ class AgentController extends Controller
 			$obj->income_sharing	=	@$requestData['income_sharing'];
 			$obj->claim_revenue	=	@$requestData['claim_revenue'];
 			
-			/* Profile Image Upload Function Start */						  
-				if($request->hasfile('profile_img')) 
-				{	
-					$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-				}
-				else
-				{
-					$profile_img = NULL;
-				}		 
-			/* Profile Image Upload Function End */
-			$obj->profile_img			=	@$profile_img;
+			// profile_img column removed from admins table
 			$obj->status				=	1;
 			$obj->is_acrchived	=	0; // Set is_acrchived to 0 (not archived) for new agents
 			
@@ -202,24 +192,7 @@ class AgentController extends Controller
 			$obj->income_sharing	=	@$requestData['income_sharing'];
 			$obj->claim_revenue	=	@$requestData['claim_revenue'];
 			
-		/* Profile Image Upload Function Start */						  
-		if($request->hasfile('profile_img')) 
-		{	
-			/* Unlink File Function Start */ 
-				if(isset($requestData['old_profile_img']) && $requestData['old_profile_img'] != '')
-					{
-						$this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-					}
-			/* Unlink File Function End */
-				
-				$profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-			}
-			else
-			{
-				$profile_img = @$requestData['old_profile_img'];
-			}		
-		/* Profile Image Upload Function End */
-			$obj->profile_img			=	@$profile_img;
+		// profile_img column removed from admins table
 			$saved							=	$obj->save();
 			
 			if(!$saved)

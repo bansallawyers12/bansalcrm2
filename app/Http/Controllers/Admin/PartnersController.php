@@ -230,14 +230,7 @@ class PartnersController extends Controller
 			$obj->level = @$requestData['level'];
 			$obj->website	=	@$requestData['website'];
 
-			/* Profile Image Upload Function Start */
-            if($request->hasfile('profile_img')) {
-                $profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-            } else {
-                $profile_img = NULL;
-            }
-			/* Profile Image Upload Function End */
-			$obj->profile_img	=	@$profile_img;
+			// profile_img column removed from admins table
 			$obj->status	=	0; // Set status to 0 (active) for new partners
 			$obj->is_archived	=	0; // Set is_archived to 0 (not archived) for new partners
 			if(isset($requestData['gst'])){
@@ -412,23 +405,7 @@ class PartnersController extends Controller
 			$obj->level = @$requestData['level'];
 			$obj->website	=	@$requestData['website'];
 
-			/* Profile Image Upload Function Start */
-			if($request->hasfile('profile_img'))
-			{
-				/* Unlink File Function Start */
-                if($requestData['profile_img'] != '')
-                {
-                    $this->unlinkFile($requestData['old_profile_img'], Config::get('constants.profile_imgs'));
-                }
-				/* Unlink File Function End */
-                $profile_img = $this->uploadFile($request->file('profile_img'), Config::get('constants.profile_imgs'));
-			}
-			else
-			{
-				$profile_img = @$requestData['old_profile_img'];
-			}
-		    /* Profile Image Upload Function End */
-			$obj->profile_img			=	@$profile_img;
+			// profile_img column removed from admins table
 			$saved							=	$obj->save();
 
             
@@ -2204,14 +2181,17 @@ class PartnersController extends Controller
         //dd($record_get);
         if(!empty($record_get)){
             $partnerInfo = DB::table('partners')->where('id',$record_get[0]->partner_id)->first(); //dd($partnerInfo);
-            $admin = DB::table('admins')->select('profile_img')->where('id',1)->first(); //dd($admin);
+            $admin = DB::table('admins')->where('id',1)->first(); // profile_img column removed
+            $logo = ''; // profile_img no longer on admins
+        } else {
+            $logo = '';
         }
         set_time_limit(3000);
         $pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
 			'logOutputFile' => storage_path('logs/log.htm'),
 			'tempDir' => storage_path('logs/')
-		])->loadView('emails.studentinvoice',compact(['record_get','partnerInfo','admin']));
+		])->loadView('emails.studentinvoice',compact(['record_get','partnerInfo','admin','logo']));
 		return $pdf->stream('StudentInvoice.pdf');
 	}
 
