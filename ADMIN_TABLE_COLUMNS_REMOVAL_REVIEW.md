@@ -34,19 +34,19 @@
 
 ### 7. **default_email_id**
 - **Usage:** `Admin::defaultEmail()` relationship; `UserController` (create/update staff) and views `users/edit.blade.php`, `users/create.blade.php` for “Default email (from Admin Console > Email)”.
-- **Recommendation:** **Do not remove.** Used for staff default sending identity.
+- **Recommendation:** **Marked for deletion.** Remove after dropping the dropdown from user create/edit, removing from `UserController` and `Admin::$fillable`, and dropping the `defaultEmail()` relationship and migration/column.
 
 ### 8. **company_name**
 - **Usage:** `AdminController` (profile), `AdminConsole\ProfileController`, `my_profile.blade.php`; invoice views and `InvoiceController`; `ApplicationController` and partner detail (e.g. `{Company Name}` in messages); `ClientReceiptController` (DB select); `emails/invoice.blade.php`.
-- **Recommendation:** **Do not remove** unless you move company profile to another table (e.g. `companies` or `profiles`) and update all references.
+- **Recommendation:** **Review later.** Consider moving to `companies` or `profiles` table; update all references before removal.
 
 ### 9. **company_website**
 - **Usage:** `AdminController` (profile), `my_profile.blade.php`.
-- **Recommendation:** **Do not remove** unless you move company profile elsewhere.
+- **Recommendation:** **Review later.** Consider moving company profile elsewhere; update references before removal..
 
 ### 10. **primary_email**
-- **Usage:** `AdminController` (profile), `my_profile.blade.php`; `emails/invoice.blade.php` (`$email = @$admin->primary_email`).
-- **Recommendation:** **Do not remove** unless you move company/profile to another table.
+- **Usage:** Form in `my_profile.blade.php`; read in `emails/invoice.blade.php`, `emails/reciept.blade.php`, `emails/application.blade.php`. Never saved (AdminController::myProfile does not write it).
+- **Recommendation:** **Marked for deletion.** No data; remove form field, update email templates to use alternative (e.g. `email` or company email source), drop column.
 
 ### 11. **gst_no**, **gstin**, **gst_date**, **is_business_gst**
 - **Usage:** `AdminController` (GST and profile); `AdminConsole` profile; `my_profile.blade.php` (gst_no); `returnsetting.blade.php` (is_business_gst, gstin, gst_date) for return settings.
@@ -175,9 +175,9 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | time_zone | Staff timezone |
 | user_id | Client's assigned staff |
 | profile_img | Client/staff image |
-| company_name | Company profile / invoices |
-| company_website | Company profile |
-| primary_email | Company/invoice email |
+| company_name | **Review later** – company profile / invoices |
+| company_website | **Review later** – company profile |
+| primary_email | **Marked for deletion** – no data; never saved by profile controller |
 | gst_no, gstin, gst_date, is_business_gst | GST/return settings |
 | preferredintake | Client preferred intake |
 | applications (column) | **Verify:** possibly redundant with Application relation |
@@ -186,7 +186,7 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 | lead_id | Lead conversion and search |
 | comments_note | Client notes |
 | rating | Client rating |
-| default_email_id | Staff default sending email |
+| default_email_id | **Marked for deletion** – was staff default sending email |
 | manual_email_phone_verified | Unless replaced by another verification |
 | is_greview_mail_sent | Google Review mail-sent flag (clients) |
 
@@ -194,6 +194,8 @@ Run **`php check_admin_columns.php`** to see non-empty counts. Example run (53,3
 
 | Column | Notes |
 |--------|-------|
+| default_email_id | Marked for deletion; drop after removing from UserController, user create/edit views, Admin model |
+| primary_email | Marked for deletion; no data; remove from my_profile form, update invoice/receipt/application email templates |
 | lead_status | No code usage |
 | followup_date (on admins) | Not used on admins |
 | decrypt_password | No critical usage |
