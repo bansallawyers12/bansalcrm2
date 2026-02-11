@@ -807,13 +807,14 @@ $(document).ready(function() {
 						html += '<ul class="list-group list-group-flush">';
 						for (var i = 0; i < docs.length; i++) {
 							var d = docs[i];
-							html += '<li class="list-group-item d-flex justify-content-between align-items-center">';
+							html += '<li class="list-group-item d-flex justify-content-between align-items-center" data-document-id="' + d.id + '">';
 							html += '<span class="text-break">' + (d.file_name || 'Document #' + d.id) + '</span>';
-							html += '<span class="d-flex align-items-center">';
+							html += '<span class="d-flex align-items-center flex-wrap">';
 							if (d.created_at) html += '<small class="text-muted mr-2">' + d.created_at + '</small>';
 							if (d.preview_url) {
-								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt"></i> View</a>';
+								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link mr-1"><i class="fas fa-external-link-alt"></i> View</a>';
 							}
+							html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-doc-to-s3" data-document-id="' + d.id + '" title="Upload this document to S3"><i class="fas fa-cloud-upload-alt"></i> Upload to S3</button>';
 							html += '</span></li>';
 						}
 						html += '</ul>';
@@ -826,6 +827,36 @@ $(document).ready(function() {
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load documents';
 				$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + msg + '</div>');
+			}
+		});
+	});
+
+	// Upload single document to S3 (button in documents modal)
+	$(document).on('click', '.btn-upload-doc-to-s3', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.uploaddocumenttos3") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success && response.s3_url) {
+					var $li = $btn.closest('li');
+					var $viewLink = $li.find('a.doc-view-link');
+					$viewLink.attr('href', response.s3_url).attr('target', '_blank');
+					$btn.remove();
+				} else {
+					alert(response.message || 'Upload failed');
+					$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
+				alert(msg);
+				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
 			}
 		});
 	});

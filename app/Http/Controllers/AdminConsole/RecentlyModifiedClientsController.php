@@ -4,7 +4,9 @@ namespace App\Http\Controllers\AdminConsole;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
@@ -441,6 +443,111 @@ class RecentlyModifiedClientsController extends Controller
 			'documents' => $list,
 			'category_label' => ucfirst($category),
 		]);
+	}
+
+	/**
+	 * Upload a single public (local) document to S3. Updates only myfile and myfile_key after successful upload.
+	 * Does not delete the local file to avoid data loss.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function uploadDocumentToS3(Request $request)
+	{
+		$documentId = (int) $request->input('document_id');
+		if (!$documentId || $documentId < 1) {
+			return response()->json(['success' => false, 'message' => 'Document ID is required'], 400);
+		}
+
+		$document = Document::find($documentId);
+		if (!$document) {
+			return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+		}
+
+		// Only allow documents that are currently stored locally (public folder), not already on S3
+		if (!empty(trim((string) ($document->myfile_key ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Document is already on S3'], 400);
+		}
+		if (empty(trim((string) $document->myfile ?? ''))) {
+			return response()->json(['success' => false, 'message' => 'Document has no local file path'], 400);
+		}
+
+		// Restrict to Application, Education, Migration categories
+		$allowedCategoryNames = ['Application', 'Education', 'Migration'];
+		$category = $document->category_id ? DocumentCategory::find($document->category_id) : null;
+		if (!$category || !in_array($category->name, $allowedCategoryNames, true)) {
+			return response()->json(['success' => false, 'message' => 'Document category not allowed for this upload'], 400);
+		}
+
+		// Client unique ID for S3 path (e.g. MANV230200201)
+		$client = Admin::where('id', $document->client_id)->where('role', '7')->first();
+		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Client unique ID not found'], 400);
+		}
+		$clientUniqueId = trim($client->client_id);
+
+		// Local file path: public/img/documents/{myfile}
+		$relativePath = ltrim(str_replace('\\', '/', $document->myfile), '/');
+		$localPath = public_path('img/documents/' . $relativePath);
+		if (!file_exists($localPath) || !is_readable($localPath)) {
+			Log::warning('Upload to S3: local file not found or not readable', ['document_id' => $documentId, 'path' => $localPath]);
+			return response()->json(['success' => false, 'message' => 'Local file not found or not readable'], 404);
+		}
+
+		$fileContents = file_get_contents($localPath);
+		if ($fileContents === false) {
+			return response()->json(['success' => false, 'message' => 'Failed to read local file'], 500);
+		}
+
+		// S3 path: {client_unique_id}/documents/{filename} - same structure as existing S3 documents
+		$originalName = basename($relativePath);
+		$sanitized = $this->sanitizeFilenameForS3($originalName);
+		$s3FileName = time() . $sanitized;
+		$docType = $document->doc_type ?: 'documents';
+		$s3Key = $clientUniqueId . '/' . $docType . '/' . $s3FileName;
+
+		try {
+			$put = Storage::disk('s3')->put($s3Key, $fileContents);
+			if (!$put) {
+				Log::error('Upload to S3: put returned false', ['document_id' => $documentId, 's3_key' => $s3Key]);
+				return response()->json(['success' => false, 'message' => 'S3 upload failed'], 500);
+			}
+			$fileUrl = Storage::disk('s3')->url($s3Key);
+		} catch (\Throwable $e) {
+			Log::error('Upload to S3 exception', ['document_id' => $documentId, 'error' => $e->getMessage()]);
+			return response()->json(['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage()], 500);
+		}
+
+		// Update document only after successful upload - no other columns changed to avoid data loss
+		$document->myfile = $fileUrl;
+		$document->myfile_key = $s3FileName;
+		$document->save();
+
+		return response()->json([
+			'success' => true,
+			'message' => 'Document uploaded to S3 successfully',
+			's3_url' => $fileUrl,
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Sanitize filename for S3 path to prevent 403 (same idea as EmailUploadV2Controller).
+	 *
+	 * @param string $filename
+	 * @return string
+	 */
+	private function sanitizeFilenameForS3(string $filename): string
+	{
+		$ext = pathinfo($filename, PATHINFO_EXTENSION);
+		$base = pathinfo($filename, PATHINFO_FILENAME);
+		$base = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $base);
+		$base = preg_replace('/_+/', '_', $base);
+		$base = trim($base, '_');
+		if ($base === '') {
+			$base = 'doc_' . time();
+		}
+		return $ext ? $base . '.' . $ext : $base;
 	}
 	
 	/**
