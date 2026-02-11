@@ -75,9 +75,9 @@
 										</div>
 									</div>
 									
-									<!-- Document count, Phone, Email filters -->
+									<!-- Document count, Document storage, Phone, Email filters -->
 									<div class="row mb-3">
-										<div class="col-md-4">
+										<div class="col-md-3">
 											<div class="form-group">
 												<label for="document_count"><strong><i class="fas fa-file"></i> Documents</strong></label>
 												<select name="document_count" id="document_count" class="form-control">
@@ -96,7 +96,19 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-4">
+										<div class="col-md-3">
+											<div class="form-group">
+												<label for="doc_storage"><strong><i class="fas fa-cloud"></i> Doc Storage</strong></label>
+												<select name="doc_storage" id="doc_storage" class="form-control">
+													<option value="">All</option>
+													<option value="local" {{ @$docStorage === 'local' ? 'selected' : '' }}>Local only</option>
+													<option value="aws" {{ @$docStorage === 'aws' ? 'selected' : '' }}>AWS only</option>
+													<option value="both" {{ @$docStorage === 'both' ? 'selected' : '' }}>Both</option>
+													<option value="none" {{ @$docStorage === 'none' ? 'selected' : '' }}>No documents</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-3">
 											<div class="form-group">
 												<label for="no_phone"><strong><i class="fas fa-phone"></i> Phone</strong></label>
 												<select name="no_phone" id="no_phone" class="form-control">
@@ -105,7 +117,7 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-4">
+										<div class="col-md-3">
 											<div class="form-group">
 												<label for="no_email"><strong><i class="fas fa-envelope"></i> Email</strong></label>
 												<select name="no_email" id="no_email" class="form-control">
@@ -274,6 +286,7 @@
 												<i class="fas fa-sort ml-1 text-muted"></i>
 											@endif
 										</th>
+										<th>Storage</th>
 										<th>Action</th>
 									</tr> 
 								</thead>
@@ -339,6 +352,18 @@
 											@endif
 										</td>
 										<td>
+											@php $ds = @$list->doc_storage ?? 'none'; @endphp
+											@if($ds === 'both')
+												<span class="badge badge-info" title="Documents in local and AWS"><i class="fas fa-folder"></i> <i class="fas fa-cloud"></i> Both</span>
+											@elseif($ds === 'local')
+												<span class="badge badge-secondary" title="Documents in local/public folder"><i class="fas fa-folder"></i> Local</span>
+											@elseif($ds === 'aws')
+												<span class="badge badge-primary" title="Documents in AWS S3"><i class="fas fa-cloud"></i> AWS</span>
+											@else
+												<span class="text-muted">—</span>
+											@endif
+										</td>
+										<td>
 											@if(@$list->client_id)
 												<a href="{{ route('clients.detail', @$list->client_id) }}" class="btn btn-sm btn-primary" title="View Client">
 													<i class="far fa-eye"></i> View
@@ -351,7 +376,7 @@
 									<!-- Expandable row for client details -->
 									@if(@$list->client_id)
 									<tr id="client-details-{{ @$list->client_id }}" class="client-details-row" style="display: none;">
-										<td colspan="8" style="background-color: #f8f9fa; padding: 20px;">
+										<td colspan="9" style="background-color: #f8f9fa; padding: 20px;">
 											<div class="client-details-content" id="client-details-content-{{ @$list->client_id }}">
 												<div class="text-center">
 													<i class="fas fa-spinner fa-spin"></i> Loading...
@@ -365,7 +390,7 @@
 								@else
 								<tbody>
 									<tr>
-										<td style="text-align:center;" colspan="8">
+										<td style="text-align:center;" colspan="9">
 											No Record found
 										</td>
 									</tr>
@@ -645,7 +670,7 @@ $(document).ready(function() {
 					}
 					html += '</div>';
 					
-					// Document Count Section
+					// Document Count & Storage Section
 					html += '<div class="col-md-6 mb-3">';
 					html += '<h6><i class="fas fa-file"></i> Documents</h6>';
 					html += '<div class="card p-3" style="background: white;">';
@@ -653,6 +678,10 @@ $(document).ready(function() {
 					html += '<span class="badge badge-primary" style="font-size: 1.2em; padding: 8px 12px;">' + data.document_count + '</span>';
 					html += '<span class="ml-2">' + (data.document_count === 1 ? 'file' : 'files') + ' found</span>';
 					html += '</div>';
+					var storageLabel = (data.document_storage === 'both') ? 'Local & AWS' : ((data.document_storage === 'local') ? 'Local only' : ((data.document_storage === 'aws') ? 'AWS only' : '—'));
+					if (data.document_count > 0 && data.document_storage) {
+						html += '<div class="mt-2"><small class="text-muted">Storage: </small><strong>' + storageLabel + '</strong></div>';
+					}
 					html += '</div>';
 					html += '</div>';
 					

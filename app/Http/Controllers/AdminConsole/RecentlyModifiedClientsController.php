@@ -45,6 +45,7 @@ class RecentlyModifiedClientsController extends Controller
 		$hasApplications = $request->input('has_applications', ''); // '' = all, '0' = no applications
 		$lastActivityYears = $request->input('last_activity_years', ''); // 1, 2, 3, 4, 5 = X+ years ago
 		$documentCount = $request->input('document_count', ''); // '', '0', '1', ... '9', '10+' = documents count filter
+		$docStorage = $request->input('doc_storage', ''); // '', 'local', 'aws', 'both', 'none' = document storage location filter
 		$noPhone = $request->input('no_phone', ''); // '' = all, '1' = only clients with no phone number
 		$noEmail = $request->input('no_email', ''); // '' = all, '1' = only clients with no email address
 		
@@ -85,6 +86,27 @@ class RecentlyModifiedClientsController extends Controller
 			->whereNull('archived_at')
 			->groupBy('client_id');
 		$query->leftJoinSub($docCountSubQuery, 'doc_counts', 'activities_logs.client_id', '=', 'doc_counts.client_id');
+		
+		// Subquery: document storage location (local vs AWS) per client
+		// Local: myfile_key null/empty and myfile has content; AWS: myfile_key set
+		$docStorageSubQuery = Document::select(
+				'client_id',
+				DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
+				DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
+			)
+			->whereNull('archived_at')
+			->groupBy('client_id');
+		$query->leftJoinSub($docStorageSubQuery, 'doc_storage', 'activities_logs.client_id', '=', 'doc_storage.client_id');
+		
+		// Add doc_storage computed column to select
+		$query->addSelect([
+			DB::raw("CASE
+				WHEN COALESCE(doc_storage.has_local, 0) = 1 AND COALESCE(doc_storage.has_aws, 0) = 1 THEN 'both'
+				WHEN COALESCE(doc_storage.has_local, 0) = 1 THEN 'local'
+				WHEN COALESCE(doc_storage.has_aws, 0) = 1 THEN 'aws'
+				ELSE 'none'
+			END AS doc_storage")
+		]);
 		
 		// Apply search filter (name, email, phone)
 		if (!empty($search)) {
@@ -133,6 +155,17 @@ class RecentlyModifiedClientsController extends Controller
 			} elseif (in_array($documentCount, ['1', '2', '3', '4', '5', '6', '7', '8', '9'], true)) {
 				$query->where('doc_counts.doc_count', '=', (int) $documentCount);
 			}
+		}
+		
+		// Filter: document storage location (local, aws, both, none)
+		if ($docStorage !== '' && in_array($docStorage, ['local', 'aws', 'both', 'none'], true)) {
+			$docStorageExpr = "CASE
+				WHEN COALESCE(doc_storage.has_local, 0) = 1 AND COALESCE(doc_storage.has_aws, 0) = 1 THEN 'both'
+				WHEN COALESCE(doc_storage.has_local, 0) = 1 THEN 'local'
+				WHEN COALESCE(doc_storage.has_aws, 0) = 1 THEN 'aws'
+				ELSE 'none'
+			END";
+			$query->whereRaw("({$docStorageExpr}) = ?", [$docStorage]);
 		}
 		
 		// Filter: no phone number (only clients with missing/empty phone)
@@ -185,6 +218,7 @@ class RecentlyModifiedClientsController extends Controller
 			'hasApplications',
 			'lastActivityYears',
 			'documentCount',
+			'docStorage',
 			'noPhone',
 			'noEmail'
 		])); 	
@@ -198,9 +232,9 @@ class RecentlyModifiedClientsController extends Controller
      */
 	public function getClientDetails(Request $request)
 	{
-		$clientId = $request->input('client_id');
+		$clientId = (int) $request->input('client_id');
 		
-		if (!$clientId) {
+		if (!$clientId || $clientId < 1) {
 			return response()->json([
 				'success' => false,
 				'message' => 'Client ID is required'
@@ -230,6 +264,22 @@ class RecentlyModifiedClientsController extends Controller
 			->whereNull('archived_at') // Only count non-archived documents
 			->count();
 		
+		// Get document storage location: local (myfile_key empty), AWS (myfile_key set)
+		$hasLocal = Document::where('client_id', $clientId)
+			->whereNull('archived_at')
+			->where(function ($q) {
+				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
+			})
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->exists();
+		$hasAws = Document::where('client_id', $clientId)
+			->whereNull('archived_at')
+			->whereNotNull('myfile_key')
+			->where('myfile_key', '!=', '')
+			->exists();
+		$documentStorage = ($hasLocal && $hasAws) ? 'both' : ($hasLocal ? 'local' : ($hasAws ? 'aws' : 'none'));
+		
 		// Check if client is archived
 		$isArchived = $client->is_archived == 1;
 		
@@ -246,6 +296,7 @@ class RecentlyModifiedClientsController extends Controller
 						'N/A'
 				] : null,
 				'document_count' => $documentCount,
+				'document_storage' => $documentStorage,
 				'is_archived' => $isArchived
 			]
 		]);
