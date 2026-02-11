@@ -74,10 +74,14 @@ class RecentlyModifiedClientsController extends Controller
 				$join->on('activities_logs.client_id', '=', 'latest_activities.client_id')
 					 ->on('activities_logs.created_at', '=', 'latest_activities.last_activity');
 			})
-			->leftJoin('admins as client_admins', function($join) {
+			// Use INNER JOIN so we only show non-archived clients (archived clients would otherwise appear with NULL client info)
+			->join('admins as client_admins', function($join) {
 				$join->on('activities_logs.client_id', '=', 'client_admins.id')
 					 ->where('client_admins.role', '=', '7')
-					 ->where('client_admins.is_archived', '=', '0');
+					 ->where(function($q) {
+						 $q->whereIn('client_admins.is_archived', [0, '0'])
+						   ->orWhereNull('client_admins.is_archived');
+					 });
 			})
 			->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id');
 		
@@ -394,19 +398,51 @@ class RecentlyModifiedClientsController extends Controller
 	{
 		$clientIds = $request->input('client_ids', []);
 		
+		// DEBUG: Log raw request data
+		\Log::info('[BulkArchive] Raw request input:', [
+			'client_ids_raw' => $clientIds,
+			'client_ids_type' => gettype($clientIds),
+			'is_array' => is_array($clientIds),
+			'all_input' => $request->all(),
+		]);
+		
 		if (empty($clientIds) || !is_array($clientIds)) {
 			return response()->json([
 				'success' => false,
-				'message' => 'Please select at least one client to archive.'
+				'message' => 'Please select at least one client to archive.',
+				'debug' => ['client_ids_raw' => $clientIds, 'reason' => 'empty_or_not_array']
 			], 400);
 		}
 		
 		$clientIds = array_map('intval', array_filter($clientIds));
 		
+		if (empty($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Please select at least one client to archive.',
+				'debug' => ['client_ids_after_filter' => $clientIds, 'reason' => 'empty_after_filter']
+			], 400);
+		}
+		
+		// Match clients that are not archived (is_archived = 0 or NULL)
 		$clients = Admin::whereIn('id', $clientIds)
 			->where('role', '7')
-			->where('is_archived', '0')
+			->where(function ($q) {
+				$q->whereIn('is_archived', [0, '0'])
+				  ->orWhereNull('is_archived');
+			})
 			->get();
+		
+		// DEBUG: Check why clients might be empty - query admins for these IDs without archive filter
+		$allAdminsWithIds = DB::table('admins')
+			->whereIn('id', $clientIds)
+			->get(['id', 'role', 'is_archived', 'first_name', 'last_name']);
+		
+		\Log::info('[BulkArchive] Query results:', [
+			'client_ids_requested' => $clientIds,
+			'clients_found' => $clients->pluck('id')->toArray(),
+			'all_admins_with_ids' => $allAdminsWithIds->toArray(),
+		]);
 		
 		$archived = 0;
 		$updateData = [
@@ -438,7 +474,13 @@ class RecentlyModifiedClientsController extends Controller
 		return response()->json([
 			'success' => true,
 			'message' => $message,
-			'archived_count' => $archived
+			'archived_count' => $archived,
+			'debug' => [
+				'client_ids_sent' => $clientIds,
+				'clients_found_count' => $clients->count(),
+				'archived_count' => $archived,
+				'all_admins_with_ids' => $allAdminsWithIds->toArray(),
+			]
 		]);
 	}
 }

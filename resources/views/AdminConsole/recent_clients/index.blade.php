@@ -743,8 +743,14 @@ $(document).ready(function() {
 	$('#bulkArchiveBtn').on('click', function() {
 		var ids = [];
 		$('.client-checkbox:checked').each(function() {
-			ids.push($(this).data('client-id'));
+			var id = $(this).val();
+			if (id) ids.push(id);
 		});
+		// DEBUG: Log collected IDs
+		console.log('[BulkArchive] Checkboxes checked:', $('.client-checkbox:checked').length);
+		console.log('[BulkArchive] IDs collected:', ids);
+		console.log('[BulkArchive] IDs type:', typeof ids, 'isArray:', Array.isArray(ids));
+		
 		if (ids.length === 0) {
 			alert('Please select at least one client to archive.');
 			return;
@@ -757,16 +763,27 @@ $(document).ready(function() {
 		var originalHtml = $btn.html();
 		$btn.html('<i class="fas fa-spinner fa-spin"></i> Archiving...');
 		
+		var postData = { client_ids: ids };
+		console.log('[BulkArchive] Sending payload:', JSON.stringify(postData));
+		
 		$.ajax({
 			url: '{{ route("adminconsole.recentclients.bulkarchive") }}',
 			type: 'POST',
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
-			data: { client_ids: ids },
+			data: postData,
 			success: function(response) {
+				console.log('[BulkArchive] Response:', response);
+				if (response.debug) {
+					console.log('[BulkArchive] Debug info:', response.debug);
+				}
 				if (response.success) {
-					alert(response.message);
+					var msg = response.message;
+					if (response.debug) {
+						msg += '\n\n[DEBUG] ' + JSON.stringify(response.debug, null, 2);
+					}
+					alert(msg);
 					window.location.reload();
 				} else {
 					alert('Error: ' + (response.message || 'Failed to archive clients'));
@@ -775,6 +792,7 @@ $(document).ready(function() {
 				}
 			},
 			error: function(xhr) {
+				console.log('[BulkArchive] Error:', xhr.status, xhr.responseText);
 				var errorMsg = 'Failed to archive clients';
 				if (xhr.responseJSON && xhr.responseJSON.message) {
 					errorMsg = xhr.responseJSON.message;
