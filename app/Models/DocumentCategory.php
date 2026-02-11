@@ -126,7 +126,7 @@ class DocumentCategory extends Model
         }
 
         // Categories with documents cannot be deleted
-        if ($this->documents()->count() > 0) {
+        if ($this->getDocumentCount() > 0) {
             return false;
         }
 
@@ -138,20 +138,38 @@ class DocumentCategory extends Model
      */
     public function getDocumentCount($clientId = null): int
     {
-        $query = $this->documents()
+        // Education/Migration categories: count migrated (category_id) + legacy (doc_type)
+        if ($this->name === 'Education') {
+            return Document::whereNull('not_used_doc')
+                ->where('type', 'client')
+                ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
+                ->where(function ($q) {
+                    $q->where('category_id', $this->id)
+                        ->orWhere('doc_type', 'education');
+                })
+                ->count();
+        }
+        if ($this->name === 'Migration') {
+            return Document::whereNull('not_used_doc')
+                ->where('type', 'client')
+                ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
+                ->where(function ($q) {
+                    $q->where('category_id', $this->id)
+                        ->orWhere('doc_type', 'migration');
+                })
+                ->count();
+        }
+
+        // Other categories: standard logic
+        return $this->documents()
             ->whereNull('not_used_doc')
+            ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
             ->where(function ($q) {
-                // Count only documents with doc_type='documents' or NULL/empty
                 $q->where('doc_type', 'documents')
                     ->orWhere(function ($subQ) {
                         $subQ->whereNull('doc_type')->orWhere('doc_type', '');
                     });
-            });
-        
-        if ($clientId) {
-            $query->where('client_id', $clientId);
-        }
-        
-        return $query->count();
+            })
+            ->count();
     }
 }

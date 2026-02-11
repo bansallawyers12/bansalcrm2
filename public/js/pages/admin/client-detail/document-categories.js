@@ -171,6 +171,7 @@
                 return;
             }
             
+            const userRole = $('#document-category-tabs').data('user-role') || 0;
             let html = '';
             documents.forEach(doc => {
                 const addedBy = doc.user ? `${doc.user.first_name} on ${this.formatDate(doc.created_at)}` : 'N/A';
@@ -187,7 +188,8 @@
                         data-file-type="${this.escapeHtml(fileType)}"
                         data-myfile="${this.escapeHtml(fileUrl)}"
                         data-myfile-key="${doc.myfile_key || ''}"
-                        data-doc-type="${doc.doc_type || ''}"
+                        data-doc-type="${doc.doc_type || 'documents'}"
+                        data-user-role="${userRole}"
                         title="Added by: ${addedBy}"
                         style="cursor: context-menu;">
                         <td style="white-space: initial;">

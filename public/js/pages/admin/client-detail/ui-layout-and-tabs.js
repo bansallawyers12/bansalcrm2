@@ -35,7 +35,7 @@
             var targetHref = activeTab.attr('href') || '';
 
             // Document-related tabs and full-width tabs (hide personal-details-container)
-            var documentTabs = ['#documents', '#migrationdocuments', '#alldocuments', '#notuseddocuments', '#email-v2'];
+            var documentTabs = ['#alldocuments', '#notuseddocuments', '#email-v2'];
 
             if (documentTabs.indexOf(targetHref) !== -1) {
                 // Hide personal-details-container for document tabs (right_section takes full width)

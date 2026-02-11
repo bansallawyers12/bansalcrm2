@@ -36,6 +36,7 @@
 
                         if(delhref == 'deletedocs'){
                             $('.documnetlist #id_'+notid).remove();
+                            $('.migdocumnetlist #id_'+notid).remove();
                         }
                         if(delhref == 'deletealldocs'){
                             $('.alldocumnetlist #id_'+notid).remove();

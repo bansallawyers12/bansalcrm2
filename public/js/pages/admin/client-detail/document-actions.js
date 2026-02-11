@@ -32,8 +32,13 @@
                     var res = typeof response === 'string' ? JSON.parse(response) : response;
                     $('#confirmDocModal').modal('hide');
                     if(res.status){
-                        if(res.doc_type == 'documents') {
-                            $('.alldocumnetlist #docverifiedby_'+verify_doc_id).html(res.verified_by + "<br>" + res.verified_at);
+                        var docVerifiedEl = $('.alldocumnetlist #docverifiedby_'+verify_doc_id);
+                        if (docVerifiedEl.length) {
+                            docVerifiedEl.html(res.verified_by + "<br>" + res.verified_at);
+                        }
+                        if (typeof window.DocumentCategoryManager !== 'undefined' && window.DocumentCategoryManager.currentCategoryId) {
+                            window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                            window.DocumentCategoryManager.loadCategories(true);
                         }
                         if(typeof getallactivities === 'function') {
                             getallactivities();
@@ -67,8 +72,10 @@
                     var res = typeof response === 'string' ? JSON.parse(response) : response;
                     $('#confirmNotUseDocModal').modal('hide');
                     if(res.status){
-                        if(res.doc_type == 'documents') {
-                            $('.alldocumnetlist #id_'+res.doc_id).remove();
+                        $('.alldocumnetlist #id_'+res.doc_id).remove();
+                        if (typeof window.DocumentCategoryManager !== 'undefined' && window.DocumentCategoryManager.currentCategoryId) {
+                            window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                            window.DocumentCategoryManager.loadCategories(true);
                         }
                         if(res.docInfo) {
                             var subArray = res.docInfo;

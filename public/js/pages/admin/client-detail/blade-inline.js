@@ -43,9 +43,12 @@
     var applicationPath = applicationId ? basePath + '/application/' + applicationId : null;
 
     var params = new URLSearchParams(window.location.search);
-    var initialTab = params.get('tab');
-    if (initialTab) {
-        var normalizedInitialTab = initialTab === 'noteterm' ? 'notestrm' : initialTab;
+        var initialTab = params.get('tab');
+        if (initialTab) {
+            var normalizedInitialTab = initialTab === 'noteterm' ? 'notestrm' : initialTab;
+            if (normalizedInitialTab === 'documents' || normalizedInitialTab === 'migrationdocuments') {
+                normalizedInitialTab = 'alldocuments';
+            }
         var initialTrigger = tabList.querySelector('[data-tab="' + normalizedInitialTab + '"]');
         if (initialTrigger && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
             bootstrap.Tab.getOrCreateInstance(initialTrigger).show();

@@ -168,15 +168,31 @@
 
         menu.appendChild(createDivider());
 
+        // Verify
+        menu.appendChild(createMenuItem('Verify', function() {
+            const tempEl = document.createElement('a');
+            tempEl.className = 'dropdown-item verifydoc';
+            tempEl.setAttribute('data-id', docId);
+            tempEl.setAttribute('data-href', 'verifydoc');
+            tempEl.setAttribute('data-doctype', docType || 'documents');
+            tempEl.style.display = 'none';
+            document.body.appendChild(tempEl);
+            $(tempEl).trigger('click');
+            setTimeout(() => { if (tempEl.parentNode) tempEl.parentNode.removeChild(tempEl); }, 100);
+            hideContextMenu();
+        }));
+
         // Delete (only for super admin)
         if (userRole === 1) {
             menu.appendChild(createMenuItem('Delete', function() {
-                const deleteEl = document.querySelector(`.deletenote[data-id="${docId}"][data-href="deletealldocs"]`);
-                if (deleteEl) {
-                    if (confirm('Are you sure you want to delete this document?')) {
-                        deleteEl.click();
-                    }
-                }
+                const tempEl = document.createElement('a');
+                tempEl.className = 'dropdown-item deletenote';
+                tempEl.setAttribute('data-id', docId);
+                tempEl.setAttribute('data-href', 'deletealldocs');
+                tempEl.style.display = 'none';
+                document.body.appendChild(tempEl);
+                $(tempEl).trigger('click');
+                setTimeout(() => { if (tempEl.parentNode) tempEl.parentNode.removeChild(tempEl); }, 100);
                 hideContextMenu();
             }));
         }

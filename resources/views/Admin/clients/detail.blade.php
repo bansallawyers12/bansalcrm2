@@ -571,20 +571,23 @@ use App\Http\Controllers\Controller;
 									'activities',
 									'noteterm',
 									'application',
-									'documents',
-									'migrationdocuments',
 									'alldocuments',
 									'notuseddocuments',
 									'accounts',
 									'conversations'
 								];
 								$tabAliases = [
-									'notestrm' => 'noteterm'
+									'notestrm' => 'noteterm',
+									'documents' => 'alldocuments',
+									'migrationdocuments' => 'alldocuments'
 								];
 								$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
 								$requestedTab = (isset($forcedTab) && $forcedTab)
 									? $forcedTab
 									: (Request::route('tab') ?? Request::get('tab'));
+								if (in_array($requestedTab, ['documents', 'migrationdocuments'])) {
+									$requestedTab = 'alldocuments';
+								}
 								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
 									$requestedTab = 'activities';
 								}
@@ -592,6 +595,10 @@ use App\Http\Controllers\Controller;
 								$activeTabSlug = array_search($activeTab, $tabAliases, true);
 								if ($activeTabSlug === false) {
 									$activeTabSlug = $requestedTab;
+								}
+								// Redirected from documents/migrationdocuments: use alldocuments as URL slug
+								if ($activeTab === 'alldocuments' && in_array($activeTabSlug, ['documents', 'migrationdocuments'])) {
+									$activeTabSlug = 'alldocuments';
 								}
 								$detailBaseUrl = Request::route()
 									&& \Illuminate\Support\Str::startsWith(Request::route()->getName(), 'leads.detail')
@@ -610,13 +617,6 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="application" id="application-tab" href="#application" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="documents" id="documents-tab" href="#documents" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Education Documents</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'migrationdocuments' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="migrationdocuments" id="migrationdocuments-tab" href="#migrationdocuments" role="tab" aria-controls="migrationdocuments" aria-selected="{{ $activeTab === 'migrationdocuments' ? 'true' : 'false' }}">Migration Documents</a>
-								</li>
-
                                 <li class="nav-item">
                                     <a class="nav-link {{ $activeTab === 'alldocuments' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="alldocuments" id="alldocuments-tab" href="#alldocuments" role="tab" aria-controls="alldocuments" aria-selected="{{ $activeTab === 'alldocuments' ? 'true' : 'false' }}">Documents</a>
                                 </li>
@@ -1077,207 +1077,10 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
                                       
-								<div class="tab-pane fade {{ $activeTab === 'documents' ? 'show active' : '' }}" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<div class="document_layout_type">
-											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
-											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
-										</div>
-										<!-- Upload disabled for Education Documents tab -->
-										{{-- <div class="upload_document" style="display:inline-block;">
-										<form method="POST" enctype="multipart/form-data" id="upload_form">
-											@csrf
-											<input type="hidden" name="clientid" value="{{$fetchedData->id}}">
-											<input type="hidden" name="type" value="client">
-												<input type="hidden" name="doctype" value="education">
-											<input class="docupload" multiple type="file" name="document_upload[]"/>
-											</form>
-										</div> --}}
-									</div>
-									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
-										<div class="">
-											<table class="table text_wrap">
-												<thead>
-													<tr>
-														<th>File Name</th>
-														<th>Added Date</th>
-													</tr>
-												</thead>
-												<tbody class="tdata documnetlist">
-										<?php
-										$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->where('doc_type', 'education')->where('type','client')->orderby('created_at', 'DESC')->get();
-										foreach($fetchd as $fetch){
-										$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
-										$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
-										?>
-													<tr class="drow document-row" id="id_{{$fetch->id}}" 
-														data-doc-id="{{$fetch->id}}"
-														data-file-name="<?php echo htmlspecialchars($fetch->file_name, ENT_QUOTES, 'UTF-8'); ?>"
-														data-file-type="<?php echo htmlspecialchars($fetch->filetype, ENT_QUOTES, 'UTF-8'); ?>"
-														data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
-														data-doc-type="education"
-														data-is-education="true"
-														title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
-														style="cursor: context-menu;">
-													<td  style="white-space: initial;">
-														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','preview-container-documentlist')">
-                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                                            </a>
-														</div>
-													</td>
-													<td style="white-space: initial;"><?php echo date('d/m/Y', strtotime($fetch->created_at)); ?></td>
-												</tr>
-												<?php } ?>
-												</tbody>
-
-											</table>
-										</div>
-									</div>
-									<div class="grid_data griddata">
-									<?php
-									foreach($fetchd as $fetch){
-										$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $fetch->user_id)->first();
-									?>
-										<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
-											<div class="grid_col">
-												<div class="grid_icon">
-													<i class="fas fa-file-image"></i>
-												</div>
-												<div class="grid_content">
-													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php } ?>
-										<div class="clearfix"></div>
-									</div>
-                                     <!-- Container for File Preview -->
-                            		<div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-documentlist">
-                            			<p style="color:#000;">Click on a file to preview it here.</p>
-                            		</div>
-								</div>
-                                      
-								<div class="tab-pane fade {{ $activeTab === 'migrationdocuments' ? 'show active' : '' }}" id="migrationdocuments" role="tabpanel" aria-labelledby="migrationdocuments-tab">
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<div class="document_layout_type">
-											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
-											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
-										</div>
-										<!-- Upload disabled for Migration Documents tab -->
-										{{-- <div class="migration_upload_document" style="display:inline-block;">
-                                              <form method="POST" enctype="multipart/form-data" id="mig_upload_form">
-                                                  @csrf
-                                                  <input type="hidden" name="clientid" value="{{$fetchedData->id}}">
-                                                  <input type="hidden" name="type" value="client">
-                                                  <input type="hidden" name="doctype" value="migration">
-                                                  <input class="migdocupload" multiple type="file" name="document_upload[]"/>
-											</form>
-										</div> --}}
-									</div>
-									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
-										<div class="">
-											<table class="table text_wrap">
-												<thead>
-													<tr>
-														<th>File Name</th>
-														<th>Added By</th>
-
-														<th>Added Date</th>
-														<th></th>
-													</tr>
-												</thead>
-												<tbody class="tdata migdocumnetlist">
-										<?php
-										$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->where('doc_type', 'migration')->where('type','client')->orderby('created_at', 'DESC')->get();
-										//dd($fetchd);
-										foreach($fetchd as $fetch){
-										$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $fetch->user_id)->first();
-										?>
-													<tr class="drow" id="id_{{$fetch->id}}">
-													<td  style="white-space: initial;">
-														<div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
-															<a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset('img/documents/'.$fetch->myfile); ?>','preview-container-migrationdocumentlist')">
-                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
-                                                            </a>
-														</div>
-													</td>
-													<td style="white-space: initial;"><?php echo $admin->first_name; ?></td>
-
-													<td style="white-space: initial;"><?php echo date('d/m/Y', strtotime($fetch->created_at)); ?></td>
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<?php
-																$explodeimg = explode('.',$fetch->myfile);
-																if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
-																?>
-																	<a target="_blank" class="dropdown-item" href="{{URL::to('/document/download/pdf')}}/<?php echo $fetch->id; ?>">PDF</a>
-																	<?php } ?>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-															</div>
-														</div>
-													</td>
-												</tr>
-												<?php } ?>
-												</tbody>
-
-											</table>
-										</div>
-									</div>
-									<div class="grid_data miggriddata">
-									<?php
-									foreach($fetchd as $fetch){
-										$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $fetch->user_id)->first();
-									?>
-										<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
-											<div class="grid_col">
-												<div class="grid_icon">
-													<i class="fas fa-file-image"></i>
-												</div>
-												<div class="grid_content">
-													<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-
-																<a target="_blank" class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Preview</a>
-																<a download class="dropdown-item" href="{{asset('img/documents')}}/<?php echo $fetch->myfile; ?>">Download</a>
-																<a data-id="{{$fetch->id}}" class="dropdown-item deletenote" data-href="deletedocs" href="javascript:;">Delete</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php } ?>
-										<div class="clearfix"></div>
-									</div>
-                                  
-                                     <!-- Container for File Preview -->
-                                    <div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-migrationdocumentlist">
-                                        <p style="color:#000;">Click on a file to preview it here.</p>
-                                    </div>
-								</div>
-
-
-
                                  <div class="tab-pane fade {{ $activeTab === 'alldocuments' ? 'show active' : '' }}" id="alldocuments" role="tabpanel" aria-labelledby="alldocuments-tab">
                                     
                                     <!-- Document Category Tabs -->
-                                    <div id="document-category-tabs" style="padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px;">
+                                    <div id="document-category-tabs" data-user-role="{{ Auth::user()->role }}" style="padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px;">
                                         <!-- Categories will be loaded here via JavaScript -->
                                     </div>
                                     
@@ -1516,8 +1319,8 @@ use App\Http\Controllers\Controller;
                                                     $fetchd = \App\Models\Document::where('client_id', $fetchedData->id)
                                                     ->where('not_used_doc', 1)
                                                     ->where('type','client')
-                                                    ->where('doc_type','documents')
-                                                    ->orderBy('type', 'DESC')->get();
+                                                    ->whereIn('doc_type', ['documents', 'education', 'migration'])
+                                                    ->orderBy('updated_at', 'DESC')->get();
                                                     //dd($fetchd);
                                                     foreach($fetchd as $notuseKey=>$fetch)
                                                     {

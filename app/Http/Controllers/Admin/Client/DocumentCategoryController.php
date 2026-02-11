@@ -214,8 +214,8 @@ class DocumentCategoryController extends Controller
                 ], 403);
             }
 
-            // Check if category has documents
-            if ($category->documents()->count() > 0) {
+            // Check if category has documents (uses getDocumentCount for Education/Migration legacy docs)
+            if ($category->getDocumentCount() > 0) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Cannot delete category with documents. Please move or delete documents first.'
@@ -254,26 +254,48 @@ class DocumentCategoryController extends Controller
                 ], 400);
             }
 
-            $documents = Document::where('client_id', $clientId)
-                ->where('category_id', $categoryId)
+            $category = DocumentCategory::find($categoryId);
+            $categoryName = $category ? $category->name : null;
+
+            $query = Document::where('client_id', $clientId)
                 ->whereNull('not_used_doc')
-                ->where('type', 'client')
-                ->where(function ($query) {
-                    // Include documents with doc_type='documents' or NULL/empty (for backwards compatibility)
-                    $query->where('doc_type', 'documents')
-                        ->orWhere(function ($q) {
-                            $q->whereNull('doc_type')->orWhere('doc_type', '');
-                        });
-                })
-                ->orderBy('updated_at', 'DESC')
+                ->where('type', 'client');
+
+            // Education/Migration categories: include both migrated (doc_type=documents, category_id) and legacy (doc_type=education/migration)
+            if ($categoryName === 'Education') {
+                $query->where(function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId)
+                        ->orWhere('doc_type', 'education');
+                });
+            } elseif ($categoryName === 'Migration') {
+                $query->where(function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId)
+                        ->orWhere('doc_type', 'migration');
+                });
+            } else {
+                // Other categories: standard logic (doc_type=documents and category_id)
+                $query->where('category_id', $categoryId)
+                    ->where(function ($q) {
+                        $q->where('doc_type', 'documents')
+                            ->orWhere(function ($subQ) {
+                                $subQ->whereNull('doc_type')->orWhere('doc_type', '');
+                            });
+                    });
+            }
+
+            $documents = $query->orderBy('updated_at', 'DESC')
                 ->with(['user', 'category'])
                 ->get();
 
-            // Add preview_url for Education/Migration migrated docs with public path (no S3 myfile_key)
+            // Add preview_url for Education/Migration docs with public path (no S3 myfile_key)
             $documentsArray = $documents->map(function ($doc) {
                 $previewUrl = null;
-                if ($doc->category && in_array($doc->category->name, ['Education', 'Migration'], true) && empty($doc->myfile_key)) {
-                    $previewUrl = asset('img/documents/' . $doc->myfile);
+                if (empty($doc->myfile_key) && $doc->myfile) {
+                    if ($doc->category && in_array($doc->category->name, ['Education', 'Migration'], true)) {
+                        $previewUrl = asset('img/documents/' . $doc->myfile);
+                    } elseif (in_array($doc->doc_type, ['education', 'migration'])) {
+                        $previewUrl = asset('img/documents/' . $doc->myfile);
+                    }
                 }
                 return array_merge($doc->toArray(), ['preview_url' => $previewUrl]);
             });
