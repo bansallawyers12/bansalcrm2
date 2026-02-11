@@ -574,6 +574,15 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		$relativePath = ltrim(str_replace('\\', '/', $publicPath), '/');
+		// If stored with img/documents/ prefix, strip it so we don't build img/documents/img/documents/...
+		$prefix = 'img/documents/';
+		if (stripos($relativePath, $prefix) === 0) {
+			$relativePath = ltrim(substr($relativePath, strlen($prefix)), '/');
+		}
+		if ($relativePath === '' || preg_match('#\.\./#', $relativePath)) {
+			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+		}
+
 		$baseDir = realpath(public_path('img/documents'));
 		if ($baseDir === false) {
 			$document->doc_public_path = null;
