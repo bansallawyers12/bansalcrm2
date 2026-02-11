@@ -15,6 +15,7 @@ Use this checklist to align lead/client form fields and allowed values so both C
 | **Email type** | Aligned: Personal, Work, Business, Secondary, Additional, Sister, Brother, Father, Mother, Uncle, Auntie. |
 | **English test score (test type)** | Aligned: IELTS, IELTS_A, PTE, TOEFL, CAE, OET, CELPIP, MET, LANGUAGECERT. bansalcrm2 uses `client_testscore` table. |
 | **Start process** | Removed from bansalcrm2 (UI + column dropped). Not in migrationmanager2. |
+| **Staff** | Removed from bansalcrm2 (StaffController and related views removed; tied to dropped `profile_img` and `preferredIntake` on Admin). Not in migrationmanager2. |
 | **Country of Passport** | Both store **country name** (e.g. India, Australia). bansalcrm2 migration + views + import normalization done. |
 | **Gender** | Same options in both: Male, Female, Other. bansalcrm2 validation updated to `in:Male,Female,Other` on lead and client (edit). |
 | **Emergency contact** | Removed from migrationmanager2. Both systems align: bansalcrm2 uses multiple phone numbers; migrationmanager2 no longer has `emergency_contact_no` / `emergency_contact_type`. |
