@@ -415,19 +415,31 @@ class RecentlyModifiedClientsController extends Controller
 			->whereNull('archived_at')
 			->where('doc_type', 'documents')
 			->where('category_id', $categoryId)
-			->storedLocally();
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->where(function ($q) {
+				// Include: (a) stored locally (no S3), or (b) on S3 but still have doc_public_path (local copy exists)
+				$q->where(function ($q2) {
+					$q2->whereNull('myfile_key')->orWhere('myfile_key', '');
+				})->orWhere(function ($q2) {
+					$q2->whereNotNull('myfile_key')->where('myfile_key', '!=', '')
+						->whereNotNull('doc_public_path')->where('doc_public_path', '!=', '');
+				});
+			});
 
 		if ($category !== 'application') {
 			$query->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
 		}
 
-		$documents = $query->orderBy('created_at', 'desc')->get(['id', 'file_name', 'filetype', 'myfile', 'created_at']);
+		$documents = $query->orderBy('created_at', 'desc')->get(['id', 'file_name', 'filetype', 'myfile', 'myfile_key', 'doc_public_path', 'created_at']);
 
 		$list = [];
 		foreach ($documents as $doc) {
+			$isOnS3 = !empty(trim((string) ($doc->myfile_key ?? '')));
+			$hasPublicPath = $isOnS3 && !empty(trim((string) ($doc->doc_public_path ?? '')));
 			$previewUrl = null;
 			if (!empty($doc->myfile)) {
-				$previewUrl = asset('img/documents/' . $doc->myfile);
+				$previewUrl = $isOnS3 ? $doc->myfile : asset('img/documents/' . $doc->myfile);
 			}
 			$list[] = [
 				'id' => $doc->id,
@@ -435,6 +447,8 @@ class RecentlyModifiedClientsController extends Controller
 				'filetype' => $doc->filetype,
 				'created_at' => $doc->created_at ? $doc->created_at->format('d/m/Y H:i') : null,
 				'preview_url' => $previewUrl,
+				'is_on_s3' => $isOnS3,
+				'has_public_path' => $hasPublicPath,
 			];
 		}
 
