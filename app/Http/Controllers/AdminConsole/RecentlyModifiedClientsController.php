@@ -518,7 +518,8 @@ class RecentlyModifiedClientsController extends Controller
 			return response()->json(['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage()], 500);
 		}
 
-		// Update document only after successful upload - no other columns changed to avoid data loss
+		// Save public path before overwriting, so "Delete public doc" can remove the local file later
+		$document->doc_public_path = $document->myfile;
 		$document->myfile = $fileUrl;
 		$document->myfile_key = $s3FileName;
 		$document->save();
@@ -527,6 +528,70 @@ class RecentlyModifiedClientsController extends Controller
 			'success' => true,
 			'message' => 'Document uploaded to S3 successfully',
 			's3_url' => $fileUrl,
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Delete the local (public) copy of a document that is already on S3.
+	 * Requires doc_public_path to be set (saved at S3 upload time). Clears doc_public_path after delete.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function deletePublicDoc(Request $request)
+	{
+		$documentId = (int) $request->input('document_id');
+		if (!$documentId || $documentId < 1) {
+			return response()->json(['success' => false, 'message' => 'Document ID is required'], 400);
+		}
+
+		$document = Document::find($documentId);
+		if (!$document) {
+			return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+		}
+
+		if (empty(trim((string) ($document->myfile_key ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Document is not on S3; nothing to delete for public copy'], 400);
+		}
+		$publicPath = trim((string) ($document->doc_public_path ?? ''));
+		if ($publicPath === '') {
+			return response()->json(['success' => false, 'message' => 'No public path stored; local copy may already be deleted'], 400);
+		}
+
+		$relativePath = ltrim(str_replace('\\', '/', $publicPath), '/');
+		$baseDir = realpath(public_path('img/documents'));
+		if ($baseDir === false) {
+			$document->doc_public_path = null;
+			$document->save();
+			return response()->json(['success' => true, 'message' => 'Public path cleared', 'document_id' => $document->id]);
+		}
+
+		$candidatePath = public_path('img/documents/' . $relativePath);
+		$resolvedPath = realpath($candidatePath);
+		if ($resolvedPath === false) {
+			// File already missing or path invalid; clear stored path and return success
+			$document->doc_public_path = null;
+			$document->save();
+			return response()->json(['success' => true, 'message' => 'Public path cleared (file was already missing)', 'document_id' => $document->id]);
+		}
+		if (strpos($resolvedPath, $baseDir) !== 0 || !is_file($resolvedPath)) {
+			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+		}
+
+		try {
+			unlink($resolvedPath);
+		} catch (\Throwable $e) {
+			Log::error('Delete public doc: unlink failed', ['document_id' => $documentId, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
+			return response()->json(['success' => false, 'message' => 'Failed to delete file'], 500);
+		}
+
+		$document->doc_public_path = null;
+		$document->save();
+
+		return response()->json([
+			'success' => true,
+			'message' => 'Public document deleted successfully',
 			'document_id' => $document->id,
 		]);
 	}

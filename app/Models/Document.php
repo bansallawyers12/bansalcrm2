@@ -27,6 +27,7 @@ class Document extends Model
         'filetype', 
         'myfile',
         'myfile_key',
+        'doc_public_path',
         'user_id',
         'client_id',
         'file_size',

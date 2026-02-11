@@ -189,6 +189,7 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/recent-clients/get-client-details', [RecentlyModifiedClientsController::class, 'getClientDetails'])->name('adminconsole.recentclients.getdetails');
     Route::post('/recent-clients/get-client-documents-by-category', [RecentlyModifiedClientsController::class, 'getClientDocumentsByCategory'])->name('adminconsole.recentclients.documentsbycategory');
     Route::post('/recent-clients/upload-document-to-s3', [RecentlyModifiedClientsController::class, 'uploadDocumentToS3'])->name('adminconsole.recentclients.uploaddocumenttos3');
+    Route::post('/recent-clients/delete-public-doc', [RecentlyModifiedClientsController::class, 'deletePublicDoc'])->name('adminconsole.recentclients.deletepublicdoc');
     Route::post('/recent-clients/toggle-archive', [RecentlyModifiedClientsController::class, 'toggleArchive'])->name('adminconsole.recentclients.togglearchive');
     Route::post('/recent-clients/bulk-archive', [RecentlyModifiedClientsController::class, 'bulkArchive'])->name('adminconsole.recentclients.bulkarchive');
 

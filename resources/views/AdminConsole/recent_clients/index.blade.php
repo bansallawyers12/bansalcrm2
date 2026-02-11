@@ -848,6 +848,9 @@ $(document).ready(function() {
 					var $viewLink = $li.find('a.doc-view-link');
 					$viewLink.attr('href', response.s3_url).attr('target', '_blank');
 					$btn.remove();
+					// Show "Delete public doc" after View (local copy can be removed now that S3 has it)
+					var deleteBtn = '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc ml-1" data-document-id="' + (response.document_id || documentId) + '" title="Delete the local copy (document remains on S3)"><i class="fas fa-trash-alt"></i> Delete public doc</button>';
+					$viewLink.after(deleteBtn);
 				} else {
 					alert(response.message || 'Upload failed');
 					$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
@@ -857,6 +860,34 @@ $(document).ready(function() {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
 				alert(msg);
 				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
+			}
+		});
+	});
+
+	// Delete public doc (after S3 upload): remove local file, clear doc_public_path
+	$(document).on('click', '.btn-delete-public-doc', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		if (!confirm('Delete the local (public) copy? The document will remain on S3.')) return;
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deletepublicdoc") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success) {
+					$btn.remove();
+				} else {
+					alert(response.message || 'Delete failed');
+					$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete public doc');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public doc';
+				alert(msg);
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete public doc');
 			}
 		});
 	});
