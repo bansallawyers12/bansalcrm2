@@ -157,6 +157,21 @@ class Document extends Model
     }
 
     /**
+     * Scope: documents stored in public folder (not on S3).
+     * Local = myfile_key null/empty and myfile has a value.
+     */
+    public function scopeStoredLocally($query)
+    {
+        return $query
+            ->where(function ($q) {
+                $q->whereNull('myfile_key')
+                    ->orWhere('myfile_key', '');
+            })
+            ->whereNotNull('myfile')
+            ->where('myfile', '!=', '');
+    }
+
+    /**
      * Scope to filter documents based on user visibility permissions
      */
     public function scopeVisible($query, $user)

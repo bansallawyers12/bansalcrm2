@@ -10,6 +10,7 @@ use App\Models\Admin;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
 use App\Models\Document;
+use App\Models\DocumentCategory;
 use Carbon\Carbon;
 
 use Auth; 
@@ -34,12 +35,18 @@ class RecentlyModifiedClientsController extends Controller
      */
 	public function index(Request $request)
 	{
-		// Get filter parameters from request
+		set_time_limit(180);
+
+		// Get filter parameters from request (normalize to scalar to avoid "Illegal operator and value combination")
 		$fromDate = $request->input('from_date');
+		$fromDate = is_array($fromDate) ? '' : trim((string) $fromDate);
 		$toDate = $request->input('to_date');
+		$toDate = is_array($toDate) ? '' : trim((string) $toDate);
 		$sortOrder = $request->input('sort_order', 'desc'); // Default to descending (newest first)
 		$search = $request->input('search', '');
+		$search = is_array($search) ? '' : trim((string) $search);
 		$activityType = $request->input('activity_type', '');
+		$activityType = is_array($activityType) ? '' : trim((string) $activityType);
 		$perPage = $request->input('per_page', config('constants.limit', 20));
 		$sortColumn = $request->input('sort_column', 'activity_date');
 		$hasApplications = $request->input('has_applications', ''); // '' = all, '0' = no applications
@@ -48,6 +55,11 @@ class RecentlyModifiedClientsController extends Controller
 		$docStorage = $request->input('doc_storage', ''); // '', 'local', 'aws', 'both', 'none' = document storage location filter
 		$noPhone = $request->input('no_phone', ''); // '' = all, '1' = only clients with no phone number
 		$noEmail = $request->input('no_email', ''); // '' = all, '1' = only clients with no email address
+
+		// Default to last 12 months when no date/search applied for faster initial load
+		if ($fromDate === '' && $toDate === '' && $search === '') {
+			$fromDate = Carbon::now()->subMonths(12)->format('Y-m-d');
+		}
 		
 		// Get the most recent activity for each client
 		// Filter out NULL client_id to avoid orphaned activities
@@ -65,6 +77,7 @@ class RecentlyModifiedClientsController extends Controller
 				'activities_logs.created_at as activity_date',
 				'client_admins.first_name as client_firstname',
 				'client_admins.last_name as client_lastname',
+				'client_admins.client_id as client_unique_id',
 				'client_admins.email as client_email',
 				'client_admins.phone as client_phone',
 				'admins.first_name as admin_firstname',
@@ -84,40 +97,37 @@ class RecentlyModifiedClientsController extends Controller
 					 });
 			})
 			->leftJoin('admins', 'activities_logs.created_by', '=', 'admins.id');
+
+		// Only join document stats when filtering by document count or doc storage (otherwise we fetch per page later for speed)
+		$useDocStatsInQuery = ($documentCount !== '' || ($docStorage !== '' && in_array($docStorage, ['local', 'aws', 'both', 'none'], true)));
+		if ($useDocStatsInQuery) {
+			$docStatsSubQuery = Document::select(
+					'client_id',
+					DB::raw('COUNT(*) as doc_count'),
+					DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
+					DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
+				)
+				->whereNull('archived_at')
+				->groupBy('client_id');
+			$query->leftJoinSub($docStatsSubQuery, 'doc_stats', 'activities_logs.client_id', '=', 'doc_stats.client_id');
+			$query->addSelect([
+				DB::raw("CASE
+					WHEN COALESCE(doc_stats.has_local, 0) = 1 AND COALESCE(doc_stats.has_aws, 0) = 1 THEN 'both'
+					WHEN COALESCE(doc_stats.has_local, 0) = 1 THEN 'local'
+					WHEN COALESCE(doc_stats.has_aws, 0) = 1 THEN 'aws'
+					ELSE 'none'
+				END AS doc_storage")
+			]);
+		}
+
 		
-		// Subquery: document count per client (non-archived only) for document count filter
-		$docCountSubQuery = Document::select('client_id', DB::raw('COUNT(*) as doc_count'))
-			->whereNull('archived_at')
-			->groupBy('client_id');
-		$query->leftJoinSub($docCountSubQuery, 'doc_counts', 'activities_logs.client_id', '=', 'doc_counts.client_id');
-		
-		// Subquery: document storage location (local vs AWS) per client
-		// Local: myfile_key null/empty and myfile has content; AWS: myfile_key set
-		$docStorageSubQuery = Document::select(
-				'client_id',
-				DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
-				DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
-			)
-			->whereNull('archived_at')
-			->groupBy('client_id');
-		$query->leftJoinSub($docStorageSubQuery, 'doc_storage', 'activities_logs.client_id', '=', 'doc_storage.client_id');
-		
-		// Add doc_storage computed column to select
-		$query->addSelect([
-			DB::raw("CASE
-				WHEN COALESCE(doc_storage.has_local, 0) = 1 AND COALESCE(doc_storage.has_aws, 0) = 1 THEN 'both'
-				WHEN COALESCE(doc_storage.has_local, 0) = 1 THEN 'local'
-				WHEN COALESCE(doc_storage.has_aws, 0) = 1 THEN 'aws'
-				ELSE 'none'
-			END AS doc_storage")
-		]);
-		
-		// Apply search filter (name, email, phone)
+		// Apply search filter (name, email, phone, client unique ID e.g. TEST105453)
 		if (!empty($search)) {
 			$query->where(function($q) use ($search) {
 				$q->where(DB::raw("CONCAT(client_admins.first_name, ' ', client_admins.last_name)"), 'LIKE', "%{$search}%")
 				  ->orWhere('client_admins.email', 'LIKE', "%{$search}%")
-				  ->orWhere('client_admins.phone', 'LIKE', "%{$search}%");
+				  ->orWhere('client_admins.phone', 'LIKE', "%{$search}%")
+				  ->orWhere('client_admins.client_id', 'LIKE', "%{$search}%");
 			});
 		}
 		
@@ -131,11 +141,11 @@ class RecentlyModifiedClientsController extends Controller
 		
 		// Apply date filters to main query if provided
 		// This filters clients whose most recent activity falls within the date range
-		if ($fromDate) {
-			$query->whereDate('activities_logs.created_at', '>=', $fromDate);
+		if ($fromDate !== '') {
+			$query->where('activities_logs.created_at', '>=', $fromDate);
 		}
-		if ($toDate) {
-			$query->whereDate('activities_logs.created_at', '<=', $toDate);
+		if ($toDate !== '') {
+			$query->where('activities_logs.created_at', '<=', $toDate);
 		}
 		
 		// Filter: clients that have no applications created
@@ -152,21 +162,21 @@ class RecentlyModifiedClientsController extends Controller
 		if ($documentCount !== '') {
 			if ($documentCount === '0') {
 				$query->where(function ($q) {
-					$q->whereNull('doc_counts.doc_count')->orWhere('doc_counts.doc_count', 0);
+					$q->whereNull('doc_stats.doc_count')->orWhere('doc_stats.doc_count', 0);
 				});
 			} elseif ($documentCount === '10+') {
-				$query->whereNotNull('doc_counts.doc_count')->where('doc_counts.doc_count', '>=', 10);
+				$query->whereNotNull('doc_stats.doc_count')->where('doc_stats.doc_count', '>=', 10);
 			} elseif (in_array($documentCount, ['1', '2', '3', '4', '5', '6', '7', '8', '9'], true)) {
-				$query->where('doc_counts.doc_count', '=', (int) $documentCount);
+				$query->where('doc_stats.doc_count', '=', (int) $documentCount);
 			}
 		}
 		
 		// Filter: document storage location (local, aws, both, none)
 		if ($docStorage !== '' && in_array($docStorage, ['local', 'aws', 'both', 'none'], true)) {
 			$docStorageExpr = "CASE
-				WHEN COALESCE(doc_storage.has_local, 0) = 1 AND COALESCE(doc_storage.has_aws, 0) = 1 THEN 'both'
-				WHEN COALESCE(doc_storage.has_local, 0) = 1 THEN 'local'
-				WHEN COALESCE(doc_storage.has_aws, 0) = 1 THEN 'aws'
+				WHEN COALESCE(doc_stats.has_local, 0) = 1 AND COALESCE(doc_stats.has_aws, 0) = 1 THEN 'both'
+				WHEN COALESCE(doc_stats.has_local, 0) = 1 THEN 'local'
+				WHEN COALESCE(doc_stats.has_aws, 0) = 1 THEN 'aws'
 				ELSE 'none'
 			END";
 			$query->whereRaw("({$docStorageExpr}) = ?", [$docStorage]);
@@ -203,11 +213,32 @@ class RecentlyModifiedClientsController extends Controller
 			$query->orderBy('activities_logs.created_at', $sortOrder);
 		}
 		
-		$totalData = $query->count();
-		
-		// Paginate the results - preserve query parameters
-		$lists = $query->paginate($perPage)
+		// Use simplePaginate for fast load (no expensive COUNT over full result set)
+		$lists = $query->simplePaginate($perPage)
 			->appends($request->query());
+
+		// When we skipped doc_stats in the main query, fetch storage only for clients on this page
+		if (!$useDocStatsInQuery && $lists->count() > 0) {
+			$clientIds = $lists->pluck('client_id')->unique()->values()->all();
+			$docStats = Document::select(
+					'client_id',
+					DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
+					DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
+				)
+				->whereNull('archived_at')
+				->whereIn('client_id', $clientIds)
+				->groupBy('client_id')
+				->get();
+			$storageMap = [];
+			foreach ($docStats as $r) {
+				$storageMap[$r->client_id] = (($r->has_local ?? 0) && ($r->has_aws ?? 0)) ? 'both' : (($r->has_local ?? 0) ? 'local' : (($r->has_aws ?? 0) ? 'aws' : 'none'));
+			}
+			foreach ($lists->items() as $row) {
+				$row->doc_storage = $storageMap[$row->client_id] ?? 'none';
+			}
+		}
+
+		$totalData = null; // Not computed for fast load; use filters and Next/Previous to navigate
 		
 		return view('AdminConsole.recent_clients.index', compact([
 			'lists', 
@@ -283,6 +314,43 @@ class RecentlyModifiedClientsController extends Controller
 			->where('myfile_key', '!=', '')
 			->exists();
 		$documentStorage = ($hasLocal && $hasAws) ? 'both' : ($hasLocal ? 'local' : ($hasAws ? 'aws' : 'none'));
+
+		// Category doc counts (local/public folder only, not S3) - category_id resolved by category name (Application, Education, Migration)
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->value('id');
+
+		$applicationDocCountLocal = 0;
+		if ($applicationCategoryId) {
+			$applicationDocCountLocal = Document::where('client_id', $clientId)
+				->whereNull('archived_at')
+				->where('doc_type', 'documents')
+				->where('category_id', $applicationCategoryId)
+				->storedLocally()
+				->count();
+		}
+
+		$educationDocCountLocal = 0;
+		if ($educationCategoryId) {
+			$educationDocCountLocal = Document::where('client_id', $clientId)
+				->whereNull('archived_at')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $educationCategoryId)
+				->storedLocally()
+				->count();
+		}
+
+		$migrationDocCountLocal = 0;
+		if ($migrationCategoryId) {
+			$migrationDocCountLocal = Document::where('client_id', $clientId)
+				->whereNull('archived_at')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $migrationCategoryId)
+				->storedLocally()
+				->count();
+		}
 		
 		// Check if client is archived
 		$isArchived = $client->is_archived == 1;
@@ -301,8 +369,77 @@ class RecentlyModifiedClientsController extends Controller
 				] : null,
 				'document_count' => $documentCount,
 				'document_storage' => $documentStorage,
+				'application_doc_count_local' => $applicationDocCountLocal,
+				'education_doc_count_local' => $educationDocCountLocal,
+				'migration_doc_count_local' => $migrationDocCountLocal,
 				'is_archived' => $isArchived
 			]
+		]);
+	}
+
+	/**
+	 * Get documents for a client by category (Application, Education, Migration) - public folder only, for popup list.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function getClientDocumentsByCategory(Request $request)
+	{
+		$clientId = (int) $request->input('client_id');
+		$category = $request->input('category'); // application, education, migration
+		$category = is_array($category) ? '' : trim((string) $category);
+
+		if (!$clientId || $clientId < 1) {
+			return response()->json(['success' => false, 'message' => 'Client ID is required'], 400);
+		}
+		if (!in_array($category, ['application', 'education', 'migration'], true)) {
+			return response()->json(['success' => false, 'message' => 'Invalid category'], 400);
+		}
+
+		$categoryId = null;
+		if ($category === 'application') {
+			$categoryId = DocumentCategory::where('name', 'Application')->value('id');
+		} elseif ($category === 'education') {
+			$categoryId = DocumentCategory::where('name', 'Education')->value('id');
+		} else {
+			$categoryId = DocumentCategory::where('name', 'Migration')->value('id');
+		}
+
+		if (!$categoryId) {
+			return response()->json(['success' => true, 'documents' => [], 'category_label' => ucfirst($category)]);
+		}
+
+		$query = Document::where('client_id', $clientId)
+			->whereNull('archived_at')
+			->where('doc_type', 'documents')
+			->where('category_id', $categoryId)
+			->storedLocally();
+
+		if ($category !== 'application') {
+			$query->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+		}
+
+		$documents = $query->orderBy('created_at', 'desc')->get(['id', 'file_name', 'filetype', 'myfile', 'created_at']);
+
+		$list = [];
+		foreach ($documents as $doc) {
+			$previewUrl = null;
+			if (!empty($doc->myfile)) {
+				$previewUrl = asset('img/documents/' . $doc->myfile);
+			}
+			$list[] = [
+				'id' => $doc->id,
+				'file_name' => $doc->file_name,
+				'filetype' => $doc->filetype,
+				'created_at' => $doc->created_at ? $doc->created_at->format('d/m/Y H:i') : null,
+				'preview_url' => $previewUrl,
+			];
+		}
+
+		return response()->json([
+			'success' => true,
+			'documents' => $list,
+			'category_label' => ucfirst($category),
 		]);
 	}
 	

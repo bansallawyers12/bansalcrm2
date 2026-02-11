@@ -15,7 +15,11 @@
 						<div class="card-header">
 							<h4>Recently Modified Clients</h4>
 							<div class="card-header-action">
-								<span class="badge badge-primary">Total: {{ @$totalData }}</span>
+								@if(isset($totalData) && $totalData !== null)
+									<span class="badge badge-primary">Total: {{ $totalData }}</span>
+								@else
+									<span class="badge badge-secondary" title="Total not shown for faster loading">Total: —</span>
+								@endif
 							</div>
 						</div>
 						<div class="card-body">
@@ -32,7 +36,7 @@
 													   id="search" 
 													   class="form-control" 
 													   value="{{ @$search }}" 
-													   placeholder="Search by name, email, or phone...">
+													   placeholder="Search by name, email, phone, or client ID (e.g. TEST105453)...">
 											</div>
 										</div>
 									</div>
@@ -207,7 +211,7 @@
 									<input type="hidden" name="sort_column" id="sort_column" value="{{ @$sortColumn }}">
 								</form>
 							</div>
-							@if(@$totalData !== 0)
+							@if($lists->count() > 0)
 							<div class="mb-3 d-flex align-items-center flex-wrap">
 								<button type="button" class="btn btn-danger mr-2" id="bulkArchiveBtn" disabled title="Select one or more clients to archive">
 									<i class="fas fa-archive"></i> Bulk Archive
@@ -216,7 +220,7 @@
 							</div>
 							@endif
 							<div class="table-responsive common_table"> 
-								<table class="table text_wrap table-striped">
+								<table class="table text_wrap table-striped recent-clients-table">
 								<thead>
 									<tr>
 										<th style="width: 40px;">
@@ -288,9 +292,9 @@
 										</th>
 										<th>Storage</th>
 										<th>Action</th>
-									</tr> 
+									</tr>
 								</thead>
-								@if(@$totalData !== 0)
+								@if($lists->count() > 0)
 								<tbody class="tdata">	
 								@foreach (@$lists as $list)
 									<tr id="id_{{@$list->activity_id}}" class="client-row">
@@ -301,7 +305,7 @@
 												<span class="text-muted">—</span>
 											@endif
 										</td>
-										<td>
+										<td class="cell-wrap">
 											@if(@$list->client_id)
 												<a href="javascript:void(0);" 
 												   class="client-name-toggle" 
@@ -315,17 +319,23 @@
 														<span class="text-muted">{{ config('constants.empty') }}</span>
 													@endif
 												</a>
+												@if(!empty(@$list->client_unique_id))
+													<div class="mt-1"><a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id))) }}" target="_blank" rel="noopener noreferrer" class="client-unique-id-link" title="Open client in new tab">{{ @$list->client_unique_id }}</a></div>
+												@endif
 											@else
 												@if(@$list->client_firstname || @$list->client_lastname)
 													{{ @$list->client_firstname }} {{ @$list->client_lastname }}
 												@else
 													<span class="text-muted">{{ config('constants.empty') }}</span>
 												@endif
+												@if(!empty(@$list->client_unique_id))
+													<div class="mt-1"><a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id))) }}" target="_blank" rel="noopener noreferrer" class="client-unique-id-link" title="Open client in new tab">{{ @$list->client_unique_id }}</a></div>
+												@endif
 											@endif
 										</td>
 										<td>{{ empty(@$list->client_email) ? config('constants.empty') : \Illuminate\Support\Str::limit(@$list->client_email, 40, '...') }}</td> 	
 										<td>{{ @$list->client_phone == "" ? config('constants.empty') : @$list->client_phone }}</td> 	
-										<td>
+										<td class="cell-wrap cell-wrap-activity">
 											<div style="max-width: 300px;">
 												<strong>{{ @$list->subject }}</strong>
 												@if(@$list->description)
@@ -365,7 +375,7 @@
 										</td>
 										<td>
 											@if(@$list->client_id)
-												<a href="{{ route('clients.detail', @$list->client_id) }}" class="btn btn-sm btn-primary" title="View Client">
+												<a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$list->client_id))) }}" class="btn btn-sm btn-primary" title="View Client">
 													<i class="far fa-eye"></i> View
 												</a>
 											@else
@@ -391,16 +401,16 @@
 								<tbody>
 									<tr>
 										<td style="text-align:center;" colspan="9">
-											No Record found
+											No records found
 										</td>
 									</tr>
 								</tbody>
 								@endif
 							</table> 
 						</div>
-						@if(@$totalData !== 0)
+						@if($lists->count() > 0)
 							<div class="card-footer">
-								{{ @$lists->links() }}
+								{{ $lists->links() }}
 							</div>
 						@endif
 					</div>
@@ -410,8 +420,49 @@
 	</section>
 </div>
 
+<!-- Modal: Documents by category (Application / Education / Migration) -->
+<div class="modal fade" id="clientDocumentsModal" tabindex="-1" role="dialog" aria-labelledby="clientDocumentsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="clientDocumentsModalLabel"><i class="fas fa-file"></i> <span id="clientDocumentsModalTitle">Documents</span></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id="clientDocumentsModalBody">
+					<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 @push('styles')
 <style>
+	/* Allow long text to wrap in Client Name and Last Activity columns (no overlap) */
+	table.recent-clients-table td.cell-wrap {
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: break-word;
+		min-width: 0;
+	}
+	table.recent-clients-table td.cell-wrap-activity {
+		max-width: 320px;
+	}
+	.client-unique-id-link {
+		color: #007bff;
+		text-decoration: none;
+		font-size: 0.9em;
+	}
+	.client-unique-id-link:hover {
+		color: #0056b3;
+		text-decoration: underline;
+	}
 	.client-name-toggle {
 		display: inline-flex;
 		align-items: center;
@@ -682,6 +733,15 @@ $(document).ready(function() {
 					if (data.document_count > 0 && data.document_storage) {
 						html += '<div class="mt-2"><small class="text-muted">Storage: </small><strong>' + storageLabel + '</strong></div>';
 					}
+					// Category doc counts (local/public folder only) - clickable to show documents in popup
+					html += '<div class="mt-3 pt-2 border-top">';
+					html += '<small class="text-muted d-block mb-1">In public folder (not S3):</small>';
+					html += '<div class="d-flex flex-wrap gap-2">';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="application" data-count="' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Application: ' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '</span>';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="education" data-count="' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Education: ' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '</span>';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="migration" data-count="' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Migration: ' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '</span>';
+					html += '</div>';
+					html += '</div>';
 					html += '</div>';
 					html += '</div>';
 					
@@ -720,6 +780,55 @@ $(document).ready(function() {
 			}
 		});
 	}
+	
+	// Click on Application / Education / Migration badge: show documents in modal
+	$(document).on('click', '.doc-category-badge', function() {
+		var clientId = $(this).data('client-id');
+		var category = $(this).data('category');
+		var count = $(this).data('count');
+		if (!clientId || !category) return;
+		var categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+		$('#clientDocumentsModalTitle').text(categoryLabel + ' documents');
+		$('#clientDocumentsModalBody').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+		$('#clientDocumentsModal').modal('show');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.documentsbycategory") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId, category: category },
+			success: function(response) {
+				if (response.success) {
+					var docs = response.documents || [];
+					var label = response.category_label || categoryLabel;
+					if (docs.length === 0) {
+						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
+					} else {
+						var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s) in public folder (not S3)</p>';
+						html += '<ul class="list-group list-group-flush">';
+						for (var i = 0; i < docs.length; i++) {
+							var d = docs[i];
+							html += '<li class="list-group-item d-flex justify-content-between align-items-center">';
+							html += '<span class="text-break">' + (d.file_name || 'Document #' + d.id) + '</span>';
+							html += '<span class="d-flex align-items-center">';
+							if (d.created_at) html += '<small class="text-muted mr-2">' + d.created_at + '</small>';
+							if (d.preview_url) {
+								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt"></i> View</a>';
+							}
+							html += '</span></li>';
+						}
+						html += '</ul>';
+						$('#clientDocumentsModalBody').html(html);
+					}
+				} else {
+					$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + (response.message || 'Failed to load documents') + '</div>');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load documents';
+				$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + msg + '</div>');
+			}
+		});
+	});
 	
 	// Bulk selection: select all on page
 	$('#selectAllClients').on('change', function() {
