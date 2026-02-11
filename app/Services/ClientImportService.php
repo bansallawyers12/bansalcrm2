@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class ClientImportService
@@ -424,16 +425,14 @@ class ClientImportService
                 }
             }
 
-            // Import activities - bansalcrm2 activities_logs table structure
+            // Import activities (same structure from migrationmanager2 and bansalcrm2)
             if (isset($importData['activities']) && is_array($importData['activities'])) {
                 foreach ($importData['activities'] as $activityData) {
                     $activityCreatedAt = $this->parseDateTime($activityData['created_at'] ?? null);
-                    
-                    // Fix: Use null coalescing operator consistently to avoid "Undefined array key" error
                     $taskStatusValue = $activityData['task_status'] ?? 0;
                     $pinValue = $activityData['pin'] ?? 0;
                     
-                    ActivitiesLog::create([
+                    $activityRecord = [
                         'client_id' => $newClientId,
                         'created_by' => $activityData['created_by'] ?? Auth::id(),
                         'subject' => $activityData['subject'] ?? 'Imported Activity',
@@ -443,8 +442,12 @@ class ClientImportService
                         'pin' => is_numeric($pinValue) ? (int)$pinValue : 0,
                         'created_at' => $activityCreatedAt ?? now(),
                         'updated_at' => $activityCreatedAt ?? now(),
-                        // Note: activity_type, followup_date, task_group columns don't exist in bansalcrm2 activities_logs table
-                    ]);
+                    ];
+                    // activity_type exists in bansalcrm2 activities_logs
+                    if (Schema::hasColumn('activities_logs', 'activity_type')) {
+                        $activityRecord['activity_type'] = $activityData['activity_type'] ?? 'note';
+                    }
+                    ActivitiesLog::create($activityRecord);
                 }
             }
 

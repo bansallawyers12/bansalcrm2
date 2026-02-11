@@ -10,6 +10,7 @@ use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use App\Models\VerifiedNumber; // bansalcrm2 has VerifiedNumber table for phone verification
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ClientExportService
 {
@@ -58,11 +59,22 @@ class ClientExportService
     }
 
     /**
-     * Get basic client data (fields that exist in both systems)
+     * Get basic client data (unified format for migrationmanager2 and bansalcrm2).
+     * One JSON file can be uploaded to both systems.
      */
     private function getClientBasicData($client)
     {
-        return [
+        // contact_type: from admins if column exists, else from primary contact
+        $contactType = null;
+        if (Schema::hasColumn('admins', 'contact_type')) {
+            $contactType = $client->contact_type ?? null;
+        }
+        if (empty($contactType) && class_exists(\App\Models\ClientPhone::class)) {
+            $primaryContact = \App\Models\ClientPhone::where('client_id', $client->id)->first();
+            $contactType = $primaryContact ? ($primaryContact->contact_type ?? 'Personal') : 'Personal';
+        }
+
+        $data = [
             // Basic Identity
             'client_id' => $client->client_id ?? null,
             'first_name' => $client->first_name,
@@ -70,43 +82,39 @@ class ClientExportService
             'email' => $client->email,
             'phone' => $client->phone,
             'country_code' => $client->country_code,
-            
+            'telephone' => null, // migrationmanager2 compatibility; bansalcrm2 does not have this column
+
             // Personal Information
             'dob' => $client->dob,
             'age' => $client->age,
             'gender' => $client->gender,
             'marital_status' => $client->marital_status ?? null,
-            
+
             // Address
             'address' => $client->address,
             'city' => $client->city,
             'state' => $client->state,
             'country' => $client->country,
             'zip' => $client->zip,
-            
+
             // Passport
             'country_passport' => $client->country_passport ?? null,
-            'passport_number' => $client->passport_number ?? null, // bansalcrm2 has passport_number in admins table
-            
+            'passport_number' => $client->passport_number ?? null,
+
             // Visa Information
             'visa_type' => $client->visa_type ?? null,
             'visa_opt' => $client->visa_opt ?? null,
-            'visaExpiry' => $client->visaExpiry ?? null, // Uses accessor, column is visaexpiry
-            
-            // Professional Details (bansalcrm2 specific)
-            'nomi_occupation' => $client->nomi_occupation ?? null,
-            'skill_assessment' => $client->skill_assessment ?? null,
-            'high_quali_aus' => $client->high_quali_aus ?? null,
-            'high_quali_overseas' => $client->high_quali_overseas ?? null,
-            'relevant_work_exp_aus' => $client->relevant_work_exp_aus ?? null,
-            'relevant_work_exp_over' => $client->relevant_work_exp_over ?? null,
-            
+            'visaExpiry' => $client->visaExpiry ?? null,
+
+            // Email and Contact Type (migrationmanager2 compatibility)
+            'email_type' => $client->email_type ?? null,
+            'contact_type' => $contactType,
+
             // Additional Contact
             'att_email' => $client->att_email ?? null,
             'att_phone' => $client->att_phone ?? null,
             'att_country_code' => $client->att_country_code ?? null,
-            'email_type' => $client->email_type ?? null,
-            
+
             // Internal Information
             'service' => $client->service ?? null,
             'assignee' => $client->assignee ?? null,
@@ -115,23 +123,31 @@ class ClientExportService
             'married_partner' => $client->married_partner ?? null,
             'tagname' => $client->tagname ?? null,
             'related_files' => $client->related_files ?? null,
-            
+
+            // Professional Details (bansalcrm2 specific; migrationmanager2 ignores)
+            'nomi_occupation' => $client->nomi_occupation ?? null,
+            'skill_assessment' => $client->skill_assessment ?? null,
+            'high_quali_aus' => $client->high_quali_aus ?? null,
+            'high_quali_overseas' => $client->high_quali_overseas ?? null,
+            'relevant_work_exp_aus' => $client->relevant_work_exp_aus ?? null,
+            'relevant_work_exp_over' => $client->relevant_work_exp_over ?? null,
+
             // System Fields
             'office_id' => $client->office_id ?? null,
-            // Note: 'verified' field may not exist in bansalcrm2 admins table
-            // Verification is handled separately for email (manual_email_phone_verified) and phone (VerifiedNumber table)
-            'verified' => isset($client->attributes['verified']) ? $client->attributes['verified'] : 0,
-            'show_dashboard_per' => isset($client->attributes['show_dashboard_per']) ? $client->attributes['show_dashboard_per'] : 0,
-            // Note: Archive status (is_archived, archived_by) is NOT exported - archive status should not transfer between systems
-            
-            // Other
+            'verified' => Schema::hasColumn('admins', 'verified') ? ($client->verified ?? 0) : 0,
+            'show_dashboard_per' => Schema::hasColumn('admins', 'show_dashboard_per') ? ($client->show_dashboard_per ?? 0) : 0,
+
+            // Other (migrationmanager2 compatibility)
             'naati_py' => $client->naati_py ?? null,
             'total_points' => $client->total_points ?? null,
-            'source' => $client->source,
-            'type' => $client->type,
-            'status' => $client->status,
+            'source' => $client->source ?? null,
+            'type' => $client->type ?? 'client',
+            'status' => $client->status ?? 1,
+            'profile_img' => null, // Column dropped from bansalcrm2 admins; migrationmanager2 expects it
             'agent_id' => $client->agent_id ?? null,
         ];
+
+        return $data;
     }
 
     /**
@@ -197,22 +213,22 @@ class ClientExportService
         
         $emails = [];
         
-        // Main email from admins table
+        // Main email from admins table (email_type, email order matches migrationmanager2)
         if (!empty($client->email)) {
             $emails[] = [
-                'email' => $client->email,
                 'email_type' => $client->email_type ?? 'Personal',
+                'email' => $client->email,
                 'is_verified' => ($client->manual_email_phone_verified ?? 0) == 1,
-                'verified_at' => $client->email_verified_at ?? null, // email_verified_at exists in admins table
+                'verified_at' => $client->email_verified_at ?? null,
             ];
         }
         
         // Additional email from admins table
         if (!empty($client->att_email)) {
             $emails[] = [
-                'email' => $client->att_email,
                 'email_type' => 'Additional',
-                'is_verified' => false, // att_email doesn't have separate verification
+                'email' => $client->att_email,
+                'is_verified' => false,
                 'verified_at' => null,
             ];
         }
@@ -278,10 +294,12 @@ class ClientExportService
             $visaGrantDate = $visaGrantDate->format('Y-m-d');
         }
         
+        // Same shape as migrationmanager2; visa_type may be ID (bansalcrm2) or Matter ID (migrationmanager2)
+        // visa_type_matter_title/nick_name enable cross-system import when IDs differ
         return [
             [
-                'visa_country' => null,
-                'visa_type' => $client->visa_type_id ?? null,
+                'visa_country' => $client->country_passport ?? null, // Passport country; migrationmanager2 sample uses this
+                'visa_type' => (string) ($client->visa_type_id ?? $client->visa_type ?? ''),
                 'visa_type_matter_title' => $client->visaType?->name ?? $client->visa_type ?? null,
                 'visa_type_matter_nick_name' => null,
                 'visa_description' => $client->visa_opt ?? null,
@@ -368,20 +386,22 @@ class ClientExportService
     }
 
     /**
-     * Get client activities
-     * Note: bansalcrm2 activities_logs table doesn't have activity_type, followup_date, task_group columns
+     * Get client activities.
+     * Same shape as migrationmanager2 (activity_type, followup_date, task_group) so one file works for both.
      */
     private function getClientActivities($clientId)
     {
         return ActivitiesLog::where('client_id', $clientId)
             ->orderBy('created_at', 'desc')
-            ->limit(100) // Limit to recent 100 activities
+            ->limit(100)
             ->get()
             ->map(function ($activity) {
                 return [
                     'subject' => $activity->subject ?? null,
                     'description' => $activity->description ?? null,
-                    'use_for' => $activity->use_for ?? null,
+                    'activity_type' => $activity->activity_type ?? 'note',
+                    'followup_date' => null, // bansalcrm2 does not have this column
+                    'task_group' => null, // bansalcrm2 does not have this column
                     'task_status' => $activity->task_status ?? 0,
                     'pin' => $activity->pin ?? 0,
                     'created_at' => $activity->created_at ?? null,

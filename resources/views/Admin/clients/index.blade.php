@@ -397,7 +397,7 @@
                     @csrf
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> 
-                        <strong>Instructions:</strong> Upload a JSON file exported from migrationmanager2 or bansalcrm2 to import client data.
+                        <strong>Instructions:</strong> One JSON file works for both systems. Upload a file exported from migrationmanager2 or bansalcrm2 to import client data.
                     </div>
                     
                     <div class="form-group">
