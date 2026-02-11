@@ -574,10 +574,21 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		$relativePath = ltrim(str_replace('\\', '/', $publicPath), '/');
-		// If stored with img/documents/ prefix, strip it so we don't build img/documents/img/documents/...
-		$prefix = 'img/documents/';
-		if (stripos($relativePath, $prefix) === 0) {
-			$relativePath = ltrim(substr($relativePath, strlen($prefix)), '/');
+		// If stored as full URL (e.g. https://bansalcrm.com/img/documents/file.pdf), extract path after /img/documents/
+		if (preg_match('#^https?://#i', $relativePath)) {
+			$parsed = parse_url($relativePath);
+			$path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+			$prefix = 'img/documents/';
+			if (stripos($path, $prefix) === 0) {
+				$relativePath = substr($path, strlen($prefix));
+			} else {
+				$relativePath = $path;
+			}
+			$relativePath = ltrim($relativePath, '/');
+		}
+		// If stored with img/documents/ prefix (path only), strip it so we don't build img/documents/img/documents/...
+		if ($relativePath !== '' && stripos($relativePath, 'img/documents/') === 0) {
+			$relativePath = ltrim(substr($relativePath, strlen('img/documents/')), '/');
 		}
 		if ($relativePath === '' || preg_match('#\.\./#', $relativePath)) {
 			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
