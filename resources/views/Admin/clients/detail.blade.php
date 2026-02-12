@@ -2185,7 +2185,7 @@ use App\Http\Controllers\Controller;
 					</div>
 					<div class="form-group">
 						<label for="sendSms_message">Message <span class="span_req">*</span></label>
-						<textarea class="form-control" id="sendSms_message" name="message" rows="4" required placeholder="Enter your message..."></textarea>
+						<textarea class="form-control" id="sendSms_message" name="message" rows="8" required placeholder="Enter your message..."></textarea>
 						<small class="form-text text-muted"><span id="sendSms_charCount">0</span>/1600 characters</small>
 					</div>
 					<div class="form-group">
@@ -2957,6 +2957,16 @@ $(document).ready(function(){
 		});
 	}
 
+	function autoResizeSendSmsMessage() {
+		var el = document.getElementById('sendSms_message');
+		if (!el) return;
+		el.style.height = 'auto';
+		var minH = 120;
+		var maxH = 400;
+		var h = Math.min(Math.max(el.scrollHeight, minH), maxH);
+		el.style.height = h + 'px';
+	}
+
 	// Open Send SMS modal from URL: ?open_sms_reminder=1&applicationId=xxx
 	var urlParams = new URLSearchParams(window.location.search);
 	var openSmsReminder = urlParams.get('open_sms_reminder');
@@ -2990,7 +3000,12 @@ $(document).ready(function(){
 		$('#sendSmsModal').modal('show');
 	});
 
-	$('#sendSms_message').on('input', function(){ $('#sendSms_charCount').text($(this).val().length); });
+	$('#sendSms_message').on('input', function(){
+		$('#sendSms_charCount').text($(this).val().length);
+		autoResizeSendSmsMessage();
+	});
+
+	$('#sendSmsModal').on('shown.bs.modal', function(){ autoResizeSendSmsMessage(); });
 
 	$('#sendSms_template_id').on('change', function(){
 		var id = $(this).val();
@@ -2999,6 +3014,7 @@ $(document).ready(function(){
 			if (r.success && r.data && r.data.message) {
 				$('#sendSms_message').val(r.data.message);
 				$('#sendSms_charCount').text(r.data.message.length);
+				autoResizeSendSmsMessage();
 			}
 		});
 	});
