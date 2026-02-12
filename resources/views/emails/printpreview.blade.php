@@ -18,7 +18,6 @@
 				<tbody>
 					<tr>
 						<td style="text-align: left;">
-                            <!--<img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/profile_imgs/')}}/{{$admin->profile_img}}" alt="Logo"/>-->
                             <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
                             
 							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;">
