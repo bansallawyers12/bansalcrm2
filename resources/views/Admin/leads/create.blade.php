@@ -1078,8 +1078,9 @@ $(document).ready(function($){
     // Check contact uniqueness (blur only - not while typing)
     $(document).on('blur', '.contactno_unique', function(){
         var $input = $(this);
+        var $target = $input.closest('.cus_field_input').length ? $input.closest('.cus_field_input') : $input;
         var contact = $input.val().trim();
-        $input.nextAll('.custom-error.js-validation-error').remove();
+        $target.nextAll('.custom-error.js-validation-error').remove();
         if(contact != '') {
             $.ajax({
                 url: AppConfig.urls.checkContactUnique,
@@ -1091,7 +1092,7 @@ $(document).ready(function($){
                 success: function(response) {
                     var data = JSON.parse(response);
                     if(data.status == 1) {
-                        $input.after('<span class="custom-error js-validation-error">' + data.message + '</span>');
+                        $target.after('<span class="custom-error js-validation-error">' + data.message + '</span>');
                     }
                 }
             });
