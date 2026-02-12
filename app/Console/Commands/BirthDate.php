@@ -60,7 +60,8 @@ class BirthDate extends Command
 				$diff = $interval->format('%a');
 				 if(strtotime($today) == strtotime($contact->birth_date)){
 				 $replace = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo asset('img/profile_imgs/'.@$contact->company->profile_img); die;			
-					$replace_with = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, asset('img/profile_imgs/'.@$contact->company->profile_img), @$contact->company->email);
+					$crmProfile = \App\Helpers\Helper::defaultCrmProfile();
+					$replace_with = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, $crmProfile ? $crmProfile->company_name : 'Bansal Education Group', $crmProfile && $crmProfile->logo ? asset('img/profile_imgs/'.$crmProfile->logo) : '', $crmProfile ? $crmProfile->email : '');
 				
 				 $replacesub = array('{sur_name}', '{customer_name}');					
 				$replace_with_sub = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name);
@@ -82,7 +83,8 @@ class BirthDate extends Command
 				$diff2 = $interval1->format('%a');
 				 if(strtotime($todayav) == strtotime($contact->anniversary_date)){
 				 $replaceav = array('{sur_name}', '{customer_name}', '{company_name}', '{company_logo}','{company_email}');		//echo asset('img/profile_imgs/'.@$contact->company->profile_img); die;			
-					$replace_withav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, @$contact->company->company_name, asset('img/profile_imgs/'.@$contact->company->profile_img), @$contact->company->email);
+					$crmProfileAv = \App\Helpers\Helper::defaultCrmProfile();
+					$replace_withav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name, $crmProfileAv ? $crmProfileAv->company_name : 'Bansal Education Group', $crmProfileAv && $crmProfileAv->logo ? asset('img/profile_imgs/'.$crmProfileAv->logo) : '', $crmProfileAv ? $crmProfileAv->email : '');
 				
 				 $replacesubav = array('{surname}', '{customer_name}');					
 				$replace_with_subav = array(@$contact->srname, @$contact->first_name.' '.@$contact->last_name);

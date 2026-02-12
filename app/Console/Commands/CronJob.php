@@ -70,7 +70,7 @@ class CronJob extends Command
 					$amount_rec = InvoicePayment::where('invoice_id',$invoice->id)->get()->sum("amount_rec");
 				$baldue = $invoice->amount - $amount_rec;
 				 $replace = array('{customer_name}', '{invoice_no}', '{invoice_date}', '{due_date}','{amount}','{company_name}');					
-					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, @$invoice->invoice,@$invoice->invoice_date, @$invoice->due_date, $baldue, @$invoice->company->company_name);
+					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, @$invoice->invoice,@$invoice->invoice_date, @$invoice->due_date, $baldue, \App\Helpers\Helper::defaultCrmCompanyName());
 				
 				 $replacesub = array('{due_amount}', '{invoice_no}');					
 				$replace_with_sub = array($baldue, @$invoice->invoice);
@@ -125,7 +125,7 @@ class CronJob extends Command
 					$amount_rec = InvoicePayment::where('invoice_id',$invoice->id)->get()->sum("amount_rec");
 				$baldue = $invoice->amount - $amount_rec;
 				 $replace = array('{customer_name}', '{invoice_no}', '{invoice_date}', '{due_date}','{amount}','{company_name}');					
-					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, @$invoice->invoice,@$invoice->invoice_date, @$invoice->due_date, $baldue, @$invoice->company->company_name);
+					$replace_with = array(@$invoice->customer->first_name.' '.@$invoice->customer->last_name, @$invoice->invoice,@$invoice->invoice_date, @$invoice->due_date, $baldue, \App\Helpers\Helper::defaultCrmCompanyName());
 				
 				 $replacesub = array('{due_amount}', '{invoice_no}');					
 				$replace_with_sub = array($baldue, @$invoice->invoice);

@@ -469,7 +469,17 @@ class ClientReceiptController extends Controller
         $record_get = DB::table('account_client_receipts')->where('receipt_type',1)->where('id',$id)->get();
         if(!empty($record_get)){
             $clientname = DB::table('admins')->select('first_name','last_name','address','state','city','zip','country','dob')->where('id',$record_get[0]->client_id)->first();
-            $admin = DB::table('admins')->select('company_name','address','state','city','zip','email','phone','dob')->where('id',$record_get[0]->user_id)->first();
+            $profile = \App\Helpers\Helper::defaultCrmProfile();
+            $admin = $profile ? (object)[
+                'company_name' => $profile->company_name,
+                'address' => $profile->address,
+                'state' => '',
+                'city' => '',
+                'zip' => '',
+                'email' => $profile->email,
+                'phone' => $profile->phone,
+                'dob' => null,
+            ] : (object)['company_name'=>'','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
         }
         set_time_limit(3000);
         $pdf = PDF::setOptions([

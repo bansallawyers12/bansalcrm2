@@ -1262,7 +1262,7 @@ use App\Http\Controllers\Controller;
                                                     $message = $mailreport->message;
                                                     $message = str_replace('{Client First Name}',$partner->partner_name, $message);
                                                     $message = str_replace('{Client Assignee Name}',$partner->partner_name, $message);
-                                                    $message = str_replace('{Company Name}',Auth::user()->company_name, $message);
+                                                    $message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
                                                 ?>
                                                 <div class="conversation_list sent_conversation_list">
                                                     <div class="conversa_item">

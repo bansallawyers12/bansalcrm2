@@ -427,7 +427,7 @@ class ApplicationsController extends Controller
 			$subject = str_replace('{Client First Name}',$client->first_name, $subject);
 			$message = str_replace('{Client First Name}',$client->first_name, $message);
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
-			$message = str_replace('{Company Name}',Auth::user()->company_name, $message);
+			$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
 			$array = array();
 			$ccarray = array();
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){

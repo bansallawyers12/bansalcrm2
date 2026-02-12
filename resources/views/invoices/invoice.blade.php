@@ -22,11 +22,26 @@
 		<div class="inv-template-bodysection" style="margin-top:30px;">
 			<table style="width: 100%;border-bottom:1px solid #000;" class="invoice-detailstable">
 				<tbody>
-					  <tr> 
+					<tr> 
 						<td style="width:50%;padding: 2px 10px;vertical-align: middle;">
 						  <div>
-							<span style="font-weight: bold;" class="inv-orgname">{{@$invoicedetail->company->company_name}}<br></span>
-							<span style="white-space: pre-wrap;font-size: 14px;line-height:21px;" id="tmp_org_address">{{@$invoicedetail->company->address}} <br>{{@$invoicedetail->company->city}} {{@$invoicedetail->company->state}} {{@$invoicedetail->company->zip}} <br/>{{@$invoicedetail->company->country}}</span>
+							<?php
+							$orgName = \App\Helpers\Helper::defaultCrmCompanyName();
+							$orgAddress = '';
+							if (!empty($invoicedetail->profile)) {
+								$invProfile = json_decode($invoicedetail->profile);
+								if ($invProfile) {
+									$orgName = $invProfile->name ?? $orgName;
+									$orgAddress = $invProfile->address ?? '';
+								}
+							}
+							if (empty($orgAddress)) {
+								$defProfile = \App\Helpers\Helper::defaultCrmProfile();
+								$orgAddress = $defProfile ? $defProfile->address : '';
+							}
+							?>
+							<span style="font-weight: bold;" class="inv-orgname">{{ $orgName }}<br></span>
+							<span style="white-space: pre-wrap;font-size: 14px;line-height:21px;" id="tmp_org_address">{{ $orgAddress }}</span>
 						  </div>
 						</td>
 						<td style="width:40%;padding: 5px;vertical-align: bottom;" align="right">
@@ -84,7 +99,7 @@
 					<tbody> 
 						<tr>
 							<td style="" valign="top">
-								<span style="white-space: pre-wrap;line-height: 15px;color:#0080ec;" id="tmp_billing_address"><strong><span class="inv-customer-name" id="zb-pdf-customer-detail"><a style="color:#0080ec;" href="#">{{@$invoicedetail->customer->company_name}}</a></span></strong></span>
+								<span style="white-space: pre-wrap;line-height: 15px;color:#0080ec;" id="tmp_billing_address"><strong><span class="inv-customer-name" id="zb-pdf-customer-detail"><a style="color:#0080ec;" href="#">{{ @$invoicedetail->customer->company_name ?: trim(@$invoicedetail->customer->first_name.' '.@$invoicedetail->customer->last_name) }}</a></span></strong></span>
 							</td>
 						</tr>
 						<tr>

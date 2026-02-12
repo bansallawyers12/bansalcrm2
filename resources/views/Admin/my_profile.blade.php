@@ -89,38 +89,8 @@
 												</span>
 											@endif
 										</div>
-										<div class="form-group">
-											<label for="company_name">Company Name <span style="color:#ff0000;">*</span></label>
-												{!! Form::text('company_name', @$fetchedData->company_name, array('class' => 'form-control mask', 'data-valid'=>'required', 'placeholder'=>'Company Name'))  !!}
-										
-											@if ($errors->has('company_name'))
-												<span class="custom-error" role="alert">
-													<strong>{{ $errors->first('company_name') }}</strong>
-												</span>
-											@endif
-										</div>
 									</div>
 									<div class="col-6 col-md-6 col-lg-6">
-										<div class="form-group">
-											<label for="company_website">Company Website</label>
-												{!! Form::text('company_website', @$fetchedData->company_website, array('class' => 'form-control mask', 'data-valid'=>'', 'placeholder'=>'Company Website'))  !!}
-										
-											@if ($errors->has('company_website'))
-												<span class="custom-error" role="alert">
-													<strong>{{ $errors->first('company_website') }}</strong>
-												</span>
-											@endif
-										</div>
-										<div class="form-group">
-											<label for="company_fax">Company Fax</label>
-												{!! Form::text('company_fax', @$fetchedData->company_fax, array('class' => 'form-control', 'data-valid'=>'', 'placeholder'=>'Company Fax'))  !!}
-										
-											@if ($errors->has('company_fax'))
-												<span class="custom-error" role="alert">
-													<strong>{{ $errors->first('company_fax') }}</strong>
-												</span>
-											@endif
-										</div>
 										<div class="form-group">
 											<label for="country">Country <span style="color:#ff0000;">*</span></label>
 											<select class="form-control  select2" name="country" >

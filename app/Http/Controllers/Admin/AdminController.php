@@ -192,9 +192,6 @@ class AdminController extends Controller
 			$obj->city						=	@$requestData['city'];
 			$obj->address					=	@$requestData['address'];
 			$obj->zip						=	@$requestData['zip'];
-			$obj->company_fax						=	@$requestData['company_fax'];
-			$obj->company_name						=	@$requestData['company_name'];
-			$obj->company_website						=	@$requestData['company_website'];
 
 			$saved							=	$obj->save();
 
@@ -1511,7 +1508,7 @@ class AdminController extends Controller
 			}
 
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
-			$message = str_replace('{Company Name}',Auth::user()->company_name, $message);
+			$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
 			$ccarray = array();
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
 				foreach($requestData['email_cc'] as $cc){

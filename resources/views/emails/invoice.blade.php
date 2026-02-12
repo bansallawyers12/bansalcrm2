@@ -18,26 +18,16 @@
 	</head>
 	<body>
 	<?php
-	$admin = \App\Models\Admin::where('role',1)->where('id',$invoicedetail->user_id)->first();
-	?>
-	<?php
-	$paymentdetails = \App\Models\InvoicePayment::where('invoice_id', $invoicedetail->id)->orderby('created_at', 'DESC')->get();
-	$totlacount = \App\Models\InvoicePayment::where('invoice_id', $invoicedetail->id)->orderby('created_at', 'DESC')->count();
-	$amount_rec = 0;
-	if($totlacount !== 0){
-		foreach($paymentdetails as $paymentdetail){
-			$amount_rec +=$paymentdetail->amount_rec;
-		}
-	}
-	$name = @$admin->company_name;
-	$address = @$admin->address;
-	$email = @$admin->email;
-	$phone = @$admin->phone;
-	$other_phone = '';
-	$website = '';
-	$abn = '';
-	$note = '';
-	$logo = '';
+	$crmProfile = \App\Helpers\Helper::defaultCrmProfile();
+	$name = $crmProfile ? $crmProfile->company_name : 'Bansal Education Group';
+	$address = $crmProfile ? $crmProfile->address : '';
+	$email = $crmProfile ? $crmProfile->email : '';
+	$phone = $crmProfile ? $crmProfile->phone : '';
+	$other_phone = $crmProfile && $crmProfile->other_phone ? ', ' . $crmProfile->other_phone : '';
+	$website = $crmProfile ? $crmProfile->website : '';
+	$abn = $crmProfile ? $crmProfile->abn : '';
+	$note = $crmProfile ? $crmProfile->note : '';
+	$logo = $crmProfile ? $crmProfile->logo : '';
 	if($invoicedetail->profile != ''){
 		$profile = json_decode($invoicedetail->profile);
 		$name = $profile->name;
@@ -49,7 +39,17 @@
 		$logo = $profile->logo;
 		$abn = @$profile->abn;
 		$profiledetail = \App\Models\Profile::where('id', @$profile->id)->first();
-		$note = $profiledetail->note;
+		$note = $profiledetail ? $profiledetail->note : '';
+	}
+	?>
+	<?php
+	$paymentdetails = \App\Models\InvoicePayment::where('invoice_id', $invoicedetail->id)->orderby('created_at', 'DESC')->get();
+	$totlacount = \App\Models\InvoicePayment::where('invoice_id', $invoicedetail->id)->orderby('created_at', 'DESC')->count();
+	$amount_rec = 0;
+	if($totlacount !== 0){
+		foreach($paymentdetails as $paymentdetail){
+			$amount_rec +=$paymentdetail->amount_rec;
+		}
 	}
 
 		?>

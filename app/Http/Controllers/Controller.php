@@ -156,11 +156,11 @@ class Controller extends BaseController
 			$maildoll = new Swift_Mailer($transport);
 			// set mailtrap mailer
 			Mail::setSwiftMailer($maildoll);
-			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $sendername->company_name));
+			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, is_object($sendername) ? (\App\Helpers\Helper::defaultCrmCompanyName()) : $sendername));
 			// reset to default configuration
 			Mail::setSwiftMailer($backup);
 		}else{
-			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $sendername->company_name));
+			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, is_object($sendername) ? (\App\Helpers\Helper::defaultCrmCompanyName()) : $sendername));
 		}
 		
 	

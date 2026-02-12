@@ -16,20 +16,19 @@
 	</head>
 	<body>
 	<?php
-	$admin = \App\Models\Admin::where('role',1)->first();
-	
+	$crmProfile = \App\Helpers\Helper::defaultCrmProfile();
 	?>
 		<div class="invoice_table" style="padding: 10px;">
 			<table width="100%" border="0">
 				<tbody>
 					<tr>
-						<td><img src="" title="Company Logo" alt="Company Logo"/></td>
+						<td>@if($crmProfile && $crmProfile->logo)<img src="{{asset('img/profile_imgs')}}/{{$crmProfile->logo}}" title="Company Logo" alt="Company Logo"/>@else<img src="" title="Company Logo" alt="Company Logo"/>@endif</td>
 						<td></td>
 						<td style="text-align: right;">
-							<span style="font-size:21px;line-height:24px;color:#000;"><b>{{$admin->company_name}}</b></span>
-							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;margin: 10px 0px 0px;"><b>Address:</b> {{$admin->address}}<br/>
-							<b>Email:</b> {{$admin->email}}<br/>
-							<b>Phone:</b> {{$admin->phone}}</p>
+							<span style="font-size:21px;line-height:24px;color:#000;"><b>{{ $crmProfile ? $crmProfile->company_name : 'Bansal Education Group' }}</b></span>
+							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;margin: 10px 0px 0px;"><b>Address:</b> {{ $crmProfile ? $crmProfile->address : '' }}<br/>
+							<b>Email:</b> {{ $crmProfile ? $crmProfile->email : '' }}<br/>
+							<b>Phone:</b> {{ $crmProfile ? $crmProfile->phone : '' }}</p>
 						</td>
 					</tr>
 					<tr>
