@@ -38,14 +38,17 @@ class EmailService
             $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();//dd($emailConfig);
 
             // Configure mail settings for this specific email
+            // Zoho: smtp.zoho.com = personal (@zoho.com); smtppro.zoho.com = business/custom domain (@yourdomain.com)
+            $isCustomDomain = strpos($emailConfig->email, '@zoho.') === false;
+            $smtpHost = $isCustomDomain ? 'smtppro.zoho.com' : 'smtp.zoho.com';
             config([
-                'mail.mailers.smtp.host' => 'smtp.zoho.com',
+                'mail.mailers.smtp.host' => $smtpHost,
                 'mail.mailers.smtp.port' => 587,
                 'mail.mailers.smtp.encryption' => 'tls',
-                'mail.mailers.smtp.username' => $emailConfig->email,
-                'mail.mailers.smtp.password' => $emailConfig->password,
-                'mail.from.address' => $emailConfig->email,
-                'mail.from.name' => $emailConfig->display_name,
+                'mail.mailers.smtp.username' => trim($emailConfig->email),
+                'mail.mailers.smtp.password' => trim((string) $emailConfig->password),
+                'mail.from.address' => trim($emailConfig->email),
+                'mail.from.name' => trim((string) $emailConfig->display_name),
             ]);
 
             // Send the email
