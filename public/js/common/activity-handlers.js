@@ -13,8 +13,9 @@
 /**
  * Get all activities for the current page
  * Fetches activities based on PageConfig settings
+ * @param {function} [onSuccess] - Optional callback called after activities are refreshed
  */
-function getallactivities() {
+function getallactivities(onSuccess) {
     var activityId = App.getPageConfig('clientId') || 
                      App.getPageConfig('productId') || 
                      App.getPageConfig('userId') || 
@@ -23,19 +24,21 @@ function getallactivities() {
     
     if (!activityId) {
         console.warn('Activity ID not found in PageConfig');
+        if (typeof onSuccess === 'function') onSuccess();
         return;
     }
     
     var url = App.getUrl('getActivities') || App.getUrl('siteUrl') + '/get-activities';
     if (!url) {
         console.error('getActivities URL not configured');
+        if (typeof onSuccess === 'function') onSuccess();
         return;
     }
     
     $.ajax({
         url: url,
         type: 'GET',
-        datatype: 'json',
+        dataType: 'json',
         data: { id: activityId },
         success: function(responses) {
             var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
@@ -62,6 +65,11 @@ function getallactivities() {
             } else if ($('.activitiesdata').length) {
                 $('.activitiesdata').html(html);
             }
+            if (typeof onSuccess === 'function') onSuccess();
+        },
+        error: function(xhr, status, err) {
+            console.warn('Failed to refresh activities:', status, err);
+            if (typeof onSuccess === 'function') onSuccess();
         }
     });
 }

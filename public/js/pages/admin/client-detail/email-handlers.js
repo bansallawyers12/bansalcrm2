@@ -45,11 +45,17 @@
 
 jQuery(document).ready(function($){
     
+    // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
+    $('#emailmodal').on('hidden.bs.modal', function() {
+        $('#sendmail_send_context').val('');
+    });
+    
     // ============================================================================
     // OPEN EMAIL MODAL
     // ============================================================================
     
     $(document).on('click', '.clientemail', function(){
+        $('#sendmail_send_context').val(''); // Clear context when opening from generic email link
         $('#emailmodal').modal('show');
         var array = [];
         var data = [];
@@ -302,14 +308,23 @@ jQuery(document).ready(function($){
                 var res = typeof response === 'string' ? $.parseJSON(response) : response;
                 if(res.status) {
                     alert(res.message || 'Email sent successfully');
+                    $('#sendmail_send_context').val(''); // Clear context after successful send
                     $('#emailmodal').modal('hide');
                     // Reset form
                     form[0].reset();
                     if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                         TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
                     }
+                    // Refresh activity log and switch to Activities tab so user sees the new entry without page refresh
                     if(typeof getallactivities === 'function') {
-                        getallactivities();
+                        getallactivities(function() {
+                            var activitiesTab = document.getElementById('activities-tab');
+                            if (activitiesTab && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                                try {
+                                    bootstrap.Tab.getOrCreateInstance(activitiesTab).show();
+                                } catch (e) { /* tab may not exist on non-client pages */ }
+                            }
+                        });
                     }
                 } else {
                     alert(res.message || 'Failed to send email');

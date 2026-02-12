@@ -1422,12 +1422,49 @@ class AdminController extends Controller
 
 		$saved	=	$obj->save();
 
-		// When checklist email is sent: update application checklist_sent_at and log to client activity
-		if(isset($requestData['checklistfile']) && !empty($requestData['checklistfile'])){
+		// Activity log based on which button user clicked (send_context)
+        $sendContext = $requestData['send_context'] ?? '';
+        
+		// When send_context=checklist (Send checklist button): always log "Checklist Email sent"
+        $isChecklistContext = ($sendContext === 'checklist');
+        if ($saved && $isChecklistContext) {
             $clientIdForLog = null;
-            $logSubject = 'Checklist sent to client';
+            $wasAlreadySent = false;
             $sentDate = now()->format('d/m/Y');
-            $logDescription = 'Checklist sent on ' . $sentDate;
+            if (!empty($requestData['application_id'])) {
+                $app = \App\Models\Application::find((int)$requestData['application_id']);
+                if ($app && $app->client_id) {
+                    $clientIdForLog = $app->client_id;
+                    $wasAlreadySent = $app->checklist_sent_at !== null;
+                    if (!empty($requestData['checklistfile'])) {
+                        $app->checklist_sent_at = now()->toDateString();
+                        $app->save();
+                    }
+                }
+            }
+            if ($clientIdForLog === null && !empty($requestData['email_to'][0])) {
+                $clientIdForLog = is_numeric($requestData['email_to'][0]) ? (int)$requestData['email_to'][0] : null;
+            }
+            if ($clientIdForLog) {
+                $logSubject = $wasAlreadySent ? 'Checklist Email resent' : 'Checklist Email sent';
+                $logDescription = 'Checklist Email sent on ' . $sentDate;
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $clientIdForLog;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = $logSubject;
+                $objs->description = $logDescription;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+            }
+        }
+
+		// When checklistfile present but no send_context (legacy): update checklist_sent_at and log
+		if(isset($requestData['checklistfile']) && !empty($requestData['checklistfile']) && !$isChecklistContext){
+            $clientIdForLog = null;
+            $logSubject = 'Checklist Email sent';
+            $sentDate = now()->format('d/m/Y');
+            $logDescription = 'Checklist Email sent on ' . $sentDate;
 
             if(!empty($requestData['application_id'])){
                 $app = \App\Models\Application::find((int)$requestData['application_id']);
@@ -1436,8 +1473,8 @@ class AdminController extends Controller
                     $app->checklist_sent_at = now()->toDateString();
                     $app->save();
                     $clientIdForLog = $app->client_id;
-                    $logSubject = $wasAlreadySent ? 'Checklist resent to client' : 'Checklist sent to client';
-                    $logDescription = $logSubject . ' on ' . $sentDate;
+                    $logSubject = $wasAlreadySent ? 'Checklist Email resent' : 'Checklist Email sent';
+                    $logDescription = 'Checklist Email sent on ' . $sentDate;
                 }
             }
             if($clientIdForLog === null && !empty($requestData['email_to'][0])){
@@ -1455,8 +1492,32 @@ class AdminController extends Controller
             }
         }
 
-        // When email is sent with application_id: record email reminder and log for filters
-        if ($saved && !empty($requestData['application_id'])) {
+        // When send_context=email_reminder (Email reminder button): always log "Email reminder sent" and create ApplicationReminder
+        $isEmailReminderContext = ($sendContext === 'email_reminder');
+        if ($saved && $isEmailReminderContext && !empty($requestData['application_id'])) {
+            $app = \App\Models\Application::find((int)$requestData['application_id']);
+            if ($app && $app->client_id) {
+                \App\Models\ApplicationReminder::create([
+                    'application_id' => $app->id,
+                    'type' => 'email',
+                    'reminded_at' => now(),
+                    'user_id' => Auth::user()->id,
+                ]);
+                $emailSentDate = now()->format('d/m/Y');
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $app->client_id;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = 'Email reminder sent';
+                $objs->description = 'Email reminder sent on ' . $emailSentDate;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+            }
+        }
+
+        // When application_id present, no send_context (legacy): record email reminder and log
+        $isChecklistEmail = (!empty($requestData['checklistfile']) || !empty($requestData['checklistfile_document']));
+        if ($saved && !empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext) {
             $app = \App\Models\Application::find((int)$requestData['application_id']);
             if ($app && $app->client_id) {
                 \App\Models\ApplicationReminder::create([
@@ -1478,7 +1539,7 @@ class AdminController extends Controller
         }
       
       
-        if(isset($requestData['checklistfile_document'])){
+        if(isset($requestData['checklistfile_document']) && !$isChecklistContext){
             if(!empty($requestData['checklistfile_document'])){
                 $objs = new \App\Models\ActivitiesLog;
                 $objs->client_id = $obj->to_mail;
