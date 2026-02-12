@@ -804,7 +804,6 @@ $(document).ready(function() {
 				if (response.success) {
 					var docs = response.documents || [];
 					var label = response.category_label || categoryLabel;
-					var canDeleteDocument = !!response.can_delete_document;
 					if (docs.length === 0) {
 						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
 					} else {
@@ -816,7 +815,7 @@ $(document).ready(function() {
 							html += '<div class="text-break flex-grow-1 mr-2" style="min-width: 0;">';
 							html += '<span style="word-wrap: break-word; overflow-wrap: break-word;"><strong>' + (i + 1) + '.</strong> ' + (d.file_name || 'Document #' + d.id) + '</span>';
 							if (d.created_at) html += '<br><small class="text-muted">' + d.created_at + '</small>';
-							if (canDeleteDocument && !d.is_on_s3) {
+							if (!d.is_on_s3) {
 								html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document"><i class="fas fa-trash-alt"></i> Delete Document</button>';
 							}
 							html += '</div>';
