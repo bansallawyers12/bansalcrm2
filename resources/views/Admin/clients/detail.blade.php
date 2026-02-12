@@ -2164,6 +2164,7 @@ use App\Http\Controllers\Controller;
 				<form id="sendSmsForm" autocomplete="off">
 					@csrf
 					<input type="hidden" name="client_id" id="sendSms_client_id" value="">
+					<input type="hidden" name="application_id" id="sendSms_application_id" value="">
 					<div class="row">
 						<div class="col-12 col-md-6">
 							<div class="form-group">
@@ -2966,6 +2967,7 @@ $(document).ready(function(){
 	if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
 		console.log('Opening SMS modal from URL');
 		$('#sendSms_client_id').val(clientIdForSms);
+		$('#sendSms_application_id').val(applicationId);
 		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
 		$('#sendSms_message').val('');
 		$('#sendSms_charCount').text('0');
@@ -2978,6 +2980,7 @@ $(document).ready(function(){
 	$('.send-sms-btn').on('click', function(){
 		var clientId = $(this).data('client-id');
 		$('#sendSms_client_id').val(clientId);
+		$('#sendSms_application_id').val('');
 		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
 		$('#sendSms_message').val('');
 		$('#sendSms_charCount').text('0');
@@ -3003,6 +3006,7 @@ $(document).ready(function(){
 	$('#sendSmsForm').on('submit', function(e){
 		e.preventDefault();
 		var clientId = $('#sendSms_client_id').val();
+		var applicationId = $('#sendSms_application_id').val();
 		var phone = $('#sendSms_phone').val();
 		var message = $('#sendSms_message').val();
 		if (!phone || !message) { alert('Please select a phone and enter a message.'); return; }
@@ -3010,7 +3014,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: sendSmsSendUrl,
 			method: 'POST',
-			data: { _token: $('input[name="_token"]').val(), client_id: clientId, phone: phone, message: message },
+			data: { _token: $('input[name="_token"]').val(), client_id: clientId, application_id: applicationId || '', phone: phone, message: message },
 			success: function(res){
 				if (res.success) {
 					alert('SMS sent successfully!');
