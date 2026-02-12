@@ -2960,11 +2960,13 @@ $(document).ready(function(){
 	function autoResizeSendSmsMessage() {
 		var el = document.getElementById('sendSms_message');
 		if (!el) return;
-		el.style.height = 'auto';
 		var minH = 120;
-		var maxH = 400;
+		var maxH = 500;
+		el.style.overflow = 'hidden';
+		el.style.height = '0';
 		var h = Math.min(Math.max(el.scrollHeight, minH), maxH);
 		el.style.height = h + 'px';
+		el.style.overflow = '';
 	}
 
 	// Open Send SMS modal from URL: ?open_sms_reminder=1&applicationId=xxx
@@ -3014,7 +3016,7 @@ $(document).ready(function(){
 			if (r.success && r.data && r.data.message) {
 				$('#sendSms_message').val(r.data.message);
 				$('#sendSms_charCount').text(r.data.message.length);
-				autoResizeSendSmsMessage();
+				setTimeout(function(){ autoResizeSendSmsMessage(); }, 10);
 			}
 		});
 	});
