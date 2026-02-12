@@ -452,10 +452,15 @@ class RecentlyModifiedClientsController extends Controller
 			];
 		}
 
+		// Allow Delete Document only for super admin (role=1) and admin (role=2)
+		$user = Auth::user();
+		$canDeleteDocument = $user && in_array((int) $user->role, [1, 12], true);
+
 		return response()->json([
 			'success' => true,
 			'documents' => $list,
 			'category_label' => ucfirst($category),
+			'can_delete_document' => $canDeleteDocument,
 		]);
 	}
 
@@ -627,6 +632,84 @@ class RecentlyModifiedClientsController extends Controller
 			'success' => true,
 			'message' => 'Public document deleted successfully',
 			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Delete a document permanently: remove from documents table and delete file from public path.
+	 * Only for super admin (role=1) and admin (role=2). Document must not be on S3 (local only).
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function deleteDocument(Request $request)
+	{
+		$documentId = (int) $request->input('document_id');
+		if (!$documentId || $documentId < 1) {
+			return response()->json(['success' => false, 'message' => 'Document ID is required'], 400);
+		}
+
+		$user = Auth::user();
+		if (!$user || !in_array((int) $user->role, [1, 2], true)) {
+			return response()->json(['success' => false, 'message' => 'Not allowed to delete documents'], 403);
+		}
+
+		$document = Document::find($documentId);
+		if (!$document) {
+			return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+		}
+
+		// Only allow delete when document is not on S3 (local only)
+		if (!empty(trim((string) ($document->myfile_key ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Cannot delete document that is on S3'], 400);
+		}
+
+		$allowedCategoryNames = ['Application', 'Education', 'Migration'];
+		$category = $document->category_id ? DocumentCategory::find($document->category_id) : null;
+		if (!$category || !in_array($category->name, $allowedCategoryNames, true)) {
+			return response()->json(['success' => false, 'message' => 'Document category not allowed for this action'], 400);
+		}
+
+		// Resolve local file path (myfile for local-only docs)
+		$localPath = trim((string) ($document->myfile ?? ''));
+		if ($localPath !== '') {
+			$relativePath = ltrim(str_replace('\\', '/', $localPath), '/');
+			if (preg_match('#^https?://#i', $relativePath)) {
+				$parsed = parse_url($relativePath);
+				$path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+				$prefix = 'img/documents/';
+				if (stripos($path, $prefix) === 0) {
+					$relativePath = substr($path, strlen($prefix));
+				} else {
+					$relativePath = $path;
+				}
+				$relativePath = ltrim($relativePath, '/');
+			}
+			if ($relativePath !== '' && stripos($relativePath, 'img/documents/') === 0) {
+				$relativePath = ltrim(substr($relativePath, strlen('img/documents/')), '/');
+			}
+			if ($relativePath !== '' && !preg_match('#\.\./#', $relativePath)) {
+				$baseDir = realpath(public_path('img/documents'));
+				if ($baseDir !== false) {
+					$candidatePath = public_path('img/documents/' . $relativePath);
+					$resolvedPath = realpath($candidatePath);
+					if ($resolvedPath !== false && strpos($resolvedPath, $baseDir) === 0 && is_file($resolvedPath)) {
+						try {
+							unlink($resolvedPath);
+						} catch (\Throwable $e) {
+							Log::warning('Delete document: unlink failed', ['document_id' => $documentId, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
+						}
+					}
+				}
+			}
+		}
+
+		$document->delete();
+
+		return response()->json([
+			'success' => true,
+			'message' => 'Document deleted successfully',
+			'document_id' => $documentId,
 		]);
 	}
 

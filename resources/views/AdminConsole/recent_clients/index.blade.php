@@ -426,9 +426,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="clientDocumentsModalLabel"><i class="fas fa-file"></i> <span id="clientDocumentsModalTitle">Documents</span></h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<div id="clientDocumentsModalBody">
@@ -436,7 +434,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
@@ -781,6 +779,12 @@ $(document).ready(function() {
 		});
 	}
 	
+	// Close Migration/documents modal when Close button or X is clicked
+	$(document).on('click', '#clientDocumentsModal .btn-close, #clientDocumentsModal .modal-footer .btn-secondary', function(e) {
+		e.preventDefault();
+		$('#clientDocumentsModal').modal('hide');
+	});
+
 	// Click on Application / Education / Migration badge: show documents in modal
 	$(document).on('click', '.doc-category-badge', function() {
 		var clientId = $(this).data('client-id');
@@ -800,6 +804,7 @@ $(document).ready(function() {
 				if (response.success) {
 					var docs = response.documents || [];
 					var label = response.category_label || categoryLabel;
+					var canDeleteDocument = !!response.can_delete_document;
 					if (docs.length === 0) {
 						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
 					} else {
@@ -807,10 +812,15 @@ $(document).ready(function() {
 						html += '<ul class="list-group list-group-flush">';
 						for (var i = 0; i < docs.length; i++) {
 							var d = docs[i];
-							html += '<li class="list-group-item d-flex justify-content-between align-items-center" data-document-id="' + d.id + '">';
-							html += '<span class="text-break">' + (d.file_name || 'Document #' + d.id) + '</span>';
-							html += '<span class="d-flex align-items-center flex-wrap">';
-							if (d.created_at) html += '<small class="text-muted mr-2">' + d.created_at + '</small>';
+							html += '<li class="list-group-item d-flex justify-content-between align-items-start" data-document-id="' + d.id + '">';
+							html += '<div class="text-break flex-grow-1 mr-2" style="min-width: 0;">';
+							html += '<span style="word-wrap: break-word; overflow-wrap: break-word;"><strong>' + (i + 1) + '.</strong> ' + (d.file_name || 'Document #' + d.id) + '</span>';
+							if (d.created_at) html += '<br><small class="text-muted">' + d.created_at + '</small>';
+							if (canDeleteDocument && !d.is_on_s3) {
+								html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document"><i class="fas fa-trash-alt"></i> Delete Document</button>';
+							}
+							html += '</div>';
+							html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0">';
 							if (d.preview_url) {
 								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link mr-1"><i class="fas fa-external-link-alt"></i> View</a>';
 							}
@@ -865,6 +875,34 @@ $(document).ready(function() {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
 				alert(msg);
 				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload to S3');
+			}
+		});
+	});
+
+	// Delete document permanently (documents table + public path). Only for super admin/admin; only when doc is not on S3.
+	$(document).on('click', '.btn-delete-document', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		if (!confirm('Are you sure you want to permanently delete this document? It will be removed from the documents list and from the server.')) return;
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Deleting...');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deletedocument") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success) {
+					$btn.closest('li').fadeOut(300, function() { $(this).remove(); });
+				} else {
+					alert(response.message || 'Delete failed');
+					$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete Document');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete document';
+				alert(msg);
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete Document');
 			}
 		});
 	});
