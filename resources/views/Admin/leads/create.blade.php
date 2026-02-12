@@ -1052,9 +1052,11 @@ $(document).ready(function($){
         }
     });
     
-    // Check email uniqueness
-    $(document).on('keyup blur', '.email_unique', function(){
-        var email = $(this).val();
+    // Check email uniqueness (blur only - not while typing)
+    $(document).on('blur', '.email_unique', function(){
+        var $input = $(this);
+        var email = $input.val().trim();
+        $input.nextAll('.custom-error.js-validation-error').remove();
         if(email != '') {
             $.ajax({
                 url: AppConfig.urls.checkEmailUnique,
@@ -1066,16 +1068,18 @@ $(document).ready(function($){
                 success: function(response) {
                     var data = JSON.parse(response);
                     if(data.status == 1) {
-                        $('.email_unique').after('<span class="custom-error">' + data.message + '</span>');
+                        $input.after('<span class="custom-error js-validation-error">' + data.message + '</span>');
                     }
                 }
             });
         }
     });
     
-    // Check contact uniqueness
-    $(document).on('keyup blur', '.contactno_unique', function(){
-        var contact = $(this).val();
+    // Check contact uniqueness (blur only - not while typing)
+    $(document).on('blur', '.contactno_unique', function(){
+        var $input = $(this);
+        var contact = $input.val().trim();
+        $input.nextAll('.custom-error.js-validation-error').remove();
         if(contact != '') {
             $.ajax({
                 url: AppConfig.urls.checkContactUnique,
@@ -1087,7 +1091,7 @@ $(document).ready(function($){
                 success: function(response) {
                     var data = JSON.parse(response);
                     if(data.status == 1) {
-                        $('.contactno_unique').after('<span class="custom-error">' + data.message + '</span>');
+                        $input.after('<span class="custom-error js-validation-error">' + data.message + '</span>');
                     }
                 }
             });
