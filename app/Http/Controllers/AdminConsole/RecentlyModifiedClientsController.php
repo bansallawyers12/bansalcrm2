@@ -452,15 +452,10 @@ class RecentlyModifiedClientsController extends Controller
 			];
 		}
 
-		// Allow Delete Document only for super admin (role=1) and admin (role=2)
-		$user = Auth::user();
-		$canDeleteDocument = $user && in_array((int) $user->role, [1, 12], true);
-
 		return response()->json([
 			'success' => true,
 			'documents' => $list,
 			'category_label' => ucfirst($category),
-			'can_delete_document' => $canDeleteDocument,
 		]);
 	}
 
@@ -637,7 +632,7 @@ class RecentlyModifiedClientsController extends Controller
 
 	/**
 	 * Delete a document permanently: remove from documents table and delete file from public path.
-	 * Only for super admin (role=1) and admin (role=2). Document must not be on S3 (local only).
+	 * Document must not be on S3 (local only).
 	 *
 	 * @param Request $request
 	 * @return \Illuminate\Http\JsonResponse
@@ -647,11 +642,6 @@ class RecentlyModifiedClientsController extends Controller
 		$documentId = (int) $request->input('document_id');
 		if (!$documentId || $documentId < 1) {
 			return response()->json(['success' => false, 'message' => 'Document ID is required'], 400);
-		}
-
-		$user = Auth::user();
-		if (!$user || !in_array((int) $user->role, [1, 2], true)) {
-			return response()->json(['success' => false, 'message' => 'Not allowed to delete documents'], 403);
 		}
 
 		$document = Document::find($documentId);
