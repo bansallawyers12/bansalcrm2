@@ -2875,20 +2875,28 @@ $(document).ready(function() {
 	var clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
 
 	$(document).ready(function(){
-		if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
-			$('#sendmail_application_id').val(applicationId);
-			var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
-			$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
-			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
-			$('#composechecklist-tab').tab('show');
-			$('#emailmodal').modal('show');
-		} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {
-			$('#sendmail_application_id').val(applicationId);
-			var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
-			$(".js-data-example-ajax").select2({ data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
-			$('.js-data-example-ajax').val([String(clientId)]).trigger('change');
-			$('#emailmodal').modal('show');
-		}
+		// Defer to run after email-handlers.js (which may run later due to vendorLibsReady)
+		var runChecklistModal = function() {
+			if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
+				$('#sendmail_application_id').val(applicationId);
+				var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
+				var $toField = $(".js-data-example-ajax");
+				if ($toField.data('select2')) { $toField.select2('destroy'); }
+				$toField.select2({ multiple: true, dropdownParent: $('#emailmodal'), data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
+				$toField.val([String(clientId)]).trigger('change');
+				$('#composechecklist-tab').tab('show');
+				$('#emailmodal').modal('show');
+			} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {
+				$('#sendmail_application_id').val(applicationId);
+				var data = [{ id: clientId, text: clientName, html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'><div class='ag-flex ag-align-start'><div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+clientName+"</span></div><div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+clientEmail+"</small></div></div></div><div class='ag-flex ag-flex-column ag-align-end'><span class='ui label yellow select2-result-repository__statistics'>Client</span></div></div>", title: clientName }];
+				var $toField = $(".js-data-example-ajax");
+				if ($toField.data('select2')) { $toField.select2('destroy'); }
+				$toField.select2({ multiple: true, dropdownParent: $('#emailmodal'), data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
+				$toField.val([String(clientId)]).trigger('change');
+				$('#emailmodal').modal('show');
+			}
+		};
+		setTimeout(runChecklistModal, 150);
 	});
 })();
 </script>

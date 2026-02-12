@@ -186,25 +186,32 @@ jQuery(document).ready(function($){
     // SELECT2 INITIALIZATION FOR EMAIL RECIPIENTS
     // ============================================================================
     
-    // Initialize Select2 for email recipients (To field)
-    $('.js-data-example-ajax').select2({
-        multiple: true,
-        closeOnSelect: false,
-        dropdownParent: $('#emailmodal'),
-        ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-            dataType: 'json',
-            processResults: function (data) {
-                return {
-                    results: data.items
-                };
+    // When opening from Send checklist / Email reminder (?open_checklist_email=1 or ?open_email_reminder=1),
+    // the blade inline script pre-populates the To field. Skip re-init here to avoid overwriting it.
+    var urlParams = new URLSearchParams(window.location.search);
+    var openedFromChecklist = urlParams.get('open_checklist_email') === '1' || urlParams.get('open_email_reminder') === '1';
+    
+    if (!openedFromChecklist) {
+        // Initialize Select2 for email recipients (To field)
+        $('.js-data-example-ajax').select2({
+            multiple: true,
+            closeOnSelect: false,
+            dropdownParent: $('#emailmodal'),
+            ajax: {
+                url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
+                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
+                dataType: 'json',
+                processResults: function (data) {
+                    return {
+                        results: data.items
+                    };
+                },
+                cache: true
             },
-            cache: true
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepoSelection
-    });
+            templateResult: formatRepo,
+            templateSelection: formatRepoSelection
+        });
+    }
 
     // Initialize Select2 for email CC recipients
     $('.js-data-example-ajaxccd').select2({
