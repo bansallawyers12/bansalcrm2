@@ -18,15 +18,28 @@
 				<tbody>
 					<tr>
 						<td style="text-align: left;">
-                            <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
-                            
+                            @if(!empty($admin) && !empty($admin->company_name))
+                                @if($profile = \App\Helpers\Helper::defaultCrmProfile())
+                                    @if($profile->logo)
+                                        <img width="80" style="height:auto;display:block;" src="{{asset('img/profile_imgs')}}/{{$profile->logo}}" alt="Logo"/>
+                                    @else
+                                        <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
+                                    @endif
+                                @else
+                                    <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
+                                @endif
+                            @else
+                                <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
+                            @endif
 							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;">
-                                BANSAL IMMIGRATION CONSULTANTS<br/>
-                              	Level 8<br/>
-                                278 Collins Street<br/>
-                                Melbourne VIC 3000
-								<!--E-mail:invoice@bansaleducation.com.au<br/>
-								Phone: 0460420720-->
+                                {{ $admin->company_name ?? 'Bansal Education Group' }}<br/>
+                              	{{ $admin->address ?? '' }}
+								@if(!empty($admin->email))
+									<br/>E-mail: {{ $admin->email }}
+								@endif
+								@if(!empty($admin->phone))
+									<br/>Phone: {{ $admin->phone }}
+								@endif
                            </p>
 						</td>
 

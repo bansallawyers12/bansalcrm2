@@ -323,6 +323,9 @@ class InvoiceController extends Controller
 		
 		/* Profile Image Upload Function End */	
 		$profiledetail = \App\Models\Profile::where('id', @$requestData['profile'])->first();
+		if (!$profiledetail) {
+			$profiledetail = \App\Helpers\Helper::defaultCrmProfile();
+		}
 		$pdetail = '';
 		if($profiledetail){
 			$ps = array(
@@ -524,6 +527,9 @@ class InvoiceController extends Controller
 			}
 		
 		$profiledetail = \App\Models\Profile::where('id', @$requestData['profile'])->first();
+		if (!$profiledetail) {
+			$profiledetail = \App\Helpers\Helper::defaultCrmProfile();
+		}
 		$pdetail = '';
 		if($profiledetail){
 			$ps = array(
@@ -687,6 +693,9 @@ class InvoiceController extends Controller
 		}		
 		/* Profile Image Upload Function End */	
 		$profiledetail = \App\Models\Profile::where('id', @$requestData['profile'])->first();
+		if (!$profiledetail) {
+			$profiledetail = \App\Helpers\Helper::defaultCrmProfile();
+		}
 		$pdetail = '';
 		if($profiledetail){
 			$ps = array(
@@ -781,6 +790,9 @@ class InvoiceController extends Controller
 			}		
 		/* Profile Image Upload Function End */
 		$profiledetail = \App\Models\Profile::where('id', @$requestData['profile'])->first();
+		if (!$profiledetail) {
+			$profiledetail = \App\Helpers\Helper::defaultCrmProfile();
+		}
 		$pdetail = '';
 		if($profiledetail){
 			$ps = array(
