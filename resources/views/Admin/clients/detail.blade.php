@@ -2153,7 +2153,7 @@ use App\Http\Controllers\Controller;
 
 
 <!-- Send SMS Modal -->
-<div id="sendSmsModal" data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
+<div id="sendSmsModal" data-backdrop="static" data-keyboard="false" data-page-client-id="{{ $fetchedData->id ?? '' }}" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -2973,12 +2973,12 @@ $(document).ready(function(){
 	var urlParams = new URLSearchParams(window.location.search);
 	var openSmsReminder = urlParams.get('open_sms_reminder');
 	var applicationId = urlParams.get('applicationId');
-	var clientIdForSms = {{ $fetchedData->id ?? 'null' }};
+	var clientIdForSms = {{ !empty($fetchedData->id) ? (int)$fetchedData->id : 'null' }};
 	console.log('URL check - openSmsReminder:', openSmsReminder, 'applicationId:', applicationId, 'clientIdForSms:', clientIdForSms);
 	console.log('Modal exists:', $('#sendSmsModal').length);
 	if (openSmsReminder === '1' && applicationId && $('#sendSmsModal').length) {
 		console.log('Opening SMS modal from URL');
-		$('#sendSms_client_id').val(clientIdForSms);
+		$('#sendSms_client_id').val(clientIdForSms || '');
 		$('#sendSms_application_id').val(applicationId);
 		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
 		$('#sendSms_message').val('');
@@ -3023,8 +3023,8 @@ $(document).ready(function(){
 
 	$('#sendSmsForm').on('submit', function(e){
 		e.preventDefault();
-		var clientId = $('#sendSms_client_id').val();
-		var applicationId = $('#sendSms_application_id').val();
+		var clientId = $('#sendSms_client_id').val() || $('#sendSmsModal').data('page-client-id') || '';
+		var applicationId = $('#sendSms_application_id').val() || '';
 		var phone = $('#sendSms_phone').val();
 		var message = $('#sendSms_message').val();
 		if (!phone || !message) { alert('Please select a phone and enter a message.'); return; }
@@ -3032,7 +3032,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: sendSmsSendUrl,
 			method: 'POST',
-			data: { _token: $('input[name="_token"]').val(), client_id: clientId, application_id: applicationId || '', phone: phone, message: message },
+			data: { _token: $('input[name="_token"]').val(), client_id: clientId, application_id: applicationId, phone: phone, message: message },
 			success: function(res){
 				if (res.success) {
 					alert('SMS sent successfully!');

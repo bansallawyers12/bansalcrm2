@@ -2,10 +2,13 @@
 
 namespace App\Services\Sms;
 
-use App\Models\SmsLog;
+use App\Models\Admin;
+use App\Models\Application;
 use App\Models\ActivitiesLog;
+use App\Models\SmsLog;
 use App\Helpers\PhoneValidationHelper;
 use App\Services\Sms\Contracts\SmsProviderInterface;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -43,6 +46,9 @@ class UnifiedSmsManager
     public function sendSms($to, $message, $type = 'manual', $context = [])
     {
         try {
+            // Replace {Student_Name} and {Date} placeholders when client_id is in context
+            $message = $this->replaceSmsPlaceholders($message, $context);
+
             // Validate phone number
             $validation = PhoneValidationHelper::validatePhoneNumber($to);
             if (!$validation['valid']) {
@@ -150,6 +156,45 @@ class UnifiedSmsManager
                 'message' => 'SMS service error: ' . $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Replace {Student_Name} and {Date} placeholders in SMS message
+     */
+    protected function replaceSmsPlaceholders($message, $context)
+    {
+        $clientId = $context['client_id'] ?? null;
+        if (!$clientId || !is_numeric($clientId)) {
+            return $message;
+        }
+
+        $hasPlaceholders = str_contains($message, '{Student_Name}') || str_contains($message, '{student_name}')
+            || str_contains($message, '{Date}') || str_contains($message, '{date}');
+        if (!$hasPlaceholders) {
+            return $message;
+        }
+
+        $client = Admin::find((int) $clientId);
+        $studentName = $client
+            ? (trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')) ?: 'Client')
+            : 'Client';
+
+        $checklistDate = Carbon::now()->format('d/m/Y');
+        $applicationId = $context['application_id'] ?? null;
+        if ($applicationId && is_numeric($applicationId)) {
+            $app = Application::find((int) $applicationId);
+            if ($app && $app->checklist_sent_at) {
+                $checklistDate = Carbon::parse($app->checklist_sent_at)->format('d/m/Y');
+            }
+        }
+
+        $replacements = [
+            '{Student_Name}' => $studentName,
+            '{student_name}' => $studentName,
+            '{Date}' => $checklistDate,
+            '{date}' => $checklistDate,
+        ];
+        return str_replace(array_keys($replacements), array_values($replacements), $message);
     }
 
     /**

@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\AdminConsole\Sms;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
-use App\Models\Application;
 use App\Services\Sms\UnifiedSmsManager;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -57,22 +54,7 @@ class SmsSendController extends Controller
 
         $message = $request->message;
 
-        // Replace template placeholders when client_id is present
-        $hasPlaceholders = str_contains($message, '{Student_Name}') || str_contains($message, '{student_name}')
-            || str_contains($message, '{Date}') || str_contains($message, '{date}');
-        if ($request->client_id && $hasPlaceholders) {
-            $client = Admin::find($request->client_id);
-            $studentName = $client ? (trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')) ?: 'Client') : 'Client';
-            $checklistDate = Carbon::now()->format('d/m/Y');
-            if ($request->application_id) {
-                $app = Application::find($request->application_id);
-                if ($app && $app->checklist_sent_at) {
-                    $checklistDate = Carbon::parse($app->checklist_sent_at)->format('d/m/Y');
-                }
-            }
-            $replacements = ['{Student_Name}' => $studentName, '{student_name}' => $studentName, '{Date}' => $checklistDate, '{date}' => $checklistDate];
-            $message = str_replace(array_keys($replacements), array_values($replacements), $message);
-        }
+        // Placeholder replacement ({Student_Name}, {Date}) is done in UnifiedSmsManager::sendSms()
 
         $result = $this->smsManager->sendSms(
             $request->phone,
@@ -80,6 +62,7 @@ class SmsSendController extends Controller
             'manual',
             [
                 'client_id' => $request->client_id,
+                'application_id' => $request->application_id,
                 'contact_id' => $request->contact_id,
             ]
         );
