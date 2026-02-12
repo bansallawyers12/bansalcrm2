@@ -472,47 +472,6 @@
 								
 								<!-- Additional Contact Fields -->
 								<div class="row mt-2">
-									<div class="col-md-12">
-										<div class="form-group" style="margin-top: 10px;">
-											<label for="add_other_email_phone"></label>
-											<a href="javascript:void(0)" class="add_other_email_phone" data-bs-toggle="tooltip" data-placement="bottom" title="Show/Hide another email and contact no">
-												<i class="fa fa-plus" aria-hidden="true"></i> Add Another Email & Phone
-											</a>
-										</div>
-									</div>
-								</div>
-								
-								<div class="row other_email_div" style="display:none;">
-									<div class="col-md-6 col-sm-12">
-										<div class="form-group">
-											<label for="att_email">Additional Email</label>
-											{!! Form::text('att_email', old('att_email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional email' ))  !!}
-											@if ($errors->has('att_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('att_email') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-12 other_phone_div" style="display:none;">
-										<div class="form-group">
-											<label for="att_phone">Additional Phone</label>
-											<div class="cus_field_input">
-												<div class="country_code">
-													@include('partials.country-code-select', [
-														'name' => 'att_country_code',
-														'selected' => old('att_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
-													])
-												</div>
-												{!! Form::text('att_phone', old('att_phone'), array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
-												@if ($errors->has('att_phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_phone') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
 								</div>
 								</section>
 							</div>
@@ -1038,20 +997,7 @@
 
 {{-- Page-Specific JavaScript --}}
 <script>
-// Handle additional email/phone toggle
 $(document).ready(function($){
-    $('.add_other_email_phone').on('click', function(){
-        if ($('.other_email_div').css('display') == 'none') {
-            $('.other_email_div').css('display','block');
-            $('.other_phone_div').css('display','block');
-            $('.add_other_email_phone').html('<i class="fa fa-minus" aria-hidden="true"></i> Hide Additional Email & Phone');
-        } else {
-            $('.other_email_div').css('display','none');
-            $('.other_phone_div').css('display','none');
-            $('.add_other_email_phone').html('<i class="fa fa-plus" aria-hidden="true"></i> Add Another Email & Phone');
-        }
-    });
-    
     // Check email uniqueness (blur only - not while typing)
     $(document).on('blur', '.email_unique', function(){
         var $input = $(this);

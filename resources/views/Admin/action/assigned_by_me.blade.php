@@ -199,6 +199,75 @@
                                                     </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>
                                                     <?php } ?>
 
+                                                        <?php if($list->task_group != 'Personal Task'){?>
+                                                        <button type="button" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-bs-toggle="tooltip" title="Reassign" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+                                                            <h4 class=&quot;text-center&quot;>Re-Assign User</h4>
+                                                            <div class=&quot;clearfix&quot;></div>
+                                                        <div class=&quot;box-header with-border&quot;>
+                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
+                                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
+                                                                <div class=&quot;col-sm-9&quot;>
+                                                                    <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+                                                                        <option value=&quot;&quot; >Select</option>
+                                                                        @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                        <?php
+                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
+                                                                        ?>
+                                                                        <option value=&quot;<?php echo $admin->id; ?>&quot;><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class=&quot;clearfix&quot;></div>
+                                                            </div>
+                                                        </div><div id=&quot;popover-content&quot;>
+                                                        <div class=&quot;box-header with-border&quot;>
+                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
+                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
+                                                                <div class=&quot;col-sm-9&quot;>
+                                                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+                                                                </div>
+                                                                <div class=&quot;clearfix&quot;></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class=&quot;box-header with-border&quot;>
+                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
+                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
+                                                                <div class=&quot;col-sm-9&quot;>
+                                                                    <input type=&quot;text&quot; class=&quot;form-control f13 flatpickr-date&quot; placeholder=&quot;yyyy-mm-dd&quot; id=&quot;popoverdatetime&quot; value=&quot;<?php echo date('Y-m-d');?>&quot; name=&quot;popoverdate&quot; autocomplete=&quot;off&quot;>
+                                                                </div>
+                                                                <div class=&quot;clearfix&quot;></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
+                                                            <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
+                                                            <div class=&quot;col-sm-9&quot;>
+                                                                <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
+                                                                    <option value=&quot;&quot;>Select</option>
+                                                                    <option value=&quot;Call&quot;>Call</option>
+                                                                    <option value=&quot;Checklist&quot;>Checklist</option>
+                                                                    <option value=&quot;Review&quot;>Review</option>
+                                                                    <option value=&quot;Query&quot;>Query</option>
+                                                                    <option value=&quot;Urgent&quot;>Urgent</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class=&quot;clearfix&quot;></div>
+                                                        </div>
+
+                                                        <input id=&quot;assign_note_id&quot;  type=&quot;hidden&quot; value=&quot;&quot;>
+                                                        <input id=&quot;assign_client_id&quot;  type=&quot;hidden&quot; value=&quot;{{base64_encode(convert_uuencode(@$list->client_id))}}&quot;>
+                                                        <div class=&quot;box-footer&quot; style=&quot;padding:10px 0&quot;>
+                                                        <div class=&quot;row&quot;>
+                                                            <input type=&quot;hidden&quot; value=&quot;&quot; id=&quot;popoverrealdate&quot; name=&quot;popoverrealdate&quot; />
+                                                        </div>
+                                                        <div class=&quot;row text-center&quot;>
+                                                            <div class=&quot;col-md-12 text-center&quot;>
+                                                            <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
+                                                            </div>
+                                                        </div>
+                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+                                                        <?php } ?>
+
                                                         @csrf
                                                         @method('DELETE')
 
@@ -265,11 +334,17 @@
 
     //reassign task
     $(document).delegate('.reassign_task', 'click', function(){
-        var note_id = $(this).attr('data-noteid'); //alert(note_id);
+        var note_id = $(this).attr('data-noteid');
         $('#assignnote').val(note_id);
 
-        var task_id = $(this).attr('data-taskid'); //alert(task_id);
+        var task_id = $(this).attr('data-taskid');
         $('#assign_note_id').val(task_id);
+
+        var taskgroup_id = $(this).attr('data-taskgroupid');
+        if(taskgroup_id) $('#task_group').val(taskgroup_id);
+
+        var followupdate_id = $(this).attr('data-followupdate');
+        if(followupdate_id) $('#popoverdatetime').val(followupdate_id);
     });
 
     //update task

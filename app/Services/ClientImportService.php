@@ -109,17 +109,9 @@ class ClientImportService
                                 }
                             }
                             
-                            // Also check Admin table phone fields (phone and att_phone)
-                            // Note: Admin table stores phone without country code separation in some cases
-                            // We'll check if the normalized phone matches any client's phone or att_phone
-                            // Using a more efficient approach: query clients and check phone fields
+                            // Also check Admin table phone field
                             $clientsWithPhone = Admin::where('role', 7)
-                                ->where(function($query) use ($normalizedPhone) {
-                                    // Check if normalized phone matches phone field (after normalization)
-                                    // We'll need to normalize in PHP since DB doesn't have a normalize function
-                                    $query->whereNotNull('phone')
-                                          ->orWhereNotNull('att_phone');
-                                })
+                                ->whereNotNull('phone')
                                 ->get();
                             
                             foreach ($clientsWithPhone as $client) {
@@ -127,27 +119,6 @@ class ClientImportService
                                 if (!empty($client->phone)) {
                                     $clientPhoneNormalized = $this->normalizePhoneNumber($client->phone);
                                     if ($normalizedPhone === $clientPhoneNormalized && !empty($clientPhoneNormalized)) {
-                                        $phoneMatch = true;
-                                        if (!$matchedClient) {
-                                            $matchedClient = $client;
-                                        }
-                                        
-                                        $displayPhone = PhoneHelper::formatPhoneNumber(
-                                            $normalizedCountryCode,
-                                            $importPhone['phone'] ?? $normalizedPhone
-                                        );
-                                        
-                                        if (!in_array($displayPhone, $matchedPhoneNumbers)) {
-                                            $matchedPhoneNumbers[] = $displayPhone;
-                                        }
-                                        break 2; // Break both loops
-                                    }
-                                }
-                                
-                                // Check att_phone field
-                                if (!empty($client->att_phone)) {
-                                    $clientAttPhoneNormalized = $this->normalizePhoneNumber($client->att_phone);
-                                    if ($normalizedPhone === $clientAttPhoneNormalized && !empty($clientAttPhoneNormalized)) {
                                         $phoneMatch = true;
                                         if (!$matchedClient) {
                                             $matchedClient = $client;
@@ -233,10 +204,6 @@ class ClientImportService
             $client->relevant_work_exp_aus = $clientData['relevant_work_exp_aus'] ?? null;
             $client->relevant_work_exp_over = $clientData['relevant_work_exp_over'] ?? null;
             
-            // Additional Contact
-            $client->att_email = $clientData['att_email'] ?? null;
-            $client->att_phone = $clientData['att_phone'] ?? null;
-            $client->att_country_code = $clientData['att_country_code'] ?? null;
             $client->email_type = $clientData['email_type'] ?? null;
             
             // Internal Information
@@ -335,11 +302,6 @@ class ClientImportService
                         if (!empty($emailData['verified_at'])) {
                             $client->email_verified_at = $this->parseDateTime($emailData['verified_at']);
                         }
-                        $client->save();
-                    }
-                    // Update additional email if it's the att_email
-                    elseif (!empty($emailData['email']) && empty($client->att_email) && $emailData['email'] !== $client->email) {
-                        $client->att_email = $emailData['email'];
                         $client->save();
                     }
                 }
@@ -684,13 +646,6 @@ class ClientImportService
                 ];
             }
             
-            // Check att_phone (attendant phone)
-            if (!empty($clientData['att_phone'])) {
-                $phoneNumbers[] = [
-                    'country_code' => $clientData['att_country_code'] ?? null,
-                    'phone' => $clientData['att_phone']
-                ];
-            }
         }
 
         return $phoneNumbers;

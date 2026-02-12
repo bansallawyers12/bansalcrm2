@@ -594,9 +594,8 @@
 												// Check if old input exists (validation error occurred)
 												$oldEmail = old('email');
 												$oldEmailType = old('email_type');
-												$oldAttEmail = old('att_email');
 												
-												if ($oldEmail !== null || $oldAttEmail !== null) {
+												if ($oldEmail !== null) {
 													// Display old input from failed validation
 													if($oldEmail) {
 														$email_type = $oldEmailType ?: 'Personal';
@@ -625,31 +624,6 @@
 														<!-- Hidden fields -->
 														<input type="hidden" name="email" value="<?php echo htmlspecialchars($oldEmail); ?>">
 														<input type="hidden" name="email_type" value="<?php echo htmlspecialchars($email_type); ?>">
-													</div>
-													<?php } ?>
-													
-													<?php
-													// Additional email from old input
-													if($oldAttEmail) {
-													?>
-													<div class="compact-contact-item" id="email_additional">
-														<span class="contact-type-tag">Additional</span>
-														<span class="contact-email"><?php echo htmlspecialchars($oldAttEmail); ?></span>
-														<div class="contact-actions">
-															<a href="javascript:;" 
-																class="editclientemail btn-edit" 
-																data-email-id="additional"
-																data-type="Additional"
-																data-email="<?php echo htmlspecialchars($oldAttEmail); ?>"
-																title="Edit">
-																<i class="fa fa-edit"></i>
-															</a>
-															<a href="javascript:;" class="deleteemail btn-delete" data-email="email_additional">
-																<i class="fa fa-trash"></i>
-															</a>
-														</div>
-														<!-- Hidden field -->
-														<input type="hidden" name="att_email" value="<?php echo htmlspecialchars($oldAttEmail); ?>">
 													</div>
 													<?php } ?>
 												<?php } else {
@@ -682,31 +656,6 @@
 														<!-- Hidden fields -->
 														<input type="hidden" name="email" value="{{ $fetchedData->email }}">
 														<input type="hidden" name="email_type" value="{{ $email_type }}">
-													</div>
-													<?php } ?>
-													
-													<?php
-													// Additional email
-													if(isset($fetchedData->att_email) && $fetchedData->att_email != "") {
-													?>
-													<div class="compact-contact-item" id="email_additional">
-														<span class="contact-type-tag">Additional</span>
-														<span class="contact-email">{{ $fetchedData->att_email }}</span>
-														<div class="contact-actions">
-															<a href="javascript:;" 
-																class="editclientemail btn-edit" 
-																data-email-id="additional"
-																data-type="Additional"
-																data-email="{{ $fetchedData->att_email }}"
-																title="Edit">
-																<i class="fa fa-edit"></i>
-															</a>
-															<a href="javascript:;" class="deleteemail btn-delete" data-email="email_additional">
-																<i class="fa fa-trash"></i>
-															</a>
-														</div>
-														<!-- Hidden field -->
-														<input type="hidden" name="att_email" value="{{ $fetchedData->att_email }}">
 													</div>
 													<?php } ?>
 												<?php } ?>
@@ -931,55 +880,6 @@
 								</div>
 							</div>
 						</section>
-					</div>
-
-					<!-- Additional Contact (Collapsible) -->
-					<div class="row mt-3">
-						<div class="col-12">
-							<div class="card section-card additional-contact-section" <?php if(
-								( isset($fetchedData->att_email) && $fetchedData->att_email != "")
-								||
-								( isset($fetchedData->att_phone) && $fetchedData->att_phone != "")
-							) { ?> style="display:block;" <?php } else { ?> style="display:none;" <?php }?>>
-								<div class="card-body">
-									<section class="form-section">
-										<h3><i class="fas fa-plus-circle"></i> Additional Contact</h3>
-									<div class="row">
-										<div class="col-md-6 col-sm-12">
-											<div class="form-group"> 
-												<label for="att_email">Additional Email</label>
-												{!! Form::text('att_email', old('att_email', @$fetchedData->att_email), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional email' ))  !!}
-												@if ($errors->has('att_email'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_email') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										
-										<div class="col-md-6 col-sm-12">
-											<div class="form-group"> 
-												<label for="att_phone">Additional Phone</label>
-												<div class="cus_field_input">
-													<div class="country_code"> 
-														@include('partials.country-code-select', [
-															'name' => 'att_country_code',
-															'selected' => old('att_country_code', $fetchedData->att_country_code ?? \App\Helpers\PhoneHelper::getDefaultCountryCode())
-														])
-													</div>	
-													{!! Form::text('att_phone', old('att_phone', @$fetchedData->att_phone), array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Enter additional phone' ))  !!}
-													@if ($errors->has('att_phone'))
-														<span class="custom-error" role="alert">
-															<strong>{{ @$errors->first('att_phone') }}</strong>
-														</span> 
-													@endif
-												</div>
-											</div>
-										</div>
-									</div>
-								</section>
-							</div>
-						</div>
 					</div>
 
 					<!-- Professional Details Section (for non-Citizen/PR visa types) -->

@@ -218,9 +218,6 @@ class ClientController extends Controller
           
 			$obj->status	=	@$requestData['status'];
 			$obj->lead_quality	=	@$requestData['lead_quality'];
-			$obj->att_phone	=	@$requestData['att_phone'];
-			$obj->att_country_code	=	PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
-			$obj->att_email	=	@$requestData['att_email'];
 			$obj->nomi_occupation	=	@$requestData['nomi_occupation'];
 			$obj->skill_assessment	=	@$requestData['skill_assessment'];
 			$obj->high_quali_aus	=	@$requestData['high_quali_aus'];
@@ -530,21 +527,9 @@ class ClientController extends Controller
                             $oef1 = new \App\Models\ClientPhone;
                             $oef1->user_id = @Auth::user()->id;
                             $oef1->client_id = $id;
-                            $oef1->contact_type = $fetchedData->contact_type;
+                            $oef1->contact_type = $fetchedData->contact_type ?? 'Personal';
                             $oef1->client_country_code = $fetchedData->country_code;
                             $oef1->client_phone = $fetchedData->phone;
-                            $oef1->created_at = date('Y-m-d H:i:s');
-                            $oef1->updated_at = date('Y-m-d H:i:s');
-                            $oef1->save();
-                        }
-
-                        if( $fetchedData->att_phone != "" ) {
-                            $oef1 = new \App\Models\ClientPhone;
-                            $oef1->user_id = @Auth::user()->id;
-                            $oef1->client_id = $id;
-                            $oef1->contact_type = '';
-                            $oef1->client_country_code = $fetchedData->att_country_code;
-                            $oef1->client_phone = $fetchedData->att_phone;
                             $oef1->created_at = date('Y-m-d H:i:s');
                             $oef1->updated_at = date('Y-m-d H:i:s');
                             $oef1->save();
@@ -702,8 +687,6 @@ class ClientController extends Controller
                     $obj->verified = 0; // New leads/clients are not verified yet
                     $obj->show_dashboard_per = 0; // Leads/clients don't have dashboard access
                     $obj->office_id = $lead->staffuser->office_id ?? null;
-                    $obj->att_email = $lead->att_email ?? null;
-                    $obj->att_phone = $lead->att_phone ?? null;
                     $obj->marital_status = $lead->marital_status ?? null;
                     //$obj->passport_no = $lead->passport_no ?? null;
                     $obj->address = $lead->address ?? null;

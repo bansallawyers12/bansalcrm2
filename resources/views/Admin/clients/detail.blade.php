@@ -242,14 +242,6 @@ use App\Http\Controllers\Controller;
                                                 'lead_id' => $fetchedData->id ?? null
                                             ]
                                         ]);
-                                        // Add alternate phone if exists
-                                        if($fetchedData->att_phone) {
-                                            $clientContacts->push((object)[
-                                                'client_phone' => $fetchedData->att_phone,
-                                                'client_country_code' => $fetchedData->att_country_code ?? '',
-                                                'contact_type' => 'Alternate'
-                                            ]);
-                                        }
                                     } elseif( \App\Models\ClientPhone::where('client_id', $fetchedData->id)->exists()) {
                                         $clientContacts = \App\Models\ClientPhone::select('client_phone','client_country_code','contact_type')->where('client_id', $fetchedData->id)->where('contact_type', '!=', 'Not In Use')->get();
                                     } else {

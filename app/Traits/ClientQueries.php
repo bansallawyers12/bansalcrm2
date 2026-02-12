@@ -91,14 +91,10 @@ trait ClientQueries
         if ($request->has('email')) {
             $email = $request->input('email');
             if (trim($email) != '') {
-                // Admin can search in both email and att_email, agent only in email
                 if ($this->isAgentContext()) {
                     $query->where('email', $email);
                 } else {
-                    $query->where(function($q) use ($email) {
-                        $q->where('email', 'ilike', '%' . $email . '%')
-                          ->orWhere('att_email', 'ilike', '%' . $email . '%');
-                    });
+                    $query->where('email', 'ilike', '%' . $email . '%');
                 }
             }
         }
@@ -107,14 +103,10 @@ trait ClientQueries
         if ($request->has('phone')) {
             $phone = $request->input('phone');
             if (trim($phone) != '') {
-                // Admin can search in both phone and att_phone, agent only in phone
                 if ($this->isAgentContext()) {
                     $query->where('phone', $phone);
                 } else {
-                    $query->where(function($q) use ($phone) {
-                        $q->where('phone', 'ilike', '%' . $phone . '%')
-                          ->orWhere('att_phone', 'ilike', '%' . $phone . '%');
-                    });
+                    $query->where('phone', 'ilike', '%' . $phone . '%');
                 }
             }
         }

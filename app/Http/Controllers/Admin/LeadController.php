@@ -289,9 +289,6 @@ class LeadController extends Controller
 			$obj->status		=	@$requestData['status'];				 
 			$obj->converted		=	0; // New leads are not converted yet
 			$obj->lead_quality		=	@$requestData['lead_quality'];		
-			$obj->att_country_code		=	PhoneHelper::normalizeCountryCode(@$requestData['att_country_code']);
-			$obj->att_phone		=	@$requestData['att_phone'];
-				$obj->att_email		=	@$requestData['att_email'];
 			$obj->lead_source		=	@$requestData['source'];	
 			$obj->related_files	=	rtrim($related_files,',');
 			$obj->comments_note		=	@$requestData['comments_note'];				 
@@ -403,9 +400,6 @@ class LeadController extends Controller
 			//$obj->applications	=@$enqdata->first_name;
 			$obj->assignee	=	@$enqdata->assign_to;
 			
-			$obj->att_phone	=	@$enqdata->att_phone;
-			$obj->att_country_code	=@$enqdata->att_country_code;
-			$obj->att_email	=	@$enqdata->att_email;
 			$obj->nomi_occupation	=@$enqdata->nomi_occupation;
 			$obj->skill_assessment	=@$enqdata->skill_assessment;
 			$obj->high_quali_aus	=@$enqdata->high_quali_aus;

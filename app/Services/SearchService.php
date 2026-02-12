@@ -167,8 +167,6 @@ class SearchService
                   ->orWhere('admins.first_name', 'ilike', '%' . $query . '%')
                   ->orWhere('admins.last_name', 'ilike', '%' . $query . '%')
                   ->orWhere('admins.client_id', 'ilike', '%' . $query . '%')
-                  ->orWhere('admins.att_email', 'ilike', '%' . $query . '%')
-                  ->orWhere('admins.att_phone', 'ilike', '%' . $query . '%')
                   ->orWhere('admins.phone', 'ilike', '%' . $query . '%')
                   ->orWhere(DB::raw("COALESCE(admins.first_name, '') || ' ' || COALESCE(admins.last_name, '')"), 'ilike', '%' . $query . '%')
                   ->orWhere('phone_data.phones', 'ilike', '%' . $query . '%');
@@ -232,30 +230,9 @@ class SearchService
                 $subquery->select(DB::raw(1))
                     ->from('admins')
                     ->where('role', 7)
-                    ->where(function($q) {
-                        // Match leads.email with admins.email or admins.att_email
-                        $q->where(function($q1) {
-                            $q1->whereColumn('admins.email', 'leads.email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.email');
-                        })
-                        ->orWhere(function($q2) {
-                            $q2->whereColumn('admins.att_email', 'leads.email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.email');
-                        })
-                        // Match leads.att_email with admins.email or admins.att_email
-                        ->orWhere(function($q3) {
-                            $q3->whereColumn('admins.email', 'leads.att_email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.att_email');
-                        })
-                        ->orWhere(function($q4) {
-                            $q4->whereColumn('admins.att_email', 'leads.att_email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.att_email');
-                        });
-                    });
+                    ->whereColumn('admins.email', 'leads.email')
+                    ->whereNotNull('admins.email')
+                    ->whereNotNull('leads.email');
             })
             ->where(function ($q) use ($query, $dob) {
                 $q->where('email', 'ilike', '%' . $query . '%')
@@ -356,8 +333,7 @@ class SearchService
                   ->orWhere('lead_id', '');
             })*/
             ->where(function ($q) use ($email) {
-                $q->where('email', 'ilike', '%' . $email . '%')
-                  ->orWhere('att_email', 'ilike', '%' . $email . '%');
+                $q->where('email', 'ilike', '%' . $email . '%');
             })
             ->limit(10)
             ->get();
@@ -395,34 +371,12 @@ class SearchService
                 $subquery->select(DB::raw(1))
                     ->from('admins')
                     ->where('role', 7)
-                    ->where(function($q) {
-                        // Match leads.email with admins.email or admins.att_email
-                        $q->where(function($q1) {
-                            $q1->whereColumn('admins.email', 'leads.email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.email');
-                        })
-                        ->orWhere(function($q2) {
-                            $q2->whereColumn('admins.att_email', 'leads.email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.email');
-                        })
-                        // Match leads.att_email with admins.email or admins.att_email
-                        ->orWhere(function($q3) {
-                            $q3->whereColumn('admins.email', 'leads.att_email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.att_email');
-                        })
-                        ->orWhere(function($q4) {
-                            $q4->whereColumn('admins.att_email', 'leads.att_email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.att_email');
-                        });
-                    });
+                    ->whereColumn('admins.email', 'leads.email')
+                    ->whereNotNull('admins.email')
+                    ->whereNotNull('leads.email');
             })
             ->where(function ($q) use ($email) {
-                $q->where('email', 'ilike', '%' . $email . '%')
-                  ->orWhere('att_email', 'ilike', '%' . $email . '%');
+                $q->where('email', 'ilike', '%' . $email . '%');
             })
             ->limit(10)
             ->get();
@@ -481,7 +435,6 @@ class SearchService
             ->where(function ($q) use ($searchPatterns) {
                 foreach ($searchPatterns as $pattern) {
                     $q->orWhere('admins.phone', 'ilike', $pattern)
-                      ->orWhere('admins.att_phone', 'ilike', $pattern)
                       ->orWhere('phone_data.phones', 'ilike', $pattern);
                 }
             })
@@ -521,35 +474,13 @@ class SearchService
                 $subquery->select(DB::raw(1))
                     ->from('admins')
                     ->where('role', 7)
-                    ->where(function($q) {
-                        // Match leads.email with admins.email or admins.att_email
-                        $q->where(function($q1) {
-                            $q1->whereColumn('admins.email', 'leads.email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.email');
-                        })
-                        ->orWhere(function($q2) {
-                            $q2->whereColumn('admins.att_email', 'leads.email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.email');
-                        })
-                        // Match leads.att_email with admins.email or admins.att_email
-                        ->orWhere(function($q3) {
-                            $q3->whereColumn('admins.email', 'leads.att_email')
-                               ->whereNotNull('admins.email')
-                               ->whereNotNull('leads.att_email');
-                        })
-                        ->orWhere(function($q4) {
-                            $q4->whereColumn('admins.att_email', 'leads.att_email')
-                               ->whereNotNull('admins.att_email')
-                               ->whereNotNull('leads.att_email');
-                        });
-                    });
+                    ->whereColumn('admins.email', 'leads.email')
+                    ->whereNotNull('admins.email')
+                    ->whereNotNull('leads.email');
             })
             ->where(function ($q) use ($searchPatterns) {
                 foreach ($searchPatterns as $pattern) {
-                    $q->orWhere('phone', 'ilike', $pattern)
-                      ->orWhere('att_phone', 'ilike', $pattern);
+                    $q->orWhere('phone', 'ilike', $pattern);
                 }
             })
             ->distinct()

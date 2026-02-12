@@ -438,36 +438,6 @@
 									</div>													
 									<div class="col-sm-3">
 										<div class="form-group"> 
-											<label for="att_email">Email </label>
-											{!! Form::text('att_email', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-											@if ($errors->has('att_email'))
-												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('att_email') }}</strong>
-												</span> 
-											@endif
-										</div>
-									</div> 
-									<div class="col-sm-3">
-										<div class="form-group"> 
-											<label for="att_phone">Phone</label>
-											<div class="cus_field_input">
-												<div class="country_code"> 
-													@include('partials.country-code-select', [
-														'name' => 'att_country_code',
-														'selected' => old('att_country_code', \App\Helpers\PhoneHelper::getDefaultCountryCode())
-													])
-												</div>	
-												{!! Form::text('att_phone', '', array('class' => 'form-control tel_input', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
-												@if ($errors->has('att_phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('att_phone') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-									</div>
-									<div class="col-sm-3">
-										<div class="form-group"> 
 											<label for="visa_type">Visa Type</label>
 											<select class="form-control select2" name="visa_type">
 											<option value="">- Select Visa Type -</option>

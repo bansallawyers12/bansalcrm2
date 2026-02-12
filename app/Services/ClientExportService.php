@@ -110,10 +110,6 @@ class ClientExportService
             'email_type' => $client->email_type ?? null,
             'contact_type' => $contactType,
 
-            // Additional Contact
-            'att_email' => $client->att_email ?? null,
-            'att_phone' => $client->att_phone ?? null,
-            'att_country_code' => $client->att_country_code ?? null,
 
             // Internal Information
             'service' => $client->service ?? null,
@@ -220,16 +216,6 @@ class ClientExportService
                 'email' => $client->email,
                 'is_verified' => ($client->manual_email_phone_verified ?? 0) == 1,
                 'verified_at' => $client->email_verified_at ?? null,
-            ];
-        }
-        
-        // Additional email from admins table
-        if (!empty($client->att_email)) {
-            $emails[] = [
-                'email_type' => 'Additional',
-                'email' => $client->att_email,
-                'is_verified' => false,
-                'verified_at' => null,
             ];
         }
         

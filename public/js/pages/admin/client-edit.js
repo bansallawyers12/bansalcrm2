@@ -377,39 +377,27 @@ jQuery(document).ready(function($){
         }
 
         if(!flag){
-            // Check if this is main email or additional
-            var isMainEmail = (email_type == 'Personal' || email_type == 'Business');
-            var emailId = isMainEmail ? 'email_main' : 'email_additional_' + itag_email;
-            var hiddenName = isMainEmail ? 'email' : 'att_email';
-            var hiddenTypeName = isMainEmail ? 'email_type' : '';
+            var emailId = 'email_main';
+            var hiddenName = 'email';
+            var hiddenTypeName = 'email_type';
             
-            // Remove existing main email if adding new main email
-            if(isMainEmail) {
-                $('#email_main').remove();
-            }
+            // Remove existing main email if adding new
+            $('#email_main').remove();
             
             var html = '<div class="compact-contact-item" id="'+emailId+'">';
             html += '<span class="contact-type-tag">'+email_type+'</span>';
             html += '<span class="contact-email">'+client_email+'</span>';
             html += '<div class="contact-actions">';
             
-            if(isMainEmail) {
-                html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + App.getPageConfig('clientFirstName') + '" data-email="'+client_email+'" data-clientid="' + App.getPageConfig('clientId') + '">';
-                html += '<i class="fas fa-check"></i>';
-                html += '</button>';
-            } else {
-                html += '<a href="javascript:;" class="deleteemail btn-delete" data-email="'+emailId+'">';
-                html += '<i class="fa fa-trash"></i>';
-                html += '</a>';
-            }
+            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + App.getPageConfig('clientFirstName') + '" data-email="'+client_email+'" data-clientid="' + App.getPageConfig('clientId') + '">';
+            html += '<i class="fas fa-check"></i>';
+            html += '</button>';
             
             html += '</div>';
             
             // Hidden fields
             html += '<input type="hidden" name="'+hiddenName+'" value="'+client_email+'">';
-            if(hiddenTypeName) {
-                html += '<input type="hidden" name="'+hiddenTypeName+'" value="'+email_type+'">';
-            }
+            html += '<input type="hidden" name="'+hiddenTypeName+'" value="'+email_type+'">';
             html += '</div>';
 
             $('.clientemaildata').append(html);
@@ -483,11 +471,7 @@ jQuery(document).ready(function($){
         if(!flag){
             var $emailItem = null;
             
-            if(email_id == 'main'){
-                $emailItem = $('#email_main');
-            } else if(email_id == 'additional'){
-                $emailItem = $('#email_additional');
-            }
+            $emailItem = $('#email_main');
             
             if($emailItem && $emailItem.length > 0){
                 console.log('Found email item, updating...');
@@ -497,17 +481,8 @@ jQuery(document).ready(function($){
                 $emailItem.find('.contact-email').text(client_email);
                 
                 // Update hidden fields - CRITICAL for form submission
-                if(email_id == 'main'){
-                    $emailItem.find('input[name="email"]').val(client_email);
-                    $emailItem.find('input[name="email_type"]').val(email_type);
-                    console.log('Updated main email:', {
-                        email: $emailItem.find('input[name="email"]').val(),
-                        type: $emailItem.find('input[name="email_type"]').val()
-                    });
-                } else {
-                    $emailItem.find('input[name="att_email"]').val(client_email);
-                    console.log('Updated additional email:', $emailItem.find('input[name="att_email"]').val());
-                }
+                $emailItem.find('input[name="email"]').val(client_email);
+                $emailItem.find('input[name="email_type"]').val(email_type);
                 
                 // Update data attributes for future edits
                 $emailItem.find('.editclientemail').attr('data-type', email_type);
