@@ -694,7 +694,8 @@ class RecentlyModifiedClientsController extends Controller
 			}
 		}
 
-		$document->delete();
+		// TESTING ONLY: comment out below to test public folder delete only (record stays in documents table). Uncomment after test.
+		 $document->delete();
 
 		return response()->json([
 			'success' => true,

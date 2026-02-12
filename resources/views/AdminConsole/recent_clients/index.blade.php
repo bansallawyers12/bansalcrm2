@@ -819,15 +819,15 @@ $(document).ready(function() {
 								html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document"><i class="fas fa-trash-alt"></i> Delete Document</button>';
 							}
 							html += '</div>';
-							html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0">';
+							html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0" style="gap: 10px;">';
 							if (d.preview_url) {
-								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link mr-1"><i class="fas fa-external-link-alt"></i> View</a>';
+								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link"><i class="fas fa-external-link-alt"></i> View</a>';
 							}
 							if (!d.is_on_s3) {
 								html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-doc-to-s3" data-document-id="' + d.id + '" title="Upload this document to S3"><i class="fas fa-cloud-upload-alt"></i> Upload to S3</button>';
 							}
 							if (d.has_public_path) {
-								html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc ml-1" data-document-id="' + d.id + '" title="Delete the local copy (document remains on S3)"><i class="fas fa-trash-alt"></i> Delete public doc</button>';
+								html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc" data-document-id="' + d.id + '" title="Delete the local copy (document remains on S3)"><i class="fas fa-trash-alt"></i> Delete public doc</button>';
 							}
 							html += '</span></li>';
 						}
