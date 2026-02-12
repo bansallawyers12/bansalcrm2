@@ -18,26 +18,19 @@
 				<tbody>
 					<tr>
 						<td style="text-align: left;">
-                            @if(!empty($admin) && !empty($admin->company_name))
-                                @if($profile = \App\Helpers\Helper::defaultCrmProfile())
-                                    @if($profile->logo)
-                                        <img width="80" style="height:auto;display:block;" src="{{asset('img/profile_imgs')}}/{{$profile->logo}}" alt="Logo"/>
-                                    @else
-                                        <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
-                                    @endif
-                                @else
-                                    <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
-                                @endif
+                            @php $crmProfile = \App\Helpers\Helper::defaultCrmProfile(); @endphp
+                            @if($crmProfile && $crmProfile->logo)
+                                <img width="80" style="height:auto;display:block;" src="{{asset('img/profile_imgs')}}/{{$crmProfile->logo}}" alt="Logo"/>
                             @else
                                 <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
                             @endif
 							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;">
-                                {{ $admin->company_name ?? 'Bansal Education Group' }}<br/>
-                              	{{ $admin->address ?? '' }}
-								@if(!empty($admin->email))
+                                {{ isset($admin) && $admin ? $admin->company_name : 'Bansal Education Group' }}<br/>
+                              	{{ isset($admin) && $admin ? $admin->address : '' }}
+								@if(isset($admin) && $admin && !empty($admin->email))
 									<br/>E-mail: {{ $admin->email }}
 								@endif
-								@if(!empty($admin->phone))
+								@if(isset($admin) && $admin && !empty($admin->phone))
 									<br/>Phone: {{ $admin->phone }}
 								@endif
                            </p>

@@ -467,6 +467,8 @@ class ClientReceiptController extends Controller
      */
     public function printpreview(Request $request, $id){
         $record_get = DB::table('account_client_receipts')->where('receipt_type',1)->where('id',$id)->get();
+        $clientname = null;
+        $admin = (object)['company_name'=>'','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
         if(!empty($record_get)){
             $clientname = DB::table('admins')->select('first_name','last_name','address','state','city','zip','country','dob')->where('id',$record_get[0]->client_id)->first();
             $profile = \App\Helpers\Helper::defaultCrmProfile();
@@ -479,7 +481,7 @@ class ClientReceiptController extends Controller
                 'email' => $profile->email,
                 'phone' => $profile->phone,
                 'dob' => null,
-            ] : (object)['company_name'=>'','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
+            ] : (object)['company_name'=>'Bansal Education Group','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
         }
         set_time_limit(3000);
         $pdf = PDF::setOptions([

@@ -2179,12 +2179,12 @@ class PartnersController extends Controller
         //phpinfo();
         $record_get = DB::table('partner_student_invoices')->where('invoice_type',1)->where('invoice_id',$id)->get();
         //dd($record_get);
+        $logo = '';
         if(!empty($record_get)){
             $partnerInfo = DB::table('partners')->where('id',$record_get[0]->partner_id)->first(); //dd($partnerInfo);
-            $admin = DB::table('admins')->where('id',1)->first(); // profile_img column removed
-            $logo = ''; // profile_img no longer on admins
-        } else {
-            $logo = '';
+            $crmProfile = \App\Helpers\Helper::defaultCrmProfile();
+            $admin = $crmProfile ? (object)['company_name' => $crmProfile->company_name, 'logo' => $crmProfile->logo] : (object)['company_name' => 'Bansal Education Group', 'logo' => null];
+            $logo = $crmProfile && $crmProfile->logo ? $crmProfile->logo : '';
         }
         set_time_limit(3000);
         $pdf = PDF::setOptions([
