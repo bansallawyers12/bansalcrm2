@@ -5,11 +5,12 @@ use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\SanitizesEmail;
 
 class Admin extends Authenticatable
 {
     use Notifiable;
-	use Sortable;
+	use Sortable, SanitizesEmail;
 	
 	// The authentication guard for admin
     protected $guard = 'admin';

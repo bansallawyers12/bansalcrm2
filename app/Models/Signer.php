@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\SanitizesEmail;
 
 class Signer extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, SanitizesEmail;
+
+    protected $emailAttributes = ['email', 'from_email'];
     
     protected $fillable = [
         'document_id', 

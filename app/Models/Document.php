@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use App\Traits\SanitizesEmail;
 
 class Document extends Model
 {
-    use Sortable;
+    use Sortable, SanitizesEmail;
+
+    protected $emailAttributes = ['primary_signer_email'];
 
     /** @var int Default: not part of edu/mig migration */
     const EDU_MIG_MIGRATE_DEFAULT = 0;

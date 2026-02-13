@@ -6,11 +6,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\SanitizesEmail;
 
 class Agent extends Authenticatable
 {
     use Notifiable;
-	use Sortable;
+	use Sortable, SanitizesEmail;
 	protected $guard = 'agents';
     /**
      * The attributes that are mass assignable.

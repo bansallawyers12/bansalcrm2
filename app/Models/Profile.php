@@ -4,11 +4,12 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SanitizesEmail;
 
 class Profile extends Model
 {
     use Notifiable; 
-	use Sortable;
+	use Sortable, SanitizesEmail;
 	
     /**
      * The attributes that are mass assignable.

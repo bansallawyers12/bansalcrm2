@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SanitizesEmail;
 
 class PartnerEmail extends Model
-{	use Sortable;
+{	use Sortable, SanitizesEmail;
+
+    protected $emailAttributes = ['partner_email'];
 
     /**
      * The attributes that are mass assignable.

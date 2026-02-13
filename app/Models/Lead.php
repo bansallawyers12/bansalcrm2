@@ -3,9 +3,10 @@ namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SanitizesEmail;
 
 class Lead extends Model
-{	use Sortable;
+{	use Sortable, SanitizesEmail;
 
 	protected $fillable = [
         'id', 'status', 'created_at', 'updated_at',
