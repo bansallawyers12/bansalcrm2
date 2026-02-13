@@ -49,12 +49,14 @@ class EmailService
             //dd($view, $data, $to, $subject, $fromEmailId);
             $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();//dd($emailConfig);
 
-            // Sanitize recipient addresses to avoid RFC 2822 validation errors (trailing spaces/periods)
+            // Sanitize all email addresses to avoid RFC 2822 validation errors (trailing spaces/periods)
             $to = $this->sanitizeEmailForRfc2822((string) $to);
             $cc = array_values(array_filter(array_map(function ($addr) {
                 $sanitized = $this->sanitizeEmailForRfc2822((string) $addr);
                 return $sanitized !== '' ? $sanitized : null;
             }, is_array($cc) ? $cc : [])));
+            $fromEmail = $this->sanitizeEmailForRfc2822((string) $emailConfig->email);
+            $fromName = trim((string) $emailConfig->display_name);
 
             // Configure mail settings for this specific email
             // Zoho: smtp.zoho.com = personal (@zoho.com); smtppro.zoho.com = business/custom domain (@yourdomain.com)
@@ -64,17 +66,17 @@ class EmailService
                 'mail.mailers.smtp.host' => $smtpHost,
                 'mail.mailers.smtp.port' => 587,
                 'mail.mailers.smtp.encryption' => 'tls',
-                'mail.mailers.smtp.username' => trim($emailConfig->email),
+                'mail.mailers.smtp.username' => $fromEmail,
                 'mail.mailers.smtp.password' => trim((string) $emailConfig->password),
-                'mail.from.address' => trim($emailConfig->email),
-                'mail.from.name' => trim((string) $emailConfig->display_name),
+                'mail.from.address' => $fromEmail,
+                'mail.from.name' => $fromName,
             ]);
 
             // Send the email
-            Mail::send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
+            Mail::send($view, $data, function (Message $message) use ($to, $subject, $fromEmail, $fromName, $attachments, $cc) {
                 $message->to($to)
                     ->subject($subject)
-                    ->from($emailConfig->email, $emailConfig->display_name);
+                    ->from($fromEmail, $fromName);
 
                 if (!empty($cc)) {
                     $message->cc($cc);
