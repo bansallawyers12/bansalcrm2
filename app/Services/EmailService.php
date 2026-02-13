@@ -21,6 +21,18 @@ class EmailService
     }
 
     /**
+     * Sanitize email address for RFC 2822 compliance.
+     * Removes leading/trailing whitespace and trailing periods.
+     *
+     * @param string $email
+     * @return string
+     */
+    protected function sanitizeEmailForRfc2822(string $email): string
+    {
+        return rtrim(trim($email), ' .');
+    }
+
+    /**
      * Send an email using the specified email configuration.
      *
      * @param string $view
@@ -36,6 +48,13 @@ class EmailService
         try {
             //dd($view, $data, $to, $subject, $fromEmailId);
             $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();//dd($emailConfig);
+
+            // Sanitize recipient addresses to avoid RFC 2822 validation errors (trailing spaces/periods)
+            $to = $this->sanitizeEmailForRfc2822((string) $to);
+            $cc = array_values(array_filter(array_map(function ($addr) {
+                $sanitized = $this->sanitizeEmailForRfc2822((string) $addr);
+                return $sanitized !== '' ? $sanitized : null;
+            }, is_array($cc) ? $cc : [])));
 
             // Configure mail settings for this specific email
             // Zoho: smtp.zoho.com = personal (@zoho.com); smtppro.zoho.com = business/custom domain (@yourdomain.com)
