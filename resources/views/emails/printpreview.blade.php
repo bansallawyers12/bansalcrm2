@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<style>
-			body{font-family: 'Open Sans', sans-serif;margin:0px;}
+			body{font-family: DejaVu Sans, sans-serif;margin:0px;}
 			.inv_table{vertical-align: top;}
 			.invoice_table table{border-collapse: collapse;}
 			.inv_table table thead{background:#eee;}
@@ -18,11 +18,8 @@
 				<tbody>
 					<tr>
 						<td style="text-align: left;">
-                            @php $crmProfile = \App\Helpers\Helper::defaultCrmProfile(); @endphp
-                            @if($crmProfile && $crmProfile->logo)
-                                <img width="80" style="height:auto;display:block;" src="{{asset('img/profile_imgs')}}/{{$crmProfile->logo}}" alt="Logo"/>
-                            @else
-                                <img width="80" style="height:auto;display:block;" src="{{URL::to('public/img/')}}/logo.png" alt="Logo"/>
+                            @if(!empty($logoBase64))
+                                <img width="80" style="height:auto;display:block;" src="{{ $logoBase64 }}" alt="Logo"/>
                             @endif
 							<p style="font-size: 15px;line-height: 21px;color: #333;font-weight: normal;">
                                 {{ isset($admin) && $admin ? $admin->company_name : 'Bansal Education Group' }}<br/>

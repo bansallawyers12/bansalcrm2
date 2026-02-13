@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Admin\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Auth;
-use DataTables;
+use Illuminate\Support\Facades\URL;
+use Yajra\DataTables\Facades\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 use App\Models\Admin;
@@ -86,7 +87,9 @@ class ClientReceiptController extends Controller
                     $obj->filetype = $fileExtension;
                     $obj->user_id = Auth::user()->id;
                   
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    /** @var \Illuminate\Contracts\Filesystem\Cloud $s3Disk */
+                    $s3Disk = Storage::disk('s3');
+                    $fileUrl = $s3Disk->url($filePath);
                     $obj->myfile = $fileUrl;
                     $obj->myfile_key = $name;
 
@@ -166,7 +169,7 @@ class ClientReceiptController extends Controller
                     $subject = 'added client receipt with Receipt Id-'.$receipt_id.' and Trans. No	-'.$requestData['trans_no'][0];
                 }
 
-                $printUrl = \URL::to('/clients/printpreview').'/'.$receipt_id;
+                $printUrl = URL::to('/clients/printpreview').'/'.$receipt_id;
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
@@ -247,7 +250,9 @@ class ClientReceiptController extends Controller
                     $obj->filetype = $fileExtension;
                     $obj->user_id = Auth::user()->id;
                   
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    /** @var \Illuminate\Contracts\Filesystem\Cloud $s3Disk */
+                    $s3Disk = Storage::disk('s3');
+                    $fileUrl = $s3Disk->url($filePath);
                     $obj->myfile = $fileUrl;
                     $obj->myfile_key = $name;
                   
@@ -359,7 +364,7 @@ class ClientReceiptController extends Controller
                     }
                 }
 
-                $printUrl = \URL::to('/clients/printpreview').'/'.$requestData['id'][0];
+                $printUrl = URL::to('/clients/printpreview').'/'.$requestData['id'][0];
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
@@ -496,7 +501,7 @@ class ClientReceiptController extends Controller
                 'message' => 'Refund created successfully.',
                 'db_total_deposit_amount' => $dbTotal,
                 'lastInsertedId' => $saved,
-                'printUrl' => \URL::to('/clients/printpreview') . '/' . $saved,
+                'printUrl' => URL::to('/clients/printpreview') . '/' . $saved,
             ]);
         }
 
@@ -647,30 +652,64 @@ class ClientReceiptController extends Controller
      */
     public function printpreview(Request $request, $id){
         $record_get = DB::table('account_client_receipts')->whereIn('receipt_type',[1,2])->where('id',$id)->get();
-        $clientname = null;
-        $admin = (object)['company_name'=>'','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
-        if(!empty($record_get)){
-            $clientname = DB::table('admins')->select('first_name','last_name','address','state','city','zip','country','dob')->where('id',$record_get[0]->client_id)->first();
-            $profile = \App\Helpers\Helper::defaultCrmProfile();
-            $admin = $profile ? (object)[
-                'company_name' => $profile->company_name,
-                'address' => $profile->address,
-                'state' => '',
-                'city' => '',
-                'zip' => '',
-                'email' => $profile->email,
-                'phone' => $profile->phone,
-                'dob' => null,
-            ] : (object)['company_name'=>'Bansal Education Group','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
+
+        // Guard: record must exist
+        if (empty($record_get)) {
+            abort(404, 'Receipt not found.');
         }
-        set_time_limit(3000);
+
+        $clientname = DB::table('admins')->select('first_name','last_name','address','state','city','zip','country','dob')->where('id',$record_get[0]->client_id)->first();
+
+        // Guard: client must exist
+        if (!$clientname) {
+            abort(404, 'Client not found for this receipt.');
+        }
+
+        // Single DB call for profile (no duplicate in view)
+        $profile = \App\Helpers\Helper::defaultCrmProfile();
+        $admin = $profile ? (object)[
+            'company_name' => $profile->company_name,
+            'address' => $profile->address,
+            'state' => '',
+            'city' => '',
+            'zip' => '',
+            'email' => $profile->email,
+            'phone' => $profile->phone,
+            'dob' => null,
+        ] : (object)['company_name'=>'Bansal Education Group','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
+
+        // Resolve logo to base64 for DomPDF (avoids slow HTTP fetches with isRemoteEnabled)
+        $logoBase64 = null;
+        if ($profile && $profile->logo) {
+            $logoPath = config('constants.profile_imgs') . DIRECTORY_SEPARATOR . $profile->logo;
+            if (file_exists($logoPath)) {
+                $logoData = file_get_contents($logoPath);
+                $mime = mime_content_type($logoPath) ?: 'image/png';
+                $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode($logoData);
+            }
+        }
+        if (!$logoBase64) {
+            $defaultLogoPath = public_path('img/logo.png');
+            if (file_exists($defaultLogoPath)) {
+                $logoData = file_get_contents($defaultLogoPath);
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
+        }
+
+        $tempDir = storage_path('app/dompdf_temp');
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0755, true);
+        }
+
         $pdf = PDF::setOptions([
-			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
-			'logOutputFile' => storage_path('logs/log.htm'),
-			'tempDir' => storage_path('logs/')
-		])->loadView('emails.printpreview',compact(['record_get','clientname','admin']));
-		return $pdf->stream('ClientReceipt.pdf');
-	}
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'logOutputFile' => storage_path('logs/dompdf_log.htm'),
+            'tempDir' => $tempDir,
+        ])->loadView('emails.printpreview', compact(['record_get', 'clientname', 'admin', 'logoBase64', 'profile']));
+
+        return $pdf->stream('ClientReceipt.pdf');
+    }
   
     /**
      * Get client receipt info by ID
