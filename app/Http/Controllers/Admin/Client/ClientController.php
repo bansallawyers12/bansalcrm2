@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
+use App\Models\Application;
 use App\Traits\ClientHelpers;
 use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
@@ -614,9 +615,14 @@ class ClientController extends Controller
                     }
                 }
                 
+                $clientApplications = Application::where('client_id', $fetchedData->id)
+                    ->with(['product', 'partner'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
                 );
             }
             else
@@ -729,9 +735,13 @@ class ClientController extends Controller
                         $showAlert = true;
                     }
                 }
+                $clientApplications = Application::where('client_id', $fetchedData->id)
+                    ->with(['product', 'partner'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
                 );
             }
             else

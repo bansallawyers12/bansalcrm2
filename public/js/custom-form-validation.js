@@ -555,7 +555,7 @@ function customValidate(formName, savetype = '')
 						});		
 					}
 
-					 else if(formName == 'create_client_receipt'){
+						else if(formName == 'create_client_receipt'){
 						var client_id = $('#create_client_receipt input[name="client_id"]').val();
 						var myform = document.getElementById('create_client_receipt');
 						var fd = new FormData(myform);
@@ -565,9 +565,16 @@ function customValidate(formName, savetype = '')
 							processData: false,
 							contentType: false,
 							data: fd,
-							success: function(response){
+							dataType: 'json',
+							timeout: 60000,
+							success: function(obj){
+								if (!obj || typeof obj !== 'object') {
+									$('.popuploader').hide();
+									$('#createclientreceiptmodal').modal('hide');
+									$('.custom-error-msg').html('<span class="alert alert-danger">Invalid response from server. Please refresh and try again.</span>');
+									return;
+								}
 								$('.popuploader').hide();
-								var obj = $.parseJSON(response);
 								$('#createclientreceiptmodal').modal('hide');
 								if(obj.status){
                                     if(obj.function_type == 'add')
@@ -575,9 +582,9 @@ function customValidate(formName, savetype = '')
                                         if(obj.requestData){
                                             var reqData = obj.requestData;
                                             var awsUrl = obj.awsUrl; //console.log('awsUrl='+awsUrl);
-                                            var printUrl = obj.printUrl; //console.log('printUrl='+printUrl);
                                             var lastInsertedId = obj.lastInsertedId; //console.log('lastInsertedId='+lastInsertedId);
  	                                        var validate_receipt = obj.validate_receipt;
+                                            var printUrl = obj.printUrl || (lastInsertedId ? '/clients/printpreview/' + lastInsertedId : '');
                                             var trRows = "";
                                             $.each(reqData, function(index, subArray) {
                                                 if(awsUrl != ""){
@@ -587,23 +594,24 @@ function customValidate(formName, savetype = '')
                                                 }
 
                                                 if(printUrl != ""){
-                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt"><i class="fa fa-print" aria-hidden="true"></i></a>';
                                                 } else {
                                                     var printLink = '';
                                                 }
 
                                                 if(validate_receipt != "1"){
                                                 	var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
+                                                	var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund"><i class="fas fa-undo"></i></a>';
 												} else {
                                                     var editLink = '';
+                                                    var refundLink = '';
                                                 }
 
-                                                trRows += "<tr><td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+"</td></tr>";
+                                                trRows += "<tr id=\"TrRow_"+lastInsertedId+"\"><td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink+"</td></tr>";
                                             });
                                         }
                                         //console.log('trRows='+trRows);
-                                        //$('.productitemListTr').append(trRows);
-                                        $('.lastRow').before(trRows);
+                                        $('.productitemList .lastRow, .lastRow').first().before(trRows);
                                     }
                                     if(obj.function_type == 'edit')
                                     {
@@ -659,7 +667,56 @@ function customValidate(formName, savetype = '')
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 								}
-                            }
+                            },
+							error: function(xhr, status, err) {
+								$('.popuploader').hide();
+								$('#createclientreceiptmodal').modal('hide');
+								var msg = (status === 'timeout') ? 'Request timed out. Please try again.' : 'Request failed. Please try again.';
+								try {
+									var r = typeof xhr.responseText === 'string' ? $.parseJSON(xhr.responseText) : null;
+									if (r && r.message) msg = r.message;
+								} catch(e) {}
+								$('.custom-error-msg').html('<span class="alert alert-danger">'+msg+'</span>');
+							},
+							complete: function() {
+								$('.popuploader').hide();
+							}
+						});
+					}
+
+					else if(formName == 'create_client_refund'){
+						var myform = document.getElementById('create_client_refund');
+						var fd = new FormData(myform);
+						$.ajax({
+							type:'post',
+							url: myform.action || $("form[name="+formName+"]").attr('action'),
+							processData: false,
+							contentType: false,
+							data: fd,
+							dataType: 'json',
+							success: function(obj){
+								$('.popuploader').hide();
+								$('#createclientrefundmodal').modal('hide');
+								if(obj.status){
+									if(obj.db_total_deposit_amount !== undefined){
+										$('.totDepoAmTillNow').html("$"+obj.db_total_deposit_amount);
+										$('#sum_of_client_receipts').val("$"+obj.db_total_deposit_amount);
+									}
+									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
+									location.reload();
+								} else {
+									$('.custom-error-msg').html('<span class="alert alert-danger">'+(obj.message || 'Something went wrong.')+'</span>');
+								}
+							},
+							error: function(xhr){
+								$('.popuploader').hide();
+								var msg = 'Failed to save refund.';
+								try {
+									var err = JSON.parse(xhr.responseText);
+									if(err.message) msg = err.message;
+								} catch(e){}
+								$('.custom-error-msg').html('<span class="alert alert-danger">'+msg+'</span>');
+							}
 						});
 					}
 					

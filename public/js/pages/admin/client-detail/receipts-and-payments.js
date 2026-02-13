@@ -62,6 +62,11 @@
                 $('#top_value_db').val('');
                 // Update modal title
                 $('#clientReceiptModalLabel').text('Create Client Receipt');
+                // Reset application dropdown and reassignment reason
+                $('#receipt_application_id').val('');
+                $('#reassignment_reason').val('').removeAttr('data-valid');
+                $('#reassignment_reason_wrapper').hide();
+                $('#create_client_receipt').removeData('original-application-id');
                 // Clear any existing rows from previous edits
                 // Remove only dynamically added rows, keep the template clonedrow
                 $('.productitem tr.product_field_clone').remove();
@@ -76,6 +81,34 @@
                 $('.total_deposit_amount_all_rows').text('');
             }
             $('#createclientreceiptmodal').modal('show');
+        });
+
+        // Open Create Refund modal
+        $(document).on('click', '.createclientrefund', function() {
+            var id = $(this).attr('data-id');
+            var transNo = $(this).attr('data-trans-no') || 'Rec' + id;
+            var amount = parseFloat($(this).attr('data-amount')) || 0;
+            var applicationId = $(this).attr('data-application-id') || '';
+            $('#refund_parent_receipt_id').val(id);
+            $('#refund_application_id').val(applicationId);
+            $('#refund_original_display').text(transNo + ' – $' + amount.toFixed(2));
+            $('#refund_amount').val(amount.toFixed(2));
+            $('#refund_reason').val('');
+            $('#createclientrefundmodal').modal('show');
+        });
+
+        // Show reassignment reason when application is changed in edit mode
+        $(document).on('change', '#receipt_application_id', function() {
+            var originalAppId = $('#create_client_receipt').data('original-application-id') || '';
+            var currentVal = $(this).val() || '';
+            var isEditMode = $('#function_type').val() === 'edit';
+            if (isEditMode && (String(originalAppId) !== String(currentVal))) {
+                $('#reassignment_reason_wrapper').show();
+                $('#reassignment_reason').attr('data-valid', 'required');
+            } else {
+                $('#reassignment_reason_wrapper').hide();
+                $('#reassignment_reason').removeAttr('data-valid').val('');
+            }
         });
 
         // ============================================================================
@@ -96,6 +129,14 @@
                         $('#top_value_db').val(obj.last_record_id);
 
                         $('#function_type').val("edit");
+                        if(obj.record_get){
+                            var record_get = obj.record_get;
+                            var firstRecord = record_get[0] || {};
+                            $('#receipt_application_id').val(firstRecord.application_id || '');
+                            $('#create_client_receipt').data('original-application-id', firstRecord.application_id || '');
+                            $('#reassignment_reason').val(firstRecord.reassignment_reason || '').removeAttr('data-valid');
+                            $('#reassignment_reason_wrapper').hide();
+                        }
                         $('#createclientreceiptmodal').modal('show');
                         if(obj.record_get){
                             var record_get = obj.record_get;
@@ -150,6 +191,10 @@
             $('#create_client_receipt')[0].reset();
             $('.total_deposit_amount_all_rows').text("");
             $('#sel_client_agent_id').val("").trigger('change');
+            $('#receipt_application_id').val('');
+            $('#reassignment_reason').val('').removeAttr('data-valid');
+            $('#reassignment_reason_wrapper').hide();
+            $('#create_client_receipt').removeData('original-application-id');
             // Reset modal title
             $('#clientReceiptModalLabel').text('Create Client Receipt');
             // Reset function type

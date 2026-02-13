@@ -141,6 +141,7 @@ Route::middleware(['auth:admin'])->group(function() {
     // Account/Receipt routes (Admin only - but accessible via unified route)
     Route::get('/clients/saveaccountreport/{id}', [ClientReceiptController::class, 'saveaccountreport'])->name('clients.saveaccountreport');
     Route::post('/clients/saveaccountreport', [ClientReceiptController::class, 'saveaccountreport'])->name('clients.saveaccountreport.update');
+    Route::post('/clients/saverefund', [ClientReceiptController::class, 'saverefund'])->name('clients.saverefund');
     Route::post('/clients/getTopReceiptValInDB', [ClientReceiptController::class, 'getTopReceiptValInDB'])->name('clients.getTopReceiptValInDB');
     Route::get('/clients/printpreview/{id}', [ClientReceiptController::class, 'printpreview'])->name('clients.printpreview');
     Route::post('/clients/getClientReceiptInfoById', [ClientReceiptController::class, 'getClientReceiptInfoById'])->name('clients.getClientReceiptInfoById');

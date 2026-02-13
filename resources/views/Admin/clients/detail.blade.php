@@ -1520,7 +1520,12 @@ use App\Http\Controllers\Controller;
                                             </thead>
                                             <tbody class="productitemList">
                                                 <?php
-                                                $receipts_lists = DB::table('account_client_receipts')->where('client_id',$fetchedData->id)->where('receipt_type',1)->get();
+                                                $receipts_lists = DB::table('account_client_receipts')
+                                                    ->where('client_id',$fetchedData->id)
+                                                    ->whereIn('receipt_type',[1,2])
+                                                    ->where(function($q){ $q->where('void_invoice',0)->orWhereNull('void_invoice'); })
+                                                    ->orderBy('created_at','desc')
+                                                    ->get();
                                                 //dd($receipts_lists);
                                                 if(!empty($receipts_lists) && count($receipts_lists)>0 )
                                                 {
@@ -1554,15 +1559,27 @@ use App\Http\Controllers\Controller;
                                                     <td><?php echo $rec_val->entry_date;?></td>
                                                     <td><?php echo $rec_val->trans_no;?></td>
                                                     <td><?php echo $rec_val->payment_method;?></td>
-                                                    <td><?php echo $rec_val->description;?></td>
                                                     <td>
-                                                        <?php echo "$".$rec_val->deposit_amount;?>
+                                                        <?php echo $rec_val->description;?>
+                                                        <?php if($rec_val->receipt_type == 2 && !empty($rec_val->refund_reason)): ?>
+                                                            <br><small class="text-muted">Reason: <?php echo e($rec_val->refund_reason); ?></small>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php
+                                                        $isRefund = ($rec_val->receipt_type == 2);
+                                                        ?>
+                                                        <span class="<?php echo $isRefund ? 'text-danger' : ''; ?>">$<?php echo $rec_val->deposit_amount; ?></span>
+                                                        <?php if($isRefund): ?><span class="badge bg-secondary">Refund</span><?php endif; ?>
                                                         <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                        <?php
-                                                        if( isset($rec_val->validate_receipt) && $rec_val->validate_receipt != 1){
+                                                        if( isset($rec_val->validate_receipt) && $rec_val->validate_receipt != 1 && $rec_val->receipt_type == 1){
                                                         ?>
                                               			<a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php echo $rec_val->id;?>">
                                                           <i class="fas fa-pencil-alt"></i>
+                                                        </a>
+                                                        <a class="link-primary createclientrefund" href="javascript:;" data-id="<?php echo $rec_val->id;?>" data-trans-no="<?php echo e($rec_val->trans_no);?>" data-amount="<?php echo $rec_val->deposit_amount;?>" data-application-id="<?php echo $rec_val->application_id ?? '';?>" title="Create Refund">
+                                                          <i class="fas fa-undo"></i>
                                                         </a>
                                                        <?php
                                                         }

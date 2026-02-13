@@ -14,7 +14,7 @@
 	<title>Bansal CRM | @yield('title')</title>
 	
 	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<script src="{{asset('js/jquery-3.7.1.min.js')}}"></script>
 	
 	<!-- Load Select2 from CDN (after jQuery, before other scripts) -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">

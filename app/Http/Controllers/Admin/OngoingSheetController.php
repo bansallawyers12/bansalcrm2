@@ -283,10 +283,18 @@ class OngoingSheetController extends Controller
                 'ongoing.payment_display_note',
                 'ongoing.institute_override',
                 'ongoing.visa_category_override',
-                DB::raw('(SELECT COALESCE(SUM(deposit_amount), 0) 
-                         FROM account_client_receipts 
-                         WHERE client_id = admins.id 
-                         AND receipt_type = 1) as total_payment'),
+                DB::raw("(SELECT COALESCE(SUM(acr.deposit_amount), 0) 
+                         FROM account_client_receipts acr 
+                         WHERE acr.client_id = admins.id 
+                         AND (acr.receipt_type = 1 OR acr.receipt_type = 2)
+                         AND (acr.void_invoice = 0 OR acr.void_invoice IS NULL)
+                         AND (
+                           acr.application_id = applications.id
+                           OR (
+                             acr.application_id IS NULL 
+                             AND (SELECT COUNT(*) FROM applications a2 WHERE a2.client_id = admins.id AND a2.status != 2) = 1
+                           )
+                         )) as total_payment"),
                 DB::raw('(SELECT edu_college 
                          FROM client_service_takens 
                          WHERE client_id = admins.id 

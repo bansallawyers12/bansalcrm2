@@ -1337,6 +1337,32 @@
 							</div>
 						</div>
 
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="receipt_application_id">Application / Course</label>
+								<select class="form-control" name="application_id" id="receipt_application_id">
+									<option value="">Unallocated</option>
+									@foreach(($clientApplications ?? collect()) as $app)
+										<?php
+										$productName = $app->product->name ?? 'N/A';
+										$partnerName = $app->partner->partner_name ?? '';
+										$label = $productName . ($partnerName ? ' – ' . $partnerName : '');
+										?>
+										<option value="{{ $app->id }}">{{ $label }}</option>
+									@endforeach
+								</select>
+								<small class="form-text text-muted">Optional. Links this payment to a specific course/application.</small>
+							</div>
+						</div>
+
+						<div class="col-12 col-md-12 col-lg-12" id="reassignment_reason_wrapper" style="display:none;">
+							<div class="form-group">
+								<label for="reassignment_reason">Reason for change <span class="span_req">*</span></label>
+								<textarea class="form-control" name="reassignment_reason" id="reassignment_reason" rows="2" placeholder="e.g. Transfer to migration – client pursuing skilled visa"></textarea>
+								<small class="form-text text-muted">Required when reassigning payment to a different application.</small>
+							</div>
+						</div>
+
                         <div class="col-6 col-md-6 col-lg-6 d-none">
                             <div class="form-group">
                                 <label for="agent_id">Agent <span class="span_req">*</span></label>
@@ -1441,6 +1467,45 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button onclick="customValidate('create_client_receipt')" type="button" class="btn btn-primary">Save Receipt</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Create Client Refund Modal -->
+<div class="modal fade custom_modal" id="createclientrefundmodal" tabindex="-1" role="dialog" aria-labelledby="createRefundModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="createRefundModalLabel">Create Refund</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form method="post" action="{{ url('/clients/saverefund') }}" name="create_client_refund" id="create_client_refund" autocomplete="off">
+				@csrf
+				<input type="hidden" name="client_id" value="{{ $fetchedData->id ?? '' }}">
+				<input type="hidden" name="parent_receipt_id" id="refund_parent_receipt_id" value="">
+				<input type="hidden" name="application_id" id="refund_application_id" value="">
+				<div class="form-group mb-3">
+					<label>Original Receipt</label>
+					<p class="form-control-plaintext" id="refund_original_display"></p>
+				</div>
+				<div class="form-group mb-3">
+					<label for="refund_amount">Refund Amount <span class="span_req">*</span></label>
+					<div class="input-group">
+						<span class="input-group-text">$</span>
+						<input type="number" step="0.01" min="0.01" class="form-control" name="refund_amount" id="refund_amount" data-valid="required" placeholder="0.00">
+					</div>
+				</div>
+				<div class="form-group mb-3">
+					<label for="refund_reason">Refund Reason <span class="span_req">*</span></label>
+					<textarea class="form-control" name="refund_reason" id="refund_reason" rows="3" data-valid="required" placeholder="e.g. Client withdrew, Duplicate payment"></textarea>
+				</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" onclick="customValidate('create_client_refund')">Save Refund</button>
 			</div>
 		</div>
 	</div>

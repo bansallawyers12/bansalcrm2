@@ -40,8 +40,8 @@ class ClientReceiptController extends Controller
      * Save client account reports
      */
     public function saveaccountreport(Request $request, $id = NULL)
-	{
-		$requestData = $request->all();
+    {
+        $requestData = $request->all();
         
         // Validate function_type is set
         if(!isset($requestData['function_type']) || empty($requestData['function_type'])) {
@@ -105,7 +105,8 @@ class ClientReceiptController extends Controller
                 $doc_saved = "";
             }
 
-            if(isset($requestData['trans_date'])){
+            $saved = null;
+            if(isset($requestData['trans_date']) && is_array($requestData['trans_date']) && count($requestData['trans_date']) > 0){
                 $finalArr = array();
                 for($i=0; $i<count($requestData['trans_date']); $i++){
                     $finalArr[$i]['trans_date'] = $requestData['trans_date'][$i];
@@ -114,9 +115,11 @@ class ClientReceiptController extends Controller
                     $finalArr[$i]['description'] = $requestData['description'][$i];
                     $finalArr[$i]['deposit_amount'] = $requestData['deposit_amount'][$i];
 
+                    $applicationId = !empty($requestData['application_id']) ? $requestData['application_id'] : null;
                     $saved	= DB::table('account_client_receipts')->insertGetId([
                         'user_id' => $requestData['loggedin_userid'],
                         'client_id' =>  $requestData['client_id'],
+                        'application_id' => $applicationId,
                         'receipt_type' => $requestData['receipt_type'],
                         'trans_date' => $requestData['trans_date'][$i],
                         'entry_date' => $requestData['entry_date'][$i],
@@ -141,7 +144,11 @@ class ClientReceiptController extends Controller
                 $response['lastInsertedId'] = $saved;
                 $response['function_type'] = $requestData['function_type'];
 
-                $db_total_deposit_amount = DB::table('account_client_receipts')->where('client_id',$requestData['client_id'])->where('receipt_type',1)->sum('deposit_amount');
+                $db_total_deposit_amount = DB::table('account_client_receipts')
+                    ->where('client_id',$requestData['client_id'])
+                    ->whereIn('receipt_type',[1,2])
+                    ->where(function($q){ $q->where('void_invoice',0)->orWhereNull('void_invoice'); })
+                    ->sum('deposit_amount');
                 $response['db_total_deposit_amount'] = $db_total_deposit_amount;
               
                 $validate_receipt_info = DB::table('account_client_receipts')->select('validate_receipt')->where('id',$saved)->first();
@@ -163,10 +170,25 @@ class ClientReceiptController extends Controller
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
+                    $firstLine = $finalArr[0] ?? [];
+                    $appName = $this->getApplicationDisplayName($requestData['application_id'] ?? null);
+                    $logDesc = $this->buildReceiptLogDescription('receipt_created', [
+                        'receipt_id' => $saved,
+                        'trans_no' => $requestData['trans_no'][0] ?? 'Rec'.$saved,
+                        'trans_date' => $firstLine['trans_date'] ?? '',
+                        'entry_date' => $firstLine['entry_date'] ?? '',
+                        'payment_method' => $firstLine['payment_method'] ?? '',
+                        'description' => $firstLine['description'] ?? '',
+                        'deposit_amount' => $firstLine['deposit_amount'] ?? '',
+                        'application_id' => $requestData['application_id'] ?? null,
+                        'application_name' => $appName,
+                        'document_attached' => !empty($doc_saved),
+                    ]);
                     $objs = new ActivitiesLog;
                     $objs->client_id = $requestData['client_id'];
                     $objs->created_by = Auth::user()->id;
-                    $objs->description = '';
+                    $objs->activity_type = 'receipt_created';
+                    $objs->description = $logDesc;
                     $objs->subject = $subject;
                     $objs->task_status = 0;
                     $objs->pin = 0;
@@ -181,8 +203,17 @@ class ClientReceiptController extends Controller
                 $response['function_type'] = $requestData['function_type'];
               	$response['validate_receipt'] = "";
             }
+        } else {
+            $response['status'] = false;
+            $response['message'] = 'Receipt details (trans date, payment, amount) are required.';
+            $response['function_type'] = $requestData['function_type'];
+            $response['lastInsertedId'] = "";
+            $response['requestData'] = "";
+            $response['validate_receipt'] = "";
         }
-        else if( $requestData['function_type'] == 'edit'){
+
+        if ($requestData['function_type'] == 'edit')
+        {
              if ($request->hasfile('document_upload'))
             {
                 if(!is_array($request->file('document_upload'))){
@@ -238,6 +269,21 @@ class ClientReceiptController extends Controller
                 $doc_savedL = "";
             }
 
+            $originalReceipt = DB::table('account_client_receipts')->where('id', $requestData['id'][0])->first();
+            $originalAppId = $originalReceipt ? ($originalReceipt->application_id ?? null) : null;
+            $newAppId = !empty($requestData['application_id']) ? $requestData['application_id'] : null;
+            $applicationChanged = (string)$originalAppId !== (string)$newAppId;
+
+            if ($applicationChanged) {
+                $reason = trim($requestData['reassignment_reason'] ?? '');
+                if (empty($reason)) {
+                    $response['status'] = false;
+                    $response['message'] = 'Reason for change is required when reassigning payment to a different application.';
+                    echo json_encode($response);
+                    return;
+                }
+            }
+
             $finalArr = array();
             for($j=0; $j<count($requestData['trans_date']); $j++){
                 $finalArr[$j]['trans_date'] = $requestData['trans_date'][$j];
@@ -247,26 +293,36 @@ class ClientReceiptController extends Controller
                 $finalArr[$j]['deposit_amount'] = $requestData['deposit_amount'][$j];
                 $finalArr[$j]['id'] = $requestData['id'][$j];
 
+                $rowUpdate = [
+                    'user_id' => $requestData['loggedin_userid'],
+                    'client_id' =>  $requestData['client_id'],
+                    'application_id' => $newAppId,
+                    'trans_date' => $requestData['trans_date'][$j],
+                    'entry_date' => $requestData['entry_date'][$j],
+                    'payment_method' => $requestData['payment_method'][$j],
+                    'description' => $requestData['description'][$j],
+                    'deposit_amount' => $requestData['deposit_amount'][$j],
+                    'uploaded_doc_id'=> $insertedDocIdL,
+                    'updated_at' => now()
+                ];
+                if ($applicationChanged) {
+                    $rowUpdate['reassignment_reason'] = trim($requestData['reassignment_reason'] ?? '');
+                }
+
                 $savedDB = DB::table('account_client_receipts')
                     ->where('id',$requestData['id'][$j])
-                    ->update([
-                        'user_id' => $requestData['loggedin_userid'],
-                        'client_id' =>  $requestData['client_id'],
-                        'trans_date' => $requestData['trans_date'][$j],
-                        'entry_date' => $requestData['entry_date'][$j],
-                        'payment_method' => $requestData['payment_method'][$j],
-                        'description' => $requestData['description'][$j],
-                        'deposit_amount' => $requestData['deposit_amount'][$j],
-                        'uploaded_doc_id'=> $insertedDocIdL,
-                        'updated_at' => now()
-                    ]);
+                    ->update($rowUpdate);
             }
             if($savedDB >=0) {
                 $requestData['trans_no'][0] = "Rec".$requestData['id'][0];
                 $finalArr[0]['trans_no'] = "Rec".$requestData['id'][0];
                 $response['function_type'] = $requestData['function_type'];
                 $response['requestData'] 	= $finalArr;
-                $db_total_deposit_amount = DB::table('account_client_receipts')->where('client_id',$requestData['client_id'])->where('receipt_type',1)->sum('deposit_amount');
+                $db_total_deposit_amount = DB::table('account_client_receipts')
+                    ->where('client_id',$requestData['client_id'])
+                    ->whereIn('receipt_type',[1,2])
+                    ->where(function($q){ $q->where('void_invoice',0)->orWhereNull('void_invoice'); })
+                    ->sum('deposit_amount');
                 $response['db_total_deposit_amount'] = $db_total_deposit_amount;
                 $response['status'] 	= 	true;
 
@@ -307,10 +363,27 @@ class ClientReceiptController extends Controller
                 $response['printUrl'] = $printUrl;
 
                 if($request->type == 'client'){
+                    $oldAppName = $this->getApplicationDisplayName($originalAppId);
+                    $newAppName = $this->getApplicationDisplayName($newAppId);
+                    $logDesc = $this->buildReceiptLogDescription(
+                        $applicationChanged ? 'receipt_reassigned' : 'receipt_edited',
+                        array_merge([
+                            'receipt_id' => $requestData['id'][0],
+                            'trans_no' => $requestData['trans_no'][0],
+                            'deposit_amount' => $finalArr[0]['deposit_amount'] ?? '',
+                        ], $applicationChanged ? [
+                            'old_application_id' => $originalAppId,
+                            'old_application_name' => $oldAppName,
+                            'new_application_id' => $newAppId,
+                            'new_application_name' => $newAppName,
+                            'reassignment_reason' => trim($requestData['reassignment_reason'] ?? ''),
+                        ] : [])
+                    );
                     $objs = new ActivitiesLog;
                     $objs->client_id = $requestData['client_id'];
                     $objs->created_by = Auth::user()->id;
-                    $objs->description = '';
+                    $objs->activity_type = $applicationChanged ? 'receipt_reassigned' : 'receipt_edited';
+                    $objs->description = $logDesc;
                     $objs->subject = $subject;
                     $objs->task_status = 0;
                     $objs->pin = 0;
@@ -327,11 +400,107 @@ class ClientReceiptController extends Controller
             }
         }
         else {
-            $response['status'] = false;
-            $response['message'] = 'Invalid operation type: ' . ($requestData['function_type'] ?? 'not specified');
-            $response['function_type'] = $requestData['function_type'] ?? '';
+            if ($requestData['function_type'] != 'add') {
+                $response['status'] = false;
+                $response['message'] = 'Invalid operation type: ' . ($requestData['function_type'] ?? 'not specified');
+                $response['function_type'] = $requestData['function_type'] ?? '';
+            }
         }
         echo json_encode($response);
+    }
+
+    /**
+     * Save client refund (new receipt with receipt_type=2, negative amount)
+     */
+    public function saverefund(Request $request)
+    {
+        $requestData = $request->all();
+        $refundAmount = trim($requestData['refund_amount'] ?? '');
+        $refundReason = trim($requestData['refund_reason'] ?? '');
+        $parentReceiptId = $requestData['parent_receipt_id'] ?? null;
+        $clientId = $requestData['client_id'] ?? null;
+
+        if (empty($refundAmount) || (float)$refundAmount <= 0) {
+            return response()->json(['status' => false, 'message' => 'Refund amount must be greater than zero.']);
+        }
+        if (empty($refundReason)) {
+            return response()->json(['status' => false, 'message' => 'Refund reason is required.']);
+        }
+        if (empty($parentReceiptId) || empty($clientId)) {
+            return response()->json(['status' => false, 'message' => 'Invalid request: parent receipt or client missing.']);
+        }
+
+        $parentReceipt = DB::table('account_client_receipts')->where('id', $parentReceiptId)->where('client_id', $clientId)->where('receipt_type', 1)->first();
+        if (!$parentReceipt) {
+            return response()->json(['status' => false, 'message' => 'Original receipt not found.']);
+        }
+
+        $negativeAmount = -1 * abs((float)$refundAmount);
+        $applicationId = !empty($requestData['application_id']) ? $requestData['application_id'] : $parentReceipt->application_id;
+
+        $saved = DB::table('account_client_receipts')->insertGetId([
+            'user_id' => Auth::user()->id,
+            'client_id' => $clientId,
+            'application_id' => $applicationId,
+            'parent_receipt_id' => $parentReceiptId,
+            'receipt_type' => 2,
+            'trans_date' => now()->format('d/m/Y'),
+            'entry_date' => now()->format('d/m/Y'),
+            'payment_method' => 'Refund',
+            'description' => 'Refund for ' . ($parentReceipt->trans_no ?? 'Rec' . $parentReceiptId),
+            'deposit_amount' => $negativeAmount,
+            'refund_reason' => $refundReason,
+            'uploaded_doc_id' => null,
+            'validate_receipt' => 0,
+            'void_invoice' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        if ($saved) {
+            $transNo = 'Rec' . $saved;
+            DB::table('account_client_receipts')->where('id', $saved)->update(['trans_no' => $transNo, 'receipt_id' => $saved]);
+
+            $dbTotal = DB::table('account_client_receipts')
+                ->where('client_id', $clientId)
+                ->whereIn('receipt_type', [1, 2])
+                ->where(function ($q) {
+                    $q->where('void_invoice', 0)->orWhereNull('void_invoice');
+                })
+                ->sum('deposit_amount');
+
+            $appName = $this->getApplicationDisplayName($applicationId);
+            $logDesc = $this->buildReceiptLogDescription('receipt_refunded', [
+                'receipt_id' => $saved,
+                'trans_no' => $transNo,
+                'parent_receipt_id' => $parentReceiptId,
+                'parent_trans_no' => $parentReceipt->trans_no ?? '',
+                'deposit_amount' => $negativeAmount,
+                'refund_reason' => $refundReason,
+                'application_id' => $applicationId,
+                'application_name' => $appName,
+            ]);
+
+            $objs = new ActivitiesLog;
+            $objs->client_id = $clientId;
+            $objs->created_by = Auth::user()->id;
+            $objs->activity_type = 'receipt_refunded';
+            $objs->description = $logDesc;
+            $objs->subject = 'Refund created [Rec' . $saved . '] for original receipt [' . ($parentReceipt->trans_no ?? 'Rec' . $parentReceiptId) . '] – $' . abs($negativeAmount);
+            $objs->task_status = 0;
+            $objs->pin = 0;
+            $objs->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Refund created successfully.',
+                'db_total_deposit_amount' => $dbTotal,
+                'lastInsertedId' => $saved,
+                'printUrl' => \URL::to('/clients/printpreview') . '/' . $saved,
+            ]);
+        }
+
+        return response()->json(['status' => false, 'message' => 'Failed to save refund. Please try again.']);
     }
 
     /**
@@ -427,16 +596,27 @@ class ClientReceiptController extends Controller
             if ($affectedRows > 0) {
 
                 foreach($request->clickedReceiptIds as $ReceiptVal){
-                    $receipt_info = AccountClientReceipt::select('user_id','client_id')->where('receipt_id', $ReceiptVal)->first();
+                    $receipt_info = DB::table('account_client_receipts')->where('receipt_id', $ReceiptVal)->first();
+                    if (!$receipt_info) continue;
                     $client_info = Admin::select('client_id')->where('id', $receipt_info->client_id)->first();
+                    $clientRef = $client_info ? $client_info->client_id : '';
 
-                    if($request->receipt_type == 1){
-                        $subject = 'validated client receipt no -'.$ReceiptVal.' of client-'.$client_info->client_id;
-                    } 
+                    $subject = ($request->receipt_type == 1)
+                        ? 'validated client receipt no -'.$ReceiptVal.' of client-'.$clientRef
+                        : 'Validated receipt Rec'.$ReceiptVal;
+                    $appName = $this->getApplicationDisplayName($receipt_info->application_id ?? null);
+                    $logDesc = $this->buildReceiptLogDescription('receipt_validated', [
+                        'receipt_id' => $receipt_info->id,
+                        'trans_no' => $receipt_info->trans_no ?? '',
+                        'deposit_amount' => $receipt_info->deposit_amount ?? '',
+                        'application_id' => $receipt_info->application_id ?? null,
+                        'application_name' => $appName,
+                    ]);
                     $objs = new ActivitiesLog;
                     $objs->client_id = $receipt_info->client_id;
                     $objs->created_by = Auth::user()->id;
-                    $objs->description = '';
+                    $objs->activity_type = 'receipt_validated';
+                    $objs->description = $logDesc;
                     $objs->subject = $subject;
                     $objs->task_status = 0;
                     $objs->pin = 0;
@@ -466,7 +646,7 @@ class ClientReceiptController extends Controller
      * Print preview
      */
     public function printpreview(Request $request, $id){
-        $record_get = DB::table('account_client_receipts')->where('receipt_type',1)->where('id',$id)->get();
+        $record_get = DB::table('account_client_receipts')->whereIn('receipt_type',[1,2])->where('id',$id)->get();
         $clientname = null;
         $admin = (object)['company_name'=>'','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
         if(!empty($record_get)){
@@ -710,5 +890,44 @@ class ClientReceiptController extends Controller
             ->rawColumns(['client_reference'])
             ->make(true);
         }
+    }
+
+    /**
+     * Get application display name for activity logging
+     */
+    protected function getApplicationDisplayName($applicationId): string
+    {
+        if (empty($applicationId)) {
+            return 'Unallocated';
+        }
+        $app = DB::table('applications')
+            ->leftJoin('products', 'applications.product_id', '=', 'products.id')
+            ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
+            ->where('applications.id', $applicationId)
+            ->select('products.name as product_name', 'partners.partner_name')
+            ->first();
+        if (!$app) {
+            return 'App #' . $applicationId;
+        }
+        $parts = array_filter([$app->product_name ?? 'N/A', $app->partner_name ?? null]);
+        return implode(' – ', $parts);
+    }
+
+    /**
+     * Build comprehensive receipt activity log description
+     */
+    protected function buildReceiptLogDescription(string $action, array $data): string
+    {
+        $lines = ['action: ' . $action, 'performed_at: ' . now()->toDateTimeString()];
+        $admin = Auth::user();
+        if ($admin) {
+            $lines[] = 'performed_by: ' . trim(($admin->first_name ?? '') . ' ' . ($admin->last_name ?? '')) . ' (admin_id: ' . $admin->id . ')';
+        }
+        foreach ($data as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $lines[] = $key . ': ' . (is_bool($value) ? ($value ? 'yes' : 'no') : $value);
+            }
+        }
+        return implode("\n", $lines);
     }
 }
