@@ -428,6 +428,9 @@ class ApplicationsController extends Controller
 			$message = str_replace('{Client First Name}',$client->first_name, $message);
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
 			$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
+			$client_dob = (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') ? date('d/m/Y', strtotime($client->dob)) : '';
+			$subject = str_replace('{DOB}', $client_dob, $subject);
+			$message = str_replace('{DOB}', $client_dob, $message);
 			$array = array();
 			$ccarray = array();
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){

@@ -1806,12 +1806,15 @@ use App\Http\Controllers\Controller;
 											foreach($mailreports as $mailreport){
 												$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $mailreport->user_id)->first();
 
-												$client = \App\Models\Admin::select('id', 'first_name','email')->Where('id', $fetchedData->id)->first();
+												$client = \App\Models\Admin::select('id', 'first_name','email','dob')->Where('id', $fetchedData->id)->first();
 												$subject = str_replace('{Client First Name}',$client->first_name, $mailreport->subject);
 												$message = $mailreport->message;
 												$message = str_replace('{Client First Name}',$client->first_name, $message);
 												$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
 												$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
+												$clientDobDisplay = (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') ? date('d/m/Y', strtotime($client->dob)) : '';
+												$subject = str_replace('{DOB}', $clientDobDisplay, $subject);
+												$message = str_replace('{DOB}', $clientDobDisplay, $message);
 											?>
 												<div class="conversation_list" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;margin-bottom: 10px;border-bottom: 1px solid rgba(34, 36, 38, .15);">
 													<div class="conversa_item">
@@ -1995,8 +1998,9 @@ use App\Http\Controllers\Controller;
                                 } else {
                                     $clientAssigneeName = 'NA';
                                 }
-                                ?>
-								<select data-valid="" class="form-control select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}">
+								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
+								?>
+								<select data-valid="" class="form-control select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>

@@ -1263,6 +1263,9 @@ use App\Http\Controllers\Controller;
                                                     $message = str_replace('{Client First Name}',$partner->partner_name, $message);
                                                     $message = str_replace('{Client Assignee Name}',$partner->partner_name, $message);
                                                     $message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
+                                                    $partnerDob = (isset($partner->dob) && $partner->dob && $partner->dob != '0000-00-00') ? date('d/m/Y', strtotime($partner->dob)) : '';
+                                                    $subject = str_replace('{DOB}', $partnerDob, $subject);
+                                                    $message = str_replace('{DOB}', $partnerDob, $message);
                                                 ?>
                                                 <div class="conversation_list sent_conversation_list">
                                                     <div class="conversa_item">

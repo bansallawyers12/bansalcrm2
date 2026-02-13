@@ -136,6 +136,8 @@ jQuery(document).ready(function($){
             clientassignee_name = '';
         }
 
+        var client_dob = $(this).data('clientdob') || '';
+
         var v = $(this).val();
         var url = App.getUrl('getTemplates') || App.getUrl('siteUrl') + '/get-templates';
         $.ajax({
@@ -146,7 +148,7 @@ jQuery(document).ready(function($){
             success: function(response){
                 var res = typeof response === 'string' ? JSON.parse(response) : response;
 
-                var subjct_message = res.subject.replace('{Client First Name}', client_firstname).replace('{client reference}', client_reference_number);
+                var subjct_message = res.subject.replace('{Client First Name}', client_firstname || '').replace('{client reference}', client_reference_number || '').replace('{DOB}', client_dob);
                 $('.selectedsubject').val(subjct_message);
       
                 if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
@@ -154,11 +156,12 @@ jQuery(document).ready(function($){
                 }
       
                 var subjct_description = res.description
-                    .replace('{Client First Name}', client_firstname)
+                    .replace('{Client First Name}', client_firstname || '')
                     .replace('{Company Name}', company_name)
                     .replace('{Visa Valid Upto}', visa_valid_upto)
                     .replace('{Client Assignee Name}', clientassignee_name)
-                    .replace('{client reference}', client_reference_number);
+                    .replace('{client reference}', client_reference_number || '')
+                    .replace('{DOB}', client_dob);
       
                 if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                     TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", subjct_description);

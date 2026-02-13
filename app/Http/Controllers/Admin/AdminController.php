@@ -1570,6 +1570,12 @@ class AdminController extends Controller
 
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
 			$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
+			$client_dob = '';
+			if (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') {
+				$client_dob = date('d/m/Y', strtotime($client->dob));
+			}
+			$subject = str_replace('{DOB}', $client_dob, $subject);
+			$message = str_replace('{DOB}', $client_dob, $message);
 			$ccarray = array();
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
 				foreach($requestData['email_cc'] as $cc){
