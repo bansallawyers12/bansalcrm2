@@ -9,6 +9,9 @@
 .group_type_section a.active {color:black;}
 .select2-container{z-index:100000;width:315px !important;}
 .countAction {background: #1f1655;padding: 0px 5px;border-radius: 50%;color: #fff;margin-left: 5px;}
+.action-btns { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; }
+.action-btns .btn { flex-shrink: 0; }
+.table td { vertical-align: middle; }
 </style>
 <!-- Main Content -->
 <div class="main-content">
@@ -196,160 +199,135 @@
                                                 </td>
 
                                                 <td>
-                                                    {{-- @if($list->noteClient) --}}
-                                                    <form action="{{ route('action.destroy_completed',$list->id) }}" method="POST">
-
-                                                        {{-- <a class="btn btn-info" href="{{ route('assignees.show',$list->id) }}">Show</a> --}}
-
-                                                         <!--<a class="btn btn-primary" data-bs-toggle="tooltip" title="" href="{{ url('/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}"> <i class="fa fa-edit" aria-hidden="true"></i> </a>-->
-
-                                                         <?php if($list->task_group != 'Personal Task'){?>
-                                                         <button type="button" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid={{ $list->task_group }}  data-followupdate={{ $list->followup_date  }} class="btn btn-primary btn-block update_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-                                                            <h4 class=&quot;text-center&quot;>Update Task</h4>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
-                                                                        <option value=&quot;&quot; >Select</option>
-                                                                        {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                        @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
-                                                                        <?php
-                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                                        ?>
-                                                                        <option value=&quot;<?php echo $admin->id; ?>&quot; <?php if($admin->id == $list->assigned_to){ echo "selected";} ?>><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                                                        @endforeach
+                                                    <form action="{{ route('action.destroy_completed',$list->id) }}" method="POST" class="d-inline">
+                                                        <div class="action-btns">
+                                                         @if($list->task_group != 'Personal Task')
+                                                         {{-- Update Task: use template div to avoid HTML-in-attribute rendering issues --}}
+                                                         <div id="popover-update-{{ $list->id }}" class="d-none">
+                                                            <h4 class="text-center">Update Task</h4>
+                                                            <div class="clearfix"></div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
+                                                                    <div class="col-sm-9">
+                                                                        <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
+                                                                            <option value="">Select</option>
+                                                                            @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                            <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
+                                                                            <option value="{{ $admin->id }}" {{ $admin->id == $list->assigned_to ? 'selected' : '' }}>{{ $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')' }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
+                                                                    <div class="col-sm-9">
+                                                                        <textarea class="form-control assignnote tinymce-simple f13" placeholder="Enter an note...." rows="3"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">DateTime</label>
+                                                                    <div class="col-sm-9">
+                                                                        <input type="text" class="form-control f13 flatpickr-date popoverdatetime" placeholder="yyyy-mm-dd" value="{{ date('Y-m-d') }}" name="popoverdate" autocomplete="off">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row" style="margin-bottom:12px">
+                                                                <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
+                                                                <div class="col-sm-9">
+                                                                    <select class="assigneeselect2 form-control task_group" name="task_group">
+                                                                        <option value="">Select</option>
+                                                                        <option value="Call" {{ $list->task_group == 'Call' ? 'selected' : '' }}>Call</option>
+                                                                        <option value="Checklist" {{ $list->task_group == 'Checklist' ? 'selected' : '' }}>Checklist</option>
+                                                                        <option value="Review" {{ $list->task_group == 'Review' ? 'selected' : '' }}>Review</option>
+                                                                        <option value="Query" {{ $list->task_group == 'Query' ? 'selected' : '' }}>Query</option>
+                                                                        <option value="Urgent" {{ $list->task_group == 'Urgent' ? 'selected' : '' }}>Urgent</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
-                                                        </div><div id=&quot;popover-content&quot;>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+                                                            <input type="hidden" class="assign_note_id" value="">
+                                                            <input type="hidden" class="assign_client_id" value="{{ base64_encode(convert_uuencode(@$list->client_id)) }}">
+                                                            <div class="box-footer" style="padding:10px 0">
+                                                                <div class="row text-center">
+                                                                    <div class="col-md-12">
+                                                                        <button type="button" class="btn btn-info updateTask">Update Task</button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
-                                                        </div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <input type="text" class="form-control f13 flatpickr-date" placeholder="yyyy-mm-dd" id="popoverdatetime" value="<?php echo date('Y-m-d');?>" name="popoverdate" autocomplete="off">
-                                                                </div>
-                                                                <div class=&quot;clearfix&quot;></div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                            <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
-                                                            <div class=&quot;col-sm-9&quot;>
-                                                                <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
-                                                                    <option value=&quot;&quot;>Select</option>
-                                                                    <option value=&quot;Call&quot;>Call</option>
-                                                                    <option value=&quot;Checklist&quot;>Checklist</option>
-                                                                    <option value=&quot;Review&quot;>Review</option>
-                                                                    <option value=&quot;Query&quot;>Query</option>
-                                                                    <option value=&quot;Urgent&quot;>Urgent</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        </div>
-
-                                                        <input id=&quot;assign_note_id&quot;  type=&quot;hidden&quot; value=&quot;&quot;>
-
-                                                        <input id=&quot;assign_client_id&quot;  type=&quot;hidden&quot; value=&quot;{{base64_encode(convert_uuencode(@$list->client_id))}}&quot;>
-                                                        <div class=&quot;box-footer&quot; style=&quot;padding:10px 0&quot;>
-                                                        <div class=&quot;row&quot;>
-                                                            <input type=&quot;hidden&quot; value=&quot;&quot; id=&quot;popoverrealdate&quot; name=&quot;popoverrealdate&quot; />
-                                                        </div>
-                                                        <div class=&quot;row text-center&quot;>
-                                                            <div class=&quot;col-md-12 text-center&quot;>
-                                                            <button  class=&quot;btn btn-info&quot; id=&quot;updateTask&quot;>Update Task</button>
-                                                            </div>
-                                                        </div>
-                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>
-                                                        <?php }?>
+                                                         </div>
+                                                         <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task"><i class="fa fa-edit" aria-hidden="true"></i></button>
+                                                         @endif
 
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
-
-                                                        <?php if($list->task_group != 'Personal Task'){?>
-                                                        <button type="button" data-noteid="{{ $list->description }}" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-                                                            <h4 class=&quot;text-center&quot;>Re-Assign User</h4>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
-                                                                        <option value=&quot;&quot; >Select</option>
-                                                                        {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
-                                                                        @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
-                                                                        <?php
-                                                                        $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                                        ?>
-                                                                        <option value=&quot;<?php echo $admin->id; ?>&quot;><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                                                        @endforeach
+                                                        @if($list->task_group != 'Personal Task')
+                                                        {{-- Assign User: use template div --}}
+                                                        <div id="popover-assign-{{ $list->id }}" class="d-none">
+                                                            <h4 class="text-center">Re-Assign User</h4>
+                                                            <div class="clearfix"></div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
+                                                                    <div class="col-sm-9">
+                                                                        <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
+                                                                            <option value="">Select</option>
+                                                                            @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                            <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
+                                                                            <option value="{{ $admin->id }}">{{ $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')' }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Note</label>
+                                                                    <div class="col-sm-9">
+                                                                        <textarea class="form-control assignnote tinymce-simple f13" placeholder="Enter an note...." rows="3"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="box-header with-border">
+                                                                <div class="form-group row" style="margin-bottom:12px">
+                                                                    <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">DateTime</label>
+                                                                    <div class="col-sm-9">
+                                                                        <input type="text" class="form-control f13 flatpickr-date popoverdatetime" placeholder="yyyy-mm-dd" value="{{ date('Y-m-d') }}" name="popoverdate" autocomplete="off">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row" style="margin-bottom:12px">
+                                                                <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
+                                                                <div class="col-sm-9">
+                                                                    <select class="assigneeselect2 form-control task_group" name="task_group">
+                                                                        <option value="">Select</option>
+                                                                        <option value="Call">Call</option>
+                                                                        <option value="Checklist">Checklist</option>
+                                                                        <option value="Review">Review</option>
+                                                                        <option value="Query">Query</option>
+                                                                        <option value="Urgent">Urgent</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
-                                                        </div><div id=&quot;popover-content&quot;>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Note</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <textarea id=&quot;assignnote&quot; class=&quot;form-control tinymce-simple f13&quot; placeholder=&quot;Enter an note....&quot; type=&quot;text&quot;></textarea>
+                                                            <input type="hidden" class="assign_note_id" value="">
+                                                            <input type="hidden" class="assign_client_id" value="{{ base64_encode(convert_uuencode(@$list->client_id)) }}">
+                                                            <div class="box-footer" style="padding:10px 0">
+                                                                <div class="row text-center">
+                                                                    <div class="col-md-12">
+                                                                        <button type="button" class="btn btn-info assignUser">Assign User</button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class=&quot;clearfix&quot;></div>
                                                             </div>
                                                         </div>
-                                                        <div class=&quot;box-header with-border&quot;>
-                                                            <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                                <label for=&quot;inputEmail3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>DateTime</label>
-                                                                <div class=&quot;col-sm-9&quot;>
-                                                                    <input type="text" class="form-control f13 flatpickr-date" placeholder="yyyy-mm-dd" id="popoverdatetime" value="<?php echo date('Y-m-d');?>" name="popoverdate" autocomplete="off">
-                                                                </div>
-                                                                <div class=&quot;clearfix&quot;></div>
-                                                            </div>
+                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign User"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+                                                        @endif
                                                         </div>
-
-                                                        <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
-                                                            <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
-                                                            <div class=&quot;col-sm-9&quot;>
-                                                                <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
-                                                                    <option value=&quot;&quot;>Select</option>
-                                                                    <option value=&quot;Call&quot;>Call</option>
-                                                                    <option value=&quot;Checklist&quot;>Checklist</option>
-                                                                    <option value=&quot;Review&quot;>Review</option>
-                                                                    <option value=&quot;Query&quot;>Query</option>
-                                                                    <option value=&quot;Urgent&quot;>Urgent</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class=&quot;clearfix&quot;></div>
-                                                        </div>
-
-                                                        <input id=&quot;assign_client_id&quot;  type=&quot;hidden&quot; value=&quot;{{base64_encode(convert_uuencode(@$list->client_id))}}&quot;>
-                                                        <div class=&quot;box-footer&quot; style=&quot;padding:10px 0&quot;>
-                                                        <div class=&quot;row&quot;>
-                                                            <input type=&quot;hidden&quot; value=&quot;&quot; id=&quot;popoverrealdate&quot; name=&quot;popoverrealdate&quot; />
-                                                        </div>
-                                                        <div class=&quot;row text-center&quot;>
-                                                            <div class=&quot;col-md-12 text-center&quot;>
-                                                            <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
-                                                            </div>
-                                                        </div>
-                                                </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>
-                                                {{-- <a class="btn btn-primary openassigneview" id="{{$list->id}}" href="#">Reassign</a> --}}
-                                                <?php } ?>
                                                     </form>
-                                                    {{-- @endif --}}
                                                 </td>
                                             </tr>
 										    @endforeach
@@ -379,11 +357,21 @@
 	</section>
 </div>
 <!-- Assign Modal -->
-
 <div class="modal fade custom_modal" id="openassigneview" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
-		<div class="modal-content taskview">
+		<div class="modal-content taskview"></div>
+	</div>
+</div>
 
+<!-- Update Task / Assign User Modal (populated from template) -->
+<div class="modal fade" id="actionPopoverModal" tabindex="-1" aria-labelledby="actionPopoverModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="actionPopoverModalLabel"></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" id="actionPopoverModalBody"></div>
 		</div>
 	</div>
 </div>
@@ -402,28 +390,72 @@ jQuery(document).ready(function($){
         $('.assignee').hide();
     });
 
-    //reassign task
-    $(document).delegate('.reassign_task', 'click', function(){
-        var note_id = $(this).attr('data-noteid'); //alert(note_id);
-        $('#assignnote').val(note_id);
+    // Update task - show modal with form from template
+    $(document).delegate('.update_task', 'click', function(e){
+        e.preventDefault();
+        var $btn = $(this);
+        var targetId = $btn.data('popover-target');
+        var $template = $('#' + targetId);
+        if (!$template.length) return;
 
-        var task_id = $(this).attr('data-taskid'); //alert(task_id);
-        $('#assign_note_id').val(task_id);
+        var noteId = $btn.data('noteid');
+        var taskId = $btn.data('taskid');
+        var taskgroupId = $btn.data('taskgroupid');
+        var followupdate = ($btn.data('followupdate') || '').toString().split(' ')[0] || '{{ date("Y-m-d") }}';
+
+        var $clone = $template.clone().removeClass('d-none');
+        $clone.find('.assign_note_id').val(taskId);
+        $clone.find('.assignnote').val(noteId);
+        $clone.find('.task_group').val(taskgroupId);
+        $clone.find('.popoverdatetime').val(followupdate);
+
+        $('#actionPopoverModalLabel').text('Update Task');
+        $('#actionPopoverModalBody').html($clone);
+        var modalEl = document.getElementById('actionPopoverModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            new bootstrap.Modal(modalEl).show();
+        } else {
+            $(modalEl).modal('show');
+        }
+        if ($.fn.flatpickr) { $('#actionPopoverModal .flatpickr-date').flatpickr({ dateFormat: 'Y-m-d' }); }
     });
 
-    //update task
-    $(document).delegate('.update_task', 'click', function(){
-        var note_id = $(this).attr('data-noteid'); //alert(note_id);
-        $('#assignnote').val(note_id);
+    // Reassign task - show modal with form from template
+    $(document).delegate('.reassign_task', 'click', function(e){
+        e.preventDefault();
+        var $btn = $(this);
+        var targetId = $btn.data('popover-target');
+        var $template = $('#' + targetId);
+        if (!$template.length) return;
 
-        var task_id = $(this).attr('data-taskid'); //alert(task_id);
-        $('#assign_note_id').val(task_id);
+        var noteId = $btn.data('noteid');
+        var taskId = $btn.data('taskid');
+        var taskgroupId = $btn.data('taskgroupid');
+        var followupdate = ($btn.data('followupdate') || '').toString().split(' ')[0] || '{{ date("Y-m-d") }}';
+        var assignedTo = $btn.data('assignedto');
 
-        var taskgroup_id = $(this).attr('data-taskgroupid'); //alert(taskgroup_id);
-        $('#task_group').val(taskgroup_id);
+        var $clone = $template.clone().removeClass('d-none');
+        $clone.find('.assign_note_id').val(taskId);
+        $clone.find('.assignnote').val(noteId);
+        $clone.find('.task_group').val(taskgroupId);
+        $clone.find('.popoverdatetime').val(followupdate);
 
-        var followupdate_id = $(this).attr('data-followupdate'); //alert(followupdate_id);
-        $('#popoverdatetime').val(followupdate_id);
+        $('#actionPopoverModalLabel').text('Re-Assign User');
+        $('#actionPopoverModalBody').html($clone);
+
+        if (assignedTo) {
+            $.ajax({ type:'post', url:"{{URL::to('/')}}/action/assignee-list", headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}, data: {assignedto: assignedTo},
+                success: function(r){ var obj = $.parseJSON(r); if(obj.message) { var html = Array.isArray(obj.message) ? obj.message.join('') : obj.message; $('#actionPopoverModalBody .rem_cat').first().html(html); } }
+            });
+        }
+
+        var modalEl = document.getElementById('actionPopoverModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            new bootstrap.Modal(modalEl).show();
+        } else {
+            $(modalEl).modal('show');
+        }
+        if ($.fn.flatpickr) { $('#actionPopoverModal .flatpickr-date').flatpickr({ dateFormat: 'Y-m-d' }); }
     });
 
 
@@ -465,63 +497,132 @@ jQuery(document).ready(function($){
 	});
 
 
-    $(document).delegate('#assignUser','click', function(){
+    $(document).delegate('#actionPopoverModalBody .assignUser','click', function(){
 		$(".popuploader").show();
+		var $modal = $('#actionPopoverModalBody');
 		var flag = true;
-		var error ="";
-		$(".custom-error").remove();
-		// if($('#lead_id').val() == ''){
-		// 	$('.popuploader').hide();
-		// 	error="Lead field is required.";
-		// 	$('#lead_id').after("<span class='custom-error' role='alert'>"+error+"</span>");
-		// 	flag = false;
-		// }
-		if($('#rem_cat').val() == ''){
+		var error = "";
+		$modal.find(".custom-error").remove();
+		var $remCat = $modal.find('.rem_cat');
+		var $assignNote = $modal.find('.assignnote');
+		var $taskGroup = $modal.find('.task_group');
+		var $assignNoteId = $modal.find('.assign_note_id');
+		var $assignClientId = $modal.find('.assign_client_id');
+		var $popoverDateTime = $modal.find('.popoverdatetime');
+		if($remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
-			$('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($('#assignnote').val() == ''){
+		if($assignNote.val() == ''){
 			$('.popuploader').hide();
 			error="Note field is required.";
-			$('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($('#task_group').val() == ''){
+		if($taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
-			$('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
+			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
 		if(flag){
 			$.ajax({
 				type:'post',
-					url:"{{URL::to('/')}}/clients/reassignaction/store",
-					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-
-					data: {note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
-					success: function(response){
-						console.log(response);
-						$('.popuploader').hide();
-						var obj = $.parseJSON(response);
-						if(obj.success){
-							$("[data-role=popover]").each(function(){
-									(($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
-							});
-							location.reload();
-							getallactivities();
-							getallnotes();
-
-						}else{
-							alert(obj.message);
-							location.reload();
-
+				url:"{{URL::to('/')}}/clients/reassignaction/store",
+				headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+				data: {
+					note_id: $assignNoteId.val(),
+					note_type:'action',
+					description:$assignNote.val(),
+					client_id:$assignClientId.val(),
+					followup_datetime:$popoverDateTime.val(),
+					assignee_name:$remCat.find(':selected').text(),
+					rem_cat:$remCat.val(),
+					task_group:$taskGroup.val()
+				},
+				success: function(response){
+					$('.popuploader').hide();
+					var obj = $.parseJSON(response);
+					if(obj.success){
+						$('#actionPopoverModal').modal('hide');
+						if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+							var m = bootstrap.Modal.getInstance(document.getElementById('actionPopoverModal'));
+							if (m) m.hide();
 						}
+						location.reload();
+					}else{
+						alert(obj.message);
 					}
+				}
 			});
-		}else{
-			$("#loader").hide();
+		}
+	});
+
+	// Update task - called from modal
+	$(document).delegate('#actionPopoverModalBody .updateTask','click', function(){
+		$(".popuploader").show();
+		var $modal = $('#actionPopoverModalBody');
+		var flag = true;
+		var error = "";
+		$modal.find(".custom-error").remove();
+		var $remCat = $modal.find('.rem_cat');
+		var $assignNote = $modal.find('.assignnote');
+		var $taskGroup = $modal.find('.task_group');
+		var $assignNoteId = $modal.find('.assign_note_id');
+		var $assignClientId = $modal.find('.assign_client_id');
+		var $popoverDateTime = $modal.find('.popoverdatetime');
+		if($remCat.val() == ''){
+			$('.popuploader').hide();
+			error="Assignee field is required.";
+			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
+			flag = false;
+		}
+		if($assignNote.val() == ''){
+			$('.popuploader').hide();
+			error="Note field is required.";
+			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
+			flag = false;
+		}
+		if($taskGroup.val() == ''){
+			$('.popuploader').hide();
+			error="Group field is required.";
+			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
+			flag = false;
+		}
+		if(flag){
+			$.ajax({
+				type:'post',
+				url:"{{URL::to('/')}}/clients/updateaction/store",
+				headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+				data: {
+					note_id: $assignNoteId.val(),
+					note_type:'action',
+					description:$assignNote.val(),
+					client_id:$assignClientId.val(),
+					followup_datetime:$popoverDateTime.val(),
+					assignee_name:$remCat.find(':selected').text(),
+					rem_cat:$remCat.val(),
+					task_group:$taskGroup.val()
+				},
+				success: function(response){
+					$('.popuploader').hide();
+					var obj = $.parseJSON(response);
+					if(obj.success){
+						var modalEl = document.getElementById('actionPopoverModal');
+						if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+							var m = bootstrap.Modal.getInstance(modalEl);
+							if (m) m.hide();
+						} else {
+							$('#actionPopoverModal').modal('hide');
+						}
+						location.reload();
+					}else{
+						alert(obj.message || 'Update failed');
+					}
+				}
+			});
 		}
 	});
 

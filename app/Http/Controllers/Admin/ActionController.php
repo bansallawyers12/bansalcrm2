@@ -1043,9 +1043,9 @@ class ActionController extends Controller
             $objs->save();
             //echo json_encode(array('success' => true, 'message' => 'Activity deleted successfully', 'clientID' => $appointment->client_id));
             //exit;
-            return redirect()->route('action.index')->with('success','Activity deleted successfully');
+            return redirect()->route('action.completed')->with('success','Activity deleted successfully');
         }
-        //return redirect()->route('action.completed')->with('success','Activity deleted successfully');
+        return redirect()->route('action.completed');
     }
 
 
