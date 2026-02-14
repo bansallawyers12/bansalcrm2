@@ -134,14 +134,8 @@ class ClientActionController extends Controller
 		}
 		else
 		{
-			$Lead = null;
-			if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
-                $Lead = Admin::find($this->decodeString($requestData['client_id']));
-                if($Lead){
-                    $Lead->followup_date = @$requestData['followup_datetime'];
-                    $Lead->save();
-                }
-			}
+			// Note: followup_date column was removed from admins table - no longer updating Lead.followup_date
+			$followupDateText = isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '';
 
 			$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
@@ -149,7 +143,6 @@ class ClientActionController extends Controller
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
 	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
-	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
 	    	$o->message = 'Action Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();
@@ -214,14 +207,8 @@ class ClientActionController extends Controller
 		}
 		else
 		{
-			$Lead = null;
-			if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
-                $Lead = Admin::find($this->decodeString($requestData['client_id']));
-                if($Lead) {
-                    $Lead->followup_date = @$requestData['followup_datetime'];
-                    $Lead->save();
-                }
-			}
+			// Note: followup_date column was removed from admins table - no longer updating Lead.followup_date
+			$followupDateText = isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '';
 
 			$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
@@ -229,7 +216,6 @@ class ClientActionController extends Controller
 	    	$o->module_id = $this->decodeString(@$requestData['client_id']);
 	    	$o->url = route('clients.detail', @$requestData['client_id']);
 	    	$o->notification_type = 'client';
-	    	$followupDateText = ($Lead && $Lead->followup_date) ? date('d/M/Y h:i A', strtotime($Lead->followup_date)) : (isset($requestData['followup_datetime']) ? date('d/M/Y h:i A', strtotime($requestData['followup_datetime'])) : '');
 	    	$o->message = 'Action Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name.($followupDateText ? ' '.$followupDateText : '');
 	    	$o->seen = 0; // Set seen to 0 (unseen) for new notifications
 	    	$o->save();

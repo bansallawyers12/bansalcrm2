@@ -367,16 +367,23 @@ $(function () {
   });
 
   // tooltip - Initialize Bootstrap tooltips if available
+  // Exclude elements that have data-role="popover" - Bootstrap doesn't allow tooltip + popover on same element
   if (typeof $.fn.tooltip === 'function') {
-    $("[data-bs-toggle='tooltip']").tooltip();
+    $("[data-bs-toggle='tooltip']").not('[data-role="popover"]').tooltip();
   } else {
     console.warn('Bootstrap tooltip not available. Ensure bootstrap.bundle.min.js is loaded before scripts.js');
   }
 
-  // popover
+  // popover - only initialize elements that don't already have an instance
+  // (avoids "Bootstrap doesn't allow more than one instance per element" when popover.js also initializes)
   if (typeof $.fn.popover === 'function') {
-    $('[data-bs-toggle="popover"]').popover({
-      container: "body"
+    $('[data-bs-toggle="popover"]').each(function() {
+      var el = this;
+      var hasInstance = (typeof bootstrap !== 'undefined' && bootstrap.Popover && bootstrap.Popover.getInstance(el)) ||
+                        $(el).data('bs.popover');
+      if (!hasInstance) {
+        $(el).popover({ container: "body" });
+      }
     });
   } else {
     console.warn('Bootstrap popover not available. Ensure bootstrap.bundle.min.js is loaded before scripts.js');
