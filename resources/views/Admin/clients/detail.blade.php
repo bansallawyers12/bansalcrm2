@@ -956,9 +956,57 @@ use App\Http\Controllers\Controller;
 													@if(!empty($activit->description))
                                                         @php
                                                             $description = $activit->description;
+                                                            $isReceiptActivity = in_array($activit->activity_type ?? '', [
+                                                                'receipt_created', 'receipt_validated', 'receipt_edited', 'receipt_reassigned', 'receipt_refunded', 'receipt_voided'
+                                                            ]) || (strpos($description, 'action: receipt_') === 0);
+                                                            $receiptFields = [];
+                                                            $parsedAction = $activit->activity_type ?? '';
+                                                            if ($isReceiptActivity) {
+                                                                $lines = preg_split('/\r?\n/', trim($description));
+                                                                if (empty($parsedAction) && preg_match('/^action:\s*(\S+)/m', $description, $am)) {
+                                                                    $parsedAction = $am[1];
+                                                                }
+                                                                $displayLabels = [
+                                                                    'receipt_id' => 'Receipt ID',
+                                                                    'trans_no' => 'Trans. No',
+                                                                    'trans_date' => 'Trans. Date',
+                                                                    'entry_date' => 'Entry Date',
+                                                                    'payment_method' => 'Payment Method',
+                                                                    'description' => 'Description',
+                                                                    'deposit_amount' => 'Amount',
+                                                                    'application_name' => 'Application',
+                                                                    'document_attached' => 'Document',
+                                                                    'parent_receipt_id' => 'Parent Receipt',
+                                                                    'refund_reason' => 'Refund Reason',
+                                                                    'reassignment_reason' => 'Reassignment Reason',
+                                                                ];
+                                                                foreach ($lines as $line) {
+                                                                    if (preg_match('/^(\w[\w_]+):\s*(.+)$/', trim($line), $m)) {
+                                                                        $key = $m[1];
+                                                                        $value = trim($m[2]);
+                                                                        if (in_array($key, ['action', 'performed_at', 'performed_by'])) continue;
+                                                                        $label = $displayLabels[$key] ?? ucfirst(str_replace('_', ' ', $key));
+                                                                        $receiptFields[] = ['label' => $label, 'value' => $value];
+                                                                    }
+                                                                }
+                                                            }
                                                         @endphp
 
-                                                        @if(strpos($description, '<xml>') !== false || strpos($description, '<o:OfficeDocumentSettings>') !== false)
+                                                        @if($isReceiptActivity && count($receiptFields) > 0)
+                                                            <div class="activity-receipt-card">
+                                                                <div class="activity-receipt-badge activity-receipt-badge--{{ str_replace('receipt_', '', $parsedAction ?: 'created') }}">
+                                                                    {{ ucfirst(str_replace(['receipt_', '_'], ['', ' '], $parsedAction ?: 'receipt')) }}
+                                                                </div>
+                                                                <div class="activity-receipt-grid">
+                                                                    @foreach($receiptFields as $field)
+                                                                        <div class="activity-receipt-field {{ ($field['label'] ?? '') === 'Amount' ? 'activity-receipt-field--amount' : '' }}">
+                                                                            <span class="activity-receipt-label">{{ $field['label'] }}</span>
+                                                                            <span class="activity-receipt-value">{{ $field['value'] }}</span>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @elseif(strpos($description, '<xml>') !== false || strpos($description, '<o:OfficeDocumentSettings>') !== false)
                                                             <p>{!! htmlentities($description) !!}</p>
                                                         @else
                                                             <p>{!! $description !!}</p>
