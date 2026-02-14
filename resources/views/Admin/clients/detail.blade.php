@@ -1573,7 +1573,7 @@ use App\Http\Controllers\Controller;
                                                         <?php if($isRefund): ?><span class="badge bg-secondary">Refund</span><?php endif; ?>
                                                         <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
                                                        <?php
-                                                        if( isset($rec_val->validate_receipt) && $rec_val->validate_receipt != 1 && $rec_val->receipt_type == 1){
+                                                        if($rec_val->receipt_type == 1){
                                                         ?>
                                               			<a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php echo $rec_val->id;?>">
                                                           <i class="fas fa-pencil-alt"></i>

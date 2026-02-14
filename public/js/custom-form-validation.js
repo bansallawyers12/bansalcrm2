@@ -599,13 +599,8 @@ function customValidate(formName, savetype = '')
                                                     var printLink = '';
                                                 }
 
-                                                if(validate_receipt != "1"){
-                                                	var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
-                                                	var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund"><i class="fas fa-undo"></i></a>';
-												} else {
-                                                    var editLink = '';
-                                                    var refundLink = '';
-                                                }
+                                                var editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
+                                                var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+lastInsertedId+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="" title="Create Refund"><i class="fas fa-undo"></i></a>';
 
                                                 trRows += "<tr id=\"TrRow_"+lastInsertedId+"\"><td>"+subArray.trans_date+" "+awsLink+"</td><td>"+subArray.entry_date+"</td><td>"+subArray.trans_no+"</td><td>"+subArray.payment_method+"</td><td>"+subArray.description+"</td><td>$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink+"</td></tr>";
                                             });
@@ -635,6 +630,7 @@ function customValidate(formName, savetype = '')
 												var awsLink = '';
 												var printLink = '';
 												var editLink = '';
+												var refundLink = ' <a class="link-primary createclientrefund" href="javascript:;" data-id="'+subArray.id+'" data-trans-no="'+subArray.trans_no+'" data-amount="'+subArray.deposit_amount+'" data-application-id="'+(subArray.application_id || '')+'" title="Create Refund"><i class="fas fa-undo"></i></a>';
 												
 												if(awsUrl != ""){
                                                     awsLink = '<a target="_blank" class="link-primary" href="'+awsUrl+'"><i class="fas fa-file-pdf"></i></a>';
@@ -644,9 +640,7 @@ function customValidate(formName, savetype = '')
                                                     printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
                                                 }
 
-                                                if(validate_receipt != "1"){
-                                                	editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
-												}
+												editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
 
 												// Update each TD cell instead of emptying the entire row
 												$existingRow.find('td:eq(0)').html(subArray.trans_date+" "+awsLink);
@@ -654,7 +648,7 @@ function customValidate(formName, savetype = '')
 												$existingRow.find('td:eq(2)').html(subArray.trans_no);
 												$existingRow.find('td:eq(3)').html(subArray.payment_method);
 												$existingRow.find('td:eq(4)').html(subArray.description);
-												$existingRow.find('td:eq(5)').html("$"+subArray.deposit_amount+" "+printLink+" "+editLink);
+												$existingRow.find('td:eq(5)').html("$"+subArray.deposit_amount+" "+printLink+" "+editLink+refundLink);
 											});
 										}
                                     }
