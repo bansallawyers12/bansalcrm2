@@ -527,8 +527,8 @@
 	font-size: 14px;
 }
 
-/* Receipt Activity Card */
-.activity-receipt-card {
+/* Unified Activity Content Card (all activity types) */
+.activity-content-card {
 	margin-top: 12px;
 	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 	border-radius: var(--radius-md);
@@ -536,7 +536,7 @@
 	padding: 16px 20px;
 }
 
-.activity-receipt-badge {
+.activity-type-badge {
 	display: inline-block;
 	font-size: 11px;
 	font-weight: 700;
@@ -547,32 +547,114 @@
 	margin-bottom: 14px;
 }
 
-.activity-receipt-badge--created {
+/* Receipt badges */
+.activity-type-badge--created {
 	background: rgba(34, 197, 94, 0.15);
 	color: #15803d;
 	border: 1px solid rgba(34, 197, 94, 0.3);
 }
-
-.activity-receipt-badge--validated {
+.activity-type-badge--validated {
 	background: rgba(59, 130, 246, 0.15);
 	color: #1d4ed8;
 	border: 1px solid rgba(59, 130, 246, 0.3);
 }
-
-.activity-receipt-badge--edited,
-.activity-receipt-badge--reassigned {
+.activity-type-badge--edited,
+.activity-type-badge--reassigned {
 	background: rgba(245, 158, 11, 0.15);
 	color: #b45309;
 	border: 1px solid rgba(245, 158, 11, 0.3);
 }
-
-.activity-receipt-badge--refunded,
-.activity-receipt-badge--voided {
+.activity-type-badge--refunded,
+.activity-type-badge--voided {
 	background: rgba(239, 68, 68, 0.1);
 	color: #b91c1c;
 	border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+/* Other activity type badges */
+.activity-type-badge--note {
+	background: rgba(99, 102, 241, 0.15);
+	color: #4f46e5;
+	border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.activity-type-badge--document {
+	background: rgba(14, 165, 233, 0.15);
+	color: #0369a1;
+	border: 1px solid rgba(14, 165, 233, 0.3);
+}
+.activity-type-badge--message {
+	background: rgba(168, 85, 247, 0.15);
+	color: #6b21a8;
+	border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.activity-type-badge--call {
+	background: rgba(234, 88, 12, 0.15);
+	color: #c2410c;
+	border: 1px solid rgba(234, 88, 12, 0.3);
+}
+.activity-type-badge--review {
+	background: rgba(16, 185, 129, 0.15);
+	color: #047857;
+	border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.activity-type-badge--reminder {
+	background: rgba(245, 158, 11, 0.15);
+	color: #b45309;
+	border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.activity-type-badge--action {
+	background: rgba(99, 102, 241, 0.15);
+	color: #4f46e5;
+	border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.activity-type-badge--accounting {
+	background: rgba(34, 197, 94, 0.15);
+	color: #15803d;
+	border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.activity-type-badge--application {
+	background: rgba(59, 130, 246, 0.15);
+	color: #1d4ed8;
+	border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.activity-type-badge--service {
+	background: rgba(139, 92, 246, 0.15);
+	color: #5b21b6;
+	border: 1px solid rgba(139, 92, 246, 0.3);
+}
+.activity-type-badge--status {
+	background: rgba(6, 182, 212, 0.15);
+	color: #0e7490;
+	border: 1px solid rgba(6, 182, 212, 0.3);
+}
+.activity-type-badge--checkin {
+	background: rgba(34, 197, 94, 0.15);
+	color: #15803d;
+	border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.activity-type-badge--other {
+	background: rgba(100, 116, 139, 0.15);
+	color: #475569;
+	border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+/* Activity content body (for non-receipt structured content) */
+.activity-content-body {
+	font-size: 14px;
+	line-height: 1.6;
+	color: var(--text-primary);
+}
+.activity-content-body p {
+	margin: 0 0 8px 0;
+}
+.activity-content-body p:last-child {
+	margin-bottom: 0;
+}
+.activity-content-body .text-semi-bold {
+	font-weight: 600;
+}
+
+/* Receipt-specific grid (inside activity-content-card) */
 .activity-receipt-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -604,7 +686,7 @@
 	font-weight: 700;
 }
 
-.activity-detail .activity-receipt-card {
+.activity-detail .activity-content-card {
 	margin-top: 12px;
 }
 
