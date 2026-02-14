@@ -2749,6 +2749,34 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
+{{-- Application Change Assignee Modal (moved here from applicationdetail.blade.php to avoid AJAX loading issues) --}}
+<div class="modal fade" id="applicationChangeAssigneeModal" tabindex="-1" aria-labelledby="applicationChangeAssigneeModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="applicationChangeAssigneeModalLabel">Change assignee</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="application_assignee_app_id" value="">
+				<div class="mb-3">
+					<label for="application_assignee_select" class="form-label">Assignee</label>
+					<select class="form-control" id="application_assignee_select">
+						<option value="">Select assignee</option>
+						@foreach(\App\Models\Admin::where('role', '!=', 7)->where('status', 1)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']) as $a)
+							<option value="{{ $a->id }}">{{ trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) }}</option>
+						@endforeach
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="application_assignee_save">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 @endsection
 @section('scripts')
 <script src="{{asset('js/popover.js')}}"></script>
@@ -2845,7 +2873,7 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/client-detail/document-categories.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}?v=639067000000000000"></script>
 <script src="{{ asset('js/pages/admin/client-detail/application-stage.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>
 

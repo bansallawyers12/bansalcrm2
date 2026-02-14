@@ -812,15 +812,16 @@ class ApplicationsController extends Controller
 		$application->user_id = $assigneeId;
 		$saved = $application->save();
 
-		if ($saved) {
-			return response()->json([
-				'success' => true,
-				'message' => 'Assignee updated successfully.',
-				'assignee_name' => trim($assignee->first_name . ' ' . $assignee->last_name),
-			]);
-		}
+	if ($saved) {
+		return response()->json([
+			'success' => true,
+			'message' => 'Assignee updated successfully.',
+			'assignee_name' => trim($assignee->first_name . ' ' . $assignee->last_name),
+			'assignee_email' => $assignee->email,
+		]);
+	}
 
-		return response()->json(['success' => false, 'message' => 'Failed to update assignee.']);
+	return response()->json(['success' => false, 'message' => 'Failed to update assignee.']);
 	}
 	
 	public function saleforcast(Request $request){

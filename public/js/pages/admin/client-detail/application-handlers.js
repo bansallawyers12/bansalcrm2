@@ -269,6 +269,7 @@ jQuery(document).ready(function($){
             success: function(response){
                 $('.popuploader').hide();
                 $('.ifapplicationdetailnot').html(response);
+                console.log('[APP DETAIL] Application detail loaded');
                 
                 if (typeof flatpickr !== 'undefined') {
                     flatpickr('.datepicker', {
@@ -424,8 +425,13 @@ jQuery(document).ready(function($){
         e.preventDefault();
         var appId = $(this).data('app-id');
         var assigneeId = $(this).data('assignee-id') || '';
+        console.log('[APP ASSIGNEE] Change clicked. App ID:', appId, 'Current Assignee:', assigneeId);
+        
+        // Set values
         $('#application_assignee_app_id').val(appId);
         $('#application_assignee_select').val(assigneeId);
+        
+        // Show modal (it's now in the main page, not AJAX content)
         var modalEl = document.getElementById('applicationChangeAssigneeModal');
         if (modalEl) {
             if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -434,6 +440,8 @@ jQuery(document).ready(function($){
             } else {
                 $(modalEl).modal('show');
             }
+        } else {
+            console.error('[APP ASSIGNEE] Modal not found');
         }
     });
     $(document).on('click', '#application_assignee_save', function() {
@@ -466,6 +474,7 @@ jQuery(document).ready(function($){
                     var name = (res.assignee_name || '').trim();
                     $('#application_assignee_name').text(name);
                     $('#application_assignee_initial').text(name ? name.charAt(0).toUpperCase() : '');
+                    $('#application_assignee_email').text(res.assignee_email || '');
                     $('.application-change-assignee').data('assignee-id', assigneeId);
                 } else {
                     alert((res && res.message) || 'Failed to update assignee.');
