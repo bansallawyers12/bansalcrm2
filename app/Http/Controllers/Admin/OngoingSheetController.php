@@ -222,12 +222,12 @@ class OngoingSheetController extends Controller
     {
         if ($sheetType === 'coe_enrolled') {
             return Application::select('stage')
-                ->whereNotIn('status', [2])
+                ->whereNotIn('status', [2, 8])
                 ->whereRaw('LOWER(TRIM(stage)) IN (?, ?)', ['coe issued', 'enrolled'])
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
         if ($sheetType === 'discontinue') {
-            return Application::where('status', 2)
+            return Application::whereIn('status', [2, 8]) // 2 = Discontinue, 8 = Refund
                 ->select('stage')
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
@@ -239,7 +239,7 @@ class OngoingSheetController extends Controller
             $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
             return Application::select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->whereNotIn('applications.status', [2])
+                ->whereNotIn('applications.status', [2, 8])
                 ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
                 ->where(function ($q) {
                     $q->whereNull('applications.checklist_sheet_status')
@@ -249,7 +249,7 @@ class OngoingSheetController extends Controller
         }
         // Ongoing
         return Application::select('stage')
-            ->whereNotIn('status', [2])
+            ->whereNotIn('status', [2, 8])
             ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
             ->distinct()->orderBy('stage')->pluck('stage', 'stage');
     }
@@ -292,7 +292,7 @@ class OngoingSheetController extends Controller
                            acr.application_id = applications.id
                            OR (
                              acr.application_id IS NULL 
-                             AND (SELECT COUNT(*) FROM applications a2 WHERE a2.client_id = admins.id AND a2.status != 2) = 1
+                             AND (SELECT COUNT(*) FROM applications a2 WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1
                            )
                          )) as total_payment"),
                 DB::raw('(SELECT edu_college 
@@ -325,9 +325,9 @@ class OngoingSheetController extends Controller
             ->whereNull('admins.is_deleted');
 
         if ($sheetType === 'discontinue') {
-            $query->where('applications.status', 2);
+            $query->whereIn('applications.status', [2, 8]); // 2 = Discontinue, 8 = Refund
         } else {
-            $query->whereNotIn('applications.status', [2]);
+            $query->whereNotIn('applications.status', [2, 8]);
             if ($sheetType === 'coe_enrolled') {
                 $query->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled']);
             } elseif ($sheetType === 'checklist') {
@@ -517,10 +517,10 @@ class OngoingSheetController extends Controller
         }
         $totalConversions = $conversionsQuery->count();
 
-        // Discontinued: checklist_sheet_status = 'discontinue' OR status = 2
+        // Discontinued: checklist_sheet_status = 'discontinue' OR status 2/8 (Discontinue/Refund)
         $discontinueQuery = (clone $appBase)->where(function ($q) {
             $q->where('applications.checklist_sheet_status', 'discontinue')
-              ->orWhere('applications.status', 2);
+              ->orWhereIn('applications.status', [2, 8]);
         });
         if ($dateFrom) {
             $discontinueQuery->where('applications.updated_at', '>=', $dateFrom->startOfDay());
@@ -570,7 +570,7 @@ class OngoingSheetController extends Controller
                 ->where('applications.checklist_sheet_status', 'convert_to_client');
             $discQ = (clone $appBase)->where('applications.user_id', $aid)
                 ->where(function ($q) {
-                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhere('applications.status', 2);
+                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhereIn('applications.status', [2, 8]);
                 });
             if ($dateFrom) {
                 $convQ->where('applications.updated_at', '>=', $dateFrom->startOfDay());
@@ -584,7 +584,7 @@ class OngoingSheetController extends Controller
             $disc = $discQ->count();
             $seen = (int) ($seenByAssignee[$aid] ?? 0);
             $load = Application::where('user_id', $aid)
-                ->whereNotIn('status', [2])
+                ->whereNotIn('status', [2, 8])
                 ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?)', ['coe issued', 'enrolled'])
                 ->count();
             $total = $conv + $disc;
@@ -638,7 +638,7 @@ class OngoingSheetController extends Controller
                 ->count();
             $discByMonth[] = (clone $appBase)
                 ->where(function ($q) {
-                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhere('applications.status', 2);
+                    $q->where('applications.checklist_sheet_status', 'discontinue')->orWhereIn('applications.status', [2, 8]);
                 })
                 ->whereBetween('applications.updated_at', [$mStart, $mEnd])
                 ->count();
