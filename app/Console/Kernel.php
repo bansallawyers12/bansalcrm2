@@ -14,17 +14,10 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         '\App\Console\Commands\CronJob',
-        '\App\Console\Commands\BirthDate',
        // '\App\Console\Commands\CompleteTaskRemoval',
         '\App\Console\Commands\InPersonCompleteTaskRemoval',
-       // '\App\Console\Commands\RandomClientSelectionReward',
        // '\App\Console\Commands\VisaExpireReminderEmail',
-      
-      //'\App\Console\Commands\WpAppointmentToCrm',
-      
        '\App\Console\Commands\MonthlyPartnerRecurringNotes',
-       '\App\Console\Commands\CompareDatabases',
-       '\App\Console\Commands\TransferDataToPostgres',
     ];
 
     /**
@@ -38,19 +31,14 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 		$schedule->command('CronJob:cronjob')->daily();
-		$schedule->command('BirthDate:birthdate')->daily();
         //$schedule->command('CompleteTaskRemoval:daily')->daily();
         
         //InPerson Complete Task Removal daily 1 time
         $schedule->command('InPersonCompleteTaskRemoval:daily')->daily();
-        //Random client selection in each month at 1st day
-        //$schedule->command('RandomClientSelectionReward:monthly')->monthly();
         //visa expire Reminder email before 15 days daily at 1 time
         //$schedule->command('VisaExpireReminderEmail:daily')->daily();
-      
-       //$schedule->command('WpAppointmentToCrm:daily')->everyFiveMinutes();
-      
-       //Fetch partner notes with recurring deadlines on the 1st of each month
+
+        //Fetch partner notes with recurring deadlines on the 1st of each month
        $schedule->command('MonthlyPartnerRecurringNotes:monthly')->monthly();
     }
 

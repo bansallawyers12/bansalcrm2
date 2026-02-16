@@ -62,9 +62,6 @@ Route::get('/clear-cache', function() {
 	Artisan::call('view:clear');
    $exitCode = Artisan::call('route:clear');
    $exitCode = Artisan::call('route:cache');
-     /* $exitCode = \Artisan::call('BirthDate:birthdate');
-        $output = \Artisan::output();
-        return $output;  */
     // return what you want
 });
 

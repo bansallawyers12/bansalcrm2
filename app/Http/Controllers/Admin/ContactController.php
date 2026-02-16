@@ -180,7 +180,6 @@ class ContactController extends Controller
 			$obj->work_phone			=	@$requestData['work_phone'];
 			$obj->website				=	@$requestData['website'];
 			$obj->birth_date				=	@$requestData['birth_date'];
-			$obj->anniversary_date				=	@$requestData['anniversary_date'];
 			$obj->designation			=	@$requestData['designation'];
 			$obj->department			=	@$requestData['department'];
 			$obj->skype_name			=	@$requestData['skype_name'];
@@ -266,7 +265,6 @@ class ContactController extends Controller
 			$obj->work_phone	=	@$requestData['work_phone'];
 			$obj->website	=	@$requestData['website'];
 			$obj->birth_date				=	@$requestData['birth_date'];
-			$obj->anniversary_date				=	@$requestData['anniversary_date'];
 			$obj->designation	=	@$requestData['designation'];
 			$obj->department	=	@$requestData['department'];
 			$obj->skype_name	=	@$requestData['skype_name'];

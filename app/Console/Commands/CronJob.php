@@ -109,7 +109,7 @@ class CronJob extends Command
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
-					$issuccess = $this->send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
+					$issuccess = self::send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email, $subContent, null);
 					
 					// Clean up temp file after email is sent
 					if(file_exists($tempPath)){
@@ -164,7 +164,7 @@ class CronJob extends Command
 					$array['file_name'] = $invoicefilename;
 
 					//sends email to customer with the invoice pdf attached
-					$issuccess = self::send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email,$subContent,'info@crm.travelsdata.com');
+					$issuccess = self::send_attachment_email_template($array, $replace, $replace_with, 'invoice-reminder', $invoice->customer->contact_email, $subContent, null);
 					
 					// Clean up temp file after email is sent
 					if(file_exists($tempPath)){

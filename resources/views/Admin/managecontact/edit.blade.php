@@ -138,18 +138,6 @@
 										@endif
 									</div>
 								</div>
-								<div class="form-group row">  
-									<label for="anniversary_date" class="col-sm-2 col-form-label">Anniversary Date</label>
-									<div class="col-sm-10">
-										{!! Form::text('anniversary_date', @$fetchedData->anniversary_date, array('class' => 'form-control commodate', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Anniversary Date' ))  !!}
-										<div class="calendar_icon"><i class="fa fa-calendar"></i></div>
-										@if ($errors->has('anniversary_date'))
-											<span class="custom-error" role="alert">
-												<strong>{{ @$errors->first('anniversary_date') }}</strong>
-											</span> 
-										@endif
-									</div>
-								</div>
 								<div class="form-group row"> 
 									<label for="contact_phone" class="col-sm-2 col-form-label">Contact Phone <span style="color:#ff0000;">*</span></label>
 									<div class="col-sm-4">
