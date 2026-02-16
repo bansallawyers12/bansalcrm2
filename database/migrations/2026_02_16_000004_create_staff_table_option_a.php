@@ -20,13 +20,13 @@ return new class extends Migration
 
         Schema::create('staff', function (Blueprint $table) {
             $table->id();
+            $table->integer('role')->nullable()->comment('FK to user_roles.id');
 
             // Core identity
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('staff_id', 100)->nullable()->comment('External staff identifier');
 
             // Contact
             $table->string('country_code', 20)->nullable();
@@ -41,7 +41,6 @@ return new class extends Migration
             $table->tinyInteger('verified')->default(0);
 
             // Staff-specific (AdminConsole)
-            $table->integer('role')->nullable()->comment('FK to user_roles.id');
             $table->string('position', 255)->nullable();
             $table->string('team', 255)->nullable();
             $table->text('permission')->nullable();
@@ -51,11 +50,6 @@ return new class extends Migration
 
             // Other staff fields
             $table->text('email_signature')->nullable();
-
-            // Archive
-            $table->tinyInteger('is_archived')->default(0);
-            $table->unsignedBigInteger('archived_by')->nullable()->comment('FK to staff.id');
-            $table->timestamp('archived_on')->nullable();
 
             $table->rememberToken();
             $table->timestamps();
@@ -70,9 +64,6 @@ return new class extends Migration
             }
         });
 
-        Schema::table('staff', function (Blueprint $table) {
-            $table->foreign('archived_by')->references('id')->on('staff')->onDelete('set null');
-        });
     }
 
     /**
@@ -80,9 +71,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('staff', function (Blueprint $table) {
-            $table->dropForeign(['archived_by']);
-        });
         Schema::dropIfExists('staff');
     }
 };

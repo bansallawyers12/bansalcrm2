@@ -49,14 +49,17 @@ class EmailService
             return null;
         }
 
+        // Trim password - leading/trailing whitespace causes 535 auth failure
+        $password = is_string($emailConfig->password) ? trim($emailConfig->password) : '';
+
         Config::set('mail.default', 'smtp');
         Config::set('mail.mailers.smtp', [
             'transport' => 'smtp',
             'host' => self::SMTP_HOST,
             'port' => self::SMTP_PORT,
             'encryption' => self::SMTP_ENCRYPTION,
-            'username' => $emailConfig->email,
-            'password' => $emailConfig->password,
+            'username' => trim($emailConfig->email),
+            'password' => $password,
         ]);
         Config::set('mail.from.address', $emailConfig->email);
         Config::set('mail.from.name', $emailConfig->display_name ?? $emailConfig->email);
