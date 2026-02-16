@@ -395,7 +395,7 @@ class ClientActionController extends Controller
 		   /*$objnote =  \App\Models\Note::find();
 		   $objnote->status = 1;
 		   $objnote->save();*/
-		    $newassignee = Admin::find($requestData['changeassignee']);
+		    $newassignee = \App\Models\Staff::find($requestData['changeassignee']);
 			$o = new \App\Models\Notification;
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = @$requestData['changeassignee'];
@@ -435,7 +435,7 @@ class ClientActionController extends Controller
 
 
         //Get assigner name
-        $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat11'])->first();
+        $assignee_info = \App\Models\Staff::select('id','first_name','last_name')->find($requestData['rem_cat11']);
         if($assignee_info){
             $assignee_name = $assignee_info->first_name;
         } else {

@@ -27,7 +27,7 @@ class Lead extends Model
 	
 	public function staffuser()
     {
-        return $this->belongsTo('App\Models\Admin','assign_to','id');
+        return $this->belongsTo('App\Models\Staff', 'assign_to', 'id');
     }
 	public function followupload()
     {

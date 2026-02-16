@@ -113,7 +113,7 @@ class InvoiceController extends Controller
 			if(!$clientdata){
 				return redirect()->back()->with('error', 'Client not found for this invoice.');
 			}
-			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
+			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
 			
 			return view('Admin.invoice.show',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata'])); 
@@ -885,7 +885,7 @@ class InvoiceController extends Controller
 			}
 			
 			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
-			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
+			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
 			$pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
@@ -905,7 +905,7 @@ class InvoiceController extends Controller
 		{
 			$invoicedetail = Invoice::where('id', '=', $id)->first();
 			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
-			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
+			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
 			// Check if client data exists
 			if(!$clientdata) {

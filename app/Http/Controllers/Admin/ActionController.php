@@ -95,7 +95,7 @@ class ActionController extends Controller
             }
             
             // Create activity log entry
-            $admin_data = Admin::where('id', $note->assigned_to)->first();
+            $admin_data = \App\Models\Staff::find($note->assigned_to);
             if($admin_data){
                 $assignee_name = $admin_data->first_name." ".$admin_data->last_name;
             } else {
@@ -242,7 +242,7 @@ class ActionController extends Controller
             
             if($updated){
                 // Create activity log entry for marking incomplete
-                $admin_data = Admin::where('id', $assignedTo)->first();
+                $admin_data = \App\Models\Staff::find($assignedTo);
                 if($admin_data){
                     $assignee_name = $admin_data->first_name." ".$admin_data->last_name;
                 } else {
@@ -934,7 +934,7 @@ class ActionController extends Controller
             $objs->client_id = $appointment->client_id;
             $objs->created_by = Auth::user()->id;
 
-            $assign_user = Admin::find($appointment->assigned_to);
+            $assign_user = \App\Models\Staff::find($appointment->assigned_to);
             if($assign_user){
                 $assign_full_name = $assign_user->first_name." ".$assign_user->last_name;
                 $objs->subject = 'deleted activity for '.@$assign_full_name;
@@ -986,7 +986,7 @@ class ActionController extends Controller
             $objs->client_id = $appointment->client_id;
             $objs->created_by = Auth::user()->id;
 
-            $assign_user = Admin::find($appointment->assigned_to);
+            $assign_user = \App\Models\Staff::find($appointment->assigned_to);
             if($assign_user){
                 $assign_full_name = $assign_user->first_name." ".$assign_user->last_name;
                 $objs->subject = 'deleted activity for '.@$assign_full_name;
@@ -1022,7 +1022,7 @@ class ActionController extends Controller
             $objs->client_id = $appointment->client_id;
             $objs->created_by = Auth::user()->id;
 
-            $assign_user = Admin::find($appointment->assigned_to);
+            $assign_user = \App\Models\Staff::find($appointment->assigned_to);
             if($assign_user){
                 $assign_full_name = $assign_user->first_name." ".$assign_user->last_name;
                 $objs->subject = 'deleted completed activity for '.@$assign_full_name;
@@ -1164,7 +1164,7 @@ class ActionController extends Controller
                     <div class="col-md-8">
                         <select class="form-control select2" id="changeassignee" name="changeassignee">
                             <?php
-                                foreach(\App\Models\Admin::with('office')->where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+                                foreach(\App\Models\Staff::with('office')->orderby('first_name','ASC')->get() as $admin){
                                     $officeName = $admin->office ? $admin->office->office_name : '';
                             ?>
                                     <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.$officeName.')'; ?></option>
@@ -1209,7 +1209,7 @@ class ActionController extends Controller
                     /*
                     $logslist = AppointmentLog::where('appointment_id',$appointmentdetail->id)->orderby('created_at', 'DESC')->get();
                     foreach($logslist as $llist){
-                       $admin = \App\Models\Admin::where('id', $llist->created_by)->first();
+                       $admin = \App\Models\Staff::find($llist->created_by) ?? \App\Models\Admin::find($llist->created_by);
                     ?>
                         <div class="logsitem">
                             <div class="row">
@@ -1397,31 +1397,7 @@ public function update_apppointment_description(Request $request){
     */
 }
 
-    //Get All assignee list dropdown
-    public function getAssigneeList(Request $request){
-        $assignedto = $request->assignedto;
-        
-        $content1 = array();
-        foreach(\App\Models\Admin::with('office')->where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
-        {
-            $officeName = $admin->office ? $admin->office->office_name : '';
-            $option_value =  $admin->first_name.' '.$admin->last_name.' ('.$officeName.')';
-
-            if($admin->id == $assignedto){
-                $content1[] = '<option value="'.$admin->id.'" selected>'.$option_value.'</option>';
-            } else {
-                $content1[] = '<option value="'.$admin->id.'">'.$option_value.'</option>';
-            }
-        }
-        //if($saved){
-            $response['status'] 	= 	true;
-            $response['message']	=	$content1;
-        /*}else{
-            $response['status'] 	= 	false;
-            $response['message']	=	array();
-        }*/
-        echo json_encode($response);
-    }
+    // getAssigneeList moved to StaffController::getAssigneeList
 
 }
 

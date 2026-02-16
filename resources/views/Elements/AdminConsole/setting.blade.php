@@ -34,7 +34,7 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.recentclients.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.recentclients.index')}}">Recently Modified Clients</a></li>
 		
 		<?php
-			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.users.active' || Route::currentRouteName() == 'adminconsole.users.inactive' || Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
+			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.staff.active' || Route::currentRouteName() == 'adminconsole.staff.inactive' || Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
 				$teamclasstype = 'active';
 			}  
 		?> 
@@ -46,7 +46,7 @@
 			<?php
 			if(array_key_exists('4',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'adminconsole.users.active' || Route::currentRouteName() == 'adminconsole.users.inactive') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.users.active')}}">Users</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.staff.active' || Route::currentRouteName() == 'adminconsole.staff.inactive') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.staff.active')}}">Staff</a></li>
 			<li class="{{(Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.teams.index')}}">Teams</a></li>
 			<?php } ?>
 			<?php

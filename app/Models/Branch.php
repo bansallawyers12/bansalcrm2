@@ -6,6 +6,8 @@ use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\SanitizesEmail;
+use App\Models\Admin;
+use App\Models\Staff;
 
 class Branch extends Model
 {
@@ -31,12 +33,11 @@ class Branch extends Model
     ];
 
     /**
-     * Get staff members assigned to this office (non-clients).
+     * Get staff members assigned to this office.
      */
     public function staff(): HasMany
     {
-        return $this->hasMany(Admin::class, 'office_id')
-            ->where('role', '!=', 7);
+        return $this->hasMany(Staff::class, 'office_id');
     }
 
     /**
@@ -53,8 +54,7 @@ class Branch extends Model
      */
     public function activeStaff(): HasMany
     {
-        return $this->hasMany(Admin::class, 'office_id')
-            ->where('role', '!=', 7)
+        return $this->hasMany(Staff::class, 'office_id')
             ->where('status', 1);
     }
 }

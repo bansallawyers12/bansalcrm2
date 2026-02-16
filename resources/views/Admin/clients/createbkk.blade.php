@@ -875,7 +875,7 @@
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
 											<select style="padding: 0px 5px;" name="assign_to" id="assign_to" class="form-control select2" data-valid="required">
 											<?php
-												$admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+												$admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
 												foreach($admins as $admin){
 													$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
 												?>

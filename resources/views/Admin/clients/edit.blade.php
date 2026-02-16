@@ -1113,7 +1113,7 @@
                                                     $assigneeArr = array($fetchedData->assignee);
                                                 }
 
-                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
                                                 foreach($admins as $admin)
                                                 {
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
@@ -1127,7 +1127,7 @@
                                             else
                                             {
                                                 $assigneeArr = array();
-                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
                                                 foreach($admins as $admin){
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
                                                 ?>

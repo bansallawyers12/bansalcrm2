@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\OfficeVisitController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\UploadChecklistController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
 use App\Http\Controllers\Admin\AuditLogController;
@@ -178,7 +179,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/getpartnerbranch', [AdminController::class, 'getpartnerbranch']);
 		Route::get('/getbranchproduct', [AdminController::class, 'getbranchproduct']);
 		Route::get('/getnewPartnerbranch', [AdminController::class, 'getnewPartnerbranch']);
-		Route::get('/getassigneeajax', [AdminController::class, 'getassigneeajax']);
+		Route::get('/getassigneeajax', [StaffController::class, 'getassigneeajax']);
 		Route::get('/getpartnerajax', [AdminController::class, 'getpartnerajax']);
 	
 	// Client validation (AJAX) - Moved to ClientController
@@ -190,16 +191,24 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	
 /*CRM route start*/
 	
-	Route::get('/users', [UserController::class, 'active'])->name('users.index');
-		Route::get('/users/create', [UserController::class, 'create'])->name('users.create'); 
-		Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-		Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
-		Route::get('/users/view/{id}', [UserController::class, 'view'])->name('users.view');
-		Route::post('/users/edit', [UserController::class, 'edit'])->name('users.update');
-		Route::post('/users/savezone', [UserController::class, 'savezone']);
+	// Staff routes (uses Staff model/table)
+		Route::get('/staff', [StaffController::class, 'active'])->name('staff.index');
+		Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create'); 
+		Route::post('/staff/store', [StaffController::class, 'store'])->name('staff.store');
+		Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
+		Route::get('/staff/view/{id}', [StaffController::class, 'view'])->name('staff.view');
+		Route::post('/staff/edit', [StaffController::class, 'edit'])->name('staff.update');
+		Route::post('/staff/savezone', [StaffController::class, 'savezone']);
 		
-		Route::get('/users/active', [UserController::class, 'active'])->name('users.active');
-		Route::get('/users/inactive', [UserController::class, 'inactive'])->name('users.inactive');  
+		Route::get('/staff/active', [StaffController::class, 'active'])->name('staff.active');
+		Route::get('/staff/inactive', [StaffController::class, 'inactive'])->name('staff.inactive');
+		Route::post('/action/assignee-list', [StaffController::class, 'getAssigneeList']);
+		
+	// Legacy users routes - redirect to staff (backward compatibility)
+		Route::get('/users', fn () => redirect()->route('staff.active'))->name('users.index');
+		Route::get('/users/create', fn () => redirect()->route('staff.create'))->name('users.create');
+		Route::get('/users/active', fn () => redirect()->route('staff.active'))->name('users.active');
+		Route::get('/users/inactive', fn () => redirect()->route('staff.inactive'))->name('users.inactive');
 		
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
@@ -559,7 +568,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
         Route::delete('/action/destroy/{note_id}', [ActionController::class, 'destroy'])->name('action.destroy'); //delete action
         Route::delete('/action/destroy-completed/{note_id}', [ActionController::class, 'destroyCompleted'])->name('action.destroy_completed'); //delete completed action
         
-        Route::post('/action/assignee-list', [ActionController::class, 'getAssigneeList']); //get assignee list
+        // Assignee list moved to StaffController::getAssigneeList
 
         //Total person waiting and total activity counter
         Route::get('/fetch-InPersonWaitingCount', [AdminController::class, 'fetchInPersonWaitingCount']);

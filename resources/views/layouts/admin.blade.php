@@ -402,7 +402,7 @@ i[style*="color:rgba"] {
 							<div class="form-group">
 								<label for="message">Select In Person Assignee <span class="span_req">*</span></label>
 								<?php
-								$assignee = \App\Models\Admin::where('role','!=', '7')->get();
+								$assignee = \App\Models\Staff::all();
 								?>
 								<select class="form-control assineeselect2" name="assignee">
 								@foreach($assignee as $assigne)

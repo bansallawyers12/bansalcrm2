@@ -45,13 +45,13 @@ class FollowupController extends Controller
 		$requestData 		= 	$request->all();
 		$ledID = $this->decodeString(@$requestData['lead_id']);
 		 $LEADS = Lead::where('id', $ledID)->first();
-		 $assi = \App\Models\Admin::where('id', @$LEADS->assign_to)->first();
+		 $assi = \App\Models\Staff::find(@$LEADS->assign_to);
 			 $message = @$requestData['message'];
 			    			 	 $subject = @$requestData['subject'];
 			    	$subject = str_replace('{Client First Name}',$LEADS->first_name, $subject);
 			$message = str_replace('{Client First Name}',$LEADS->first_name, $message);	
 			$message = str_replace('{Company Name}','Bansal Education', $message);
-			$message = str_replace('{Client Assignee Name}',@$assi->first_name, $message);
+			$message = str_replace('{Client Assignee Name}', $assi ? $assi->first_name : '', $message);
 		$followup 					= new Followup;
 		$followup->lead_id			= $this->decodeString(@$requestData['lead_id']);
 		$followup->user_id			= Auth::user()->id;

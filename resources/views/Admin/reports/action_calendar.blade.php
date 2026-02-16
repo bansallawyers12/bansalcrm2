@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <select data-valid="required" class="form-control select2" id="changeassignee" name="changeassignee">
                                          <option value="">Select</option>
 						                 <?php 
-											foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+											foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin){
 												$branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
 										?>
 												<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>

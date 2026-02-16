@@ -212,7 +212,7 @@
                                                                     <div class="col-sm-9">
                                                                         <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
-                                                                            @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                            @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
                                                                             <option value="{{ $admin->id }}" {{ $admin->id == $list->assigned_to ? 'selected' : '' }}>{{ $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')' }}</option>
                                                                             @endforeach
@@ -277,7 +277,7 @@
                                                                     <div class="col-sm-9">
                                                                         <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
-                                                                            @foreach(\App\Models\Admin::where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                                                            @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
                                                                             <option value="{{ $admin->id }}">{{ $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')' }}</option>
                                                                             @endforeach

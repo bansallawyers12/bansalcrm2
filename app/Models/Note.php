@@ -30,12 +30,12 @@ class Note extends Model
 
     public function noteUser()
     {
-        return $this->belongsTo('App\Models\Admin','user_id','id');
+        return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
     }
 
     public function assigned_user()
     {
-        return $this->belongsTo('App\Models\Admin','assigned_to','id');
+        return $this->belongsTo('App\Models\Staff', 'assigned_to', 'id');
     }
 
 	

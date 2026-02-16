@@ -95,16 +95,15 @@ class ClientController extends Controller
 		$totalData = $query->count();
 		$lists = $query->sortable(['id' => 'desc'])->paginate(20)->appends($request->except('page'));
 		
-		// Assignees for filter dropdown (admins except clients)
-		$assignees = \App\Models\Admin::select('id', 'first_name', 'last_name')
-			->where('role', '!=', 7)
+		// Assignees for filter dropdown (staff)
+		$assignees = \App\Models\Staff::select('id', 'first_name', 'last_name')
 			->where('status', 1)
 			->orderBy('first_name')
 			->get();
 		
-		// Users who have archived at least one client (for "Archived by" filter)
-		$archivedByUsers = \App\Models\Admin::select('admins.id', 'admins.first_name', 'admins.last_name')
-			->whereIn('admins.id', function ($q) {
+		// Staff who have archived at least one client (for "Archived by" filter)
+		$archivedByUsers = \App\Models\Staff::select('id', 'first_name', 'last_name')
+			->whereIn('id', function ($q) {
 				$q->select('archived_by')->from('admins')->where('is_archived', 1)->whereNotNull('archived_by');
 			})
 			->orderBy('first_name')

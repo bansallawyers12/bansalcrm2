@@ -94,7 +94,7 @@
 													<td style="white-space: initial;">{{$list->visit_purpose}}</td>
 													<td style="white-space: initial;">
 													<?php
-													$admin = \App\Models\Admin::where('role', '!=', '7')->where('id', '=', $list->user_id)->first();
+													$admin = \App\Models\Staff::find($list->user_id);
 													?>
 													<a href="{{URL::to('/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
 													</td>

@@ -44,7 +44,7 @@ class CheckinLog extends Model
      */
     public function assignee()
     {
-        return $this->belongsTo('App\Models\Admin', 'user_id');
+        return $this->belongsTo('App\Models\Staff', 'user_id');
     }
     
     /**

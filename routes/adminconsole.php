@@ -31,7 +31,7 @@ use App\Http\Controllers\AdminConsole\Sms\SmsController as AdminConsoleSmsContro
 use App\Http\Controllers\AdminConsole\Sms\SmsSendController;
 use App\Http\Controllers\AdminConsole\Sms\SmsTemplateController as AdminConsoleSmsTemplateController;
 use App\Http\Controllers\Admin\BranchesController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\UserroleController;
 use App\Http\Controllers\Admin\UploadChecklistController;
@@ -154,9 +154,9 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::get('/branch/view/client/{id}', [BranchesController::class, 'viewclient'])->name('adminconsole.branch.clientview'); 
     Route::post('/branch/edit', [BranchesController::class, 'edit'])->name('adminconsole.branch.update');
     
-    //Users Routes
-    Route::get('/users/active', [UserController::class, 'active'])->name('adminconsole.users.active');
-    Route::get('/users/inactive', [UserController::class, 'inactive'])->name('adminconsole.users.inactive');
+    //Staff Routes
+    Route::get('/staff/active', [StaffController::class, 'active'])->name('adminconsole.staff.active');
+    Route::get('/staff/inactive', [StaffController::class, 'inactive'])->name('adminconsole.staff.inactive');
     
     //Teams Routes
     Route::get('/teams', [TeamController::class, 'index'])->name('adminconsole.teams.index');

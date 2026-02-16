@@ -83,7 +83,7 @@ use App\Http\Controllers\Controller;
 
 											<select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
 												<option value=&quot;&quot; >Select</option>
-												@foreach(\App\Models\Admin::select('id', 'office_id', 'first_name', 'last_name')->where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+												@foreach(\App\Models\Staff::select('id', 'office_id', 'first_name', 'last_name')->where('status',1)->orderby('first_name','ASC')->get() as $admin)
 
 												<?php
 												$branchname = \App\Models\Branch::select('id', 'office_name')->where('id',$admin->office_id)->first();
@@ -442,7 +442,7 @@ use App\Http\Controllers\Controller;
 								        <tr>
 								            <td><select class="form-control select2" id="changeassignee" name="changeassignee[]" multiple="multiple">
 						                 	<?php
-												foreach(\App\Models\Admin::select('id', 'office_id', 'first_name', 'last_name')->where('role','!=',7)->orderby('first_name','ASC')->get() as $admin){
+												foreach(\App\Models\Staff::select('id', 'office_id', 'first_name', 'last_name')->orderby('first_name','ASC')->get() as $admin){
 													$branchname = \App\Models\Branch::select('id', 'office_name')->where('id',$admin->office_id)->first();
 											?>
 												<option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
@@ -2843,7 +2843,7 @@ use App\Http\Controllers\Controller;
 					<label for="application_assignee_select" class="form-label">Assignee</label>
 					<select class="form-control" id="application_assignee_select">
 						<option value="">Select assignee</option>
-						@foreach(\App\Models\Admin::where('role', '!=', 7)->where('status', 1)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']) as $a)
+						@foreach(\App\Models\Staff::where('status', 1)->orderBy('first_name')->orderBy('last_name')->get(['id', 'first_name', 'last_name']) as $a)
 							<option value="{{ $a->id }}">{{ trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')) }}</option>
 						@endforeach
 					</select>

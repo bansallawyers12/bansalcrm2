@@ -1329,7 +1329,7 @@ class AdminController extends Controller
             }
 
 			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
-			$admindata = \App\Models\Admin::where('role', 1)->where('id', $invoicedetail->user_id)->first();
+			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 
             $pdf = PDF::setOptions([
             'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
@@ -1800,30 +1800,7 @@ class AdminController extends Controller
 		echo json_encode($agents);
 	}
 
-	public function getassigneeajax(Request $request){
-	    $squery = $request->likevalue;
-	     $fetchedData = \App\Models\Admin::where('role', '!=', 7)
-       ->where(
-           function($query) use ($squery) {
-             return $query
-                    ->where('email', 'ILIKE', '%'.$squery.'%')
-                    ->orwhere('first_name', 'ILIKE','%'.$squery.'%')->orwhere('last_name', 'ILIKE','%'.$squery.'%')->orwhere('client_id', 'ILIKE','%'.$squery.'%')->orwhere('phone', 'ILIKE','%'.$squery.'%')->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ILIKE', "%".$squery."%");
-
-            })
-            ->get();
-
-
-	$agents = array();
-	foreach($fetchedData as $list){
-		$agents[] = array(
-			'id' => $list->id,
-			'agent_id' => $list->first_name.' '.$list->last_name,
-			'assignee' => $list->first_name.' '.$list->last_name,
-		);
-	}
-
-	echo json_encode($agents);
-}
+	// getassigneeajax moved to StaffController::getassigneeajax
 
 	public function allnotification(Request $request){
 		$query = \App\Models\Notification::where('receiver_id', Auth::user()->id);
@@ -1992,7 +1969,7 @@ class AdminController extends Controller
          if($note){
              $note_data = Note::where('id',$data['id'])->first(); //dd($note_data);
              if($note_data){
-                 $admin_data = Admin::where('id',$note_data['assigned_to'])->first(); //dd($admin_data);
+                 $admin_data = \App\Models\Staff::find($note_data['assigned_to']);
                  if($admin_data){
                      $assignee_name = $admin_data['first_name']." ".$admin_data['last_name'];
                  } else {
@@ -2073,7 +2050,7 @@ class AdminController extends Controller
                          $objs->subject = 'Extended Note Deadline';
                        
                           //Get assigner name
-                        $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $note_info['assigned_to'])->first();
+                        $assignee_info = \App\Models\Staff::select('id','first_name','last_name')->find($note_info['assigned_to']);
                         if($assignee_info){
                             $assignee_name = $assignee_info->first_name;
                         } else {

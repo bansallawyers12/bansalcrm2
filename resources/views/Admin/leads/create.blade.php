@@ -842,7 +842,7 @@
                                           
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
 											<?php
-                                                $admins = \App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get();
+                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
                                                 $oldAssignTo = old('assign_to', []);
                                                 foreach($admins as $admin){
                                                     $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();

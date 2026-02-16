@@ -1618,7 +1618,7 @@
 								<label for="rem_cat11">Select Assignee <span class="span_req">*</span></label>
 								<select class="assigneeselect211 form-control selec_reg11" id="rem_cat11" name="rem_cat11" data-valid="required">
                                     <option value="">Select</option>
-                                    @foreach(\App\Models\Admin::select('id', 'office_id', 'first_name', 'last_name')->where('role','!=',7)->where('status',1)->orderby('first_name','ASC')->get() as $admin)
+                                    @foreach(\App\Models\Staff::select('id', 'office_id', 'first_name', 'last_name')->where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                     <?php
                                     $branchname = \App\Models\Branch::select('id', 'office_name')->where('id',$admin->office_id)->first();
                                     ?>
