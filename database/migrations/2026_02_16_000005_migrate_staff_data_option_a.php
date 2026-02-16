@@ -66,6 +66,13 @@ return new class extends Migration
                     if (isset($insert['archived_by']) && $insert['archived_by'] !== null && !isset($validStaffIds[$insert['archived_by']])) {
                         $insert['archived_by'] = null;
                     }
+                    // staff table requires non-null status and verified; admins may have nulls
+                    if (!isset($insert['status']) || $insert['status'] === null) {
+                        $insert['status'] = 1;
+                    }
+                    if (!isset($insert['verified']) || $insert['verified'] === null) {
+                        $insert['verified'] = 0;
+                    }
                     DB::table('staff')->insert($insert);
                 }
             }
