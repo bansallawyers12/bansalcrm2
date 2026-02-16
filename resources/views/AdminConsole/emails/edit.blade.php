@@ -63,12 +63,13 @@
                                                  <div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group">
 														<label for="password">Password</label>
-														{!! Form::text('password', @$fetchedData->password, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
+														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'new-password', 'placeholder'=>'Leave blank to keep current password' ))  !!}
 														@if ($errors->has('password'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('password') }}</strong>
 															</span>
 														@endif
+														<small class="form-text text-muted">Enter a new password only if you want to change it. Leave blank to keep the existing one.</small>
 													</div>
 												</div>
                                               

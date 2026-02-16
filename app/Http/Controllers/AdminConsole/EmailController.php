@@ -68,6 +68,7 @@ class EmailController extends Controller
 		{
 			$this->validate($request, [
 										'email' => 'required|max:255|unique:emails',
+										'password' => 'required|string|min:1',
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
@@ -122,7 +123,10 @@ class EmailController extends Controller
 			$obj->email	=	@$requestData['email'];
 			$obj->email_signature	=	@$requestData['email_signature'];
 			$obj->display_name	=	@$requestData['display_name'];
-            $obj->password	=	@$requestData['password'];
+			// Only update password when a new value is provided (avoids overwriting with empty on edit)
+			if (!empty(trim($requestData['password'] ?? ''))) {
+				$obj->password = $requestData['password'];
+			}
 			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
 			$obj->user_id	=	json_encode(@$requestData['users']);
 			
