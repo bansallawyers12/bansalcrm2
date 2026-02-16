@@ -20,9 +20,12 @@ class Lead extends Model
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];
 	
-	public function user()
+	/**
+     * Creator/staff who created or owns the lead (Admin).
+     */
+	public function creator()
     {
-        return $this->belongsTo('App\Models\User','user_id','id');
+        return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
     }
 	
 	public function staffuser()

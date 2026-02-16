@@ -121,7 +121,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											if($assigneduser){
 											    ?>
 											    <br>
-											   Assigned: <a target="_blank" href="{{URL::to('/users/view')}}/{{$assigneduser->id}}">{{$assigneduser->first_name}} {{$assigneduser->first_name}}</a> 
+											   Assigned: <a target="_blank" href="{{ route('staff.view', ['id' => $assigneduser->id]) }}">{{$assigneduser->first_name}} {{$assigneduser->first_name}}</a> 
 											    <?php
 											}else{ echo '-'; }
 											?>

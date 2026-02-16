@@ -13,7 +13,11 @@ class Followup extends Model
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];
 	
-	public function user()
+	/**
+     * Creator (Staff or Admin) who created the followup.
+     * Uses Staff - if user_id stores Admin id, resolve in view via Staff::find() ?? Admin::find().
+     */
+	public function staff()
     {
         return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
     }

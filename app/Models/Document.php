@@ -106,6 +106,15 @@ class Document extends Model
         return $this->belongsTo(Staff::class, 'created_by');
     }
 
+    /**
+     * Staff who uploaded/owns the document.
+     */
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'user_id');
+    }
+
+    /** @deprecated Use staff() instead. */
     public function user(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'user_id');

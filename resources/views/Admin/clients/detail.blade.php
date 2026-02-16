@@ -1532,7 +1532,7 @@ use App\Http\Controllers\Controller;
 
 												<div class="left">
 													<div class="author">
-														<a href="{{URL::to('/users/view/'.$admin->id)}}">{{substr($admin->first_name, 0, 1)}}</a>
+														<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ substr($admin->first_name, 0, 1) }}</a>
 													</div>
 													<div class="note_modify">
 														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>

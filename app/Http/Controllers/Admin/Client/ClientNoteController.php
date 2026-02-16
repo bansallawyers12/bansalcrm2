@@ -154,7 +154,7 @@ class ClientNoteController extends Controller
                   
 					<div class="left">
 						<div class="author">
-							<a href="<?php echo \URL::to('/users/view/'.$admin->id); ?>"><?php echo substr($admin->first_name, 0, 1); ?></a>
+							<a href="<?php echo route('staff.view', ['id' => $admin->id]); ?>"><?php echo substr($admin->first_name, 0, 1); ?></a>
 						</div>
 						<div class="note_modify">
 							<small>Last Modified <span><?php echo date('d/m/Y h:i A', strtotime($list->updated_at)); ?></span></small>

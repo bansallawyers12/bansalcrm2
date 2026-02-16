@@ -78,8 +78,8 @@
 										<td>
 											@if($label->type === 'system')
 												<span class="text-muted">System</span>
-											@elseif($label->user)
-												{{ $label->user->name ?? 'Unknown' }}
+											@elseif($label->staff)
+												{{ $label->staff->full_name ?: 'Unknown' }}
 											@else
 												<span class="text-muted">Super Admin1</span>
 											@endif

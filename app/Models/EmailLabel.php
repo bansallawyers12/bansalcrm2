@@ -26,8 +26,14 @@ class EmailLabel extends Model
     ];
 
     /**
-     * Get the user that owns the label.
+     * Staff who owns the label.
      */
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'user_id');
+    }
+
+    /** @deprecated Use staff() instead. */
     public function user(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'user_id');

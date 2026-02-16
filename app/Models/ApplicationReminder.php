@@ -17,6 +17,15 @@ class ApplicationReminder extends Model
         return $this->belongsTo(Application::class);
     }
 
+    /**
+     * Staff who was reminded.
+     */
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class, 'user_id', 'id');
+    }
+
+    /** @deprecated Use staff() instead. */
     public function user()
     {
         return $this->belongsTo(Staff::class, 'user_id', 'id');

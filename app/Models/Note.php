@@ -28,6 +28,15 @@ class Note extends Model
         return $this->belongsTo('App\Models\Partner','client_id','id');
     }
 
+    /**
+     * Staff who created the note.
+     */
+    public function noteStaff()
+    {
+        return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
+    }
+
+    /** @deprecated Use noteStaff() instead. */
     public function noteUser()
     {
         return $this->belongsTo('App\Models\Staff', 'user_id', 'id');

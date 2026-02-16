@@ -38,8 +38,14 @@ class DocumentCategory extends Model
     // ==================== Relationships ====================
 
     /**
-     * Get the user who created this category
+     * Staff who created this category.
      */
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'user_id');
+    }
+
+    /** @deprecated Use staff() instead. */
     public function user(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'user_id');

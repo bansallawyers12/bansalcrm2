@@ -96,7 +96,7 @@
 													<?php
 													$admin = \App\Models\Staff::find($list->user_id);
 													?>
-													<a href="{{URL::to('/users/view/'.@$admin->id)}}">{{@$admin->first_name}} {{@$admin->last_name}}</a><br>{{@$admin->email}}
+													<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ @$admin->first_name }} {{ @$admin->last_name }}</a><br>{{@$admin->email}}
 													</td>
 													<td id="count{{$list->id}}" data-checkintime="{{date('Y-m-d H:i:s',strtotime($list->created_at))}}"><?php if($list->status == 0){ ?><span id="waitcount"> 00h:00m:00s</span><?php }else if($list->status == 2){ echo '<span>'.$list->wait_time.'</span>'; }else if($list->status == 1){ echo '<span>'.($list->wait_time ?? '-').'</span>'; }else{ echo '<span>-</span>'; } ?></td>
 													<td style="white-space: initial;">

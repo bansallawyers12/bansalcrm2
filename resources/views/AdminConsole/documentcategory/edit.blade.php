@@ -64,11 +64,11 @@
 								</div>
 								@endif
 
-								@if($category->user)
+								@if($category->staff)
 								<div class="form-group row mb-4">
 									<label class="col-form-label text-md-right col-12 col-md-3 col-lg-3">Created By</label>
 									<div class="col-sm-12 col-md-7">
-										<input type="text" class="form-control" value="{{ $category->user->first_name }} {{ $category->user->last_name }}" disabled>
+										<input type="text" class="form-control" value="{{ $category->staff->first_name }} {{ $category->staff->last_name }}" disabled>
 									</div>
 								</div>
 								@endif

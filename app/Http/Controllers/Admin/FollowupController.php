@@ -33,7 +33,7 @@ class FollowupController extends Controller
 	//	Lead::where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->orwhere('assign_to', '=', Auth::user()->id)->exists()
 		if(Lead::where('id', '=', $id)->exists()) 
 		{
-			$query = Followup::where('lead_id','=',	$id)->with(['user']);
+			$query = Followup::where('lead_id','=',	$id)->with(['staff']);
 			$totalData 	= $query->count();	//for all data
 
 			$lists		= $query->orderby('pin', 'DESC')->orderby('created_at', 'DESC')->paginate(config('constants.limit')); 

@@ -21,9 +21,18 @@ class Invoice extends Model
   
 	public $sortable = ['id', 'created_at', 'updated_at'];
  
+	/**
+     * Creator/Staff (Admin) associated with the invoice.
+     */
+	public function creator()
+    {
+        return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
+    }
+
+    /** @deprecated Use creator() instead. */
 	public function user()
     {
-        return $this->belongsTo('App\Models\Admin','user_id','id');
+        return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
     }
 	
 	public function company()

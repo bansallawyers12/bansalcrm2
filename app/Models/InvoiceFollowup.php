@@ -21,9 +21,18 @@ class InvoiceFollowup extends Model
   
 	public $sortable = ['id', 'invoice_id', 'user_id', 'followup_type', 'created_at', 'updated_at'];
 	
+	/**
+     * Staff/Admin who created the followup.
+     */
+	public function staff()
+    {
+        return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
+    }
+
+    /** @deprecated Use staff() instead. */
 	public function user()
     {
-        return $this->belongsTo('App\Models\Admin','user_id','id');
+        return $this->belongsTo('App\Models\Admin', 'user_id', 'id');
     }
     
     public function invoice()
