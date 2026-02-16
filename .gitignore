@@ -3,6 +3,7 @@
 /public/img
 /public/storage
 /storage/*.key
+/storage/app/staff_api_keys.json
 /storage/framework/views/
 /vendor
 /.idea

@@ -317,7 +317,7 @@ class OngoingSheetController extends Controller
             ->leftJoin('products', 'applications.product_id', '=', 'products.id')
             ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
             ->leftJoin('branches', 'admins.office_id', '=', 'branches.id')
-            ->leftJoin('admins as assignee', 'applications.user_id', '=', 'assignee.id')
+            ->leftJoin('staff as assignee', 'applications.user_id', '=', 'assignee.id')
             ->leftJoin('client_ongoing_references as ongoing', 'ongoing.client_id', '=', 'admins.id')
             ->where('admins.role', 7)
             ->where('admins.is_archived', 0)

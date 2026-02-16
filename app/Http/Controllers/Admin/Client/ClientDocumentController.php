@@ -1210,7 +1210,7 @@ class ClientDocumentController extends Controller
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
                 //Get verified at and verified by
-                $admin_info = DB::table('admins')->select('first_name')->where('id', '=',Auth::user()->id)->first();
+                $admin_info = \App\Models\Staff::select('first_name')->find(Auth::user()->id);
                 if($admin_info){
                     $response['verified_by'] = 	$admin_info->first_name;
                     $response['verified_at'] = 	date('d/m/Y');

@@ -141,8 +141,8 @@ class AdminLoginController extends Controller
     {
         $errors = [$this->username() => trans('auth.failed')];
   
-        // Load admin user from database (use Admin model, not User model)
-        $user = \App\Models\Admin::where($this->username(), $request->{$this->username()})->first();
+        // Load staff from database for login
+        $user = \App\Models\Staff::where($this->username(), $request->{$this->username()})->first();
     
         if ($user && !\Hash::check($request->password, $user->password)) {
             $errors = ['password' => 'Wrong password'];

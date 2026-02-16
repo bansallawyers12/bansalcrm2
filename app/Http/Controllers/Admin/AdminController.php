@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 use App\Models\Admin;
+use App\Models\Staff;
 use App\Models\Contact;
 // NOTE: TaxRate model/table has been removed
 // use App\Models\TaxRate;
@@ -140,8 +141,7 @@ class AdminController extends Controller
 		if ($request->isMethod('post'))
 		{
 			$requestData 		= 	$request->all();
-			$obj							= 	Admin::find(Auth::user()->id);
-			// GST columns removed from admins table
+			$obj							= 	Staff::find(Auth::user()->id);
 			$saved							=	$obj->save();
 
 			if(!$saved)
@@ -161,56 +161,36 @@ class AdminController extends Controller
 	// These methods were related to the tax_rates table which has been dropped
 	public function myProfile(Request $request)
 	{
-		/* Get all Select Data */
-			$countries = array();
-		/* Get all Select Data */
+		$countries = array();
 
 		if ($request->isMethod('post'))
 		{
-			$requestData 		= 	$request->all();
+			$requestData = $request->all();
 
 			$this->validate($request, [
-										'first_name' => 'required',
-										'last_name' => 'nullable',
-										'email' => 'required|email|unique:admins,email,'.Auth::user()->id,
-										'country' => 'required',
-										'phone' => 'required',
-										'state' => 'required',
-										'city' => 'required',
-										'address' => 'required',
-										'zip' => 'required'
-									  ]);
+				'first_name' => 'required',
+				'last_name' => 'nullable',
+				'email' => 'required|email|unique:staff,email,'.Auth::user()->id,
+				'phone' => 'required',
+			]);
 
-			$obj							= 	Admin::find(Auth::user()->id);
+			$obj = Staff::find(Auth::user()->id);
+			$obj->first_name = @$requestData['first_name'];
+			$obj->last_name = @$requestData['last_name'];
+			$obj->email = @$requestData['email'];
+			$obj->phone = @$requestData['phone'];
+			$obj->country_code = @$requestData['country_code'];
 
-		$obj->first_name				=	@$requestData['first_name'];
-			$obj->last_name					=	@$requestData['last_name'];
-			$obj->email						=	@$requestData['email'];
-			$obj->phone						=	@$requestData['phone'];
-			$obj->country					=	@$requestData['country'];
-			$obj->state						=	@$requestData['state'];
-			$obj->city						=	@$requestData['city'];
-			$obj->address					=	@$requestData['address'];
-			$obj->zip						=	@$requestData['zip'];
+			$saved = $obj->save();
 
-			$saved							=	$obj->save();
-
-			if(!$saved)
-			{
+			if (!$saved) {
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-			else
-			{
-				return redirect()->route('my_profile')->with('success', 'Your Profile has been edited successfully.');
-			}
+			return redirect()->route('my_profile')->with('success', 'Your Profile has been edited successfully.');
 		}
-		else
-		{
-			$id = Auth::user()->id;
-			$fetchedData = Admin::find($id);
 
-			return view('Admin.my_profile', compact(['fetchedData', 'countries']));
-		}
+		$fetchedData = Staff::find(Auth::user()->id);
+		return view('Admin.my_profile', compact(['fetchedData', 'countries']));
 	}
 	/**
      * Change password and Logout automatiaclly.
@@ -239,7 +219,7 @@ class AdminController extends Controller
 			$requestData 	= 	$request->all();
 			$admin_id = Auth::user()->id;
 
-			$fetchedData = Admin::where('id', '=', $admin_id)->first();
+			$fetchedData = Staff::where('id', '=', $admin_id)->first();
 			if(!empty($fetchedData))
 				{
 					if($admin_id == trim($requestData['admin_id']))
@@ -250,9 +230,9 @@ class AdminController extends Controller
 								}
 							else
 								{
-									$admin = Admin::find($requestData['admin_id']);
-									$admin->password = Hash::make($requestData['password']);
-									if($admin->save())
+									$staff = Staff::find($requestData['admin_id']);
+									$staff->password = Hash::make($requestData['password']);
+									if($staff->save())
 										{
 											Auth::guard('admin')->logout();
 											$request->session()->flush();
@@ -291,29 +271,31 @@ class AdminController extends Controller
 
 	public function editapi(Request $request)
 	{
-		//check authorization start
-			$check = $this->checkAuthorizationAction('api_key', $request->route()->getActionMethod(), Auth::user()->role);
-			if($check)
-			{
-				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
-			}
-		//check authorization end
-		if ($request->isMethod('post'))
-		{
-			$obj	= 	Admin::find(Auth::user()->id);
-			$obj->client_id	=	md5(Auth::user()->id.time());
-			$saved				=	$obj->save();
-			if(!$saved)
-			{
-				return redirect()->back()->with('error', Config::get('constants.server_error'));
-			}
-			else
-			{
-				return redirect()->route('edit_api')->with('success', 'Api Key'.Config::get('constants.edited'));
-			}
-		}else{
-			return view('Admin.apikey');
+		$check = $this->checkAuthorizationAction('api_key', $request->route()->getActionMethod(), Auth::user()->role);
+		if ($check) {
+			return redirect()->route('dashboard')->with('error', config('constants.unauthorized'));
 		}
+
+		$staffId = Auth::user()->id;
+		$storagePath = storage_path('app/staff_api_keys.json');
+
+		if ($request->isMethod('post')) {
+			$keys = [];
+			if (file_exists($storagePath)) {
+				$keys = json_decode(file_get_contents($storagePath), true) ?: [];
+			}
+			$keys[$staffId] = md5($staffId . time());
+			file_put_contents($storagePath, json_encode($keys));
+			return redirect()->route('edit_api')->with('success', 'Api Key' . Config::get('constants.edited'));
+		}
+
+		$apiKey = '';
+		if (file_exists($storagePath)) {
+			$keys = json_decode(file_get_contents($storagePath), true) ?: [];
+			$apiKey = $keys[$staffId] ?? '';
+		}
+
+		return view('Admin.apikey', compact('apiKey'));
 	}
 
 	public function updateAction(Request $request)

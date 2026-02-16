@@ -149,11 +149,7 @@
 		</li>
 		<li class="dropdown">
 			<a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-				@if(@Auth::user()->profile_img == '')
-				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">
-				@else
-				<img  alt="{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}" src="{{asset('img/profile_imgs')}}/{{@Auth::user()->profile_img}}" class="user-img-radious-style"/>
-				@endif	
+				<img alt="user image" src="{{ asset('img/user.png') }}" class="user-img-radious-style">	
 				<span class="d-sm-none d-lg-inline-block"></span>
 			</a>
             <div class="dropdown-menu dropdown-menu-right pullDown">

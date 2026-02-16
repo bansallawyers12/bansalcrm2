@@ -19,7 +19,7 @@ return [
     ],
 	'admins' => [
         'driver' => 'eloquent',
-        'model' => App\Models\Admin::class,
+        'model' => App\Models\Staff::class,
     ],
     'agents' => [
         'driver' => 'eloquent',
@@ -77,7 +77,7 @@ return [
     'providers' => [
 		'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
+            'model' => App\Models\Staff::class,
         ],
         'agents' => [
             'driver' => 'eloquent',

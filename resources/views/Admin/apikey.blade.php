@@ -34,20 +34,18 @@
 						<div class="card-header">
 						<h3 class="card-title">Api Key</h3>
 					  </div>
-					  @if(@Auth::user()->client_id == '')
+					  @if(empty($apiKey))
 					  {!! Form::open(array('url' => 'api-key', 'name'=>"add-key", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
-						<div class="card-body">	
+						<div class="card-body">
 						  <div class="form-group">
-							{!! Form::submit('Genreate Key', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-key")' ])  !!}
+							{!! Form::submit('Generate Key', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-key")' ])  !!}
 						  </div>
-						   
 						</div>
 					  {!! Form::close()  !!}
 					  @else
-						  <div class="card-body">	
-						 
+						  <div class="card-body">
 						   <div class="form-group">
-							<b>{{ @Auth::user()->client_id }}</b>
+							<b>{{ $apiKey }}</b>
 						  </div>
 						</div>
 					  @endif
