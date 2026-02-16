@@ -123,6 +123,31 @@ class Form
     }
     
     /**
+     * Create a password input field (masked, no value pre-filled for security)
+     */
+    public static function password($name, $options = [])
+    {
+        $attributes = is_array($options) ? $options : [];
+
+        // Build HTML manually - never output value for password fields
+        $html = '<input type="password" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"';
+
+        foreach ($attributes as $key => $val) {
+            if ($val !== null && $val !== false && $key !== 'value') {
+                if (is_bool($val) && $val === true) {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                } else {
+                    $html .= ' ' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '"';
+                }
+            }
+        }
+
+        $html .= '>';
+
+        return $html;
+    }
+
+    /**
      * Create a number input field
      */
     public static function number($name, $value = null, $options = [])
