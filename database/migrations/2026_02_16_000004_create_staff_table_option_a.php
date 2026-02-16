@@ -9,8 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * Creates standalone staff table with all staff-specific columns from admins.
-     * Staff = admins where role != 7. No admin_id link; staff.id preserves admins.id.
+     * Creates standalone staff table with all staff-specific columns from admins (Option A).
+     * Staff = admins where role != 7. staff.id preserves admins.id.
      */
     public function up(): void
     {
@@ -61,7 +61,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // FKs (add after table exists)
         Schema::table('staff', function (Blueprint $table) {
             if (Schema::hasTable('branches')) {
                 $table->foreign('office_id')->references('id')->on('branches')->onDelete('set null');
@@ -71,7 +70,6 @@ return new class extends Migration
             }
         });
 
-        // Self-referential archived_by (staff table must exist first)
         Schema::table('staff', function (Blueprint $table) {
             $table->foreign('archived_by')->references('id')->on('staff')->onDelete('set null');
         });

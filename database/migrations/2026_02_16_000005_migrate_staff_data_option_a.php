@@ -9,8 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      *
-     * Copies staff (role != 7) from admins to staff table, preserving IDs.
-     * No mapping table - staff.id = admins.id for each staff row.
+     * Copies staff (role != 7) from admins to staff table, preserving IDs (Option A).
      */
     public function up(): void
     {
@@ -47,7 +46,6 @@ return new class extends Migration
                 return;
             }
 
-            // Valid FK references - null out orphaned values to avoid constraint violations
             $validBranchIds = Schema::hasTable('branches')
                 ? DB::table('branches')->pluck('id')->flip()->all()
                 : [];
