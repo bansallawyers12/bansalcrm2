@@ -94,8 +94,16 @@ class ClientMessagingController extends Controller
                 'title' => 'Please verify your email address by clicking the button below.',
                 'client_id' => $request->client_id
             ];
-            
-            // Send verification email using .env configuration (smtp mailer)
+
+            // Configure mailer from emails table (not .env)
+            $emailService = app(\App\Services\EmailService::class);
+            if (!$emailService->configureMailerForEmail(null)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No email configuration available. Add at least one active email in Admin Console.'
+                ], 500);
+            }
+
             Mail::mailer('smtp')->to($request->client_email)->send(new ClientVerifyMail($details));
             
             return response()->json([
@@ -235,7 +243,12 @@ class ClientMessagingController extends Controller
                     'reviewLink'=> env('GOOGLE_REVIEW_LINK')
                 ];
 
-                if( \Mail::to($userInfo->email)->send(new GoogleReviewMail($details)) ) {
+                // Configure mailer from emails table (not .env)
+                $emailService = app(\App\Services\EmailService::class);
+                if (!$emailService->configureMailerForEmail(null)) {
+                    $response['status'] = false;
+                    $response['message'] = 'No email configuration available.';
+                } elseif (\Mail::to($userInfo->email)->send(new GoogleReviewMail($details))) {
                     $objs = new ActivitiesLog;
                     $objs->client_id = $data['id'];
                     $objs->created_by = Auth::user()->id;

@@ -3,11 +3,66 @@
 namespace App\Services;
 
 use App\Models\Email;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\Message;
 
 class EmailService
 {
+    /** Zoho SMTP settings - both domains are hosted on Zoho */
+    protected const SMTP_HOST = 'smtp.zoho.com';
+    protected const SMTP_PORT = 587;
+    protected const SMTP_ENCRYPTION = 'tls';
+
+    /**
+     * Get the first active email (default for system emails).
+     *
+     * @return \App\Models\Email|null
+     */
+    public function getDefaultEmail(): ?Email
+    {
+        return Email::where('status', true)->orderBy('id')->first();
+    }
+
+    /**
+     * Configure the mailer to use credentials from the emails table.
+     * Uses the given email address if found in DB, otherwise uses first active email.
+     *
+     * @param string|null $emailAddress Email address to use (must exist in emails table)
+     * @return \App\Models\Email|null The Email model used, or null if no config available
+     */
+    public function configureMailerForEmail(?string $emailAddress = null): ?Email
+    {
+        $emailConfig = $emailAddress
+            ? Email::where('email', $emailAddress)->where('status', true)->first()
+            : null;
+
+        if (!$emailConfig) {
+            $emailConfig = $this->getDefaultEmail();
+        }
+
+        if (!$emailConfig) {
+            return null;
+        }
+
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', [
+            'transport' => 'smtp',
+            'host' => self::SMTP_HOST,
+            'port' => self::SMTP_PORT,
+            'encryption' => self::SMTP_ENCRYPTION,
+            'username' => $emailConfig->email,
+            'password' => $emailConfig->password,
+        ]);
+        Config::set('mail.from.address', $emailConfig->email);
+        Config::set('mail.from.name', $emailConfig->display_name ?? $emailConfig->email);
+
+        app()->forgetInstance('mailer');
+        app()->forgetInstance('mail.manager');
+
+        return $emailConfig;
+    }
+
     /**
      * Get all active email configurations.
      *
@@ -35,18 +90,10 @@ class EmailService
     {
         try {
             //dd($view, $data, $to, $subject, $fromEmailId);
-            $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();//dd($emailConfig);
+            $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();
 
-            // Configure mail settings for this specific email
-            config([
-                'mail.mailers.smtp.host' => 'smtp.zoho.com',
-                'mail.mailers.smtp.port' => 587,
-                'mail.mailers.smtp.encryption' => 'tls',
-                'mail.mailers.smtp.username' => $emailConfig->email,
-                'mail.mailers.smtp.password' => $emailConfig->password,
-                'mail.from.address' => $emailConfig->email,
-                'mail.from.name' => $emailConfig->display_name,
-            ]);
+            // Configure mailer from emails table (not .env)
+            $this->configureMailerForEmail($emailConfig->email);
 
             // Send the email
             Mail::send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {

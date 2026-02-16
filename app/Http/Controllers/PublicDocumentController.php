@@ -835,7 +835,12 @@ class PublicDocumentController extends Controller
                 return redirect()->back()->with('error', 'Maximum reminders already sent.');
             }
 
-            // Send reminder email
+            // Send reminder email - configure mailer from emails table (not .env)
+            $emailService = app(\App\Services\EmailService::class);
+            if (!$emailService->configureMailerForEmail(null)) {
+                return redirect()->back()->with('error', 'No email configuration available. Add at least one active email in Admin Console.');
+            }
+
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
             Mail::raw("This is a reminder to sign your document: " . $signingUrl, function ($message) use ($signer) {
                 $message->to($signer->email, $signer->name)

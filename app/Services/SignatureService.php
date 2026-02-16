@@ -8,7 +8,6 @@ use App\Models\Admin;
 use App\Models\DocumentNote;
 use App\Models\ActivitiesLog;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -64,34 +63,14 @@ class SignatureService
     }
 
     /**
-     * Configure mail settings using config values (from .env)
+     * Configure mailer from emails table (not .env).
+     * Uses from_email from options if in DB, else first active email.
      */
-    protected function configureMailer(): void
+    protected function configureMailer(array $options = []): ?\App\Models\Email
     {
-        // Get mail configuration from config (which reads from .env)
-        $mailHost = config('mail.mailers.smtp.host');
-        $mailPort = config('mail.mailers.smtp.port');
-        $mailUsername = config('mail.mailers.smtp.username');
-        $mailPassword = config('mail.mailers.smtp.password');
-        $mailEncryption = config('mail.mailers.smtp.encryption', 'tls');
-        $mailFromAddress = config('mail.from.address');
-        $mailFromName = config('mail.from.name');
-        
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp', [
-            'transport' => 'smtp',
-            'host' => $mailHost,
-            'port' => $mailPort,
-            'encryption' => $mailEncryption,
-            'username' => $mailUsername,
-            'password' => $mailPassword,
-        ]);
-        Config::set('mail.from.address', $mailFromAddress);
-        Config::set('mail.from.name', $mailFromName);
-        
-        // Clear cached mail manager to apply new config
-        app()->forgetInstance('mailer');
-        app()->forgetInstance('mail.manager');
+        $fromEmail = $options['from_email'] ?? null;
+        $emailService = app(EmailService::class);
+        return $emailService->configureMailerForEmail($fromEmail);
     }
 
     /**
@@ -100,13 +79,15 @@ class SignatureService
     protected function sendSigningEmail(Document $document, Signer $signer, array $options = []): void
     {
         try {
-            // Configure mailer with Zepto settings
-            $this->configureMailer();
-            
+            // Configure mailer from emails table (not .env)
+            $emailConfig = $this->configureMailer($options);
+            if (!$emailConfig) {
+                throw new \Exception('No email configuration available. Add at least one active email in Admin Console.');
+            }
+            $mailFromAddress = $emailConfig->email;
+            $mailFromName = $emailConfig->display_name ?? $emailConfig->email;
+
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
-            
-            // Get from address from config
-            $mailFromName = config('mail.from.name');
             
             $subject = $options['subject'] ?? 'Document Signature Request from Bansal Education';
             $emailMessage = $options['message'] ?? "Please review and sign the attached document.";
@@ -118,11 +99,7 @@ class SignatureService
                 'documentTitle' => $document->display_title,
                 'signingUrl' => $signingUrl,
             ];
-            
-            // Get from address from config
-            $mailFromAddress = config('mail.from.address');
-            $mailFromName = config('mail.from.name');
-            
+
             // Send email using the signature-request template
             Mail::send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
                 $mail->to($signer->email, $signer->name)
@@ -200,16 +177,17 @@ class SignatureService
                 throw new \Exception('Maximum reminders already sent');
             }
 
-            // Configure mailer with Zepto settings
-            $this->configureMailer();
+            // Configure mailer from emails table (not .env)
+            $emailConfig = $this->configureMailer($options);
+            if (!$emailConfig) {
+                throw new \Exception('No email configuration available. Add at least one active email in Admin Console.');
+            }
+            $mailFromAddress = $emailConfig->email;
+            $mailFromName = $emailConfig->display_name ?? $emailConfig->email;
 
             $document = $signer->document;
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
             $reminderNumber = $signer->reminder_count + 1;
-
-            // Get from address from config
-            $mailFromAddress = config('mail.from.address');
-            $mailFromName = config('mail.from.name');
 
             // Email data for reminder template
             $emailData = [

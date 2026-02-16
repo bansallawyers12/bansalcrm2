@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Mail\CommonMail;
 use App\Mail\InvoiceEmailManager;
 use App\Mail\MultipleattachmentEmailManager;
+use App\Services\EmailService;
 
 use App\Models\UserRole;
 use App\Models\WebsiteSetting;
@@ -142,28 +143,18 @@ class Controller extends BaseController
 			$subject		=	$subject;	
 		}	
 		$explodeTo = explode(';', $to);//for multiple and single to
-		
-		if($sendername->smtp_username != ''){
-			$backup = Mail::getSwiftMailer();
-			// set mailing configuration
-			$transport = new Swift_SmtpTransport(
-										$sendername->smtp_host, 
-										$sendername->smtp_port, 
-										$sendername->smtp_enc
-									);
-			$transport->setUsername($sendername->smtp_username);
-			$transport->setPassword($sendername->smtp_password);
-			$maildoll = new Swift_Mailer($transport);
-			// set mailtrap mailer
-			Mail::setSwiftMailer($maildoll);
-			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, is_object($sendername) ? (\App\Helpers\Helper::defaultCrmCompanyName()) : $sendername));
-			// reset to default configuration
-			Mail::setSwiftMailer($backup);
-		}else{
-			Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, is_object($sendername) ? (\App\Helpers\Helper::defaultCrmCompanyName()) : $sendername));
+
+		// Configure mailer from emails table (not .env)
+		$emailService = app(EmailService::class);
+		$emailConfig = $emailService->configureMailerForEmail($sender);
+		if (!$emailConfig) {
+			return false;
 		}
-		
-	
+		$sender = $emailConfig->email;
+		$displayName = is_object($sendername) ? \App\Helpers\Helper::defaultCrmCompanyName() : ($sendername ?: $emailConfig->display_name);
+
+		Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName));
+
 		// check for failures
 		if (Mail::failures()) {
 			return false;
@@ -176,48 +167,22 @@ class Controller extends BaseController
 	
 	protected function send_compose_template($content, $sendername, $to = null, $subject = null, $sender = null, $array = array(), $cc = array()) 
 	{
-      
-        if( $sender != 'noreply@bansaleducation.com.au' ){
-            $sender = 'noreply@bansaleducation.com.au';
-        }
-      
-      
-        // Dynamic Email Configuration
-        /*if ($sender == 'arun@bansaleducation.com.au') {
-            
-          	$sender = env('MAIL_USERNAME_2'); // Use env() to access custom email
-            $sendername = env('MAIL_FROM_NAME_2'); // Use env() to access custom name
+		// Configure mailer from emails table (not .env) - use sender if in DB, else first active
+		$emailService = app(EmailService::class);
+		$emailConfig = $emailService->configureMailerForEmail($sender);
+		if (!$emailConfig) {
+			return false;
+		}
+		// Use credentials from DB - sender and display_name must match authenticated account
+		$sender = $emailConfig->email;
+		$sendername = $sendername ?: $emailConfig->display_name;
 
-            Config::set('mail.default', 'smtp2'); //
-          
-            Config::set('mail.mailers.smtp2', [
-                'transport' => 'smtp',
-                'host' => env('MAIL_HOST_2'),
-                'port' => env('MAIL_PORT_2'),
-                'encryption' => env('MAIL_ENCRYPTION_2'),
-                'username' => env('MAIL_USERNAME_2'),
-                'password' => env('MAIL_PASSWORD_2'),
-            ]);
-          
-        	Config::set('mail.from.address', $sender);
-        	Config::set('mail.from.name', $sendername);
-
-            // Clear Cached Mail Manager
-            app()->forgetInstance('mailer');
-            app()->forgetInstance('mail.manager');
-            Mail::setFacadeApplication(app());
-          
-        }   */
-       
-		
 		$explodeTo = explode(';', $to);//for multiple and single to
 		$q = Mail::to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}
-      
-      	//dd(Config::get('mail.default'), Config::get('mail.from.address'));
-      
+
 		$q->send(new CommonMail($content, $subject, $sender, $sendername, $array));
 	
 		// check for failures

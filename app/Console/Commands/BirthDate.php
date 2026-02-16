@@ -113,7 +113,17 @@ class BirthDate extends Command
 			$subject		=	$subject;	
 		}	
 		$explodeTo = explode(';', $to);//for multiple and single to
-		Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender));
+
+		// Configure mailer from emails table (not .env)
+		$emailService = app(\App\Services\EmailService::class);
+		$emailConfig = $emailService->configureMailerForEmail($sender);
+		if (!$emailConfig) {
+			return false;
+		}
+		$sender = $emailConfig->email;
+		$displayName = $emailConfig->display_name ?? $emailConfig->email;
+
+		Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
 	
 		// check for failures
 		if (Mail::failures()) {

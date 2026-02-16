@@ -68,8 +68,9 @@ class VisaExpireReminderEmail extends Command
         $totalLogs = $query->count(); //dd($totalLogs);
 		$logs = $query->get(); //dd($logs);
         if($totalLogs >0){
-            $from_email = env("MAIL_USERNAME");
-            $FROM_MAIL_COMPANY_NAME = env("FROM_MAIL_COMPANY_NAME");
+            // Use first active email from emails table (not .env)
+            $defaultEmail = app(\App\Services\EmailService::class)->getDefaultEmail();
+            $fromCompanyName = $defaultEmail ? $defaultEmail->display_name : 'Bansal Immigration';
 			foreach($logs as $key=>$val){ //dd($val->id);
 
                 $to_email = $val->email;
@@ -95,12 +96,13 @@ class VisaExpireReminderEmail extends Command
                     $message = $crm_template_data['description'];
                     $message = str_replace('{Client First Name}',$first_name, $message);
                     $message = str_replace('{Visa Valid Upto}',$visaExpiry, $message);
-                    $message = str_replace('{Company Name}',$FROM_MAIL_COMPANY_NAME, $message);
+                    $message = str_replace('{Company Name}',$fromCompanyName, $message);
 
                     $ccarray = array();
                     $array = array();
 
-                    $mail_sent = $this->send_compose_template($message, '', $to_email, $subject, $from_email, $array,@$ccarray);
+                    // Pass null for sender - send_compose_template uses first active email from DB
+                    $mail_sent = $this->send_compose_template($message, $fromCompanyName, $to_email, $subject, null, $array,@$ccarray);
                     if($mail_sent){
                         $this->info('Mail is sent.');
                         $rec = \App\Models\Admin::find($val->id);

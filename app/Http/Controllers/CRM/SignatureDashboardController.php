@@ -420,33 +420,16 @@ class SignatureDashboardController extends Controller
         
         $emailsSent = 0;
         $errors = [];
-        
-        // Get mail configuration from config (which reads from .env)
-        $mailHost = config('mail.mailers.smtp.host');
-        $mailPort = config('mail.mailers.smtp.port');
-        $mailUsername = config('mail.mailers.smtp.username');
-        $mailPassword = config('mail.mailers.smtp.password');
-        $mailEncryption = config('mail.mailers.smtp.encryption', 'tls');
-        $mailFromAddress = config('mail.from.address');
-        $mailFromName = config('mail.from.name');
-        
-        // Configure mail settings dynamically
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp', [
-            'transport' => 'smtp',
-            'host' => $mailHost,
-            'port' => $mailPort,
-            'encryption' => $mailEncryption,
-            'username' => $mailUsername,
-            'password' => $mailPassword,
-        ]);
-        Config::set('mail.from.address', $mailFromAddress);
-        Config::set('mail.from.name', $mailFromName);
-        
-        // Clear cached mail manager to apply new config
-        app()->forgetInstance('mailer');
-        app()->forgetInstance('mail.manager');
-        
+
+        // Configure mailer from emails table (not .env) - use first active email
+        $emailService = app(\App\Services\EmailService::class);
+        $emailConfig = $emailService->configureMailerForEmail($request->input('from_email'));
+        if (!$emailConfig) {
+            return back()->with('error', 'No email configuration available. Add at least one active email in Admin Console.');
+        }
+        $mailFromAddress = $emailConfig->email;
+        $mailFromName = $emailConfig->display_name ?? $emailConfig->email;
+
         foreach ($pendingSigners as $signer) {
             try {
                 // Generate signing URL
