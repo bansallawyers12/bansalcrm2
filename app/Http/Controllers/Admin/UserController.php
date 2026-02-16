@@ -88,6 +88,7 @@ class UserController extends Controller
 		// Set required NOT NULL fields for PostgreSQL
 		$obj->verified = 1; // Users are verified by default
 		$obj->is_archived = 0; // New users are not archived by default
+		$obj->status = 1; // New users are active by default
 			$obj->email_signature = $request->input('email_signature');
 			if(isset($requestData['permission']) && is_array($requestData['permission']) ){
                 $obj->permission		=	implode(",",$requestData['permission']);

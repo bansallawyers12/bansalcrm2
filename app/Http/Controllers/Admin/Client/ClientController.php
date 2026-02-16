@@ -690,6 +690,7 @@ class ClientController extends Controller
                     
                     $obj->role = 7; // Set role to 7 like other clients
                     $obj->is_archived = 0;
+                    $obj->status = 1; // Clients are active by default
                     $obj->verified = 0; // New leads/clients are not verified yet
                     $obj->show_dashboard_per = 0; // Leads/clients don't have dashboard access
                     $obj->office_id = $lead->staffuser->office_id ?? null;
