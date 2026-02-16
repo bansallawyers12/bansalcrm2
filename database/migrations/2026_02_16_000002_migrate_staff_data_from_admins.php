@@ -23,9 +23,14 @@ return new class extends Migration
         $adminsColumns = Schema::getColumnListing('admins');
         $colsToCopy = array_filter($staffCols, fn ($c) => in_array($c, $adminsColumns));
 
+        // Build SELECT parts: use office_id only when it exists in branches (avoids FK violation)
         $selectParts = ['a.id AS admin_id'];
         foreach ($colsToCopy as $col) {
-            $selectParts[] = 'a.' . $col;
+            if ($col === 'office_id' && Schema::hasTable('branches')) {
+                $selectParts[] = "(CASE WHEN EXISTS (SELECT 1 FROM branches b WHERE b.id = a.office_id) THEN a.office_id ELSE NULL END) AS office_id";
+            } else {
+                $selectParts[] = 'a.' . $col;
+            }
         }
         $selectParts[] = 'a.created_at';
         $selectParts[] = 'a.updated_at';
