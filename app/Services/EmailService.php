@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Email;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
 
 class EmailService
@@ -104,8 +105,24 @@ class EmailService
                 throw new \Exception("Email '{$fromEmailId}' not found in emails table. Add it in Admin Console → Emails.");
             }
 
+            // Log email config from DB
+            Log::info('EmailService - Sending Email', [
+                'from_email' => $emailConfig->email,
+                'password_length' => strlen($emailConfig->password ?? ''),
+                'to' => $to,
+                'subject' => $subject,
+            ]);
+
             // Configure mailer from emails table (not .env)
             $this->configureMailerForEmail($emailConfig->email);
+
+            // Log SMTP config after setting
+            Log::info('EmailService - SMTP Config', [
+                'host' => Config::get('mail.mailers.smtp.host'),
+                'port' => Config::get('mail.mailers.smtp.port'),
+                'username' => Config::get('mail.mailers.smtp.username'),
+                'encryption' => Config::get('mail.mailers.smtp.encryption'),
+            ]);
 
             // Send the email
             Mail::send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
@@ -126,8 +143,18 @@ class EmailService
                 }
             });
 
+            Log::info('EmailService - Email Sent Successfully', [
+                'from' => $emailConfig->email,
+                'to' => $to,
+            ]);
+
             return true;
         } catch (\Exception $e) {
+            Log::error('EmailService - Send Failed', [
+                'error' => $e->getMessage(),
+                'from_email_id' => $fromEmailId ?? 'unknown',
+                'to' => $to ?? 'unknown',
+            ]);
             throw new \Exception('Email could not be sent: ' . $e->getMessage());
         }
     }
