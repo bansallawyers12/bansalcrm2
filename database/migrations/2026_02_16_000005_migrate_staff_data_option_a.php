@@ -24,8 +24,7 @@ return new class extends Migration
         DB::transaction(function () {
             $possibleColumns = [
                 'id', 'first_name', 'last_name', 'email', 'password',
-                'country_code', 'phone', 'telephone',
-                'att_email', 'att_country_code', 'att_phone',
+                'country_code', 'phone',
                 'status', 'verified',
                 'role', 'position', 'team', 'permission', 'office_id',
                 'show_dashboard_per', 'time_zone',

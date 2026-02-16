@@ -41,10 +41,6 @@ return new class extends Migration
                 $table->string('password');
                 $table->string('country_code', 20)->nullable();
                 $table->string('phone', 100)->nullable();
-                $table->string('telephone', 100)->nullable();
-                $table->string('att_email')->nullable();
-                $table->string('att_country_code', 10)->nullable();
-                $table->string('att_phone', 50)->nullable();
                 $table->tinyInteger('status')->default(1);
                 $table->tinyInteger('verified')->default(0);
                 $table->string('position', 255)->nullable();
@@ -58,7 +54,7 @@ return new class extends Migration
                 $table->timestamps();
             });
 
-            DB::statement('INSERT INTO staff_new SELECT id, role, first_name, last_name, email, password, country_code, phone, telephone, att_email, att_country_code, att_phone, status, verified, position, team, permission, office_id, show_dashboard_per, time_zone, email_signature, remember_token, created_at, updated_at FROM staff');
+            DB::statement('INSERT INTO staff_new SELECT id, role, first_name, last_name, email, password, country_code, phone, status, verified, position, team, permission, office_id, show_dashboard_per, time_zone, email_signature, remember_token, created_at, updated_at FROM staff');
 
             Schema::drop('staff');
             Schema::rename('staff_new', 'staff');

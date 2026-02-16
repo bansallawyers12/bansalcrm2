@@ -28,13 +28,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
 
-            // Contact
+            // Contact (phone + country_code; att_* removed)
             $table->string('country_code', 20)->nullable();
             $table->string('phone', 100)->nullable();
-            $table->string('telephone', 100)->nullable();
-            $table->string('att_email')->nullable();
-            $table->string('att_country_code', 10)->nullable();
-            $table->string('att_phone', 50)->nullable();
 
             // Status
             $table->tinyInteger('status')->default(1);
