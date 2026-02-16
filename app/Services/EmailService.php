@@ -21,18 +21,6 @@ class EmailService
     }
 
     /**
-     * Sanitize email address for RFC 2822 compliance.
-     * Removes leading/trailing whitespace and trailing periods.
-     *
-     * @param string $email
-     * @return string
-     */
-    protected function sanitizeEmailForRfc2822(string $email): string
-    {
-        return rtrim(trim($email), ' .');
-    }
-
-    /**
      * Send an email using the specified email configuration.
      *
      * @param string $view
@@ -49,34 +37,22 @@ class EmailService
             //dd($view, $data, $to, $subject, $fromEmailId);
             $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();//dd($emailConfig);
 
-            // Sanitize all email addresses to avoid RFC 2822 validation errors (trailing spaces/periods)
-            $to = $this->sanitizeEmailForRfc2822((string) $to);
-            $cc = array_values(array_filter(array_map(function ($addr) {
-                $sanitized = $this->sanitizeEmailForRfc2822((string) $addr);
-                return $sanitized !== '' ? $sanitized : null;
-            }, is_array($cc) ? $cc : [])));
-            $fromEmail = $this->sanitizeEmailForRfc2822((string) $emailConfig->email);
-            $fromName = trim((string) $emailConfig->display_name);
-
             // Configure mail settings for this specific email
-            // Zoho: smtp.zoho.com = personal (@zoho.com); smtppro.zoho.com = business/custom domain (@yourdomain.com)
-            $isCustomDomain = strpos($emailConfig->email, '@zoho.') === false;
-            $smtpHost = $isCustomDomain ? 'smtppro.zoho.com' : 'smtp.zoho.com';
             config([
-                'mail.mailers.smtp.host' => $smtpHost,
+                'mail.mailers.smtp.host' => 'smtp.zoho.com',
                 'mail.mailers.smtp.port' => 587,
                 'mail.mailers.smtp.encryption' => 'tls',
-                'mail.mailers.smtp.username' => $fromEmail,
-                'mail.mailers.smtp.password' => trim((string) $emailConfig->password),
-                'mail.from.address' => $fromEmail,
-                'mail.from.name' => $fromName,
+                'mail.mailers.smtp.username' => $emailConfig->email,
+                'mail.mailers.smtp.password' => $emailConfig->password,
+                'mail.from.address' => $emailConfig->email,
+                'mail.from.name' => $emailConfig->display_name,
             ]);
 
             // Send the email
-            Mail::send($view, $data, function (Message $message) use ($to, $subject, $fromEmail, $fromName, $attachments, $cc) {
+            Mail::send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
                 $message->to($to)
                     ->subject($subject)
-                    ->from($fromEmail, $fromName);
+                    ->from($emailConfig->email, $emailConfig->display_name);
 
                 if (!empty($cc)) {
                     $message->cc($cc);

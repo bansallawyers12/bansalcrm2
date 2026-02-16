@@ -186,7 +186,7 @@
 								<h4>Email &amp; Signature</h4>
 								<div class="form-group">
 									<label for="email_signature">Email signature (HTML allowed)</label>
-									<textarea name="email_signature" id="email_signature" class="form-control tinymce-simple" rows="6" placeholder="e.g. Regards, {{ name }}">{{ old('email_signature', '') }}</textarea>
+									<textarea name="email_signature" id="email_signature" class="form-control tinymce-simple" rows="6" placeholder="e.g. Regards, @{{ name }}">{{ old('email_signature', '') }}</textarea>
 									<p class="text-muted small">Used when this user sends emails. Leave blank for no signature.</p>
 								</div>
 							</div>
