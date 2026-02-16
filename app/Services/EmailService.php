@@ -33,9 +33,13 @@ class EmailService
      */
     public function configureMailerForEmail(?string $emailAddress = null): ?Email
     {
-        $emailConfig = $emailAddress
-            ? Email::where('email', $emailAddress)->where('status', true)->first()
-            : null;
+        $emailConfig = null;
+        if ($emailAddress) {
+            $trimmed = trim($emailAddress);
+            $emailConfig = Email::where('status', true)
+                ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
+                ->first();
+        }
 
         if (!$emailConfig) {
             $emailConfig = $this->getDefaultEmail();
@@ -89,8 +93,13 @@ class EmailService
     public function sendEmail($view, $data, $to, $subject, $fromEmailId, $attachments = [], $cc = [])
     {
         try {
-            //dd($view, $data, $to, $subject, $fromEmailId);
-            $emailConfig = Email::where('email', $fromEmailId)->firstOrFail();
+            $trimmed = trim($fromEmailId);
+            $emailConfig = Email::where('status', true)
+                ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
+                ->first();
+            if (!$emailConfig) {
+                throw new \Exception("Email '{$fromEmailId}' not found in emails table. Add it in Admin Console → Emails.");
+            }
 
             // Configure mailer from emails table (not .env)
             $this->configureMailerForEmail($emailConfig->email);
