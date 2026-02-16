@@ -25,13 +25,11 @@ return new class extends Migration
         DB::transaction(function () {
             $possibleColumns = [
                 'id', 'first_name', 'last_name', 'email', 'password',
-                'staff_id', 'country_code', 'phone', 'telephone',
-                'att_email', 'att_country_code', 'att_phone',
+                'country_code', 'phone',
                 'status', 'verified',
                 'role', 'position', 'team', 'permission', 'office_id',
                 'show_dashboard_per', 'time_zone',
                 'email_signature',
-                'is_archived', 'archived_by', 'archived_on',
                 'remember_token', 'created_at', 'updated_at',
             ];
 
@@ -54,7 +52,6 @@ return new class extends Migration
             $validRoleIds = Schema::hasTable('user_roles')
                 ? DB::table('user_roles')->pluck('id')->flip()->all()
                 : [];
-            $validStaffIds = DB::table('admins')->where('role', '!=', 7)->pluck('id')->flip()->all();
 
             foreach ($staff->chunk(50) as $chunk) {
                 foreach ($chunk as $row) {
@@ -64,9 +61,6 @@ return new class extends Migration
                     }
                     if (isset($insert['role']) && $insert['role'] !== null && !isset($validRoleIds[$insert['role']])) {
                         $insert['role'] = null;
-                    }
-                    if (isset($insert['archived_by']) && $insert['archived_by'] !== null && !isset($validStaffIds[$insert['archived_by']])) {
-                        $insert['archived_by'] = null;
                     }
                     DB::table('staff')->insert($insert);
                 }

@@ -184,13 +184,15 @@ class Admin extends Authenticatable
     {
         $this->attributes['att_country_code'] = \App\Helpers\PhoneHelper::normalizeCountryCode($value);
     }
-    
+
     /**
-     * Accessor: Always return normalized att_country_code when reading
+     * Accessor: Always return normalized att_country_code when reading.
+     * Safe when column doesn't exist (e.g. staff table).
      */
     public function getAttCountryCodeAttribute($value)
     {
-        return \App\Helpers\PhoneHelper::normalizeCountryCode($value);
+        $val = array_key_exists('att_country_code', $this->attributes) ? ($this->attributes['att_country_code'] ?? $value) : null;
+        return $val !== null ? \App\Helpers\PhoneHelper::normalizeCountryCode($val) : '';
     }
     
     /**
@@ -210,13 +212,13 @@ class Admin extends Authenticatable
      * Accessor: Get formatted attendee phone number for display
      * Usage: $admin->formatted_att_phone
      * Returns: "+61 412345678"
+     * Safe when att_* columns don't exist (e.g. staff table).
      */
     public function getFormattedAttPhoneAttribute()
     {
-        return \App\Helpers\PhoneHelper::formatPhoneNumber(
-            $this->attributes['att_country_code'] ?? '',
-            $this->attributes['att_phone'] ?? ''
-        );
+        $cc = array_key_exists('att_country_code', $this->attributes) ? ($this->attributes['att_country_code'] ?? '') : '';
+        $phone = array_key_exists('att_phone', $this->attributes) ? ($this->attributes['att_phone'] ?? '') : '';
+        return \App\Helpers\PhoneHelper::formatPhoneNumber($cc, $phone);
     }
 }
 
