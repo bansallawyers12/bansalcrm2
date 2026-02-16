@@ -41,7 +41,7 @@
                                         $userids = json_decode($list->user_id);
 										$username = '';
 										foreach($userids as $userid){
-											$users = \App\Models\Admin::where('id', $userid)->first();
+											$users = \App\Models\Staff::find($userid) ?? \App\Models\Admin::find($userid);
 											$username .= $users->first_name.', ';
 										}
                                     } ?>

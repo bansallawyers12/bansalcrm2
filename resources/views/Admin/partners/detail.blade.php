@@ -688,7 +688,7 @@ use App\Http\Controllers\Controller;
 									$notelist = $querynotelist->get();
 									if($notelistcount !== 0){
 									foreach($notelist as $list){
-										$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+										$admin = \App\Models\Staff::find($list->user_id);
 										
 									?>
 										<div class="note_col" id="note_id_{{$list->id}}"> 
@@ -801,7 +801,7 @@ use App\Http\Controllers\Controller;
 														})->orderby('updated_at', 'DESC')->get();
 													foreach($fetchd as $docKey=>$fetch)
 													{
-														$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+														$admin = \App\Models\Staff::find($fetch->user_id);
 														$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 														// Handle checklist field - use existing checklist if available, otherwise use file_name as fallback for backward compatibility
 														$checklist = !empty($fetch->checklist) ? $fetch->checklist : (!empty($fetch->file_name) ? $fetch->file_name : 'N/A');
@@ -876,7 +876,7 @@ use App\Http\Controllers\Controller;
 										<?php
 										foreach($fetchd as $fetch)
 										{
-											$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+											$admin = \App\Models\Staff::find($fetch->user_id);
 											?>
 											<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
 												<div class="grid_col">
@@ -978,7 +978,7 @@ use App\Http\Controllers\Controller;
 														->get();
 													foreach($fetchd as $notuseKey=>$fetch)
 													{
-														$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+														$admin = \App\Models\Staff::find($fetch->user_id);
 														?>
 														<tr class="drow" id="id_{{$fetch->id}}">
 															<td style="white-space: initial;"><?php echo $fetch->checklist; ?></td>
@@ -1256,7 +1256,7 @@ use App\Http\Controllers\Controller;
                                                 ->orderBy('created_at', 'DESC')
                                                 ->get(); //dd($mailreports);
                                                 foreach($mailreports as $mailreport){
-                                                    $admin = \App\Models\Admin::where('id', $mailreport->user_id)->first();
+                                                    $admin = \App\Models\Staff::find($mailreport->user_id);
                                                     $partner = \App\Models\Partner::Where('id', $fetchedData->id)->first();
                                                     $subject = str_replace('{Client First Name}',$partner->partner_name, $mailreport->subject);
                                                     $message = $mailreport->message;

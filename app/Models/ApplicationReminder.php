@@ -19,6 +19,6 @@ class ApplicationReminder extends Model
 
     public function user()
     {
-        return $this->belongsTo(Admin::class, 'user_id', 'id');
+        return $this->belongsTo(Staff::class, 'user_id', 'id');
     }
 }

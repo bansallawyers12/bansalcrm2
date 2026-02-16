@@ -155,7 +155,7 @@ use App\Http\Controllers\Controller;
 											foreach(\App\Models\Application::where('product_id', $fetchedData->id)->orderby('created_at','Desc')->get() as $alist){
 												$productdetail = \App\Models\Product::where('id', $alist->product_id)->first();
 												$clientdetail = \App\Models\Admin::where('id', $alist->client_id)->first();
-												$admindetail = \App\Models\Admin::where('id', $alist->user_id)->first();
+												$admindetail = \App\Models\Staff::find($alist->user_id);
 				$partnerdetail = \App\Models\Partner::where('id', $alist->partner_id)->first();
 				$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
 				$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();

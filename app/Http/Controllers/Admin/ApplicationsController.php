@@ -292,7 +292,7 @@ class ApplicationsController extends Controller
 							<div class="accordion-body collapse" id="<?php echo $stagname; ?>_accor" data-parent="#accordion" style="">
 								<div class="activity_list">
 								<?php foreach($applicationlists as $applicationlist){ 
-								$admin = \App\Models\Admin::where('id',$applicationlist->user_id)->first();
+								$admin = \App\Models\Staff::find($applicationlist->user_id);
 								?>
 									<div class="activity_col">
 										<div class="activity_txt_time">
@@ -373,7 +373,7 @@ class ApplicationsController extends Controller
 				<div class="note_term_list">
 				<?php
 				foreach($lists as $list){
-					$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+					$admin = \App\Models\Staff::find($list->user_id);
 					$isSheetComment = ($list->type === 'sheet_comment');
 					$titleDisplay = $isSheetComment ? $list->title : (@$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...'));
 					$descDisplay = $isSheetComment ? $list->comment : (@$list->description == "" ? config('constants.empty') : str_limit(@$list->description, '15', '...'));
@@ -1374,7 +1374,7 @@ class ApplicationsController extends Controller
             $doclistdata .= '<td>';
             $doclistdata .=  $doclist->typename;
             $doclistdata .= '</td>';
-            $admin = \App\Models\Admin::where('id', @$doclist->user_id)->first();
+            $admin = \App\Models\Staff::find(@$doclist->user_id);
 
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr(@$admin->first_name, 0, 1).'</span>'.@$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('d/m/Y',strtotime($doclist->created_at)).'</td>';
@@ -1476,7 +1476,7 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Staff::find($doclist->user_id);
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';
@@ -1562,7 +1562,7 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<td>';
 				if($doclist->type == 'application'){ $doclistdata .= 'Application'; }else if($doclist->type == 'acceptance'){ $doclistdata .=  'Acceptance'; }else if($doclist->type == 'payment'){ $doclistdata .=  'Payment'; }else if($doclist->type == 'formi20'){ $doclistdata .=  'Form I 20'; }else if($doclist->type == 'visaapplication'){ $doclistdata .=  'Visa Application'; }else if($doclist->type == 'interview'){ $doclistdata .=  'Interview'; }else if($doclist->type == 'enrolment'){ $doclistdata .=  'Enrolment'; }else if($doclist->type == 'courseongoing'){ $doclistdata .=  'Course Ongoing'; }
 				$doclistdata .= '</td>';
-				$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
+				$admin = \App\Models\Staff::find($doclist->user_id);
 				
 			$doclistdata .= '<td><span style="    position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;">'.substr($admin->first_name, 0, 1).'</span>'.$admin->first_name.'</td>';
 			$doclistdata .= '<td>'.date('Y-m-d',strtotime($doclist->created_at)).'</td>';

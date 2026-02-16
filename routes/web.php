@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\FollowupController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
@@ -209,6 +208,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/users/create', fn () => redirect()->route('staff.create'))->name('users.create');
 		Route::get('/users/active', fn () => redirect()->route('staff.active'))->name('users.active');
 		Route::get('/users/inactive', fn () => redirect()->route('staff.inactive'))->name('users.inactive');
+		Route::get('/users/edit/{id}', fn ($id) => redirect()->route('staff.edit', ['id' => $id]))->name('users.edit');
+		Route::get('/users/view/{id}', fn ($id) => redirect()->route('staff.view', ['id' => $id]))->name('users.view');
 		
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted

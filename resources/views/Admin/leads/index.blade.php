@@ -117,7 +117,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										
 											{{@$list->created_at}}
 											<?php
-											$assigneduser = \App\Models\Admin::where('id', $list->assign_to)->first();
+											$assigneduser = \App\Models\Staff::find($list->assign_to);
 											if($assigneduser){
 											    ?>
 											    <br>

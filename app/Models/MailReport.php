@@ -97,7 +97,7 @@ class MailReport extends Model
      */
     public function uploader(): BelongsTo
     {
-        return $this->belongsTo(Admin::class, 'user_id');
+        return $this->belongsTo(Staff::class, 'user_id');
     }
 
     /**

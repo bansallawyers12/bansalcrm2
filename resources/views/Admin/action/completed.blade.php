@@ -141,7 +141,7 @@
                                             ?>
                                             @foreach ($assignees_completed as $list)
                                             <?php //echo "<pre>list==";print_r($list);
-                                                $admin = \App\Models\Admin::where('id', $list->user_id)->first();//dd($admin);
+                                                $admin = \App\Models\Staff::find($list->user_id);//dd($admin);
                                                 if($admin){
                                                     $first_name = $admin->first_name ?? 'N/A';
                                                     $last_name = $admin->last_name ?? 'N/A';

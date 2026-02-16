@@ -119,7 +119,7 @@ class ClientActivityController extends Controller
 			$activities = ActivitiesLog::where('client_id', $request->id)->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){
-				$admin = Admin::where('id', $activit->created_by)->first();
+				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
 
 				$data[] = array(
                     'activity_id' => $activit->id,

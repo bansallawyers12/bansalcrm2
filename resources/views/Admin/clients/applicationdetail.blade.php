@@ -168,7 +168,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							<div class="accordion-body collapse show" id="sheet_comment_accor">
 								<div class="activity_list">
 									<?php if ($sheetCommentLog) {
-										$admin = \App\Models\Admin::where('id', $sheetCommentLog->user_id)->first();
+										$admin = \App\Models\Staff::find($sheetCommentLog->user_id);
 									?>
 									<div class="activity_col">
 										<div class="activity_txt_time">
@@ -245,7 +245,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 							<div class="accordion-body collapse" id="<?php echo $stagname; ?>_accor" data-parent="#accordion" style="">
 								<div class="activity_list">
 								<?php foreach($applicationlists as $applicationlist){ 
-								$admin = \App\Models\Admin::where('id',$applicationlist->user_id)->first();
+								$admin = \App\Models\Staff::find($applicationlist->user_id);
 								?>
 									<div class="activity_col">
 										<div class="activity_txt_time">
@@ -350,7 +350,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 										?>
 									</td>
 									<td><?php
-									$admin = \App\Models\Admin::where('id', $doclist->user_id)->first();
+									$admin = \App\Models\Staff::find($doclist->user_id);
 									?><span style="position: relative;background: rgb(3, 169, 244);font-size: .8rem;height: 24px;line-height: 24px;min-width: 24px;width: 24px;color: #fff;display: block;font-weight: 600;letter-spacing: 1px;text-align: center;border-radius: 50%;overflow: hidden;"><?php echo substr($admin->first_name, 0, 1); ?></span><?php echo $admin->first_name; ?></td>
 									<td><?php echo date('Y-m-d',strtotime($doclist->created_at)); ?></td>
 									<td>
@@ -628,7 +628,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 				@endif 
 			</div>
 			<?php
-				$admin = \App\Models\Admin::where('id', $fetchData->user_id)->first();
+				$admin = \App\Models\Staff::find($fetchData->user_id);
 			?>
 			<div class="divider"></div>
 			<div class="setup_payment_sche">

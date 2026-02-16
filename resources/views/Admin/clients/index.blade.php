@@ -226,7 +226,7 @@
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
 													if(!empty(@$list->assignee) && @$list->assignee !== '') {
-														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
+														$assignee = \App\Models\Staff::find(@$list->assignee);
 													}
 													?>
 													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 

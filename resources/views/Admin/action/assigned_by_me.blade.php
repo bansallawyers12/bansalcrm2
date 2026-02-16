@@ -72,7 +72,7 @@
                                             ?>
                                             @foreach ($assignees_notCompleted as $list)
                                             <?php //echo "<pre>list==";print_r($list);
-                                                $admin = \App\Models\Admin::where('id', $list->assigned_to)->first();//dd($admin);
+                                                $admin = \App\Models\Staff::find($list->assigned_to);//dd($admin);
                                                 if($admin){
                                                     $first_name = $admin->first_name ?? 'N/A';
                                                     $last_name = $admin->last_name ?? 'N/A';

@@ -145,7 +145,7 @@ use App\Http\Controllers\Controller;
 									<?php									
 									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->where('type', 'agent')->orderby('created_at', 'DESC')->get();
 									foreach($notelist as $list){
-										$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+										$admin = \App\Models\Staff::find($list->user_id);
 									?>
 										<div class="note_col" id="note_id_{{$list->id}}"> 
 											<div class="note_content">

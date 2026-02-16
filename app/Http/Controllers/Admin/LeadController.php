@@ -175,8 +175,8 @@ class LeadController extends Controller
 				if($leads->assign_to == $requestData['assignto']){
 					return redirect()->back()->with('error', 'Already Assigned to this user');
 				}else{
-					$assignfrom = Admin::where('id',$leads->assign_to)->first();
-					$assignto = Admin::where('id',$requestData['assignto'])->first();
+					$assignfrom = \App\Models\Staff::find($leads->assign_to);
+					$assignto = \App\Models\Staff::find($requestData['assignto']);
 					$ld = Lead::find($id);
 					$ld->assign_to = $requestData['assignto'];
 					$ld->save();

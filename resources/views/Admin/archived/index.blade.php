@@ -159,11 +159,11 @@
 													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 													$assignee = null;
 													if(!empty(@$list->assignee) && @$list->assignee !== '') {
-														$assignee = \App\Models\Admin::where('id', @$list->assignee)->first();
+														$assignee = \App\Models\Staff::find(@$list->assignee);
 													}
 													$archivedBy = null;
 													if(!empty(@$list->archived_by) && @$list->archived_by !== '') {
-														$archivedBy = \App\Models\Admin::where('id', @$list->archived_by)->first();
+														$archivedBy = \App\Models\Staff::find(@$list->archived_by);
 													}
 													
 													// Check if archived for 6+ months (allow permanent deletion)

@@ -720,7 +720,7 @@ class OfficeVisitController extends Controller
 			->map(function ($n) {
 				$log = $n->checkinLog;
 				$client = Admin::where('role', '7')->find($log->client_id);
-				$sender = Admin::find($n->sender_id);
+				$sender = \App\Models\Staff::find($n->sender_id) ?? Admin::find($n->sender_id);
 				return [
 					'id' => $n->id,
 					'checkin_id' => $log->id,

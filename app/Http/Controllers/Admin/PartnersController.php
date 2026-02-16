@@ -2665,7 +2665,7 @@ class PartnersController extends Controller
         $action->description		= $description;
 
         //Get assigner name
-        $assignee_info = \App\Models\Admin::select('id','first_name','last_name')->where('id', $requestData['rem_cat123'])->first();
+        $assignee_info = \App\Models\Staff::select('id','first_name','last_name')->find($requestData['rem_cat123']);
         if($assignee_info){
             $assignee_name = $assignee_info->first_name;
         } else {
@@ -2760,7 +2760,7 @@ class PartnersController extends Controller
 			$activities = ActivitiesLog::where('client_id', $request->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){
-				$admin = Admin::where('id', $activit->created_by)->first();
+				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
                 $data[] = array(
                     'activity_id' => $activit->id,
 					'subject' => $activit->subject,
@@ -2931,7 +2931,7 @@ class PartnersController extends Controller
 			$activities = ActivitiesLog::where('client_id', $request->partner_id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){
-				$admin = Admin::where('id', $activit->created_by)->first();
+				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
                 $data[] = array(
                     'activity_id' => $activit->id,
 					'subject' => $activit->subject,
@@ -2987,7 +2987,7 @@ class PartnersController extends Controller
 		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
 		ob_start();
 		foreach($notelist as $list){
-			$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+			$admin = \App\Models\Staff::find($list->user_id);
 			?>
 			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
                 <div class="note-icon bg-primary text-white" style="width: 50px;height: 50px;line-height: 50px;font-size: 20px;margin-right: 20px;border-radius: 50%;text-align: center;">
@@ -3115,7 +3115,7 @@ class PartnersController extends Controller
                         })->where('type','partner')->orderby('created_at', 'DESC')->get();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Staff::find($fetch->user_id);
                     ?>
 					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
                         <td style="white-space: initial;">
@@ -3172,7 +3172,7 @@ class PartnersController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Staff::find($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">

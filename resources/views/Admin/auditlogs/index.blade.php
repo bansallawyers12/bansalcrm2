@@ -42,7 +42,7 @@
 											<td>
 											<?php
 											if($list->user_id != ''){
-												$user = \App\Models\Admin::where('id', $list->user_id)->first();
+												$user = \App\Models\Staff::find($list->user_id);
 												if($user){
 												?>
 												<a href="#">{{$user->first_name}}</a>

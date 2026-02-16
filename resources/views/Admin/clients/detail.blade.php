@@ -368,7 +368,7 @@ use App\Http\Controllers\Controller;
 								// PostgreSQL doesn't accept empty strings for integer columns - check before querying
 								$addedby = null;
 								if(!empty(@$fetchedData->user_id) && @$fetchedData->user_id !== '') {
-									$addedby = \App\Models\Admin::select('id', 'first_name', 'last_name')->where('id', @$fetchedData->user_id)->first();
+									$addedby = \App\Models\Staff::select('id', 'first_name', 'last_name')->find(@$fetchedData->user_id);
 								}
 							?>
 							<div class="client_added client_info_tags">
@@ -390,10 +390,10 @@ use App\Http\Controllers\Controller;
                                 //dd($fetchedData->assignee);
                                 if( Str::contains($fetchedData->assignee, ',')){
                                     $assigneeUArr = explode(",",$fetchedData->assignee);
-                                    $assigneeArr = \App\Models\Admin::select('id', 'first_name', 'last_name')->whereIn('id',$assigneeUArr)->get();
+                                    $assigneeArr = \App\Models\Staff::select('id', 'first_name', 'last_name')->whereIn('id',$assigneeUArr)->get();
                                 } else {
                                     $assigneeU = $fetchedData->assignee;
-                                    $assigneeArr = \App\Models\Admin::select('id', 'first_name', 'last_name')->where('id',$assigneeU)->get();
+                                    $assigneeArr = \App\Models\Staff::select('id', 'first_name', 'last_name')->where('id',$assigneeU)->get();
                                 }
                                 //dd($assigneeArr);
                                 ?>
@@ -906,7 +906,7 @@ use App\Http\Controllers\Controller;
                                         foreach($activities as $activit){
 											$admin = \App\Models\Admin::select('id', 'first_name', 'last_name')->where('id', $activit->created_by)->first();
                                             /*if($activit->use_for != ""){
-                                                $receiver = \App\Models\Admin::where('id', $activit->use_for)->first();
+                                                $receiver = \App\Models\Staff::find($activit->use_for) ?? \App\Models\Admin::find($activit->use_for);
                                                 if($receiver->first_name){
                                                     $reciver_name = "to <b>{$receiver->first_name}</b>";
                                                 } else {
@@ -1199,7 +1199,7 @@ use App\Http\Controllers\Controller;
                                                     $fetchd = \App\Models\Document::where('client_id',$fetchedData->id)->whereNull('not_used_doc')->where('doc_type', 'documents')->where('type','client')->orderby('updated_at', 'DESC')->get();
                                                     foreach($fetchd as $docKey=>$fetch)
                                                     {
-                                                        $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                                                        $admin = \App\Models\Staff::find($fetch->user_id);
                                                         $addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                                                         //Checklist verified by
                                                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
@@ -1292,7 +1292,7 @@ use App\Http\Controllers\Controller;
                                         <?php
                                         foreach($fetchd as $fetch)
                                         {
-                                            $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                                            $admin = \App\Models\Staff::find($fetch->user_id);
                                             ?>
                                             <div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
                                                 <div class="grid_col">
@@ -1398,7 +1398,7 @@ use App\Http\Controllers\Controller;
                                                     //dd($fetchd);
                                                     foreach($fetchd as $notuseKey=>$fetch)
                                                     {
-                                                        $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                                                        $admin = \App\Models\Staff::find($fetch->user_id);
                                                         //Checklist verified by
                                                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
                                                             $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
@@ -1503,7 +1503,7 @@ use App\Http\Controllers\Controller;
 									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->whereNull('assigned_to')->whereNull('task_group')->where('type', 'client')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
 									//dd($notelist);
                                     foreach($notelist as $list){
-										$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $list->user_id)->first();//dd($admin);
+										$admin = \App\Models\Staff::select('id', 'first_name','email')->find($list->user_id);//dd($admin);
 										$color = \App\Models\Team::select('color')->where('id',$admin->team)->first();
 
 									?>
@@ -1884,7 +1884,7 @@ use App\Http\Controllers\Controller;
 											$mailreports = \App\Models\MailReport::whereRaw('? = ANY(string_to_array(to_mail, \',\'))', [$fetchedData->id])->where('type','client')->where('mail_type',0)->orderby('created_at', 'DESC')->get();
 
 											foreach($mailreports as $mailreport){
-												$admin = \App\Models\Admin::select('id', 'first_name','email')->where('id', $mailreport->user_id)->first();
+												$admin = \App\Models\Staff::select('id', 'first_name','email')->find($mailreport->user_id);
 
 												$client = \App\Models\Admin::select('id', 'first_name','email','dob')->Where('id', $fetchedData->id)->first();
 												$subject = str_replace('{Client First Name}',$client->first_name, $mailreport->subject);
@@ -2063,13 +2063,13 @@ use App\Http\Controllers\Controller;
                                         $assigneeUArr = explode(",", $fetchedData->assignee);
                                         $firstAssigneeId = trim($assigneeUArr[0]);
                                         if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
-                                            $assignee = \App\Models\Admin::select('first_name')->where('id', $firstAssigneeId)->first();
+                                            $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
                                         }
                                     } else {
                                         // Single assignee ID
                                         $assigneeId = trim($fetchedData->assignee);
                                         if(!empty($assigneeId) && is_numeric($assigneeId)) {
-                                            $assignee = \App\Models\Admin::select('first_name')->where('id', $assigneeId)->first();
+                                            $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
                                         }
                                     }
                                 }

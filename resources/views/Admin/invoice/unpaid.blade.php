@@ -107,7 +107,7 @@
 												<?php
 												foreach($lists as $invoicelist){
 															$clientdata = \App\Models\Admin::where('id', $invoicelist->client_id)->first();
-															$admindata = \App\Models\Admin::where('id', $invoicelist->user_id)->first();
+															$admindata = \App\Models\Staff::find($invoicelist->user_id);
 																						if($invoicelist->type == 3){
 													$workflowdaa = \App\Models\Workflow::where('id', $invoicelist->application_id)->first();
 												}else{

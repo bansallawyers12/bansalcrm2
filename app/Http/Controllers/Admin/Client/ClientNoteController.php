@@ -102,7 +102,7 @@ class ClientNoteController extends Controller
 		$note_id = $request->note_id;
 		if(\App\Models\Note::where('id',$note_id)->exists()){
 			$data = \App\Models\Note::select('title','description','user_id','updated_at')->where('id',$note_id)->first();
-			$admin = \App\Models\Admin::where('id', $data->user_id)->first();
+			$admin = \App\Models\Staff::find($data->user_id);
 			$s = substr(@$admin->first_name, 0, 1);
 			$data->admin = $s;
 			$response['status'] 	= 	true;
@@ -118,7 +118,7 @@ class ClientNoteController extends Controller
 		$note_id = $request->note_id;
 		if(\App\Models\ApplicationActivitiesLog::where('type','note')->where('id',$note_id)->exists()){
 			$data = \App\Models\ApplicationActivitiesLog::select('title','description','user_id','updated_at')->where('type','note')->where('id',$note_id)->first();
-			$admin = \App\Models\Admin::where('id', $data->user_id)->first();
+			$admin = \App\Models\Staff::find($data->user_id);
 			$s = substr(@$admin->first_name, 0, 1);
 			$data->admin = $s;
 			$response['status'] 	= 	true;
@@ -137,7 +137,7 @@ class ClientNoteController extends Controller
 		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
 		ob_start();
 		foreach($notelist as $list){
-			$admin = \App\Models\Admin::where('id', $list->user_id)->first();
+			$admin = \App\Models\Staff::find($list->user_id);
 			?>
 			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
 				<div class="note_content">

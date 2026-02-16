@@ -557,7 +557,7 @@ class ClientDocumentController extends Controller
 
                 if($docInfo){
                     if( isset($docInfo->user_id) && $docInfo->user_id!= "" ){
-                        $adminInfo = \App\Models\Admin::select('first_name')->where('id',$docInfo->user_id)->first();
+                        $adminInfo = \App\Models\Staff::select('first_name')->find($docInfo->user_id);
                         $response['Added_By'] = $adminInfo->first_name;
                         $response['Added_date'] = date('d/m/Y',strtotime($docInfo->created_at));
                     } else {
@@ -705,7 +705,7 @@ class ClientDocumentController extends Controller
 
                 if($docInfo){
                     if( isset($docInfo->user_id) && $docInfo->user_id!= "" ){
-                        $adminInfo = \App\Models\Admin::select('first_name')->where('id',$docInfo->user_id)->first();
+                        $adminInfo = \App\Models\Staff::select('first_name')->find($docInfo->user_id);
                         $response['Added_By'] = $adminInfo->first_name;
                         $response['Added_date'] = date('d/m/Y',strtotime($docInfo->created_at));
                     } else {
@@ -856,7 +856,7 @@ class ClientDocumentController extends Controller
                     ob_start();
                     foreach($fetchd as $docKey=>$fetch)
                     {
-                        $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                        $admin = \App\Models\Staff::find($fetch->user_id);
                         $addedByInfo = ($admin ? $admin->first_name : 'N/A') . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                         //Checklist verified by
                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
@@ -937,7 +937,7 @@ class ClientDocumentController extends Controller
                     ob_start();
                     foreach($fetchd as $fetch)
                     {
-                        $admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+                        $admin = \App\Models\Staff::find($fetch->user_id);
                         ?>
                         <div class="grid_list">
                             <div class="grid_col">
@@ -1075,7 +1075,7 @@ class ClientDocumentController extends Controller
 			$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
 			ob_start();
 			foreach($fetchd as  $docKey=>$fetch){
-				$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+				$admin = \App\Models\Staff::find($fetch->user_id);
 					$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 					?>
 					<tr class="drow document-row" id="id_<?php echo $fetch->id; ?>" 
@@ -1135,7 +1135,7 @@ class ClientDocumentController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Staff::find($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">
@@ -1306,7 +1306,7 @@ class ClientDocumentController extends Controller
 				$fetchd = Document::where('client_id',$id)->where('doc_type',$doctype)->where('type',$request->type)->orderby('created_at', 'DESC')->get();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Staff::find($fetch->user_id);
                   
                     if( isset($doctype) && $doctype == 'migration'){
                         $preview_container_type = 'preview-container-migrationdocumentlist';
@@ -1349,7 +1349,7 @@ class ClientDocumentController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = Admin::where('id', $fetch->user_id)->first();
+					$admin = \App\Models\Staff::find($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">
