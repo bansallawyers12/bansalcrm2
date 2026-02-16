@@ -267,9 +267,9 @@
                                                         <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
                                                         @if($list->task_group != 'Personal Task')
-                                                        {{-- Assign User: use template div --}}
+                                                        {{-- Assign Staff: use template div --}}
                                                         <div id="popover-assign-{{ $list->id }}" class="d-none">
-                                                            <h4 class="text-center">Re-Assign User</h4>
+                                                            <h4 class="text-center">Re-Assign Staff</h4>
                                                             <div class="clearfix"></div>
                                                             <div class="box-header with-border">
                                                                 <div class="form-group row" style="margin-bottom:12px">
@@ -319,12 +319,12 @@
                                                             <div class="box-footer" style="padding:10px 0">
                                                                 <div class="row text-center">
                                                                     <div class="col-md-12">
-                                                                        <button type="button" class="btn btn-info assignUser">Assign User</button>
+                                                                        <button type="button" class="btn btn-info assignUser">Assign Staff</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign User"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff"><i class="fa fa-tasks" aria-hidden="true"></i></button>
                                                         @endif
                                                         </div>
                                                     </form>
@@ -363,7 +363,7 @@
 	</div>
 </div>
 
-<!-- Update Task / Assign User Modal (populated from template) -->
+<!-- Update Task / Assign Staff Modal (populated from template) -->
 <div class="modal fade" id="actionPopoverModal" tabindex="-1" aria-labelledby="actionPopoverModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -440,7 +440,7 @@ jQuery(document).ready(function($){
         $clone.find('.task_group').val(taskgroupId);
         $clone.find('.popoverdatetime').val(followupdate);
 
-        $('#actionPopoverModalLabel').text('Re-Assign User');
+        $('#actionPopoverModalLabel').text('Re-Assign Staff');
         $('#actionPopoverModalBody').html($clone);
 
         if (assignedTo) {

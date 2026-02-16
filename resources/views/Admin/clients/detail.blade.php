@@ -73,7 +73,7 @@ use App\Http\Controllers\Controller;
 							</div>
 							
 							<button type="button" class="btn btn-primary btn-block btn-assignaction" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-									<h4 class=&quot;text-center&quot;>Assign User</h4>
+									<h4 class=&quot;text-center&quot;>Assign Staff</h4>
 									<div class=&quot;clearfix&quot;></div>
 
 							    <div class=&quot;box-header with-border&quot;>
@@ -136,7 +136,7 @@ use App\Http\Controllers\Controller;
 							    </div>
 							    <div class=&quot;row text-center&quot;>
 									<div class=&quot;col-md-12 text-center&quot;>
-									<button  class=&quot;btn btn-danger&quot; id=&quot;assignUser&quot;>Assign User</button>
+									<button  class=&quot;btn btn-danger&quot; id=&quot;assignUser&quot;>Assign Staff</button>
 									</div>
 							    </div>
 					    </div>" data-original-title="" title="" style="background: rgba(255, 255, 255, 0.95); color: var(--primary-color); padding: 10px; font-size: 13px;width:100% !important;"> Action</button>
@@ -904,7 +904,7 @@ use App\Http\Controllers\Controller;
 
 										//dd($activities);
                                         foreach($activities as $activit){
-											$admin = \App\Models\Admin::select('id', 'first_name', 'last_name')->where('id', $activit->created_by)->first();
+											$admin = \App\Models\Staff::find($activit->created_by) ?? \App\Models\Admin::find($activit->created_by);
                                             /*if($activit->use_for != ""){
                                                 $receiver = \App\Models\Staff::find($activit->use_for) ?? \App\Models\Admin::find($activit->use_for);
                                                 if($receiver->first_name){
@@ -1203,7 +1203,7 @@ use App\Http\Controllers\Controller;
                                                         $addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                                                         //Checklist verified by
                                                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
-                                                            $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
+                                                            $checklist_verified_Info = \App\Models\Staff::select('first_name')->find($fetch->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($fetch->checklist_verified_by);
                                                             $checklist_verified_by = $checklist_verified_Info->first_name;
                                                         } else {
                                                             $checklist_verified_by = 'N/A';
@@ -1401,7 +1401,7 @@ use App\Http\Controllers\Controller;
                                                         $admin = \App\Models\Staff::find($fetch->user_id);
                                                         //Checklist verified by
                                                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
-                                                            $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
+                                                            $checklist_verified_Info = \App\Models\Staff::select('first_name')->find($fetch->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($fetch->checklist_verified_by);
                                                             $checklist_verified_by = $checklist_verified_Info->first_name;
                                                         } else {
                                                             $checklist_verified_by = 'N/A';

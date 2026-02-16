@@ -103,7 +103,7 @@ class Document extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(Admin::class, 'created_by');
+        return $this->belongsTo(Staff::class, 'created_by');
     }
 
     public function user(): BelongsTo

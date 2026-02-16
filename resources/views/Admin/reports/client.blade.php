@@ -43,7 +43,7 @@
 										<label class="dropdown-option"><input type="checkbox" value="22" checked /> Visa Expiry Date</label>
 										<label class="dropdown-option"><input type="checkbox" value="23" checked /> Preferred Intake</label>
 										<label class="dropdown-option"><input type="checkbox" value="25" checked /> Added By Office</label>
-										<label class="dropdown-option"><input type="checkbox" value="24" checked /> Added By User</label>
+										<label class="dropdown-option"><input type="checkbox" value="24" checked /> Added By Staff</label>
 										<label class="dropdown-option"><input type="checkbox" value="26" checked /> Assignee</label>
 										<label class="dropdown-option"><input type="checkbox" value="27" checked /> Assignee Office</label>
 									</div>
@@ -81,7 +81,7 @@
 											<th style="white-space: initial;">Prospect Date</th>
 											<th style="white-space: initial;">Client Date</th>
 											<th style="white-space: initial;">Visa Expiry Date</th>
-											<th style="white-space: initial;">Added By User</th>
+											<th style="white-space: initial;">Added By Staff</th>
 											<th style="white-space: initial;">Added By Office</th>
 											<th style="white-space: initial;">Assignee</th>
 											<th style="white-space: initial;">Assignee Office</th>

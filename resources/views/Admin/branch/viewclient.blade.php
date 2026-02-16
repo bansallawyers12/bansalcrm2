@@ -108,7 +108,7 @@
 						<div class="card-body">
 							<ul class="nav nav-pills" id="client_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link "  id="clients-tab" href="{{URL::to('/branch/view/')}}/{{$fetchedData->id}}" role="tab" >User List</a>
+									<a class="nav-link "  id="clients-tab" href="{{URL::to('/branch/view/')}}/{{$fetchedData->id}}" role="tab" >Staff List</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link active"  id="date-tab" href="{{URL::to('/branch/view/client/')}}/{{$fetchedData->id}}" role="tab" >Client List</a>

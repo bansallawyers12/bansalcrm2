@@ -22,7 +22,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<ul class="nav nav-pills" id="user_tabs" role="tablist">
+							<ul class="nav nav-pills" id="staff_tabs" role="tablist">
 								<li class="nav-item">
 									<a class="nav-link {{ (isset($viewType) && $viewType == 'active') ? 'active' : '' }}" id="active-tab"  href="{{URL::to('/staff/active')}}" >Active</a>
 								</li>

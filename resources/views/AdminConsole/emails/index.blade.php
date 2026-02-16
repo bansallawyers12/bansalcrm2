@@ -25,7 +25,7 @@
 									<tr>
 										
 										<th>Name</th>
-										<th>User Sharing</th>
+										<th>Staff Sharing</th>
 										<th>Status</th>
 										<th></th>
 									</tr> 

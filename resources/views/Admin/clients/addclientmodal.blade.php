@@ -1573,12 +1573,12 @@
 </div>
 
 
-<!-- Add application assign user Modal -->
+<!-- Add application assign staff Modal -->
 <div class="modal fade custom_modal" id="create_applicationaction" tabindex="-1" role="dialog" aria-labelledby="create_applicationactionModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="appointModalLabel">Assign User</h5>
+				<h5 class="modal-title" id="appointModalLabel">Assign Staff</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -1629,7 +1629,7 @@
 						</div>
 
 						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('appliassignform')" type="button" class="btn btn-primary">Assign User</button>
+							<button onclick="customValidate('appliassignform')" type="button" class="btn btn-primary">Assign Staff</button>
 							<!--<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>-->
 						</div>
 					</div>

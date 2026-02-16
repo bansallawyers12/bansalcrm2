@@ -1673,12 +1673,12 @@
 
 
 
-<!-- Add partner assign user Modal -->
+<!-- Add partner assign staff Modal -->
 <div class="modal fade custom_modal" id="create_partneraction" tabindex="-1" role="dialog" aria-labelledby="create_partneractionModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="appointModalLabel">Assign User</h5>
+				<h5 class="modal-title" id="appointModalLabel">Assign Staff</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -1771,7 +1771,7 @@
 
                     <div class="row">
                         <div class="col-6 col-md-6 col-lg-6">
-							<button onclick="customValidate('partnerassignform')" type="button" class="btn btn-primary">Assign User</button>
+							<button onclick="customValidate('partnerassignform')" type="button" class="btn btn-primary">Assign Staff</button>
 						</div>
 					</div>
 				</form>

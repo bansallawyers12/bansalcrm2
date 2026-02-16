@@ -567,7 +567,7 @@ class ClientDocumentController extends Controller
 
 
                     if( isset($docInfo->checklist_verified_by) && $docInfo->checklist_verified_by!= "" ){
-                        $verifyInfo = \App\Models\Admin::select('first_name')->where('id',$docInfo->checklist_verified_by)->first();
+                        $verifyInfo = \App\Models\Staff::select('first_name')->find($docInfo->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($docInfo->checklist_verified_by);
                         $response['Verified_By'] = $verifyInfo->first_name;
                         $response['Verified_At'] = date('d/m/Y',strtotime($docInfo->checklist_verified_at));
                     } else {
@@ -715,7 +715,7 @@ class ClientDocumentController extends Controller
 
 
                     if( isset($docInfo->checklist_verified_by) && $docInfo->checklist_verified_by!= "" ){
-                        $verifyInfo = \App\Models\Admin::select('first_name')->where('id',$docInfo->checklist_verified_by)->first();
+                        $verifyInfo = \App\Models\Staff::select('first_name')->find($docInfo->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($docInfo->checklist_verified_by);
                         $response['Verified_By'] = $verifyInfo->first_name;
                         $response['Verified_At'] = date('d/m/Y',strtotime($docInfo->checklist_verified_at));
                     } else {
@@ -860,7 +860,7 @@ class ClientDocumentController extends Controller
                         $addedByInfo = ($admin ? $admin->first_name : 'N/A') . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                         //Checklist verified by
                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
-                            $checklist_verified_Info = \App\Models\Admin::select('first_name')->where('id', $fetch->checklist_verified_by)->first();
+                            $checklist_verified_Info = \App\Models\Staff::select('first_name')->find($fetch->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($fetch->checklist_verified_by);
                             $checklist_verified_by = $checklist_verified_Info->first_name;
                         } else {
                             $checklist_verified_by = 'N/A';

@@ -161,7 +161,7 @@
 
 													<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">Delete</button>
 													<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-														<h4 class=&quot;text-center&quot;>Re-Assign User</h4>
+														<h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
 														<div class=&quot;clearfix&quot;></div>
 													<div class=&quot;box-header with-border&quot;>
 														<div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
@@ -221,7 +221,7 @@
 													</div>
 													<div class=&quot;row text-center&quot;>
 														<div class=&quot;col-md-12 text-center&quot;>
-														<button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
+														<button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
 														</div>
 													</div>
 											</div>" data-original-title="" title="" style="width: 82px;display: inline;">Reassign</button>
@@ -337,7 +337,7 @@
 
 													<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">Delete</button>
 													<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
-														<h4 class=&quot;text-center&quot;>Re-Assign User</h4>
+														<h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
 														<div class=&quot;clearfix&quot;></div>
 													<div class=&quot;box-header with-border&quot;>
 														<div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
@@ -397,7 +397,7 @@
 													</div>
 													<div class=&quot;row text-center&quot;>
 														<div class=&quot;col-md-12 text-center&quot;>
-														<button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
+														<button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
 														</div>
 													</div>
 											</div>" data-original-title="" title="" style="width: 82px;display: inline;">Reassign</button>

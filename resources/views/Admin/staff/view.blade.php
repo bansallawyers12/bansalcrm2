@@ -517,7 +517,7 @@ use App\Http\Controllers\Controller;
 								<span class="custom-error workflow_error" role="alert">
 									<strong></strong>
 								</span> 
-								<span class="span_note">You need to transfer your responsibilities to a new user in order to proceed further. The responsibilities are mentioned below.</span>
+								<span class="span_note">You need to transfer your responsibilities to a new staff member in order to proceed further. The responsibilities are mentioned below.</span>
 							</div>
 						</div>
 					</div>

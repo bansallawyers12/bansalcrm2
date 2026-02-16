@@ -582,7 +582,7 @@
 				<div class="d-flex justify-content-between align-items-center">
 					<div>
 						<h2 class="mb-0" style="color: #1f2937; font-weight: 700; font-size: 1.875rem;">
-							Welcome back, {{ Auth::user()->first_name ?? 'User' }}!
+							Welcome back, {{ Auth::user()->first_name ?? 'Staff' }}!
 						</h2>
 						<p class="text-muted mb-0 mt-1" style="font-size: 0.9375rem;">
 							Here's what's happening with your CRM today

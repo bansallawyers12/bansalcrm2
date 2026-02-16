@@ -557,7 +557,7 @@ class OngoingSheetController extends Controller
         $assigneeIds = Application::select('user_id')->whereNotNull('user_id')->distinct()->pluck('user_id')
             ->merge(CheckinLog::select('user_id')->distinct()->pluck('user_id'))
             ->unique()->filter()->values();
-        $assignees = Admin::where('status', 1)
+        $assignees = \App\Models\Staff::where('status', 1)
             ->whereIn('id', $assigneeIds)
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
@@ -653,7 +653,7 @@ class OngoingSheetController extends Controller
             : 0;
 
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
-        $assigneesForFilter = Admin::where('status', 1)
+        $assigneesForFilter = \App\Models\Staff::where('status', 1)
             ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);

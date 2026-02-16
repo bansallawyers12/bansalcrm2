@@ -72,11 +72,11 @@
 												</div>
                                               
 												<div class="col-12 col-md-12 col-lg-12">
-													<h4>User Sharing</h4>
+													<h4>Staff Sharing</h4>
 													<div class="form-group"> 
-														<label for="display_name">Select Users</label>
+														<label for="display_name">Select Staff</label>
 														<select data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
-															<option value="">Select User</option>
+															<option value="">Select Staff</option>
 															<?php
 																$users = \App\Models\Staff::Where('status', '=', 1)->get();
 																foreach($users as $user){

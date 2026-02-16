@@ -201,7 +201,7 @@
 
                                                         <?php if($list->task_group != 'Personal Task'){?>
                                                         <button type="button" data-assignedto="{{ $list->assigned_to }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" title="Reassign" data-content="<div id=&quot;popover-content&quot;>
-                                                            <h4 class=&quot;text-center&quot;>Re-Assign User</h4>
+                                                            <h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
                                                             <div class=&quot;clearfix&quot;></div>
                                                         <div class=&quot;box-header with-border&quot;>
                                                             <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
@@ -262,7 +262,7 @@
                                                         </div>
                                                         <div class=&quot;row text-center&quot;>
                                                             <div class=&quot;col-md-12 text-center&quot;>
-                                                            <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
+                                                            <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
                                                             </div>
                                                         </div>
                                                 </div>" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>

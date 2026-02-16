@@ -531,7 +531,7 @@
                     </div>
                     <div class="info-row">
                         <span class="label">Created By</span>
-                        <span class="value">{{ $document->creator->first_name ?? 'System' }} {{ $document->creator->last_name ?? '' }}</span>
+                        <span class="value">{{ optional($document->creator)->first_name ?? 'System' }} {{ optional($document->creator)->last_name ?? '' }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Created At</span>

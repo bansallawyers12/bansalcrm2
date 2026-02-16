@@ -50,7 +50,7 @@
     						Product
     					</a>
     					<a href="{{URL::to('/users/active')}}" class="dropdown-item">
-    						User
+    						Staff
     					</a>
     				</div>
 			    </div>

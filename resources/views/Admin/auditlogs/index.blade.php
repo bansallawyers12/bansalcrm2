@@ -26,7 +26,7 @@
 											<th>ID</th>
 											<th>Level</th>
 											<th>Date</th>
-											<th>User</th>
+											<th>Staff</th>
 											<th>IP Address</th>
 											<th>User Agent</th>
 											<th>Message</th>

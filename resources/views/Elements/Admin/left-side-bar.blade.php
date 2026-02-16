@@ -353,7 +353,7 @@
 			?> 			
 			<li class="dropdown {{@$userclasstype}}">
 				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-user"></i><span>User Management</span></a>
+				class="fas fa-user"></i><span>Staff & Access Management</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'staff.index' || Route::currentRouteName() == 'staff.active' || Route::currentRouteName() == 'staff.create' || Route::currentRouteName() == 'staff.edit' || Route::currentRouteName() == 'staff.view') ? 'active' : ''}}"><a class="nav-link" href="{{route('staff.active')}}">Staff</a></li>
 					<li class="{{(Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('usertype.index')}}">User Type</a></li>

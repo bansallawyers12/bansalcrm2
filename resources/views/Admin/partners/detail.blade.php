@@ -439,7 +439,7 @@ use App\Http\Controllers\Controller;
                                         $activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
                                         //dd($activities);
                                         foreach($activities as $activit){
-                                            $admin = \App\Models\Admin::select('id', 'first_name', 'last_name')->where('id', $activit->created_by)->first();
+                                            $admin = \App\Models\Staff::find($activit->created_by) ?? \App\Models\Admin::find($activit->created_by);
                                             ?>
                                             <div class="activity" id="activity_{{$activit->id}}">
                                                 <div class="activity-icon bg-primary text-white">
