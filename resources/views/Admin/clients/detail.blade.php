@@ -1503,8 +1503,8 @@ use App\Http\Controllers\Controller;
 									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->whereNull('assigned_to')->whereNull('task_group')->where('type', 'client')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
 									//dd($notelist);
                                     foreach($notelist as $list){
-										$admin = \App\Models\Staff::select('id', 'first_name','email')->find($list->user_id);//dd($admin);
-										$color = \App\Models\Team::select('color')->where('id',$admin->team)->first();
+										$staff = \App\Models\Staff::select('id', 'first_name', 'last_name', 'email', 'team')->find($list->user_id);//dd($staff);
+										$color = $staff?->team ? \App\Models\Team::select('color')->where('id', $staff->team)->first() : null;
 
 									?>
 										<div class="note_col" id="note_id_{{$list->id}}">
@@ -1531,13 +1531,20 @@ use App\Http\Controllers\Controller;
                                                 <?php }?>
 
 												<div class="left">
+													@if($staff)
 													<div class="author">
-														<a href="{{ route('staff.view', ['id' => $admin->id]) }}">{{ substr($admin->first_name, 0, 1) }}</a>
+														<a href="{{ route('staff.view', ['id' => $staff->id]) }}">{{ substr($staff->first_name, 0, 1) }}</a>
 													</div>
 													<div class="note_modify">
 														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>
-														{{$admin->first_name}}	 {{$admin->last_name}}
+														{{$staff->first_name}} {{$staff->last_name}}
 													</div>
+													@else
+													<div class="note_modify">
+														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>
+														<span class="text-muted">—</span>
+													</div>
+													@endif
 												</div>
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
