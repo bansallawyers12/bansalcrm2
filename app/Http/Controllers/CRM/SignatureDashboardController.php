@@ -421,11 +421,11 @@ class SignatureDashboardController extends Controller
         $emailsSent = 0;
         $errors = [];
 
-        // Configure mailer from emails table (not .env) - use first active email
+        // Configure mailer - uses .env when no From email provided, else uses emails table
         $emailService = app(\App\Services\EmailService::class);
         $emailConfig = $emailService->configureMailerForEmail($request->input('from_email'));
         if (!$emailConfig) {
-            return back()->with('error', 'No email configuration available. Add at least one active email in Admin Console.');
+            return back()->with('error', 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.');
         }
         $mailFromAddress = $emailConfig->email;
         $mailFromName = $emailConfig->display_name ?? $emailConfig->email;

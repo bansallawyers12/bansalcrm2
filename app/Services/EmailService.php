@@ -26,23 +26,57 @@ class EmailService
     }
 
     /**
-     * Configure the mailer to use credentials from the emails table.
-     * Uses the given email address if found in DB, otherwise uses first active email.
+     * Configure the mailer for sending emails.
+     * - When From email is explicitly provided and exists in emails table: use that email's credentials from DB.
+     * - When no From email is provided: use .env (MAIL_*) credentials.
      *
-     * @param string|null $emailAddress Email address to use (must exist in emails table)
-     * @return \App\Models\Email|null The Email model used, or null if no config available
+     * @param string|null $emailAddress Email address to use (must exist in emails table when provided)
+     * @return \App\Models\Email|object|null The email config (Email model or object with email, display_name), or null
      */
-    public function configureMailerForEmail(?string $emailAddress = null): ?Email
+    public function configureMailerForEmail(?string $emailAddress = null): ?object
     {
         $emailConfig = null;
-        if ($emailAddress) {
+
+        // Explicit From email provided: use credentials from emails table
+        if ($emailAddress && trim($emailAddress) !== '') {
             $trimmed = trim($emailAddress);
             $emailConfig = Email::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
         }
 
+        // No explicit From: use .env credentials (default)
         if (!$emailConfig) {
+            $envUser = env('MAIL_USERNAME');
+            $envPass = env('MAIL_PASSWORD');
+            if ($envUser && $envPass !== null) {
+                $emailConfig = (object) [
+                    'email' => env('MAIL_FROM_ADDRESS', $envUser),
+                    'display_name' => env('MAIL_FROM_NAME', $envUser),
+                ];
+                $host = env('MAIL_HOST', self::SMTP_HOST);
+                $port = (int) (env('MAIL_PORT') ?: self::SMTP_PORT);
+                $encryption = env('MAIL_ENCRYPTION', self::SMTP_ENCRYPTION);
+
+                Config::set('mail.default', 'smtp');
+                Config::set('mail.mailers.smtp', [
+                    'transport' => 'smtp',
+                    'host' => $host,
+                    'port' => $port,
+                    'encryption' => $encryption,
+                    'username' => $envUser,
+                    'password' => trim((string) $envPass),
+                ]);
+                Config::set('mail.from.address', $emailConfig->email);
+                Config::set('mail.from.name', $emailConfig->display_name);
+
+                app()->forgetInstance('mailer');
+                app()->forgetInstance('mail.manager');
+
+                return $emailConfig;
+            }
+
+            // Fallback: first active email from emails table (when .env not configured)
             $emailConfig = $this->getDefaultEmail();
         }
 
@@ -50,7 +84,7 @@ class EmailService
             return null;
         }
 
-        // Trim password - leading/trailing whitespace causes 535 auth failure
+        // Use credentials from emails table
         $password = is_string($emailConfig->password) ? trim($emailConfig->password) : '';
 
         Config::set('mail.default', 'smtp');

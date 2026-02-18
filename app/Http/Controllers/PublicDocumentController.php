@@ -835,10 +835,10 @@ class PublicDocumentController extends Controller
                 return redirect()->back()->with('error', 'Maximum reminders already sent.');
             }
 
-            // Send reminder email - configure mailer from emails table (not .env)
+            // Send reminder email - uses .env by default when no From email provided
             $emailService = app(\App\Services\EmailService::class);
             if (!$emailService->configureMailerForEmail(null)) {
-                return redirect()->back()->with('error', 'No email configuration available. Add at least one active email in Admin Console.');
+                return redirect()->back()->with('error', 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.');
             }
 
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");

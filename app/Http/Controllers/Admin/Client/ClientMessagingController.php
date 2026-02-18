@@ -95,12 +95,12 @@ class ClientMessagingController extends Controller
                 'client_id' => $request->client_id
             ];
 
-            // Configure mailer from emails table (not .env)
+            // Configure mailer - uses .env by default when no From email provided
             $emailService = app(\App\Services\EmailService::class);
             if (!$emailService->configureMailerForEmail(null)) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'No email configuration available. Add at least one active email in Admin Console.'
+                    'message' => 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.'
                 ], 500);
             }
 
@@ -243,11 +243,11 @@ class ClientMessagingController extends Controller
                     'reviewLink'=> env('GOOGLE_REVIEW_LINK')
                 ];
 
-                // Configure mailer from emails table (not .env)
+                // Configure mailer - uses .env by default when no From email provided
                 $emailService = app(\App\Services\EmailService::class);
                 if (!$emailService->configureMailerForEmail(null)) {
                     $response['status'] = false;
-                    $response['message'] = 'No email configuration available.';
+                    $response['message'] = 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.';
                 } elseif (\Mail::to($userInfo->email)->send(new GoogleReviewMail($details))) {
                     $objs = new ActivitiesLog;
                     $objs->client_id = $data['id'];
