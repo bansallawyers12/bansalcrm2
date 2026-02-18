@@ -106,17 +106,17 @@ class RecentlyModifiedClientsController extends Controller
 			$docStatsSubQuery = Document::select(
 					'client_id',
 					DB::raw('COUNT(*) as doc_count'),
-					DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
-					DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
+					DB::raw("SUM(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS count_local"),
+					DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
 				)
 				->whereNull('archived_at')
 				->groupBy('client_id');
 			$query->leftJoinSub($docStatsSubQuery, 'doc_stats', 'activities_logs.client_id', '=', 'doc_stats.client_id');
 			$query->addSelect([
 				DB::raw("CASE
-					WHEN COALESCE(doc_stats.has_local, 0) = 1 AND COALESCE(doc_stats.has_aws, 0) = 1 THEN 'both'
-					WHEN COALESCE(doc_stats.has_local, 0) = 1 THEN 'local'
-					WHEN COALESCE(doc_stats.has_aws, 0) = 1 THEN 'aws'
+					WHEN COALESCE(doc_stats.count_local, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) > 0 THEN 'both'
+					WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_local, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'local'
+					WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'aws'
 					ELSE 'none'
 				END AS doc_storage")
 			]);
@@ -176,9 +176,9 @@ class RecentlyModifiedClientsController extends Controller
 		// Filter: document storage location (local, aws, both, none)
 		if ($docStorage !== '' && in_array($docStorage, ['local', 'aws', 'both', 'none'], true)) {
 			$docStorageExpr = "CASE
-				WHEN COALESCE(doc_stats.has_local, 0) = 1 AND COALESCE(doc_stats.has_aws, 0) = 1 THEN 'both'
-				WHEN COALESCE(doc_stats.has_local, 0) = 1 THEN 'local'
-				WHEN COALESCE(doc_stats.has_aws, 0) = 1 THEN 'aws'
+				WHEN COALESCE(doc_stats.count_local, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) > 0 THEN 'both'
+				WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_local, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'local'
+				WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'aws'
 				ELSE 'none'
 			END";
 			$query->whereRaw("({$docStorageExpr}) = ?", [$docStorage]);
@@ -224,8 +224,9 @@ class RecentlyModifiedClientsController extends Controller
 			$clientIds = $lists->pluck('client_id')->unique()->values()->all();
 			$docStats = Document::select(
 					'client_id',
-					DB::raw("MAX(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS has_local"),
-					DB::raw("MAX(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS has_aws")
+					DB::raw('COUNT(*) as doc_count'),
+					DB::raw("SUM(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS count_local"),
+					DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
 				)
 				->whereNull('archived_at')
 				->whereIn('client_id', $clientIds)
@@ -233,7 +234,18 @@ class RecentlyModifiedClientsController extends Controller
 				->get();
 			$storageMap = [];
 			foreach ($docStats as $r) {
-				$storageMap[$r->client_id] = (($r->has_local ?? 0) && ($r->has_aws ?? 0)) ? 'both' : (($r->has_local ?? 0) ? 'local' : (($r->has_aws ?? 0) ? 'aws' : 'none'));
+				$docCount = (int) ($r->doc_count ?? 0);
+				$countLocal = (int) ($r->count_local ?? 0);
+				$countAws = (int) ($r->count_aws ?? 0);
+				if ($countLocal > 0 && $countAws > 0) {
+					$storageMap[$r->client_id] = 'both';
+				} elseif ($docCount > 0 && $countLocal === $docCount) {
+					$storageMap[$r->client_id] = 'local';
+				} elseif ($docCount > 0 && $countAws === $docCount) {
+					$storageMap[$r->client_id] = 'aws';
+				} else {
+					$storageMap[$r->client_id] = 'none';
+				}
 			}
 			foreach ($lists->items() as $row) {
 				$row->doc_storage = $storageMap[$row->client_id] ?? 'none';
@@ -301,21 +313,29 @@ class RecentlyModifiedClientsController extends Controller
 			->whereNull('archived_at') // Only count non-archived documents
 			->count();
 		
-		// Get document storage location: local (myfile_key empty), AWS (myfile_key set)
-		$hasLocal = Document::where('client_id', $clientId)
+		// Get document storage: Local = all local, AWS = all AWS, Both = mixed, None = no docs
+		$countLocal = Document::where('client_id', $clientId)
 			->whereNull('archived_at')
 			->where(function ($q) {
 				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
 			})
 			->whereNotNull('myfile')
 			->where('myfile', '!=', '')
-			->exists();
-		$hasAws = Document::where('client_id', $clientId)
+			->count();
+		$countAws = Document::where('client_id', $clientId)
 			->whereNull('archived_at')
 			->whereNotNull('myfile_key')
 			->where('myfile_key', '!=', '')
-			->exists();
-		$documentStorage = ($hasLocal && $hasAws) ? 'both' : ($hasLocal ? 'local' : ($hasAws ? 'aws' : 'none'));
+			->count();
+		if ($countLocal > 0 && $countAws > 0) {
+			$documentStorage = 'both';
+		} elseif ($documentCount > 0 && $countLocal === $documentCount) {
+			$documentStorage = 'local';
+		} elseif ($documentCount > 0 && $countAws === $documentCount) {
+			$documentStorage = 'aws';
+		} else {
+			$documentStorage = 'none';
+		}
 
 		// Category doc counts (local/public folder only, not S3) - category_id resolved by category name (Application, Education, Migration)
 		$applicationCategoryId = DocumentCategory::where('name', 'Application')->value('id');
