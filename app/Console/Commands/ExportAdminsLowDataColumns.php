@@ -17,7 +17,7 @@ class ExportAdminsLowDataColumns extends Command
         'role', 'email', 'verified', 'created_at', 'updated_at', 'is_archived',
         'show_dashboard_per', 'type', 'first_name', 'phone', 'last_name', 'client_id',
         'assignee', 'email_type', 'contact_type', 'gender', 'service', 'source',
-        'att_country_code', 'country', 'country_passport', 'agent_id', 'lead_quality',
+        'country', 'country_passport', 'agent_id', 'lead_quality',
         'status', 'age', 'dob', 'visa_type', 'marital_status', 'visaexpiry', 'city', 'zip', 'state',
     ];
 

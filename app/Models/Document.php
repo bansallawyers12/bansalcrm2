@@ -185,6 +185,42 @@ class Document extends Model
     }
 
     /**
+     * Scope: Application, Education, Migration documents only (same as category counts).
+     * Used for Storage column and document_storage in recent-clients.
+     * doc_type=documents, category in (Application, Education, Migration); Edu/Mig require migrate success.
+     */
+    public function scopeAppEduMigForStorage($query)
+    {
+        $appId = \App\Models\DocumentCategory::where('name', 'Application')->value('id');
+        $eduId = \App\Models\DocumentCategory::where('name', 'Education')->value('id');
+        $migId = \App\Models\DocumentCategory::where('name', 'Migration')->value('id');
+
+        if (!$appId && !$eduId && !$migId) {
+            return $query->whereRaw('1=0');
+        }
+
+        return $query
+            ->where('doc_type', 'documents')
+            ->where(function ($q) use ($appId, $eduId, $migId) {
+                if ($appId) {
+                    $q->orWhere('category_id', $appId);
+                }
+                if ($eduId) {
+                    $q->orWhere(function ($q2) use ($eduId) {
+                        $q2->where('category_id', $eduId)
+                            ->where('is_edu_and_mig_doc_migrate', self::EDU_MIG_MIGRATE_SUCCESS);
+                    });
+                }
+                if ($migId) {
+                    $q->orWhere(function ($q2) use ($migId) {
+                        $q2->where('category_id', $migId)
+                            ->where('is_edu_and_mig_doc_migrate', self::EDU_MIG_MIGRATE_SUCCESS);
+                    });
+                }
+            });
+    }
+
+    /**
      * Scope to filter documents based on user visibility permissions
      */
     public function scopeVisible($query, $user)
