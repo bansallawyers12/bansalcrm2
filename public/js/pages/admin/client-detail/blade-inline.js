@@ -838,6 +838,7 @@ $(document).on('click', '.updateclientreceipt', function() {
                                     <option value="Cash" ${data.payment_method == 'Cash' ? 'selected' : ''}>Cash</option>
                                     <option value="Bank transfer" ${data.payment_method == 'Bank transfer' ? 'selected' : ''}>Bank transfer</option>
                                     <option value="EFTPOS" ${data.payment_method == 'EFTPOS' ? 'selected' : ''}>EFTPOS</option>
+                                    <option value="Paid to College" ${data.payment_method == 'Paid to College' ? 'selected' : ''}>Paid to College</option>
                                 </select>
                             </td>
                             <td>

@@ -313,4 +313,71 @@ class DocumentCategoryController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Move a document to a different category
+     */
+    public function moveDocument(Request $request)
+    {
+        try {
+            $request->validate([
+                'doc_id' => 'required|integer',
+                'category_id' => 'required|integer',
+                'client_id' => 'required|integer',
+            ]);
+
+            $docId = $request->input('doc_id');
+            $categoryId = $request->input('category_id');
+            $clientId = $request->input('client_id');
+
+            $document = Document::where('id', $docId)
+                ->where('client_id', $clientId)
+                ->whereNull('not_used_doc')
+                ->where('type', 'client')
+                ->firstOrFail();
+
+            $targetCategory = DocumentCategory::findOrFail($categoryId);
+
+            // Verify target category is valid for this client
+            $isValidCategory = $targetCategory->status
+                && ($targetCategory->is_default || (int) $targetCategory->client_id === (int) $clientId);
+
+            if (!$isValidCategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid target category'
+                ], 422);
+            }
+
+            // Update document category; set doc_type for Education/Migration legacy docs
+            $document->category_id = $categoryId;
+            if (in_array($document->doc_type, ['education', 'migration'])) {
+                $document->doc_type = 'documents';
+            }
+            $document->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Document moved to ' . $targetCategory->name . ' successfully',
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Document or category not found'
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error moving document: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Error moving document'
+            ], 500);
+        }
+    }
 }

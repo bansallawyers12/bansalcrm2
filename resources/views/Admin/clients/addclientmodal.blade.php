@@ -1409,6 +1409,7 @@
                                                         <option value="Cash">Cash</option>
                                                         <option value="Bank transfer">Bank transfer</option>
                                                         <option value="EFTPOS">EFTPOS</option>
+                                                        <option value="Paid to College">Paid to College</option>
                                                     </select>
                                                 </td>
                                                 <td>

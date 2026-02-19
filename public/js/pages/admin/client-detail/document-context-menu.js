@@ -168,6 +168,20 @@
 
         menu.appendChild(createDivider());
 
+        // Move to Category (only when DocumentCategoryManager is active)
+        if (typeof window.DocumentCategoryManager !== 'undefined' && window.DocumentCategoryManager.categories && window.DocumentCategoryManager.categories.length > 1) {
+            const currentCategoryId = window.DocumentCategoryManager.currentCategoryId;
+            const otherCategories = window.DocumentCategoryManager.categories.filter(function(c) {
+                return parseInt(c.id, 10) !== parseInt(currentCategoryId, 10);
+            });
+            if (otherCategories.length > 0) {
+                menu.appendChild(createMenuItem('Move to Category', function() {
+                    showMoveToCategoryModal(docId, currentCategoryId, otherCategories);
+                    hideContextMenu();
+                }));
+            }
+        }
+
         // Verify
         menu.appendChild(createMenuItem('Verify', function() {
             const tempEl = document.createElement('a');
@@ -254,6 +268,94 @@
         const li = document.createElement('li');
         li.className = 'divider';
         return li;
+    }
+
+    function showMoveToCategoryModal(docId, currentCategoryId, categories) {
+        const clientId = window.DocumentCategoryManager.currentClientId;
+        const options = '<option value="">— Select a category —</option>' + categories.map(function(c) {
+            return '<option value="' + c.id + '">' + (c.name || '') + (c.document_count > 0 ? ' (' + c.document_count + ')' : '') + '</option>';
+        }).join('');
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Move to Category',
+                html: '<div class="text-start mb-3">' +
+                    '<label for="move-category-select" class="form-label" style="display:block;margin-bottom:8px;">Select target category:</label>' +
+                    '<select id="move-category-select" class="form-select form-control" style="width:100%;padding:8px 12px;font-size:14px;">' + options + '</select>' +
+                    '</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Move',
+                cancelButtonText: 'Cancel',
+                customClass: { popup: 'swal2-popup-move-category' },
+                didOpen: function() {
+                    var selectEl = document.getElementById('move-category-select');
+                    if (selectEl) {
+                        selectEl.focus();
+                    }
+                },
+                preConfirm: function() {
+                    var selectEl = document.getElementById('move-category-select');
+                    var val = selectEl ? selectEl.value : '';
+                    if (!val) {
+                        Swal.showValidationMessage('Please select a category');
+                        return false;
+                    }
+                    return val;
+                }
+            }).then(function(result) {
+                if (result.isConfirmed && result.value) {
+                    const categoryId = result.value;
+                    const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) || '';
+                    jQuery.ajax({
+                        url: (baseUrl || '') + '/document-categories/move-document',
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': (typeof App !== 'undefined' && App.getCsrf && App.getCsrf()) || (function(){ var m=document.querySelector('meta[name="csrf-token"]'); return m?m.getAttribute('content'):''; })() },
+                        data: {
+                            doc_id: docId,
+                            category_id: categoryId,
+                            client_id: clientId
+                        },
+                        dataType: 'json'
+                    }).done(function(res) {
+                        if (res.status) {
+                            Swal.fire('Success!', res.message, 'success');
+                            if (window.DocumentCategoryManager) {
+                                window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                                window.DocumentCategoryManager.loadCategories(true);
+                            }
+                        } else {
+                            Swal.fire('Error!', res.message || 'Failed to move document', 'error');
+                        }
+                    }).fail(function(xhr) {
+                        const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document';
+                        Swal.fire('Error!', msg, 'error');
+                    });
+                }
+            });
+        } else {
+            const targetId = prompt('Enter category ID to move to: ' + categories.map(function(c) { return c.id + '=' + c.name; }).join(', '));
+            if (targetId && window.DocumentCategoryManager) {
+                const categoryId = targetId.trim();
+                const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) || '';
+                jQuery.ajax({
+                    url: (baseUrl || '') + '/document-categories/move-document',
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': (typeof App !== 'undefined' && App.getCsrf && App.getCsrf()) || (function(){ var m=document.querySelector('meta[name="csrf-token"]'); return m?m.getAttribute('content'):''; })() },
+                    data: { doc_id: docId, category_id: categoryId, client_id: clientId },
+                    dataType: 'json'
+                }).done(function(res) {
+                    if (res.status) {
+                        alert('Success: ' + res.message);
+                        window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
+                        window.DocumentCategoryManager.loadCategories(true);
+                    } else {
+                        alert('Error: ' + (res.message || 'Failed to move document'));
+                    }
+                }).fail(function(xhr) {
+                    alert('Error: ' + ((xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document'));
+                });
+            }
+        }
     }
 
     // Attach context menu to document rows

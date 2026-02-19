@@ -294,6 +294,36 @@ class OngoingSheetController extends Controller
                              AND (SELECT COUNT(*) FROM applications a2 WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1
                            )
                          )) as total_payment"),
+                DB::raw("(SELECT CASE 
+                         WHEN (SELECT COALESCE(SUM(acr2.deposit_amount), 0) FROM account_client_receipts acr2 
+                               WHERE acr2.client_id = admins.id 
+                               AND (acr2.receipt_type = 1 OR acr2.receipt_type = 2)
+                               AND (acr2.void_invoice = 0 OR acr2.void_invoice IS NULL)
+                               AND (acr2.application_id = applications.id
+                                    OR (acr2.application_id IS NULL 
+                                        AND (SELECT COUNT(*) FROM applications a2 
+                                             WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1))) <= 0 
+                         THEN 0
+                         WHEN (SELECT COUNT(*) FROM account_client_receipts acr2 
+                               WHERE acr2.client_id = admins.id 
+                               AND (acr2.receipt_type = 1 OR acr2.receipt_type = 2)
+                               AND (acr2.void_invoice = 0 OR acr2.void_invoice IS NULL)
+                               AND (acr2.application_id = applications.id
+                                    OR (acr2.application_id IS NULL 
+                                        AND (SELECT COUNT(*) FROM applications a2 
+                                             WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1))) = 
+                             (SELECT COUNT(*) FROM account_client_receipts acr2 
+                              WHERE acr2.client_id = admins.id 
+                              AND (acr2.receipt_type = 1 OR acr2.receipt_type = 2)
+                              AND (acr2.void_invoice = 0 OR acr2.void_invoice IS NULL)
+                              AND acr2.payment_method = 'Paid to College'
+                              AND (acr2.application_id = applications.id
+                                   OR (acr2.application_id IS NULL 
+                                       AND (SELECT COUNT(*) FROM applications a2 
+                                            WHERE a2.client_id = admins.id AND a2.status NOT IN (2, 8)) = 1)))
+                         THEN 1
+                         ELSE 0
+                         END) as is_paid_to_college"),
                 DB::raw('(SELECT edu_college 
                          FROM client_service_takens 
                          WHERE client_id = admins.id 

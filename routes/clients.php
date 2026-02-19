@@ -176,6 +176,7 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/document-categories/update/{id}', [DocumentCategoryController::class, 'update'])->name('clients.documentcategories.update');
     Route::delete('/document-categories/{id}', [DocumentCategoryController::class, 'destroy'])->name('clients.documentcategories.destroy');
     Route::get('/document-categories/documents', [DocumentCategoryController::class, 'getDocuments'])->name('clients.documentcategories.documents');
+    Route::post('/document-categories/move-document', [DocumentCategoryController::class, 'moveDocument'])->name('clients.documentcategories.moveDocument');
     
     // Merge records
     Route::post('/merge_records', [ClientMergeController::class, 'merge_records'])->name('clients.merge_records');

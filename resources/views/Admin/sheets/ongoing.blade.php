@@ -469,7 +469,7 @@
                                             @endif
                                             <td>{{ trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')) ?: '—' }}</td>
                                             <td>{{ $row->dob ? \Carbon\Carbon::parse($row->dob)->format('d/m/Y') : '—' }}</td>
-                                            <td>
+                                            <td class="@if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) text-success fw-semibold @endif" @if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) title="Paid directly to college" @endif>
                                                 @if($row->payment_display_note)
                                                     {{ $row->payment_display_note }}
                                                 @elseif($row->total_payment > 0)
