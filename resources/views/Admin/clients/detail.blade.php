@@ -1223,6 +1223,7 @@ use App\Http\Controllers\Controller;
                                                             data-myfile="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>"
                                                             data-myfile-key="<?php echo isset($fetch->myfile_key) ? htmlspecialchars($fetch->myfile_key, ENT_QUOTES, 'UTF-8') : ''; ?>"
                                                             data-doc-type="<?php echo htmlspecialchars($fetch->doc_type, ENT_QUOTES, 'UTF-8'); ?>"
+                                                            data-signature-status="<?php echo htmlspecialchars($fetch->status ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                             data-user-role="<?php echo Auth::user()->role; ?>"
                                                             title="Added by: <?php echo htmlspecialchars($addedByInfo, ENT_QUOTES, 'UTF-8'); ?>"
                                                             style="cursor: context-menu;">
@@ -1282,6 +1283,31 @@ use App\Http\Controllers\Controller;
                                                                 ?>
                                                             </td>-->
                                                         </tr>
+                                                        <?php
+                                                        // Render action bar for docs in signature flow (placed/sent/viewed)
+                                                        if (!empty($fetch->file_name) && !$fetch->source_document_id && in_array($fetch->status ?? '', ['signature_placed', 'sent', 'viewed'])):
+                                                            $sigSent = in_array($fetch->status, ['sent', 'viewed']);
+                                                        ?>
+                                                        <tr class="document-signature-action-bar" data-doc-id="<?php echo $fetch->id; ?>">
+                                                            <td colspan="2" class="py-2" style="background:#f8f9fa;border-left:3px solid #0d6efd;">
+                                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                                    <span class="text-muted small me-2">Signature:</span>
+                                                                    <button type="button" class="btn btn-sm btn-primary document-sig-send" <?php if($sigSent): ?>disabled<?php endif; ?> title="Send for signature">
+                                                                        <i class="fas fa-paper-plane"></i> Send
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary document-sig-revise" title="Revise placement">
+                                                                        <i class="fas fa-edit"></i> Revise
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger document-sig-remove" title="Remove">
+                                                                        <i class="fas fa-times"></i> Remove
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-warning document-sig-reminder" title="Send reminder" <?php if(!$sigSent): ?>style="display:none;"<?php endif; ?>>
+                                                                        <i class="fas fa-bell"></i> Reminder
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endif; ?>
                                                     <?php
                                                     } //end foreach?>
                                                 </tbody>
@@ -2935,7 +2961,8 @@ use App\Http\Controllers\Controller;
     
     // Page-Specific Configuration
     PageConfig.clientId = {{ $fetchedData->id ?? 'null' }};
-    PageConfig.clientName = '{{ $fetchedData->first_name ?? "" }}';
+    PageConfig.clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
+    PageConfig.clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
     PageConfig.clientType = 'client';
 </script>
 
@@ -2967,6 +2994,7 @@ use App\Http\Controllers\Controller;
 {{-- UI and utility modules --}}
 <script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>

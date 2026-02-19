@@ -450,6 +450,27 @@ class PublicDocumentController extends Controller
                 $document->hash_generated_at = now();
                 $document->save();
 
+                // Create _signed checklist row below original (for client documents in Documents tab)
+                if ($document->client_id && $document->type === 'client' && !$document->source_document_id) {
+                    $exists = Document::where('source_document_id', $document->id)->exists();
+                    if (!$exists) {
+                        Document::create([
+                            'client_id' => $document->client_id,
+                            'category_id' => $document->category_id,
+                            'type' => 'client',
+                            'doc_type' => $document->doc_type ?? 'documents',
+                            'checklist' => ($document->checklist ?? 'Document') . '_signed',
+                            'file_name' => ($document->file_name ?? 'document') . '_signed',
+                            'filetype' => 'pdf',
+                            'myfile' => $signedPdfUrl,
+                            'myfile_key' => $document->id . '_signed.pdf',
+                            'source_document_id' => $document->id,
+                            'user_id' => $document->user_id,
+                            'not_used_doc' => null,
+                        ]);
+                    }
+                }
+
                 Log::info("Public document signed successfully", [
                     'document_id' => $document->id,
                     'signer_id' => $signer->id,

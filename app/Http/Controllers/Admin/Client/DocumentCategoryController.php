@@ -49,14 +49,18 @@ class DocumentCategoryController extends Controller
                 ->orderBy('name', 'ASC')
                 ->get();
 
-            // Add document count for each category
+            // Add document count and permission flags for each category
             $categoriesWithCount = $categories->map(function($category) use ($clientId) {
+                $docCount = $category->getDocumentCount($clientId);
+                $isCustom = !$category->is_default;
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
                     'is_default' => $category->is_default,
-                    'document_count' => $category->getDocumentCount($clientId),
+                    'document_count' => $docCount,
                     'can_delete' => $category->canBeDeleted(),
+                    'can_rename' => $isCustom,
+                    'can_delete_category' => $isCustom && $docCount === 0,
                 ];
             });
 
@@ -151,20 +155,12 @@ class DocumentCategoryController extends Controller
             ]);
 
             $category = DocumentCategory::findOrFail($id);
-            $userId = Auth::user()->id;
 
-            // Check if user can edit this category
+            // Only custom (client-specific) categories can be edited
             if ($category->is_default) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Default categories cannot be edited'
-                ], 403);
-            }
-
-            if ($category->user_id != $userId) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'You do not have permission to edit this category'
                 ], 403);
             }
 
@@ -197,20 +193,12 @@ class DocumentCategoryController extends Controller
     {
         try {
             $category = DocumentCategory::findOrFail($id);
-            $userId = Auth::user()->id;
 
-            // Check if user can delete this category
+            // Only custom (client-specific) categories can be deleted
             if ($category->is_default) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Default categories cannot be deleted'
-                ], 403);
-            }
-
-            if ($category->user_id != $userId) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'You do not have permission to delete this category'
                 ], 403);
             }
 
@@ -284,20 +272,37 @@ class DocumentCategoryController extends Controller
             }
 
             $documents = $query->orderBy('updated_at', 'DESC')
-                ->with(['user', 'category'])
+                ->with(['user', 'category', 'signers'])
                 ->get();
 
+            // Sort: place docs with source_document_id right after their source
+            $signedBySource = $documents->whereNotNull('source_document_id')->keyBy('source_document_id');
+            $roots = $documents->whereNull('source_document_id');
+            $ordered = [];
+            foreach ($roots->sortByDesc('updated_at') as $doc) {
+                $ordered[] = $doc;
+                if ($signedBySource->has($doc->id)) {
+                    $ordered[] = $signedBySource->get($doc->id);
+                }
+            }
+            $documents = collect($ordered);
+
             // Add preview_url for Education/Migration docs with public path (no S3 myfile_key)
+            // For signed copies (source_document_id): use signed_doc_link from source or myfile
             $documentsArray = $documents->map(function ($doc) {
                 $previewUrl = null;
                 if (empty($doc->myfile_key) && $doc->myfile) {
                     if ($doc->category && in_array($doc->category->name, ['Education', 'Migration'], true)) {
                         $previewUrl = asset('img/documents/' . $doc->myfile);
-                    } elseif (in_array($doc->doc_type, ['education', 'migration'])) {
+                    } elseif (in_array($doc->doc_type ?? '', ['education', 'migration'])) {
                         $previewUrl = asset('img/documents/' . $doc->myfile);
                     }
                 }
-                return array_merge($doc->toArray(), ['preview_url' => $previewUrl]);
+                $arr = array_merge($doc->toArray(), ['preview_url' => $previewUrl]);
+                $arr['signature_status'] = $doc->status;
+                $arr['has_pending_signers'] = $doc->signers ? $doc->signers->whereIn('status', ['pending'])->count() > 0 : false;
+                $arr['is_sent'] = in_array($doc->status, ['sent', 'viewed']);
+                return $arr;
             });
 
             return response()->json([

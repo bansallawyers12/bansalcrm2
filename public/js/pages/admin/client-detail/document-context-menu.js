@@ -81,6 +81,19 @@
 
         menu.appendChild(createDivider());
 
+        // Send for signature (only for documents with a file, and no placement/flow yet)
+        const sigStatus = row.getAttribute('data-signature-status') || '';
+        if (fileName && !['signature_placed', 'sent', 'viewed', 'signed'].includes(sigStatus)) {
+            menu.appendChild(createMenuItem('Send for signature', function() {
+                if (typeof window.DocumentSignatureFlow !== 'undefined') {
+                    window.DocumentSignatureFlow.openPlacementModal(docId, checklistName, fileName, fileType, myfile, myfileKey, docType);
+                }
+                hideContextMenu();
+            }));
+        }
+
+        menu.appendChild(createDivider());
+
         // Preview
         menu.appendChild(createMenuItem('Preview', function() {
             // Full URL (e.g. public path or S3) - open directly

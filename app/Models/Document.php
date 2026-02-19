@@ -65,6 +65,7 @@ class Document extends Model
         'application_id',
         'application_list_id',
         'application_stage',
+        'source_document_id',
     ];
 
     protected $casts = [
@@ -138,6 +139,14 @@ class Document extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(DocumentCategory::class, 'category_id');
+    }
+
+    /**
+     * Original document when this is a signed copy (checklist_signed row)
+     */
+    public function sourceDocument(): BelongsTo
+    {
+        return $this->belongsTo(Document::class, 'source_document_id');
     }
 
     // ==================== Scopes ====================

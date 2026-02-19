@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Client\ClientApplicationController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
 use App\Http\Controllers\Admin\Client\ClientDocumentController;
 use App\Http\Controllers\Admin\Client\DocumentCategoryController;
+use App\Http\Controllers\Admin\Client\DocumentSignatureController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientReceiptController;
 use App\Http\Controllers\Admin\Client\ClientMergeController;
@@ -177,6 +178,12 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::delete('/document-categories/{id}', [DocumentCategoryController::class, 'destroy'])->name('clients.documentcategories.destroy');
     Route::get('/document-categories/documents', [DocumentCategoryController::class, 'getDocuments'])->name('clients.documentcategories.documents');
     Route::post('/document-categories/move-document', [DocumentCategoryController::class, 'moveDocument'])->name('clients.documentcategories.moveDocument');
+
+    // Document signature from Documents tab
+    Route::post('/document-signature/save-placement', [DocumentSignatureController::class, 'savePlacement'])->name('clients.document-signature.savePlacement');
+    Route::post('/document-signature/send', [DocumentSignatureController::class, 'send'])->name('clients.document-signature.send');
+    Route::post('/document-signature/reminder', [DocumentSignatureController::class, 'reminder'])->name('clients.document-signature.reminder');
+    Route::post('/document-signature/remove', [DocumentSignatureController::class, 'remove'])->name('clients.document-signature.remove');
     
     // Merge records
     Route::post('/merge_records', [ClientMergeController::class, 'merge_records'])->name('clients.merge_records');

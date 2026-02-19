@@ -78,16 +78,25 @@
             let tabsHTML = '';
             
             this.categories.forEach((category, index) => {
-                const isActive = index === 0 ? 'active' : '';
+                const isActive = (this.currentCategoryId && category.id === this.currentCategoryId) || (!this.currentCategoryId && index === 0);
+                const btnClass = isActive ? 'btn-primary active' : 'btn-outline-primary';
                 const docCount = category.document_count > 0 ? `(${category.document_count})` : '';
-                
+                const canRename = category.can_rename ? '1' : '0';
+                const canDelete = category.can_delete_category ? '1' : '0';
+                const actionsHtml = (canRename === '1' || canDelete === '1') 
+                    ? '<span class="doc-category-actions ms-1" title="Right-click for options" style="opacity:0.7;"><i class="fas fa-ellipsis-v"></i></span>'
+                    : '';
                 tabsHTML += `
-                    <button class="btn ${isActive} doc-category-tab" 
-                            data-category-id="${category.id}" 
-                            data-category-name="${category.name}"
-                            style="margin-right: 10px; margin-bottom: 10px;">
-                        ${category.name} ${docCount}
-                    </button>
+                    <span class="doc-category-tab-wrap d-inline-block" style="margin-right: 10px; margin-bottom: 10px;">
+                        <button class="btn ${btnClass} doc-category-tab" 
+                                data-category-id="${category.id}" 
+                                data-category-name="${this.escapeHtml(category.name)}"
+                                data-can-rename="${canRename}"
+                                data-can-delete="${canDelete}"
+                                style="position:relative;">
+                            ${category.name} ${docCount}${actionsHtml}
+                        </button>
+                    </span>
                 `;
             });
             
@@ -179,6 +188,10 @@
                 const fileUrl = doc.preview_url || (doc.myfile_key ? doc.myfile : this.getAwsUrl(doc)) || '';
                 const fileName = doc.file_name || '';
                 const fileType = doc.filetype || '';
+                const showActionBar = !doc.source_document_id && doc.file_name && 
+                    ['signature_placed', 'sent', 'viewed'].indexOf(doc.signature_status || '') >= 0 && 
+                    doc.signature_status !== 'signed';
+                const showReminder = showActionBar && (doc.is_sent || doc.signature_status === 'sent' || doc.signature_status === 'viewed');
                 
                 html += `
                     <tr class="drow document-row" id="id_${doc.id}" 
@@ -190,6 +203,7 @@
                         data-myfile-key="${doc.myfile_key || ''}"
                         data-doc-type="${doc.doc_type || 'documents'}"
                         data-user-role="${userRole}"
+                        data-signature-status="${doc.signature_status || ''}"
                         title="Added by: ${addedBy}"
                         style="cursor: context-menu;">
                         <td style="white-space: initial;">
@@ -202,6 +216,29 @@
                         </td>
                     </tr>
                 `;
+                if (showActionBar) {
+                    html += `
+                    <tr class="document-signature-action-bar" data-doc-id="${doc.id}">
+                        <td colspan="2" class="py-2" style="background:#f8f9fa;border-left:3px solid #0d6efd;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="text-muted small me-2">Signature:</span>
+                                <button type="button" class="btn btn-sm btn-primary document-sig-send" ${doc.signature_status === 'sent' || doc.signature_status === 'viewed' ? 'disabled' : ''} title="Send for signature">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary document-sig-revise" title="Revise placement">
+                                    <i class="fas fa-edit"></i> Revise
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger document-sig-remove" title="Remove">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning document-sig-reminder" title="Send reminder" ${showReminder ? '' : 'style="display:none;"'}>
+                                    <i class="fas fa-bell"></i> Reminder
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    `;
+                }
             });
             
             tbody.html(html);
@@ -245,6 +282,188 @@
             }
         },
         
+        /**
+         * Show context menu for custom category tab (Rename / Delete)
+         */
+        showCategoryContextMenu: function(event, $tab, canRename, canDelete) {
+            const self = this;
+            const categoryId = $tab.data('category-id');
+            const categoryName = $tab.data('category-name');
+
+            let menuId = 'doc-category-context-menu';
+            let $old = $('#' + menuId);
+            if ($old.length) $old.remove();
+
+            const items = [];
+            if (canRename) {
+                items.push('<li><a href="javascript:;" class="category-menu-rename"><i class="fas fa-edit me-2"></i>Rename</a></li>');
+            }
+            if (canDelete) {
+                items.push('<li><a href="javascript:;" class="category-menu-delete"><i class="fas fa-trash me-2"></i>Delete</a></li>');
+            }
+            if (canDelete === false && canRename) {
+                items.push('<li><a href="javascript:;" class="category-menu-delete disabled text-muted" title="Move or delete all documents first"><i class="fas fa-trash me-2"></i>Delete</a></li>');
+            }
+
+            const $menu = $('<ul id="' + menuId + '" class="list-unstyled document-context-menu show bg-white border shadow-sm rounded py-2" style="position:fixed;min-width:140px;z-index:9999;">' + items.join('') + '</ul>');
+            $menu.css({ left: event.pageX + 'px', top: event.pageY + 'px' });
+            $('body').append($menu);
+
+            const hideMenu = function() {
+                $menu.remove();
+                $(document).off('click', hideMenu);
+            };
+            setTimeout(function() { $(document).on('click', hideMenu); }, 0);
+
+            $menu.find('.category-menu-rename').on('click', function(e) {
+                e.stopPropagation();
+                hideMenu();
+                self.showRenameCategoryModal(categoryId, categoryName);
+            });
+
+            $menu.find('.category-menu-delete:not(.disabled)').on('click', function(e) {
+                e.stopPropagation();
+                hideMenu();
+                self.showDeleteCategoryModal(categoryId, categoryName);
+            });
+        },
+
+        /**
+         * Show rename category modal
+         */
+        showRenameCategoryModal: function(categoryId, currentName) {
+            const self = this;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Rename Category',
+                    html: '<label class="form-label">New name:</label><input type="text" id="rename-category-input" class="form-control" value="' + this.escapeHtml(currentName) + '" style="width:100%;">',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                    cancelButtonText: 'Cancel',
+                    preConfirm: function() {
+                        const val = document.getElementById('rename-category-input');
+                        const name = val ? val.value.trim() : '';
+                        if (!name) {
+                            Swal.showValidationMessage('Please enter a name');
+                            return false;
+                        }
+                        return name;
+                    }
+                }).then(function(result) {
+                    if (result.isConfirmed && result.value) {
+                        self.renameCategory(categoryId, result.value);
+                    }
+                });
+            } else {
+                self.showRenameCategoryBootstrapModal(categoryId, currentName);
+            }
+        },
+
+        showRenameCategoryBootstrapModal: function(categoryId, currentName) {
+            const self = this;
+            const modalId = 'renameCategoryModal';
+            let $old = $('#' + modalId);
+            if ($old.length) $old.remove();
+
+            const html = '<div class="modal fade" id="' + modalId + '" tabindex="-1">' +
+                '<div class="modal-dialog"><div class="modal-content">' +
+                '<div class="modal-header"><h5 class="modal-title">Rename Category</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                '<div class="modal-body"><label class="form-label">New name:</label><input type="text" id="rename-category-input-modal" class="form-control" value="' + this.escapeHtml(currentName) + '"></div>' +
+                '<div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary rename-category-save-btn">Save</button></div>' +
+                '</div></div></div>';
+            const $wrap = $(html);
+            $('body').append($wrap);
+
+            const modal = new bootstrap.Modal($wrap[0]);
+            modal.show();
+
+            $wrap.find('.rename-category-save-btn').on('click', function() {
+                const name = $wrap.find('#rename-category-input-modal').val().trim();
+                if (!name) { alert('Please enter a name'); return; }
+                modal.hide();
+                $wrap.remove();
+                self.renameCategory(categoryId, name);
+            });
+
+            $wrap.on('hidden.bs.modal', function() { $wrap.remove(); });
+        },
+
+        renameCategory: function(categoryId, newName) {
+            const self = this;
+            $.ajax({
+                url: '/document-categories/update/' + categoryId,
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'X-Requested-With': 'XMLHttpRequest' },
+                data: { name: newName, _token: $('meta[name="csrf-token"]').attr('content') },
+                dataType: 'json'
+            }).done(function(res) {
+                if (res.status) {
+                    if (typeof Swal !== 'undefined') Swal.fire('Success!', res.message, 'success');
+                    else alert('Success: ' + res.message);
+                    self.loadCategories(true);
+                } else {
+                    if (typeof Swal !== 'undefined') Swal.fire('Error!', res.message, 'error');
+                    else alert('Error: ' + res.message);
+                }
+            }).fail(function(xhr) {
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to rename category';
+                if (typeof Swal !== 'undefined') Swal.fire('Error!', msg, 'error');
+                else alert('Error: ' + msg);
+            });
+        },
+
+        /**
+         * Show delete category confirmation
+         */
+        showDeleteCategoryModal: function(categoryId, categoryName) {
+            const self = this;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Delete Category',
+                    text: 'Are you sure you want to delete the category "' + categoryName + '"?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        self.deleteCategory(categoryId);
+                    }
+                });
+            } else {
+                if (confirm('Are you sure you want to delete the category "' + categoryName + '"?')) {
+                    self.deleteCategory(categoryId);
+                }
+            }
+        },
+
+        deleteCategory: function(categoryId) {
+            const self = this;
+            $.ajax({
+                url: '/document-categories/' + categoryId,
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'X-Requested-With': 'XMLHttpRequest' },
+                data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                dataType: 'json'
+            }).done(function(res) {
+                if (res.status) {
+                    if (typeof Swal !== 'undefined') Swal.fire('Success!', res.message, 'success');
+                    else alert('Success: ' + res.message);
+                    self.loadCategories(false);
+                } else {
+                    if (typeof Swal !== 'undefined') Swal.fire('Error!', res.message, 'error');
+                    else alert('Error: ' + res.message);
+                }
+            }).fail(function(xhr) {
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to delete category';
+                if (typeof Swal !== 'undefined') Swal.fire('Error!', msg, 'error');
+                else alert('Error: ' + msg);
+            });
+        },
+
         /**
          * Show add category modal
          */
@@ -334,9 +553,21 @@
             const self = this;
             
             // Category tab click
-            $(document).on('click', '.doc-category-tab', function() {
+            $(document).on('click', '.doc-category-tab', function(e) {
+                if ($(e.target).closest('.doc-category-actions').length) return;
                 const categoryId = $(this).data('category-id');
                 self.switchCategory(categoryId);
+            });
+
+            // Category tab right-click: show Rename/Delete context menu for custom categories
+            $(document).on('contextmenu', '.doc-category-tab', function(e) {
+                const $tab = $(this);
+                const canRename = $tab.data('can-rename') === 1;
+                const canDelete = $tab.data('can-delete') === 1;
+                if (!canRename && !canDelete) return;
+                e.preventDefault();
+                e.stopPropagation();
+                self.showCategoryContextMenu(e, $tab, canRename, canDelete);
             });
             
             // Add category button click
