@@ -35,7 +35,7 @@ class DocumentSignatureController extends Controller
             'doc_id' => 'required|integer|exists:documents,id',
             'client_id' => 'required|integer',
             'signer_email' => 'required|email',
-            'signer_name' => 'required|string|min:2|max:100',
+            'signer_name' => 'required|string|min:1|max:100',
             'fields' => 'required|array|min:1',
             'fields.*.page' => 'required|integer|min:1',
             'fields.*.x_percent' => 'required|numeric|min:0|max:100',
