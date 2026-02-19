@@ -333,29 +333,84 @@
                 }
             });
         } else {
-            const targetId = prompt('Enter category ID to move to: ' + categories.map(function(c) { return c.id + '=' + c.name; }).join(', '));
-            if (targetId && window.DocumentCategoryManager) {
-                const categoryId = targetId.trim();
-                const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) || '';
-                jQuery.ajax({
-                    url: (baseUrl || '') + '/document-categories/move-document',
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': (typeof App !== 'undefined' && App.getCsrf && App.getCsrf()) || (function(){ var m=document.querySelector('meta[name="csrf-token"]'); return m?m.getAttribute('content'):''; })() },
-                    data: { doc_id: docId, category_id: categoryId, client_id: clientId },
-                    dataType: 'json'
-                }).done(function(res) {
-                    if (res.status) {
-                        alert('Success: ' + res.message);
+            showMoveToCategoryBootstrapModal(docId, clientId, categories);
+        }
+    }
+
+    function showMoveToCategoryBootstrapModal(docId, clientId, categories) {
+        var optionsHtml = '<option value="">— Select a category —</option>' + categories.map(function(c) {
+            return '<option value="' + c.id + '">' + (c.name || '') + (c.document_count > 0 ? ' (' + c.document_count + ')' : '') + '</option>';
+        }).join('');
+
+        var modalId = 'moveToCategoryModal';
+        var existing = document.getElementById(modalId);
+        if (existing) existing.remove();
+
+        var modalHtml = '<div class="modal fade" id="' + modalId + '" tabindex="-1" role="dialog">' +
+            '<div class="modal-dialog" role="document">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header">' +
+            '<h5 class="modal-title">Move to Category</h5>' +
+            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+            '</div>' +
+            '<div class="modal-body text-start">' +
+            '<label for="move-category-select-modal" class="form-label">Select target category:</label>' +
+            '<select id="move-category-select-modal" class="form-select form-control" style="width:100%;">' + optionsHtml + '</select>' +
+            '<div class="text-danger mt-2 move-category-error" style="display:none;">Please select a category</div>' +
+            '</div>' +
+            '<div class="modal-footer">' +
+            '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>' +
+            '<button type="button" class="btn btn-primary move-category-confirm-btn">Move</button>' +
+            '</div>' +
+            '</div></div></div>';
+
+        var wrap = document.createElement('div');
+        wrap.innerHTML = modalHtml;
+        var modalEl = wrap.firstElementChild;
+        document.body.appendChild(modalEl);
+
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+        function doMove(categoryId) {
+            if (!categoryId) {
+                modalEl.querySelector('.move-category-error').style.display = 'block';
+                return;
+            }
+            modalEl.querySelector('.move-category-error').style.display = 'none';
+            var baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) || '';
+            var csrf = (typeof App !== 'undefined' && App.getCsrf && App.getCsrf()) || (function(){ var m=document.querySelector('meta[name="csrf-token"]'); return m?m.getAttribute('content'):''; })();
+            jQuery.ajax({
+                url: (baseUrl || '') + '/document-categories/move-document',
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrf },
+                data: { doc_id: docId, category_id: categoryId, client_id: clientId },
+                dataType: 'json'
+            }).done(function(res) {
+                modal.hide();
+                modalEl.remove();
+                if (res.status) {
+                    alert('Success: ' + res.message);
+                    if (window.DocumentCategoryManager) {
                         window.DocumentCategoryManager.loadCategoryDocuments(window.DocumentCategoryManager.currentCategoryId);
                         window.DocumentCategoryManager.loadCategories(true);
-                    } else {
-                        alert('Error: ' + (res.message || 'Failed to move document'));
                     }
-                }).fail(function(xhr) {
-                    alert('Error: ' + ((xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document'));
-                });
-            }
+                } else {
+                    alert('Error: ' + (res.message || 'Failed to move document'));
+                }
+            }).fail(function(xhr) {
+                alert('Error: ' + ((xhr.responseJSON && xhr.responseJSON.message) || 'Failed to move document'));
+            });
         }
+
+        modalEl.querySelector('.move-category-confirm-btn').addEventListener('click', function() {
+            var sel = document.getElementById('move-category-select-modal');
+            doMove(sel ? sel.value : '');
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function() {
+            modalEl.remove();
+        });
     }
 
     // Attach context menu to document rows
