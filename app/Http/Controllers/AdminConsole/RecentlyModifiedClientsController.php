@@ -110,6 +110,7 @@ class RecentlyModifiedClientsController extends Controller
 					DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
 				)
 				->whereNull('archived_at')
+				->appEduMigForStorage()
 				->groupBy('client_id');
 			$query->leftJoinSub($docStatsSubQuery, 'doc_stats', 'activities_logs.client_id', '=', 'doc_stats.client_id');
 			$query->addSelect([
@@ -229,6 +230,7 @@ class RecentlyModifiedClientsController extends Controller
 					DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
 				)
 				->whereNull('archived_at')
+				->appEduMigForStorage()
 				->whereIn('client_id', $clientIds)
 				->groupBy('client_id')
 				->get();
@@ -313,9 +315,14 @@ class RecentlyModifiedClientsController extends Controller
 			->whereNull('archived_at') // Only count non-archived documents
 			->count();
 		
-		// Get document storage: Local = all local, AWS = all AWS, Both = mixed, None = no docs
+		// Get document storage (same logic as Application/Education/Migration): App/Edu/Mig docs only
+		$storageDocCount = Document::where('client_id', $clientId)
+			->whereNull('archived_at')
+			->appEduMigForStorage()
+			->count();
 		$countLocal = Document::where('client_id', $clientId)
 			->whereNull('archived_at')
+			->appEduMigForStorage()
 			->where(function ($q) {
 				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
 			})
@@ -324,14 +331,15 @@ class RecentlyModifiedClientsController extends Controller
 			->count();
 		$countAws = Document::where('client_id', $clientId)
 			->whereNull('archived_at')
+			->appEduMigForStorage()
 			->whereNotNull('myfile_key')
 			->where('myfile_key', '!=', '')
 			->count();
 		if ($countLocal > 0 && $countAws > 0) {
 			$documentStorage = 'both';
-		} elseif ($documentCount > 0 && $countLocal === $documentCount) {
+		} elseif ($storageDocCount > 0 && $countLocal === $storageDocCount) {
 			$documentStorage = 'local';
-		} elseif ($documentCount > 0 && $countAws === $documentCount) {
+		} elseif ($storageDocCount > 0 && $countAws === $storageDocCount) {
 			$documentStorage = 'aws';
 		} else {
 			$documentStorage = 'none';
