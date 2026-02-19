@@ -310,9 +310,10 @@ class RecentlyModifiedClientsController extends Controller
 			->orderBy('created_at', 'desc')
 			->first();
 		
-		// Get document count
+		// Get document count (same conditions as Storage and App/Edu/Mig: appEduMigForStorage + not_used_doc)
 		$documentCount = Document::where('client_id', $clientId)
-			->whereNull('archived_at') // Only count non-archived documents
+			->whereNull('archived_at')
+			->appEduMigForStorage()
 			->count();
 		
 		// Get document storage (same logic as Application/Education/Migration): App/Edu/Mig docs only
@@ -345,15 +346,17 @@ class RecentlyModifiedClientsController extends Controller
 			$documentStorage = 'none';
 		}
 
-		// Category doc counts (local/public folder only, not S3) - category_id resolved by category name (Application, Education, Migration)
-		$applicationCategoryId = DocumentCategory::where('name', 'Application')->value('id');
-		$educationCategoryId = DocumentCategory::where('name', 'Education')->value('id');
-		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->value('id');
+		// Category doc counts (local/public folder only, not S3) - category_id resolved by default Application, Education, Migration
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
 
 		$applicationDocCountLocal = 0;
 		if ($applicationCategoryId) {
 			$applicationDocCountLocal = Document::where('client_id', $clientId)
+				->where('type', 'client')
 				->whereNull('archived_at')
+				->whereNull('not_used_doc')
 				->where('doc_type', 'documents')
 				->where('category_id', $applicationCategoryId)
 				->storedLocally()
@@ -363,7 +366,9 @@ class RecentlyModifiedClientsController extends Controller
 		$educationDocCountLocal = 0;
 		if ($educationCategoryId) {
 			$educationDocCountLocal = Document::where('client_id', $clientId)
+				->where('type', 'client')
 				->whereNull('archived_at')
+				->whereNull('not_used_doc')
 				->where('doc_type', 'documents')
 				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
 				->where('category_id', $educationCategoryId)
@@ -374,7 +379,9 @@ class RecentlyModifiedClientsController extends Controller
 		$migrationDocCountLocal = 0;
 		if ($migrationCategoryId) {
 			$migrationDocCountLocal = Document::where('client_id', $clientId)
+				->where('type', 'client')
 				->whereNull('archived_at')
+				->whereNull('not_used_doc')
 				->where('doc_type', 'documents')
 				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
 				->where('category_id', $migrationCategoryId)
@@ -399,6 +406,8 @@ class RecentlyModifiedClientsController extends Controller
 				] : null,
 				'document_count' => $documentCount,
 				'document_storage' => $documentStorage,
+				'count_local' => $countLocal,
+				'count_aws' => $countAws,
 				'application_doc_count_local' => $applicationDocCountLocal,
 				'education_doc_count_local' => $educationDocCountLocal,
 				'migration_doc_count_local' => $migrationDocCountLocal,
@@ -428,11 +437,11 @@ class RecentlyModifiedClientsController extends Controller
 
 		$categoryId = null;
 		if ($category === 'application') {
-			$categoryId = DocumentCategory::where('name', 'Application')->value('id');
+			$categoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
 		} elseif ($category === 'education') {
-			$categoryId = DocumentCategory::where('name', 'Education')->value('id');
+			$categoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
 		} else {
-			$categoryId = DocumentCategory::where('name', 'Migration')->value('id');
+			$categoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
 		}
 
 		if (!$categoryId) {
@@ -440,7 +449,9 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
 			->whereNull('archived_at')
+			->whereNull('not_used_doc')
 			->where('doc_type', 'documents')
 			->where('category_id', $categoryId)
 			->whereNotNull('myfile')
