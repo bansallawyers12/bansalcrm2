@@ -203,13 +203,75 @@
             } else {
                 if (noMsg) noMsg.style.display = 'none';
                 list.querySelectorAll('.signature-field-item').forEach(el => el.remove());
+                const self = this;
                 this.signatureFields.forEach((f, i) => {
                     const div = document.createElement('div');
-                    div.className = 'signature-field-item small text-muted mb-1';
-                    div.textContent = 'Field ' + (i + 1) + ' (Page ' + f.page + ')';
+                    div.className = 'signature-field-item d-flex justify-content-between align-items-center small mb-2 p-2 border rounded';
+                    div.dataset.fieldId = f.id;
+                    div.innerHTML = '<span class="text-muted">Field ' + (i + 1) + ' (Page ' + f.page + ')</span>' +
+                        '<button type="button" class="btn btn-outline-danger btn-sm py-0 px-1 sig-delete-field" data-field-id="' + f.id + '" title="Delete field"><i class="fas fa-times"></i></button>';
+                    div.querySelector('.sig-delete-field').onclick = function(e) {
+                        e.stopPropagation();
+                        self.deleteField(parseInt(this.getAttribute('data-field-id'), 10));
+                    };
                     list.appendChild(div);
                 });
             }
+        },
+
+        deleteField: function(fieldId) {
+            if (!confirm('Delete this signature field?')) return;
+            this.signatureFields = this.signatureFields.filter(f => f.id !== fieldId);
+            this.updateFieldsList();
+            this.renderFieldsForPage(this.currentPage);
+        },
+
+        makeDraggable: function(el, field) {
+            const self = this;
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+
+            const onMove = function(e) {
+                if (!isDragging) return;
+                const container = document.getElementById('signaturePdfContainer');
+                if (!container) return;
+                const rect = container.getBoundingClientRect();
+                const deltaX = ((e.clientX - startX) / rect.width) * 100;
+                const deltaY = ((e.clientY - startY) / rect.height) * 100;
+                const newLeft = Math.max(0, Math.min(100 - field.width_percent, startLeft + deltaX));
+                const newTop = Math.max(0, Math.min(100 - field.height_percent, startTop + deltaY));
+                el.style.left = newLeft + '%';
+                el.style.top = newTop + '%';
+                field.x_percent = newLeft;
+                field.y_percent = newTop;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = newLeft;
+                startTop = newTop;
+            };
+
+            const onUp = function() {
+                if (isDragging) {
+                    isDragging = false;
+                    el.style.cursor = 'grab';
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                }
+            };
+
+            el.addEventListener('mousedown', function(e) {
+                if (e.target.classList.contains('sig-field-delete-btn')) return;
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = parseFloat(el.style.left) || 0;
+                startTop = parseFloat(el.style.top) || 0;
+                el.style.cursor = 'grabbing';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+                e.preventDefault();
+                e.stopPropagation();
+            });
         },
 
         renderFieldsForPage: function(page) {
@@ -218,15 +280,20 @@
             if (!container || !img || img.style.display === 'none') return;
 
             container.querySelectorAll('.signature-field-overlay').forEach(el => el.remove());
-            this.signatureFields.filter(f => f.page === page).forEach(field => {
+            const self = this;
+            this.signatureFields.filter(f => f.page === page).forEach((field, idx) => {
                 const el = document.createElement('div');
                 el.className = 'signature-field-overlay position-absolute border border-success bg-success bg-opacity-10';
-                el.style.left = field.x_percent + '%';
-                el.style.top = field.y_percent + '%';
-                el.style.width = field.width_percent + '%';
-                el.style.height = field.height_percent + '%';
-                el.style.pointerEvents = 'none';
+                el.style.cssText = 'left:' + field.x_percent + '%;top:' + field.y_percent + '%;width:' + field.width_percent + '%;height:' + field.height_percent + '%;cursor:grab;';
                 el.dataset.fieldId = field.id;
+                el.innerHTML = '<span class="sig-field-label" style="position:absolute;top:2px;left:2px;background:rgba(25,135,84,0.9);color:#fff;padding:2px 6px;border-radius:3px;font-size:10px;white-space:nowrap;">Signature ' + (idx + 1) + '</span>' +
+                    '<button type="button" class="sig-field-delete-btn btn btn-sm position-absolute" style="top:2px;right:2px;padding:0 4px;line-height:1;font-size:12px;background:rgba(220,53,69,0.9);color:#fff;border:none;border-radius:3px;" title="Delete">&times;</button>';
+                el.querySelector('.sig-field-delete-btn').onclick = function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    self.deleteField(field.id);
+                };
+                self.makeDraggable(el, field);
                 container.appendChild(el);
             });
         },
