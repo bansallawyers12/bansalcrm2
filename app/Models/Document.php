@@ -200,15 +200,17 @@ class Document extends Model
      */
     public function scopeAppEduMigForStorage($query)
     {
-        $appId = \App\Models\DocumentCategory::where('name', 'Application')->value('id');
-        $eduId = \App\Models\DocumentCategory::where('name', 'Education')->value('id');
-        $migId = \App\Models\DocumentCategory::where('name', 'Migration')->value('id');
+        $appId = \App\Models\DocumentCategory::where('name', 'Application')->default()->value('id');
+        $eduId = \App\Models\DocumentCategory::where('name', 'Education')->default()->value('id');
+        $migId = \App\Models\DocumentCategory::where('name', 'Migration')->default()->value('id');
 
         if (!$appId && !$eduId && !$migId) {
             return $query->whereRaw('1=0');
         }
 
         return $query
+            ->where('type', 'client')
+            ->whereNull('not_used_doc')
             ->where('doc_type', 'documents')
             ->where(function ($q) use ($appId, $eduId, $migId) {
                 if ($appId) {

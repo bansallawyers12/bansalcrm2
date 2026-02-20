@@ -730,6 +730,10 @@ $(document).ready(function() {
 					var storageLabel = (data.document_storage === 'both') ? 'Local & AWS' : ((data.document_storage === 'local') ? 'Local only' : ((data.document_storage === 'aws') ? 'AWS only' : '—'));
 					if (data.document_count > 0 && data.document_storage) {
 						html += '<div class="mt-2"><small class="text-muted">Storage: </small><strong>' + storageLabel + '</strong></div>';
+						if (data.document_storage === 'both' && data.count_local != null && data.count_aws != null) {
+							html += '<div class="mt-2"><small class="text-muted">Total Local Found: </small><strong>' + data.count_local + '</strong></div>';
+							html += '<div class="mt-1"><small class="text-muted">Total AWS Found: </small><strong>' + data.count_aws + '</strong></div>';
+						}
 					}
 					// Category doc counts (local/public folder only) - clickable to show documents in popup
 					html += '<div class="mt-3 pt-2 border-top">';
