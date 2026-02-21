@@ -115,8 +115,12 @@ class InvoiceController extends Controller
 			}
 			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
+			$assignedTo = null;
+			if($invoicedetail->type != 3 && isset($applicationdata->user_id) && $applicationdata->user_id){
+				$assignedTo = \App\Models\Staff::find($applicationdata->user_id);
+			}
 			
-			return view('Admin.invoice.show',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata'])); 
+			return view('Admin.invoice.show',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata','assignedTo'])); 
 		}else{
 			return redirect()->back()->with('error', 'Record Not Found');
 		}

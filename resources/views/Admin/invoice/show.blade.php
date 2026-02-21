@@ -19,7 +19,20 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			
+			<?php
+			$invoiceitemdetails_pre = \App\Models\InvoiceDetail::where('invoice_id', $invoicedetail->id)->orderby('id','ASC')->get();
+			$coom_amt_pre = 0;
+			$tax_amt_pre = 0;
+			$total_fee_pre = 0;
+			$bonus_amt_pre = 0;
+			foreach($invoiceitemdetails_pre as $invitem){
+				$coom_amt_pre += $invitem->comm_amt;
+				$total_fee_pre += $invitem->total_fee;
+				$tax_amt_pre += $invitem->tax_amount;
+				$bonus_amt_pre += $invitem->bonus_amount;
+			}
+			$feepaid_pre = $total_fee_pre - ($coom_amt_pre + $tax_amt_pre + $bonus_amt_pre);
+			?>
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -94,10 +107,13 @@
 										<li><span>Name:</span> {{$clientdata->first_name}} {{$clientdata->last_name}}</li>
 										<li><span>DOB:</span>{{date('d/m/Y', strtotime($clientdata->dob))}}</li>
 										<li><span>Client ID:</span>{{$clientdata->client_id}}</li>
+										<li><span>Client Reference:</span> {{$clientdata->client_id ?? 'N/A'}}</li>
 										<li><span>Partner:</span> {{@$partnerdata->partner_name}}</li>
 										<li><span>Product:</span> {{@$productdata->name}}</li>
 										<li><span>Branch:</span> {{@$branchdata->name}}</li>
-										<li><span>Workflow:</span> {{@$workflowdaa->name}}</li>
+										<li><span>Assignee:</span> {{@$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A'}}</li>
+										<li><span>Commission Claimed:</span> ${{number_format($coom_amt_pre, 2)}} AUD</li>
+										<li><span>Net Fee Paid to Partner:</span> ${{number_format($feepaid_pre, 2)}} AUD</li>
 									</ul>
 								</div>
 							</div>
