@@ -245,7 +245,7 @@ use App\Http\Controllers\Controller;
                                             ]
                                         ]);
                                     } elseif( \App\Models\ClientPhone::where('client_id', $fetchedData->id)->exists()) {
-                                        $clientContacts = \App\Models\ClientPhone::select('client_phone','client_country_code','contact_type')->where('client_id', $fetchedData->id)->where('contact_type', '!=', 'Not In Use')->get();
+                                        $clientContacts = \App\Models\ClientPhone::select('client_phone','client_country_code','contact_type','is_verified')->where('client_id', $fetchedData->id)->where('contact_type', '!=', 'Not In Use')->get();
                                     } else {
                                         if( \App\Models\Admin::where('id', $fetchedData->id)->exists()){
                                             $clientContacts = \App\Models\Admin::select('phone as client_phone','country_code as client_country_code','contact_type')->where('id', $fetchedData->id)->get();
@@ -256,7 +256,7 @@ use App\Http\Controllers\Controller;
                                     if( !empty($clientContacts) && count($clientContacts)>0 ){
                                         $phonenoStr = "";
                                         foreach($clientContacts as $conKey=>$conVal){
-                                            //Check phone is verified or not (lead: use Lead model; client: use VerifiedNumber for legacy display)
+                                            //Check phone is verified or not (lead: use Lead model; client: use client_phones.is_verified)
                                             $verifiedNumber = null;
                                             if ( !empty($isLeadDetail) && !empty($conVal->is_lead_primary) ) {
                                                 if ( !empty($conVal->lead_id) ) {
@@ -267,8 +267,7 @@ use App\Http\Controllers\Controller;
                                                 }
                                             }
                                             if ( $verifiedNumber === null && empty($isLeadDetail) ) {
-                                                $check_verified_phoneno = $conVal->client_country_code."".$conVal->client_phone;
-                                                $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
+                                                $verifiedNumber = !empty($conVal->is_verified) ? (object)['is_verified' => true] : null;
                                             }
 
 

@@ -7,7 +7,6 @@ use App\Models\Admin;
 use App\Models\ClientPhone; // Note: bansalcrm2 uses ClientPhone instead of ClientContact
 use App\Models\ActivitiesLog;
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
-use App\Models\VerifiedNumber; // bansalcrm2 has VerifiedNumber table for phone verification
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -159,8 +158,7 @@ class ClientExportService
 
     /**
      * Get client contacts (phone numbers)
-     * Note: bansalcrm2 uses ClientPhone model
-     * Phone verification is stored in VerifiedNumber table
+     * Note: bansalcrm2 uses ClientPhone model; verification stored in client_phones.is_verified
      */
     private function getClientContacts($clientId)
     {
@@ -171,23 +169,12 @@ class ClientExportService
         return \App\Models\ClientPhone::where('client_id', $clientId)
             ->get()
             ->map(function ($contact) {
-                // Build full phone number for verification lookup
-                $fullPhoneNumber = ($contact->client_country_code ?? '') . ($contact->client_phone ?? '');
-                
-                // Check if phone is verified in VerifiedNumber table
-                $verifiedNumber = null;
-                if (!empty($fullPhoneNumber) && class_exists(\App\Models\VerifiedNumber::class)) {
-                    $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number', $fullPhoneNumber)
-                        ->where('is_verified', true)
-                        ->first();
-                }
-                
                 return [
                     'contact_type' => $contact->contact_type ?? null,
                     'country_code' => $contact->client_country_code ?? null, // Note: column is client_country_code
                     'phone' => $contact->client_phone ?? null, // Note: column is client_phone
-                    'is_verified' => $verifiedNumber ? true : false,
-                    'verified_at' => $verifiedNumber ? $verifiedNumber->verified_at : null,
+                    'is_verified' => (bool) ($contact->is_verified ?? false),
+                    'verified_at' => $contact->verified_at ?? null,
                 ];
             })
             ->toArray();
