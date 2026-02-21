@@ -564,13 +564,11 @@ class LeadController extends Controller
 	
 	public function getnotedetail(Request $request){
 	    $id = $request->id;
-	    if(Followup::where('id', '=', $id)->exists()) 
-		{
-		    $fetchedData = Followup::where('id', '=', $id)->first();
-		    	return view('Admin.leads.editnotemodal', compact(['fetchedData']));
-		}else{
-		    echo 'No Found';
+	    // Followup edit feature removed - followup routes deleted
+	    if(Followup::where('id', '=', $id)->exists()) {
+		    return response('Followup edit feature has been removed.', 410);
 		}
+	    echo 'No Found';
 	}
 	
 	//Check Email is unique or not
