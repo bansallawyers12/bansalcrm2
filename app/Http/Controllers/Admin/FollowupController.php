@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
+use App\Models\Admin;
 use App\Models\Followup;
 use App\Models\FollowupType;
-use App\Models\Lead;
 // NOTE: Attachment model/table has been removed
 // use App\Models\Attachment;
  
@@ -30,30 +30,45 @@ class FollowupController extends Controller
 	public function index(Request $request)
 	{
 		$id = $this->decodeString($request->leadid);
-	//	Lead::where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->orwhere('assign_to', '=', Auth::user()->id)->exists()
-		if(Lead::where('id', '=', $id)->exists()) 
+		// Admin model: resolve by admins.id or lead_id (leads.id for migrated)
+		$admin = Admin::where('id', '=', $id)->where('type', 'lead')->first()
+			?? Admin::where('lead_id', '=', $id)->where('type', 'lead')->first();
+		if ($admin) 
 		{
-			$query = Followup::where('lead_id','=',	$id)->with(['staff']);
-			$totalData 	= $query->count();	//for all data
-
-			$lists		= $query->orderby('pin', 'DESC')->orderby('created_at', 'DESC')->paginate(config('constants.limit')); 
-			return view('Admin.leads.list',compact(['lists', 'totalData'])); 
+			$query = Followup::query()->with(['staff']);
+			if ($admin->lead_id) {
+				$query->where('lead_id', '=', $admin->lead_id);
+			} else {
+				$query->where('client_id', '=', $admin->id);
+			}
+			$totalData = $query->count();
+			$lists = $query->orderby('pin', 'DESC')->orderby('created_at', 'DESC')->paginate(config('constants.limit')); 
+			return view('Admin.leads.list', compact(['lists', 'totalData'])); 
 		}
 	} 
 	
 	public function compose(Request $request){
 		$requestData 		= 	$request->all();
 		$ledID = $this->decodeString(@$requestData['lead_id']);
-		 $LEADS = Lead::where('id', $ledID)->first();
-		 $assi = \App\Models\Staff::find(@$LEADS->assign_to);
-			 $message = @$requestData['message'];
-			    			 	 $subject = @$requestData['subject'];
-			    	$subject = str_replace('{Client First Name}',$LEADS->first_name, $subject);
-			$message = str_replace('{Client First Name}',$LEADS->first_name, $message);	
-			$message = str_replace('{Company Name}','Bansal Education', $message);
-			$message = str_replace('{Client Assignee Name}', $assi ? $assi->first_name : '', $message);
-		$followup 					= new Followup;
-		$followup->lead_id			= $this->decodeString(@$requestData['lead_id']);
+		$admin = Admin::where('id', $ledID)->where('type', 'lead')->first()
+			?? Admin::where('lead_id', $ledID)->where('type', 'lead')->first();
+		if (!$admin) {
+			return redirect()->back()->with('error', 'Lead not found');
+		}
+		$assi = \App\Models\Staff::find($admin->assignee);
+		$message = @$requestData['message'];
+		$subject = @$requestData['subject'];
+		$subject = str_replace('{Client First Name}', $admin->first_name ?? '', $subject);
+		$message = str_replace('{Client First Name}', $admin->first_name ?? '', $message);	
+		$message = str_replace('{Company Name}', 'Bansal Education', $message);
+		$message = str_replace('{Client Assignee Name}', $assi ? $assi->first_name : '', $message);
+		$followup = new Followup;
+		// For admin-only use client_id; for migrated use lead_id
+		if ($admin->lead_id) {
+			$followup->lead_id = $admin->lead_id;
+		} else {
+			$followup->client_id = $admin->id;
+		}
 		$followup->user_id			= Auth::user()->id;
 		
 		$followup->note				= $message;
@@ -80,64 +95,79 @@ class FollowupController extends Controller
 	}
 	public function store(Request $request)
 	{ 
-		$requestData 		= 	$request->all();
-		
-	
-		$followup 					= new Followup;
-		$followup->lead_id			= $this->decodeString(@$requestData['lead_id']);
-		$followup->user_id			= Auth::user()->id;
-		$followup->note				= @$requestData['description'];
-		$followup->subject				= @$requestData['remindersubject'];
-		$followup->followup_type	= @$requestData['note_type'];
-		$followup->rem_cat	= @$requestData['rem_cat'];
-		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
-		//	$followup->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
-				$followup->followup_date	=  @$requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
+		$requestData = $request->all();
+		$decodedId = $this->decodeString(@$requestData['lead_id']);
+		$admin = Admin::where('id', $decodedId)->where('type', 'lead')->first()
+			?? Admin::where('lead_id', $decodedId)->where('type', 'lead')->first();
+		if (!$admin) {
+			echo json_encode(array('success' => false, 'message' => 'Lead not found', 'leadid' => $requestData['lead_id']));
+			return;
 		}
-		
-		$saved				=	$followup->save();  
-			
+		$followup = new Followup;
+		if ($admin->lead_id) {
+			$followup->lead_id = $admin->lead_id;
+		} else {
+			$followup->client_id = $admin->id;
+		}
+		$followup->user_id = Auth::user()->id;
+		$followup->note = @$requestData['description'];
+		$followup->subject = @$requestData['remindersubject'];
+		$followup->followup_type = @$requestData['note_type'];
+		$followup->rem_cat = @$requestData['rem_cat'];
+		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
+			$followup->followup_date = @$requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
+		}
+		$saved = $followup->save();  
 		if(!$saved) 
 		{
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'leadid' => $requestData['lead_id']));
 		}
 		else
 		{ 
-			$note_type = $this->followuptype($requestData['note_type'],'id' );
-			$Lead = Lead::find($this->decodeString($requestData['lead_id']));
-			$Lead->status = $note_type;
-			$Lead->save();
+			$note_type = $this->followuptype($requestData['note_type'], 'id');
+			Admin::where('id', $admin->id)->update(['status' => $note_type]);
 			echo json_encode(array('success' => true, 'message' => 'successfully saved', 'leadid' => $requestData['lead_id']));
 		}
 	}
 	public function followupupdate(Request $request)
 	{ 
-		$requestData 		= 	$request->all();
-		$lead_id = $this->decodeString(@$requestData['lead_id']);
-	
-		$followup 					= Followup::find($lead_id);
-		$followup->note				= @$requestData['description'];
-		$followup->subject				= @$requestData['remindersubject'];
-		$followup->followup_type	= @$requestData['note_type'];
-		$followup->rem_cat	= @$requestData['rem_cat'];
-		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
-		//	$followup->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
-				$followup->followup_date	=  @$requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
+		$requestData = $request->all();
+		$followupId = $this->decodeString(@$requestData['lead_id']);
+		$followup = Followup::find($followupId);
+		if (!$followup) {
+			echo json_encode(array('success' => false, 'message' => 'Followup not found', 'leadid' => $requestData['lead_id']));
+			return;
 		}
-		
-		$saved				=	$followup->save();  
-			
+		$followup->note = @$requestData['description'];
+		$followup->subject = @$requestData['remindersubject'];
+		$followup->followup_type = @$requestData['note_type'];
+		$followup->rem_cat = @$requestData['rem_cat'];
+		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
+			$followup->followup_date = @$requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
+		}
+		$saved = $followup->save();  
 		if(!$saved) 
 		{
 			echo json_encode(array('success' => false, 'message' => 'Please try again', 'leadid' => $requestData['lead_id']));
 		}
 		else
 		{ 
-			$note_type = $this->followuptype($requestData['note_type'],'id' );
-			$Lead = Lead::find($followup->lead_id);
-			$Lead->status = $note_type;
-			$Lead->save();
-			echo json_encode(array('success' => true, 'message' => 'successfully saved', 'leadid' => base64_encode(convert_uuencode($followup->lead_id))));
+			// Resolve admin by followup.lead_id or followup.client_id
+			$admin = null;
+			if ($followup->lead_id) {
+				$admin = Admin::where('lead_id', $followup->lead_id)->where('type', 'lead')->first();
+			}
+			if (!$admin && $followup->client_id) {
+				$admin = Admin::where('id', $followup->client_id)->where('type', 'lead')->first();
+			}
+			if ($admin) {
+				$note_type = $this->followuptype($requestData['note_type'], 'id');
+				Admin::where('id', $admin->id)->update(['status' => $note_type]);
+			}
+			$leadidEncoded = $followup->lead_id
+				? base64_encode(convert_uuencode($followup->lead_id))
+				: base64_encode(convert_uuencode($followup->client_id));
+			echo json_encode(array('success' => true, 'message' => 'successfully saved', 'leadid' => $leadidEncoded));
 		}
 	}
 	

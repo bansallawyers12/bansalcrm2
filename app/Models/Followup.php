@@ -21,11 +21,23 @@ class Followup extends Model
     {
         return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
     }
-	 public function post()
+    /**
+     * Lead (when followup.lead_id is set - legacy/migrated leads).
+     */
+    public function post()
     {
-        return $this->belongsTo('App\Models\Lead','lead_id');
+        return $this->belongsTo('App\Models\Lead', 'lead_id');
     }
-	public function followutype()
+
+    /**
+     * Admin/Client (when followup.client_id is set - admin-only leads).
+     */
+    public function client()
+    {
+        return $this->belongsTo('App\Models\Admin', 'client_id');
+    }
+
+    public function followutype()
     {
         return $this->belongsTo('App\Models\FollowupType','followup_type','type');
     }

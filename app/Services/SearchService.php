@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Admin;
-use App\Models\Lead;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -91,11 +90,8 @@ class SearchService
                 $results = array_merge($results, $this->searchByPhone($searchType['value']));
                 break;
             default:
-                // Search clients (including those with type='lead') and separate leads table
-                $results = array_merge(
-                    $this->searchClients(),
-                    $this->searchLeads()
-                );  //dd($results);
+                // Search clients and leads (all in admins table)
+                $results = $this->searchClients();
                 break;
         }
 
@@ -207,70 +203,6 @@ class SearchService
     }
 
     /**
-     * Search leads
-     * Excludes leads that already exist in admins table (prioritize clients over leads)
-     */
-    protected function searchLeads()
-    {
-        $query = $this->query;
-        $dob = $this->parseDOB($query);
-
-        $leads = Lead::where('converted', '=', 0)
-            // Exclude leads that already exist in admins table (via lead_id)
-            ->whereNotIn('id', function($subquery) {
-                $subquery->select('lead_id')
-                    ->from('admins')
-                    ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0);
-            })
-            // Also exclude by email match - if email exists in admins, don't show in leads
-            ->whereNotExists(function($subquery) {
-                $subquery->select(DB::raw(1))
-                    ->from('admins')
-                    ->whereColumn('admins.email', 'leads.email')
-                    ->whereNotNull('admins.email')
-                    ->whereNotNull('leads.email');
-            })
-            ->where(function ($q) use ($query, $dob) {
-                $q->where('email', 'ilike', '%' . $query . '%')
-                  ->orWhere('first_name', 'ilike', '%' . $query . '%')
-                  ->orWhere('last_name', 'ilike', '%' . $query . '%')
-                  ->orWhere('phone', 'ilike', '%' . $query . '%')
-                  ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ilike', '%' . $query . '%');
-                
-                if ($dob) {
-                    $q->orWhere('dob', '=', $dob);
-                }
-            })
-            ->limit($this->limit)
-            ->get();
-
-        return $leads->map(function ($lead) {
-            if (empty($lead->id)) {
-                return null; // Skip records without ID
-            }
-            
-            $firstName = $lead->first_name ?? '';
-            $lastName = $lead->last_name ?? '';
-            $fullName = trim($firstName . ' ' . $lastName);
-            
-            return [
-                'name' => $this->highlightMatch($fullName ?: 'Unknown'),
-                'email' => $this->highlightMatch($lead->email ?? ''),
-                'phone' => $this->highlightMatch($lead->phone ?? ''),
-                'client_id' => null,
-                'status' => 'Lead',
-                'type' => 'Lead',
-                'id' => $this->encodeId($lead->id) . '/Lead',
-                'raw_id' => $lead->id,
-                'category' => 'leads',
-                'badge_color' => 'blue'
-            ];
-        })->filter()->values()->toArray();
-    }
-
-
-    /**
      * Search by specific client ID
      */
     protected function searchByClientId($clientId)
@@ -349,44 +281,6 @@ class SearchService
             ];
         }
 
-        // Search leads
-        // Exclude leads that already exist in admins table (prioritize clients over leads)
-        // Check both by lead_id and by email match to catch all cases
-        $leads = Lead::where('converted', '=', 0)
-            ->whereNotIn('id', function($subquery) {
-                // Exclude by lead_id if it exists in admins
-                $subquery->select('lead_id')
-                    ->from('admins')
-                    ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0);
-            })
-            // Also exclude by email match - if email exists in admins, don't show in leads
-            ->whereNotExists(function($subquery) {
-                $subquery->select(DB::raw(1))
-                    ->from('admins')
-                    ->whereColumn('admins.email', 'leads.email')
-                    ->whereNotNull('admins.email')
-                    ->whereNotNull('leads.email');
-            })
-            ->where(function ($q) use ($email) {
-                $q->where('email', 'ilike', '%' . $email . '%');
-            })
-            ->limit(10)
-            ->get();
-
-        foreach ($leads as $lead) {
-            $results[] = [
-                'name' => $lead->first_name . ' ' . $lead->last_name,
-                'email' => $lead->email ?? '',
-                'phone' => $lead->phone ?? '',
-                'status' => 'Lead',
-                'type' => 'Lead',
-                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
-                'category' => 'leads',
-                'badge_color' => 'blue'
-            ];
-        }
-
         return $results;
     }
 
@@ -448,45 +342,6 @@ class SearchService
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
                 'category' => 'clients',
                 'badge_color' => $badgeColor
-            ];
-        }
-
-        // Search leads
-        // Exclude leads that already exist in admins table (prioritize clients over leads)
-        $leads = Lead::where('converted', '=', 0)
-            ->whereNotIn('id', function($subquery) {
-                $subquery->select('lead_id')
-                    ->from('admins')
-                    ->whereNotNull('lead_id')
-                    ->where('lead_id', '!=', 0);
-            })
-            // Also exclude by email match - if email exists in admins, don't show in leads
-            ->whereNotExists(function($subquery) {
-                $subquery->select(DB::raw(1))
-                    ->from('admins')
-                    ->whereColumn('admins.email', 'leads.email')
-                    ->whereNotNull('admins.email')
-                    ->whereNotNull('leads.email');
-            })
-            ->where(function ($q) use ($searchPatterns) {
-                foreach ($searchPatterns as $pattern) {
-                    $q->orWhere('phone', 'ilike', $pattern);
-                }
-            })
-            ->distinct()
-            ->limit(10)
-            ->get();
-
-        foreach ($leads as $lead) {
-            $results[] = [
-                'name' => $lead->first_name . ' ' . $lead->last_name,
-                'email' => $lead->email ?? '',
-                'phone' => $lead->phone ?? '',
-                'status' => 'Lead',
-                'type' => 'Lead',
-                'id' => base64_encode(convert_uuencode($lead->id)) . '/Lead',
-                'category' => 'leads',
-                'badge_color' => 'blue'
             ];
         }
 

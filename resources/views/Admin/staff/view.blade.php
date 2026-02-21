@@ -280,7 +280,7 @@ use App\Http\Controllers\Controller;
                                     								<div class="col-lg-12 col-md-12">
                                     									<div class="card-content">
                                     									<?php
-                                    									$countleads = \App\Models\Lead::where('assign_to', $fetchedData->id)->count();
+                                    									$countleads = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->count();
                                     									?>
                                     										<h5 class="font-14">Total Leads</h5>
                                     										<h2 class="mb-3 font-18">{{$countleads}}</h2>
@@ -293,10 +293,12 @@ use App\Http\Controllers\Controller;
                                     				</div>
                                     			</div>
                                         <?php
-                                        $allleads = \App\Models\Lead::where('assign_to', $fetchedData->id)->get();
+                                        $allleads = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 0)->get();
                                         $userarray = array();
                  foreach($allleads as $alllead){
-                     	$userarray[] = \App\Models\Followup::whereDate('followup_date', date('Y-m-d'))->where('lead_id', $alllead->id)->first();
+                     	$fq = \App\Models\Followup::whereDate('followup_date', date('Y-m-d'));
+                     	if ($alllead->lead_id) { $fq->where('lead_id', $alllead->lead_id); } else { $fq->where('client_id', $alllead->id); }
+                     	$userarray[] = $fq->first();
                  }                       
 	
 									?>
@@ -330,7 +332,7 @@ use App\Http\Controllers\Controller;
                                     								<div class="col-lg-12 col-md-12">
                                     									<div class="card-content">
                                     									<?php
-                                    									$countconver = \App\Models\Lead::where('converted', 1)->where('assign_to', $fetchedData->id)->count();
+                                    									$countconver = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 1)->count();
                                     									?>
                                     										<h5 class="font-14">Total Converted</h5>
                                     										<h2 class="mb-3 font-18">{{$countconver}}</h2>
@@ -343,7 +345,7 @@ use App\Http\Controllers\Controller;
                                     				</div>
                                     			</div>
                                     	<?php
-                                    									$todaycountconver = \App\Models\Lead::where('converted', 1)->where('assign_to', $fetchedData->id)->whereDate('converted_date', date('Y-m-d'))->count();
+                                    									$todaycountconver = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 1)->whereDate('converted_date', date('Y-m-d'))->count();
                                     									?>
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12 mb-4">
                                     				<div class="card dash_card">
@@ -638,9 +640,9 @@ use App\Http\Controllers\Controller;
 @endsection
 @section('scripts')
 <?php
-$leadsconverted = \App\Models\Lead::where('converted', 1)->where('assign_to', $fetchedData->id)->count();
-$totalleads = \App\Models\Lead::where('assign_to', $fetchedData->id)->count();
-$leadsprogress = \App\Models\Lead::where('converted', 0)->where('assign_to', $fetchedData->id)->count();
+$leadsconverted = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 1)->count();
+$totalleads = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->count();
+$leadsprogress = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 0)->count();
 
 $data = array($totalleads,$leadsconverted, $leadsprogress); 
 ?>
