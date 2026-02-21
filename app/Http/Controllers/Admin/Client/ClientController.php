@@ -662,11 +662,12 @@ class ClientController extends Controller
                 return redirect()->route('leads.index')->with('error', 'Invalid Lead ID');
             }
             
-            // Check Admin first (admin-only leads by admins.id, or migrated leads by lead_id)
-            $adminLead = Admin::where('id', '=', $id)->where('type', 'lead')->first();
+            // Admin model: check by admins.id or lead_id (leads.id for migrated)
+            $adminLead = Admin::where('id', '=', $id)->where('type', 'lead')->first()
+                ?? Admin::where('lead_id', '=', $id)->where('type', 'lead')->first();
             if ($adminLead) {
                 $fetchedData = $adminLead;
-                $encodeId = $originalId;
+                $encodeId = base64_encode(convert_uuencode($adminLead->id));
                 $clientApplications = Application::where('client_id', $fetchedData->id)
                     ->with(['product', 'partner'])
                     ->orderBy('created_at', 'desc')
@@ -676,7 +677,7 @@ class ClientController extends Controller
                     compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
                 );
             }
-            // Else check if it's a lead in the leads table (legacy)
+            // Fallback: legacy lead in leads table (unmigrated)
             if(\App\Models\Lead::where('id', '=', $id)->exists())
             {
                 $lead = \App\Models\Lead::with('staffuser')->find($id);//dd($lead); die;

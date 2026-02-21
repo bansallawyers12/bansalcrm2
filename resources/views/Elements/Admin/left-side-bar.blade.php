@@ -411,6 +411,14 @@
 				</ul>
 			</li>
 	<?php
+		if(Route::currentRouteName() == 'admin.outlook.index'){
+			$outlookclasstype = 'active';
+		}
+		?>
+			<li class="dropdown {{@$outlookclasstype}}">
+				<a href="{{ route('admin.outlook.index') }}" class="nav-link"><i class="fas fa-envelope-open-text"></i><span>Outlook</span></a>
+			</li>
+			<?php
 		if(Route::currentRouteName() == 'email.index'){
 			$emtemclasstype = 'active';
 		}

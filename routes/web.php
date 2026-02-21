@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
+use App\Http\Controllers\Admin\OutlookController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\ExceptionController;
 use App\Http\Controllers\AddressController;
@@ -273,6 +274,15 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	 // Route::get('/api-key', 'Admin\ApiController@index')->name('apikey.index');
 	  //Manage Api key  
 				      
+	// Outlook (SendGrid Email)
+		Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
+			Route::get('/outlook', [OutlookController::class, 'index'])->name('outlook.index');
+			Route::get('/outlook/senders', [OutlookController::class, 'senders'])->name('outlook.senders');
+			Route::get('/outlook/debug', [OutlookController::class, 'debug'])->name('outlook.debug');
+			Route::get('/outlook/inbox', [OutlookController::class, 'inbox'])->name('outlook.inbox');
+			Route::post('/outlook/send', [OutlookController::class, 'send'])->name('outlook.send');
+		});
+
 	//Email Templates Pages
 		Route::get('/email_templates', [EmailTemplateController::class, 'index'])->name('email.index');
 		Route::get('/email_templates/create', [EmailTemplateController::class, 'create'])->name('email.create');

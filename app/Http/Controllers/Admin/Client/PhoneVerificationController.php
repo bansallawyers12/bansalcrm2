@@ -119,14 +119,18 @@ class PhoneVerificationController extends Controller
 
     public function sendOTPForLead(Request $request)
     {
-        $request->validate(['lead_id' => 'required|exists:leads,id']);
-        return response()->json($this->verificationService->sendOTPForLead($request->lead_id));
+        $request->validate(['lead_id' => 'required|integer']);
+        $result = $this->verificationService->sendOTPForLead($request->lead_id);
+        if (isset($result['success']) && !$result['success'] && isset($result['message']) && $result['message'] === 'Lead not found') {
+            return response()->json($result, 404);
+        }
+        return response()->json($result);
     }
 
     public function verifyOTPForLead(Request $request)
     {
         $request->validate([
-            'lead_id' => 'required|exists:leads,id',
+            'lead_id' => 'required|integer',
             'otp_code' => 'required|string|size:6',
         ]);
         return response()->json($this->verificationService->verifyOTPForLead($request->lead_id, $request->otp_code));
@@ -134,24 +138,31 @@ class PhoneVerificationController extends Controller
 
     public function resendOTPForLead(Request $request)
     {
-        $request->validate(['lead_id' => 'required|exists:leads,id']);
+        $request->validate(['lead_id' => 'required|integer']);
         if (!$this->verificationService->canResendOTPForLead($request->lead_id)) {
             return response()->json(['success' => false, 'message' => 'Please wait 30 seconds before resending.']);
         }
-        return response()->json($this->verificationService->sendOTPForLead($request->lead_id));
+        $result = $this->verificationService->sendOTPForLead($request->lead_id);
+        if (isset($result['success']) && !$result['success'] && isset($result['message']) && $result['message'] === 'Lead not found') {
+            return response()->json($result, 404);
+        }
+        return response()->json($result);
     }
 
     public function getStatusForLead($leadId)
     {
-        $lead = \App\Models\Lead::find($leadId);
-        if (!$lead) {
+        $admin = \App\Models\Admin::where('id', $leadId)->where('type', 'lead')->first()
+            ?? \App\Models\Admin::where('lead_id', $leadId)->where('type', 'lead')->first();
+        $lead = $admin ? null : \App\Models\Lead::find($leadId);
+        $entity = $admin ?? $lead;
+        if (!$entity) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
         return response()->json([
             'success' => true,
-            'is_verified' => (bool) $lead->is_verified,
-            'verified_at' => $lead->verified_at?->toIso8601String(),
-            'needs_verification' => $lead->needsVerification(),
+            'is_verified' => (bool) ($entity->is_verified ?? false),
+            'verified_at' => $entity->verified_at?->toIso8601String(),
+            'needs_verification' => $entity->needsVerification(),
         ]);
     }
 }
