@@ -23,42 +23,35 @@
 						<div class="card">
 							<div class="card-body">
 								<div class="form-group"> 
-									<label for="srname" class="col-form-label">Primary Name <span style="color:#ff0000;">*</span></label>
-									<div class="row">		
-										<div class="col-sm-2">
-											<select style="padding: 0px 5px;" name="srname" id="srname" class="form-control" autocomplete="new-password">
-												<option value="Mr">Mr</option>
-												<option value="Mrs">Mrs</option>
-												<option value="Ms">Ms</option>
-												<option value="Miss">Miss</option>
-												<option value="Dr">Dr</option>
-											</select>
-										</div>
-										<div class="col-sm-4">
-										{!! Form::text('first_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'First Name *' ))  !!}
-										@if ($errors->has('first_name'))
-											<span class="custom-error" role="alert">
-												<strong>{{ @$errors->first('first_name') }}</strong>
-											</span> 
-										@endif
-										</div>									
-										<div class="col-sm-3">
-										{!! Form::text('middle_name', '', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Middle Name' ))  !!}
-										@if ($errors->has('middle_name'))
-											<span class="custom-error" role="alert">
-												<strong>{{ @$errors->first('middle_name') }}</strong>
-											</span> 
-										@endif
-										</div>
-										<div class="col-sm-3">
-										{!! Form::text('last_name', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Last Name *' ))  !!}
-										@if ($errors->has('last_name'))
-											<span class="custom-error" role="alert">
-												<strong>{{ @$errors->first('last_name') }}</strong>
-											</span> 
-										@endif
-										</div>
-									</div>
+									<label for="name" class="col-form-label">Name <span style="color:#ff0000;">*</span></label>
+									{!! Form::text('name', old('name'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Full Name *' ))  !!}
+									@if ($errors->has('name'))
+										<span class="custom-error" role="alert">
+											<strong>{{ $errors->first('name') }}</strong>
+										</span> 
+									@endif
+								</div>	
+								<div class="form-group"> 
+									<label for="contact_email" class="col-form-label">Email <span style="color:#ff0000;">*</span></label>
+									{!! Form::text('contact_email', old('contact_email'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Email *' ))  !!}
+									@if ($errors->has('contact_email'))
+										<span class="custom-error" role="alert">
+											<strong>{{ $errors->first('contact_email') }}</strong>
+										</span> 
+									@endif
+								</div>	
+								<div class="form-group"> 
+									<label for="contact_phone" class="col-form-label">Phone <span style="color:#ff0000;">*</span></label>
+									{!! Form::text('contact_phone', old('contact_phone'), array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Phone *' ))  !!}
+									@if ($errors->has('contact_phone'))
+										<span class="custom-error" role="alert">
+											<strong>{{ $errors->first('contact_phone') }}</strong>
+										</span> 
+									@endif
+								</div>	
+								<div class="form-group"> 
+									<label for="department" class="col-form-label">Department</label>
+									{!! Form::text('department', old('department'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Department' ))  !!}
 								</div>	
 								<div class="form-group float-end">
 									{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}

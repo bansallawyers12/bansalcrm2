@@ -17,7 +17,7 @@ class Contact extends Model
      */
 
 protected $fillable = [
-        'id', 'srname', 'first_name', 'middle_name', 'last_name', 'company_name', 'contact_display_name', 'contact_email', 'contact_phone', 'work_phone', 'website', 'designation', 'department', 'skype_name', 'facebook_name', 'twitter_name', 'linkedin_name', 'instagram_name', 'youtube_name', 'country', 'address', 'city', 'zipcode', 'phone', 'created_at', 'updated_at'
+        'id', 'name', 'contact_email', 'contact_phone', 'department', 'branch', 'fax', 'position', 'primary_contact', 'countrycode', 'user_id', 'created_at', 'updated_at'
     ]; 
   
 	public $sortable = ['id', 'created_at', 'updated_at'];
