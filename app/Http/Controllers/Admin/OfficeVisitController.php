@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
-use App\Models\Lead;
 use App\Models\CheckinLog;
 use App\Models\CheckinHistory;
 use App\Models\ActivitiesLog;

@@ -410,14 +410,6 @@
 					<li><a class="nav-link" href="#">Payment Received</a></li>
 				</ul>
 			</li>
-			<?php
-			if(Route::currentRouteName() == 'managecontact.index' || Route::currentRouteName() == 'managecontact.create' || Route::currentRouteName() == 'managecontact.edit'){
-				$contclasstype = 'active';
-			}
-		?>
-	<li class="dropdown {{@$contclasstype}}">
-		<a href="{{route('managecontact.index')}}" class="nav-link"><i class="fas fa-phone"></i><span>Manage Contacts</span></a>
-	</li>
 	<?php
 		if(Route::currentRouteName() == 'admin.outlook.index'){
 			$outlookclasstype = 'active';

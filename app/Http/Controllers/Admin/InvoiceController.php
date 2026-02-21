@@ -23,7 +23,6 @@ use App\Models\ShareInvoice;
 // use App\Models\InvoiceSchedule;
 // NOTE: TaxRate model/table has been removed
 // use App\Models\TaxRate;
-use App\Models\Contact;
 // use App\Models\AttachFile;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth; 

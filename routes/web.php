@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\LeadController;
-use App\Http\Controllers\Admin\FollowupController;
-use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
@@ -148,7 +146,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	//General
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::post('/admin/complete-action', [AdminController::class, 'completeAction'])->name('admin.complete-action');
-		Route::get('/get_customer_detail', [AdminController::class, 'CustomerDetail'])->name('get_customer_detail');
 		Route::get('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile');
 		Route::post('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile.update');
 		Route::get('/change_password', [AdminController::class, 'change_password'])->name('change_password');
@@ -215,10 +212,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-	Route::post('/followup/store', [FollowupController::class, 'store'])->name('followup.store'); 
-		Route::get('/followup/list', [FollowupController::class, 'index'])->name('followup.index'); 
-		Route::post('/followup/compose', [FollowupController::class, 'compose'])->name('followup.compose'); 
-		 
 		Route::get('/usertype', [UsertypeController::class, 'index'])->name('usertype.index');
 		Route::get('/usertype/create', [UsertypeController::class, 'create'])->name('usertype.create');  		
 		Route::post('/usertype/store', [UsertypeController::class, 'store'])->name('usertype.store');
@@ -231,15 +224,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('userrole.edit');
 		Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('userrole.update');
 		
-	//Leads Start - Updated to modern syntax   
-		Route::get('/contact', [ContactController::class, 'index'])->name('managecontact.index'); 
-		Route::get('/contact/create', [ContactController::class, 'create'])->name('managecontact.create');
-		Route::post('/managecontact/store', [ContactController::class, 'store'])->name('managecontact.store');
-		Route::post('/contact/add', [ContactController::class, 'add'])->name('managecontact.add');
-		Route::get('/contact/edit/{id}', [ContactController::class, 'edit'])->name('managecontact.edit');
-		Route::post('/contact/edit', [ContactController::class, 'edit'])->name('managecontact.update');
-		Route::post('/contact/storeaddress', [ContactController::class, 'storeaddress']);
-		 
 	//Leads Start - Updated to modern syntax
 	Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');  
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
@@ -249,7 +233,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	// Removed broken edit routes - leads now use detail page for viewing/editing
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
-	Route::post('/followup/update', [FollowupController::class, 'followupupdate']);
 	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']);
 	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
 		//Invoices Start    
@@ -457,11 +440,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		Route::get('/partner/agreement/get', [PartnersController::class, 'getPartnerAgreement']);
 		Route::post('/partner/agreement/delete', [PartnersController::class, 'deletePartnerAgreement']);
 		Route::post('/partner/agreement/set-active', [PartnersController::class, 'setActiveAgreement']);
-		
-		Route::post('/partner/create-contact', [PartnersController::class, 'createcontact']);
-		Route::get('/get-contacts', [PartnersController::class, 'getcontacts']);
-		Route::get('/deletecontact', [PartnersController::class, 'deletecontact']);
-		Route::get('/getcontactdetail', [PartnersController::class, 'getcontactdetail']);
 		
 		Route::post('/partner/create-branch', [PartnersController::class, 'createbranch']);
 		Route::get('/get-branches', [PartnersController::class, 'getbranch']);

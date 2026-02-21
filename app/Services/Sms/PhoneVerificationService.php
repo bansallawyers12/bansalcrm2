@@ -2,9 +2,9 @@
 
 namespace App\Services\Sms;
 
+use App\Models\Admin;
 use App\Models\PhoneVerification;
 use App\Models\ClientPhone;
-use App\Models\Lead;
 use App\Helpers\PhoneValidationHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -108,18 +108,22 @@ class PhoneVerificationService
     }
 
     /**
-     * Send OTP for lead phone
+     * Send OTP for lead phone. Uses Admin table only (admins.id or admins.lead_id).
      */
     public function sendOTPForLead($leadId)
     {
-        $lead = Lead::findOrFail($leadId);
-        $phone = $lead->phone ?? '';
-        $countryCode = $lead->country_code ?? '+61';
+        $admin = Admin::where('id', $leadId)->where('type', 'lead')->first()
+            ?? Admin::where('lead_id', $leadId)->where('type', 'lead')->first();
+        if (!$admin) {
+            return ['success' => false, 'message' => 'Lead not found'];
+        }
+        $phone = $admin->phone ?? '';
+        $countryCode = $admin->country_code ?? '+61';
 
         if (PhoneValidationHelper::isPlaceholderNumber($phone)) {
             return ['success' => false, 'message' => 'Cannot verify placeholder phone numbers'];
         }
-        if (!$lead->isAustralianNumber()) {
+        if (!$admin->isAustralianNumber()) {
             return ['success' => false, 'message' => 'Phone verification is only available for Australian numbers'];
         }
         if (!$this->canSendOTP($phone, $countryCode)) {
@@ -129,13 +133,18 @@ class PhoneVerificationService
         $otpCode = PhoneVerification::generateOTP();
         $expiresAt = Carbon::now()->addMinutes($this->otpValidMinutes);
 
-        PhoneVerification::where('lead_id', $leadId)->where('is_verified', false)->delete();
+        $pvQuery = PhoneVerification::where('is_verified', false);
+        if ($admin->lead_id) {
+            $pvQuery->where('lead_id', $admin->lead_id);
+        } else {
+            $pvQuery->where('client_id', $admin->id);
+        }
+        $pvQuery->delete();
 
-        $fullNumber = trim($countryCode . '' . $phone);
-        $verification = PhoneVerification::create([
+        $createData = [
             'client_phone_id' => null,
-            'lead_id' => $leadId,
-            'client_id' => null,
+            'lead_id' => $admin->lead_id,
+            'client_id' => $admin->lead_id ? null : $admin->id,
             'phone' => $phone,
             'country_code' => $countryCode,
             'otp_code' => $otpCode,
@@ -144,10 +153,11 @@ class PhoneVerificationService
             'is_verified' => false,
             'attempts' => 0,
             'max_attempts' => 3,
-        ]);
+        ];
+        $verification = PhoneVerification::create($createData);
 
         $message = "BANSAL IMMIGRATION: Your verification code is {$otpCode}. This code expires in {$this->otpValidMinutes} minutes.";
-        $smsResult = $this->smsManager->sendSms($fullNumber, $message, 'verification', []);
+        $smsResult = $this->smsManager->sendSms(trim($countryCode . '' . $phone), $message, 'verification', []);
 
         if (!$smsResult['success']) {
             $verification->delete();
@@ -158,11 +168,22 @@ class PhoneVerificationService
     }
 
     /**
-     * Verify OTP for lead
+     * Verify OTP for lead. Uses Admin table only.
      */
     public function verifyOTPForLead($leadId, $otpCode)
     {
-        $verification = PhoneVerification::where('lead_id', $leadId)->where('is_verified', false)->latest()->first();
+        $admin = Admin::where('id', $leadId)->where('type', 'lead')->first()
+            ?? Admin::where('lead_id', $leadId)->where('type', 'lead')->first();
+        if (!$admin) {
+            return ['success' => false, 'message' => 'Lead not found'];
+        }
+        $verification = PhoneVerification::where('is_verified', false);
+        if ($admin->lead_id) {
+            $verification->where('lead_id', $admin->lead_id);
+        } else {
+            $verification->where('client_id', $admin->id);
+        }
+        $verification = $verification->latest()->first();
         if (!$verification) {
             return ['success' => false, 'message' => 'No verification request found'];
         }
@@ -178,7 +199,7 @@ class PhoneVerificationService
         }
 
         $verification->update(['is_verified' => true, 'verified_at' => now(), 'verified_by' => Auth::id()]);
-        Lead::where('id', $leadId)->update(['is_verified' => true, 'verified_at' => now(), 'verified_by' => Auth::id()]);
+        Admin::where('id', $admin->id)->update(['is_verified' => true, 'verified_at' => now(), 'verified_by' => Auth::id()]);
 
         return ['success' => true, 'message' => 'Phone number verified successfully'];
     }
@@ -194,7 +215,18 @@ class PhoneVerificationService
 
     public function canResendOTPForLead($leadId)
     {
-        $last = PhoneVerification::where('lead_id', $leadId)->latest('otp_sent_at')->first();
+        $admin = Admin::where('id', $leadId)->where('type', 'lead')->first()
+            ?? Admin::where('lead_id', $leadId)->where('type', 'lead')->first();
+        if (!$admin) {
+            return true;
+        }
+        $q = PhoneVerification::query();
+        if ($admin->lead_id) {
+            $q->where('lead_id', $admin->lead_id);
+        } else {
+            $q->where('client_id', $admin->id);
+        }
+        $last = $q->latest('otp_sent_at')->first();
         if (!$last) {
             return true;
         }

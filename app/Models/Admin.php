@@ -184,5 +184,24 @@ class Admin extends Authenticatable
             $this->attributes['phone'] ?? ''
         );
     }
+
+    /**
+     * Lead phone verification helpers (same logic as Lead model).
+     */
+    public function isAustralianNumber()
+    {
+        $cc = $this->country_code ?? '';
+        return $cc === '+61' || str_starts_with((string) $cc, '+61');
+    }
+
+    public function isPlaceholderNumber()
+    {
+        return \App\Helpers\PhoneValidationHelper::isPlaceholderNumber($this->phone ?? '');
+    }
+
+    public function needsVerification()
+    {
+        return $this->isAustralianNumber() && !($this->is_verified ?? false) && !$this->isPlaceholderNumber();
+    }
 }
 

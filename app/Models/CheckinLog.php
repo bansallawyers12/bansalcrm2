@@ -28,15 +28,11 @@ class CheckinLog extends Model
     }
 	
 	/**
-     * Get the client for this check-in
+     * Get the client/lead for this check-in (Admin table holds both).
      */
     public function client()
     {
-        if ($this->contact_type == 'Lead') {
-            return $this->belongsTo('App\Models\Lead', 'client_id');
-        } else {
-            return $this->belongsTo('App\Models\Admin', 'client_id');
-        }
+        return $this->belongsTo('App\Models\Admin', 'client_id');
     }
     
     /**

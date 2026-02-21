@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\Partner;
-use App\Models\Contact;
 use App\Models\PartnerBranch;
 use App\Models\PartnerAgreement;
 // use App\Models\Task; // Task system removed - December 2025
@@ -1151,110 +1150,6 @@ class PartnersController extends Controller
 		}
 	}
 	
-	public function createcontact(Request $request){
-		if(isset($request->contact_id) && $request->contact_id != ''){
-			$obj = Contact::find($request->contact_id);
-		}else{
-			$obj = new Contact;
-		}
-		$obj->name 				= $request->name;
-		$obj->contact_email 	= $request->email;
-		$obj->contact_phone 	= $request->phone;
-		$obj->department 		= $request->department;
-		$obj->branch 			= $request->branch;
-		$obj->fax 				= $request->fax;
-		$obj->position 			= $request->position;
-		$obj->primary_contact 	= $request->primary_contact;
-		$obj->user_id 			= $request->client_id;
-		$obj->countrycode 		= PhoneHelper::normalizeCountryCode($request->country_code);
-		$saved = $obj->save();
-		
-		if($saved){
-				$response['status'] 	= 	true;
-				$response['message']	=	'You’ve successfully saved your contact.';
-			}else{
-				$response['status'] 	= 	false;
-				$response['message']	=	'Please try again';
-			}
-			
-			echo json_encode($response);
-	}
-	
-	public function getcontacts(Request $request){
-		$querycontactlist = \App\Models\Contact::where('user_id', $request->clientid)->orderby('created_at', 'DESC');
-		$contactlistcount = $querycontactlist->count();
-		$contactlist = $querycontactlist->get();
-		if($contactlistcount !== 0){
-			foreach($contactlist as $clist){
-				$branch = \App\Models\PartnerBranch::where('id', $clist->branch)->first();
-				?>
-				<div class="note_col" id="contact_<?php echo $clist->id; ?>" style="width:33.33333333%"> 
-					<div class="note_content">
-						<h4><?php echo $clist->name; ?></h4>
-						<p><span class="text-semi-bold"><?php if($clist->position != ''){ echo $clist->position; }else{ echo '-'; } ?></span> In <span class="text-semi-bold"><?php if($clist->department != ''){ echo $clist->department; }else{ echo '-'; } ?></span></p>
-						<div class="" style="margin-top: 15px!important;">
-							<p><i class="fa fa-phone"></i> <?php if($clist->contact_phone != ''){ echo $clist->contact_phone; }else{ echo '-'; } ?></p>
-							<p style="margin-top: 5px!important;"><i class="fa fa-fax"></i> <?php if($clist->fax != ''){ echo $clist->fax; }else{ echo '-'; } ?></p>
-							<p style="margin-top: 5px!important;"><i class="fa fa-mail"></i> <?php if($clist->contact_email != ''){ echo $clist->contact_email; }else{ echo '-'; } ?></p>
-						</div>
-					</div>
-					<div class="extra_content">
-						<div class="left">
-							<i class="fa fa-map-marker" style="margin-right: 20px!important;"></i>
-							<?php echo $branch->city; ?>, <?php echo $branch->country; ?>
-						</div>  
-						<div class="right">
-							<div class="dropdown d-inline dropdown_ellipsis_icon">
-								<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-								<div class="dropdown-menu">
-									<a class="dropdown-item opencontactform" data-id="<?php echo $clist->id; ?>" href="javascript:;">Edit</a>
-									<a data-id="<?php echo $clist->id; ?>" data-href="deletecontact" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
-									
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<?php
-			}
-		}else{
-			
-		}
-	}
-	
-	
-	public function deletecontact(Request $request){
-		$note_id = $request->note_id;
-		if(\App\Models\Contact::where('id',$note_id)->exists()){
-			$res = DB::table('contacts')->where('id', @$note_id)->delete();
-			if($res){
-				
-			$response['status'] 	= 	true;
-			}else{
-				$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-			}
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-		echo json_encode($response);
-	}
-	
-	public function getcontactdetail(Request $request){
-		$note_id = $request->note_id;
-		if(\App\Models\Contact::where('id',$note_id)->exists()){
-			$data = \App\Models\Contact::select('name','contact_email','contact_phone','department','branch','fax','position','primary_contact','countrycode')->where('id',$note_id)->first();
-			$response['status'] 	= 	true;
-			$response['data']	=	$data;
-		}else{
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
-		}
-		echo json_encode($response);
-	}
-	
-	
 	public function createbranch(Request $request){
 		if(isset($request->branch_id) && $request->branch_id != ''){
 			$obj = PartnerBranch::find($request->branch_id);
@@ -1278,7 +1173,7 @@ class PartnersController extends Controller
 		
 		if($saved){
 				$response['status'] 	= 	true;
-				$response['message']	=	'You’ve successfully saved your contact.';
+				$response['message']	=	'You’ve successfully saved your branch.';
 			}else{
 				$response['status'] 	= 	false;
 				$response['message']	=	'Please try again';
@@ -1296,11 +1191,11 @@ class PartnersController extends Controller
 			foreach($branches as $branch){
 		
 				?>
-				<div class="branch_col" id="contact_"> 
+				<div class="branch_col" id="branch_<?php echo $branch->id; ?>"> 
 					<div class="branch_content">
 						<h4><?php echo $branch->name; ?></h4>
 						<div class="" style="margin-top: 15px!important;">
-							<p><i class="fa fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->a; ?></p>
+							<p><i class="fa fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->country ?? '-'; ?></p>
 						</div>
 					</div>
 					<div class="extra_content">
@@ -1312,8 +1207,8 @@ class PartnersController extends Controller
 							<div class="dropdown d-inline dropdown_ellipsis_icon">
 								<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 								<div class="dropdown-menu">
-									<a class="dropdown-item openbranchform" data-id="{{$branch->id}}" href="javascript:;">Edit</a>
-									<a data-id="{{$branch->id}}" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
+									<a class="dropdown-item openbranchform" data-id="<?php echo $branch->id; ?>" href="javascript:;">Edit</a>
+									<a data-id="<?php echo $branch->id; ?>" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
 								</div>
 							</div>
 						</div>

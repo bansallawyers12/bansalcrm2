@@ -281,7 +281,7 @@ function customValidate(formName, savetype = '')
 									$('#myAddnotes .modal-title').html('');
 									$('#myAddnotes #note_type').html('');
 									$('#myAddnotes').modal('hide');
-									myfollowuplist(obj.leadid);
+									// myfollowuplist removed - followup routes deleted
 								}else{
 									$('#myAddnotes .customerror').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -306,7 +306,7 @@ function customValidate(formName, savetype = '')
 									$('#myeditnotes .modal-title').html('');
 									$('#myeditnotes #note_type').html('');
 									$('#myeditnotes').modal('hide');
-									myfollowuplist(obj.leadid);
+									// myfollowuplist removed - followup routes deleted
 								}else{
 									$('#myeditnotes .customerror').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -438,43 +438,7 @@ function customValidate(formName, savetype = '')
                             }
                         });
                     }
-
-					else if(formName == 'clientcontact')
-					{
-						
-						var client_id = $('input[name="client_id"]').val(); 	
-						var myform = document.getElementById('clientcontact');
-						var fd = new FormData(myform);
-						$.ajax({
-							type:'post',
-							url:$("form[name="+formName+"]").attr('action'),
-							processData: false,
-							contentType: false,
-							data: fd,
-							success: function(response){
-								$('.popuploader').hide(); 
-								var obj = $.parseJSON(response);
-								
-								if(obj.status){
-									$('#add_clientcontact').modal('hide');
-								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-								$.ajax({
-									url: site_url+'/get-contacts',
-									type:'GET',
-									data:{clientid:client_id,type:'partner'},
-									success: function(responses){
-										
-										$('.contact_term_list').html(responses);
-									}
-								});
-									
-								}else{
-									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
-									
-								}
-							}
-						});
-					}else if(formName == 'clientbranch')
+					else if(formName == 'clientbranch')
 					{
 						
 						var client_id = $('input[name="client_id"]').val(); 	

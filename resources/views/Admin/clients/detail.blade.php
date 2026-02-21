@@ -256,12 +256,13 @@ use App\Http\Controllers\Controller;
                                     if( !empty($clientContacts) && count($clientContacts)>0 ){
                                         $phonenoStr = "";
                                         foreach($clientContacts as $conKey=>$conVal){
-                                            //Check phone is verified or not (lead: use Lead model; client: use client_phones.is_verified)
+                                            //Check phone is verified or not (lead: use Admin model; client: use client_phones.is_verified)
                                             $verifiedNumber = null;
                                             if ( !empty($isLeadDetail) && !empty($conVal->is_lead_primary) ) {
                                                 if ( !empty($conVal->lead_id) ) {
-                                                    $leadRow = \App\Models\Lead::find($conVal->lead_id);
-                                                    $verifiedNumber = $leadRow && $leadRow->is_verified ? (object)['is_verified' => true] : null;
+                                                    $leadRow = \App\Models\Admin::where('lead_id', $conVal->lead_id)->where('type','lead')->first()
+                                                        ?? \App\Models\Admin::where('id', $conVal->lead_id)->where('type','lead')->first();
+                                                    $verifiedNumber = $leadRow && ($leadRow->is_verified ?? false) ? (object)['is_verified' => true] : null;
                                                 } else {
                                                     $verifiedNumber = !empty($conVal->is_verified) ? (object)['is_verified' => true] : null;
                                                 }
@@ -284,9 +285,10 @@ use App\Http\Controllers\Controller;
 													} else {
 														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="far fa-circle unverified-icon fa-lg"></i>';
 														if ( !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
-															$leadRow = \App\Models\Lead::find($conVal->lead_id);
+															$leadRow = \App\Models\Admin::where('lead_id', $conVal->lead_id)->where('type','lead')->first()
+																?? \App\Models\Admin::where('id', $conVal->lead_id)->where('type','lead')->first();
 															if ( $leadRow && $leadRow->needsVerification() ) {
-																$phonenoStr .= ' <a href="javascript:;" class="btn-lead-verify-phone" data-lead-id="'.(int)$conVal->lead_id.'" title="Verify">Verify</a>';
+																$phonenoStr .= ' <a href="javascript:;" class="btn-lead-verify-phone" data-lead-id="'.(int)$leadRow->id.'" title="Verify">Verify</a>';
 															}
 														}
 													}

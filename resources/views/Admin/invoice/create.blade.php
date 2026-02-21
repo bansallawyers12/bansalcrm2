@@ -65,14 +65,11 @@
 											<div class="col-sm-9">
 											<select id="customer_name" name="customer_name" data-valid="required" class="form-control select2bs4" style="width: 100%;">
 												<option value="">Select Customer</option>
-												@foreach(\App\Models\Contact::all() as $clist)
+												@foreach(\App\Models\Admin::orderBy('first_name')->get() as $clist)
 													<option value="{{@$clist->id}}">{{@$clist->first_name}} {{@$clist->last_name}}</option>
 												@endforeach
 											</select>
 											<span class="currencydata"></span>
-											<div class="wrapper" id="wrpdata" style="display: none;">
-												<a href="javascript:;" class="font-weight-300 addCustomermodel" >+ Add New Customer</a>
-											</div>
 											</div>
 											@if ($errors->has('customer_name'))
 												<span class="custom-error" role="alert">

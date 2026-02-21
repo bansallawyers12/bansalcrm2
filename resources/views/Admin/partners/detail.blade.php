@@ -10,7 +10,6 @@
 		'products',
 		'branches',
 		'agreements',
-		'contacts',
 		'noteterm',
 		'documents',
 		'notuseddocuments',
@@ -260,9 +259,6 @@ use App\Http\Controllers\Controller;
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'agreements' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'agreements'])}}" id="agreements-tab" role="tab" aria-controls="agreements" aria-selected="{{ $activeTab === 'agreements' ? 'true' : 'false' }}">Agreements</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'contacts' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'contacts'])}}" id="contacts-tab" role="tab" aria-controls="contacts" aria-selected="{{ $activeTab === 'contacts' ? 'true' : 'false' }}">Contacts</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'noteterm' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'notestrm'])}}" id="noteterm-tab" role="tab" aria-controls="noteterm" aria-selected="{{ $activeTab === 'noteterm' ? 'true' : 'false' }}">Notes & Terms</a>
@@ -628,53 +624,6 @@ use App\Http\Controllers\Controller;
 									<div class="clearfix"></div>
 								</div>
 								
-								<div class="tab-pane fade <?php echo ($activeTab === 'contacts') ? 'show active' : ''; ?>" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">  
-									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;"  class="btn btn-primary add_clientcontact"><i class="fa fa-plus"></i> Add</a>
-									</div>
-									<div class="contact_term_list">
-									<?php
-									
-									$querycontactlist = \App\Models\Contact::where('user_id', $fetchedData->id)->orderby('created_at', 'DESC');
-									$contactlistcount = $querycontactlist->count();
-									$contactlist = $querycontactlist->get();
-									if($contactlistcount !== 0){
-									foreach($contactlist as $clist){
-										$branch = \App\Models\PartnerBranch::where('id', $clist->branch)->first();
-									?>
-										<div class="note_col" id="contact_{{$clist->id}}" style="width:33.33333333%"> 
-											<div class="note_content">
-												<h4>{{$clist->name}}</h4>
-												<p><span class="text-semi-bold"><?php if($clist->position != ''){ echo $clist->position; }else{ echo '-'; } ?></span> In <span class="text-semi-bold"><?php if($clist->department != ''){ echo $clist->department; }else{ echo '-'; } ?></span></p>
-												<div class="" style="margin-top: 15px!important;">
-													<p><i class="fa fa-phone"></i> <?php if($clist->contact_phone != ''){ echo $clist->contact_phone; }else{ echo '-'; } ?></p>
-													<p style="margin-top: 5px!important;"><i class="fa fa-fax"></i> <?php if($clist->fax != ''){ echo $clist->fax; }else{ echo '-'; } ?></p>
-													<p style="margin-top: 5px!important;"><i class="fa fa-mail"></i> <?php if($clist->contact_email != ''){ echo $clist->contact_email; }else{ echo '-'; } ?></p>
-												</div>
-											</div>
-											<div class="extra_content">
-												<div class="left">
-													<i class="fa fa-map-marker" style="margin-right: 20px!important;"></i>
-													<?php echo $branch->city; ?>, <?php echo $branch->country; ?>
-												</div>  
-												<div class="right">
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-															<a class="dropdown-item opencontactform" data-id="{{$clist->id}}" href="javascript:;">Edit</a>
-															<a data-id="{{$clist->id}}" data-href="deletecontact" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php }
-									}else{
-										echo '<h4>Record not found</h4>';
-									}									?>
-									</div>									
-									<div class="clearfix"></div>
-								</div>
 								<div class="tab-pane fade <?php echo ($activeTab === 'noteterm') ? 'show active' : ''; ?>" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
@@ -3101,15 +3050,12 @@ use App\Http\Controllers\Controller;
         pinnote: '{{ URL::to("/pinnote") }}',
         viewnotedetail: '{{ URL::to("/viewnotedetail") }}',
         getnotedetail: '{{ URL::to("/getnotedetail") }}',
-        getcontactdetail: '{{ URL::to("/getcontactdetail") }}',
         getbranchdetail: '{{ URL::to("/getbranchdetail") }}',
         getpartnerbranch: '{{ URL::to("/getpartnerbranch") }}',
         getbranchproduct: '{{ URL::to("/getbranchproduct") }}',
         getTemplates: '{{ URL::to("/get-templates") }}',
-        getContacts: '{{ url("/get-contacts") }}',
         getBranches: '{{ url("/get-branches") }}',
         deletedocs: '{{ url("/deletedocs") }}',
-        deletecontact: '{{ url("/deletecontact") }}',
         deletebranch: '{{ url("/deletebranch") }}'
     };
     

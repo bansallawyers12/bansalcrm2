@@ -192,13 +192,12 @@ class LeadController extends Controller
 	public function assign(Request $request) {
 		$requestData 		= 	$request->all();
 		$id = $this->decodeString($requestData['mlead_id']);	 
-		// Support Lead (leads.id), migrated Admin (lead_id), and admin-only (admins.id)
-		$lead = Lead::where('id', '=', $id)->first();
+		// Admin model only: support migrated (lead_id) and admin-only (admins.id)
 		$admin = Admin::where('lead_id', '=', $id)->where('type', 'lead')->first()
 			?? Admin::where('id', '=', $id)->where('type', 'lead')->first();
-		if ($lead || $admin) 
+		if ($admin) 
 		{
-			$currentAssignee = $lead ? $lead->assign_to : ($admin ? $admin->assignee : null);
+			$currentAssignee = $admin->assignee;
 			if($currentAssignee != '' && $currentAssignee != null){
 				if($currentAssignee == $requestData['assignto']){
 					return redirect()->back()->with('error', 'Already Assigned to this user');
@@ -209,25 +208,17 @@ class LeadController extends Controller
 					return redirect()->back()->with('error', 'Invalid assignee');
 				}
 			}
-			$saved = false;
-			if ($lead) {
-				$ld = Lead::find($id);
-				$ld->assign_to = $requestData['assignto'];
-				$saved = $ld->save();
-			}
-			if ($admin) {
-				Admin::where('id', $admin->id)->update(['assignee' => $requestData['assignto']]);
-				$saved = true;
-			}
+			Admin::where('id', $admin->id)->update(['assignee' => $requestData['assignto']]);
+			$saved = true;
 			// Create followup only when changing from one assignee to another (original behavior)
 			if (isset($assignfrom) && $assignfrom) {
 				$assignto = \App\Models\Staff::find($requestData['assignto']);
 				$followup = new Followup;
 				// For admin-only leads use client_id; for migrated use lead_id
-				if ($admin && $admin->lead_id === null) {
+				if ($admin->lead_id === null) {
 					$followup->client_id = $admin->id;
 				} else {
-					$followup->lead_id = $id;
+					$followup->lead_id = $admin->lead_id;
 				}
 				$followup->user_id = Auth::user()->id;
 				$followup->note = $assignto ? 'changed from '.$assignfrom->first_name.' '.$assignfrom->last_name.' to '.$assignto->first_name.' '.$assignto->last_name : 'Assigned';
@@ -238,7 +229,7 @@ class LeadController extends Controller
 				return redirect()->back()->with('error', 'Please try again');
 			}
 			return redirect()->back()->with('success', 'Lead Assigned successfully');
-		}else{
+			} else {
 			return redirect()->back()->with('error', 'Not Found');
 		}
 	}
@@ -573,21 +564,18 @@ class LeadController extends Controller
 	
 	public function getnotedetail(Request $request){
 	    $id = $request->id;
-	    if(Followup::where('id', '=', $id)->exists()) 
-		{
-		    $fetchedData = Followup::where('id', '=', $id)->first();
-		    	return view('Admin.leads.editnotemodal', compact(['fetchedData']));
-		}else{
-		    echo 'No Found';
+	    // Followup edit feature removed - followup routes deleted
+	    if(Followup::where('id', '=', $id)->exists()) {
+		    return response('Followup edit feature has been removed.', 410);
 		}
+	    echo 'No Found';
 	}
 	
 	//Check Email is unique or not
     public function is_email_unique(Request $request){
         $email = $request->email;
-        $email_count_admin = \App\Models\Admin::where('email',$email)->count();
-        $email_count_lead = \App\Models\Lead::where('email',$email)->count();
-        $email_count = $email_count_admin + $email_count_lead;
+        // Admins table holds both clients and leads - single count
+        $email_count = \App\Models\Admin::where('email',$email)->count();
         if($email_count >0){
             $response['status'] 	= 	1;
             $response['message']	=	"The email has already been taken.";
@@ -601,9 +589,8 @@ class LeadController extends Controller
     //Check Contact no is unique or not
     public function is_contactno_unique(Request $request){
         $contact = $request->contact;
-        $phone_count_admin = \App\Models\Admin::where('phone',$contact)->count();
-        $phone_count_lead = \App\Models\Lead::where('phone',$contact)->count();
-        $phone_count = $phone_count_admin + $phone_count_lead;
+        // Admins table holds both clients and leads - single count
+        $phone_count = \App\Models\Admin::where('phone',$contact)->count();
         if($phone_count >0){
             $response['status'] 	= 	1;
             $response['message']	=	"The phone has already been taken.";

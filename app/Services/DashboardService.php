@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Note;
 // use App\Models\Task; // Task system removed - December 2025
 use App\Models\CheckinLog;
-use App\Models\Contact;
 use App\Models\Partner;
 use App\Models\Admin;
 use App\Models\UserLog;
