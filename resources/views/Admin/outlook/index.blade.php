@@ -230,6 +230,54 @@
 .email-list .email-row .email-subject { flex: 1; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .email-list .email-row .email-date { color: #94a3b8; font-size: 13px; }
 
+/* Sent view: sections per From email (Outlook-style) */
+.sent-content { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+.sent-sections { flex: 1; padding: 0; }
+.sent-section {
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+.sent-section-header {
+    padding: 10px 20px;
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sent-section-header i { color: #0078d4; }
+.sent-table { width: 100%; border-collapse: collapse; }
+.sent-table th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fafafa;
+}
+.sent-table th.sent-th-to { width: 28%; min-width: 160px; }
+.sent-table th.sent-th-subject { width: 50%; }
+.sent-table th.sent-th-date { width: 22%; min-width: 120px; }
+.sent-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    vertical-align: middle;
+}
+.sent-table tr.sent-row:hover { background: #f8fafc; }
+.sent-table .sent-cell-to { color: #1e293b; font-weight: 500; }
+.sent-table .sent-cell-subject { color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+.sent-table .sent-cell-date { color: #94a3b8; font-size: 12px; }
+
 .view-compose { display: none !important; }
 .outlook-main.mode-compose .view-inbox,
 .outlook-main.mode-compose .view-sent,
@@ -316,7 +364,7 @@
                 </div>
             </div>
 
-            {{-- Sent view --}}
+            {{-- Sent view (Outlook-style: sections per From email) --}}
             <div class="folder-view view-sent" id="folderSent">
                 <div class="inbox-toolbar">
                     <div class="search-wrap">
@@ -327,11 +375,13 @@
                         <i class="fas fa-sync-alt"></i> Get Emails
                     </button>
                 </div>
-                <ul class="email-list folder-list"></ul>
-                <div class="empty-state folder-empty">
-                    <i class="fas fa-paper-plane"></i>
-                    <p>No sent messages</p>
-                    <span>Connect SendGrid API to see your sent emails here.</span>
+                <div class="sent-content">
+                    <div class="sent-sections folder-list"></div>
+                    <div class="empty-state folder-empty">
+                        <i class="fas fa-paper-plane"></i>
+                        <p>No sent messages</p>
+                        <span>Emails you send from this page are recorded here. Click "Get Emails" to refresh.</span>
+                    </div>
                 </div>
             </div>
 
@@ -518,6 +568,7 @@
     var attachmentInput = document.getElementById('attachmentInput');
     var attachmentList = document.getElementById('attachmentList');
     var sendersUrl = '{{ route("admin.outlook.senders") }}';
+    var refreshSentAfterSend = @json(session('refresh_sent', false));
 
     // Refresh From dropdown from SendGrid (live) on page load
     function refreshFromSenders() {
@@ -566,6 +617,10 @@
             main.classList.add('mode-' + folder);
             document.querySelectorAll('.folder-item').forEach(function(f) { f.classList.remove('active'); });
             this.classList.add('active');
+            if (folder === 'sent') {
+                var sentBtn = document.querySelector('.btn-fetch[data-folder="sent"]');
+                if (sentBtn && !sentBtn.disabled) sentBtn.click();
+            }
         });
     });
 
@@ -613,19 +668,44 @@
         btnEl.addEventListener('click', function() {
         var btn = this;
         var folder = btn.dataset.folder;
+        var view = btn.closest('.folder-view');
+        var searchInput = view.querySelector('.folder-search');
+        var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
         var token = document.querySelector('meta[name="csrf-token"]');
-        fetch('{{ route("admin.outlook.inbox") }}?folder=' + folder, {
+        var url = '{{ route("admin.outlook.inbox") }}?folder=' + folder + (search ? '&search=' + search : '');
+        fetch(url, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': token ? token.getAttribute('content') : '' }
         })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                var view = btn.closest('.folder-view');
                 var list = view.querySelector('.folder-list');
                 var empty = view.querySelector('.folder-empty');
+                if (!list) return;
                 list.innerHTML = '';
-                if (data.emails && data.emails.length) {
+                var hasSentGroups = folder === 'sent' && data.sent_groups && data.sent_groups.length > 0;
+                var hasEmails = data.emails && data.emails.length > 0;
+                if (hasSentGroups) {
+                    empty.style.display = 'none';
+                    data.sent_groups.forEach(function(grp) {
+                        var section = document.createElement('div');
+                        section.className = 'sent-section';
+                        section.innerHTML = '<div class="sent-section-header"><i class="fas fa-envelope"></i> ' + (grp.from_email || '') + '</div>';
+                        var table = document.createElement('table');
+                        table.className = 'sent-table';
+                        table.innerHTML = '<thead><tr><th class="sent-th-to">To</th><th class="sent-th-subject">Subject</th><th class="sent-th-date">Date</th></tr></thead><tbody></tbody>';
+                        var tbody = table.querySelector('tbody');
+                        (grp.emails || []).forEach(function(e) {
+                            var tr = document.createElement('tr');
+                            tr.className = 'sent-row';
+                            tr.innerHTML = '<td class="sent-cell-to">' + (e.to || '') + '</td><td class="sent-cell-subject" title="' + (e.subject || '').replace(/"/g, '&quot;') + '">' + (e.subject || '(No subject)') + '</td><td class="sent-cell-date">' + (e.date || '') + '</td>';
+                            tbody.appendChild(tr);
+                        });
+                        section.appendChild(table);
+                        list.appendChild(section);
+                    });
+                } else if (hasEmails) {
                     empty.style.display = 'none';
                     data.emails.forEach(function(e) {
                         var row = document.createElement('li');
@@ -639,7 +719,7 @@
                 }
             })
             .catch(function() {
-                btn.closest('.folder-view').querySelector('.folder-empty span').textContent = 'Could not fetch emails. Connect SendGrid API first.';
+                view.querySelector('.folder-empty span').textContent = 'Could not fetch emails.';
             })
             .finally(function() {
                 btn.disabled = false;
@@ -647,6 +727,16 @@
             });
         });
     });
+
+    if (refreshSentAfterSend) {
+        main.classList.remove('mode-compose', 'landing-compose', 'mode-inbox', 'mode-drafts', 'mode-trash');
+        main.classList.add('mode-sent');
+        document.querySelectorAll('.folder-item').forEach(function(f) { f.classList.remove('active'); });
+        var sentTab = document.querySelector('.folder-item[data-view="sent"]');
+        if (sentTab) sentTab.classList.add('active');
+        var sentBtn = document.querySelector('.btn-fetch[data-folder="sent"]');
+        if (sentBtn) sentBtn.click();
+    }
 
     document.querySelectorAll('.format-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {

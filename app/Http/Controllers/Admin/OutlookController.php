@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\OutlookSentEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -238,7 +239,8 @@ class OutlookController extends Controller
     }
 
     /**
-     * Fetch emails by folder (inbox, sent, drafts, trash). Placeholder until API is configured.
+     * Fetch emails by folder (inbox, sent, drafts, trash).
+     * Sent folder returns all emails sent from Outlook, with from/to like Outlook.
      */
     public function inbox(Request $request)
     {
@@ -246,14 +248,64 @@ class OutlookController extends Controller
             return redirect()->route('admin.outlook.index');
         }
         $folder = $request->get('folder', 'inbox');
+        $search = $request->get('search', '');
         $messages = [
             'inbox' => 'No emails yet. Configure SendGrid API and Inbound Parse to receive emails.',
-            'sent' => 'No sent emails. Configure SendGrid API to see sent messages.',
+            'sent' => 'No sent messages.',
             'drafts' => 'No drafts saved.',
             'trash' => 'Trash is empty.',
         ];
+
+        $emails = [];
+        $sent_groups = [];
+        if ($folder === 'sent') {
+            $query = OutlookSentEmail::orderBy('sent_at', 'desc');
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('from_email', 'like', '%' . $search . '%')
+                        ->orWhere('to_email', 'like', '%' . $search . '%')
+                        ->orWhere('subject', 'like', '%' . $search . '%');
+                });
+            }
+            $list = $query->get();
+            foreach ($list as $sent) {
+                $emails[] = [
+                    'id' => $sent->id,
+                    'from' => $sent->from_email,
+                    'to' => $sent->to_email,
+                    'cc' => $sent->cc,
+                    'subject' => $sent->subject,
+                    'body' => $sent->body,
+                    'date' => $sent->sent_at->format('d/m/Y g:i A'),
+                    'date_short' => $sent->sent_at->format('g:i A'),
+                ];
+            }
+            // Group by from_email (different section per sender, like Outlook accounts)
+            $byFrom = [];
+            foreach ($list as $sent) {
+                $from = $sent->from_email;
+                if (! isset($byFrom[$from])) {
+                    $byFrom[$from] = [
+                        'from_email' => $from,
+                        'emails' => [],
+                    ];
+                }
+                $byFrom[$from]['emails'][] = [
+                    'id' => $sent->id,
+                    'to' => $sent->to_email,
+                    'cc' => $sent->cc,
+                    'subject' => $sent->subject,
+                    'body' => $sent->body,
+                    'date' => $sent->sent_at->format('d/m/Y g:i A'),
+                    'date_short' => $sent->sent_at->format('g:i A'),
+                ];
+            }
+            $sent_groups = array_values($byFrom);
+        }
+
         return response()->json([
-            'emails' => [],
+            'emails' => $emails,
+            'sent_groups' => $sent_groups,
             'message' => $messages[$folder] ?? $messages['inbox'],
         ]);
     }
@@ -297,7 +349,24 @@ class OutlookController extends Controller
                 }
             });
 
-            return redirect()->route('admin.outlook.index')->with('success', 'Email sent successfully.');
+            // Record sent email so Sent folder shows which message was sent from which email (like Outlook)
+            try {
+                OutlookSentEmail::create([
+                    'from_email' => $from,
+                    'to_email' => $to,
+                    'cc' => count($cc) > 0 ? implode(', ', $cc) : null,
+                    'subject' => $subject,
+                    'body' => $body,
+                    'sent_at' => now(),
+                    'admin_id' => auth('admin')->id(),
+                ]);
+            } catch (\Throwable $createEx) {
+                Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
+            }
+
+            return redirect()->route('admin.outlook.index')
+                ->with('success', 'Email sent successfully.')
+                ->with('refresh_sent', true);
         } catch (\Throwable $e) {
             Log::error('Email sending error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->route('admin.outlook.index')
