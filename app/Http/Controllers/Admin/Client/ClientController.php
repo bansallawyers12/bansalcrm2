@@ -933,20 +933,21 @@ class ClientController extends Controller
 
 	public function change_assignee(Request $request){
 		$objs = Admin::find($request->id);
-		if ( is_array($request->assinee) ) {
-			$assineeCount = count($request->assinee);
-			if( $assineeCount < 1){
+		$assigneeInput = $request->assignee ?? $request->assinee;
+		if ( is_array($assigneeInput) ) {
+			$assigneeCount = count($assigneeInput);
+			if( $assigneeCount < 1){
 				$objs->assignee = "";
-			} else if( $assineeCount == 1){
-				$objs->assignee = $request->assinee[0];
-			} else if( $assineeCount > 1){
-				$objs->assignee = implode(",",$request->assinee);
+			} else if( $assigneeCount == 1){
+				$objs->assignee = $assigneeInput[0];
+			} else if( $assigneeCount > 1){
+				$objs->assignee = implode(",",$assigneeInput);
 			}
 		}
 		$saved = $objs->save();
 		if($saved){
-			if ( is_array($request->assinee) && count($request->assinee) >=1) {
-				$assigneeArr = $request->assinee;
+			if ( is_array($assigneeInput) && count($assigneeInput) >=1) {
+				$assigneeArr = $assigneeInput;
 				foreach($assigneeArr as $key=>$val) {
 					$o = new \App\Models\Notification;
 					$o->sender_id = Auth::user()->id;

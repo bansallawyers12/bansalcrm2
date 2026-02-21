@@ -228,7 +228,10 @@ class OngoingSheetController extends Controller
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
         if ($sheetType === 'discontinue') {
-            return Application::where('status', 2) // 2 = Discontinue only
+            return Application::where(function ($q) {
+                $q->where('status', 2)
+                  ->orWhereRaw('LOWER(TRIM(stage)) = ?', ['coe cancelled']);
+            })
                 ->select('stage')
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
@@ -361,7 +364,10 @@ class OngoingSheetController extends Controller
             ->whereNull('admins.is_deleted');
 
         if ($sheetType === 'discontinue') {
-            $query->where('applications.status', 2); // 2 = Discontinue only (Refund = 8 shows on Refund sheet)
+            $query->where(function ($q) {
+                $q->where('applications.status', 2)
+                  ->orWhereRaw('LOWER(TRIM(applications.stage)) = ?', ['coe cancelled']);
+            });
         } elseif ($sheetType === 'refund') {
             $query->where('applications.status', 8); // 8 = Refund
         } else {
