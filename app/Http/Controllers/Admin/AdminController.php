@@ -262,7 +262,7 @@ class AdminController extends Controller
 
 		$contactexist = Contact::where('id', $request->customer_id)->where('user_id', Auth::user()->id)->exists();
 		if($contactexist){
-			$contact = Contact::where('id', $request->customer_id)->with(['currencydata'])->first();
+			$contact = Contact::where('id', $request->customer_id)->first();
 			return json_encode(array('success' => true, 'contactdetail' => $contact));
 		}else{
 			return json_encode(array('success' => false, 'message' => 'ID not exist'));

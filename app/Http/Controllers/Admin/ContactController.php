@@ -44,47 +44,30 @@ class ContactController extends Controller
 		 }else{	
 			$query 		= Contact::where('user_id', '=', Auth::user()->id);
 		 }	
-		if ($request->has('company_name')) 
+		if ($request->has('name'))
 		{
-			$company_name 		= 	$request->input('company_name'); 
-			if(trim($company_name) != '')
+			$name = $request->input('name');
+			if (trim($name) != '')
 			{
-				$query->where('company_name', '=', @$company_name);
+				$query->where('name', 'like', '%' . $name . '%');
 			}
 		}
-		if ($request->has('email')) 
+		if ($request->has('email'))
 		{
-			$email 		= 	$request->input('email'); 
-			if(trim($email) != '')
+			$email = $request->input('email');
+			if (trim($email) != '')
 			{
-				$query->where('contact_email', '=', @$email);
+				$query->where('contact_email', 'like', '%' . $email . '%');
 			}
 		}
-		if ($request->has('first_name')) 
-				{
-					$first_name 		= 	$request->input('first_name'); 
-					if(trim($first_name) != '')
-					{
-						$query->where('first_name', '=', @$first_name);
-					}
-				}	
-		if ($request->has('last_name')) 
-				{
-					$last_name 		= 	$request->input('last_name'); 
-					if(trim($last_name) != '')
-					{
-						$query->where('last_name', '=', @$last_name);
-					}
-				}
-				
-				if ($request->has('phone')) 
-				{
-					$phone 		= 	$request->input('phone'); 
-					if(trim($phone) != '')
-					{
-						$query->where('contact_phone', '=', @$phone);
-					}
-				}			
+		if ($request->has('phone'))
+		{
+			$phone = $request->input('phone');
+			if (trim($phone) != '')
+			{
+				$query->where('contact_phone', 'like', '%' . $phone . '%');
+			}
+		}			
 		
 		//$query 		= Contact::where('id','!=','' );
 		
@@ -114,36 +97,29 @@ class ContactController extends Controller
 	
 	 public function add(Request $request){
 		 $this->validate($request, [
-			'first_name' => 'required|max:255',
-			'last_name' => 'required|max:255',
-			'company_name' => 'required|unique:contacts',
-			'contact_display_name' => 'required',
+			'name' => 'required|max:255',
 			'contact_email' => 'required|unique:contacts',
 			'contact_phone' => 'required'
 		  ]);
-		  $requestData 		= 	$request->all();
-			 
-			$obj						= 	new Contact; 
-			$obj->user_id				=	Auth::user()->id;   
-			$obj->srname				=	@$requestData['srname'];
-			$obj->first_name			=	@$requestData['first_name'];
-			$obj->middle_name			=	@$requestData['middle_name'];			
-			$obj->last_name				=	@$requestData['last_name'];			
-			$obj->company_name			=	@$requestData['company_name'];
-			$obj->contact_display_name	=	@$requestData['contact_display_name'];
-			$obj->contact_email			=	@$requestData['contact_email'];
-			$obj->contact_phone			=	@$requestData['contact_phone'];
-			
-			$saved				=	$obj->save();  
-			
-			if(!$saved) 
+		  $requestData = $request->all();
+
+			$obj = new Contact;
+			$obj->user_id = Auth::user()->id;
+			$obj->name = @$requestData['name'];
+			$obj->contact_email = @$requestData['contact_email'];
+			$obj->contact_phone = @$requestData['contact_phone'];
+			$obj->department = @$requestData['department'];
+
+			$saved = $obj->save();
+
+			if(!$saved)
 			{
 				return json_encode(array('success' => false, 'message' => Config::get('constants.server_error')));
 			}
 			else
-			{ 
+			{
 				return json_encode(array('success' => true, 'contactdetail' => $obj));
-			} 				
+			}
 	 }
 	 public function store(Request $request)
 	{
@@ -157,44 +133,21 @@ class ContactController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$this->validate($request, [
-										'first_name' => 'required|max:255',
-										'last_name' => 'required|max:255',
-										'company_name' => 'required|unique:contacts',
-										'contact_display_name' => 'required',
-										'contact_email' => 'required|unique:contacts',
-										'contact_phone' => 'required'
-									  ]);
-			
-			$requestData 		= 	$request->all();
-			 
-			$obj						= 	new Contact; 
-			$obj->user_id				=	Auth::user()->id;   
-			$obj->srname				=	@$requestData['srname'];
-			$obj->first_name			=	@$requestData['first_name'];
-			$obj->middle_name			=	@$requestData['middle_name'];			
-			$obj->last_name				=	@$requestData['last_name'];			
-			$obj->company_name			=	@$requestData['company_name'];
-			$obj->contact_display_name	=	@$requestData['contact_display_name'];
-			$obj->contact_email			=	@$requestData['contact_email'];
-			$obj->contact_phone			=	@$requestData['contact_phone'];
-			$obj->work_phone			=	@$requestData['work_phone'];
-			$obj->website				=	@$requestData['website'];
-			$obj->birth_date				=	@$requestData['birth_date'];
-			$obj->designation			=	@$requestData['designation'];
-			$obj->department			=	@$requestData['department'];
-			$obj->skype_name			=	@$requestData['skype_name'];
-			$obj->facebook_name			=	@$requestData['facebook_name'];
-			$obj->twitter_name			=	@$requestData['twitter_name'];
-			$obj->linkedin_name			=	@$requestData['linkedin_name'];
-			$obj->instagram_name		=	@$requestData['instagram_name'];
-			$obj->youtube_name			=	@$requestData['youtube_name'];
-			$obj->country				=	@$requestData['country'];
-			$obj->address				=	@$requestData['address'];
-			$obj->city					=	@$requestData['city'];
-			$obj->zipcode				=	@$requestData['zipcode'];
-			$obj->phone					=	@$requestData['phone'];
-			
-			$saved				=	$obj->save();  
+				'name' => 'required|max:255',
+				'contact_email' => 'required|unique:contacts',
+				'contact_phone' => 'required'
+			]);
+
+			$requestData = $request->all();
+
+			$obj = new Contact;
+			$obj->user_id = Auth::user()->id;
+			$obj->name = @$requestData['name'];
+			$obj->contact_email = @$requestData['contact_email'];
+			$obj->contact_phone = @$requestData['contact_phone'];
+			$obj->department = @$requestData['department'];
+
+			$saved = $obj->save();
 			
 			if(!$saved) 
 			{
@@ -210,23 +163,13 @@ class ContactController extends Controller
 	 public function storeaddress(Request $request){
 		 if ($request->isMethod('post')) 
 		 {
-			$requestData 		= 	$request->all();
-			$obj				= 	Contact::find($requestData['customer_id']);
-			$obj->country	=	@$requestData['country'];
-			$obj->address	=	@$requestData['address'];
-			$obj->city	=	@$requestData['city'];
-			$obj->zipcode	=	@$requestData['zipcode'];
-			$obj->phone	=	@$requestData['phone'];
-			$saved				=	$obj->save();
-			
-			if(!$saved)
-			{
-				return json_encode(array('success' => false, 'message' => 'Please try again'));
+			$requestData = $request->all();
+			$obj = Contact::find($requestData['customer_id']);
+			if (!$obj) {
+				return json_encode(array('success' => false, 'message' => 'Contact not found'));
 			}
-			else
-			{
-				return json_encode(array('success' => true, 'contactdetail' => $obj));
-			}
+			// Address fields (country, address, city, zipcode, phone) are not stored in contacts table
+			return json_encode(array('success' => true, 'contactdetail' => $obj));
 		 }
 	 }
 	 public function edit(Request $request, $id = NULL)
@@ -241,47 +184,21 @@ class ContactController extends Controller
 		//check authorization end
 		if ($request->isMethod('post')) 
 		{
-			$requestData 		= 	$request->all();
-			
+			$requestData = $request->all();
+
 			$this->validate($request, [
-										'first_name' => 'required|max:255',
-										'last_name' => 'required|max:255',
-										'company_name' => 'required',
-										'contact_display_name' => 'required',
-										'contact_email' => 'required',
-										'contact_phone' => 'required'
-									  ]);
-									  
-									  
-			$obj				= 	Contact::find($requestData['id']);
-			$obj->srname		=	@$requestData['srname'];
-			$obj->first_name	=	@$requestData['first_name'];
-			$obj->middle_name	=	@$requestData['middle_name'];			
-			$obj->last_name		=	@$requestData['last_name'];			
-			$obj->company_name	=	@$requestData['company_name'];
-			$obj->contact_display_name	=	@$requestData['contact_display_name'];
-			$obj->contact_email	=	@$requestData['contact_email'];
-			$obj->contact_phone	=	@$requestData['contact_phone'];
-			$obj->work_phone	=	@$requestData['work_phone'];
-			$obj->website	=	@$requestData['website'];
-			$obj->birth_date				=	@$requestData['birth_date'];
-			$obj->designation	=	@$requestData['designation'];
-			$obj->department	=	@$requestData['department'];
-			$obj->skype_name	=	@$requestData['skype_name'];
-			$obj->facebook_name	=	@$requestData['facebook_name'];
-			$obj->twitter_name	=	@$requestData['twitter_name'];
-			$obj->linkedin_name	=	@$requestData['linkedin_name'];
-			$obj->instagram_name	=	@$requestData['instagram_name'];
-			$obj->youtube_name	=	@$requestData['youtube_name'];
-			$obj->country	=	@$requestData['country'];
-			$obj->address	=	@$requestData['address'];
-			$obj->city	=	@$requestData['city'];
-			$obj->zipcode	=	@$requestData['zipcode'];
-			$obj->phone	=	@$requestData['phone'];
-				
-			//$obj->slug	=	$this->createSlug(Auth::user()->id,'destinations',@$requestData['dest_name'], $requestData['id']);			
-			
-			$saved				=	$obj->save();
+				'name' => 'required|max:255',
+				'contact_email' => 'required|unique:contacts,contact_email,' . $requestData['id'],
+				'contact_phone' => 'required'
+			]);
+
+			$obj = Contact::find($requestData['id']);
+			$obj->name = @$requestData['name'];
+			$obj->contact_email = @$requestData['contact_email'];
+			$obj->contact_phone = @$requestData['contact_phone'];
+			$obj->department = @$requestData['department'];
+
+			$saved = $obj->save();
 			
 			if(!$saved)
 			{

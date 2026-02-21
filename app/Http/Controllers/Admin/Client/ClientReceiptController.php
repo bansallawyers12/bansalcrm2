@@ -753,7 +753,7 @@ class ClientReceiptController extends Controller
             ->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
             ->leftJoin('products', 'applications.product_id', '=', 'products.id')
             ->leftJoin('application_fee_options', 'applications.id', '=', 'application_fee_options.app_id')
-            ->select('applications.*','admins.client_id as client_reference', 'admins.first_name','admins.last_name','admins.dob','partners.partner_name','products.name as coursename','application_fee_options.total_course_fee_amount','application_fee_options.enrolment_fee_amount','application_fee_options.material_fees','application_fee_options.tution_fees','application_fee_options.total_anticipated_fee','application_fee_options.fee_reported_by_college','application_fee_options.bonus_amount','application_fee_options.bonus_pending_amount','application_fee_options.bonus_paid','application_fee_options.commission_as_per_anticipated_fee','application_fee_options.commission_as_per_fee_reported','application_fee_options.commission_payable_as_per_anticipated_fee','application_fee_options.commission_paid_as_per_fee_reported','application_fee_options.commission_pending')
+            ->select('applications.*','admins.client_id as client_reference', 'admins.first_name','admins.last_name','admins.dob','partners.partner_name','products.name as coursename','application_fee_options.total_course_fee_amount','application_fee_options.enrolment_fee_amount','application_fee_options.material_fees','application_fee_options.tution_fees','application_fee_options.fee_reported_by_college','application_fee_options.bonus_amount','application_fee_options.bonus_pending_amount','application_fee_options.commission_as_per_fee_reported','application_fee_options.commission_payable_as_per_anticipated_fee','application_fee_options.commission_paid_as_per_fee_reported','application_fee_options.commission_pending')
             ->where('applications.stage','Coe issued')
             ->orWhere('applications.stage','Enrolled')
             ->orWhere('applications.stage','Coe Cancelled')
@@ -881,14 +881,6 @@ class ClientReceiptController extends Controller
                     $bonus_pending_amount = 'N/P';
                 }
                 return $bonus_pending_amount;
-            })
-            ->addColumn('bonus_paid', function($data) {
-                if($data->bonus_paid != ""){
-                    $bonus_paid = $data->bonus_paid;
-                } else {
-                    $bonus_paid = 'N/P';
-                }
-                return $bonus_paid;
             })
             ->addColumn('commission_as_per_fee_reported', function($data) {
                 if($data->commission_as_per_fee_reported != ""){

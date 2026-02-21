@@ -23,11 +23,9 @@
 									<tr>
 										<th>ID</th>
 										<th>Name</th>
-										<th>Company Name</th>
 										<th>Email</th>
-										<th>Work Phone</th>
-										<th>Receivables</th>
-										<th>Unused Credits</th>
+										<th>Phone</th>
+										<th>Department</th>
 										<th></th>
 									</tr> 
 								</thead>
@@ -36,15 +34,10 @@
 								@foreach (@$lists as $list)
 									<tr id="id_{{@$list->id}}"> 
 										<td>{{ @$list->id == "" ? config('constants.empty') : str_limit(@$list->id, '50', '...') }}</td> 
-										<td>{{ @$list->srname == "" ? config('constants.empty') : str_limit(@$list->srname, '50', '...') }}
-										{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }}
-										{{ @$list->middle_name == "" ? config('constants.empty') : str_limit(@$list->middle_name, '50', '...') }}
-										{{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</td> 
-										<td>{{ @$list->company_name == "" ? config('constants.empty') : str_limit(@$list->company_name, '50', '...') }}</td> 
-										<td>{{ @$list->contact_email == "" ? config('constants.empty') : str_limit(@$list->contact_email, '50', '...') }}</td>
-										<td>{{ @$list->contact_phone == "" ? config('constants.empty') : str_limit(@$list->contact_phone, '50', '...') }}, {{ @$list->work_phone == "" ? config('constants.empty') : str_limit(@$list->work_phone, '50', '...') }}</td>
-										<td></td>
-										<td></td> 
+										<td>{{ @$list->name == "" ? config('constants.empty') : str_limit(@$list->name, 50, '...') }}</td> 
+										<td>{{ @$list->contact_email == "" ? config('constants.empty') : str_limit(@$list->contact_email, 50, '...') }}</td>
+										<td>{{ @$list->contact_phone == "" ? config('constants.empty') : str_limit(@$list->contact_phone, 50, '...') }}</td>
+										<td>{{ @$list->department == "" ? config('constants.empty') : str_limit(@$list->department, 50, '...') }}</td> 
 										<td>
 											<div class="dropdown d-inline">
 												<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
@@ -60,7 +53,7 @@
 								@else
 								<tbody> 
 									<tr>
-										<td style="text-align:center;" colspan="6">
+										<td style="text-align:center;" colspan="5">
 											No Record found
 										</td>
 									</tr>
@@ -93,26 +86,14 @@
 					<div class="row">
 						<div class="col-md-6">
 							<div class="form-group">
-								<label for="company_name" class="col-form-label">Company Name</label>
-								{!! Form::text('company_name', Request::get('company_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Company Name', 'id' => 'company_name' ))  !!}
+								<label for="name" class="col-form-label">Name</label>
+								{!! Form::text('name', Request::get('name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Name', 'id' => 'name' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="email" class="col-form-label">Email</label>
-								{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'name' ))  !!}
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="first_name" class="col-form-label">First Name</label>
-								{!! Form::text('first_name', Request::get('first_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'First Name', 'id' => 'first_name' ))  !!}
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="last_name" class="col-form-label">Last Name</label>
-								{!! Form::text('last_name', Request::get('last_name'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Last Name', 'id' => 'last_name' ))  !!}
+								{!! Form::text('email', Request::get('email'), array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'off','placeholder'=>'Email', 'id' => 'email' ))  !!}
 							</div>
 						</div>
 						<div class="col-md-6">

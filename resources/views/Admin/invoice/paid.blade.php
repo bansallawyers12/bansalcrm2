@@ -92,9 +92,12 @@
 													<th>Client Name</th>
 													<th>Created By</th>
 													<th>Partner Name</th>
-													<th>Workflow</th>
 													<th>Product</th>
-													<th>Amount</th>			
+													<th>Amount</th>
+													<th>Commission Claimed</th>
+													<th>Net Fee Paid to Partner</th>
+													<th>Client Reference</th>
+													<th>Assignee</th>
 													
 													<th>Action</th>
 													
@@ -107,21 +110,30 @@
 																				$clientdata = \App\Models\Admin::where('id', $invoicelist->client_id)->first();
 																				$admindata = \App\Models\Staff::find($invoicelist->user_id);
 																											if($invoicelist->type == 3){
-																		$workflowdaa = \App\Models\Workflow::where('id', $invoicelist->application_id)->first();
+																		$applicationdata = null;
+																		$partnerdata = null;
+																		$productdata = null;
+																		$assignedTo = null;
 																	}else{
 																		$applicationdata = \App\Models\Application::where('id', @$invoicelist->application_id)->first();
-																		$workflowdaa = \App\Models\Workflow::where('id', @$invoicelist->application_id)->first();
 																		$partnerdata = \App\Models\Partner::where('id', @$applicationdata->partner_id)->first();
+																		$productdata = \App\Models\Product::where('id', @$applicationdata->product_id)->first();
+																		$assignedTo = isset($applicationdata->user_id) && $applicationdata->user_id ? \App\Models\Staff::find($applicationdata->user_id) : null;
 																	}
 																	$invoiceitemdetails = \App\Models\InvoiceDetail::where('invoice_id', $invoicelist->id)->orderby('id','ASC')->get();
 																	$netamount = 0;
 																	$coom_amt = 0;
 																	$total_fee = 0;
+																	$tax_amt = 0;
+																	$bonus_amt = 0;
 																	foreach($invoiceitemdetails as $invoiceitemdetail){
 																		$netamount += $invoiceitemdetail->netamount;
 																		$coom_amt += $invoiceitemdetail->comm_amt;
 																		$total_fee += $invoiceitemdetail->total_fee;
+																		$tax_amt += $invoiceitemdetail->tax_amount;
+																		$bonus_amt += $invoiceitemdetail->bonus_amount;
 																	}
+																	$feepaid = $total_fee - ($coom_amt + $tax_amt + $bonus_amt);
 																	
 																	$paymentdetails = \App\Models\InvoicePayment::where('invoice_id', $invoicelist->id)->orderby('created_at', 'DESC')->get();
 																	$amount_rec = 0;
@@ -142,9 +154,12 @@
 													<td style="white-space: initial;"><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdata->id))}}">{{$clientdata->first_name}} {{$clientdata->last_name}}</a></td>
 													<td style="white-space: initial;"><a href="">{{$admindata->first_name}}</a></td>
 													<td style="white-space: initial;">{{@$partnerdata->partner_name}}</td>
-													<td style="white-space: initial;">{{@$workflowdaa->name}}</td>
-													<td></td>
+													<td style="white-space: initial;">{{@$productdata->name}}</td>
 													<td>AUD <?php echo $invoicelist->net_fee_rec; ?></td>
+													<td style="white-space: initial;">${{number_format($coom_amt, 2)}}</td>
+													<td style="white-space: initial;">${{number_format($feepaid, 2)}}</td>
+													<td style="white-space: initial;">{{@$clientdata->client_id ?? 'N/A'}}</td>
+													<td style="white-space: initial;">{{@$assignedTo ? trim($assignedTo->first_name.' '.$assignedTo->last_name) : 'N/A'}}</td>
 													
 													<td>
 													<a href="{{URL::to('invoice/view/')}}/<?php echo $invoicelist->id; ?>"><i class="fa fa-eye"></i></a>

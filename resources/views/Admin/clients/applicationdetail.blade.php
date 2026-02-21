@@ -483,11 +483,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
                     $commission_tot += $fee->commission;
 				}
 			}
-	
-			if(@$appfeeoption->total_discount != ''){
-				$discount = @$appfeeoption->total_discount;
-			}
-			$net = $totl -  $discount;
+			$net = $totl - $discount;
 			// NOTE: Invoice Schedule setup button removed - Invoice Schedule feature has been removed
 			?>
 			</div>
