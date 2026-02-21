@@ -41,7 +41,6 @@
  $sched_res = [];
 // Query to get admins with valid visa expiry dates (not NULL and not empty string)
 $visaexpires = \App\Models\Admin::select('id','visaexpiry','first_name','last_name')
-    ->where('role',7)
     ->whereNotNull('visaexpiry')
     ->whereRaw("CAST(visaexpiry AS TEXT) != ''")  // Filter out empty date strings
     ->get();

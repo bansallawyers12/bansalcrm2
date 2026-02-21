@@ -56,61 +56,61 @@
                                         <?php
                                         if(\Auth::user()->role == 1){
                                             $assigneesCount_All_type = \App\Models\Note::where('type','client')
-                                            ->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
                                           
                                            $assigneesCount_Stage_type = \App\Models\Note::where('task_group','like','stage')
-                                            ->where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                           $assigneesCount_partner_type = \App\Models\Note::where('task_group','like','partner')
-                                            ->where('type','partner')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','partner')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
 
                                         } else {
                                             $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)
-                                            ->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                             $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
                                         
                                             $assigneesCount_Stage_type = \App\Models\Note::where('task_group','like','stage')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
                                         
                                           
                                           $assigneesCount_partner_type = \App\Models\Note::where('task_group','like','partner')
-                                            ->where('assigned_to',Auth::user()->id)->where('type','partner')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                                            ->where('assigned_to',Auth::user()->id)->where('type','partner')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
 
                                         } ?>
                                         <div class="filter-wrapper">

@@ -1096,7 +1096,7 @@ use App\Http\Controllers\Controller;
 												$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
 												$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
 
-                                                $application_assign_count = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->where('application_id',$alist->id)->where('client_id',$fetchedData->id)->count();
+                                                $application_assign_count = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->where('application_id',$alist->id)->where('client_id',$fetchedData->id)->count();
                                                 //dd($application_assign_count);
 												?>
 												<tr id="id_{{$alist->id}}">

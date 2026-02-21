@@ -186,7 +186,7 @@ use App\Http\Controllers\Controller;
 											</thead>
 											<tbody class="applicationtdata">
 											<?php
-											foreach(\App\Models\Admin::with('office')->where('role', 7)->where('user_id',$fetchedData->id)->get() as $alist){
+											foreach(\App\Models\Admin::with('office')->where('user_id',$fetchedData->id)->get() as $alist){
 												$creator = \App\Models\Staff::with('office')->find($alist->user_id) ?? \App\Models\Admin::with('office')->find($alist->user_id);
 												$admin = $creator;
 												?>
@@ -261,7 +261,7 @@ use App\Http\Controllers\Controller;
                                     							<div class="row ">
                                     								<div class="col-lg-12 col-md-12">
                                     									<div class="card-content">
-                                    							<?php	$countclients = \App\Models\Admin::where('assignee', $fetchedData->id)->where('role', 7)->count(); ?>
+                                    							<?php	$countclients = \App\Models\Admin::where('assignee', $fetchedData->id)->count(); ?>
                                     										<h5 class="font-14">Total Clients</h5>
                                     										<h2 class="mb-3 font-18">{{$countclients}}</h2>
                                     										

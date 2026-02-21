@@ -41,12 +41,11 @@ class Branch extends Model
     }
 
     /**
-     * Get clients assigned to this office (role = 7).
+     * Get clients assigned to this office (admins table holds clients/leads only).
      */
     public function clients(): HasMany
     {
-        return $this->hasMany(Admin::class, 'office_id')
-            ->where('role', 7);
+        return $this->hasMany(Admin::class, 'office_id');
     }
 
     /**

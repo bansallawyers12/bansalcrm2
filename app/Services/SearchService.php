@@ -150,8 +150,7 @@ class SearchService
             ->select('client_id', DB::raw("STRING_AGG(client_phone, ', ') as phones"))
             ->groupBy('client_id');
 
-        $clients = Admin::where('admins.role', '=', 7)
-            ->where('admins.is_archived', '=', 0)
+        $clients = Admin::where('admins.is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')
                   ->orWhere('admins.is_deleted', 0);
@@ -221,7 +220,6 @@ class SearchService
             ->whereNotIn('id', function($subquery) {
                 $subquery->select('lead_id')
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereNotNull('lead_id')
                     ->where('lead_id', '!=', 0);
             })
@@ -229,7 +227,6 @@ class SearchService
             ->whereNotExists(function($subquery) {
                 $subquery->select(DB::raw(1))
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereColumn('admins.email', 'leads.email')
                     ->whereNotNull('admins.email')
                     ->whereNotNull('leads.email');
@@ -278,8 +275,7 @@ class SearchService
      */
     protected function searchByClientId($clientId)
     {
-        $clients = Admin::where('role', '=', 7)
-            ->where('is_archived', '=', 0)
+        $clients = Admin::where('is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
@@ -322,8 +318,7 @@ class SearchService
         $results = [];
 
         // Search clients (exclude archived)
-        $clients = Admin::where('role', '=', 7)
-            ->where('is_archived', '=', 0)
+        $clients = Admin::where('is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
             })
@@ -362,7 +357,6 @@ class SearchService
                 // Exclude by lead_id if it exists in admins
                 $subquery->select('lead_id')
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereNotNull('lead_id')
                     ->where('lead_id', '!=', 0);
             })
@@ -370,7 +364,6 @@ class SearchService
             ->whereNotExists(function($subquery) {
                 $subquery->select(DB::raw(1))
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereColumn('admins.email', 'leads.email')
                     ->whereNotNull('admins.email')
                     ->whereNotNull('leads.email');
@@ -421,8 +414,7 @@ class SearchService
             ->groupBy('client_id');
 
         // Search clients (exclude archived)
-        $clients = Admin::where('admins.role', '=', 7)
-            ->where('admins.is_archived', '=', 0)
+        $clients = Admin::where('admins.is_archived', '=', 0)
             ->where(function ($q) {
                 $q->whereNull('admins.is_deleted')->orWhere('admins.is_deleted', 0);
             })
@@ -465,7 +457,6 @@ class SearchService
             ->whereNotIn('id', function($subquery) {
                 $subquery->select('lead_id')
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereNotNull('lead_id')
                     ->where('lead_id', '!=', 0);
             })
@@ -473,7 +464,6 @@ class SearchService
             ->whereNotExists(function($subquery) {
                 $subquery->select(DB::raw(1))
                     ->from('admins')
-                    ->where('role', 7)
                     ->whereColumn('admins.email', 'leads.email')
                     ->whereNotNull('admins.email')
                     ->whereNotNull('leads.email');

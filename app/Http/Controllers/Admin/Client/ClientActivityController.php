@@ -115,7 +115,7 @@ class ClientActivityController extends Controller
      * Get activity log for a client
      */
     public function activities(Request $request){
-		if(Admin::where('role', '=', '7')->where('id', $request->id)->exists()){
+		if(Admin::where('id', $request->id)->exists()){
 			$activities = ActivitiesLog::where('client_id', $request->id)->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){

@@ -2681,7 +2681,7 @@ class PartnersController extends Controller
         }
 
 		$action->title		    = $title;
-        $action->folloup	        = 1;
+        $action->is_action	        = 1;
         $action->task_group       =  $requestData['task_group'];
 		$action->assigned_to	    =  @$requestData['rem_cat123'];
         if( isset($requestData['popoverdate']) && $requestData['popoverdate'] != "" ){
@@ -2690,7 +2690,7 @@ class PartnersController extends Controller
         } else {
             $popoverdateFormated = "";
         }
-		$action->followup_date	=  $popoverdateFormated;
+		$action->action_assign_date	=  $popoverdateFormated;
         $action->type	            =  $requestData['type'];
 
         //add note deadline
@@ -2883,7 +2883,7 @@ class PartnersController extends Controller
             $obj->description = '<span class="text-semi-bold">'.$title.'</span><p>'.$request->description.'</p>';
         }
         $obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-        $obj->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+        $obj->is_action = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
         $obj->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
         $saved = $obj->save();
 		if($saved){

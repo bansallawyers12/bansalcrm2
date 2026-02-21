@@ -294,7 +294,7 @@ class ActionController extends Controller
              ->where('status','<>','1')
              ->where('type','client')
              ->whereNotNull('client_id')
-             ->where('folloup',1)
+             ->where('is_action',1)
              ->orderByRaw('created_at DESC NULLS LAST')
              ->paginate(20);
          } else {
@@ -303,7 +303,7 @@ class ActionController extends Controller
              ->where('status','<>','1')
              ->where('user_id',\Auth::user()->id)
              ->where('type','client')
-             ->where('folloup',1)
+             ->where('is_action',1)
              ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
          }
          #dd($assignees_notCompleted);
@@ -317,16 +317,16 @@ class ActionController extends Controller
     {
         if(\Auth::user()->role == 1){
             $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);//where('status','not like','Closed')
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);//where('status','not like','Closed')
 
             $assignees_completed = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }else{
             $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
 
             $assignees_completed = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('folloup',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
+            ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }
         //dd($assignees_notCompleted);
         //dd($assignees_completed);
@@ -362,7 +362,7 @@ class ActionController extends Controller
                     ->with(['noteUser','noteClient','assigned_user'])
                     ->where('status','<>','1')
                     ->where('type','client')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->where(function($subQuery) use ($search_by)
                     {   
                         $subQuery->whereHas('noteUser', function ( $query ) use ($search_by) {
@@ -387,7 +387,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('type','client')
                     ->whereNotNull('client_id')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
                 }
                 //dd($assignees_notCompleted);
@@ -401,7 +401,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->where(function($subQuery) use ($search_by)
                     {   
                         $subQuery->whereHas('noteUser', function ( $query ) use ($search_by) {
@@ -427,7 +427,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
@@ -445,7 +445,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('type','client')
                     ->whereNotNull('client_id')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->where(function($subQuery) use ($search_by)
                     {   
                         $subQuery->whereHas('noteUser', function ( $query ) use ($search_by) {
@@ -471,7 +471,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('type','client')
                     ->whereNotNull('client_id')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
@@ -486,7 +486,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->where(function($subQuery) use ($search_by)
                     {   
                         $subQuery->whereHas('noteUser', function ( $query ) use ($search_by) {
@@ -512,7 +512,7 @@ class ActionController extends Controller
                     ->where('status','<>','1')
                     ->where('assigned_to',\Auth::user()->id)
                     ->where('type','client')
-                    ->where('folloup',1)
+                    ->where('is_action',1)
                     ->orderByRaw('created_at DESC NULLS LAST')
                     ->paginate(20);
                 }
@@ -540,7 +540,7 @@ class ActionController extends Controller
                 ->where('status','1')
                 ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->whereNotNull('client_id')
-                ->where('folloup',1)
+                ->where('is_action',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
@@ -548,7 +548,7 @@ class ActionController extends Controller
                 ->where('status','1')
                 ->where('assigned_to',\Auth::user()->id)
                 ->whereIn('type',['client', 'partner']) // Include both client and partner actions
-                ->where('folloup',1)
+                ->where('is_action',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
         } else {
@@ -559,7 +559,7 @@ class ActionController extends Controller
                 ->where('status','1')
                 ->whereIn('type',['client', 'partner']) // Include both client and partner actions
                 ->whereNotNull('client_id')
-                ->where('folloup',1)
+                ->where('is_action',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             } else {
                 $assignees_completed = \App\Models\Note::sortable()
@@ -568,7 +568,7 @@ class ActionController extends Controller
                 ->where('status','1')
                 ->where('assigned_to',\Auth::user()->id)
                 ->whereIn('type',['client', 'partner']) // Include both client and partner actions
-                ->where('folloup',1)
+                ->where('is_action',1)
                 ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
             }
         }
@@ -591,7 +591,7 @@ class ActionController extends Controller
             	->where('status','<>','1')
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
-            	->where('folloup',1)
+            	->where('is_action',1)
             	->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             else
@@ -601,7 +601,7 @@ class ActionController extends Controller
             	->where('assigned_to',\Auth::user()->id)
             	//->where('type','client')
                 ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
-            	->where('folloup',1)
+            	->where('is_action',1)
             	->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             //dd($data);
@@ -648,8 +648,8 @@ class ActionController extends Controller
             })
 
             ->addColumn('assign_date', function($data) {
-                if($data->followup_date){
-                    $assign_date =  date('d/m/Y',strtotime($data->followup_date)) ;
+                if($data->action_assign_date){
+                    $assign_date =  date('d/m/Y',strtotime($data->action_assign_date)) ;
                 } else {
                     $assign_date = 'N/P';
                 }
@@ -699,8 +699,8 @@ class ActionController extends Controller
 
                 if($list->task_group != 'Personal Task')
                 {
-                    if($list->followup_date != ""){
-                        $current_date1 = $list->followup_date;
+                    if($list->action_assign_date != ""){
+                        $current_date1 = $list->action_assign_date;
                     } else{
                         $current_date1 = date('Y-m-d');
                     }
@@ -775,7 +775,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->followup_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>';
+                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>';
                 } else {
                     $actionBtn = '';
                 }
@@ -854,7 +854,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->followup_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>';
+                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>';
                 }
                 return $actionBtn;
             })
@@ -928,7 +928,7 @@ class ActionController extends Controller
     public function destroyByMe($note_id)
     {
         $appointment =Note::find($note_id);
-        $appointment->folloup = 0;
+        $appointment->is_action = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
             $objs->client_id = $appointment->client_id;
@@ -948,7 +948,7 @@ class ActionController extends Controller
             } else {
                 $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
-            $objs->followup_date = @$appointment->followup_datetime;
+            $objs->followup_date = @$appointment->action_assign_date;
             $objs->task_group = @$appointment->task_group;
             $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
             $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
@@ -963,7 +963,7 @@ class ActionController extends Controller
     public function destroyToMe($note_id)
     {
         $appointment =Note::find($note_id);
-        $appointment->folloup = 0;
+        $appointment->is_action = 0;
         $appointment->save();
 
         return redirect()->route('action.assigned_to_me')
@@ -980,7 +980,7 @@ class ActionController extends Controller
             return response()->json(['success' => false, 'message' => 'Note not found'], 404);
         }
         
-        $appointment->folloup = 0;
+        $appointment->is_action = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
             $objs->client_id = $appointment->client_id;
@@ -1000,7 +1000,7 @@ class ActionController extends Controller
             } else {
                 $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
-            $objs->followup_date = @$appointment->followup_datetime;
+            $objs->followup_date = @$appointment->action_assign_date;
             $objs->task_group = @$appointment->task_group;
             $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
             $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
@@ -1016,7 +1016,7 @@ class ActionController extends Controller
     public function destroyCompleted($note_id)
     {
         $appointment = Note::find($note_id);
-        $appointment->folloup = 0;
+        $appointment->is_action = 0;
         if( $appointment->save() ){
             $objs = new ActivitiesLog;
             $objs->client_id = $appointment->client_id;
@@ -1036,7 +1036,7 @@ class ActionController extends Controller
             } else {
                 $objs->use_for = null; // Use null instead of empty string for PostgreSQL
             }
-            $objs->followup_date = @$appointment->followup_datetime;
+            $objs->followup_date = @$appointment->action_assign_date;
             $objs->task_group = @$appointment->task_group;
             $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
             $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)

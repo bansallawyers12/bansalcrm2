@@ -21,7 +21,7 @@ class Admin extends Authenticatable
       * @var array
 	*/
 	protected $fillable = [
-        'id', 'role', 'first_name', 'last_name', 'email', 'password',
+        'id', 'first_name', 'last_name', 'email', 'password',
         'country', 'state', 'city', 'address', 'zip', 'status',
         'created_at', 'updated_at',
         'office_id', 'show_dashboard_per',
@@ -58,12 +58,7 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo('App\Models\State','state');
     }
-	public function usertype()
-    {
-        return $this->belongsTo('App\Models\UserRole', 'role', 'id');
-    }
-
-    /**
+	/**
      * Get the office (branch) this user belongs to.
      */
     public function office(): BelongsTo
@@ -80,7 +75,7 @@ class Admin extends Authenticatable
     }
 
     /**
-     * Get the applications for this client (admins with role 7 are clients).
+     * Get the applications for this client (admins table holds clients/leads only).
      */
     public function applications()
     {

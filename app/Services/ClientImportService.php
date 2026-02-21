@@ -48,9 +48,7 @@ class ClientImportService
 
                 // Check for duplicate email
                 if (!empty($clientData['email'])) {
-                    $existingClientByEmail = Admin::where('email', $clientData['email'])
-                        ->where('role', 7)
-                        ->first();
+                    $existingClientByEmail = Admin::where('email', $clientData['email'])->first();
 
                     if ($existingClientByEmail) {
                         $emailMatch = true;
@@ -81,9 +79,7 @@ class ClientImportService
                                     !empty($existingPhoneNumber)) {
                                     
                                     // Get the client that owns this phone number
-                                    $existingClientByPhone = Admin::where('id', $existingPhone->client_id)
-                                        ->where('role', 7)
-                                        ->first();
+                                    $existingClientByPhone = Admin::where('id', $existingPhone->client_id)->first();
 
                                     if ($existingClientByPhone) {
                                         $phoneMatch = true;
@@ -109,9 +105,7 @@ class ClientImportService
                             }
                             
                             // Also check Admin table phone field
-                            $clientsWithPhone = Admin::where('role', 7)
-                                ->whereNotNull('phone')
-                                ->get();
+                            $clientsWithPhone = Admin::whereNotNull('phone')->get();
                             
                             foreach ($clientsWithPhone as $client) {
                                 // Check main phone field
@@ -232,7 +226,6 @@ class ClientImportService
             // emergency_country_code, emergency_contact_no, emergency_contact_type
             
             // System fields
-            $client->role = 7; // Client role
             $client->password = Hash::make('CLIENT_IMPORT_' . time()); // Temporary password
             // Status already set above, don't override
             

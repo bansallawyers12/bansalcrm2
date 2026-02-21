@@ -92,7 +92,6 @@ class RecentlyModifiedClientsController extends Controller
 			// Use INNER JOIN so we only show non-archived clients (archived clients would otherwise appear with NULL client info)
 			->join('admins as client_admins', function($join) {
 				$join->on('activities_logs.client_id', '=', 'client_admins.id')
-					 ->where('client_admins.role', '=', '7')
 					 ->where(function($q) {
 						 $q->whereIn('client_admins.is_archived', [0, '0'])
 						   ->orWhereNull('client_admins.is_archived');
@@ -293,9 +292,7 @@ class RecentlyModifiedClientsController extends Controller
 		}
 		
 		// Get client info
-		$client = Admin::where('id', $clientId)
-			->where('role', '7')
-			->first();
+		$client = Admin::where('id', $clientId)->first();
 		
 		if (!$client) {
 			return response()->json([
@@ -533,7 +530,7 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		// Client unique ID for S3 path (e.g. MANV230200201)
-		$client = Admin::where('id', $document->client_id)->where('role', '7')->first();
+		$client = Admin::where('id', $document->client_id)->first();
 		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
 			return response()->json(['success' => false, 'message' => 'Client unique ID not found'], 400);
 		}
@@ -781,9 +778,7 @@ class RecentlyModifiedClientsController extends Controller
 		}
 		
 		// Get client info
-		$client = Admin::where('id', $clientId)
-			->where('role', '7')
-			->first();
+		$client = Admin::where('id', $clientId)->first();
 		
 		if (!$client) {
 			return response()->json([
@@ -882,7 +877,6 @@ class RecentlyModifiedClientsController extends Controller
 		
 		// Match clients that are not archived (is_archived = 0 or NULL)
 		$clients = Admin::whereIn('id', $clientIds)
-			->where('role', '7')
 			->where(function ($q) {
 				$q->whereIn('is_archived', [0, '0'])
 				  ->orWhereNull('is_archived');
@@ -892,7 +886,7 @@ class RecentlyModifiedClientsController extends Controller
 		// DEBUG: Check why clients might be empty - query admins for these IDs without archive filter
 		$allAdminsWithIds = DB::table('admins')
 			->whereIn('id', $clientIds)
-			->get(['id', 'role', 'is_archived', 'first_name', 'last_name']);
+			->get(['id', 'is_archived', 'first_name', 'last_name']);
 		
 		\Log::info('[BulkArchive] Query results:', [
 			'client_ids_requested' => $clientIds,

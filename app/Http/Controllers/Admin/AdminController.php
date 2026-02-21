@@ -123,9 +123,9 @@ class AdminController extends Controller
 
     public function fetchTotalActivityCount(Request $request){
         if(\Auth::user()->role == 1){
-            $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->count();
+            $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->count();
         }else{
-            $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->count();
+            $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->count();
         }
         $data = array('assigneesCount'  => $assigneesCount);
         echo json_encode($data);
@@ -1310,7 +1310,7 @@ class AdminController extends Controller
                 $workflowdaa = \App\Models\Workflow::where('id', @$applicationdata->workflow)->first();
             }
 
-			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
+			$clientdata = \App\Models\Admin::where('id', $invoicedetail->client_id)->first();
 			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 
             $pdf = PDF::setOptions([
@@ -1974,7 +1974,7 @@ class AdminController extends Controller
                      $objs->use_for = null; // Use null instead of empty string for PostgreSQL
                  }
 
-                 $objs->followup_date = @$note_data['updated_at'];
+                 $objs->followup_date = @$note_data['action_assign_date'] ?? @$note_data['updated_at'];
                  $objs->task_group = 'partner';
                  $objs->task_status = 1; //maked completed
                  $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
@@ -2022,7 +2022,7 @@ class AdminController extends Controller
                          $o->module_id = $note_info['client_id'];
                          $o->url = route('partners.detail', @$note_info['client_id']);
                          $o->notification_type = 'client';
-                         $o->message = 'Action Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name . ' on ' . date('d/M/Y h:i A', strtotime(@$note_info['followup_date']));
+                         $o->message = 'Action Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name . ' on ' . date('d/M/Y h:i A', strtotime(@$note_info['action_assign_date']));
                          $o->seen = 0; // Set seen to 0 (unseen) for new notifications
                          $o->save();
 
@@ -2048,7 +2048,7 @@ class AdminController extends Controller
                          } else {
                              $objs->use_for = null; // Use null instead of empty string for PostgreSQL
                          }
-                         $objs->followup_date = $note_info['followup_date'];
+                         $objs->followup_date = $note_info['action_assign_date'];
                          $objs->task_group = 'partner';
                          $objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
                          $objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)

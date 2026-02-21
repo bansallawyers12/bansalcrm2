@@ -35,7 +35,7 @@ class CheckinLog extends Model
         if ($this->contact_type == 'Lead') {
             return $this->belongsTo('App\Models\Lead', 'client_id');
         } else {
-            return $this->belongsTo('App\Models\Admin', 'client_id')->where('role', '7');
+            return $this->belongsTo('App\Models\Admin', 'client_id');
         }
     }
     

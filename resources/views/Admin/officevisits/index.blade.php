@@ -84,7 +84,7 @@
 													<td style="white-space: initial;"><?php if($list->sesion_start != ''){ echo date('h:i A',strtotime($list->sesion_start)); }else{ echo '-'; } ?></td>
 													<td style="white-space: initial;">
 														<?php
-														$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+														$client = \App\Models\Admin::where('id', '=', $list->client_id)->first();
 														?>
 														<a target="_blank" href="{{URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$client->id)))}}">{{@$client->first_name}} {{@$client->last_name}}</a>
 													

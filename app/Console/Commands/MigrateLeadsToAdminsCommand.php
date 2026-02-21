@@ -116,7 +116,6 @@ class MigrateLeadsToAdminsCommand extends Command
     protected function warmCaches(): void
     {
         $this->adminByEmail = DB::table('admins')
-            ->where('role', 7)
             ->whereNotNull('email')
             ->where('email', '!=', '')
             ->pluck('id', 'email')
@@ -133,7 +132,6 @@ class MigrateLeadsToAdminsCommand extends Command
     protected function refreshAdminByEmailCache(): void
     {
         $newOnes = DB::table('admins')
-            ->where('role', 7)
             ->where('is_lead_migrate_to_admin', 1)
             ->whereNotNull('email')
             ->pluck('id', 'email')
@@ -204,7 +202,6 @@ class MigrateLeadsToAdminsCommand extends Command
         }
 
         $data = [
-            'role' => 7,
             'type' => 'lead',
             'remember_token' => null,
             'lead_id' => $lead->id,

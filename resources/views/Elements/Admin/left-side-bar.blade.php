@@ -40,15 +40,15 @@
 			}
 			
 			if(\Auth::user()->role == 1){
-                //$assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
-               // $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->count();
+                //$assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+               // $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->count();
               
-                  $assigneesCount = \App\Models\Note::whereIn('type', ['client', 'partner'])->whereNotNull('client_id')->where('folloup',1)->where('status','<>','1')->count();
+                  $assigneesCount = \App\Models\Note::whereIn('type', ['client', 'partner'])->whereNotNull('client_id')->where('is_action',1)->where('status','<>','1')->count();
             }else{
-                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->orderBy('created_at', 'desc')->count();
-                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('folloup',1)->where('status',0)->count();
+                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->orderBy('created_at', 'desc')->count();
+                //$assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->count();
               
-                 $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type', ['client', 'partner'])->where('folloup',1)->where('status','<>','1')->count();
+                 $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type', ['client', 'partner'])->where('is_action',1)->where('status','<>','1')->count();
            
             }
 			?>
@@ -232,9 +232,9 @@
 			}  
 			
 				/*	if(Auth::user()->role == 1){
-						$countaction = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->count();					
+						$countaction = \App\Models\Note::whereDate('action_assign_date', date('Y-m-d'))->count();					
 					}else{
-						$countaction = \App\Models\Note::whereDate('followup_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
+						$countaction = \App\Models\Note::whereDate('action_assign_date', date('Y-m-d'))->where('assigned_to', Auth::user()->id)->count();
 					}*/
 					
 	

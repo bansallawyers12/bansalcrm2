@@ -89,8 +89,7 @@ class SignatureDashboardController extends Controller
         ];
 
         // Load clients for attach modal (exclude archived)
-        $clients = Admin::where('role', 7)
-            ->where('is_archived', 0)
+        $clients = Admin::where('is_archived', 0)
             ->whereNull('is_deleted')
             ->select('id', 'first_name', 'last_name', 'email')
             ->get();
@@ -103,7 +102,7 @@ class SignatureDashboardController extends Controller
         $user = Auth::guard('admin')->user();
         
         // Get clients for association dropdown (exclude archived)
-        $clients = Admin::where('role', '=', 7)->where('is_archived', 0)->whereNull('is_deleted')->get(['id', 'first_name', 'last_name', 'email']);
+        $clients = Admin::where('is_archived', 0)->whereNull('is_deleted')->get(['id', 'first_name', 'last_name', 'email']);
 
         // Check if we're sending an existing document for signing
         $document = null;
@@ -310,8 +309,7 @@ class SignatureDashboardController extends Controller
             ->findOrFail($id);
 
         // Load clients for attach functionality (exclude archived)
-        $clients = Admin::where('role', 7)
-            ->where('is_archived', 0)
+        $clients = Admin::where('is_archived', 0)
             ->whereNull('is_deleted')
             ->select('id', 'first_name', 'last_name', 'email')
             ->orderBy('first_name')
@@ -517,7 +515,6 @@ class SignatureDashboardController extends Controller
         
         // Find all clients with this email (exclude archived)
         $clients = Admin::where('email', $request->email)
-            ->where('role', '=', 7)
             ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->get();

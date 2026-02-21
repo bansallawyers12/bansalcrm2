@@ -778,13 +778,8 @@
                                     <tbody>
                                         @foreach($clientsWithRecentActivities as $clientActivity)
                                         @php
-                                            // Determine URL based on client role (7 = client, others might be partners)
-                                            if($clientActivity->client_role == 7) {
-                                                $detailUrl = URL::to('/clients/detail/'.base64_encode(convert_uuencode($clientActivity->client_id)));
-                                            } else {
-                                                // For partners or other roles
-                                                $detailUrl = URL::to('/partners/detail/'.base64_encode(convert_uuencode($clientActivity->client_id)));
-                                            }
+                                            // Admins table holds clients/leads only - always link to client detail
+                                            $detailUrl = URL::to('/clients/detail/'.base64_encode(convert_uuencode($clientActivity->client_id)));
                                         @endphp
                                         <tr>
                                             <td>

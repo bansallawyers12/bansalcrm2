@@ -51,7 +51,7 @@ class InvoiceController extends Controller
 	} 
 	public function getInvoice(Request $request, $clientid, $applicationid, $type){
 		//dd($type);
-		$clientdata = \App\Models\Admin::where('role', 7)->where('id', $clientid)->first();
+		$clientdata = \App\Models\Admin::where('id', $clientid)->first();
 		if(!$clientdata){
 			return redirect()->back()->with('error', 'Client not found for this invoice.');
 		}
@@ -109,7 +109,7 @@ class InvoiceController extends Controller
 				$workflowdaa = \App\Models\Workflow::where('id', @$applicationdata->workflow)->first();
 			}
 			
-			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
+			$clientdata = \App\Models\Admin::where('id', $invoicedetail->client_id)->first();
 			if(!$clientdata){
 				return redirect()->back()->with('error', 'Client not found for this invoice.');
 			}
@@ -884,7 +884,7 @@ class InvoiceController extends Controller
 				$workflowdaa = \App\Models\Workflow::where('id', @$applicationdata->workflow)->first();
 			}
 			
-			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
+			$clientdata = \App\Models\Admin::where('id', $invoicedetail->client_id)->first();
 			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
 			$pdf = PDF::setOptions([
@@ -904,7 +904,7 @@ class InvoiceController extends Controller
 		if(Invoice::where('id', '=', $id)->exists()) 
 		{
 			$invoicedetail = Invoice::where('id', '=', $id)->first();
-			$clientdata = \App\Models\Admin::where('role', 7)->where('id', $invoicedetail->client_id)->first();
+			$clientdata = \App\Models\Admin::where('id', $invoicedetail->client_id)->first();
 			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
 			
 			// Check if client data exists

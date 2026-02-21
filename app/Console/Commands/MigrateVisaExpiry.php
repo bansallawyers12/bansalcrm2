@@ -56,15 +56,13 @@ class MigrateVisaExpiry extends Command
             if (!$isDryRun) {
                 $cleared = DB::connection('pgsql')
                     ->table('admins')
-                    ->where('role', 7)
                     ->update(['visaexpiry' => null]);
-                $this->info("  ✓ Cleared visaexpiry for {$cleared} admins with role 7");
+                $this->info("  ✓ Cleared visaexpiry for {$cleared} admins");
             } else {
                 $count = DB::connection('pgsql')
                     ->table('admins')
-                    ->where('role', 7)
                     ->count();
-                $this->info("  [DRY RUN] Would clear visaexpiry for {$count} admins with role 7");
+                $this->info("  [DRY RUN] Would clear visaexpiry for {$count} admins");
             }
             $this->newLine();
 
@@ -73,7 +71,6 @@ class MigrateVisaExpiry extends Command
             $mysqlData = DB::connection('mysql')
                 ->table('admins')
                 ->select('id', 'visaexpiry')
-                ->where('role', 7)
                 ->whereNotNull('visaexpiry')
                 ->where('visaexpiry', '!=', '')
                 ->where('visaexpiry', '!=', '0000-00-00')  // Invalid MySQL date
@@ -165,7 +162,6 @@ class MigrateVisaExpiry extends Command
             $this->info('Step 4: Verifying migration...');
             $pgsqlCount = DB::connection('pgsql')
                 ->table('admins')
-                ->where('role', 7)
                 ->whereNotNull('visaexpiry')
                 ->whereRaw("CAST(visaexpiry AS TEXT) != ''")
                 ->count();

@@ -33,7 +33,7 @@
 											<h5>TOTAL STAFF : {{\App\Models\Staff::where('office_id',$fetchedData->id)->count()}}</h5>
 										</div>
 										<div class="col-md-3">
-											<h5>TOTAL CLIENTS : {{\App\Models\Admin::where('role', 7)->where('office_id',$fetchedData->id)->count()}}</h5>
+											<h5>TOTAL CLIENTS : {{\App\Models\Admin::where('office_id',$fetchedData->id)->count()}}</h5>
 										</div>
 									</div>
 									
@@ -133,7 +133,7 @@
 											</thead>
 											<tbody class="applicationtdata">
 											<?php
-											$lists = \App\Models\Admin::where('role', 7)->where('office_id',$fetchedData->id)->with(['usertype'])->paginate(10);
+											$lists = \App\Models\Admin::where('office_id',$fetchedData->id)->paginate(10);
 											foreach($lists as $alist){
 												$b = \App\Models\Branch::where('id', $alist->office_id)->first();
 												?>

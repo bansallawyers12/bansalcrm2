@@ -49,7 +49,7 @@ class ClientActionController extends Controller
 		$action->user_id			= Auth::user()->id;
 		$action->description		= @$requestData['description'];
 		$action->title		    = @$requestData['remindersubject'] ?? 'Lead assign to '.@$requestData['assignee_name'];
-		$action->folloup	= 1;
+		$action->is_action	= 1;
         $action->task_group = @$requestData['task_group'];
 		$action->assigned_to	= @$requestData['rem_cat'];
 		$action->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
@@ -57,7 +57,7 @@ class ClientActionController extends Controller
 		$action->type = 'client'; // Required field - mark as client type for Action page filtering
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
 		    //	$action->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
-			$action->followup_date	=  @$requestData['followup_datetime'];
+			$action->action_assign_date	=  @$requestData['followup_datetime'];
 		}
         $saved				=	$action->save();
         if(!$saved)
@@ -120,12 +120,12 @@ class ClientActionController extends Controller
 		$action->user_id			= Auth::user()->id;
 		$action->description		= @$requestData['description'];
 		$action->title		    = @$requestData['remindersubject'] ?? 'Lead assign to '.@$requestData['assignee_name'];
-		$action->folloup	= 1;
+		$action->is_action	= 1;
         $action->task_group = @$requestData['task_group'];
 		$action->assigned_to	= @$requestData['rem_cat'];
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
 		    //	$action->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
-			$action->followup_date	=  @$requestData['followup_datetime'];
+			$action->action_assign_date	=  @$requestData['followup_datetime'];
 		}
         $saved				=	$action->save();
         if(!$saved)
@@ -192,12 +192,12 @@ class ClientActionController extends Controller
 		$action->user_id			= Auth::user()->id;
 		$action->description		= @$requestData['description'];
 		$action->title		    = @$requestData['remindersubject'] ?? 'Update Task and lead assign to '.@$requestData['assignee_name'];
-		$action->folloup	= 1;
+		$action->is_action	= 1;
         $action->task_group = @$requestData['task_group'];
 		$action->assigned_to	= @$requestData['rem_cat'];
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
 		    //	$action->followup_date	= @$requestData['followup_date'].date('H:i', strtotime($requestData['followup_time']));
-			$action->followup_date	=  @$requestData['followup_datetime'];
+			$action->action_assign_date	=  @$requestData['followup_datetime'];
 		}
         $saved	=	$action->save();
 
@@ -299,14 +299,14 @@ class ClientActionController extends Controller
 		$action->user_id			= Auth::user()->id;
 		$action->description		= @$requestData['description'];
 		$action->title		    = @$requestData['remindersubject'] ?? 'Personal Task assign to '.@$requestData['assignee_name'];
-		$action->folloup	= 1;
+		$action->is_action	= 1;
         $action->task_group = @$requestData['task_group'];
 		$action->assigned_to	= @$requestData['rem_cat'];
 		$action->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 		$action->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 		$action->type = 'client'; // Required field - mark as client type
 		if(isset($requestData['followup_datetime']) && $requestData['followup_datetime'] != ''){
-		    $action->followup_date	=  @$requestData['followup_datetime'];
+		    $action->action_assign_date	=  @$requestData['followup_datetime'];
 		}
         try {
             $saved	=	$action->save();
@@ -374,14 +374,14 @@ class ClientActionController extends Controller
 		$action->user_id			= Auth::user()->id;
 		$action->description		= @$requestData['message'];
 		$action->title			= '';
-		$action->folloup	        = 1;
+		$action->is_action	        = 1;
 		$action->assigned_to	    = @$requestData['changeassignee'];
 		$action->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 		$action->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 		$action->type = 'client'; // Required field - mark as client type for Action page filtering
 		if(isset($requestData['followup_date']) && $requestData['followup_date'] != ''){
 
-				$action->followup_date	=  $requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
+				$action->action_assign_date	=  $requestData['followup_date'].' '.date('H:i', strtotime($requestData['followup_time']));
 		}
 
 		$saved				=	$action->save();
@@ -443,10 +443,10 @@ class ClientActionController extends Controller
         }
         $title = 'Application assign to '.$assignee_name;
 		$action->title		    = $title;
-        $action->folloup	        = 1;
+        $action->is_action	        = 1;
         $action->task_group       = 'stage';
 		$action->assigned_to	    = @$requestData['rem_cat11'];
-		$action->followup_date	=  date('Y-m-d H:i:s');
+		$action->action_assign_date	=  date('Y-m-d H:i:s');
         $action->application_id	= $requestData['application_id'];
 		$action->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 		$action->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)

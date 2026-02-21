@@ -35,7 +35,7 @@ class ReportController extends Controller
      */
 	public function client(Request $request)  
 	{		
-		$query 		= Admin::where('is_archived', '=', '0')->where('role', '=', '7'); 		  
+		$query 		= Admin::where('is_archived', '=', '0'); 		  
 		$totalData 	= $query->count();	//for all data
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(20);
 		

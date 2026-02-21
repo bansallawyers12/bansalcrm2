@@ -1201,7 +1201,7 @@ class ApplicationsController extends Controller
 		$applications = \App\Models\Application::where('id', $id)->first();
 		$partnerdetail = \App\Models\Partner::where('id', @$applications->partner_id)->first();
 		$productdetail = \App\Models\Product::where('id', @$applications->product_id)->first();
-		$cleintname = \App\Models\Admin::where('role',7)->where('id',@$applications->client_id)->first();
+		$cleintname = \App\Models\Admin::where('id',@$applications->client_id)->first();
 		$PartnerBranch = \App\Models\PartnerBranch::where('id', @$applications->branch)->first();
 		$pdf = PDF::setOptions([
 			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,

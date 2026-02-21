@@ -14,7 +14,7 @@ class ExportAdminsLowDataColumns extends Command
      * Based on fill-rate run; id is included in export as row identifier.
      */
     protected const HIGH_DATA_COLUMNS = [
-        'role', 'email', 'verified', 'created_at', 'updated_at', 'is_archived',
+        'email', 'verified', 'created_at', 'updated_at', 'is_archived',
         'show_dashboard_per', 'type', 'first_name', 'phone', 'last_name', 'client_id',
         'assignee', 'email_type', 'contact_type', 'gender', 'service', 'source',
         'country', 'country_passport', 'agent_id', 'lead_quality',

@@ -44,46 +44,46 @@
                                         <div class="col-md-12 group_type_section">
                                             <?php
                                             if(\Auth::user()->role == 1){
-                                                $assigneesCount_All_type = \App\Models\Note::whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->whereIn('type',['client','partner'])->whereNotNull('client_id')->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                             } else {
-                                                $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                $assigneesCount_All_type = \App\Models\Note::where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_call_type = \App\Models\Note::where('task_group','like','Call')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Checklist_type = \App\Models\Note::where('task_group','like','Checklist')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Review_type = \App\Models\Note::where('task_group','like','Review')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Query_type = \App\Models\Note::where('task_group','like','Query')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Urgent_type = \App\Models\Note::where('task_group','like','Urgent')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
 
                                                 $assigneesCount_Personal_Task_type = \App\Models\Note::where('task_group','like','Personal Task')
-                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('folloup',1)->where('status',1)->orderBy('created_at', 'desc')->count();
+                                                ->where('assigned_to',Auth::user()->id)->whereIn('type',['client','partner'])->where('is_action',1)->where('status',1)->orderBy('created_at', 'desc')->count();
                                             } ?>
 
 
@@ -131,7 +131,7 @@
                                                 <th width="25px" style="text-align: center;">Done</th>
                                                 <th width="120px">Assigner Name</th>
                                                 <th width="140px">Client Reference</th>
-                                                <th width="120px" class="sort_col">@sortablelink('followup_date','Action Date')</th>
+                                                <th width="120px" class="sort_col">@sortablelink('action_assign_date','Action Date')</th>
                                                 <th width="100px" class="sort_col">@sortablelink('task_group','Type')</th>
                                                 <th>Note</th>
                                                 <th width="140px">Action</th>
@@ -181,7 +181,7 @@
                                                     <br>
                                                     {!! $reference_link !!}
                                                 </td>
-                                                <td>{{ date('d/m/Y',strtotime($list->followup_date)) ?? 'N/P'}} </td>
+                                                <td>{{ date('d/m/Y',strtotime($list->action_assign_date)) ?? 'N/P'}} </td>
                                                 <td>{{ $list->task_group??'N/P' }}</td>
                                                 <td>
                                                     <?php
@@ -259,7 +259,7 @@
                                                                 </div>
                                                             </div>
                                                          </div>
-                                                         <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task"><i class="fa fa-edit" aria-hidden="true"></i></button>
+                                                         <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task"><i class="fa fa-edit" aria-hidden="true"></i></button>
                                                          @endif
 
                                                         @csrf
@@ -324,7 +324,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->followup_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff"><i class="fa fa-tasks" aria-hidden="true"></i></button>
                                                         @endif
                                                         </div>
                                                     </form>

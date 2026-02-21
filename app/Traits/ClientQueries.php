@@ -24,7 +24,6 @@ trait ClientQueries
     protected function getBaseClientQuery(): Builder
     {
         $query = Admin::where('is_archived', '=', '0')
-            ->where('role', '=', '7')
             ->whereNull('is_deleted');
             
         // Agent filtering - agents can only see their own clients
@@ -43,7 +42,6 @@ trait ClientQueries
     protected function getArchivedClientQuery(): Builder
     {
         $query = Admin::where('is_archived', '=', '1')
-            ->where('role', '=', '7')
             ->whereNull('is_deleted');
             
         // Agent filtering
@@ -182,8 +180,7 @@ trait ClientQueries
      */
     protected function getClientById($id): ?Admin
     {
-        $query = Admin::where('id', $id)
-            ->where('role', '=', '7');
+        $query = Admin::where('id', $id);
             
         // Agent filtering
         if ($this->isAgentContext()) {

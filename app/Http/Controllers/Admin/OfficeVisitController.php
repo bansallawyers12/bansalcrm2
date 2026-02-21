@@ -92,7 +92,7 @@ class OfficeVisitController extends Controller
 				$contactType = 'Client';
 			}
 			// Verify contact exists based on type (Lead or Client)
-			$contactExists = Admin::where('role', '7')->where('id', $contactId)->exists();
+			$contactExists = Admin::where('id', $contactId)->exists();
 			
 			if (!$contactExists) {
 				return redirect()->back()->with('error', 'Selected contact does not exist.');
@@ -145,7 +145,7 @@ class OfficeVisitController extends Controller
 				}
 
 				// Get contact name for broadcasting (Lead or Client)
-				$contact = Admin::where('role', '7')->find($contactId);
+				$contact = Admin::find($contactId);
 				$clientName = $contact ? $contact->first_name . ' ' . $contact->last_name : 'Unknown Client';
 				
 
@@ -238,7 +238,7 @@ class OfficeVisitController extends Controller
 		if($CheckinLog){
 			ob_start();
 			// Resolve contact by type: Lead or Client
-			$contact = Admin::where('role', '7')->where('id', $CheckinLog->client_id)->first();
+			$contact = Admin::where('id', $CheckinLog->client_id)->first();
 			$contactDetailUrl = $contact ? route('clients.detail', base64_encode(convert_uuencode($contact->id))) : '#';
 			$contactName = $contact ? $contact->first_name . ' ' . $contact->last_name : '—';
 			$contactEmail = $contact ? $contact->email : '';
@@ -521,7 +521,7 @@ class OfficeVisitController extends Controller
 	    	
 	    	// Broadcast notification (optional)
 	    	try {
-	    	    $client = Admin::where('role', '7')->find($objs->client_id);
+	    	    $client = Admin::find($objs->client_id);
 	    	    
 	    	    broadcast(new OfficeVisitNotificationCreated(
 	    	        $o->id,
@@ -606,7 +606,7 @@ class OfficeVisitController extends Controller
 	    	$o->save();
 	    	
 	    	try {
-	    	    $client = Admin::where('role', '7')->find($obj->client_id);
+	    	    $client = Admin::find($obj->client_id);
 	    	    broadcast(new OfficeVisitNotificationCreated(
 	    	        $o->id,
 	    	        $o->receiver_id,
@@ -719,7 +719,7 @@ class OfficeVisitController extends Controller
 			->get()
 			->map(function ($n) {
 				$log = $n->checkinLog;
-				$client = Admin::where('role', '7')->find($log->client_id);
+				$client = Admin::find($log->client_id);
 				$sender = \App\Models\Staff::find($n->sender_id) ?? Admin::find($n->sender_id);
 				return [
 					'id' => $n->id,

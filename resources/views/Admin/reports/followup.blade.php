@@ -40,19 +40,19 @@
 <?php
  $sched_res = [];
  if(Auth::user()->role == 1){
-     $followups = \App\Models\Note::select('client_id','id', 'followup_date', 'description')
+     $followups = \App\Models\Note::select('client_id','id', 'action_assign_date', 'description')
          ->where('type','client')
-         ->where('folloup',1)
+         ->where('is_action',1)
          ->where('status',0)
-         ->whereNotNull('followup_date')
+         ->whereNotNull('action_assign_date')
          ->get();
  }else{
-     $followups = \App\Models\Note::select('client_id','id', 'followup_date', 'description')
+     $followups = \App\Models\Note::select('client_id','id', 'action_assign_date', 'description')
          ->where('assigned_to',Auth::user()->id)
          ->where('type','client')
-         ->where('folloup',1)
+         ->where('is_action',1)
          ->where('status',0)
-         ->whereNotNull('followup_date')
+         ->whereNotNull('action_assign_date')
          ->get();
  }
 
@@ -69,9 +69,9 @@ foreach($followups as $followup){
             'name' => base64_encode($client->first_name.' '.$client->last_name),
             'email' => base64_encode($client->email),
             'phone' => base64_encode($client->phone),
-            'startdate' => date("Y-m-d", strtotime($followup->followup_date)),
-            'end' => date("Y-m-d", strtotime($followup->followup_date)),
-            'followup_date' => date("F d, Y", strtotime($followup->followup_date)),
+            'startdate' => date("Y-m-d", strtotime($followup->action_assign_date)),
+            'end' => date("Y-m-d", strtotime($followup->action_assign_date)),
+            'followup_date' => date("F d, Y", strtotime($followup->action_assign_date)),
             'description' => htmlspecialchars($followup->description, ENT_QUOTES, 'UTF-8'),
             'url' => URL::to('/clients/detail/'.base64_encode(convert_uuencode($client->id)))
         ];

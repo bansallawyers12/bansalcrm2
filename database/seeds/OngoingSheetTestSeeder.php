@@ -14,7 +14,7 @@ class OngoingSheetTestSeeder extends Seeder
     public function run()
     {
         // Get first 10 clients for testing
-        $clients = Admin::where('role', 7)
+        $clients = Admin::query()
             ->where('is_archived', 0)
             ->whereNull('is_deleted')
             ->take(10)

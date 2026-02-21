@@ -26,7 +26,7 @@ class ClientApplicationController extends Controller
     }
 
     public function saveapplication(Request $request){
-		if(Admin::where('role', '=', '7')->where('id', $request->client_id)->exists()){
+		if(Admin::where('id', $request->client_id)->exists()){
 			$workflow = $request->workflow;
 			$explode = explode('_', $request->partner_branch);
 			$partner = $explode[1];
@@ -83,7 +83,7 @@ class ClientApplicationController extends Controller
 	}
 
 	public function getapplicationlists(Request $request){
-		if(Admin::where('role', '=', '7')->where('id', $request->id)->exists()){
+		if(Admin::where('id', $request->id)->exists()){
 			$applications = \App\Models\Application::where('client_id', $request->id)->orderby('created_at', 'DESC')->get();
 			$data = array();
 			ob_start();
@@ -93,7 +93,7 @@ class ClientApplicationController extends Controller
 				$PartnerBranch = \App\Models\PartnerBranch::where('id', $alist->branch)->first();
 				$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
               
-                $application_assign_count = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('folloup',1)->where('status',0)->where('application_id',$alist->id)->where('client_id',$request->id)->count();
+                $application_assign_count = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->where('application_id',$alist->id)->where('client_id',$request->id)->count();
                 //dd($application_assign_count);
 				?>
 				<tr id="id_<?php echo $alist->id; ?>">

@@ -142,7 +142,7 @@ setTimeout(setFormValues, 200); // Fallback
 
 ## Notes
 
-- The column name `folloup` (not `followup`) is intentional legacy naming, not a bug
+- The column `folloup` was renamed to `is_action` in migration 2026_02_22_160000 (action-centric naming)
 - The `data-noteid` attribute contains the description text (for display), not the ID
 - The `data-taskid` attribute contains the actual note ID
 - TinyMCE is not used in popovers (they're created dynamically), so plain `$().val()` is correct

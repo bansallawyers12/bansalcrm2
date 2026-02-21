@@ -22,9 +22,7 @@ class ClientExportService
     public function exportClient($clientId)
     {
         try {
-            $client = Admin::where('id', $clientId)
-                ->where('role', 7) // Only clients
-                ->first();
+            $client = Admin::where('id', $clientId)->first();
 
             if (!$client) {
                 throw new \Exception('Client not found');

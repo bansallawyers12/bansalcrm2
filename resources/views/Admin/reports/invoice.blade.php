@@ -87,7 +87,7 @@
 										@if(@$totalData !== 0)
 										@foreach (@$lists as $list)
 										<?php
-											$client = \App\Models\Admin::where('role', '=', '7')->where('id', '=', $list->client_id)->first();
+											$client = \App\Models\Admin::where('id', '=', $list->client_id)->first();
 											$productdetail = \App\Models\Product::where('id', $list->product_id)->first();
 											$partnerdetail = \App\Models\Partner::where('id', $list->partner_id)->first();	
 											$partnerdetail = \App\Models\Partner::where('id', $list->partner_id)->first();	

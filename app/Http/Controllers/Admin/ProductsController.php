@@ -227,7 +227,6 @@ class ProductsController extends Controller
 		if($squery != ''){
 			
 			 $partners = \App\Models\Admin::where('is_archived', '=', 0)
-       ->where('role', '=', 7)
        ->where(
            function($query) use ($squery) {
              return $query
@@ -251,7 +250,6 @@ class ProductsController extends Controller
 		if($squery != ''){
 			
 			 $partners = \App\Models\Admin::where('is_archived', '=', 0)
-       ->where('role', '=', 7)
        ->where( 
            function($query) use ($squery) {
              return $query

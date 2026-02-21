@@ -47,7 +47,7 @@ class ClientNoteController extends Controller
     	}
   
 		$obj->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-		$obj->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+		$obj->is_action = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
 		$obj->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 		$saved = $obj->save();
 		if($saved){

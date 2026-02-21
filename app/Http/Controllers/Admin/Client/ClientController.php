@@ -511,7 +511,7 @@ class ClientController extends Controller
 			{
 
 				$id = $this->decodeString($id);
-				if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
+				if(Admin::where('id', '=', $id)->exists())
 				{
 					$fetchedData = Admin::with('office')->find($id);
                   
@@ -588,7 +588,7 @@ class ClientController extends Controller
                 return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Invalid Client ID');
             }
             // Otherwise check admins table (old clients/leads)
-            if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
+            if(Admin::where('id', '=', $id)->exists())
             {
                 $fetchedData = Admin::with('office')->find($id);
                 
@@ -701,7 +701,6 @@ class ClientController extends Controller
                     $obj->created_at = $lead->created_at;
                     $obj->updated_at = $lead->updated_at;
                     
-                    $obj->role = 7; // Set role to 7 like other clients
                     $obj->is_archived = 0;
                     $obj->status = 1; // Clients are active by default
                     $obj->verified = 0; // New leads/clients are not verified yet
@@ -730,7 +729,7 @@ class ClientController extends Controller
                     $obj->save();
 
                     $fetchedData = Admin::find($obj->id);
-                    if($fetchedData->client_id == '' && $fetchedData->role == 7){
+                    if($fetchedData->client_id == ''){
                         $objs	= 	Admin::find($obj->id);
 
                         $first_name = substr(@$lead->first_name, 0, 4);
@@ -803,8 +802,8 @@ class ClientController extends Controller
     }
 
 	public function updateclientstatus(Request $request){
-		if(Admin::where('role', '=', '7')->where('id', $request->id)->exists()){
-			$client = Admin::where('role', '=', '7')->where('id', $request->id)->first();
+		if(Admin::where('id', $request->id)->exists()){
+			$client = Admin::where('id', $request->id)->first();
 
 			$obj = Admin::find($request->id);
 			$saved = $obj->save();
@@ -851,7 +850,6 @@ class ClientController extends Controller
 			try {
 				$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 				$clients = Admin::where('is_archived', '=', 0)
-					->where('role', '=', 7)
 					->where(function($query) use ($squery, $operator) {
 						$query->where('email', $operator, '%'.$squery.'%')
 							->orWhere('first_name', $operator, '%'.$squery.'%')
@@ -890,7 +888,6 @@ class ClientController extends Controller
 		if($squery != ''){
 			$operator = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
 			$clients = Admin::where('is_archived', '=', 0)
-				->where('role', '=', 7)
 				->where(function($query) use ($squery, $operator) {
 					return $query
 						->where('email', $operator, '%'.$squery.'%')
@@ -1025,13 +1022,13 @@ class ClientController extends Controller
      */
     public function checkclientexist(Request $request){
         if($request->type == 'email'){
-            $clientexists = Admin::where('email', $request->vl)->where('role', 7)->exists();
+            $clientexists = Admin::where('email', $request->vl)->exists();
             echo $clientexists ? 1 : 0;
         } elseif($request->type == 'clientid'){
-            $clientexists = Admin::where('client_id', $request->vl)->where('role', 7)->exists();
+            $clientexists = Admin::where('client_id', $request->vl)->exists();
             echo $clientexists ? 1 : 0;
         } else {
-            $clientexists = Admin::where('phone', $request->vl)->where('role', 7)->exists();
+            $clientexists = Admin::where('phone', $request->vl)->exists();
             echo $clientexists ? 1 : 0;
         }
     }
@@ -1043,7 +1040,7 @@ class ClientController extends Controller
         if(isset($id) && !empty($id))
         {
             $id = $this->decodeString($id);
-            if(Admin::where('id', '=', $id)->where('role', '=', '7')->exists())
+            if(Admin::where('id', '=', $id)->exists())
             {
                 $obj = Admin::find($id);
                 $obj->type = $slug;
@@ -1071,9 +1068,7 @@ class ClientController extends Controller
     public function export($id)
     {
         try {
-            $client = Admin::where('id', $id)
-                ->where('role', 7)
-                ->first();
+            $client = Admin::where('id', $id)->first();
 
             if (!$client) {
                 return redirect()->route('clients.index')

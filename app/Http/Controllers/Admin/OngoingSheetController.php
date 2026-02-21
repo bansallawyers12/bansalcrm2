@@ -359,7 +359,6 @@ class OngoingSheetController extends Controller
             ->leftJoin('branches', 'admins.office_id', '=', 'branches.id')
             ->leftJoin('staff as assignee', 'applications.user_id', '=', 'assignee.id')
             ->leftJoin('client_ongoing_references as ongoing', 'ongoing.client_id', '=', 'admins.id')
-            ->where('admins.role', 7)
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
 
@@ -543,7 +542,6 @@ class OngoingSheetController extends Controller
         // Base application query (clients only)
         $appBase = Application::query()
             ->join('admins', 'applications.client_id', '=', 'admins.id')
-            ->where('admins.role', 7)
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
 

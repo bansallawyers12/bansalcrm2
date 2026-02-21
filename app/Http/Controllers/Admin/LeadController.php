@@ -46,7 +46,7 @@ class LeadController extends Controller
 			}*/	
 		//check authorization end
 
-		$baseQuery = Admin::where('role', 7)->where('type', 'lead')->where('converted', 0);
+		$baseQuery = Admin::where('type', 'lead')->where('converted', 0);
 
 		$not_contacted = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 0)->count();
 		$create_porposal = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 1)->count();
@@ -335,7 +335,6 @@ class LeadController extends Controller
 		$adminCols = Schema::getColumnListing('admins');
 		$now = now();
 		$data = [
-			'role' => 7,
 			'type' => 'lead',
 			'remember_token' => null,
 			'lead_id' => null,
@@ -446,7 +445,6 @@ class LeadController extends Controller
 			/*if(!Admin::where('email', $enqdata->email)->exists()){
 				$first_name = substr(@$enqdata->first_name, 0, 4);
 				$obj				= 	new Admin;
-				$obj->role	=	7;
 					$obj->lead_id	=	$id;
 			$obj->first_name	=	@$enqdata->first_name;
 			$obj->last_name	=	@$enqdata->last_name;
@@ -526,7 +524,7 @@ class LeadController extends Controller
 		        	    $objn->type = 'client';
 		        	    // Set required NOT NULL fields for PostgreSQL
 		        	    $objn->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-		        	    $objn->folloup = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
+		        	    $objn->is_action = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
 		        	    $objn->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
 		        	    $objn->save();
 				    }

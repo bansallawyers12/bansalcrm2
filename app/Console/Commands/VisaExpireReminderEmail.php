@@ -60,7 +60,6 @@ class VisaExpireReminderEmail extends Command
     public function handle()
     {  
         $query 	= \App\Models\Admin::select('id','visaexpiry','email','first_name','last_name')
-        ->where('role', 7)
         //->where('is_visa_expire_mail_sent', 2)
         ->whereNull('is_visa_expire_mail_sent')
         ->whereNotNull('visaexpiry')

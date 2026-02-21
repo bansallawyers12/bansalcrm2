@@ -30,9 +30,9 @@ class DashboardService
             $endOfDay = Carbon::today()->endOfDay();
             
             if (Auth::user()->role == 1) {
-                return Note::whereBetween('followup_date', [$startOfDay, $endOfDay])->count();
+                return Note::whereBetween('action_assign_date', [$startOfDay, $endOfDay])->count();
             } else {
-                return Note::whereBetween('followup_date', [$startOfDay, $endOfDay])
+                return Note::whereBetween('action_assign_date', [$startOfDay, $endOfDay])
                     ->where('assigned_to', Auth::user()->id)
                     ->count();
             }
@@ -63,8 +63,8 @@ class DashboardService
             $query = Note::with(['noteUser', 'noteClient', 'assigned_user'])
                 ->where('status', '<>', 1) // Not completed
                 ->whereIn('type', ['client', 'partner'])
-                ->where('folloup', 1) // Active action
-                ->whereNotNull('followup_date');
+                ->where('is_action', 1) // Active action
+                ->whereNotNull('action_assign_date');
 
             // Filter by assigned user (unless super admin - role == 1)
             // Super admin sees all actions (including unassigned)
@@ -77,29 +77,29 @@ class DashboardService
             }
             // For super admin (role == 1), no additional filter - shows all actions
 
-            // Apply date filter based on action date (followup_date column)
+            // Apply date filter based on action date (action_assign_date column)
             // Note: Removed strict date filtering to show all pending actions
             // If you want to filter by date, uncomment the switch statement below
             switch ($dateFilter) {
                 case 'week':
                     $startDate = Carbon::now()->startOfWeek();
                     $endDate = Carbon::now()->endOfWeek();
-                    $query->whereBetween('followup_date', [$startDate, $endDate]);
+                    $query->whereBetween('action_assign_date', [$startDate, $endDate]);
                     break;
                 case 'month':
                     $startDate = Carbon::now()->startOfMonth();
                     $endDate = Carbon::now()->endOfMonth();
-                    $query->whereBetween('followup_date', [$startDate, $endDate]);
+                    $query->whereBetween('action_assign_date', [$startDate, $endDate]);
                     break;
                 case 'today':
                 default:
                     // Show all pending actions regardless of date
                     // This includes overdue, today, and future actions
-                    // No date filter applied - shows all actions with followup_date set
+                    // No date filter applied - shows all actions with action_assign_date set
                     break;
             }
 
-            $actions = $query->orderBy('followup_date', 'ASC')
+            $actions = $query->orderBy('action_assign_date', 'ASC')
                 ->limit(50) // Limit to 50 actions for performance
                 ->get();
 
@@ -115,8 +115,8 @@ class DashboardService
 
             // Format dates and add partner/client name for display
             $actions->transform(function($action) use ($partners) {
-                $action->formatted_due_date = $action->followup_date 
-                    ? Carbon::parse($action->followup_date)->format('d/m/Y h:i A') 
+                $action->formatted_due_date = $action->action_assign_date 
+                    ? Carbon::parse($action->action_assign_date)->format('d/m/Y h:i A') 
                     : 'N/A';
                 
                 // Add user relationship alias for backward compatibility with view
@@ -154,7 +154,7 @@ class DashboardService
             $checkins = CheckinLog::where('status', 0)
                 ->select('id', 'client_id', 'created_at')
                 ->with(['client' => function($q) {
-                    $q->where('role', 7)->select('id', 'first_name', 'last_name');
+                    $q->select('id', 'first_name', 'last_name');
                 }])
                 ->orderBy('created_at', 'ASC')
                 ->limit(20) // Limit to 20 check-ins for performance
@@ -411,7 +411,7 @@ class DashboardService
             $recentDate = Carbon::now()->subDays(30);
             
             $query = ActivitiesLog::with(['client' => function($q) {
-                $q->select('id', 'first_name', 'last_name', 'email', 'phone', 'role');
+                $q->select('id', 'first_name', 'last_name', 'email', 'phone');
             }])
             ->where('task_status', 0) // Only activities, not tasks
             ->whereNotNull('client_id')
@@ -436,7 +436,6 @@ class DashboardService
                 
                 return (object)[
                     'client_id' => $client->id,
-                    'client_role' => $client->role ?? null,
                     'client_name' => trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')),
                     'client_email' => $client->email ?? '',
                     'client_phone' => $client->phone ?? '',
