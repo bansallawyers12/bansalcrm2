@@ -18,7 +18,6 @@ class AdminUserSeeder extends Seeder
             'email' 		=> 'admin@gmail.com',
             'password' 		=> Hash::make('bansal'),
             'phone' 		=> str_replace("-","", '477002454'),
-            'role' 	=> 1,        
         ]);
     }
 }
