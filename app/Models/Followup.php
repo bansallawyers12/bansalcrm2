@@ -22,11 +22,11 @@ class Followup extends Model
         return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
     }
     /**
-     * Lead (when followup.lead_id is set - legacy/migrated leads).
+     * Admin (when followup.lead_id is set - matches admins.lead_id for migrated leads).
      */
-    public function post()
+    public function leadAdmin()
     {
-        return $this->belongsTo('App\Models\Lead', 'lead_id');
+        return $this->belongsTo('App\Models\Admin', 'lead_id', 'lead_id');
     }
 
     /**

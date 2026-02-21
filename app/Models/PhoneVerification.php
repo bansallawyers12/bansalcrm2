@@ -35,9 +35,12 @@ class PhoneVerification extends Model
         return $this->belongsTo(ClientPhone::class, 'client_phone_id');
     }
 
-    public function lead()
+    /**
+     * Admin (when lead_id is set - matches admins.lead_id for migrated leads).
+     */
+    public function leadAdmin()
     {
-        return $this->belongsTo(Lead::class, 'lead_id');
+        return $this->belongsTo(Admin::class, 'lead_id', 'lead_id');
     }
 
     public function client()

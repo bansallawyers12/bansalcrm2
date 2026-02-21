@@ -153,16 +153,14 @@ class PhoneVerificationController extends Controller
     {
         $admin = \App\Models\Admin::where('id', $leadId)->where('type', 'lead')->first()
             ?? \App\Models\Admin::where('lead_id', $leadId)->where('type', 'lead')->first();
-        $lead = $admin ? null : \App\Models\Lead::find($leadId);
-        $entity = $admin ?? $lead;
-        if (!$entity) {
+        if (!$admin) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
         return response()->json([
             'success' => true,
-            'is_verified' => (bool) ($entity->is_verified ?? false),
-            'verified_at' => $entity->verified_at?->toIso8601String(),
-            'needs_verification' => $entity->needsVerification(),
+            'is_verified' => (bool) ($admin->is_verified ?? false),
+            'verified_at' => $admin->verified_at?->toIso8601String(),
+            'needs_verification' => $admin->needsVerification(),
         ]);
     }
 }
