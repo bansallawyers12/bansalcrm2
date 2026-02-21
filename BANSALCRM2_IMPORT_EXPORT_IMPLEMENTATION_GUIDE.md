@@ -34,7 +34,7 @@ use App\Models\ClientTravelInformation;
 use App\Models\ClientCharacter;
 use App\Models\ClientVisaCountry;
 use App\Models\ActivitiesLog;
-use App\Models\TestScore; // bansalcrm2 has TestScore table
+use App\Models\ClientTestScore; // bansalcrm2 uses client_testscore table
 use Illuminate\Support\Facades\Log;
 
 class ClientExportService
@@ -68,7 +68,7 @@ class ClientExportService
                 'travel' => $this->getClientTravel($clientId),
                 'visa_countries' => $this->getClientVisaCountries($clientId),
                 'character' => $this->getClientCharacter($clientId),
-                'test_scores' => $this->getClientTestScores($clientId), // bansalcrm2 has TestScore table
+                'test_scores' => $this->getClientTestScores($clientId), // client_testscore table
                 'activities' => $this->getClientActivities($clientId),
             ];
 
@@ -310,38 +310,26 @@ class ClientExportService
     }
 
     /**
-     * Get client test scores (bansalcrm2 specific)
+     * Get client test scores (client_testscore table)
      */
     private function getClientTestScores($clientId)
     {
-        if (!class_exists(\App\Models\TestScore::class)) {
+        if (!class_exists(\App\Models\ClientTestScore::class)) {
             return [];
         }
 
-        return \App\Models\TestScore::where('client_id', $clientId)
-            ->where('type', 'client')
+        return \App\Models\ClientTestScore::where('client_id', $clientId)
+            ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($test) {
                 return [
-                    'type' => $test->type ?? null,
-                    'toefl_Listening' => $test->toefl_Listening ?? null,
-                    'toefl_Reading' => $test->toefl_Reading ?? null,
-                    'toefl_Writing' => $test->toefl_Writing ?? null,
-                    'toefl_Speaking' => $test->toefl_Speaking ?? null,
-                    'toefl_Date' => $test->toefl_Date ?? null,
-                    'ilets_Listening' => $test->ilets_Listening ?? null,
-                    'ilets_Reading' => $test->ilets_Reading ?? null,
-                    'ilets_Writing' => $test->ilets_Writing ?? null,
-                    'ilets_Speaking' => $test->ilets_Speaking ?? null,
-                    'ilets_Date' => $test->ilets_Date ?? null,
-                    'pte_Listening' => $test->pte_Listening ?? null,
-                    'pte_Reading' => $test->pte_Reading ?? null,
-                    'pte_Writing' => $test->pte_Writing ?? null,
-                    'pte_Speaking' => $test->pte_Speaking ?? null,
-                    'pte_Date' => $test->pte_Date ?? null,
-                    'score_1' => $test->score_1 ?? null,
-                    'score_2' => $test->score_2 ?? null,
-                    'score_3' => $test->score_3 ?? null,
+                    'test_type' => $test->test_type ?? null,
+                    'listening' => $test->listening ?? null,
+                    'reading' => $test->reading ?? null,
+                    'writing' => $test->writing ?? null,
+                    'speaking' => $test->speaking ?? null,
+                    'overall_score' => $test->overall_score ?? null,
+                    'test_date' => $test->test_date ? $test->test_date->format('Y-m-d') : null,
                 ];
             })
             ->toArray();
@@ -392,7 +380,7 @@ use App\Models\ClientTravelInformation;
 use App\Models\ClientCharacter;
 use App\Models\ClientVisaCountry;
 use App\Models\ActivitiesLog;
-use App\Models\TestScore; // bansalcrm2 has TestScore table
+use App\Models\ClientTestScore; // bansalcrm2 uses client_testscore table
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -623,31 +611,20 @@ class ClientImportService
                 }
             }
 
-            // Import test scores (bansalcrm2 specific)
-            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\TestScore::class)) {
+            // Import test scores (client_testscore table)
+            if (isset($importData['test_scores']) && is_array($importData['test_scores']) && class_exists(\App\Models\ClientTestScore::class)) {
                 foreach ($importData['test_scores'] as $testData) {
-                    \App\Models\TestScore::create([
+                    \App\Models\ClientTestScore::create([
                         'client_id' => $newClientId,
-                        'user_id' => null,
-                        'type' => 'client',
-                        'toefl_Listening' => $testData['toefl_Listening'] ?? null,
-                        'toefl_Reading' => $testData['toefl_Reading'] ?? null,
-                        'toefl_Writing' => $testData['toefl_Writing'] ?? null,
-                        'toefl_Speaking' => $testData['toefl_Speaking'] ?? null,
-                        'toefl_Date' => $this->parseDate($testData['toefl_Date'] ?? null),
-                        'ilets_Listening' => $testData['ilets_Listening'] ?? null,
-                        'ilets_Reading' => $testData['ilets_Reading'] ?? null,
-                        'ilets_Writing' => $testData['ilets_Writing'] ?? null,
-                        'ilets_Speaking' => $testData['ilets_Speaking'] ?? null,
-                        'ilets_Date' => $this->parseDate($testData['ilets_Date'] ?? null),
-                        'pte_Listening' => $testData['pte_Listening'] ?? null,
-                        'pte_Reading' => $testData['pte_Reading'] ?? null,
-                        'pte_Writing' => $testData['pte_Writing'] ?? null,
-                        'pte_Speaking' => $testData['pte_Speaking'] ?? null,
-                        'pte_Date' => $this->parseDate($testData['pte_Date'] ?? null),
-                        'score_1' => $testData['score_1'] ?? null,
-                        'score_2' => $testData['score_2'] ?? null,
-                        'score_3' => $testData['score_3'] ?? null,
+                        'admin_id' => null,
+                        'test_type' => $testData['test_type'] ?? null,
+                        'listening' => $testData['listening'] ?? null,
+                        'reading' => $testData['reading'] ?? null,
+                        'writing' => $testData['writing'] ?? null,
+                        'speaking' => $testData['speaking'] ?? null,
+                        'overall_score' => $testData['overall_score'] ?? null,
+                        'test_date' => $this->parseDate($testData['test_date'] ?? null),
+                        'relevant_test' => 1,
                     ]);
                 }
             }
@@ -1034,7 +1011,7 @@ $('#import_file').on('change', function() {
    - `client_country_code` instead of `country_code`
    - `client_phone` instead of `phone`
 
-2. **TestScore Table**: bansalcrm2 has a `TestScore` table. Export/import test scores if needed.
+2. **ClientTestScore Table**: bansalcrm2 uses `client_testscore` table (ClientTestScore model). Export/import test scores if needed.
 
 3. **Client ID Generation**: Check how bansalcrm2 generates `client_id` and adjust `generateClientId()` method accordingly.
 
@@ -1065,4 +1042,4 @@ You need to create:
 5. ✅ Export button in client list Action dropdown
 6. ✅ Import button and modal in client list page
 
-The implementation should mirror migrationmanager2 but account for bansalcrm2-specific differences (ClientPhone model, TestScore table, etc.).
+The implementation should mirror migrationmanager2 but account for bansalcrm2-specific differences (ClientPhone model, ClientTestScore/client_testscore table, etc.).

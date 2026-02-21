@@ -7,7 +7,6 @@ use App\Models\Admin;
 use App\Models\ClientPhone; // bansalcrm2 uses ClientPhone
 // Removed: ClientEmail, ClientPassportInformation, ClientTravelInformation, ClientCharacter, ClientVisaCountry - tables don't exist
 use App\Models\ActivitiesLog;
-use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use App\Models\Country;
 use App\Models\VisaType;

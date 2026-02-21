@@ -19,7 +19,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // List of all 24 tables with sequence issues (from check_sequences.php scan)
+        // List of 23 tables with sequence issues (test_scores removed - table dropped)
         $tables = [
             'admins',                           // 223 records behind
             'agents',                           // 1 record behind
@@ -42,12 +42,11 @@ return new class extends Migration
             'partners',                         // 7 records behind
             'products',                         // 58 records behind
             'tags',                             // 1 record behind
-            'test_scores',                      // 54 records behind
             'user_logs',                        // 386 records behind
             'verified_numbers',                 // 2 records behind
         ];
 
-        echo "\n=== SYNCING SEQUENCES FOR 24 TABLES ===\n\n";
+        echo "\n=== SYNCING SEQUENCES FOR 23 TABLES ===\n\n";
 
         foreach ($tables as $table) {
             $sequenceName = $table . '_id_seq';
@@ -76,7 +75,7 @@ return new class extends Migration
         }
 
         echo "\n=== SEQUENCE SYNC COMPLETE ===\n";
-        echo "All 24 table sequences have been synced with their data.\n";
+        echo "All 23 table sequences have been synced with their data.\n";
         echo "Next insert operations will use correct IDs.\n\n";
     }
 

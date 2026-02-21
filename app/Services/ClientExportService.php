@@ -6,7 +6,6 @@ use App\Models\Admin;
 // use App\Models\ClientAddress; // Removed: client_addresses table doesn't exist in bansalcrm2 - addresses are stored in admins table
 use App\Models\ClientPhone; // Note: bansalcrm2 uses ClientPhone instead of ClientContact
 use App\Models\ActivitiesLog;
-use App\Models\TestScore; // bansalcrm2 has TestScore table
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use App\Models\VerifiedNumber; // bansalcrm2 has VerifiedNumber table for phone verification
 use Illuminate\Support\Facades\Log;
@@ -43,7 +42,7 @@ class ClientExportService
                 'travel' => $this->getClientTravel($clientId),
                 'visa_countries' => $this->getClientVisaCountries($clientId),
                 'character' => $this->getClientCharacter($clientId),
-                'test_scores' => $this->getClientTestScores($clientId), // bansalcrm2 has TestScore table
+                'test_scores' => $this->getClientTestScores($clientId), // client_testscore table
                 'services' => $this->getClientServices($clientId), // bansalcrm2 has client_service_takens table
                 'activities' => $this->getClientActivities($clientId),
             ];
