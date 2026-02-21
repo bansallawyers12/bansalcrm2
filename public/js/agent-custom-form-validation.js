@@ -1600,6 +1600,7 @@ $('#add_application').modal('hide');
 				});
 									if ($('#send_checklist_after').is(':checked') && obj.application_id && $('#emailmodal').length) {
 										$('#sendmail_application_id').val(obj.application_id);
+										$('#sendmail_send_context').val('checklist');
 										var clientId = obj.client_id || client_id;
 										var clientEmail = obj.client_email || '';
 										var clientName = obj.client_name || 'Client';
