@@ -71,17 +71,6 @@ jQuery(document).ready(function($){
         });
     });
 
-    // Add contact
-    $(document).delegate('.add_clientcontact','click', function(){
-        $('#add_clientcontact #appliationModalLabel').html('Add Contact');
-        $('#add_clientcontact input[name="contact_id"]').val('');
-        $('#add_clientcontact select[name="country_code"]').val(PageConfig.defaultCountryCode || '');
-        $('#add_clientcontact #primary_contact').prop('checked', false);
-        $('#add_clientcontact .allinputfields input').val('');
-        $('#add_clientcontact .allinputfields select').val('');
-        $('#add_clientcontact').modal('show');
-    });
-
     // Add branch
     $(document).delegate('.openbranchnew','click', function(){
         $('#add_clientbranch #appliationModalLabel').html('Add new branch');
@@ -152,15 +141,6 @@ jQuery(document).ready(function($){
                     $('#note_id_'+notid).remove();
                     if(delhref == 'deletedocs'){
                         $('.documnetlist #id_'+notid).remove();
-                    }else if(delhref == 'deletecontact'){
-                        $.ajax({
-                            url: App.getUrl('getContacts'),
-                            type:'GET',
-                            data:{clientid: partnerId},
-                            success: function(responses){
-                                $('.contact_term_list').html(responses);
-                            }
-                        });
                     }else if(delhref == 'deletebranch'){
                         $.ajax({
                             url: App.getUrl('getBranches'),
@@ -392,38 +372,9 @@ jQuery(document).ready(function($){
         });
     });
 
-    $(document).delegate('.opencontactform', 'click', function(){
-        $('#add_clientcontact').modal('show');
-        $('#add_clientcontact #appliationModalLabel').html('Edit Contact');
-        var v = $(this).attr('data-id');
-        $('#add_clientcontact input[name="contact_id"]').val(v);
-        $('.popuploader').show();
-        $.ajax({
-            url: App.getUrl('getcontactdetail'),
-            type:'GET',
-            datatype:'json',
-            data:{note_id:v},
-            success:function(response){
-                $('.popuploader').hide();
-                var res = JSON.parse(response);
-                if(res.status){
-                    $('#add_clientcontact input[name="name"]').val(res.data.name);
-                    $('#add_clientcontact input[name="email"]').val(res.data.contact_email);
-                    $('#add_clientcontact input[name="phone"]').val(res.data.contact_phone);
-                    $('#add_clientcontact input[name="fax"]').val(res.data.fax);
-                    $('#add_clientcontact select[name="country_code"]').val(res.data.countrycode || '');
-                    $('#add_clientcontact input[name="department"]').val(res.data.department);
-                    $('#add_clientcontact input[name="position"]').val(res.data.position);
-                    $('#add_clientcontact #branch').val(res.data.branch);
-                    $('#add_clientcontact #primary_contact').prop('checked', res.data.primary_contact == 1);
-                }
-            }
-        });
-    });
-
     $(document).delegate('.openbranchform', 'click', function(){
         $('#add_clientbranch').modal('show');
-        $('#add_clientbranch #appliationModalLabel').html('Edit Contact');
+        $('#add_clientbranch #appliationModalLabel').html('Edit Branch');
         var v = $(this).attr('data-id');
         $('#add_clientbranch input[name="branch_id"]').val(v);
         $('.popuploader').show();
