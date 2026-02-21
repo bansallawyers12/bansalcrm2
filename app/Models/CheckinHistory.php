@@ -25,10 +25,11 @@ class CheckinHistory extends Model
     }
 
     /**
-     * Get the user who created this history entry
+     * Get the user who created this history entry.
+     * Auth uses Staff model, so created_by references staff.id.
      */
     public function creator()
     {
-        return $this->belongsTo('App\Models\Admin', 'created_by');
+        return $this->belongsTo('App\Models\Staff', 'created_by');
     }
 }
