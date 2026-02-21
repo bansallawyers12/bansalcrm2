@@ -11,7 +11,7 @@ use Illuminate\Mail\Message;
 class EmailService
 {
     /** Zoho SMTP settings - both domains are hosted on Zoho */
-    protected const SMTP_HOST = 'smtp.zoho.com';
+    protected const SMTP_HOST = 'smtp.zoho.com.au';
     protected const SMTP_PORT = 587;
     protected const SMTP_ENCRYPTION = 'tls';
 
