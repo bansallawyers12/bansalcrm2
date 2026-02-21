@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 
 use App\Models\Admin;
-use App\Models\Lead;
 use App\Models\FollowupType;
 use App\Models\Followup;
  
@@ -421,120 +420,23 @@ class LeadController extends Controller
 	}
 	public function convertoClient(Request $request, $id = null)
 	{ 
-		$requestData 		= 	$request->all();
-		$enqdatas = Lead::query()->paginate(500);
-	//	if(Lead::where('id', $id)->exists()){
-		foreach($enqdatas as $lead){
-		    $id = $lead->id;
-			$enqdata = Admin::where('lead_id', $id)->first();
-			if($enqdata){
-			$obj = Admin::find($enqdata->id);
-			$obj->created_at = $lead->created_at;
-			$obj->updated_at = $lead->updated_at;
-			$obj->save();
+		$requestData = $request->all();
+		// Use Admin model only: iterate migrated leads (admins with lead_id set)
+		$admins = Admin::where('type', 'lead')->whereNotNull('lead_id')->paginate(500);
+		foreach ($admins as $admin) {
+			$leadId = $admin->lead_id;
+			// Sync timestamps from leads table if it exists (using DB, not Lead model)
+			if (Schema::hasTable('leads')) {
+				$leadRow = DB::table('leads')->where('id', $leadId)->first();
+				if ($leadRow) {
+					Admin::where('id', $admin->id)->update([
+						'created_at' => $leadRow->created_at,
+						'updated_at' => $leadRow->updated_at,
+					]);
+				}
 			}
-			/*if(!Admin::where('email', $enqdata->email)->exists()){
-				$first_name = substr(@$enqdata->first_name, 0, 4);
-				$obj				= 	new Admin;
-					$obj->lead_id	=	$id;
-			$obj->first_name	=	@$enqdata->first_name;
-			$obj->last_name	=	@$enqdata->last_name;
-			$obj->age	=	@$enqdata->first_name;
-			$obj->dob	=		@$enqdata->dob;
-			$obj->gender = @$enqdata->gender;
-			$obj->marital_status	=	@$enqdata->marital_status;
-			$obj->contact_type	=	@$enqdata->contact_type;
-			$obj->email_type	=	@$enqdata->email_type;
-			$obj->service	=	@$enqdata->service;
-			$obj->related_files	=	@$enqdata->related_files;
-			$obj->email	=	@$enqdata->email;
-			$obj->phone	=	@$enqdata->phone;
-			$obj->address	=	@$enqdata->address;
-			$obj->city	=	@$enqdata->city;
-			$obj->state	=	@$enqdata->state;
-			$obj->zip	=	@$enqdata->zip;
-			$obj->country	=	@$enqdata->country;
-			// preferredIntake column removed
-			$obj->country_passport			=	@$enqdata->country_passport;
-			$obj->passport_number			=	@$enqdata->passport_no;
-			$obj->visa_type			=	@$enqdata->visa_type;
-			$obj->visaExpiry			=	@$enqdata->visa_expiry_date;
-			//$obj->applications	=@$enqdata->first_name;
-			$obj->assignee	=	@$enqdata->assign_to;
-			
-			$obj->nomi_occupation	=@$enqdata->nomi_occupation;
-			$obj->skill_assessment	=@$enqdata->skill_assessment;
-			$obj->high_quali_aus	=@$enqdata->high_quali_aus;
-			$obj->high_quali_overseas	=	@$enqdata->high_quali_overseas;
-			$obj->relevant_work_exp_aus	=	@$enqdata->relevant_work_exp_aus;
-			$obj->relevant_work_exp_over	=	@$enqdata->relevant_work_exp_over;
-			$obj->naati_py	=	@$enqdata->naati_py;
-			$obj->married_partner	=@$enqdata->married_partner;
-			$obj->total_points	=@$enqdata->total_points;
-			$obj->source	=	@$enqdata->lead_source;
-			$obj->comments_note	=	@$enqdata->comments_note;
-			$obj->type	=	'lead';
-			// profile_img column removed
-			
-				$saved				=	$obj->save(); 
-			$objs							= 	Admin::find($obj->id);
-		    	$objs->client_id	=	strtoupper($first_name).date('ym').$obj->id;
-		    	$saveds				=	$objs->save();  	
-				
-				if(!$saved)
-				{
-					$response['status'] 	= 	false;
-					$response['message']	=	'Please try again';
-					return redirect()->route('leads.index')->with('error', 'Please try again');
-				}
-				else
-				{
-				    $o = Lead::find($id);
-				    $o->converted = 1;
-				    $o->converted_date = date('Y-m-d');
-				    $o->save();
-				    $Followups = Followup::where('lead_id', $id)->get();
-				    foreach($Followups as $Followup){
-	                	$Followupstype = FollowupType::where('type', $Followup->followup_type)->first();
-	                	$r = '';
-	                	if(@$Followup->subject != ''){
-	                	    $r .= @$Followup->subject.'<br>';
-	                	}
-	                	if(@$Followup->followup_date != ''){
-	                	    $r .= @$Followup->followup_date.'<br>';
-	                	}
-	                	if(@$Followup->note != ''){
-	                	    $r .= @$Followup->note;
-	                	}
-				        $objn = new \App\Models\Note;
-				        $objn->client_id = $obj->id;
-		            	$objn->user_id = Auth::user()->id;
-		        	    $objn->title = @$Followupstype->name;
-		        	    $objn->description = $r;
-		        	    $objn->mail_id = 0;
-		        	    $objn->type = 'client';
-		        	    // Set required NOT NULL fields for PostgreSQL
-		        	    $objn->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-		        	    $objn->is_action = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
-		        	    $objn->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
-		        	    $objn->save();
-				    }
-			
-    				$enq = new Followup;
-    				$enq->lead_id = $id;
-    				$enq->user_id = @Auth::user()->id;
-    				$enq->note = 'Lead converted to client';
-    				$enq->followup_type = 'converted';
-    				$enq->save(); 
-					$response['status'] 	= 	true;
-					$response['message']	=	'Client saved successfully';
-				//	return Redirect::to('/admin/leads')->with('success', 'Client saved successfully');
-				}
-			}*/
-			echo $id.'<br>';
+				echo $leadId . '<br>';
 		}
-		//	echo json_encode($response);
-		//}
 	}
 	
 	public function leaddeleteNotes(Request $request, $id = Null){

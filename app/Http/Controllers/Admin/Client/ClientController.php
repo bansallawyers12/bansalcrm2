@@ -18,6 +18,7 @@ use App\Models\ClientPhone;
 use App\Models\ClientTestScore;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
@@ -677,91 +678,81 @@ class ClientController extends Controller
                     compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
                 );
             }
-            // Fallback: legacy lead in leads table (unmigrated)
-            if(\App\Models\Lead::where('id', '=', $id)->exists())
-            {
-                $lead = \App\Models\Lead::with('staffuser')->find($id);//dd($lead); die;
-                //Check Lead is alreay exist in admins table or not 
+            // Fallback: legacy lead in leads table (unmigrated) - use DB, not Lead model
+            if (Schema::hasTable('leads')) {
                 $enqdata = Admin::where('lead_id', $id)->first();
-                if($enqdata){
-                    $fetchedData  = Admin::find($enqdata->id);
+                if ($enqdata) {
+                    $fetchedData = Admin::find($enqdata->id);
+                    $encodeId = base64_encode(convert_uuencode($fetchedData->id));
                 } else {
-                    //Insert new lead in admins table
-                    $obj = new Admin();
-                    $obj->lead_id = $lead->id;
-                    $obj->first_name = $lead->first_name;
-                    $obj->last_name = $lead->last_name;
-                    $obj->email = $lead->email;
-                    $obj->phone = $lead->phone;
-                    $obj->country_code = $lead->country_code;
-                    $obj->gender = $lead->gender;
-                    $obj->dob = $lead->dob;
-                    $obj->visa_type = $lead->visa_type ?? null;
-                    //$obj->visa_expiry_date = $lead->visa_expiry_date;
-                    $obj->type = 'lead'; // Mark as lead type
-                    $obj->created_at = $lead->created_at;
-                    $obj->updated_at = $lead->updated_at;
-                    
-                    $obj->is_archived = 0;
-                    $obj->status = 1; // Clients are active by default
-                    $obj->verified = 0; // New leads/clients are not verified yet
-                    $obj->show_dashboard_per = 0; // Leads/clients don't have dashboard access
-                    $obj->office_id = $lead->staffuser->office_id ?? null;
-                    $obj->marital_status = $lead->marital_status ?? null;
-                    //$obj->passport_no = $lead->passport_no ?? null;
-                    $obj->address = $lead->address ?? null;
-                    $obj->city = $lead->city ?? null;
-                    $obj->state = $lead->state ?? null;
-                    $obj->zip = $lead->zip ?? null;
-                    $obj->country = $lead->country ?? null;
-                    $obj->nomi_occupation = $lead->nomi_occupation ?? null;
-                    
-                    // Add relationship for assigned user
-                    if($lead->assign_to) {
-                        $obj->setRelation('staffuser', $lead->staffuser);
-                    }
-                    
-                    // Calculate age if DOB exists
-                    if(!empty($lead->dob)){
-                        $obj->age = $this->calculateAge($lead->dob);
-                    }
-                    // Set required NOT NULL fields for PostgreSQL
-                    $obj->password = Hash::make('LEAD_PLACEHOLDER'); // Required NOT NULL - placeholder for leads
-                    $obj->save();
+                    $leadRow = DB::table('leads')->where('id', $id)->first();
+                    if ($leadRow) {
+                        $staff = \App\Models\Staff::find($leadRow->assign_to ?? null);
+                        $obj = new Admin();
+                        $obj->lead_id = $leadRow->id;
+                        $obj->first_name = $leadRow->first_name ?? null;
+                        $obj->last_name = $leadRow->last_name ?? null;
+                        $obj->email = $leadRow->email ?? null;
+                        $obj->phone = $leadRow->phone ?? null;
+                        $obj->country_code = $leadRow->country_code ?? null;
+                        $obj->gender = $leadRow->gender ?? null;
+                        $obj->dob = $leadRow->dob ?? null;
+                        $obj->visa_type = $leadRow->visa_type ?? null;
+                        $obj->type = 'lead';
+                        $obj->created_at = $leadRow->created_at ?? now();
+                        $obj->updated_at = $leadRow->updated_at ?? now();
+                        $obj->is_archived = 0;
+                        $obj->status = 1;
+                        $obj->verified = 0;
+                        $obj->show_dashboard_per = 0;
+                        $obj->office_id = $staff ? $staff->office_id : null;
+                        $obj->marital_status = $leadRow->marital_status ?? null;
+                        $obj->address = $leadRow->address ?? null;
+                        $obj->city = $leadRow->city ?? null;
+                        $obj->state = $leadRow->state ?? null;
+                        $obj->zip = $leadRow->zip ?? null;
+                        $obj->country = $leadRow->country ?? null;
+                        $obj->nomi_occupation = $leadRow->nomi_occupation ?? null;
+                        if (!empty($leadRow->dob)) {
+                            $obj->age = $this->calculateAge($leadRow->dob);
+                        }
+                        $obj->password = Hash::make('LEAD_PLACEHOLDER');
+                        $obj->assignee = $leadRow->assign_to ?? null;
+                        $obj->save();
 
-                    $fetchedData = Admin::find($obj->id);
-                    if($fetchedData->client_id == ''){
-                        $objs	= 	Admin::find($obj->id);
-
-                        $first_name = substr(@$lead->first_name, 0, 4);
-                        $objs->client_id	=	strtoupper($first_name).date('ym').$objs->id;
-                        $saveds				=	$objs->save();
-                        
-                        // Refresh $fetchedData after client_id is saved to ensure it's available on first load
                         $fetchedData = Admin::find($obj->id);
+                        if (empty($fetchedData->client_id)) {
+                            $first_name = substr($leadRow->first_name ?? 'LEAD', 0, 4);
+                            Admin::where('id', $obj->id)->update([
+                                'client_id' => strtoupper(preg_replace('/[^A-Za-z]/', '', $first_name) ?: 'LEAD') . date('ym') . $obj->id,
+                            ]);
+                            $fetchedData = Admin::find($obj->id);
+                        }
+                        if ($staff) {
+                            $fetchedData->setRelation('staffuser', $staff);
+                        }
+                        $encodeId = base64_encode(convert_uuencode($fetchedData->id));
                     }
                 }
-                 //Show alert box is entry is updated before 1 month ago
-                 if ($fetchedData && $fetchedData->updated_at) {
-                    $updatedAt = Carbon::parse($fetchedData->updated_at);
-                    $fourWeeksAgo = Carbon::now()->subWeeks(4);
-                    if ($updatedAt->lt($fourWeeksAgo)) {
-                        $showAlert = true;
+                if (!empty($fetchedData)) {
+                    if ($fetchedData->updated_at) {
+                        $updatedAt = Carbon::parse($fetchedData->updated_at);
+                        $fourWeeksAgo = Carbon::now()->subWeeks(4);
+                        if ($updatedAt->lt($fourWeeksAgo)) {
+                            $showAlert = true;
+                        }
                     }
+                    $clientApplications = Application::where('client_id', $fetchedData->id)
+                        ->with(['product', 'partner'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    return view(
+                        $this->getClientViewPath('clients.detail'),
+                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
+                    );
                 }
-                $clientApplications = Application::where('client_id', $fetchedData->id)
-                    ->with(['product', 'partner'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-                return view(
-                    $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
-                );
             }
-            else
-            {
-                return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
-            }
+            return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
         }
         else
         {
