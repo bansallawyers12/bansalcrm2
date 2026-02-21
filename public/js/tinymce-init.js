@@ -65,7 +65,7 @@
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                'insertdatetime', 'media', 'table', 'code', 'wordcount'
             ],
             toolbar: 'bold italic underline strikethrough | bullist numlist | link image | removeformat',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
@@ -97,14 +97,14 @@
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
+                'insertdatetime', 'media', 'table', 'code', 'wordcount',
                 'emoticons', 'directionality', 'pagebreak', 'nonbreaking', 'save'
             ],
             toolbar: 'undo redo | formatselect | ' +
                 'bold italic underline strikethrough | forecolor backcolor | ' +
                 'alignleft aligncenter alignright alignjustify | ' +
                 'bullist numlist | outdent indent | ' +
-                'removeformat | link image media table | code preview fullscreen | help',
+                'removeformat | link image media table | code preview fullscreen',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,
@@ -126,14 +126,14 @@
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
+                'insertdatetime', 'media', 'table', 'code', 'wordcount',
                 'emoticons', 'directionality', 'pagebreak', 'nonbreaking', 'save'
             ],
             toolbar: 'undo redo | formatselect | ' +
                 'bold italic underline strikethrough | forecolor backcolor | ' +
                 'alignleft aligncenter alignright alignjustify | ' +
                 'bullist numlist | outdent indent | ' +
-                'removeformat | link image media table | code preview fullscreen | help',
+                'removeformat | link image media table | code preview fullscreen',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             promotion: false,

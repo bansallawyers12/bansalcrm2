@@ -19,9 +19,14 @@ return new class extends Migration
             return;
         }
 
-        Schema::table('staff', function (Blueprint $table) {
-            $table->dropForeign(['archived_by']);
-        });
+        $driver = Schema::getConnection()->getDriverName();
+        if ($driver === 'pgsql') {
+            DB::statement('ALTER TABLE staff DROP CONSTRAINT IF EXISTS staff_archived_by_foreign');
+        } elseif (Schema::hasColumn('staff', 'archived_by')) {
+            Schema::table('staff', function (Blueprint $table) {
+                $table->dropForeign(['archived_by']);
+            });
+        }
 
         Schema::table('staff', function (Blueprint $table) {
             $columnsToDrop = ['staff_id', 'is_archived', 'archived_by', 'archived_on'];
@@ -31,7 +36,6 @@ return new class extends Migration
             }
         });
 
-        $driver = Schema::getConnection()->getDriverName();
         if ($driver === 'mysql') {
             Schema::table('staff', function (Blueprint $table) {
                 $table->dropForeign(['role']);
