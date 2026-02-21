@@ -405,9 +405,12 @@ class OngoingSheetController extends Controller
             $query->where('applications.user_id', $request->input('assignee'));
         }
 
-        // Current stage filter
+        // Current stage filter (case-insensitive to handle config vs DB casing differences)
         if ($request->filled('current_stage')) {
-            $query->where('applications.stage', $request->input('current_stage'));
+            $stage = trim((string) $request->input('current_stage'));
+            if ($stage !== '') {
+                $query->whereRaw('LOWER(TRIM(applications.stage)) = ?', [strtolower($stage)]);
+            }
         }
 
         // Visa expiry date range
