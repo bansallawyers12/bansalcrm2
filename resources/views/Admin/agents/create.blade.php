@@ -82,24 +82,7 @@
 										</div>
 										<div class="accordion-body collapse show" id="personal_details" data-parent="#accordion">
 											<div class="row"> 
-												<div class="col-12 col-md-3 col-lg-3">
-													<div class="form-group">
-														<div class="profile_upload">
-															<div class="upload_content">
-															<img style="width:100px;height:100px;" id="output"/> 
-																<i class="fa fa-camera if_image"></i>
-																<span class="if_image">Upload Profile Image</span>
-															</div>
-															<input onchange="loadFile(event)" type="file" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
-														</div>	
-														@if ($errors->has('profile_img'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('profile_img') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
-												<div class="col-12 col-md-9 col-lg-9">
+												<div class="col-12 col-md-12 col-lg-12">
 													<div class="row">
 														<div class="col-12 col-md-6 col-lg-6 is_individual">
 															<div class="form-group"> 

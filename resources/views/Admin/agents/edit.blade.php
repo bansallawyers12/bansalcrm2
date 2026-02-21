@@ -85,32 +85,7 @@
 								</div>
 								<div class="accordion-body collapse show" id="personal_details" data-parent="#accordion">
 									<div class="row"> 
-										<div class="col-12 col-md-3 col-lg-3">
-											<div class="form-group">
-												<input type="hidden" id="old_profile_img" name="old_profile_img" value="{{@$fetchedData->profile_img}}" />
-												<div class="profile_upload">
-													<div class="upload_content">
-														
-														<img id="output"/>
-															@if(@$fetchedData->profile_img != '')
-																<img  src="{{asset('img/profile_imgs')}}/{{@$fetchedData->profile_img}}" class="img-avatar"/>
-															@else
-																<i class="fa fa-camera"></i>
-																<span>Upload Profile Image</span>
-															@endif
-														
-													<input type="file" onchange="loadFile(event)" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
-												</div>	
-												
-												@if ($errors->has('profile_img'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('profile_img') }}</strong>
-													</span> 
-												@endif
-											</div>
-										</div>
-										</div>
-										<div class="col-12 col-md-9 col-lg-9">
+										<div class="col-12 col-md-12 col-lg-12">
 											<div class="row">
 												<div class="col-12 col-md-6 col-lg-6 is_individual">
 													<div class="form-group"> 
