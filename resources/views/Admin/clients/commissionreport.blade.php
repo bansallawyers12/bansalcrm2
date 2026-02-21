@@ -71,7 +71,6 @@
                                                     <th>Fee Reported by College</th>
                                                     <th>Total Bonus</th>
                                                     <th>Bonus Pending</th>
-                                                  	<th>Bonus Paid</th>
                                                     <!--<th>Commission as per anticipated fee</th>-->
                                                     <th>Commission as per Fee reported</th>
                                                     <!--<th>Commission payable as per anticipated fee</th>-->
@@ -183,7 +182,6 @@ $(function () {
             {sWidth: '130px',data: 'fee_reported_by_college', name: 'fee_reported_by_college'},
             {sWidth: '130px',data: 'bonus_amount', name: 'bonus_amount'},
             {sWidth: '130px',data: 'bonus_pending_amount', name: 'bonus_pending_amount'},
-            {sWidth: '130px',data: 'bonus_paid', name: 'bonus_paid'},
             //{sWidth: '130px',data: 'commission_as_per_anticipated_fee', name: 'commission_as_per_anticipated_fee'},
             {sWidth: '130px',data: 'commission_as_per_fee_reported', name: 'commission_as_per_fee_reported'},
             //{sWidth: '130px',data: 'commission_payable_as_per_anticipated_fee', name: 'commission_payable_as_per_anticipated_fee'},
