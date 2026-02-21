@@ -31,7 +31,7 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 		<div class="application_btns">
 			<a target="_blank" href="{{URL::to('/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fa fa-print"></i></a>
           
-			<a style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger discon_application ifdiscont"><i class="fa fa-times"></i> Discontinue</a>
+			<a style="<?php if($fetchData->status == 2 || $fetchData->status == 1){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger discon_application ifdiscont"><i class="fa fa-times"></i> Discontinue</a>
 
             <a style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger refund_application ifdiscont"><i class="fa fa-undo"></i> Refund</a>
 

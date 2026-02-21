@@ -1521,12 +1521,12 @@ function customValidate(formName, savetype = '')
                                     $('#refund_application').modal('hide');
                                     if(obj.status){
                                         $('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
-                                        $('.ifdiscont').hide();
+                                        $('.refund_application').hide();
                                         $('.backstage').hide();
                                         $('.revertapp').hide();
                                         $('.completestage').hide();
                                         $('.nextstage').hide();
-                                        $('.revertapp').hide();
+                                        $('.discon_application').show();
                                         $('.applicationstatus').html('Refund');
                                         $('#refund_note').css('display','block');
                                         $('#refund_note_text').html(obj.refund_note);
