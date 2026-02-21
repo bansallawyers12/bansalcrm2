@@ -249,7 +249,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
 	Route::post('/followup/update', [FollowupController::class, 'followupupdate']);
-	Route::get('/leads/convert', [LeadController::class, 'convertoClient']);
+	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']);
 	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
 		//Invoices Start    
 		

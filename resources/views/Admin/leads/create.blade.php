@@ -429,12 +429,12 @@
 													])
 												</div>
 												{!! Form::text('phone', old('phone'), array('class' => 'form-control tel_input contactno_unique', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter phone number', 'id'=>'checkphone' ))  !!}
-												@if ($errors->has('phone'))
-													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('phone') }}</strong>
-													</span> 
-												@endif
 											</div>
+											@if ($errors->has('phone'))
+												<span class="custom-error" role="alert">
+													<strong>{{ @$errors->first('phone') }}</strong>
+												</span> 
+											@endif
 										</div>
 									</div>
 

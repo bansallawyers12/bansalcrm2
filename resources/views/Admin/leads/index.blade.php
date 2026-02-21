@@ -108,27 +108,33 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 									<tbody class="tdata">	
 										@if(@$totalData !== 0)
 										@foreach (@$lists as $list)	
-										<?php $followpe = \App\Models\Followup::where('lead_id','=',$list->id)->where('followup_type','!=','assigned_to')->orderby('id','DESC')->with(['followutype'])->first(); 
-										$followp = \App\Models\Followup::where('lead_id','=',$list->id)->where('followup_type','=','follow_up')->orderby('id','DESC')->with(['followutype'])->first();
-
+										<?php 
+										$leadIdForLinks = $list->lead_id ?? $list->id;
+										$displayId = $list->lead_id ?? $list->id;
+										$assigneeId = $list->assignee ?? $list->assign_to ?? null;
+										$followupQuery = $list->lead_id
+											? \App\Models\Followup::where('lead_id', $list->lead_id)
+											: \App\Models\Followup::where('client_id', $list->id);
+										$followpe = (clone $followupQuery)->where('followup_type','!=','assigned_to')->orderby('id','DESC')->with(['followutype'])->first(); 
+										$followp = (clone $followupQuery)->where('followup_type','=','follow_up')->orderby('id','DESC')->with(['followutype'])->first();
 										?> 
 										<tr id="id_{{@$list->id}}">
-											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode(@$list->id)))}}">Lead - {{str_pad($list->id, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
+											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
 										
 											{{@$list->created_at}}
 											<?php
-											$assigneduser = \App\Models\Staff::find($list->assign_to);
+											$assigneduser = $assigneeId ? \App\Models\Staff::find($assigneeId) : null;
 											if($assigneduser){
 											    ?>
 											    <br>
-											   Assigned: <a target="_blank" href="{{ route('staff.view', ['id' => $assigneduser->id]) }}">{{$assigneduser->first_name}} {{$assigneduser->first_name}}</a> 
+											   Assigned: <a target="_blank" href="{{ route('staff.view', ['id' => $assigneduser->id]) }}">{{$assigneduser->first_name}} {{$assigneduser->last_name}}</a> 
 											    <?php
 											}else{ echo '-'; }
 											?>
 											</td>
 											<td><i class="fa fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fa fa-mobile"></i> {{@$list->phone}} <br/> <i class="fa fa-envelope"></i> {{@$list->email}}</td>
 											<td>{{@$list->service}} <br/> {{@$list->created_at}}</td>
-											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{@$followpe->followutype->name}}</div></td>
+											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $followpe && $followpe->followutype ? $followpe->followutype->name : '—' }}</div></td>
 											@if($followp)
 											@if(@$followp->followutype->type == 'follow_up')
 											<td>{{$followp->followutype->name}}<br> {{date('d-m-Y h:i A', strtotime($followp->followup_date))}}</td>
@@ -147,10 +153,10 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 													<div class="dropdown-menu">
-														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode(@$list->id)))}}"><i class="fa fa-eye"></i> View Details</a>
-														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode(@$list->id))}}"><i class="fa fa-edit"></i> Assign To</a>
+														<a class="dropdown-item has-icon" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}"><i class="fa fa-eye"></i> View Details</a>
+														<a class="dropdown-item has-icon assignlead_modal" href="javascript:;" mleadid="{{base64_encode(convert_uuencode($leadIdForLinks))}}"><i class="fa fa-edit"></i> Assign To</a>
 										@if($list->converted == 0)
-											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.@$list->id)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	
+											<a class="dropdown-item has-icon" href="{{URL::to('/leads/convert/'.$leadIdForLinks)}}" onclick="return confirm('Are you sure?')"><i class="fa fa-user"></i> Convert To Client</a>	
 											@endif
 													</div>
 												</div>	

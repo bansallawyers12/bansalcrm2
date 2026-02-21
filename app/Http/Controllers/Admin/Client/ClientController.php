@@ -662,7 +662,21 @@ class ClientController extends Controller
                 return redirect()->route('leads.index')->with('error', 'Invalid Lead ID');
             }
             
-            // If not in admins table, check if it's a new lead in the leads table
+            // Check Admin first (admin-only leads by admins.id, or migrated leads by lead_id)
+            $adminLead = Admin::where('id', '=', $id)->where('type', 'lead')->first();
+            if ($adminLead) {
+                $fetchedData = $adminLead;
+                $encodeId = $originalId;
+                $clientApplications = Application::where('client_id', $fetchedData->id)
+                    ->with(['product', 'partner'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                return view(
+                    $this->getClientViewPath('clients.detail'),
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
+                );
+            }
+            // Else check if it's a lead in the leads table (legacy)
             if(\App\Models\Lead::where('id', '=', $id)->exists())
             {
                 $lead = \App\Models\Lead::with('staffuser')->find($id);//dd($lead); die;

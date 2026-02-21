@@ -5,7 +5,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 use App\Models\Admin;
 use App\Models\Lead;
@@ -30,7 +32,7 @@ class LeadController extends Controller
         $this->middleware('auth:admin'); 
     }
 	/**
-     * All Vendors. 
+     * All leads from admins table (type='lead').
      *
      * @return \Illuminate\Http\Response
      */
@@ -43,20 +45,29 @@ class LeadController extends Controller
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}*/	
 		//check authorization end
-		 $not_contacted = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 0)->count();
-			$create_porposal = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 1)->count();
-			$followup = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 15)->count();
-			$undecided = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 11)->count();
-			$lost = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 12)->count();
-			$won = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 13)->count();
-			$ready_to_pay = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 14)->count();
-			$todaycall = Lead::where('assign_to', '=', Auth::user()->id)->where('status', '=', 15)->whereHas('followupload', function ($q) {
-					$q->whereDate('followup_date',Carbon::today());
-						})->count();
-		$query 		= Lead::whereNotNull('user_id')->where('converted', '=', 0)->with(['staffuser']); 
-		
-		  
-		$totalData 	= $query->count();	//for all data
+
+		$baseQuery = Admin::where('role', 7)->where('type', 'lead')->where('converted', 0);
+
+		$not_contacted = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 0)->count();
+		$create_porposal = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 1)->count();
+		$followup = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)->count();
+		$undecided = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 11)->count();
+		$lost = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 12)->count();
+		$won = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 13)->count();
+		$ready_to_pay = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 14)->count();
+		$todaycall = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)
+			->whereExists(function ($q) {
+				$q->select(DB::raw(1))->from('followups')
+					->where(function ($q2) {
+						$q2->whereColumn('followups.lead_id', 'admins.lead_id')
+							->orWhereColumn('followups.client_id', 'admins.id');
+					})
+					->whereDate('followups.followup_date', Carbon::today());
+			})->count();
+
+		$query = clone $baseQuery;
+
+		$totalData = $query->count();
 		if ($request->has('type')) 
 		{	
 			 $type 		= 	$request->input('type'); 
@@ -68,9 +79,14 @@ class LeadController extends Controller
 					$query->where('status', '=', @$FollowupType->id);
 				}else if($type == 'today'){
 					
-					$query->whereHas('followupload', function ($q) {
-					$q->whereDate('followup_date',Carbon::today());
-						});
+					$query->whereExists(function ($q) {
+						$q->select(DB::raw(1))->from('followups')
+							->where(function ($q2) {
+								$q2->whereColumn('followups.lead_id', 'admins.lead_id')
+									->orWhereColumn('followups.client_id', 'admins.id');
+							})
+							->whereDate('followups.followup_date', Carbon::today());
+					});
 				}else{
 					$query->where('status', '=', 0);
 				}
@@ -82,7 +98,9 @@ class LeadController extends Controller
 			$lead_id 		= 	$request->input('id'); 
 			if(trim($lead_id) != '')
 			{
-				$query->where('id', '=', @$lead_id);
+				$query->where(function ($q) use ($lead_id) {
+					$q->where('lead_id', '=', $lead_id)->orWhere('id', '=', $lead_id);
+				});
 			}
 		}
 		if ($request->has('email')) 
@@ -137,8 +155,14 @@ class LeadController extends Controller
 			if(trim($followupdate) != '')
 			{
 			   
-				$query->whereHas('likes', function ($q) use($followupdate){
-					$q->whereDate('followup_date',$followupdate)->whereNotNull('followup_date');
+				$query->whereExists(function ($q) use ($followupdate) {
+					$q->select(DB::raw(1))->from('followups')
+						->where(function ($q2) {
+							$q2->whereColumn('followups.lead_id', 'admins.lead_id')
+								->orWhereColumn('followups.client_id', 'admins.id');
+						})
+						->whereDate('followups.followup_date', $followupdate)
+						->whereNotNull('followups.followup_date');
 				});
 			}
 		}
@@ -168,42 +192,52 @@ class LeadController extends Controller
 	public function assign(Request $request) {
 		$requestData 		= 	$request->all();
 		$id = $this->decodeString($requestData['mlead_id']);	 
-		if(Lead::where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->exists()) 
+		// Support Lead (leads.id), migrated Admin (lead_id), and admin-only (admins.id)
+		$lead = Lead::where('id', '=', $id)->first();
+		$admin = Admin::where('lead_id', '=', $id)->where('type', 'lead')->first()
+			?? Admin::where('id', '=', $id)->where('type', 'lead')->first();
+		if ($lead || $admin) 
 		{
-			$leads = Lead::where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-			if($leads->assign_to != ''){
-				if($leads->assign_to == $requestData['assignto']){
+			$currentAssignee = $lead ? $lead->assign_to : ($admin ? $admin->assignee : null);
+			if($currentAssignee != '' && $currentAssignee != null){
+				if($currentAssignee == $requestData['assignto']){
 					return redirect()->back()->with('error', 'Already Assigned to this user');
-				}else{
-					$assignfrom = \App\Models\Staff::find($leads->assign_to);
-					$assignto = \App\Models\Staff::find($requestData['assignto']);
-					$ld = Lead::find($id);
-					$ld->assign_to = $requestData['assignto'];
-					$ld->save();
-					$followup 					= new Followup;
-					$followup->lead_id			= @$id;
-					$followup->user_id			= Auth::user()->id;
-					$followup->note				= 'changed from '.$assignfrom->first_name.' '.$assignfrom->last_name.' to '.$assignto->first_name.' '.$assignto->last_name;
-					$followup->followup_type	= 'assigned_to';
-					$saved				=	$followup->save();  
-					if(!$saved) 
-					{
-						return redirect()->back()->with('error', 'Please try again');
-					}else{
-						return redirect()->back()->with('success', 'Lead transfer successfully');
-					}
 				}
-			}else{
+				$assignfrom = \App\Models\Staff::find($currentAssignee);
+				$assignto = \App\Models\Staff::find($requestData['assignto']);
+				if (!$assignfrom || !$assignto) {
+					return redirect()->back()->with('error', 'Invalid assignee');
+				}
+			}
+			$saved = false;
+			if ($lead) {
 				$ld = Lead::find($id);
 				$ld->assign_to = $requestData['assignto'];
-				$saved		= $ld->save();
-				if(!$saved) 
-					{
-						return redirect()->back()->with('error', 'Please try again');
-					}else{
-						return redirect()->back()->with('success', 'Lead Assigned successfully');
-					}
+				$saved = $ld->save();
 			}
+			if ($admin) {
+				Admin::where('id', $admin->id)->update(['assignee' => $requestData['assignto']]);
+				$saved = true;
+			}
+			// Create followup only when changing from one assignee to another (original behavior)
+			if (isset($assignfrom) && $assignfrom) {
+				$assignto = \App\Models\Staff::find($requestData['assignto']);
+				$followup = new Followup;
+				// For admin-only leads use client_id; for migrated use lead_id
+				if ($admin && $admin->lead_id === null) {
+					$followup->client_id = $admin->id;
+				} else {
+					$followup->lead_id = $id;
+				}
+				$followup->user_id = Auth::user()->id;
+				$followup->note = $assignto ? 'changed from '.$assignfrom->first_name.' '.$assignfrom->last_name.' to '.$assignto->first_name.' '.$assignto->last_name : 'Assigned';
+				$followup->followup_type = 'assigned_to';
+				$followup->save();
+			}
+			if(!$saved) {
+				return redirect()->back()->with('error', 'Please try again');
+			}
+			return redirect()->back()->with('success', 'Lead Assigned successfully');
 		}else{
 			return redirect()->back()->with('error', 'Not Found');
 		}
@@ -225,9 +259,9 @@ class LeadController extends Controller
 										'last_name' => 'required|max:255',
 										'gender' => 'required|in:Male,Female,Other',
 										'contact_type' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
-									'phone' => 'required|max:255|unique:admins,phone|unique:leads,phone',
+									'phone' => 'required|max:255|unique:admins,phone',
 										'email_type' => 'required|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
-										'email' => 'required|max:255|unique:admins,email|unique:leads,email',
+										'email' => 'required|max:255|unique:admins,email',
 										'service' => 'required',
 										'assign_to' => 'required|array|min:1',
 										'assign_to.*' => 'required|integer',
@@ -243,91 +277,130 @@ class LeadController extends Controller
 	            for($i=0; $i<count($requestData['related_files']); $i++){
 	                $related_files .= $requestData['related_files'][$i].',';
 	            }
-	            
 	        }
-			  $dob = '';
+			$dob = '';
 	        if(isset($requestData['dob']) && $requestData['dob'] != ''){
 	           $dobs = explode('/', $requestData['dob']);
 	          $dob = $dobs[2].'-'.$dobs[1].'-'. $dobs[0]; 
 	        }
-	         $visa_expiry_date = '';
+	        $visa_expiry_date = '';
 	        if(isset($requestData['visa_expiry_date']) && $requestData['visa_expiry_date'] != ''){
 	           $visa_expiry_dates = explode('/', $requestData['visa_expiry_date']);
 	          $visa_expiry_date = $visa_expiry_dates[2].'-'.$visa_expiry_dates[1].'-'. $visa_expiry_dates[0]; 
 	        }
-			$obj				= 	new Lead; 
-			$obj->user_id	=	Auth::user()->id;   
-			$obj->first_name		=	@$requestData['first_name'];
-			$obj->last_name		=	@$requestData['last_name'];
-			$obj->gender		=	@$requestData['gender'];
-			$obj->dob		=	($dob != '') ? $dob : null;
-			// Extract numeric value from age field (handles cases like "13 years" -> 13)
-			$age = isset($requestData['age']) && $requestData['age'] != '' ? preg_replace('/[^0-9]/', '', $requestData['age']) : null;
-			$obj->age		=	($age != '' && is_numeric($age)) ? (int)$age : null;
-			$obj->marital_status		=	@$requestData['marital_status'];
-			$obj->passport_no		=	@$requestData['passport_no'];
-			$obj->visa_type			=	@$requestData['visa_type'];
-			$obj->visa_expiry_date		=	($visa_expiry_date != '') ? $visa_expiry_date : null;
-			// Handle tags_label - convert array to comma-separated string
-			if(isset($requestData['tagname']) && !empty($requestData['tagname']) && is_array($requestData['tagname'])){
-				$obj->tags_label = implode(',', $requestData['tagname']);
-			} else {
-				$obj->tags_label = '';
-			}
-			$obj->contact_type		=	@$requestData['contact_type'];
-			$obj->country_code		=	PhoneHelper::normalizeCountryCode(@$requestData['country_code']);
-			$obj->phone		=	@$requestData['phone'];
-			$obj->email_type		=	@$requestData['email_type'];
-			$obj->email		=	@$requestData['email'];			
-			$obj->service		=	@$requestData['service'];			
-			// Handle assign_to - convert array to single value (take first selected admin)
-			if(isset($requestData['assign_to']) && is_array($requestData['assign_to'])){
-				$obj->assign_to = $requestData['assign_to'][0]; // Take first value
-			} else {
-				$obj->assign_to = @$requestData['assign_to'];
-			}
-			$obj->status		=	@$requestData['status'];				 
-			$obj->converted		=	0; // New leads are not converted yet
-			$obj->lead_quality		=	@$requestData['lead_quality'];		
-			$obj->lead_source		=	@$requestData['source'];	
-			$obj->related_files	=	rtrim($related_files,',');
-			$obj->comments_note		=	@$requestData['comments_note'];				 
-    		/* Profile Image Upload Function Start */						  
-// profile_img column removed from admins table
-    		$obj->country_passport			=	@$requestData['country_passport'];
-    		$obj->address			=	@$requestData['address'];
-    		$obj->city			=	@$requestData['city'];
-    		$obj->state			=	@$requestData['state'];
-    		$obj->zip			=	@$requestData['zip'];
-    		$obj->country			=	@$requestData['country'];
-    		$obj->nomi_occupation			=	@$requestData['nomi_occupation'];
-    		$obj->skill_assessment			=	@$requestData['skill_assessment'];
-    		$obj->high_quali_aus			=	@$requestData['high_quali_aus'];
-    		$obj->high_quali_overseas			=	@$requestData['high_quali_overseas'];
-			$obj->relevant_work_exp_aus			=	@$requestData['relevant_work_exp_aus'];
-			$obj->relevant_work_exp_over			=	@$requestData['relevant_work_exp_over'];
-			// Handle naati_py - convert array to comma-separated string
-			if(isset($requestData['naati_py']) && !empty($requestData['naati_py']) && is_array($requestData['naati_py'])){
-				$obj->naati_py = implode(',', $requestData['naati_py']);
-			} else {
-				$obj->naati_py = '';
-			}
-			$obj->married_partner			=	@$requestData['married_partner'];
-    		$obj->total_points			=	@$requestData['total_points'];
-    		/* Profile Image Upload Function End */	
-			$saved				=	$obj->save();  
-			
-			if(!$saved) 
-			{
+
+			// Save to admins table only (type=lead), not to leads table
+			$adminId = $this->createAdminFromRequestData($requestData, $dob, $visa_expiry_date, $related_files);
+			if (!$adminId) {
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
-			else
-			{ 
-				return redirect()->route('leads.index')->with('success', 'Lead added Successfully');
-			} 				
+
+			return redirect()->route('leads.detail', base64_encode(convert_uuencode($adminId)))->with('success', 'Lead added Successfully'); 				
 		}	
 	} 
 	
+	/**
+	 * Create Admin row from request data (saves to admins only, lead_id=null for new leads).
+	 * @return int|null Admin id or null on failure
+	 */
+	protected function createAdminFromRequestData(array $requestData, string $dob, string $visa_expiry_date, string $related_files): ?int
+	{
+		if (!Schema::hasTable('admins')) {
+			return null;
+		}
+
+		$assignee = null;
+		if (isset($requestData['assign_to']) && is_array($requestData['assign_to'])) {
+			$assignee = $requestData['assign_to'][0];
+		} else {
+			$assignee = $requestData['assign_to'] ?? null;
+		}
+
+		$officeId = null;
+		if ($assignee) {
+			$staff = \App\Models\Staff::find($assignee);
+			$officeId = $staff ? $staff->office_id : null;
+		}
+
+		$age = isset($requestData['age']) && $requestData['age'] != '' ? preg_replace('/[^0-9]/', '', $requestData['age']) : null;
+		$tags = '';
+		if (isset($requestData['tagname']) && !empty($requestData['tagname']) && is_array($requestData['tagname'])) {
+			$tags = implode(',', $requestData['tagname']);
+		}
+		$naatiPy = '';
+		if (isset($requestData['naati_py']) && !empty($requestData['naati_py']) && is_array($requestData['naati_py'])) {
+			$naatiPy = implode(',', $requestData['naati_py']);
+		}
+
+		$adminCols = Schema::getColumnListing('admins');
+		$now = now();
+		$data = [
+			'role' => 7,
+			'type' => 'lead',
+			'remember_token' => null,
+			'lead_id' => null,
+			'first_name' => $requestData['first_name'] ?? null,
+			'last_name' => $requestData['last_name'] ?? null,
+			'email' => trim((string) ($requestData['email'] ?? '')),
+			'password' => bcrypt(Str::random(32)),
+			'phone' => $requestData['phone'] ?? null,
+			'country_code' => PhoneHelper::normalizeCountryCode($requestData['country_code'] ?? null),
+			'gender' => $requestData['gender'] ?? null,
+			'dob' => ($dob != '') ? $dob : null,
+			'marital_status' => $requestData['marital_status'] ?? null,
+			'address' => $requestData['address'] ?? null,
+			'city' => $requestData['city'] ?? null,
+			'state' => $requestData['state'] ?? null,
+			'zip' => $requestData['zip'] ?? null,
+			'country' => $requestData['country'] ?? null,
+			'user_id' => Auth::user()->id,
+			'assignee' => $assignee,
+			'office_id' => $officeId,
+			'source' => $requestData['source'] ?? null,
+			'tags' => $tags,
+			'passport_number' => $requestData['passport_no'] ?? null,
+			'visaexpiry' => ($visa_expiry_date != '') ? $visa_expiry_date : null,
+			'visa_type' => $requestData['visa_type'] ?? null,
+			'nomi_occupation' => $requestData['nomi_occupation'] ?? null,
+			'skill_assessment' => $requestData['skill_assessment'] ?? null,
+			'high_quali_aus' => $requestData['high_quali_aus'] ?? null,
+			'high_quali_overseas' => $requestData['high_quali_overseas'] ?? null,
+			'relevant_work_exp_aus' => $requestData['relevant_work_exp_aus'] ?? null,
+			'relevant_work_exp_over' => $requestData['relevant_work_exp_over'] ?? null,
+			'naati_py' => $naatiPy,
+			'married_partner' => $requestData['married_partner'] ?? null,
+			'total_points' => $requestData['total_points'] ?? null,
+			'comments_note' => $requestData['comments_note'] ?? null,
+			'service' => $requestData['service'] ?? null,
+			'lead_quality' => $requestData['lead_quality'] ?? null,
+			'country_passport' => $requestData['country_passport'] ?? null,
+			'contact_type' => $requestData['contact_type'] ?? null,
+			'email_type' => $requestData['email_type'] ?? null,
+			'related_files' => rtrim($related_files, ','),
+			'status' => $requestData['status'] ?? 0,
+			'verified' => 0,
+			'is_archived' => 0,
+			'show_dashboard_per' => 0,
+			'created_at' => $now,
+			'updated_at' => $now,
+			'converted' => 0,
+			'is_verified' => 0,
+			'verified_at' => null,
+			'verified_by' => null,
+		];
+
+		$data = array_intersect_key($data, array_flip($adminCols));
+		$adminId = DB::table('admins')->insertGetId($data);
+
+		$firstName = substr((string) ($requestData['first_name'] ?? ''), 0, 4);
+		$clientId = strtoupper(preg_replace('/[^A-Za-z]/', '', $firstName) ?: 'LEAD') . date('ym') . $adminId;
+		if (in_array('client_id', $adminCols, true)) {
+			DB::table('admins')->where('id', $adminId)->update(['client_id' => $clientId]);
+		}
+
+		return (int) $adminId;
+	}
+
 	/* REMOVED: Broken edit method - Leads now use the detail page (ClientsController@detail) for viewing and editing
 	 * The detail page provides a much richer interface with tabs for notes, activities, documents, etc.
 	 * This old edit method had issues:
@@ -356,7 +429,7 @@ class LeadController extends Controller
 	        }
 	    }
 	}
-	public function convertoClient(Request $request)
+	public function convertoClient(Request $request, $id = null)
 	{ 
 		$requestData 		= 	$request->all();
 		$enqdatas = Lead::query()->paginate(500);

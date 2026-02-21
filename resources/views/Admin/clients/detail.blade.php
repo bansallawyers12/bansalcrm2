@@ -232,14 +232,16 @@ use App\Http\Controllers\Controller;
                                     // For leads (type='lead'), use the phone from $fetchedData which comes from leads table
                                     // For clients, check ClientPhone table first, then admins table
                                     if( $isLeadDetail ) {
-                                        // Lead: use phone data passed from controller (already from leads table)
+                                        // Lead: use phone data passed from controller (from leads table or admins for admin-only)
                                         $clientContacts = collect([
                                             (object)[
                                                 'client_phone' => $fetchedData->phone,
                                                 'client_country_code' => $fetchedData->country_code ?? '',
                                                 'contact_type' => $fetchedData->contact_type ?? 'Personal',
                                                 'is_lead_primary' => true,
-                                                'lead_id' => $fetchedData->id ?? null
+                                                'lead_id' => $fetchedData->lead_id ?? null,
+                                                'admin_id' => $fetchedData->id,
+                                                'is_verified' => $fetchedData->is_verified ?? false
                                             ]
                                         ]);
                                     } elseif( \App\Models\ClientPhone::where('client_id', $fetchedData->id)->exists()) {
@@ -256,10 +258,15 @@ use App\Http\Controllers\Controller;
                                         foreach($clientContacts as $conKey=>$conVal){
                                             //Check phone is verified or not (lead: use Lead model; client: use VerifiedNumber for legacy display)
                                             $verifiedNumber = null;
-                                            if ( !empty($isLeadDetail) && !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
-                                                $leadRow = \App\Models\Lead::find($conVal->lead_id);
-                                                $verifiedNumber = $leadRow && $leadRow->is_verified ? (object)['is_verified' => true] : null;
-                                            } else {
+                                            if ( !empty($isLeadDetail) && !empty($conVal->is_lead_primary) ) {
+                                                if ( !empty($conVal->lead_id) ) {
+                                                    $leadRow = \App\Models\Lead::find($conVal->lead_id);
+                                                    $verifiedNumber = $leadRow && $leadRow->is_verified ? (object)['is_verified' => true] : null;
+                                                } else {
+                                                    $verifiedNumber = !empty($conVal->is_verified) ? (object)['is_verified' => true] : null;
+                                                }
+                                            }
+                                            if ( $verifiedNumber === null && empty($isLeadDetail) ) {
                                                 $check_verified_phoneno = $conVal->client_country_code."".$conVal->client_phone;
                                                 $verifiedNumber = \App\Models\VerifiedNumber::where('phone_number',$check_verified_phoneno)->where('is_verified', true)->first();
                                             }
