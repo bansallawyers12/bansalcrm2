@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\LeadController;
-use App\Http\Controllers\Admin\FollowupController;
 use App\Http\Controllers\Admin\Client\ClientController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientServiceController;
@@ -213,10 +212,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-	Route::post('/followup/store', [FollowupController::class, 'store'])->name('followup.store'); 
-		Route::get('/followup/list', [FollowupController::class, 'index'])->name('followup.index'); 
-		Route::post('/followup/compose', [FollowupController::class, 'compose'])->name('followup.compose'); 
-		 
 		Route::get('/usertype', [UsertypeController::class, 'index'])->name('usertype.index');
 		Route::get('/usertype/create', [UsertypeController::class, 'create'])->name('usertype.create');  		
 		Route::post('/usertype/store', [UsertypeController::class, 'store'])->name('usertype.store');
@@ -238,7 +233,6 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 	// Removed broken edit routes - leads now use detail page for viewing/editing
 	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
 	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
-	Route::post('/followup/update', [FollowupController::class, 'followupupdate']);
 	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']);
 	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
 		//Invoices Start    

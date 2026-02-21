@@ -249,7 +249,7 @@ function customValidate(formName, savetype = '')
 									$('#myAddnotes .modal-title').html('');
 									$('#myAddnotes #note_type').html('');
 									$('#myAddnotes').modal('hide');
-									myfollowuplist(obj.leadid);
+									// myfollowuplist removed - followup routes deleted
 								}else{
 									$('#myAddnotes .customerror').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
