@@ -610,13 +610,13 @@
                                     </form>
                                 </div>
                                 
-                                @if($signer->last_reminder_at)
+                                @if($signer->last_reminder_sent_at)
                                 <div class="reminder-info">
                                     <i class="fas fa-info-circle"></i>
                                     @if($reminderCount === 0)
                                         No reminders sent yet
                                     @else
-                                        Last reminder: {{ \Carbon\Carbon::parse($signer->last_reminder_at)->diffForHumans() }}
+                                        Last reminder: {{ \Carbon\Carbon::parse($signer->last_reminder_sent_at)->diffForHumans() }}
                                     @endif
                                 </div>
                                 @else
