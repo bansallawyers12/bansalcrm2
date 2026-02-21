@@ -48,8 +48,13 @@ return [
 
     'discontinue_stages' => [
         'Coe cancelled',
+        // Add other stages that appear on discontinued applications (excludes Refund – those appear on Refund sheet).
+    ],
+
+    'refund_stages' => [
+        'Coe cancelled',
         'Refund',
-        // Add other stages that appear on discontinued applications.
+        // Add other stages that appear on refunded applications.
     ],
 
     /*

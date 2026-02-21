@@ -217,6 +217,7 @@ Route::middleware(['auth:admin'])->group(function() {
         Route::get('/ongoing', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'ongoing')->name('ongoing');
         Route::get('/coe-enrolled', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'coe_enrolled')->name('coe-enrolled');
         Route::get('/discontinue', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'discontinue')->name('discontinue');
+        Route::get('/refund', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'refund')->name('refund');
         Route::get('/checklist', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'index'])->defaults('sheetType', 'checklist')->name('checklist');
         Route::get('/insights', [\App\Http\Controllers\Admin\OngoingSheetController::class, 'sheetsInsights'])->name('insights');
 

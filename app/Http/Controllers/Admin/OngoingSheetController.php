@@ -18,7 +18,7 @@ use Carbon\Carbon;
 
 class OngoingSheetController extends Controller
 {
-    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue', 'checklist'];
+    public const SHEET_TYPES = ['ongoing', 'coe_enrolled', 'discontinue', 'refund', 'checklist'];
 
     public function __construct()
     {
@@ -40,6 +40,7 @@ class OngoingSheetController extends Controller
             'ongoing'       => ['title' => 'Ongoing Sheet', 'route' => 'clients.sheets.ongoing', 'session_key' => 'ongoing_sheet_filters'],
             'coe_enrolled' => ['title' => 'COE Issued & Enrolled', 'route' => 'clients.sheets.coe-enrolled', 'session_key' => 'coe_enrolled_sheet_filters'],
             'discontinue'   => ['title' => 'Discontinue', 'route' => 'clients.sheets.discontinue', 'session_key' => 'discontinue_sheet_filters'],
+            'refund'        => ['title' => 'Refund', 'route' => 'clients.sheets.refund', 'session_key' => 'refund_sheet_filters'],
             'checklist'    => ['title' => 'Checklist', 'route' => 'clients.sheets.checklist', 'session_key' => 'checklist_sheet_filters'],
         ];
         return $configs[$sheetType] ?? $configs['ongoing'];
@@ -194,6 +195,7 @@ class OngoingSheetController extends Controller
         $key = match ($sheetType) {
             'coe_enrolled' => 'sheets.coe_enrolled_stages',
             'discontinue'   => 'sheets.discontinue_stages',
+            'refund'        => 'sheets.refund_stages',
             'checklist'     => 'sheets.checklist_early_stages',
             default         => 'sheets.ongoing_stages',
         };
@@ -226,7 +228,12 @@ class OngoingSheetController extends Controller
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
         if ($sheetType === 'discontinue') {
-            return Application::whereIn('status', [2, 8]) // 2 = Discontinue, 8 = Refund
+            return Application::where('status', 2) // 2 = Discontinue only
+                ->select('stage')
+                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        }
+        if ($sheetType === 'refund') {
+            return Application::where('status', 8) // 8 = Refund
                 ->select('stage')
                 ->distinct()->orderBy('stage')->pluck('stage', 'stage');
         }
@@ -354,7 +361,9 @@ class OngoingSheetController extends Controller
             ->whereNull('admins.is_deleted');
 
         if ($sheetType === 'discontinue') {
-            $query->whereIn('applications.status', [2, 8]); // 2 = Discontinue, 8 = Refund
+            $query->where('applications.status', 2); // 2 = Discontinue only (Refund = 8 shows on Refund sheet)
+        } elseif ($sheetType === 'refund') {
+            $query->where('applications.status', 8); // 8 = Refund
         } else {
             $query->whereNotIn('applications.status', [2, 8]);
             if ($sheetType === 'coe_enrolled') {
