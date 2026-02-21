@@ -72,8 +72,11 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
     ],
 
-
-
-
+    'sendgrid' => [
+        'api_key' => env('SENDGRID_API_KEY'),
+        'base_url' => env('SENDGRID_BASE_URL', 'https://api.sendgrid.com'),
+        'from_email' => env('SENDGRID_FROM_EMAIL', ''),
+        'senders' => env('SENDGRID_SENDERS', ''),
+    ],
 
 ];
