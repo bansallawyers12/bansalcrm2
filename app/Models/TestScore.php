@@ -18,6 +18,5 @@ class TestScore extends Model
         'ilets_Listening', 'ilets_Reading', 'ilets_Writing', 'ilets_Speaking', 'ilets_Date',
         'pte_Listening', 'pte_Reading', 'pte_Writing', 'pte_Speaking', 'pte_Date',
         'score_1', 'score_2', 'score_3',
-        'sat_i', 'sat_ii', 'gre', 'gmat',
     ];
 }
