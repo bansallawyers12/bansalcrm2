@@ -292,35 +292,6 @@ use App\Http\Controllers\Controller;
                                     					</div>
                                     				</div>
                                     			</div>
-                                        <?php
-                                        $allleads = \App\Models\Admin::where('type','lead')->where('assignee', $fetchedData->id)->where('converted', 0)->get();
-                                        $userarray = array();
-                 foreach($allleads as $alllead){
-                     	$fq = \App\Models\Followup::whereDate('followup_date', date('Y-m-d'));
-                     	if ($alllead->lead_id) { $fq->where('lead_id', $alllead->lead_id); } else { $fq->where('client_id', $alllead->id); }
-                     	$userarray[] = $fq->first();
-                 }                       
-	
-									?>
-                                    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12 mb-4">
-                                    				<div class="card dash_card">
-                                    					<div class="card-statistic-4">
-                                    						<div class="align-items-center justify-content-between">
-                                    							<div class="row ">
-                                    								<div class="col-lg-12 col-md-12">
-                                    									<div class="card-content">
-                                    								
-                                    										<h5 class="font-14">Today's Actions</h5>
-                                    										<h2 class="mb-3 font-18">{{count($userarray)}}</h2>
-                                    											<p class="mb-0"><span class="col-green">{{count($userarray)}}</span> <a href="{{URL::to('/leads/?followupdate='.date('Y-m-d'))}}">click here</a></p>
-                                    										
-                                    									</div>
-                                    								</div>
-                                    							</div>
-                                    						</div>
-                                    					</div>
-                                    				</div>
-                                    			</div>
                                     			</div>
                                     			
                             <div class="row">

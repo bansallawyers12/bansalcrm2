@@ -11,11 +11,9 @@ use Illuminate\Support\Str;
 
 use App\Models\Admin;
 use App\Models\FollowupType;
-use App\Models\Followup;
  
 use Auth; 
 use Config;
-use Carbon\Carbon;
 use App\Helpers\PhoneHelper;
 
 class LeadController extends Controller
@@ -49,7 +47,6 @@ class LeadController extends Controller
 
 		$not_contacted = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 0)->count();
 		$create_porposal = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 1)->count();
-		$followup = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)->count();
 		$undecided = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 11)->count();
 		$lost = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 12)->count();
 		$won = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 13)->count();
@@ -119,7 +116,7 @@ class LeadController extends Controller
 				$query->whereDate('created_at', '>=', @$from);
 			}
 
-		}if ($request->has('to')) 
+		}		if ($request->has('to')) 
 		{
 			$to 		= 	$request->input('to'); 
 			if(trim($to) != '')
@@ -128,30 +125,13 @@ class LeadController extends Controller
 			}
 
 		}
-		if ($request->has('followupdate')) 
-		{
-			$followupdate 		= 	$request->input('followupdate'); 
-			if(trim($followupdate) != '')
-			{
-			   
-				$query->whereExists(function ($q) use ($followupdate) {
-					$q->select(DB::raw(1))->from('followups')
-						->where(function ($q2) {
-							$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-								->orWhereColumn('followups.client_id', 'admins.id');
-						})
-						->whereDate('followups.followup_date', $followupdate)
-						->whereNotNull('followups.followup_date');
-				});
-			}
-		}
-	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status')|| $request->has('followupdate')) 
+	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status'))
 		{
 			$totalData 	= $query->count();//after search
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
 		$cur_url = $request->fullUrl();
-		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'followup', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url'])); 
+		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url'])); 
 
 	}   
 	
@@ -189,19 +169,6 @@ class LeadController extends Controller
 			}
 			Admin::where('id', $admin->id)->update(['assignee' => $requestData['assignto']]);
 			$saved = true;
-			// Create followup only when changing from one assignee to another (original behavior)
-			if (isset($assignfrom) && $assignfrom) {
-				$assignto = \App\Models\Staff::find($requestData['assignto']);
-				$followup = new Followup;
-				// For admin-only leads use client_id; for migrated use lead_id
-				if ($admin->lead_id === null) {
-					$followup->client_id = $admin->id;
-				} else {
-					$followup->lead_id = $admin->lead_id;
-				}
-				$followup->followup_type = 'assigned_to';
-				$followup->save();
-			}
 			if(!$saved) {
 				return redirect()->back()->with('error', 'Please try again');
 			}

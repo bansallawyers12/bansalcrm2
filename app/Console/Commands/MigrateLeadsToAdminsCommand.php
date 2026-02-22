@@ -107,7 +107,7 @@ class MigrateLeadsToAdminsCommand extends Command
         if ($remaining > 0) {
             $this->info("Remaining: {$remaining} leads. Run again to continue.");
         } else {
-            $this->info('All leads processed. Run: php artisan migrate (for followups.client_id)');
+            $this->info('All leads processed. Run: php artisan migrate');
         }
 
         return 0;

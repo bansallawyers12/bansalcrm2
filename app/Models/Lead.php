@@ -32,15 +32,6 @@ class Lead extends Model
     {
         return $this->belongsTo('App\Models\Staff', 'assign_to', 'id');
     }
-	public function followupload()
-    {
-        return $this->belongsTo('App\Models\Followup','id','lead_id');
-    }
-    public function likes()
-    {
-        return $this->hasMany('App\Models\Followup','id');
-    }
-
     /**
      * Computed name from first_name + last_name.
      */

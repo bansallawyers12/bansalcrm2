@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('followups')) {
+            return;
+        }
         Schema::table('followups', function (Blueprint $table) {
             $table->dropColumn(['subject', 'rem_cat', 'pin', 'user_id', 'note']);
         });
