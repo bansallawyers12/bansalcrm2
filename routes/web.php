@@ -168,7 +168,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/settings/taxes/savereturnsetting', [AdminController::class, 'returnsetting'])->name('savereturnsetting');
 		// NOTE: Tax rate routes have been removed (taxrates, taxrates/create, taxrates/store, taxrates/edit)
 		// These routes were related to the tax_rates table which has been dropped
-		// Removed: /getsubcategories route - Dead code (method queried non-existent fields)
 		Route::get('/getproductbranch', [AdminController::class, 'getproductbranch']);
 		Route::get('/getpartner', [AdminController::class, 'getpartner']);
 		Route::get('/getproduct', [AdminController::class, 'getproduct']);

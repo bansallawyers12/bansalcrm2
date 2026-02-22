@@ -1753,9 +1753,6 @@ class AdminController extends Controller
 		echo ob_get_clean();
 	}
 
-	// Removed: getsubcategories() - Dead code that queries non-existent fields (cat_id, sub_id) in SubCategory model
-
-
 		public function getpartnerajax(Request $request){
 	    $fetchedData = \App\Models\Partner::where('partner_name','LIKE', '%'.$request->likevalue.'%')->get();
 		$agents = array();

@@ -86,7 +86,7 @@ return new class extends Migration
         'share_invoices',
         'sources',
         'states',
-        'sub_categories',
+        // 'sub_categories', // Removed - table dropped
         // 'subject_areas', // Removed - table dropped
         // 'subjects', // Removed - table dropped
         // 'suburbs', // Removed - table dropped

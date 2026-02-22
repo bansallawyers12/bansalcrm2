@@ -112,7 +112,10 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										$leadIdForLinks = $list->lead_id ?? $list->id;
 										$displayId = $list->lead_id ?? $list->id;
 										$assigneeId = $list->assignee ?? $list->assign_to ?? null;
-										$statusType = $list->status ? \App\Models\FollowupType::find($list->status) : null;
+										// status can be integer ID (followup_types) or string (e.g. "Assigned", "In-Progress") - only lookup when numeric
+										$statusType = ($list->status !== null && $list->status !== '' && is_numeric($list->status))
+											? \App\Models\FollowupType::find($list->status) : null;
+										$statusDisplay = $statusType ? $statusType->name : (($list->status === 0 || $list->status === '0') ? 'Not Contacted' : (is_string($list->status) ? $list->status : '—'));
 										?> 
 										<tr id="id_{{@$list->id}}">
 											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
@@ -130,8 +133,8 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											</td>
 											<td><i class="fa fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fa fa-mobile"></i> {{@$list->phone}} <br/> <i class="fa fa-envelope"></i> {{@$list->email}}</td>
 											<td>{{@$list->service}} <br/> {{@$list->created_at}}</td>
-											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusType ? $statusType->name : '—' }}</div></td>
-											<td>{{ $statusType ? $statusType->name : ($list->status == 0 ? 'Not Contacted' : '—') }}</td>
+											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
+											<td>{{ $statusDisplay }}</td>
 											<td>
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
