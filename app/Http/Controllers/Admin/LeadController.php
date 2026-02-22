@@ -54,16 +54,6 @@ class LeadController extends Controller
 		$lost = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 12)->count();
 		$won = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 13)->count();
 		$ready_to_pay = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 14)->count();
-		$todaycall = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)
-			->whereExists(function ($q) {
-				$q->select(DB::raw(1))->from('followups')
-					->where(function ($q2) {
-						$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-							->orWhereColumn('followups.client_id', 'admins.id');
-					})
-					->whereDate('followups.followup_date', Carbon::today());
-			})->count();
-
 		$query = clone $baseQuery;
 
 		$totalData = $query->count();
@@ -72,20 +62,10 @@ class LeadController extends Controller
 			 $type 		= 	$request->input('type'); 
 			if(trim($type) != '')
 			{
-				if($type != 'not_contacted' && $type != 'today'){
+				if($type != 'not_contacted'){
 					$FollowupType = FollowupType::where('type', '=', $type)->first();
 					
 					$query->where('status', '=', @$FollowupType->id);
-				}else if($type == 'today'){
-					
-					$query->whereExists(function ($q) {
-						$q->select(DB::raw(1))->from('followups')
-							->where(function ($q2) {
-								$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-									->orWhereColumn('followups.client_id', 'admins.id');
-							})
-							->whereDate('followups.followup_date', Carbon::today());
-					});
 				}else{
 					$query->where('status', '=', 0);
 				}
@@ -171,7 +151,7 @@ class LeadController extends Controller
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
 		$cur_url = $request->fullUrl();
-		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'followup', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url', 'todaycall'])); 
+		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'followup', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url'])); 
 
 	}   
 	
@@ -219,8 +199,6 @@ class LeadController extends Controller
 				} else {
 					$followup->lead_id = $admin->lead_id;
 				}
-				$followup->user_id = Auth::user()->id;
-				$followup->note = $assignto ? 'changed from '.$assignfrom->first_name.' '.$assignfrom->last_name.' to '.$assignto->first_name.' '.$assignto->last_name : 'Assigned';
 				$followup->followup_type = 'assigned_to';
 				$followup->save();
 			}
@@ -401,23 +379,6 @@ class LeadController extends Controller
 	 * To edit a lead, users should now click on the lead to open the detail page.
 	 */ 
 	
-	public function leadPin(Request $request, $id)
-	{
-	    if(Followup::where('id', $id)->exists()){
-	        $a = Followup::find($id);
-	        if($a->pin == 1){
-	           $a->pin =  0;
-	        }else{
-	           $a->pin =  1;  
-	        }
-	        $save = $a->save();
-	        if($save){
-	            return redirect()->route('leads.index')->with('success', 'Record Updated successfully');
-	        }else{
-	            return redirect()->route('leads.index')->with('error', 'Please try again');
-	        }
-	    }
-	}
 	public function convertoClient(Request $request, $id = null)
 	{ 
 		$requestData = $request->all();
@@ -437,40 +398,6 @@ class LeadController extends Controller
 			}
 				echo $leadId . '<br>';
 		}
-	}
-	
-	public function leaddeleteNotes(Request $request, $id = Null){
-	    if(isset($id) && !empty($id)) 
-			{
-		 
-				if(Followup::where('id', '=', $id)->exists()) 
-				{
-			    $leadid = Followup::where('id', '=', $id)->first()->lead_id;
-			    $res = Followup::where('id', '=', $id)->delete();
-				if($res){
-				    return redirect()->route('leads.index')->with('success', 'Record deleted successfully');
-				}else{
-				    return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
-				}
-				}
-				else
-				{
-					return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
-				}	
-			}
-			else
-			{
-				return redirect()->route('leads.index')->with('error', Config::get('constants.unauthorized'));
-			}
-	}
-	
-	public function getnotedetail(Request $request){
-	    $id = $request->id;
-	    // Followup edit feature removed - followup routes deleted
-	    if(Followup::where('id', '=', $id)->exists()) {
-		    return response('Followup edit feature has been removed.', 410);
-		}
-	    echo 'No Found';
 	}
 	
 	//Check Email is unique or not

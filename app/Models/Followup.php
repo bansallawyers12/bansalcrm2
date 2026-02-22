@@ -14,14 +14,6 @@ class Followup extends Model
 	public $sortable = ['id', 'created_at', 'updated_at'];
 	
 	/**
-     * Creator (Staff or Admin) who created the followup.
-     * Uses Staff - if user_id stores Admin id, resolve in view via Staff::find() ?? Admin::find().
-     */
-	public function staff()
-    {
-        return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
-    }
-    /**
      * Admin (when followup.lead_id is set - matches admins.lead_id for migrated leads).
      */
     public function leadAdmin()

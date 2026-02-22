@@ -144,11 +144,6 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											@else
 											<td>Not Contacted</td>
 											@endif
-											{{-- @if($followp)
-											<td>{{ @$followp->note == "" ? config('constants.empty') : str_limit(@$followp->note, '20', '...') }}</td>
-											@else
-											<td>{{ @$list->latest_comment == "" ? config('constants.empty') : str_limit(@$list->latest_comment, '20', '...') }}</td>
-											@endif --}}
 											<td>
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>

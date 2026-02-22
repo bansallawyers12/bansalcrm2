@@ -230,11 +230,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');   
 	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');    
 Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
-	// Removed broken edit routes - leads now use detail page for viewing/editing
-	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
-	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
-	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']);
-	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
+	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']); 	
 		//Invoices Start    
 		
 		// Removed routes for deleted views: lists, email, invoicebyid, history, reminder
