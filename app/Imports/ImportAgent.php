@@ -1,12 +1,11 @@
 <?php
 namespace App\Imports;
-// NOTE: User model/table has been removed - this import class uses Agent model instead
-// use App\Models\User;
+
 use App\Models\Agent;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Illuminate\Http\Request;
 
-class ImportUser implements ToModel
+class ImportAgent implements ToModel
 {
     protected $request;
 

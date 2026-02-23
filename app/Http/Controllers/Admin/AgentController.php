@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use App\Imports\ImportUser;
+use App\Imports\ImportAgent;
 use App\Models\Admin;
 use App\Models\Agent;
 // NOTE: RepresentingPartner model and table have been removed
@@ -302,7 +302,7 @@ class AgentController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			
-			 Excel::import(new ImportUser($request), 
+			 Excel::import(new ImportAgent($request), 
                      $request->file('uploadfile')->store('files'));
 			return redirect()->back()->with('success', 'Agents Imported successfully');
 		}else{

@@ -15,7 +15,7 @@ use App\Mail\InvoiceEmailManager;
 use App\Mail\MultipleattachmentEmailManager;
 use App\Services\EmailService;
 
-use App\Models\UserRole;
+use App\Models\StaffRole;
 use App\Models\WebsiteSetting;
 
 use Auth;
@@ -269,14 +269,14 @@ class Controller extends BaseController
 	public function checkAuthorizationAction($controller = NULL, $action = NULL, $role = NULL)
 	{	
 		
-		$userrole = UserRole::where('id', $role)->first();
-		if($userrole && $role != 1){
-			 $module_access  = $userrole->module_access; 
+		$staffRole = StaffRole::where('id', $role)->first();
+		if($staffRole && $role != 1){
+			 $module_access  = $staffRole->module_access; 
 			 //for test series vendor & organizations & professors authentication
 
 				$noAccessController = json_decode($module_access);
 				
-					if (!in_array($controller, $noAccessController)) //pass from controller
+					if (!in_array($controller, $noAccessController))
 					{
 						return true;
 					}
