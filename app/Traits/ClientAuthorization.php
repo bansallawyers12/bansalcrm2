@@ -28,7 +28,7 @@ trait ClientAuthorization
         
         // Admin users need module access check
         if (Auth::guard('admin')->check()) {
-            $roles = \App\Models\StaffRole::find(Auth::user()->role);
+            $roles = \App\Models\StaffRole::find(Auth::guard('admin')->user()->role);
             if (!$roles) {
                 return false;
             }
