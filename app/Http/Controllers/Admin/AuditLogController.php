@@ -140,20 +140,32 @@ class AuditLogController extends Controller
             $loginsByHour[$h] = $loginsByHourRaw->get($h)?->cnt ?? 0;
         }
 
-        $loginsByDayRaw = $this->baseQuery($request)
+        $isPgsql = DB::getDriverName() === 'pgsql';
+        $loginsByWeekRaw = $this->baseQuery($request)
             ->whereRaw("LOWER(message) LIKE ?", ['%logged in%'])
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->select(DB::raw('created_at::date as d'), DB::raw('COUNT(*) as cnt'))
-            ->groupBy(DB::raw('created_at::date'))
-            ->orderBy('d')
-            ->get()
-            ->keyBy('d');
+            ->where('created_at', '>=', Carbon::now()->subDays(30));
+        if ($isPgsql) {
+            $loginsByWeekRaw = $loginsByWeekRaw
+                ->select(DB::raw("date_trunc('week', created_at)::date as week_start"), DB::raw('COUNT(*) as cnt'))
+                ->groupBy(DB::raw("date_trunc('week', created_at)"))
+                ->orderBy('week_start');
+        } else {
+            $loginsByWeekRaw = $loginsByWeekRaw
+                ->select(DB::raw("DATE(DATE_SUB(created_at, INTERVAL WEEKDAY(created_at) DAY)) as week_start"), DB::raw('COUNT(*) as cnt'))
+                ->groupBy(DB::raw("DATE(DATE_SUB(created_at, INTERVAL WEEKDAY(created_at) DAY))"))
+                ->orderBy('week_start');
+        }
+        $loginsByWeekRaw = $loginsByWeekRaw->get()->keyBy('week_start');
+
         $labels30 = [];
         $values30 = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $d = Carbon::now()->subDays($i)->format('Y-m-d');
-            $labels30[] = Carbon::parse($d)->format('d M');
-            $values30[] = $loginsByDayRaw->get($d)?->cnt ?? 0;
+        $weeksBack = 5;
+        for ($w = $weeksBack - 1; $w >= 0; $w--) {
+            $weekStart = Carbon::now()->startOfWeek()->subWeeks($w);
+            $weekKey = $weekStart->format('Y-m-d');
+            $weekEnd = $weekStart->copy()->endOfWeek();
+            $labels30[] = $weekStart->format('d M') . '–' . $weekEnd->format('d M');
+            $values30[] = (int) ($loginsByWeekRaw->get($weekKey)?->cnt ?? 0);
         }
 
         // Top staff chart — bulk-load names to avoid N+1

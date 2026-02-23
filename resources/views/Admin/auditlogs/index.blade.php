@@ -46,11 +46,11 @@
 .audit-chart-card .card-header {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-bottom: 1px solid #e2e8f0;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1rem;
     font-weight: 600;
     color: #334155;
 }
-.audit-chart-card .card-body { padding: 1.25rem; }
+.audit-chart-card .card-body { padding: 0.75rem 1rem; }
 .audit-filter-card { margin-bottom: 1.5rem; }
 .audit-table .table thead th { font-weight: 600; color: #374151; }
 .audit-table tr.row-login { background-color: rgba(16, 185, 129, 0.06); }
@@ -175,7 +175,7 @@
                 </div>
                 <div class="col-12 col-lg-4 mb-4">
                     <div class="audit-chart-card card">
-                        <div class="card-header">30-Day Login Trend</div>
+                        <div class="card-header">Weekly Login Trend</div>
                         <div class="card-body">
                             <div id="chart30DayTrend" style="min-height: 260px;"></div>
                         </div>
@@ -345,12 +345,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return ($h < 12) ? ($h . ' AM') : (($h - 12) . ' PM');
     }, array_keys($loginsByHour)));
     if (document.getElementById('chartLoginsByHour') && typeof ApexCharts !== 'undefined') {
+        var maxLogins = Math.max(...loginsByHour, 1);
+        var yMax = Math.ceil(maxLogins * 1.12);
         new ApexCharts(document.querySelector('#chartLoginsByHour'), {
-            chart: { type: 'bar', height: 250, toolbar: { show: false } },
-            plotOptions: { bar: { borderRadius: 4, columnWidth: '70%' } },
-            dataLabels: { enabled: false },
+            chart: { type: 'bar', height: 250, toolbar: { show: false }, parentHeightOffset: 0 },
+            plotOptions: { bar: { borderRadius: 4, columnWidth: '75%', dataLabels: { position: 'top' } } },
+            dataLabels: { enabled: true, formatter: function(v) { return v > 0 ? v : ''; } },
+            grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
             series: [{ name: 'Logins', data: loginsByHour }],
             xaxis: { categories: hourLabels, labels: { rotate: -45, style: { fontSize: '10px' } } },
+            yaxis: { max: yMax, tickAmount: 6, labels: { style: { fontSize: '11px' } } },
             tooltip: { y: { formatter: function(v) { return v + ' login(s)'; } } },
             colors: ['#10b981'],
         }).render();
@@ -360,11 +364,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var topStaffValues = @json($topStaffChartValues);
     if (document.getElementById('chartTopStaff') && typeof ApexCharts !== 'undefined' && topStaffLabels.length) {
         new ApexCharts(document.querySelector('#chartTopStaff'), {
-            chart: { type: 'bar', height: 250, toolbar: { show: false } },
-            plotOptions: { bar: { horizontal: true, barHeight: '70%', borderRadius: 4 } },
-            dataLabels: { enabled: true },
+            chart: { type: 'bar', height: 250, toolbar: { show: false }, parentHeightOffset: 0 },
+            plotOptions: { bar: { horizontal: true, barHeight: '88%', borderRadius: 4 } },
+            dataLabels: { enabled: true, style: { fontSize: '11px' } },
+            grid: { padding: { left: 0, right: 4, top: 0, bottom: 0 } },
             series: [{ name: 'Logins', data: topStaffValues }],
-            xaxis: { categories: topStaffLabels },
+            xaxis: { categories: topStaffLabels, labels: { style: { fontSize: '11px' } } },
+            yaxis: { labels: { style: { fontSize: '11px' }, offsetX: -2 } },
             colors: ['#3b82f6'],
         }).render();
     } else if (document.getElementById('chartTopStaff')) {
@@ -375,10 +381,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var trendValues = @json($values30);
     if (document.getElementById('chart30DayTrend') && typeof ApexCharts !== 'undefined') {
         new ApexCharts(document.querySelector('#chart30DayTrend'), {
-            chart: { type: 'line', height: 250, toolbar: { show: false }, zoom: { enabled: false } },
+            chart: { type: 'line', height: 250, toolbar: { show: false }, zoom: { enabled: false }, parentHeightOffset: 0 },
             stroke: { curve: 'smooth', width: 2 },
+            grid: { padding: { left: 0, right: 0, top: 4, bottom: 0 } },
             series: [{ name: 'Logins', data: trendValues }],
-            xaxis: { categories: trendLabels },
+            xaxis: { categories: trendLabels, labels: { style: { fontSize: '11px' } } },
             colors: ['#8b5cf6'],
         }).render();
     }
