@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ApplicationsController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\BranchesController;
-use App\Http\Controllers\Admin\UsertypeController;
 use App\Http\Controllers\Admin\UserroleController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\AccountController;
@@ -211,12 +210,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-		Route::get('/usertype', [UsertypeController::class, 'index'])->name('usertype.index');
-		Route::get('/usertype/create', [UsertypeController::class, 'create'])->name('usertype.create');  		
-		Route::post('/usertype/store', [UsertypeController::class, 'store'])->name('usertype.store');
-		Route::get('/usertype/edit/{id}', [UsertypeController::class, 'edit'])->name('usertype.edit');
-		Route::post('/usertype/edit', [UsertypeController::class, 'edit'])->name('usertype.update');
-		
 		Route::get('/userrole', [UserroleController::class, 'index'])->name('userrole.index');
 		Route::get('/userrole/create', [UserroleController::class, 'create'])->name('userrole.create');  
 		Route::post('/userrole/store', [UserroleController::class, 'store'])->name('userrole.store');

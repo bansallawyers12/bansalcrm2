@@ -269,7 +269,7 @@ class Controller extends BaseController
 	public function checkAuthorizationAction($controller = NULL, $action = NULL, $role = NULL)
 	{	
 		
-		$userrole = UserRole::where('usertype',$role)->first();
+		$userrole = UserRole::where('id', $role)->first();
 		if($userrole && $role != 1){
 			 $module_access  = $userrole->module_access; 
 			 //for test series vendor & organizations & professors authentication

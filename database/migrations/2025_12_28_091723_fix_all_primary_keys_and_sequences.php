@@ -101,7 +101,7 @@ return new class extends Migration
         'upload_checklists',
         'user_logs',
         'user_roles',
-        'user_types',
+        // 'user_types', // Removed - table dropped (User Type feature removed)
         'users',
         'verified_numbers',
         'visa_types',

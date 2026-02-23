@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\UserRole;
-use App\Models\UserType;
 
 use Auth;
 use Config;
@@ -39,7 +38,7 @@ class UserroleController extends Controller
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
 	//check authorization end
-	$query 		= UserRole::query()->with(['usertypedata']);
+	$query 		= UserRole::query();
 		 
 		$totalData 	= $query->count();	//for all data
 
@@ -59,8 +58,7 @@ class UserroleController extends Controller
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
-		$usertype 		= UserType::all();
-		return view('Admin.userrole.create',compact(['usertype']));	
+		return view('Admin.userrole.create');	
 	} 
 	
 	public function store(Request $request)
@@ -110,8 +108,6 @@ class UserroleController extends Controller
 				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
 			}	
 		//check authorization end
-		$usertype 		= UserType::all();
-		
 		if ($request->isMethod('post')) 
 		{
 			$requestData 		= 	$request->all();
@@ -144,7 +140,7 @@ class UserroleController extends Controller
 				if(UserRole::where('id', '=', $id)->exists()) 
 				{
 					$fetchedData = UserRole::find($id);
-					return view('Admin.userrole.edit', compact(['fetchedData', 'usertype']));
+					return view('Admin.userrole.edit', compact(['fetchedData']));
 				}
 				else
 				{
