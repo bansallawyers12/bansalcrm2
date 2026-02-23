@@ -99,7 +99,7 @@ return new class extends Migration
         'test_scores',
         'to_do_groups',
         'upload_checklists',
-        'user_logs',
+        'staff_login_logs',
         'user_roles',
         // 'user_types', // Removed - table dropped (User Type feature removed)
         'users',

@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Audit Logs')
+@section('title', 'Staff Login Log')
 
 @section('content')
 
@@ -16,7 +16,7 @@
 				<div class="col-12 col-md-12 col-lg-12">
 					<div class="card">
 						<div class="card-header">
-							<h4>Audit Logs</h4>
+							<h4>Staff Login Log</h4>
 						</div>
 						<div class="card-body">
 							<div class="table-responsive"> 

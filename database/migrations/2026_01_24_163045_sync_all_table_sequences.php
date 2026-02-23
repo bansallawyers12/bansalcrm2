@@ -42,7 +42,7 @@ return new class extends Migration
             'partners',                         // 7 records behind
             'products',                         // 58 records behind
             'tags',                             // 1 record behind
-            'user_logs',                        // 386 records behind
+            'staff_login_logs',                 // was user_logs
         ];
 
         echo "\n=== SYNCING SEQUENCES FOR 22 TABLES ===\n\n";

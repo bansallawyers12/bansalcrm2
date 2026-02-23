@@ -348,7 +348,7 @@
 
 			@if(Auth::user()->role ===1)
 			<li class="dropdown {{@$auditlogsclasstype}}">
-				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Login Report</span></a>  
+				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Staff Login Log</span></a>  
 			</li>
 			@endif
 			<?php

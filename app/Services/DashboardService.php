@@ -7,7 +7,7 @@ use App\Models\Note;
 use App\Models\CheckinLog;
 use App\Models\Partner;
 use App\Models\Admin;
-use App\Models\UserLog;
+use App\Models\StaffLoginLog;
 use App\Models\ActivitiesLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -241,13 +241,13 @@ class DashboardService
             }
 
             // Get current login (most recent "Logged in successfully" entry)
-            $currentLoginLog = UserLog::where('user_id', $user->id)
+            $currentLoginLog = StaffLoginLog::where('user_id', $user->id)
                 ->where('message', 'Logged in successfully')
                 ->orderBy('created_at', 'DESC')
                 ->first();
 
             // Get previous login (second most recent "Logged in successfully" entry)
-            $lastLoginLog = UserLog::where('user_id', $user->id)
+            $lastLoginLog = StaffLoginLog::where('user_id', $user->id)
                 ->where('message', 'Logged in successfully')
                 ->orderBy('created_at', 'DESC')
                 ->skip(1)
