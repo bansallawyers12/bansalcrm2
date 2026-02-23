@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Followups table removed - system unused; lead status now from admins.status + followup_types.
+     * Followups table removed - system unused; lead status from admins.status (string values: Unassigned, Assigned, etc.).
      */
     public function up(): void
     {

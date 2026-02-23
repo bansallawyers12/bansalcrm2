@@ -112,10 +112,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										$leadIdForLinks = $list->lead_id ?? $list->id;
 										$displayId = $list->lead_id ?? $list->id;
 										$assigneeId = $list->assignee ?? $list->assign_to ?? null;
-										// status can be integer ID (followup_types) or string (e.g. "Assigned", "In-Progress") - only lookup when numeric
-										$statusType = ($list->status !== null && $list->status !== '' && is_numeric($list->status))
-											? \App\Models\FollowupType::find($list->status) : null;
-										$statusDisplay = $statusType ? $statusType->name : (($list->status === 0 || $list->status === '0') ? 'Not Contacted' : (is_string($list->status) ? $list->status : '—'));
+										$statusDisplay = ($list->status === 0 || $list->status === '0') ? 'Not Contacted' : ((is_string($list->status) && $list->status !== '') ? $list->status : '—');
 										?> 
 										<tr id="id_{{@$list->id}}">
 											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 

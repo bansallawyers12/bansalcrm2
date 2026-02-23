@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 
 use App\Models\Admin;
-use App\Models\FollowupType;
- 
+
 use Auth; 
 use Config;
 use App\Helpers\PhoneHelper;
@@ -44,31 +43,9 @@ class LeadController extends Controller
 		//check authorization end
 
 		$baseQuery = Admin::where('type', 'lead')->where('converted', 0);
-
-		$not_contacted = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 0)->count();
-		$create_porposal = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 1)->count();
-		$undecided = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 11)->count();
-		$lost = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 12)->count();
-		$won = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 13)->count();
-		$ready_to_pay = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 14)->count();
 		$query = clone $baseQuery;
 
 		$totalData = $query->count();
-		if ($request->has('type')) 
-		{	
-			 $type 		= 	$request->input('type'); 
-			if(trim($type) != '')
-			{
-				if($type != 'not_contacted'){
-					$FollowupType = FollowupType::where('type', '=', $type)->first();
-					
-					$query->where('status', '=', @$FollowupType->id);
-				}else{
-					$query->where('status', '=', 0);
-				}
-				
-			}	
-		}
 		if ($request->has('id')) 
 		{
 			$lead_id 		= 	$request->input('id'); 
@@ -125,13 +102,13 @@ class LeadController extends Controller
 			}
 
 		}
-	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status'))
+	if ($request->has('id') || $request->has('email') || $request->has('name') || $request->has('phone') || $request->has('status'))
 		{
 			$totalData 	= $query->count();//after search
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
 		$cur_url = $request->fullUrl();
-		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url'])); 
+		return view('Admin.leads.index', compact(['lists', 'totalData', 'cur_url'])); 
 
 	}   
 	

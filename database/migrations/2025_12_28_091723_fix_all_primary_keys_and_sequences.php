@@ -48,7 +48,7 @@ return new class extends Migration
         // 'fee_option_types', // Removed - table dropped (no data since 2022)
         // 'fee_options', // Removed - table dropped (no data since 2022)
         // 'fee_types', // Removed - Fee Type feature removed; static "Tution Fees" used in products
-        'followup_types',
+        // 'followup_types', // Removed - table dropped (unused; lead status uses string values)
         // 'followups', // Removed - table dropped (followups system removed)
         'income_sharings',
         'invoice_details',
