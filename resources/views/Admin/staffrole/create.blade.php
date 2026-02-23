@@ -10,14 +10,14 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'staffrole/store', 'name'=>"add-staffrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.store') : route('staffrole.store'), 'name'=>"add-staffrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-header">
 								<h4>Add Roles and Permissions</h4>
 								<div class="card-header-action">
-									<a href="{{route('staffrole.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{ request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.index') : route('staffrole.index') }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

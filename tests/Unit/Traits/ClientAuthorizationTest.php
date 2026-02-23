@@ -4,7 +4,7 @@ namespace Tests\Unit\Traits;
 
 use Tests\TestCase;
 use App\Models\Admin;
-use App\Models\UserRole;
+use App\Models\StaffRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Mockery;
@@ -33,7 +33,7 @@ class ClientAuthorizationTest extends TestCase
      */
     public function test_hasModuleAccess_returns_true_for_admin_with_access()
     {
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
@@ -52,7 +52,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('user')
             ->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -66,7 +66,7 @@ class ClientAuthorizationTest extends TestCase
      */
     public function test_hasModuleAccess_returns_false_for_admin_without_access()
     {
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['21' => true]); // Different module
         
         $user = Mockery::mock('user');
@@ -85,7 +85,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('user')
             ->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -165,7 +165,7 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
@@ -179,7 +179,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('user')
             ->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -253,7 +253,7 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
@@ -267,7 +267,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('user')
             ->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -283,7 +283,7 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
@@ -297,7 +297,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('user')
             ->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -325,9 +325,9 @@ class ClientAuthorizationTest extends TestCase
     }
 
     /**
-     * Test getCurrentUserRole returns correct role
+     * Test getCurrentStaffRole returns correct role
      */
-    public function test_getCurrentUserRole_returns_correct_role()
+    public function test_getCurrentStaffRole_returns_correct_role()
     {
         Auth::shouldReceive('guard')
             ->with('agents')
@@ -335,7 +335,7 @@ class ClientAuthorizationTest extends TestCase
         Auth::shouldReceive('check')
             ->andReturn(true);
         
-        $result = $this->controller->getCurrentUserRole();
+        $result = $this->controller->getCurrentStaffRole();
         
         $this->assertEquals('agent', $result);
     }

@@ -210,10 +210,10 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-		// Legacy redirect for backward compatibility
-		Route::get('/userrole', fn () => redirect()->route('staffrole.index'));
-		Route::get('/userrole/create', fn () => redirect()->route('staffrole.create'));
-		Route::get('/userrole/edit/{id}', fn ($id) => redirect()->route('staffrole.edit', ['id' => $id]));
+		// Legacy redirect for backward compatibility (named so route('userrole.*') works)
+		Route::get('/userrole', fn () => redirect()->route('staffrole.index'))->name('userrole.index');
+		Route::get('/userrole/create', fn () => redirect()->route('staffrole.create'))->name('userrole.create');
+		Route::get('/userrole/edit/{id}', fn ($id) => redirect()->route('staffrole.edit', ['id' => $id]))->name('userrole.edit');
 		Route::get('/staffrole', [StaffroleController::class, 'index'])->name('staffrole.index');
 		Route::get('/staffrole/create', [StaffroleController::class, 'create'])->name('staffrole.create');  
 		Route::post('/staffrole/store', [StaffroleController::class, 'store'])->name('staffrole.store');

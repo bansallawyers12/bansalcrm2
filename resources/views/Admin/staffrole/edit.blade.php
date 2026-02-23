@@ -10,7 +10,7 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body"> 
-			{!! Form::open(array('url' => 'staffrole/edit', 'name'=>"edit-staffrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.update') : route('staffrole.update'), 'name'=>"edit-staffrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 			  {!! Form::hidden('id', @$fetchedData->id)  !!}
 				
 				<div class="row">
@@ -19,7 +19,7 @@
 							<div class="card-header">
 								<h4>Edit Roles and Permissions</h4>
 								<div class="card-header-action">
-									<a href="{{route('staffrole.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{ request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.index') : route('staffrole.index') }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -59,8 +59,8 @@
 											<ul>
 												<li><label><input type="checkbox" name="module_access[1]" <?php if(array_key_exists('1',  $module_access)) { echo "checked"; } ?> class="office_team"> Can create new offices, edit and delete the associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[2]" <?php if(array_key_exists('2',  $module_access)) { echo "checked"; } ?> class="office_team"> Can only view associated office details and its information.</label></li>
-												<li><label><input type="checkbox" name="module_access[3]" <?php if(array_key_exists('3',  $module_access)) { echo "checked"; } ?> class="office_team"> Can invite users, cancel invitations, edit and change their status.</label></li>
-												<li><label><input type="checkbox" name="module_access[4]" <?php if(array_key_exists('4',  $module_access)) { echo "checked"; } ?> class="office_team"> Can only view users list and details of associated offices.</label></li>
+												<li><label><input type="checkbox" name="module_access[3]" <?php if(array_key_exists('3',  $module_access)) { echo "checked"; } ?> class="office_team"> Can invite staff, cancel invitations, edit and change their status.</label></li>
+												<li><label><input type="checkbox" name="module_access[4]" <?php if(array_key_exists('4',  $module_access)) { echo "checked"; } ?> class="office_team"> Can only view staff list and details of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[5]" <?php if(array_key_exists('5',  $module_access)) { echo "checked"; } ?> class="office_team"> Can access Service Page.</label></li>
 												<li><label><input type="checkbox" name="module_access[6]" <?php if(array_key_exists('6',  $module_access)) { echo "checked"; } ?> class="office_team"> Can manage Roles and Permissions</label></li>
 											</ul>
@@ -145,7 +145,7 @@
 												<a href="javascript:;" data-class="clients" class="btn btn-secondary deselect_all">Deselect All</a>
 											</div>
 											<ul>
-												<li><label><input type="checkbox" name="module_access[20]" <?php if(array_key_exists('20',  $module_access)) { echo "checked"; } ?> class="clients"> Can view all the clients of all the associated offices. Can assign clients to any users of the associated offices, respectively.</label></li>
+												<li><label><input type="checkbox" name="module_access[20]" <?php if(array_key_exists('20',  $module_access)) { echo "checked"; } ?> class="clients"> Can view all the clients of all the associated offices. Can assign clients to any staff of the associated offices, respectively.</label></li>
 												<li><label><input type="checkbox" name="module_access[21]" <?php if(array_key_exists('21',  $module_access)) { echo "checked"; } ?> class="clients"> Can add, edit and archive the clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[22]" <?php if(array_key_exists('22',  $module_access)) { echo "checked"; } ?> class="clients"> Can only edit and archive assigned clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[23]" <?php if(array_key_exists('23',  $module_access)) { echo "checked"; } ?> class="clients"> Can only view assigned clients.</label></li>
@@ -175,8 +175,8 @@
 												<li><label><input type="checkbox" name="module_access[37]" <?php if(array_key_exists('37',  $module_access)) { echo "checked"; } ?> class="applications"> Can add a new payment schedule.</label></li>
 												<li><label><input type="checkbox" name="module_access[38]" <?php if(array_key_exists('38',  $module_access)) { echo "checked"; } ?> class="applications"> Can edit a payment schedule.</label></li>
 												<li><label><input type="checkbox" name="module_access[39]" <?php if(array_key_exists('39',  $module_access)) { echo "checked"; } ?> class="applications"> Can delete a payment schedule.</label></li>
-												<li><label><input type="checkbox" name="module_access[40]" <?php if(array_key_exists('40',  $module_access)) { echo "checked"; } ?> class="applications"> Can view/edit assigned and added application by the users of primary office.</label></li>
-												<li><label><input type="checkbox" name="module_access[41]" <?php if(array_key_exists('41',  $module_access)) { echo "checked"; } ?> class="applications"> Can view/edit assigned and added application by the users of secondary office.</label></li>
+												<li><label><input type="checkbox" name="module_access[40]" <?php if(array_key_exists('40',  $module_access)) { echo "checked"; } ?> class="applications"> Can view/edit assigned and added application by the staff of primary office.</label></li>
+												<li><label><input type="checkbox" name="module_access[41]" <?php if(array_key_exists('41',  $module_access)) { echo "checked"; } ?> class="applications"> Can view/edit assigned and added application by the staff of secondary office.</label></li>
 												<li><label><input type="checkbox" name="module_access[42]" <?php if(array_key_exists('42',  $module_access)) { echo "checked"; } ?> class="applications"> Can view commission in product fees and payment schedule of application.</label></li>
 												<li><label><input type="checkbox" name="module_access[43]" <?php if(array_key_exists('43',  $module_access)) { echo "checked"; } ?> class="applications"> Can edit commission in product fees and payment schedule of application.</label></li>
 												<li><label><input type="checkbox" name="module_access[44]" <?php if(array_key_exists('44',  $module_access)) { echo "checked"; } ?> class="applications"> Can view sales forecast of application.</label></li>
