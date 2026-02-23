@@ -65,7 +65,6 @@ class AdminLoginController extends Controller
 		}
 	
 		$obj = new \App\Models\StaffLoginLog;
-		$obj->level = 'info';
 		$obj->user_id = @$user->id;
 		$obj->ip_address = $request->getClientIp();
 		$obj->user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -122,7 +121,6 @@ class AdminLoginController extends Controller
 
 
             $obj = new \App\Models\StaffLoginLog;
-            $obj->level = 'info';
             // PostgreSQL NOT NULL constraint - user_id must be set
             $obj->user_id = $user->id;
             $obj->ip_address = $request->getClientIp();
@@ -174,7 +172,6 @@ class AdminLoginController extends Controller
 		// If user exists, use their ID; if not, use null (column should be nullable for failed logins)
 		try {
 			$obj = new \App\Models\StaffLoginLog;
-			$obj->level = 'critical';
 			$obj->user_id = $user ? $user->id : null; // null for unknown/non-existent users
 			$obj->ip_address = $request->getClientIp();
 			$obj->user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -199,7 +196,6 @@ class AdminLoginController extends Controller
 		$userId = Auth::guard('admin')->id();
 	
 		$obj = new \App\Models\StaffLoginLog;
-		$obj->level = 'info';
 		// PostgreSQL NOT NULL constraint - user_id must be set. Use authenticated user ID
 		$obj->user_id = $userId;
 		$obj->ip_address = $request->getClientIp();

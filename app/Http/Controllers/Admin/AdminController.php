@@ -251,7 +251,7 @@ class AdminController extends Controller
 				}
 			else
 				{
-					return redirect()->back()->with('error', 'User is not exist, so you can not change the password.');
+					return redirect()->back()->with('error', 'Staff member does not exist, so you cannot change the password.');
 				}
 		}
 		return view('Admin.change_password');

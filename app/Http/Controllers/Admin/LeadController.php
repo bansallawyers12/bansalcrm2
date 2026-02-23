@@ -136,7 +136,7 @@ class LeadController extends Controller
 			$currentAssignee = $admin->assignee;
 			if($currentAssignee != '' && $currentAssignee != null){
 				if($currentAssignee == $requestData['assignto']){
-					return redirect()->back()->with('error', 'Already Assigned to this user');
+					return redirect()->back()->with('error', 'Already Assigned to this Staff');
 				}
 				$assignfrom = \App\Models\Staff::find($currentAssignee);
 				$assignto = \App\Models\Staff::find($requestData['assignto']);

@@ -848,7 +848,7 @@ class ActionController extends Controller
                             </div>
                             <div class=&quot;row text-center&quot;>
                                 <div class=&quot;col-md-12 text-center&quot;>
-                                <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign User</button>
+                                <button  class=&quot;btn btn-info&quot; id=&quot;assignUser&quot;>Assign Staff</button>
                                 </div>
                             </div>
                         </div>

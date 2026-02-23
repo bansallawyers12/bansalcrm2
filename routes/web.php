@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ApplicationsController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\BranchesController;
-use App\Http\Controllers\Admin\UserroleController;
+use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\OfficeVisitController;
@@ -210,11 +210,15 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-		Route::get('/userrole', [UserroleController::class, 'index'])->name('userrole.index');
-		Route::get('/userrole/create', [UserroleController::class, 'create'])->name('userrole.create');  
-		Route::post('/userrole/store', [UserroleController::class, 'store'])->name('userrole.store');
-		Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('userrole.edit');
-		Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('userrole.update');
+		// Legacy redirect for backward compatibility
+		Route::get('/userrole', fn () => redirect()->route('staffrole.index'));
+		Route::get('/userrole/create', fn () => redirect()->route('staffrole.create'));
+		Route::get('/userrole/edit/{id}', fn ($id) => redirect()->route('staffrole.edit', ['id' => $id]));
+		Route::get('/staffrole', [StaffroleController::class, 'index'])->name('staffrole.index');
+		Route::get('/staffrole/create', [StaffroleController::class, 'create'])->name('staffrole.create');  
+		Route::post('/staffrole/store', [StaffroleController::class, 'store'])->name('staffrole.store');
+		Route::get('/staffrole/edit/{id}', [StaffroleController::class, 'edit'])->name('staffrole.edit');
+		Route::post('/staffrole/edit', [StaffroleController::class, 'edit'])->name('staffrole.update');
 		
 	//Leads Start - Updated to modern syntax
 	Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');  
@@ -492,8 +496,9 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		//Route::get('/enquiries/covertenquiry/{id}', 'Admin\EnquireController@covertenquiry'); 
 		//Route::get('/enquiries/archived/{id}', 'Admin\EnquireController@archivedenquiry'); 
 	
-		//Audit Logs Start   
+		//Audit Logs Start
 		Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('auditlogs.index');
+		Route::get('/audit-logs/export', [AuditLogController::class, 'exportCsv'])->name('auditlogs.export');
 		
 		//Reports Start   
 		Route::get('/report/client', [ReportController::class, 'client'])->name('reports.client');

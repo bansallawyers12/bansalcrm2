@@ -47,7 +47,7 @@
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="is_default" id="custom" value="0" {{ old('is_default', '0') == '0' ? 'checked' : '' }}>
 											<label class="form-check-label" for="custom">
-												Custom (User-created categories)
+												Custom (Staff-created categories)
 											</label>
 										</div>
 										@error('is_default')

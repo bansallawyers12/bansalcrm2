@@ -361,7 +361,7 @@
 				class="fas fa-user"></i><span>Staff & Access Management</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'staff.index' || Route::currentRouteName() == 'staff.active' || Route::currentRouteName() == 'staff.create' || Route::currentRouteName() == 'staff.edit' || Route::currentRouteName() == 'staff.view') ? 'active' : ''}}"><a class="nav-link" href="{{route('staff.active')}}">Staff</a></li>
-					<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">User Role</a></li>
+					<li class="{{(Route::currentRouteName() == 'staffrole.index' || Route::currentRouteName() == 'staffrole.create' || Route::currentRouteName() == 'staffrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('staffrole.index')}}">Staff Role</a></li>
 				</ul>
 			</li>
 			<?php 

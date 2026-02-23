@@ -47,7 +47,7 @@
 										<div class="form-check">
 											<input class="form-check-input" type="radio" name="is_default" id="custom" value="0" {{ !$category->is_default ? 'checked' : '' }} disabled>
 											<label class="form-check-label" for="custom">
-												Custom (User-created categories)
+												Custom (Staff-created categories)
 											</label>
 										</div>
 										<small class="form-text text-muted">Category type cannot be changed after creation.</small>

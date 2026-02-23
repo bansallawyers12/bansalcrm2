@@ -50,7 +50,7 @@
 											@error('type')
 												<div class="invalid-feedback">{{ $message }}</div>
 											@enderror
-											<small class="form-text text-muted">System labels are visible to all users. Custom labels are user-specific.</small>
+											<small class="form-text text-muted">System labels are visible to all staff. Custom labels are staff-specific.</small>
 										</div>
 									</div>
 								</div>
