@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 
 use App\Models\Admin;
 
-use Auth; 
-use Config;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use App\Helpers\PhoneHelper;
 
 class LeadController extends Controller
