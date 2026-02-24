@@ -275,6 +275,10 @@ class Controller extends BaseController
 			 //for test series vendor & organizations & professors authentication
 
 				$noAccessController = json_decode($module_access);
+				// Ensure we have an array: json_decode returns stdClass for JSON objects, array for JSON arrays
+				if (!is_array($noAccessController)) {
+					$noAccessController = $noAccessController ? (array) $noAccessController : [];
+				}
 				
 					if (!in_array($controller, $noAccessController))
 					{

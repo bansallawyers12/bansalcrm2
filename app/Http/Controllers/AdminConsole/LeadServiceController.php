@@ -36,7 +36,7 @@ class LeadServiceController extends Controller
 			
 			/* if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			} */	
 	//check authorization end 
 	

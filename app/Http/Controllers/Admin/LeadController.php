@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 
 use App\Models\Admin;
@@ -38,7 +37,7 @@ class LeadController extends Controller
 			/* $check = $this->checkAuthorizationAction('lead_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}*/	
 		//check authorization end
 
@@ -118,7 +117,7 @@ class LeadController extends Controller
 			/* $check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}*/	 
 		//check authorization end
 		
@@ -158,11 +157,11 @@ class LeadController extends Controller
 	 public function store(Request $request)
 	{
 		//check authorization start	
-			  $check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
-			if($check)
-			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
-			}	 
+		/*$check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
+		if($check)
+		{
+			return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
+		}	*/ 
 		//check authorization end
 		if ($request->isMethod('post')) 
 		{
