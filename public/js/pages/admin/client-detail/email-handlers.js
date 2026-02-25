@@ -318,16 +318,22 @@ jQuery(document).ready(function($){
                     if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                         TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
                     }
-                    // Refresh activity log and switch to Activities tab so user sees the new entry without page refresh
+                    // Refresh activity log
                     if(typeof getallactivities === 'function') {
-                        getallactivities(function() {
-                            var activitiesTab = document.getElementById('activities-tab');
-                            if (activitiesTab && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                                try {
-                                    bootstrap.Tab.getOrCreateInstance(activitiesTab).show();
-                                } catch (e) { /* tab may not exist on non-client pages */ }
+                        getallactivities();
+                    }
+                    // Switch to Emails tab, set to Sent folder, and refresh so user sees their sent email
+                    var emailV2Tab = document.getElementById('email-v2-tab');
+                    if (emailV2Tab && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                        try {
+                            bootstrap.Tab.getOrCreateInstance(emailV2Tab).show();
+                            if (typeof window.setEmailMailTypeV2 === 'function') {
+                                window.setEmailMailTypeV2('sent');
                             }
-                        });
+                            if (typeof window.loadEmailsV2 === 'function') {
+                                setTimeout(window.loadEmailsV2, 150);
+                            }
+                        } catch (e) { /* tab may not exist on non-client/partner pages */ }
                     }
                 } else {
                     alert(res.message || 'Failed to send email');

@@ -1897,7 +1897,7 @@ use App\Http\Controllers\Controller;
 														    </div>
 														    	<?php } */ ?>
 											@endif
-														{!!$mailreport->message!!}
+														{!! \App\Helpers\Helper::stripCidReferences($mailreport->message) !!}
 														</div>
 														<div class="divider"></div>
 														<?php
@@ -1936,6 +1936,7 @@ use App\Http\Controllers\Controller;
 												$clientDobDisplay = (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') ? date('d/m/Y', strtotime($client->dob)) : '';
 												$subject = str_replace('{DOB}', $clientDobDisplay, $subject);
 												$message = str_replace('{DOB}', $clientDobDisplay, $message);
+												$message = \App\Helpers\Helper::stripCidReferences($message);
 											?>
 												<div class="conversation_list" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;margin-bottom: 10px;border-bottom: 1px solid rgba(34, 36, 38, .15);">
 													<div class="conversa_item">

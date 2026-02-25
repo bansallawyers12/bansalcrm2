@@ -39,4 +39,25 @@ class Helper
         $profile = self::defaultCrmProfile();
         return $profile ? $profile->company_name : 'Bansal Education Group';
     }
+
+    /**
+     * Strip cid: (Content-ID) references from email HTML to prevent ERR_UNKNOWN_URL_SCHEME.
+     * Browsers cannot load cid: URLs; replace with transparent 1x1 pixel.
+     * Use for server-rendered email content (Conversations tab, etc.).
+     *
+     * @param string|null $html
+     * @return string
+     */
+    public static function stripCidReferences(?string $html): string
+    {
+        if ($html === null || $html === '') {
+            return '';
+        }
+        $pixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        // img src="cid:..." or src='cid:...'
+        $html = preg_replace('/src=["\']cid:[^"\'>]+["\']/i', 'src="' . $pixel . '"', $html);
+        // background-image: url("cid:...") or url('cid:...') or url(cid:...)
+        $html = preg_replace('/background-image:\s*url\s*\(["\']?cid:[^"\'\)]+["\']?\)/i', 'background-image: none', $html);
+        return $html;
+    }
 }

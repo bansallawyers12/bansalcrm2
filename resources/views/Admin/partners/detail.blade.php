@@ -1259,7 +1259,7 @@ use App\Http\Controllers\Controller;
                                                                             <?php
                                                                             }
                                                                         } else { ?>
-                                                                            <a class="dropdown-item has-icon sent_mail_preview_modal" memail_message="{{@$mailreport->message}}" memail_subject="{{@$mailreport->subject}}"><i class="fas fa-eye"></i> Preview Mail</a>
+                                                                            <a class="dropdown-item has-icon sent_mail_preview_modal" memail_message="{{ e(\App\Helpers\Helper::stripCidReferences($mailreport->message ?? '')) }}" memail_subject="{{@$mailreport->subject}}"><i class="fas fa-eye"></i> Preview Mail</a>
                                                                         <?php } ?>
 
 																		<!--<a class="dropdown-item has-icon create_note" datamailid="{{--$mailreport->id--}}" datasubject="{{--@$mailreport->subject--}}" class="create_note" datatype="mailnote" ><i class="fas fa-file-alt"></i> Create Note</a>-->

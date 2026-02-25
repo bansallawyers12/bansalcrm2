@@ -1232,7 +1232,8 @@
         }
 
         // Replace cid: in img src (always replace to prevent ERR_UNKNOWN_URL_SCHEME)
-        htmlContent = htmlContent.replace(/src=["']cid:([^"'>]+)["']/gi, (match, cidValue) => {
+        // Handles: src="cid:...", src='cid:...', src=cid:... (unquoted)
+        htmlContent = htmlContent.replace(/src=(["']?)cid:([^"'>\s]+)\1?/gi, (match, quote, cidValue) => {
             const attachment = findAttachment(cidValue);
             if (attachment && attachment.id) {
                 return `src="/email-v2/attachments/${attachment.id}/preview"`;
