@@ -1,7 +1,7 @@
 <!-- Emails V2 Interface - Generic for Clients and Partners -->
 
 <!-- Email V2 Styles -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}">
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
 
 @php
     // Support both $client and $fetchedData variable names
@@ -161,8 +161,8 @@
 <div id="contextMenuOverlayV2" class="context-menu-overlay" style="display: none;"></div>
 
 <!-- Include necessary CSS and JavaScript -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}">
-<script src="{{ asset('js/emails_v2.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
+<script src="{{ asset('js/emails_v2.js') }}?v={{ filemtime(public_path('js/emails_v2.js')) }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
