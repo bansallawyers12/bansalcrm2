@@ -1350,9 +1350,8 @@ class AdminController extends Controller
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
 		$obj->mail_type		=  1;
-		// client_id and client_matter_id for Email tab / S3 archival (required for sent emails to appear)
+		// client_id for Email tab / S3 archival (required for sent emails to appear)
 		$obj->client_id		=  $requestData['client_id'] ?? ($requestData['email_to'][0] ?? null);
-		$obj->client_matter_id =  $requestData['compose_client_matter_id'] ?? null;
       
 		$attachments = array();
       

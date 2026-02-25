@@ -16,9 +16,9 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 | File | Change |
 |------|--------|
 | `app/Services/CrmSentEmailS3Service.php` | **Created** – Service for `MailReport` / `MailReportAttachment` |
-| `app/Http/Controllers/Admin/AdminController.php` | Injected service; set `client_id`, `client_matter_id` on MailReport; call `storeToS3()` after send |
+| `app/Http/Controllers/Admin/AdminController.php` | Injected service; set `client_id` on MailReport; call `storeToS3()` after send |
 | `app/Http/Controllers/CRM/EmailQueryV2Controller.php` | Updated `filterSentEmails` for S3 preview fallback |
-| `resources/views/Admin/clients/detail.blade.php` | Added hidden `client_id`, `type`, `compose_client_matter_id` to sendmail form |
+| `resources/views/Admin/clients/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
 | `resources/views/Admin/partners/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
 
 ### CrmSentEmailS3Service
@@ -27,12 +27,11 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 - **S3 path:** `{client_ref}/crm_sent/sent/{timestamp}-{uniqid}-email.html`
 - **Attachment path:** `{client_ref}/attachments/{timestamp}_{uniqid}_{filename}`
 - **`resolveClientUniqueId()`:** `partner` → Partner `id`; `client`/`lead` → Admin `client_id` or `'client_' . $entityId`
-- **Document:** `doc_type = 'crm_sent'`, `myfile` = full S3 URL, `myfile_key` = filename, `client_id`, `type`, `mail_type = 'sent'`. `client_matter_id` is not on Document (not in fillable).
+- **Document:** `doc_type = 'crm_sent'`, `myfile` = full S3 URL, `myfile_key` = filename, `client_id`, `type`, `mail_type = 'sent'`.
 
 ### AdminController sendmail
 
 - Sets `obj->client_id` = `$requestData['client_id'] ?? $requestData['email_to'][0] ?? null` (when present, `email_to` holds entity IDs: Admin id or Partner id)
-- Sets `obj->client_matter_id` = `$requestData['compose_client_matter_id'] ?? null`
 - After `sendEmail()` success: builds `attachmentTuples`, calls `storeToS3($obj, $subject, $message, $attachmentTuples)`
 - S3 failure is caught/logged; send still succeeds
 
@@ -44,7 +43,7 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 
 ### Form Hidden Inputs
 
-- **Client detail:** `client_id` (Admin id), `type` (client/lead), `compose_client_matter_id`
+- **Client detail:** `client_id` (Admin id), `type` (client/lead)
 - **Partner detail:** `client_id` (Partner id), `type` (partner)
 
 ### Attachment Download

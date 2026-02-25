@@ -31,7 +31,6 @@ class EmailQueryV2Controller extends Controller
         try {
             $entityId = $request->input('client_id'); // Can be client_id or partner_id
             $entityType = $request->input('type', 'client'); // client, lead, or partner
-            $client_matter_id = $request->input('client_matter_id'); // Optional for partners
             $status = $request->input('status');
             $search = $request->input('search');
             $label_id = $request->input('label_id');
@@ -48,11 +47,6 @@ class EmailQueryV2Controller extends Controller
             } else {
                 $query->where('conversion_type', 'conversion_email_fetch')
                       ->where('mail_body_type', 'inbox');
-            }
-
-            // Filter by matter_id if provided (mainly for clients)
-            if (!empty($client_matter_id)) {
-                $query->where('client_matter_id', $client_matter_id);
             }
 
             $query->with(['labels', 'attachments'])
@@ -195,7 +189,6 @@ class EmailQueryV2Controller extends Controller
         try {
             $entityId = $request->input('client_id'); // Can be client_id or partner_id
             $entityType = $request->input('type', 'client'); // client, lead, or partner
-            $client_matter_id = $request->input('client_matter_id'); // Optional for partners
             $status = $request->input('status');
             $search = $request->input('search');
             $label_id = $request->input('label_id');
@@ -222,11 +215,6 @@ class EmailQueryV2Controller extends Controller
                                 ->where('mail_body_type', 'sent');
                         });
                 });
-            }
-
-            // Filter by matter_id if provided
-            if (!empty($client_matter_id)) {
-                $query->where('client_matter_id', $client_matter_id);
             }
 
             $query->with(['labels', 'attachments'])
