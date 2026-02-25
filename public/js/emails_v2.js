@@ -179,8 +179,8 @@
         if (email.received_date) {
             return email.received_date;
         }
-        // Last resort: use created_at (upload time)
-        return getEmailDate(email);
+        // Last resort: use created_at (upload/send time)
+        return email.created_at || null;
     }
 
     /**
