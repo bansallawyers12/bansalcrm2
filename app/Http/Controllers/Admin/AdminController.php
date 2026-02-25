@@ -1528,6 +1528,7 @@ class AdminController extends Controller
 
 		$subject = $requestData['subject'];
 		$message = $requestData['message'];
+		$s3Stored = false; // Store to S3 only once (not per recipient)
 		foreach($requestData['email_to'] as $l){
 			if(@$requestData['type'] == 'partner'){
 				$client = \App\Models\Partner::Where('id', $l)->first();
@@ -1652,17 +1653,20 @@ class AdminController extends Controller
                     $ccarray
                 );
 
-                // Store full email to S3 for archival (HTML snapshot + attachments)
-                try {
-                    $attachmentTuples = [];
-                    foreach ($attachments as $p) {
-                        if (is_string($p) && file_exists($p)) {
-                            $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                // Store full email to S3 for archival (HTML snapshot + attachments) - once per MailReport, not per recipient
+                if (!$s3Stored) {
+                    try {
+                        $attachmentTuples = [];
+                        foreach ($attachments as $p) {
+                            if (is_string($p) && file_exists($p)) {
+                                $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                            }
                         }
+                        $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
+                        $s3Stored = true;
+                    } catch (\Exception $s3Ex) {
+                        \Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
                     }
-                    $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
-                } catch (\Exception $s3Ex) {
-                    \Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
                 }
                 
                 // Clean up temp files after email is sent

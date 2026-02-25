@@ -1194,77 +1194,61 @@
         `;
     }
 
+    // 1x1 transparent GIF - used as fallback when cid: cannot be resolved (avoids ERR_UNKNOWN_URL_SCHEME)
+    const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
     /**
-     * Replace cid: references in email HTML with actual preview URLs for inline attachments
+     * Replace cid: references in email HTML with actual preview URLs for inline attachments.
+     * Browsers cannot load cid: URLs; unresolved refs are replaced with a transparent pixel.
      */
     function replaceCidReferences(htmlContent, attachments) {
-        if (!htmlContent || !attachments || attachments.length === 0) {
-            return htmlContent;
-        }
-        
-        // Create a map of content_id to attachment for quick lookup
+        if (!htmlContent) return htmlContent;
+
+        // Build lookup map when we have attachments
         const cidMap = {};
-        attachments.forEach(att => {
-            if (!att.id) return; // Skip if no attachment ID
-            
-            // Always add filename to map (case-insensitive) as fallback
-            if (att.filename) {
-                const filenameKey = att.filename.toLowerCase();
-                cidMap[filenameKey] = att;
-                // Also try without extension
-                const filenameWithoutExt = filenameKey.replace(/\.[^.]+$/, '');
-                if (filenameWithoutExt !== filenameKey) {
-                    cidMap[filenameWithoutExt] = att;
+        if (attachments && attachments.length > 0) {
+            attachments.forEach(att => {
+                if (!att.id) return;
+                if (att.filename) {
+                    const filenameKey = att.filename.toLowerCase();
+                    cidMap[filenameKey] = att;
+                    const filenameWithoutExt = filenameKey.replace(/\.[^.]+$/, '');
+                    if (filenameWithoutExt !== filenameKey) cidMap[filenameWithoutExt] = att;
                 }
-            }
-            
-            // If content_id exists, add it to map (normalized)
-            if (att.content_id) {
-                // Normalize content_id (remove < > brackets if present)
-                const normalizedCid = att.content_id.replace(/^<|>$/g, '').trim();
-                if (normalizedCid) {
-                    cidMap[normalizedCid.toLowerCase()] = att;
+                if (att.content_id) {
+                    const normalized = att.content_id.replace(/^<|>$/g, '').trim().toLowerCase();
+                    if (normalized) cidMap[normalized] = att;
                 }
+            });
+        }
+
+        function findAttachment(cidValue) {
+            const normalized = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
+            let att = cidMap[normalized] || cidMap[normalized.replace(/:\d+$/, '')];
+            if (!att && normalized.includes('@')) {
+                att = cidMap[normalized.split('@')[0]];
             }
-        });
-        
-        // Replace cid: references in img src attributes
-        // Pattern: cid:filename or cid:<content-id>
+            return att;
+        }
+
+        // Replace cid: in img src (always replace to prevent ERR_UNKNOWN_URL_SCHEME)
         htmlContent = htmlContent.replace(/src=["']cid:([^"'>]+)["']/gi, (match, cidValue) => {
-            // Remove any brackets and normalize
-            const normalizedCid = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
-            
-            // Try to find matching attachment
-            let attachment = cidMap[normalizedCid];
-            
-            // If not found, try with the original value
-            if (!attachment) {
-                attachment = cidMap[cidValue.toLowerCase()];
-            }
-            
-            // If attachment found and it's an image, replace with preview URL
+            const attachment = findAttachment(cidValue);
             if (attachment && attachment.id) {
-                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
-                return `src="${previewUrl}"`;
+                return `src="/email-v2/attachments/${attachment.id}/preview"`;
             }
-            
-            // If not found, return original (broken image will show)
-            return match;
+            return `src="${TRANSPARENT_PIXEL}"`;
         });
-        
-        // Also handle background-image CSS with cid: references
+
+        // Replace cid: in background-image CSS
         htmlContent = htmlContent.replace(/background-image:\s*url\(["']?cid:([^"')]+)["']?\)/gi, (match, cidValue) => {
-            const normalizedCid = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
-            let attachment = cidMap[normalizedCid] || cidMap[cidValue.toLowerCase()];
-            
+            const attachment = findAttachment(cidValue);
             if (attachment && attachment.id) {
-                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
-                return `background-image: url("${previewUrl}")`;
+                return `background-image: url("/email-v2/attachments/${attachment.id}/preview")`;
             }
-            
-            return match;
+            return 'background-image: none';
         });
-        
+
         return htmlContent;
     }
 
