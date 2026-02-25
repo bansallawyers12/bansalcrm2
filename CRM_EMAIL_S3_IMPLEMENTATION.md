@@ -2,6 +2,8 @@
 
 This document describes the implementation of S3 storage for CRM-sent emails (full HTML snapshot + attachments). It enables consistent archival with uploaded `.msg` emails and attachment download in the **Email tab** (email-v2).
 
+**This CRM is client-only – no matters.** Filtering uses `client_id` and `type` (client/lead/partner).
+
 > **See also:** `c:/xampp/htdocs/migrationmanager2/CRM_EMAIL_S3_IMPLEMENTATION.md` for the full doc covering both migrationmanager2 and bansalcrm2.
 
 **In scope:** `AdminController::sendmail` (Client detail, Partner detail compose).  
@@ -20,6 +22,7 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 | `app/Http/Controllers/CRM/EmailQueryV2Controller.php` | Updated `filterSentEmails` for S3 preview fallback |
 | `resources/views/Admin/clients/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
 | `resources/views/Admin/partners/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
+| `public/js/emails_v2.js` | Removed unused `getMatterId()` – client-only, no matters |
 
 ### CrmSentEmailS3Service
 

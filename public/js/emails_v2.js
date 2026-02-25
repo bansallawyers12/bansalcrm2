@@ -66,24 +66,6 @@
     }
 
     /**
-     * Get matter ID from the DOM (optional - not required for email upload)
-     * Returns null if not available - this is acceptable
-     */
-    function getMatterId() {
-        const container = document.querySelector('.email-v2-interface-container');
-        if (!container) {
-            return null;
-        }
-        
-        const matterId = container.dataset.matterId;
-        if (!matterId || matterId === '') {
-            return null;
-        }
-        
-        return matterId;
-    }
-
-    /**
      * Get CSRF token from meta tag
      */
     function getCsrfToken() {
