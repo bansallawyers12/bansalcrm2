@@ -7,16 +7,17 @@
     // Support both $client and $fetchedData variable names
     $entityData = $client ?? $partner ?? $fetchedData ?? null;
     
-    // Determine entity type (client or partner)
+    // Determine entity type (client, lead, or partner)
     $entityType = 'client'; // default
     if (isset($partner)) {
         $entityType = 'partner';
     } elseif (isset($fetchedData)) {
-        // Check if it's a Partner model by checking if it has partner_name attribute
+        // Check if it's a Partner model
         if (isset($fetchedData->partner_name) || (method_exists($fetchedData, 'getTable') && $fetchedData->getTable() === 'partners')) {
             $entityType = 'partner';
         } else {
-            $entityType = 'client';
+            // Admin: use actual type (client or lead) so sent emails match
+            $entityType = $fetchedData->type ?? 'client';
         }
     }
 @endphp
@@ -25,6 +26,13 @@
      data-entity-type="{{ $entityType }}">
     <!-- Top Control Bar (Search & Filters) -->
     <div class="email-v2-control-bar">
+        <div class="control-section mail-type-section">
+            <label>Folder:</label>
+            <select id="mailTypeFilterV2" class="filter-select" title="Switch between Inbox and Sent">
+                <option value="inbox">Inbox</option>
+                <option value="sent">Sent</option>
+            </select>
+        </div>
         <div class="control-section search-section">
             <label for="emailV2SearchInput">Search:</label>
             <input type="text" id="emailV2SearchInput" class="search-input" placeholder="Search emails...">

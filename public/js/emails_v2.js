@@ -2280,7 +2280,7 @@
         }
 
         // Mail type filter (Inbox/Sent)
-        const mailTypeFilter = document.getElementById('mailTypeFilter');
+        const mailTypeFilter = document.getElementById('mailTypeFilterV2');
         if (mailTypeFilter) {
             mailTypeFilter.addEventListener('change', function() {
                 currentMailType = this.value;

@@ -22,7 +22,8 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 | `app/Http/Controllers/CRM/EmailQueryV2Controller.php` | Updated `filterSentEmails` for S3 preview fallback |
 | `resources/views/Admin/clients/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
 | `resources/views/Admin/partners/detail.blade.php` | Added hidden `client_id`, `type` to sendmail form |
-| `public/js/emails_v2.js` | Removed unused `getMatterId()` – client-only, no matters |
+| `public/js/emails_v2.js` | Removed unused `getMatterId()`; fixed `mailTypeFilterV2` (Inbox/Sent) |
+| `resources/views/Admin/clients/tabs/emails_v2.blade.php` | Added Folder dropdown (Inbox/Sent); fixed `data-entity-type` to use `client`/`lead` from `fetchedData` |
 
 ### CrmSentEmailS3Service
 
@@ -59,7 +60,7 @@ This document describes the implementation of S3 storage for CRM-sent emails (fu
 
 | Issue | Check |
 |-------|-------|
-| Sent emails not in Email tab | `client_id` set on MailReport; correct `type` (client/lead/partner) |
+| Sent emails not in Email tab | Switch to **Sent** in Folder dropdown; `client_id` set on MailReport; correct `type` (client/lead) matches entity |
 | Preview URL 404/blank | Document has `myfile_key`, `myfile`; S3 config correct |
 | Attachment download fails | `s3_key` set on `MailReportAttachment`; file exists in S3 |
 | S3 upload fails silently | Logs; `AWS_ACCESS_KEY_ID`, `AWS_BUCKET`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION` in `.env`; service skips if key/bucket empty |
