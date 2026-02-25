@@ -10,6 +10,7 @@ use App\Models\MailReportAttachment;
 use App\Models\Document;
 use App\Models\Admin;
 use App\Models\Partner;
+use App\Models\Agent;
 
 /**
  * Email Query V2 Controller
@@ -166,6 +167,7 @@ class EmailQueryV2Controller extends Controller
                 }
                 
                 $emailArray['preview_url'] = $previewUrl;
+                $emailArray['to_mail'] = $this->resolveToMailDisplay($email->to_mail ?? '', $email->type ?? $entityType);
                 
                 return $emailArray;
             });
@@ -338,7 +340,7 @@ class EmailQueryV2Controller extends Controller
                 
                 $emailArray['preview_url'] = $previewUrl;
                 $emailArray['from_mail'] = $emailArray['from_mail'] ?? '';
-                $emailArray['to_mail'] = $emailArray['to_mail'] ?? '';
+                $emailArray['to_mail'] = $this->resolveToMailDisplay($email->to_mail ?? '', $email->type ?? $entityType);
                 $emailArray['subject'] = $emailArray['subject'] ?? '';
                 $emailArray['message'] = $emailArray['message'] ?? '';
                 
@@ -357,5 +359,46 @@ class EmailQueryV2Controller extends Controller
                 'message' => 'An error occurred while fetching emails'
             ], 500);
         }
+    }
+
+    /**
+     * Resolve to_mail field: if it contains client/partner/agent IDs, resolve to email addresses.
+     */
+    protected function resolveToMailDisplay(string $toMail, string $entityType): string
+    {
+        if (empty(trim($toMail))) {
+            return $toMail;
+        }
+        $parts = array_map('trim', explode(',', $toMail));
+        $resolved = [];
+        foreach ($parts as $part) {
+            if (strpos($part, '@') !== false) {
+                $resolved[] = $part;
+                continue;
+            }
+            if (is_numeric($part)) {
+                $email = null;
+                $admin = Admin::withoutGlobalScopes()->find($part);
+                if ($admin && !empty($admin->email)) {
+                    $email = $admin->email;
+                }
+                if (!$email) {
+                    $partner = Partner::find($part);
+                    if ($partner && isset($partner->email) && $partner->email !== '') {
+                        $email = $partner->email;
+                    }
+                }
+                if (!$email) {
+                    $agent = Agent::find($part);
+                    if ($agent && !empty($agent->email)) {
+                        $email = $agent->email;
+                    }
+                }
+                $resolved[] = $email ?: $part;
+            } else {
+                $resolved[] = $part;
+            }
+        }
+        return implode(', ', $resolved);
     }
 }

@@ -1334,7 +1334,7 @@ class AdminController extends Controller
 		$obj = new \App\Models\MailReport;
 		$obj->user_id 		=  $user_id;
 		$obj->from_mail 	=  isset($requestData['email_from']) ? $requestData['email_from'] : '';
-		$obj->to_mail 		=  isset($requestData['email_to']) ? implode(',',$requestData['email_to']) : '';
+		$obj->to_mail 		=  isset($requestData['email_to']) ? $this->resolveRecipientsToEmails($requestData['email_to'], $requestData['type'] ?? 'client') : '';
 		if(isset($requestData['email_cc'])){
 		$obj->cc 			=  implode(',',@$requestData['email_cc']);
 		}
@@ -1713,6 +1713,38 @@ class AdminController extends Controller
         }
 	}
 
+	/**
+	 * Resolve recipient IDs (client/partner/agent) to email addresses for MailReport.to_mail.
+	 */
+	protected function resolveRecipientsToEmails(array $recipients, string $type): string
+	{
+		$emails = [];
+		foreach ($recipients as $r) {
+			$r = trim($r);
+			if (empty($r)) continue;
+			if (strpos($r, '@') !== false) {
+				$emails[] = $r;
+				continue;
+			}
+			if (!is_numeric($r)) {
+				$emails[] = $r;
+				continue;
+			}
+			$email = null;
+			if ($type === 'partner') {
+				$p = \App\Models\Partner::find($r);
+				$email = ($p && isset($p->email) && $p->email !== '') ? $p->email : null;
+			} elseif ($type === 'agent') {
+				$a = \App\Models\Agent::find($r);
+				$email = ($a && !empty($a->email)) ? $a->email : null;
+			} else {
+				$a = \App\Models\Admin::withoutGlobalScopes()->find($r);
+				$email = ($a && !empty($a->email)) ? $a->email : null;
+			}
+			$emails[] = $email ?: $r;
+		}
+		return implode(', ', $emails);
+	}
 
 	public function getbranch(Request $request){
 		$catid = $request->cat_id;
