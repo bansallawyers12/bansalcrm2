@@ -2496,7 +2496,8 @@ use App\Http\Controllers\Controller;
 			<div class="modal-body">
 				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
-				<input type ="hidden" value="partner" name="type">
+				<input type="hidden" name="client_id" value="{{ $fetchedData->id ?? '' }}">
+				<input type="hidden" value="partner" name="type">
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">

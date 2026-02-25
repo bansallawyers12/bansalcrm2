@@ -21,6 +21,7 @@ use App\Models\Note;
 
 use App\Services\EmailService;
 use App\Services\DashboardService;
+use App\Services\CrmSentEmailS3Service;
 use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
@@ -33,12 +34,14 @@ class AdminController extends Controller
   
     protected $emailService;
     protected $dashboardService;
+    protected $crmSentEmailS3Service;
   
-    public function __construct(EmailService $emailService, DashboardService $dashboardService)
+    public function __construct(EmailService $emailService, DashboardService $dashboardService, CrmSentEmailS3Service $crmSentEmailS3Service)
     {
         $this->middleware('auth:admin');
         $this->emailService = $emailService;
         $this->dashboardService = $dashboardService;
+        $this->crmSentEmailS3Service = $crmSentEmailS3Service;
     }
     
     /**
@@ -1347,6 +1350,9 @@ class AdminController extends Controller
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
 		$obj->mail_type		=  1;
+		// client_id and client_matter_id for Email tab / S3 archival (required for sent emails to appear)
+		$obj->client_id		=  $requestData['client_id'] ?? ($requestData['email_to'][0] ?? null);
+		$obj->client_matter_id =  $requestData['compose_client_matter_id'] ?? null;
       
 		$attachments = array();
       
@@ -1646,6 +1652,19 @@ class AdminController extends Controller
                     $attachments,
                     $ccarray
                 );
+
+                // Store full email to S3 for archival (HTML snapshot + attachments)
+                try {
+                    $attachmentTuples = [];
+                    foreach ($attachments as $p) {
+                        if (is_string($p) && file_exists($p)) {
+                            $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                        }
+                    }
+                    $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
+                } catch (\Exception $s3Ex) {
+                    \Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
+                }
                 
                 // Clean up temp files after email is sent
                 if(isset($array['file']) && file_exists($array['file'])){

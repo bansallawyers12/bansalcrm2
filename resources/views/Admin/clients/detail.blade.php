@@ -2040,6 +2040,9 @@ use App\Http\Controllers\Controller;
 			<div class="modal-body">
 				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
+				<input type="hidden" name="client_id" value="{{ $fetchedData->id ?? '' }}">
+				<input type="hidden" name="type" value="{{ $fetchedData->type ?? 'client' }}">
+				<input type="hidden" name="compose_client_matter_id" id="sendmail_compose_client_matter_id" value="">
 				<input type="hidden" name="application_id" id="sendmail_application_id" value="">
 				<input type="hidden" name="send_context" id="sendmail_send_context" value="">
 					<div class="row">

@@ -282,11 +282,12 @@ class EmailQueryV2Controller extends Controller
                         ->where('id', $email->uploaded_doc_id)
                         ->first();
                     if ($docInfo) {
-                        if ($docInfo->myfile_key) {
+                        if (!empty($docInfo->myfile_key)) {
                             $previewUrl = $docInfo->myfile;
                         } else {
-                            $docType = ($entityType === 'partner') ? 'partner_email_fetch' : 'conversion_email_fetch';
-                            $previewUrl = $url . $uniqueId . '/' . $docType . '/' . ($docInfo->mail_type ?? 'sent') . '/' . $docInfo->myfile;
+                            $docType = ($entityType === 'partner') ? 'partner_email_fetch' : ($docInfo->doc_type ?? 'conversion_email_fetch');
+                            $clientRef = $uniqueId ?: ($entityType === 'partner' ? ('partner_' . $entityId) : ('client_' . ($email->client_id ?? $entityId)));
+                            $previewUrl = $url . $clientRef . '/' . $docType . '/' . ($docInfo->mail_type ?? 'sent') . '/' . ($docInfo->myfile ?? '');
                         }
                     }
                 }
