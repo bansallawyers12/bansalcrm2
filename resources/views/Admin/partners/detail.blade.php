@@ -2579,6 +2579,15 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
+						<div class="col-12 col-md-6 col-lg-6">
+							<div class="form-group">
+								<label for="sendmail_label_ids">Labels</label>
+								<select id="sendmail_label_ids" name="label_ids[]" class="form-control" multiple title="Apply labels to this sent email (optional)">
+									<!-- Populated by JS when labels are loaded -->
+								</select>
+								<small class="form-text text-muted">Optional: Apply labels so you can filter sent emails in the Emails tab.</small>
+							</div>
+						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -1397,6 +1397,14 @@ class AdminController extends Controller
 
 		$saved	=	$obj->save();
 
+		// Attach labels if provided (for Email tab filtering)
+		if ($saved && isset($requestData['label_ids']) && is_array($requestData['label_ids']) && !empty($requestData['label_ids'])) {
+			$labelIds = array_map('intval', array_filter($requestData['label_ids']));
+			if (!empty($labelIds)) {
+				$obj->labels()->attach(array_unique($labelIds));
+			}
+		}
+
 		// Activity log based on which button user clicked (send_context)
         $sendContext = $requestData['send_context'] ?? '';
         

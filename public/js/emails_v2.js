@@ -27,7 +27,16 @@
         if (mailTypeFilter) {
             mailTypeFilter.value = type;
         }
+        updateFolderTabButtons(type);
     };
+
+    function updateFolderTabButtons(folder) {
+        document.querySelectorAll('.folder-tab-btn').forEach(btn => {
+            const isActive = (btn.dataset.folder || btn.getAttribute('data-folder')) === folder;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+    }
 
     // =========================================================================
     // Utility Functions
@@ -1799,6 +1808,7 @@
                 populateLabelFilter();
                 populateUploadLabelSelector(); // NEW
                 initializeUploadLabelSelector(); // NEW
+                populateComposeLabelSelector();
             }
         } catch (error) {
             console.error('Error fetching labels:', error);
@@ -1829,6 +1839,33 @@
         });
         
         console.log(`Populated ${availableLabels.length} labels in filter dropdown`);
+    }
+
+    /**
+     * Populate the compose modal label selector
+     */
+    function populateComposeLabelSelector() {
+        const select = document.getElementById('sendmail_label_ids');
+        if (!select) return;
+
+        const currentValues = Array.from(select.selectedOptions).map(o => o.value);
+        select.innerHTML = '';
+
+        if (availableLabels.length === 0) return;
+
+        const sortedLabels = [...availableLabels].sort((a, b) => {
+            if (a.type === 'system' && b.type !== 'system') return -1;
+            if (a.type !== 'system' && b.type === 'system') return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        sortedLabels.forEach(label => {
+            const opt = document.createElement('option');
+            opt.value = label.id;
+            opt.textContent = label.name;
+            if (currentValues.includes(String(label.id))) opt.selected = true;
+            select.appendChild(opt);
+        });
     }
 
     /**
@@ -2264,14 +2301,27 @@
             window.initializeSearch();
         }
 
-        // Mail type filter (Inbox/Sent)
+        // Mail type filter (Inbox/Sent) - support both tab buttons and hidden select
         const mailTypeFilter = document.getElementById('mailTypeFilterV2');
         if (mailTypeFilter) {
             mailTypeFilter.addEventListener('change', function() {
                 currentMailType = this.value;
+                updateFolderTabButtons(currentMailType);
                 loadEmailsFromServer();
             });
         }
+        // Folder tab buttons (Inbox | Sent)
+        document.querySelectorAll('.folder-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const folder = this.dataset.folder || this.getAttribute('data-folder');
+                if (folder && folder !== currentMailType) {
+                    currentMailType = folder;
+                    if (mailTypeFilter) mailTypeFilter.value = folder;
+                    updateFolderTabButtons(folder);
+                    loadEmailsFromServer();
+                }
+            });
+        });
         
         // Initialize search functionality
         if (typeof window.initializeSearch === 'function') {

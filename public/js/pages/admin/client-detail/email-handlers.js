@@ -49,6 +49,31 @@ jQuery(document).ready(function($){
     $('#emailmodal').on('hidden.bs.modal', function() {
         $('#sendmail_send_context').val('');
     });
+
+    // Ensure compose label selector is populated when modal opens (fallback if Emails tab not loaded yet)
+    $('#emailmodal').on('shown.bs.modal', function() {
+        var labelSelect = document.getElementById('sendmail_label_ids');
+        if (labelSelect && labelSelect.options.length === 0) {
+            fetch('/email-v2/labels', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': ($('meta[name="csrf-token"]').attr('content') || '') }
+            }).then(function(r) { return r.json(); }).then(function(data) {
+                if (data.success && Array.isArray(data.labels) && data.labels.length) {
+                    data.labels.sort(function(a, b) {
+                        if (a.type === 'system' && b.type !== 'system') return -1;
+                        if (a.type !== 'system' && b.type === 'system') return 1;
+                        return (a.name || '').localeCompare(b.name || '');
+                    });
+                    data.labels.forEach(function(label) {
+                        var opt = document.createElement('option');
+                        opt.value = label.id;
+                        opt.textContent = label.name;
+                        labelSelect.appendChild(opt);
+                    });
+                }
+            }).catch(function(e) { console.warn('Could not load labels for compose:', e); });
+        }
+    });
     
     // ============================================================================
     // OPEN EMAIL MODAL

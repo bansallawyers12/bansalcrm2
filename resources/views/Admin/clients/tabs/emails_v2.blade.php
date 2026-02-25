@@ -24,12 +24,20 @@
 <div class="email-v2-interface-container" 
      data-entity-id="{{ $entityData->id ?? '' }}" 
      data-entity-type="{{ $entityType }}">
-    <!-- Top Control Bar (Search & Filters) -->
+    <!-- Top Control Bar: Inbox | Sent tabs + Search + Labels -->
     <div class="email-v2-control-bar">
         <div class="control-section mail-type-section">
-            <label>Folder:</label>
-            <select id="mailTypeFilterV2" class="filter-select" title="Switch between Inbox and Sent">
-                <option value="inbox">Inbox</option>
+            <div class="email-v2-folder-tabs" role="tablist">
+                <button type="button" class="folder-tab-btn active" data-folder="inbox" id="folder-tab-inbox" aria-selected="true">
+                    <i class="fas fa-inbox"></i> Inbox
+                </button>
+                <button type="button" class="folder-tab-btn" data-folder="sent" id="folder-tab-sent" aria-selected="false">
+                    <i class="fas fa-paper-plane"></i> Sent
+                </button>
+            </div>
+            <!-- Hidden select kept for JS compatibility -->
+            <select id="mailTypeFilterV2" class="filter-select" style="display:none;" aria-hidden="true">
+                <option value="inbox" selected>Inbox</option>
                 <option value="sent">Sent</option>
             </select>
         </div>
