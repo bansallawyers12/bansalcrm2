@@ -288,8 +288,18 @@ class OutlookController extends Controller
                 ];
             }
         } elseif ($folder === 'sent') {
+            // Only show emails sent from SendGrid-verified sender addresses (filter dropdown and list)
+            $verifiedSenders = $this->getVerifiedSenders();
+            $verifiedEmails = array_column($verifiedSenders, 'email');
+
             // Use mail_reports (same table as CRM) - mail_type 1 = sent/composed emails
             $query = MailReport::where('mail_type', 1);
+            if (empty($verifiedEmails)) {
+                // No SendGrid senders configured: return empty so we don't show non-SendGrid emails
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->whereIn('from_mail', $verifiedEmails);
+            }
 
             if ($search !== '') {
                 $query->where(function ($q) use ($search) {
@@ -320,19 +330,21 @@ class OutlookController extends Controller
 
             $list = $query->get();
 
-            // Build filter options (unique from/to) from base sent data for dropdowns
-            $baseQuery = MailReport::where('mail_type', 1);
+            // Sent tab sender filter: show all SendGrid-verified senders (same list as compose "From" dropdown)
+            $filterOptions['from_list'] = $verifiedEmails;
+            $toListQuery = MailReport::where('mail_type', 1);
+            if (! empty($verifiedEmails)) {
+                $toListQuery->whereIn('from_mail', $verifiedEmails);
+            } else {
+                $toListQuery->whereRaw('1 = 0');
+            }
             if ($dateFrom !== '') {
-                $baseQuery->whereDate('created_at', '>=', $dateFrom);
+                $toListQuery->whereDate('created_at', '>=', $dateFrom);
             }
             if ($dateTo !== '') {
-                $baseQuery->whereDate('created_at', '<=', $dateTo);
+                $toListQuery->whereDate('created_at', '<=', $dateTo);
             }
-            $filterOptions['from_list'] = $baseQuery->distinct()->pluck('from_mail')->filter()->values()->toArray();
-            $filterOptions['to_list'] = MailReport::where('mail_type', 1)
-                ->when($dateFrom !== '', fn ($q) => $q->whereDate('created_at', '>=', $dateFrom))
-                ->when($dateTo !== '', fn ($q) => $q->whereDate('created_at', '<=', $dateTo))
-                ->distinct()->pluck('to_mail')->filter()->values()->toArray();
+            $filterOptions['to_list'] = $toListQuery->distinct()->pluck('to_mail')->filter()->values()->toArray();
             foreach ($list as $sent) {
                 $emails[] = [
                     'id' => $sent->id,

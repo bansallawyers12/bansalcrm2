@@ -321,10 +321,74 @@
     font-size: 13px;
     vertical-align: middle;
 }
+.sent-table tr.sent-row { cursor: pointer; }
 .sent-table tr.sent-row:hover { background: #f8fafc; }
 .sent-table .sent-cell-to { color: #1e293b; font-weight: 500; }
 .sent-table .sent-cell-subject { color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
 .sent-table .sent-cell-date { color: #94a3b8; font-size: 12px; }
+
+/* Sent email view modal */
+.sent-email-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.sent-email-modal-overlay.show { display: flex; }
+.sent-email-modal {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.sent-email-modal .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+.sent-email-modal .modal-header h3 { margin: 0; font-size: 16px; color: #1e293b; }
+.sent-email-modal .modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sent-email-modal .modal-close:hover { background: #f1f5f9; color: #1e293b; }
+.sent-email-modal .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+.sent-email-modal .email-meta-row { margin-bottom: 12px; font-size: 13px; }
+.sent-email-modal .email-meta-label { font-weight: 600; color: #64748b; min-width: 60px; display: inline-block; }
+.sent-email-modal .email-body-wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+.sent-email-modal .email-body-wrap iframe { width: 100%; min-height: 200px; border: none; }
 
 .view-compose { display: none !important; }
 .outlook-main.mode-compose .view-inbox,
@@ -674,6 +738,27 @@
             </div>
         </main>
     </div>
+
+    {{-- Modal: view full sent email --}}
+    <div id="sentEmailModalOverlay" class="sent-email-modal-overlay" aria-hidden="true">
+        <div class="sent-email-modal" role="dialog" aria-labelledby="sentEmailModalTitle">
+            <div class="modal-header">
+                <h3 id="sentEmailModalTitle">Sent email</h3>
+                <button type="button" class="modal-close" id="sentEmailModalClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="email-meta-row"><span class="email-meta-label">From:</span> <span id="sentEmailFrom"></span></div>
+                <div class="email-meta-row"><span class="email-meta-label">To:</span> <span id="sentEmailTo"></span></div>
+                <div class="email-meta-row"><span class="email-meta-label">Cc:</span> <span id="sentEmailCc"></span></div>
+                <div class="email-meta-row"><span class="email-meta-label">Subject:</span> <span id="sentEmailSubject"></span></div>
+                <div class="email-meta-row"><span class="email-meta-label">Date:</span> <span id="sentEmailDate"></span></div>
+                <div class="email-body-wrap">
+                    <div class="email-meta-label">Message</div>
+                    <div id="sentEmailBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -791,6 +876,41 @@
             applySentFilter(this.value);
         });
     }
+
+    // Open/close modal for viewing a sent email
+    var sentModalOverlay = document.getElementById('sentEmailModalOverlay');
+    var sentModalCloseBtn = document.getElementById('sentEmailModalClose');
+    function openSentEmailModal(data) {
+        if (!sentModalOverlay) return;
+        document.getElementById('sentEmailFrom').textContent = data.from || '';
+        document.getElementById('sentEmailTo').textContent = data.to || '';
+        document.getElementById('sentEmailCc').textContent = data.cc || '—';
+        document.getElementById('sentEmailSubject').textContent = data.subject || '(No subject)';
+        document.getElementById('sentEmailDate').textContent = data.date || '';
+        var bodyEl = document.getElementById('sentEmailBody');
+        if (bodyEl) {
+            bodyEl.innerHTML = data.body || '<em>No content</em>';
+        }
+        sentModalOverlay.classList.add('show');
+        sentModalOverlay.setAttribute('aria-hidden', 'false');
+    }
+    function closeSentEmailModal() {
+        if (sentModalOverlay) {
+            sentModalOverlay.classList.remove('show');
+            sentModalOverlay.setAttribute('aria-hidden', 'true');
+        }
+    }
+    if (sentModalCloseBtn) sentModalCloseBtn.addEventListener('click', closeSentEmailModal);
+    if (sentModalOverlay) {
+        sentModalOverlay.addEventListener('click', function(e) {
+            if (e.target === sentModalOverlay) closeSentEmailModal();
+        });
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sentModalOverlay && sentModalOverlay.classList.contains('show')) {
+            closeSentEmailModal();
+        }
+    });
 
     function updateAttachmentList() {
         attachmentList.innerHTML = '';
@@ -1000,7 +1120,18 @@
                         (grp.emails || []).forEach(function(e) {
                             var tr = document.createElement('tr');
                             tr.className = 'sent-row';
+                            tr.title = 'Click to view email';
                             tr.innerHTML = '<td class="sent-cell-to">' + (e.to || '') + '</td><td class="sent-cell-subject" title="' + (e.subject || '').replace(/"/g, '&quot;') + '">' + (e.subject || '(No subject)') + '</td><td class="sent-cell-date">' + (e.date || '') + '</td>';
+                            tr.addEventListener('click', function() {
+                                openSentEmailModal({
+                                    from: fromEmail,
+                                    to: e.to || '',
+                                    cc: e.cc || '',
+                                    subject: e.subject || '(No subject)',
+                                    body: e.body || '',
+                                    date: e.date || ''
+                                });
+                            });
                             tbody.appendChild(tr);
                         });
                         bodyWrap.appendChild(table);
