@@ -1776,6 +1776,12 @@
 }
 
 /* ===== Compose Email Compact Layout ===== */
+/* Defensive: hide any CC field (removed from markup - guard against cache/ghost elements) */
+#emailmodal .js-data-example-ajaxccd,
+#emailmodal [name="email_cc[]"] {
+    display: none !important;
+}
+
 .compose-email-compact .modal-dialog {
     max-width: 720px;
 }
