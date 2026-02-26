@@ -2071,24 +2071,12 @@ use App\Http\Controllers\Controller;
 						</div>
 						<div class="col-12">
 							<button type="button" class="btn btn-link btn-sm p-0 text-muted compose-more-toggle" data-bs-toggle="collapse" data-bs-target="#composeMoreOptions" aria-expanded="false" aria-controls="composeMoreOptions">
-								<span class="compose-more-text">▼ CC, Templates</span>
+								<span class="compose-more-text">▼ Templates</span>
 							</button>
 						</div>
 						<div class="col-12 collapse" id="composeMoreOptions">
 							<div class="row">
-								<div class="col-12 col-md-6">
-									<div class="form-group form-group-compact">
-										<label for="email_cc">CC</label>
-										<select data-valid="" class="js-data-example-ajaxccd form-control form-control-sm" name="email_cc[]"></select>
-
-										@if ($errors->has('email_cc'))
-											<span class="custom-error" role="alert">
-												<strong>{{ @$errors->first('email_cc') }}</strong>
-											</span>
-										@endif
-									</div>
-								</div>
-								<div class="col-12 col-md-6">
+								<div class="col-12">
 									<div class="form-group form-group-compact">
 										<label for="template">Templates</label>
                                          <?php
@@ -2129,26 +2117,10 @@ use App\Http\Controllers\Controller;
 								</div>
 							</div>
 						</div>
-                        <!-- Inline ChatGPT Section (hidden by default) -->
-                        <div id="chatGptSection" class="collapse col-12">
-                            <div class="card card-body py-2 px-3 mb-2">
-                                <div class="form-group form-group-compact mb-2">
-                                    <label for="chatGptInput" class="small">Enter your message to enhance:</label>
-                                    <textarea class="form-control form-control-sm" id="chatGptInput" rows="3" placeholder="Type your message here..."></textarea>
-                                </div>
-                                <div class="text-end">
-                                    <button type="button" class="btn btn-primary btn-sm" id="enhanceMessageBtn">Enhance</button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="chatGptClose">Close</button>
-                                </div>
-                            </div>
-                        </div>
 						<div class="col-12">
 							<div class="form-group form-group-compact">
 								<label for="subject">Subject <span class="span_req">*</span></label>
-								<div class="input-group input-group-sm">
-									{!! Form::text('subject', '', array('id'=>'compose_email_subject','class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
-									<button type="button" class="btn btn-outline-info" id="chatGptToggle" title="AI suggestions"><i class="fas fa-magic"></i> Enhance</button>
-								</div>
+								{!! Form::text('subject', '', array('id'=>'compose_email_subject','class' => 'form-control form-control-sm selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>
@@ -2157,9 +2129,12 @@ use App\Http\Controllers\Controller;
 							</div>
 						</div>
 						<div class="col-12">
-							<div class="form-group form-group-compact">
+							<div class="form-group form-group-compact compose-message-wrapper">
 								<label for="message">Message <span class="span_req">*</span></label>
-								<textarea class="tinymce-simple selectedmessage" id="compose_email_message" name="message"></textarea>
+								<div class="compose-message-container">
+									<textarea class="tinymce-simple selectedmessage" id="compose_email_message" name="message"></textarea>
+									<button type="button" class="btn btn-sm btn-outline-info compose-enhance-floating" id="composeMessageEnhanceBtn" title="AI: Fix and improve message content"><i class="fas fa-magic"></i> Enhance</button>
+								</div>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('message') }}</strong>

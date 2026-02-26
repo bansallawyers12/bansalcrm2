@@ -49,72 +49,46 @@
         });
     });
 
-    // ChatGPT handlers
-    const chatGptToggle = document.getElementById('chatGptToggle');
-    if (chatGptToggle) {
-        chatGptToggle.addEventListener('click', function() {
-            const section = document.getElementById('chatGptSection');
-            if (section) {
-                section.classList.toggle('collapse');
+    // Floating Enhance button in message box – enhances current message content
+    const composeMessageEnhanceBtn = document.getElementById('composeMessageEnhanceBtn');
+    if (composeMessageEnhanceBtn) {
+        composeMessageEnhanceBtn.addEventListener('click', function() {
+            var currentContent = '';
+            if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
+                currentContent = TinyMCEHelpers.getContentBySelector("#emailmodal .tinymce-simple") || '';
+            } else {
+                var msgEl = document.getElementById('compose_email_message');
+                currentContent = (msgEl && msgEl.value) ? msgEl.value : '';
             }
-        });
-    }
-
-    const chatGptClose = document.getElementById('chatGptClose');
-    if (chatGptClose) {
-        chatGptClose.addEventListener('click', function() {
-            const section = document.getElementById('chatGptSection');
-            if (section) {
-                section.classList.add('collapse');
-            }
-        });
-    }
-
-    const enhanceMessageBtn = document.getElementById('enhanceMessageBtn');
-    if (enhanceMessageBtn) {
-        enhanceMessageBtn.addEventListener('click', function() {
-            const chatGptInput = document.getElementById('chatGptInput');
-            if (!chatGptInput || !chatGptInput.value) {
-                alert('Please enter a message to enhance.');
+            // Strip HTML tags for API (plain text enhance)
+            var textForApi = currentContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (!textForApi) {
+                alert('Please enter some message content to enhance.');
                 return;
             }
 
-            var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/mail/enhance';
+            composeMessageEnhanceBtn.disabled = true;
+            composeMessageEnhanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
 
+            var enhanceUrl = App.getUrl('mailEnhance') || App.getUrl('siteUrl') + '/mail/enhance';
             fetch(enhanceUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": App.getCsrf()
                 },
-                body: JSON.stringify({ message: chatGptInput.value })
+                body: JSON.stringify({ message: textForApi })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.enhanced_message) {
-                    // Split the enhanced message into lines
-                    const lines = data.enhanced_message.split('\n').filter(line => line.trim() !== '');
-
-                    // First line is the subject
-                    const subject = lines[0] || '';
-
-                    // Remaining lines are the body
-                    const body = lines.slice(1).join('\n') || '';
-
-                    // Update the subject and message fields
-                    const composeEmailSubject = document.getElementById('compose_email_subject');
-                    if (composeEmailSubject) {
-                        composeEmailSubject.value = subject;
-                    }
-                    // Ensure Summernote is initialized before updating content
+                    // Replace message body with enhanced content (preserve as HTML with line breaks)
+                    var enhancedHtml = data.enhanced_message.replace(/\n/g, '<br>');
                     if ($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
-                        TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", body);
-                    }
-
-                    // Close the ChatGPT section
-                    const chatGptSection = document.getElementById('chatGptSection');
-                    if (chatGptSection) {
-                        chatGptSection.classList.add('collapse');
+                        TinyMCEHelpers.setContentBySelector("#emailmodal .tinymce-simple", enhancedHtml);
+                    } else {
+                        var msgEl = document.getElementById('compose_email_message');
+                        if (msgEl) msgEl.value = data.enhanced_message;
                     }
                 } else {
                     alert(data.error || 'Failed to enhance message.');
@@ -123,6 +97,10 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while enhancing the message.');
+            })
+            .finally(function() {
+                composeMessageEnhanceBtn.disabled = false;
+                composeMessageEnhanceBtn.innerHTML = '<i class="fas fa-magic"></i> Enhance';
             });
         });
     }
