@@ -14,6 +14,7 @@ use App\Services\SearchService;
 use App\Services\ClientExportService;
 use App\Models\CheckinLog;
 use App\Models\ClientPhone;
+use App\Models\ClientEmail;
 use App\Models\ClientTestScore;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
@@ -128,9 +129,8 @@ class ClientController extends Controller
               'first_name' => 'required|max:255',
               'last_name' => 'required|max:255',
               'gender' => 'required|in:Male,Female,Other',
-              'email' => 'required|max:255|unique:admins,email,'.$requestData['id'],
-              //'phone' => 'required|max:255|unique:admins,phone,'.$requestData['id'],
-              //'client_id' => 'required|max:255|unique:admins,client_id,'.$requestData['id']
+              'email' => 'required|array|min:1',
+              'email.*' => 'required|email|max:255',
 
               'contact_type' => 'required|array',
               'contact_type.*' => 'required|in:Personal,Office,Work,Mobile,Business,Secondary,Father,Mother,Brother,Sister,Uncle,Aunt,Cousin,Others,Partner,Not In Use',
@@ -138,12 +138,23 @@ class ClientController extends Controller
               'client_phone' => 'required|array',
               'client_phone.*' => 'required|max:255',
 
-              'email_type' => 'nullable|string|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
+              'email_type' => 'nullable|array',
+              'email_type.*' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
               'email_type_modal' => 'nullable|in:Personal,Work,Business,Secondary,Additional,Sister,Brother,Father,Mother,Uncle,Auntie',
 
               'office' => 'nullable|exists:branches,id',
 
             ]);
+
+            // Primary (first) email must be unique in admins
+            $emails = $requestData['email'] ?? [];
+            if (!empty($emails)) {
+                $primaryEmail = $emails[0];
+                $existing = Admin::where('email', $primaryEmail)->where('id', '!=', $requestData['id'])->exists();
+                if ($existing) {
+                    return redirect()->back()->withInput()->with('error', 'This email address is already in use by another client.');
+                }
+            }
           
              if ( isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'] , "Personal")) > 1) {
                 //echo "Error: 'Personal' contact type can only be used once.";
@@ -176,7 +187,6 @@ class ClientController extends Controller
 			$obj->gender	=	@$requestData['gender'];
 			$obj->marital_status	=	@$requestData['marital_status'];
 			
-			$obj->email_type	=	@$requestData['email_type'];
 			$obj->service	=	@$requestData['service'];
           
 			$obj->dob	=	($dob != '') ? $dob : null;
@@ -186,7 +196,14 @@ class ClientController extends Controller
             }
           
 			$obj->related_files	=	rtrim($related_files,',');
-			$obj->email	=	@$requestData['email'];
+			// Primary (first) email and type go to admins
+			$emails = $requestData['email'] ?? [];
+			$emailTypes = $requestData['email_type'] ?? [];
+			$clientEmailIds = $requestData['clientemailid'] ?? [];
+			if (!empty($emails)) {
+				$obj->email = $emails[0];
+				$obj->email_type = $emailTypes[0] ?? 'Personal';
+			}
           
 			//$obj->contact_type	=	@$requestData['contact_type'];
             //$obj->country_code	=	@$requestData['country_code'];
@@ -357,6 +374,37 @@ class ClientController extends Controller
             //////////////////////////////////////////////////////
             //////////Code End For client phone////////////////
             //////////////////////////////////////////////////////
+            // Sync client_emails
+            $emails = $requestData['email'] ?? [];
+            $emailTypes = $requestData['email_type'] ?? [];
+            $clientEmailIds = $requestData['clientemailid'] ?? [];
+            $existingIds = [];
+            foreach ($emails as $idx => $emailAddr) {
+                $emailAddr = trim($emailAddr ?? '');
+                if ($emailAddr === '') continue;
+                $emailType = $emailTypes[$idx] ?? 'Personal';
+                $ceId = $clientEmailIds[$idx] ?? '';
+                $ceId = (is_numeric($ceId) || $ceId === '') ? $ceId : null;
+                if ($ceId !== '' && $ceId !== null && ClientEmail::where('id', $ceId)->where('client_id', $obj->id)->exists()) {
+                    $ce = ClientEmail::find($ceId);
+                    $ce->client_email = $emailAddr;
+                    $ce->email_type = $emailType;
+                    $ce->user_id = Auth::id();
+                    $ce->updated_at = now();
+                    $ce->save();
+                    $existingIds[] = $ce->id;
+                } else {
+                    $ce = new ClientEmail;
+                    $ce->client_id = $obj->id;
+                    $ce->user_id = Auth::id();
+                    $ce->client_email = $emailAddr;
+                    $ce->email_type = $emailType;
+                    $ce->save();
+                    $existingIds[] = $ce->id;
+                }
+            }
+            // Remove client_emails that were deleted from the form
+            ClientEmail::where('client_id', $obj->id)->whereNotIn('id', $existingIds)->delete();
             //////////////////////////////////////////////////////
           
           

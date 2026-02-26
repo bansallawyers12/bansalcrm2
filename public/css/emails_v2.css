@@ -1800,24 +1800,6 @@
     margin-bottom: 0.25rem;
 }
 
-.compose-email-compact .compose-more-toggle {
-    font-size: 0.8rem;
-    text-decoration: none;
-}
-
-.compose-email-compact .compose-more-toggle:hover {
-    text-decoration: underline;
-}
-
-.compose-email-compact #composeMoreOptions {
-    margin-bottom: 0.5rem;
-}
-
-.compose-email-compact #composeMoreOptions .row {
-    padding: 0.5rem 0;
-    border-top: 1px dashed #dee2e6;
-}
-
 .compose-email-compact .compose-labels-compact .compose-labels-display {
     min-height: 32px;
     padding: 4px 8px;

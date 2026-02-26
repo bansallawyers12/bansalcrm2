@@ -50,10 +50,11 @@ jQuery(document).ready(function($){
         checklistTable = $('#mychecklist-datatable').DataTable({
             "paging": true,
             "pageLength": 10,
+            "lengthChange": false,
             "searching": true,
             "ordering": true,
             "info": true,
-            "dom": 'lfrtip',
+            "dom": 'frtip',
             "drawCallback": function(settings) {
                 let api = this.api();
                 api.rows().every(function() {

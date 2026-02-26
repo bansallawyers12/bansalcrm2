@@ -2070,51 +2070,33 @@ use App\Http\Controllers\Controller;
 							</div>
 						</div>
 						<div class="col-12">
-							<button type="button" class="btn btn-link btn-sm p-0 text-muted compose-more-toggle" data-bs-toggle="collapse" data-bs-target="#composeMoreOptions" aria-expanded="false" aria-controls="composeMoreOptions">
-								<span class="compose-more-text">▼ Templates</span>
-							</button>
-						</div>
-						<div class="col-12 collapse" id="composeMoreOptions">
-							<div class="row">
-								<div class="col-12">
-									<div class="form-group form-group-compact">
-										<label for="template">Templates</label>
-                                         <?php
-                                        // PostgreSQL doesn't accept empty strings for integer columns - check before querying
-                                        // Handle comma-separated assignee values (same pattern as lines 647-653)
-                                        $assignee = null;
-                                        if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
-                                            // Check if assignee contains multiple IDs (comma-separated)
-                                            if(Str::contains($fetchedData->assignee, ',')){
-                                                // Get the first assignee ID from comma-separated list
-                                                $assigneeUArr = explode(",", $fetchedData->assignee);
-                                                $firstAssigneeId = trim($assigneeUArr[0]);
-                                                if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
-                                                    $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
-                                                }
-                                            } else {
-                                                // Single assignee ID
-                                                $assigneeId = trim($fetchedData->assignee);
-                                                if(!empty($assigneeId) && is_numeric($assigneeId)) {
-                                                    $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
-                                                }
-                                            }
+							<div class="form-group form-group-compact">
+								<label for="template">Templates</label>
+                                 <?php
+                                $assignee = null;
+                                if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
+                                    if(Str::contains($fetchedData->assignee, ',')){
+                                        $assigneeUArr = explode(",", $fetchedData->assignee);
+                                        $firstAssigneeId = trim($assigneeUArr[0]);
+                                        if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
+                                            $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
                                         }
-                                        if($assignee){
-                                            $clientAssigneeName = $assignee->first_name;
-                                        } else {
-                                            $clientAssigneeName = 'NA';
+                                    } else {
+                                        $assigneeId = trim($fetchedData->assignee);
+                                        if(!empty($assigneeId) && is_numeric($assigneeId)) {
+                                            $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
                                         }
-										$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
-										?>
-										<select id="template" data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
-											<option value="">Select</option>
-											@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
-												<option value="{{$list->id}}">{{$list->name}}</option>
-											@endforeach
-										</select>
-									</div>
-								</div>
+                                    }
+                                }
+                                $clientAssigneeName = $assignee ? $assignee->first_name : 'NA';
+								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
+								?>
+								<select id="template" data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
+									<option value="">Select</option>
+									@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
+										<option value="{{$list->id}}">{{$list->name}}</option>
+									@endforeach
+								</select>
 							</div>
 						</div>
 						<div class="col-12">

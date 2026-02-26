@@ -388,11 +388,14 @@ jQuery(document).ready(function($){
     $(document).delegate('.openclientemailnew','click', function(){
         $('#clientEmailModalLabel').html('Add New Email');
         $('.saveclientemail').show();
+        $('#update_clientemail').hide();
+        $('#edit_email_mode').val('0');
+        $('#edit_email_id').val('');
         $('#clientemailform')[0].reset();
         $('.addclientemail').modal('show');
     });
 
-    // Save client email
+    // Save client email (append new, do not replace)
     $(document).delegate('.saveclientemail','click', function(){
         var client_email = $('input[name="client_email"]').val();
         var email_type = $('select[name="email_type_modal"]').val();
@@ -412,27 +415,21 @@ jQuery(document).ready(function($){
         }
 
         if(!flag){
-            var emailId = 'email_main';
-            var hiddenName = 'email';
-            var hiddenTypeName = 'email_type';
+            var emailDomId = 'email_new_' + (new Date().getTime());
+            var escapedEmail = $('<div/>').text(client_email).html();
+            var escapedType = $('<div/>').text(email_type).html();
             
-            // Remove existing main email if adding new
-            $('#email_main').remove();
-            
-            var html = '<div class="compact-contact-item" id="'+emailId+'">';
-            html += '<span class="contact-type-tag">'+email_type+'</span>';
-            html += '<span class="contact-email">'+client_email+'</span>';
+            var html = '<div class="compact-contact-item" id="'+emailDomId+'">';
+            html += '<span class="contact-type-tag">'+escapedType+'</span>';
+            html += '<span class="contact-email">'+escapedEmail+'</span>';
             html += '<div class="contact-actions">';
-            
-            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + App.getPageConfig('clientFirstName') + '" data-email="'+client_email+'" data-clientid="' + App.getPageConfig('clientId') + '">';
-            html += '<i class="fas fa-check"></i>';
-            html += '</button>';
-            
+            html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit"><i class="fa fa-edit"></i></a>';
+            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '"><i class="fas fa-paper-plane"></i></button>';
+            html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete"><i class="fa fa-trash"></i></a>';
             html += '</div>';
-            
-            // Hidden fields
-            html += '<input type="hidden" name="'+hiddenName+'" value="'+client_email+'">';
-            html += '<input type="hidden" name="'+hiddenTypeName+'" value="'+email_type+'">';
+            html += '<input type="hidden" name="email[]" value="'+escapedEmail+'">';
+            html += '<input type="hidden" name="email_type[]" value="'+escapedType+'">';
+            html += '<input type="hidden" name="clientemailid[]" value="">';
             html += '</div>';
 
             $('.clientemaildata').append(html);
@@ -444,9 +441,14 @@ jQuery(document).ready(function($){
 
     // Delete email
     $(document).delegate('.deleteemail','click', function(){
-        var emailId = $(this).attr('data-email');
+        var emailId = $(this).attr('data-email-id');
+        var count = $('.clientemaildata .compact-contact-item').length;
+        if (count <= 1) {
+            alert('At least one email address is required.');
+            return;
+        }
         if (confirm('Are you sure you want to delete this email?')) {
-            $('#'+emailId).remove();
+            $('#' + emailId).remove();
         }
     });
 
@@ -456,20 +458,16 @@ jQuery(document).ready(function($){
         $('.saveclientemail').hide();
         $('#update_clientemail').show();
         
-        // Get data from clicked element
         var email_id = $(this).data('email-id');
         var email_type = $(this).data('type');
         var email_address = $(this).data('email');
         
-        // Store edit mode data
         $('#edit_email_mode').val('1');
         $('#edit_email_id').val(email_id);
         
-        // Clear errors
         $('.client_email_error').html('');
         $('input[name="client_email"]').parent().removeClass('error');
         
-        // Populate form
         $('#email_type_modal').val(email_type);
         $('input[name="client_email"]').val(email_address);
         
@@ -478,20 +476,13 @@ jQuery(document).ready(function($){
 
     // Update client email
     $(document).delegate('#update_clientemail','click', function(){
-        // Clear previous errors
         $('.client_email_error').html('');
         $('input[name="client_email"]').parent().removeClass('error');
         
-        // Get form values
         var client_email = $('input[name="client_email"]').val();
         var email_type = $('select[name="email_type_modal"]').val();
         var email_id = $('#edit_email_id').val();
         
-        console.log('Update Email - ID:', email_id);
-        console.log('Update Email - Type:', email_type);
-        console.log('Update Email - Address:', client_email);
-        
-        // Validate
         var flag = false;
         if(client_email == ''){
             $('.client_email_error').html('The Email field is required.');
@@ -504,34 +495,26 @@ jQuery(document).ready(function($){
         }
 
         if(!flag){
-            var $emailItem = null;
+            var $emailItem = $('#' + email_id);
             
-            $emailItem = $('#email_main');
-            
-            if($emailItem && $emailItem.length > 0){
-                console.log('Found email item, updating...');
+            if($emailItem.length > 0){
+                var escapedEmail = $('<div/>').text(client_email).html();
+                var escapedType = $('<div/>').text(email_type).html();
                 
-                // Update the display
                 $emailItem.find('.contact-type-tag').text(email_type);
                 $emailItem.find('.contact-email').text(client_email);
+                $emailItem.find('input[name="email[]"]').val(client_email);
+                $emailItem.find('input[name="email_type[]"]').val(email_type);
+                $emailItem.find('.editclientemail').attr('data-type', email_type).attr('data-email', client_email);
+                $emailItem.find('.manual_email_phone_verified').attr('data-email', client_email);
                 
-                // Update hidden fields - CRITICAL for form submission
-                $emailItem.find('input[name="email"]').val(client_email);
-                $emailItem.find('input[name="email_type"]').val(email_type);
-                
-                // Update data attributes for future edits
-                $emailItem.find('.editclientemail').attr('data-type', email_type);
-                $emailItem.find('.editclientemail').attr('data-email', client_email);
-                
-                // Clear form and close modal
                 $('#clientemailform')[0].reset();
                 $('#edit_email_mode').val('0');
                 $('#edit_email_id').val('');
+                $('.saveclientemail').show();
+                $('#update_clientemail').hide();
                 $('.addclientemail').modal('hide');
-                
-                autoSaveClientEditForm('Email updated successfully.');
             } else {
-                console.error('Could not find email item with id:', email_id);
                 alert('Error: Could not find the email item to update.');
             }
         }

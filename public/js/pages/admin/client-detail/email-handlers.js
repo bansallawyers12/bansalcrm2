@@ -315,7 +315,8 @@ jQuery(document).ready(function($){
         });
     }
 
-    // Initialize Select2 for email CC recipients
+    // Initialize Select2 for email CC recipients (only if CC field exists - clients/detail has it removed)
+    if ($('#emailmodal .js-data-example-ajaxccd').length) {
     $('.js-data-example-ajaxccd').select2({
         multiple: true,
         closeOnSelect: false,
@@ -334,6 +335,7 @@ jQuery(document).ready(function($){
         templateResult: formatRepo,
         templateSelection: formatRepoSelection
     });
+    }
 
     // ============================================================================
     // EMAIL FORM SUBMISSION HANDLER

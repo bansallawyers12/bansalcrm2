@@ -593,10 +593,10 @@
 													<i class="fa fa-plus"></i> Add
 												</a>
 											</div>
-											@if ($errors->has('email'))
+											@if ($errors->has('email') || $errors->has('email.0'))
 												<div class="mb-2">
 													<span class="custom-error" role="alert">
-														<strong>{{ @$errors->first('email') }}</strong>
+														<strong>{{ @$errors->first('email') ?: @$errors->first('email.0') }}</strong>
 													</span>
 												</div>
 											@endif
@@ -606,75 +606,79 @@
 											</script>
 											
 											<div class="clientemaildata compact-contact-list">
-												<?php
-												// Check if old input exists (validation error occurred)
-												$oldEmail = old('email');
-												$oldEmailType = old('email_type');
-												
-												if ($oldEmail !== null) {
-													// Display old input from failed validation
-													if($oldEmail) {
-														$email_type = $oldEmailType ?: 'Personal';
-														$email_verified = (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1');
-													?>
-													<div class="compact-contact-item" id="email_main">
-														<span class="contact-type-tag"><?php echo htmlspecialchars($email_type); ?></span>
-														<span class="contact-email"><?php echo htmlspecialchars($oldEmail); ?></span>
-														<div class="contact-actions">
-															<a href="javascript:;" 
-																class="editclientemail btn-edit" 
-																data-email-id="main"
-																data-type="<?php echo htmlspecialchars($email_type); ?>"
-																data-email="<?php echo htmlspecialchars($oldEmail); ?>"
-																title="Edit">
-																<i class="fa fa-edit"></i>
-															</a>
-															<?php if($email_verified) { ?>
-																<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
-															<?php } else { ?>
-																<button type="button" class="btn-verify manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo htmlspecialchars($oldEmail);?>" data-clientid="<?php echo $fetchedData->id;?>">
-																	<i class="fas fa-paper-plane"></i>
-																</button>
-															<?php } ?>
-														</div>
-														<!-- Hidden fields -->
-														<input type="hidden" name="email" value="<?php echo htmlspecialchars($oldEmail); ?>">
-														<input type="hidden" name="email_type" value="<?php echo htmlspecialchars($email_type); ?>">
+												@php
+												// Load all emails: from client_emails, or fallback to admins.email if empty
+												$clientEmails = \App\Models\ClientEmail::where('client_id', $fetchedData->id)->orderBy('id')->get();
+												$oldEmails = old('email');
+												$oldEmailTypes = old('email_type');
+												$oldEmailIds = old('clientemailid');
+												if (is_array($oldEmails) && count($oldEmails) > 0) {
+													// Validation error - use old input
+													$emailList = [];
+													foreach ($oldEmails as $idx => $addr) {
+														if (empty(trim($addr ?? ''))) continue;
+														$emailList[] = (object)[
+															'id' => $oldEmailIds[$idx] ?? ('email_' . $idx),
+															'client_email' => $addr,
+															'email_type' => $oldEmailTypes[$idx] ?? 'Personal',
+															'is_main' => ($idx === 0),
+															'email_verified' => ($idx === 0 && isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+														];
+													}
+												} elseif ($clientEmails->isNotEmpty()) {
+													$emailList = [];
+													$primaryEmail = $fetchedData->email ?? '';
+													foreach ($clientEmails as $idx => $ce) {
+														$emailList[] = (object)[
+															'id' => $ce->id,
+															'client_email' => $ce->client_email,
+															'email_type' => $ce->email_type ?? 'Personal',
+															'is_main' => ($idx === 0 || $ce->client_email === $primaryEmail),
+															'email_verified' => ($idx === 0 && isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+														];
+													}
+												} elseif (!empty($fetchedData->email)) {
+													// Fallback: legacy single email from admins
+													$emailList = [(object)[
+														'id' => 'main',
+														'client_email' => $fetchedData->email,
+														'email_type' => $fetchedData->email_type ?? 'Personal',
+														'is_main' => true,
+														'email_verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+													]];
+												} else {
+													$emailList = [];
+												}
+												@endphp
+												@foreach ($emailList as $idx => $emailRow)
+												<div class="compact-contact-item" id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}">
+													<span class="contact-type-tag">{{ $emailRow->email_type }}</span>
+													<span class="contact-email">{{ $emailRow->client_email }}</span>
+													<div class="contact-actions">
+														<a href="javascript:;" 
+															class="editclientemail btn-edit" 
+															data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}"
+															data-type="{{ $emailRow->email_type }}"
+															data-email="{{ $emailRow->client_email }}"
+															title="Edit">
+															<i class="fa fa-edit"></i>
+														</a>
+														@if($emailRow->email_verified)
+															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
+														@else
+															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="{{ $fetchedData->first_name }}" data-email="{{ $emailRow->client_email }}" data-clientid="{{ $fetchedData->id }}">
+																<i class="fas fa-paper-plane"></i>
+															</button>
+														@endif
+														<a href="javascript:;" class="deleteemail btn-delete" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}" title="Delete">
+															<i class="fa fa-trash"></i>
+														</a>
 													</div>
-													<?php } ?>
-												<?php } else {
-													// No validation errors - display from database
-													// Main email
-													if(isset($fetchedData->email) && $fetchedData->email != "") {
-														$email_type = isset($fetchedData->email_type) ? $fetchedData->email_type : 'Personal';
-														$email_verified = (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1');
-													?>
-													<div class="compact-contact-item" id="email_main">
-														<span class="contact-type-tag">{{ $email_type }}</span>
-														<span class="contact-email">{{ $fetchedData->email }}</span>
-														<div class="contact-actions">
-															<a href="javascript:;" 
-																class="editclientemail btn-edit" 
-																data-email-id="main"
-																data-type="{{ $email_type }}"
-																data-email="{{ $fetchedData->email }}"
-																title="Edit">
-																<i class="fa fa-edit"></i>
-															</a>
-															<?php if($email_verified) { ?>
-																<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
-															<?php } else { ?>
-																<button type="button" class="btn-verify manual_email_phone_verified" data-fname="<?php echo $fetchedData->first_name;?>" data-email="<?php echo $fetchedData->email;?>" data-clientid="<?php echo $fetchedData->id;?>">
-																	<i class="fas fa-paper-plane"></i>
-																</button>
-															<?php } ?>
-														</div>
-														<!-- Hidden fields -->
-														<input type="hidden" name="email" value="{{ $fetchedData->email }}">
-														<input type="hidden" name="email_type" value="{{ $email_type }}">
-													</div>
-													<?php } ?>
-												<?php } ?>
+													<input type="hidden" name="email[]" value="{{ $emailRow->client_email }}">
+													<input type="hidden" name="email_type[]" value="{{ $emailRow->email_type }}">
+													<input type="hidden" name="clientemailid[]" value="{{ $emailRow->id }}">
+												</div>
+												@endforeach
 											</div>
 										</div>
 									</div>
@@ -1585,6 +1589,7 @@ if($fetchedData->tagname != ''){
 							<div class="form-group">
 								<label for="client_email">Email Address <span style="color:#ff0000;">*</span></label>
 								{!! Form::text('client_email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter email address' ))  !!}
+								<span class="custom-error client_email_error" role="alert"></span>
 								@if ($errors->has('client_email'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('client_email') }}</strong>
