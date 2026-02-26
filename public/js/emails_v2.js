@@ -2340,9 +2340,60 @@
     }
 
     /**
+     * Initialize collapsible upload section to save space
+     * Remembers collapsed state in localStorage
+     */
+    function initUploadSectionCollapse() {
+        const toggle = document.querySelector('.js-upload-toggle');
+        const body = document.getElementById('upload-section-body');
+        if (!toggle || !body) return;
+
+        const STORAGE_KEY = 'emailUploadSectionCollapsed';
+
+        function getStoredCollapsed() {
+            try {
+                return localStorage.getItem(STORAGE_KEY) === 'true';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function setStoredCollapsed(value) {
+            try {
+                localStorage.setItem(STORAGE_KEY, String(value));
+            } catch (e) { /* ignore - private mode / quota */ }
+        }
+
+        function applyState(collapsed) {
+            toggle.classList.toggle('collapsed', collapsed);
+            body.classList.toggle('collapsed', collapsed);
+            toggle.setAttribute('aria-expanded', !collapsed);
+        }
+
+        applyState(getStoredCollapsed());
+
+        function handleToggle() {
+            const collapsed = !getStoredCollapsed();
+            setStoredCollapsed(collapsed);
+            applyState(collapsed);
+        }
+
+        toggle.addEventListener('click', handleToggle);
+        toggle.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleToggle();
+            }
+        });
+    }
+
+    /**
      * Initialize new filter and modal features
      */
     function initializeNewFeatures() {
+        // Initialize upload section collapsible toggle
+        initUploadSectionCollapse();
+
         // Initialize upload functionality (drag & drop)
         if (typeof window.initializeUpload === 'function') {
             window.initializeUpload();
