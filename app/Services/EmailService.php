@@ -91,7 +91,11 @@ class EmailService
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
             if (!$emailConfig) {
-                throw new \Exception("Email '{$fromEmailAddress}' not found in emails table. Add it in Admin Console → Emails.");
+                // Allow SendGrid verified senders (From dropdown is populated from SendGrid API)
+                $emailConfig = (object) [
+                    'email' => $trimmed,
+                    'display_name' => $trimmed,
+                ];
             }
 
             Log::info('EmailService - Sending Email via SendGrid', [
