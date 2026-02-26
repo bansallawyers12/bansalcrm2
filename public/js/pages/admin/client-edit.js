@@ -74,23 +74,11 @@ jQuery(document).ready(function($){
 
         syncPhoneContactArrays();
 
-        if (successMessage) {
-            if (typeof iziToast !== 'undefined') {
-                iziToast.success({
-                    title: 'Success',
-                    message: successMessage,
-                    position: 'topRight'
-                });
-            } else {
-                alert(successMessage);
-            }
-        }
-
         var $form = $('form[name="edit-clients"]');
         if ($form.length > 0) {
             var formEl = $form[0];
             var formData = new FormData(formEl);
-            
+
             $.ajax({
                 url: $form.attr('action'),
                 method: ($form.attr('method') || 'POST').toUpperCase(),
@@ -101,7 +89,17 @@ jQuery(document).ready(function($){
                     'X-CSRF-TOKEN': App.getCsrf()
                 }
             }).done(function() {
-                // No redirect; keep user on edit page
+                if (successMessage) {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({
+                            title: 'Success',
+                            message: successMessage,
+                            position: 'topRight'
+                        });
+                    } else {
+                        alert(successMessage);
+                    }
+                }
             }).fail(function(xhr) {
                 var errorMsg = 'Failed to save changes.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
