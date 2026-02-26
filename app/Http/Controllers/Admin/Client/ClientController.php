@@ -121,9 +121,23 @@ class ClientController extends Controller
 		{
 			$requestData 		= 	$request->all();
 			//echo '<pre>'; print_r($requestData); die;
+
+			// Normalize email/email_type to arrays (handles legacy form, cached views, or string values)
+			if (!is_array($request->get('email'))) {
+				$emailVal = trim((string)($request->get('email', '') ?? ''));
+				$request->merge([
+					'email' => $emailVal !== '' ? [$emailVal] : [],
+					'email_type' => [$request->get('email_type', 'Personal') ?: 'Personal'],
+				]);
+			}
+			if (is_array($request->get('email')) && !is_array($request->get('email_type'))) {
+				$etype = $request->get('email_type', 'Personal') ?: 'Personal';
+				$request->merge(['email_type' => array_fill(0, count($request->get('email')), $etype)]);
+			}
           
             //Get Db values of related files
-			$db_arr = Admin::select('related_files')->where('id', $requestData['id'])->get();
+			$db_arr = Admin::select('related_files')->where('id', $requestData['id'] ?? null)->get();
+			$requestData = $request->all();
           
 			$this->validate($request, [
               'first_name' => 'required|max:255',
