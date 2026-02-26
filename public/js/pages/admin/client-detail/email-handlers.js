@@ -150,16 +150,12 @@ jQuery(document).ready(function($){
     $(document).on('click', '.clientemail', function(){
         $('#sendmail_send_context').val(''); // Clear context when opening from generic email link
         $('#emailmodal').modal('show');
-        var array = [];
-        var data = [];
-
         var id = $(this).attr('data-id');
-        array.push(id);
+        var array = [String(id)];
         var email = $(this).attr('data-email');
         var name = $(this).attr('data-name');
         var status = 'Client';
-
-        data.push({
+        var data = [{
             id: id,
             text: name,
             html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
@@ -174,9 +170,14 @@ jQuery(document).ready(function($){
             "</div>" +
             "</div>",
             title: name
-        });
+        }];
 
-        $(".js-data-example-ajax").select2({
+        var $toField = $(".js-data-example-ajax");
+        if ($toField.data('select2')) { $toField.select2('destroy'); }
+        $toField.select2({
+            multiple: true,
+            closeOnSelect: false,
+            dropdownParent: $('#emailmodal'),
             data: data,
             escapeMarkup: function(markup) {
                 return markup;
@@ -188,8 +189,7 @@ jQuery(document).ready(function($){
                 return data.text;
             }
         });
-        $('.js-data-example-ajax').val(array);
-        $('.js-data-example-ajax').trigger('change');
+        $toField.val(array).trigger('change');
     });
 
     // ============================================================================
