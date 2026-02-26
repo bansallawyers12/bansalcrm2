@@ -397,7 +397,7 @@
                     @csrf
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> 
-                        <strong>Instructions:</strong> One JSON file works for both systems. Upload a file exported from migrationmanager2 or bansalcrm2 to import client data.
+                        <strong>Instructions:</strong> Upload a JSON file exported from migrationmanager2, bansalcrm2, or the Office Visit Form (<code>office-visit-{id}-crm.json</code>).
                     </div>
                     
                     <div class="form-group">
@@ -406,7 +406,7 @@
                             <input type="file" class="custom-file-input" id="import_file" name="import_file" accept=".json" required>
                             <label class="custom-file-label" for="import_file">Choose file...</label>
                         </div>
-                        <small class="form-text text-muted">Only JSON files exported from CRM systems are supported.</small>
+                        <small class="form-text text-muted">Supported: CRM exports (migrationmanager2, bansalcrm2) and Office Visit Form JSON.</small>
                         @if ($errors->has('import_file'))
                             <span class="custom-error" role="alert">
                                 <strong>{{ @$errors->first('import_file') }}</strong>

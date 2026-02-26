@@ -9,6 +9,7 @@ use App\Models\ClientPhone; // bansalcrm2 uses ClientPhone
 use App\Models\ActivitiesLog;
 use App\Models\clientServiceTaken; // bansalcrm2 has client_service_takens table
 use App\Models\Country;
+use App\Models\State;
 use App\Models\VisaType;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,9 @@ class ClientImportService
         DB::beginTransaction();
 
         try {
+            // Normalize Office Visit Form format (office_visit_form_v1) to internal structure
+            $importData = $this->normalizeOfficeVisitFormData($importData);
+
             // Validate import data structure
             if (!isset($importData['client'])) {
                 throw new \Exception('Invalid import file: missing client data');
@@ -187,7 +191,7 @@ class ClientImportService
             // Visa Information
             $client->visa_type = $clientData['visa_type'] ?? null;
             $client->visa_opt = $clientData['visa_opt'] ?? null;
-            $client->visaexpiry = $this->parseDate($clientData['visaExpiry'] ?? null); // Column is visaexpiry, JSON uses visaExpiry
+            $client->visaexpiry = $this->parseDate($clientData['visa_expiry'] ?? $clientData['visaExpiry'] ?? null);
             
             // Professional Details (bansalcrm2 specific)
             $client->nomi_occupation = $clientData['nomi_occupation'] ?? null;
@@ -345,7 +349,7 @@ class ClientImportService
                         'reading' => $testData['reading'] ?? null,
                         'writing' => $testData['writing'] ?? null,
                         'speaking' => $testData['speaking'] ?? null,
-                        'overall_score' => $testData['overall_score'] ?? null,
+                        'overall_score' => $testData['overall_score'] ?? $testData['overall'] ?? null,
                         'test_date' => $this->parseDate($testData['test_date'] ?? null),
                         'relevant_test' => 1,
                     ]);
@@ -468,7 +472,60 @@ class ClientImportService
     }
 
     /**
-     * Parse date string to Y-m-d format
+     * Normalize Office Visit Form (office_visit_form_v1) data to internal CRM structure.
+     * Maps field names and applies fixed/default values per spec.
+     */
+    private function normalizeOfficeVisitFormData(array $importData): array
+    {
+        if (($importData['format'] ?? '') !== 'office_visit_form_v1') {
+            return $importData;
+        }
+
+        $client = $importData['client'] ?? [];
+
+        // Map visa_expiry → visaExpiry (for backwards compat with existing import logic)
+        if (isset($client['visa_expiry']) && !isset($client['visaExpiry'])) {
+            $client['visaExpiry'] = $client['visa_expiry'];
+        }
+
+        // Build naati_py from naati_test and py_test (Office Visit Form uses separate Yes/No fields)
+        if (!isset($client['naati_py']) || $client['naati_py'] === '') {
+            $naatiPy = [];
+            if (($client['naati_test'] ?? '') === 'Yes') {
+                $naatiPy[] = 'Naati';
+            }
+            if (($client['py_test'] ?? '') === 'Yes') {
+                $naatiPy[] = 'PY';
+            }
+            $client['naati_py'] = !empty($naatiPy) ? implode(',', $naatiPy) : null;
+        }
+
+        // Apply fixed/default values per Office Visit Form spec
+        $client['service'] = $client['service'] ?? 'Education';
+        $client['source'] = $client['source'] ?? 'Office visit';
+        $client['contact_type'] = $client['contact_type'] ?? 'Personal';
+        $client['email_type'] = $client['email_type'] ?? 'Personal';
+        $client['lead_quality'] = $client['lead_quality'] ?? 'Warm';
+        $client['type'] = $client['type'] ?? 'lead';
+        $client['status'] = $client['status'] ?? 1;
+
+        $importData['client'] = $client;
+
+        // Normalize test_scores: overall → overall_score (Office Visit Form uses 'overall')
+        if (!empty($importData['test_scores']) && is_array($importData['test_scores'])) {
+            foreach ($importData['test_scores'] as $i => $test) {
+                if (isset($test['overall']) && !isset($test['overall_score'])) {
+                    $importData['test_scores'][$i]['overall_score'] = $test['overall'];
+                }
+            }
+        }
+
+        return $importData;
+    }
+
+    /**
+     * Parse date string to Y-m-d format.
+     * Explicitly supports dd/mm/yyyy (Office Visit Form and CRM UI format).
      */
     private function parseDate($date)
     {
@@ -476,10 +533,18 @@ class ClientImportService
             return null;
         }
 
+        $date = trim($date);
+
         try {
+            // Already Y-m-d
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
                 return $date;
             }
+            // dd/mm/yyyy (Office Visit Form spec)
+            if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $date)) {
+                return Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+            }
+            // Fallback: let Carbon try to parse (handles other common formats)
             return Carbon::parse($date)->format('Y-m-d');
         } catch (\Exception $e) {
             Log::warning('Failed to parse date: ' . $date, ['error' => $e->getMessage()]);
@@ -504,27 +569,43 @@ class ClientImportService
     }
 
     /**
-     * Map state
+     * Map state to database ID.
+     * Supports: numeric ID, or name lookup (e.g. Office Visit Form sends "Victoria").
      */
     private function mapState($state)
     {
+        if (empty($state)) {
+            return null;
+        }
         if (is_numeric($state)) {
             return $state;
         }
-        return $state;
+        $stateModel = State::where('name', $state)->first();
+        return $stateModel ? $stateModel->id : $state;
     }
 
     /**
-     * Map country
+     * Map country to database ID.
+     * Supports: numeric ID, sortname (e.g. AU, IN), or full name (e.g. Office Visit Form sends "Australia").
      */
     private function mapCountry($country)
     {
+        if (empty($country)) {
+            return null;
+        }
         if (is_numeric($country)) {
             return $country;
         }
 
-        if (is_string($country) && strlen($country) <= 3) {
-            $countryModel = \App\Models\Country::where('sortname', $country)->first();
+        if (is_string($country)) {
+            $country = trim($country);
+            if (strlen($country) <= 3) {
+                $countryModel = Country::where('sortname', strtoupper($country))->first();
+                if ($countryModel) {
+                    return $countryModel->id;
+                }
+            }
+            $countryModel = Country::where('name', $country)->first();
             if ($countryModel) {
                 return $countryModel->id;
             }
