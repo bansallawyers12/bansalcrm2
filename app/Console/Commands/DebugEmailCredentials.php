@@ -6,31 +6,30 @@ use Illuminate\Console\Command;
 use App\Models\Email;
 
 /**
- * Debug email credentials for SMTP troubleshooting.
- * Run: php artisan email:debug info@bansaleducation.com.au
+ * Debug email configuration for SendGrid troubleshooting.
+ * Run: php artisan email:debug info@example.com
  */
 class DebugEmailCredentials extends Command
 {
-    protected $signature = 'email:debug {email? : Email address to debug (e.g. info@bansaleducation.com.au)}';
-    protected $description = 'Debug email credentials stored in DB for SMTP auth troubleshooting';
+    protected $signature = 'email:debug {email? : Email address to debug (e.g. info@example.com)}';
+    protected $description = 'Debug email configuration in DB (From addresses) for SendGrid';
 
     public function handle()
     {
         $email = $this->argument('email');
 
-        $this->info('=== Email Credentials Debug ===');
+        $this->info('=== Email Configuration Debug (SendGrid) ===');
         $this->newLine();
 
         // List all active emails if none specified
         if (!$email) {
             $emails = Email::where('status', true)->orderBy('id')->get();
-            $this->info('Active emails in DB:');
+            $this->info('Active From addresses in DB:');
             foreach ($emails as $e) {
-                $pwdLen = strlen($e->password ?? '');
-                $pwdStatus = $pwdLen === 0 ? 'EMPTY' : ($pwdLen < 6 ? 'SHORT?' : "OK ({$pwdLen} chars)");
-                $this->line("  - {$e->email} | password: {$pwdStatus}");
+                $this->line("  - {$e->email} | Display: " . ($e->display_name ?? '(empty)'));
             }
             $this->newLine();
+            $this->info('Note: SendGrid uses SENDGRID_API_KEY from .env. Password column in DB is not used.');
             $this->info('Run with: php artisan email:debug <email>');
             return 0;
         }
@@ -43,7 +42,7 @@ class DebugEmailCredentials extends Command
             $this->line('Trying exact match...');
             $record = Email::where('email', $email)->first();
             if (!$record) {
-                $this->error('Still not found. Check the exact email in Admin Console → Emails.');
+                $this->error('Still not found. Add this email in Admin Console → Emails.');
                 return 1;
             }
         }
@@ -52,40 +51,9 @@ class DebugEmailCredentials extends Command
         $this->line("  ID: {$record->id}");
         $this->line("  Display name: " . ($record->display_name ?? '(empty)'));
         $this->line("  Status: {$record->status}");
-
-        $pwd = $record->password ?? '';
-        $pwdLen = strlen($pwd);
-
         $this->newLine();
-        $this->info('Password check:');
-        $this->line("  Length: {$pwdLen} characters");
-
-        if ($pwdLen === 0) {
-            $this->error('  ISSUE: Password is EMPTY. Edit this email and enter the correct Zoho password.');
-            return 1;
-        }
-
-        if ($pwdLen < 8) {
-            $this->warn('  WARNING: Password is very short. Zoho App Passwords are typically 16 chars.');
-        }
-
-        // Check for common issues
-        $trimmed = trim($pwd);
-        if ($trimmed !== $pwd) {
-            $this->warn('  WARNING: Password has leading/trailing whitespace - may cause auth failure.');
-        }
-
-        $this->newLine();
-        $this->info('SMTP will use: smtp.zoho.com:587 (TLS)');
-        $this->line("  Username: {$record->email}");
-        $this->line("  Password: [REDACTED - {$pwdLen} chars]");
-        $this->newLine();
-
-        $this->info('Common causes of 535 Authentication Failed:');
-        $this->line('  1. Wrong password - verify in Zoho Mail settings');
-        $this->line('  2. 2FA enabled - use Zoho App Password instead of account password');
-        $this->line('  3. Domain not verified in Zoho');
-        $this->line('  4. Account locked or SMTP disabled');
+        $this->info('SendGrid authentication uses SENDGRID_API_KEY from .env.');
+        $this->info('Ensure this From address is verified in SendGrid: Settings → Sender Authentication');
         $this->newLine();
 
         return 0;

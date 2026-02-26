@@ -153,7 +153,7 @@ class Controller extends BaseController
 		$sender = $emailConfig->email;
 		$displayName = is_object($sendername) ? \App\Helpers\Helper::defaultCrmCompanyName() : ($sendername ?: $emailConfig->display_name);
 
-		Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName));
+		Mail::mailer('sendgrid')->to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
 
 		// check for failures
 		if (Mail::failures()) {
@@ -178,7 +178,7 @@ class Controller extends BaseController
 		$sendername = $sendername ?: $emailConfig->display_name;
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::to($explodeTo);
+		$q = Mail::mailer('sendgrid')->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}
@@ -213,7 +213,7 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {
@@ -238,7 +238,7 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {
@@ -254,7 +254,7 @@ class Controller extends BaseController
 	{	
 		$explodeTo = explode(';', $to);//for multiple and single to
             $invoicearray['from'] = $sender;
-		Mail::to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {

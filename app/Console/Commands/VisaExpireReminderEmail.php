@@ -37,9 +37,16 @@ class VisaExpireReminderEmail extends Command
 
     protected function send_compose_template($content, $sendername, $to = null, $subject = null, $sender = null, $array = array(), $cc = array())
 	{
+		$emailService = app(\App\Services\EmailService::class);
+		$emailConfig = $emailService->configureMailerForEmail($sender);
+		if (!$emailConfig) {
+			return false;
+		}
+		$sender = $emailConfig->email;
+		$sendername = $sendername ?: ($emailConfig->display_name ?? $emailConfig->email);
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::to($explodeTo);
+		$q = Mail::mailer('sendgrid')->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}
