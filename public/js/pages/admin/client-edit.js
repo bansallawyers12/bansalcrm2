@@ -389,10 +389,8 @@ jQuery(document).ready(function($){
                 $phoneItem.find('input[name="client_country_code[]"]').val(country_code);
                 $phoneItem.find('input[name="client_phone[]"]').val(client_phone);
                 
-                // Update data attributes for future edits
-                $phoneItem.find('.editclientphone').attr('data-type', contact_type);
-                $phoneItem.find('.editclientphone').attr('data-country', country_code);
-                $phoneItem.find('.editclientphone').attr('data-phone', client_phone);
+                // Update data attributes (use .data() to sync jQuery cache so syncPhoneContactArrays reads correct values)
+                $phoneItem.find('.editclientphone').data('type', contact_type).data('country', country_code).data('phone', client_phone);
                 
                 console.log('Updated hidden input values:', {
                     type: $phoneItem.find('input[name="contact_type[]"]').val(),
