@@ -49,7 +49,7 @@ class Staff extends Authenticatable
 
     public function usertype(): BelongsTo
     {
-        return $this->belongsTo(UserRole::class, 'role', 'id');
+        return $this->belongsTo(StaffRole::class, 'role', 'id');
     }
 
     public function getFullNameAttribute(): string

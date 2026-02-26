@@ -4,7 +4,7 @@ namespace Tests\Unit\Traits;
 
 use Tests\TestCase;
 use App\Models\Admin;
-use App\Models\UserRole;
+use App\Models\StaffRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Mockery;
@@ -33,26 +33,19 @@ class ClientAuthorizationTest extends TestCase
      */
     public function test_hasModuleAccess_returns_true_for_admin_with_access()
     {
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
         $user->role = 1;
         
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
-        Auth::shouldReceive('guard')
-            ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        $adminGuard->shouldReceive('user')->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        Auth::shouldReceive('guard')->with('admin')->andReturn($adminGuard);
+        
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -66,26 +59,19 @@ class ClientAuthorizationTest extends TestCase
      */
     public function test_hasModuleAccess_returns_false_for_admin_without_access()
     {
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['21' => true]); // Different module
         
         $user = Mockery::mock('user');
         $user->role = 1;
         
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
-        Auth::shouldReceive('guard')
-            ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        $adminGuard->shouldReceive('user')->andReturn($user);
         
-        UserRole::shouldReceive('find')
+        Auth::shouldReceive('guard')->with('admin')->andReturn($adminGuard);
+        
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -95,63 +81,42 @@ class ClientAuthorizationTest extends TestCase
     }
 
     /**
-     * Test hasModuleAccess returns true for agents
+     * Test hasModuleAccess returns false when no admin (agents deprecated - no login)
      */
-    public function test_hasModuleAccess_returns_true_for_agents()
+    public function test_hasModuleAccess_returns_false_when_no_admin()
     {
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(false);
+        
+        Auth::shouldReceive('guard')->with('admin')->andReturn($adminGuard);
         
         $result = $this->controller->hasModuleAccess('20');
         
-        $this->assertTrue($result);
+        $this->assertFalse($result);
     }
 
     /**
-     * Test isAgentUser returns true for agents
+     * Test isAgentUser always returns false (agents deprecated - no login access)
      */
-    public function test_isAgentUser_returns_true_for_agents()
+    public function test_isAgentUser_always_returns_false()
     {
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        
-        $result = $this->controller->isAgentUser();
-        
-        $this->assertTrue($result);
-    }
-
-    /**
-     * Test isAgentUser returns false for admins
-     */
-    public function test_isAgentUser_returns_false_for_admins()
-    {
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
-        
         $result = $this->controller->isAgentUser();
         
         $this->assertFalse($result);
     }
+
 
     /**
      * Test isAdminUser returns true for admins
      */
     public function test_isAdminUser_returns_true_for_admins()
     {
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
+            ->andReturn($adminGuard);
         
         $result = $this->controller->isAdminUser();
         
@@ -165,21 +130,21 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
         $user->role = 1;
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        $adminGuard->shouldReceive('user')->andReturn($user);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+            ->andReturn($adminGuard);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -199,18 +164,19 @@ class ClientAuthorizationTest extends TestCase
         $agent = Mockery::mock('agent');
         $agent->id = 1;
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(false);
+        
+        $agentsGuard = Mockery::mock();
+        $agentsGuard->shouldReceive('check')->andReturn(true);
+        $agentsGuard->shouldReceive('user')->andReturn($agent);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
+            ->andReturn($adminGuard);
         Auth::shouldReceive('guard')
             ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($agent);
+            ->andReturn($agentsGuard);
         
         $result = $this->controller->canViewClient($client);
         
@@ -228,18 +194,19 @@ class ClientAuthorizationTest extends TestCase
         $agent = Mockery::mock('agent');
         $agent->id = 1;
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(false);
+        
+        $agentsGuard = Mockery::mock();
+        $agentsGuard->shouldReceive('check')->andReturn(true);
+        $agentsGuard->shouldReceive('user')->andReturn($agent);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
+            ->andReturn($adminGuard);
         Auth::shouldReceive('guard')
             ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($agent);
+            ->andReturn($agentsGuard);
         
         $result = $this->controller->canViewClient($client);
         
@@ -253,21 +220,21 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
         $user->role = 1;
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        $adminGuard->shouldReceive('user')->andReturn($user);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+            ->andReturn($adminGuard);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -283,21 +250,21 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
-        $userRole = Mockery::mock(UserRole::class);
+        $userRole = Mockery::mock(StaffRole::class);
         $userRole->module_access = json_encode(['20' => true]);
         
         $user = Mockery::mock('user');
         $user->role = 1;
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        $adminGuard->shouldReceive('user')->andReturn($user);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+            ->andReturn($adminGuard);
         
-        UserRole::shouldReceive('find')
+        StaffRole::shouldReceive('find')
             ->with(1)
             ->andReturn($userRole);
         
@@ -313,11 +280,12 @@ class ClientAuthorizationTest extends TestCase
     {
         $client = Mockery::mock(Admin::class);
         
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(false);
+        
         Auth::shouldReceive('guard')
             ->with('admin')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(false);
+            ->andReturn($adminGuard);
         
         $result = $this->controller->canDeleteClient($client);
         
@@ -325,19 +293,18 @@ class ClientAuthorizationTest extends TestCase
     }
 
     /**
-     * Test getCurrentUserRole returns correct role
+     * Test getCurrentStaffRole returns correct role
      */
-    public function test_getCurrentUserRole_returns_correct_role()
+    public function test_getCurrentUserRole_returns_admin_when_admin_logged_in()
     {
-        Auth::shouldReceive('guard')
-            ->with('agents')
-            ->andReturnSelf();
-        Auth::shouldReceive('check')
-            ->andReturn(true);
+        $adminGuard = Mockery::mock();
+        $adminGuard->shouldReceive('check')->andReturn(true);
+        
+        Auth::shouldReceive('guard')->with('admin')->andReturn($adminGuard);
         
         $result = $this->controller->getCurrentUserRole();
         
-        $this->assertEquals('agent', $result);
+        $this->assertEquals('admin', $result);
     }
 }
 

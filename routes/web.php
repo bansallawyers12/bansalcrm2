@@ -13,8 +13,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ApplicationsController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\BranchesController;
-use App\Http\Controllers\Admin\UsertypeController;
-use App\Http\Controllers\Admin\UserroleController;
+use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\OfficeVisitController;
@@ -168,7 +167,6 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 		Route::post('/settings/taxes/savereturnsetting', [AdminController::class, 'returnsetting'])->name('savereturnsetting');
 		// NOTE: Tax rate routes have been removed (taxrates, taxrates/create, taxrates/store, taxrates/edit)
 		// These routes were related to the tax_rates table which has been dropped
-		// Removed: /getsubcategories route - Dead code (method queried non-existent fields)
 		Route::get('/getproductbranch', [AdminController::class, 'getproductbranch']);
 		Route::get('/getpartner', [AdminController::class, 'getpartner']);
 		Route::get('/getproduct', [AdminController::class, 'getproduct']);
@@ -212,29 +210,24 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	// Customer routes removed - legacy travel system feature
 	// Company client creation routes removed - feature deleted
 	
-		Route::get('/usertype', [UsertypeController::class, 'index'])->name('usertype.index');
-		Route::get('/usertype/create', [UsertypeController::class, 'create'])->name('usertype.create');  		
-		Route::post('/usertype/store', [UsertypeController::class, 'store'])->name('usertype.store');
-		Route::get('/usertype/edit/{id}', [UsertypeController::class, 'edit'])->name('usertype.edit');
-		Route::post('/usertype/edit', [UsertypeController::class, 'edit'])->name('usertype.update');
-		
-		Route::get('/userrole', [UserroleController::class, 'index'])->name('userrole.index');
-		Route::get('/userrole/create', [UserroleController::class, 'create'])->name('userrole.create');  
-		Route::post('/userrole/store', [UserroleController::class, 'store'])->name('userrole.store');
-		Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('userrole.edit');
-		Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('userrole.update');
+		// Legacy redirect for backward compatibility (named so route('userrole.*') works)
+		Route::get('/userrole', fn () => redirect()->route('staffrole.index'))->name('userrole.index');
+		Route::get('/userrole/create', fn () => redirect()->route('staffrole.create'))->name('userrole.create');
+		Route::get('/userrole/edit/{id}', fn ($id) => redirect()->route('staffrole.edit', ['id' => $id]))->name('userrole.edit');
+		Route::get('/staffrole', [StaffroleController::class, 'index'])->name('staffrole.index');
+		Route::get('/staffrole/create', [StaffroleController::class, 'create'])->name('staffrole.create');  
+		Route::post('/staffrole/store', [StaffroleController::class, 'store'])->name('staffrole.store');
+		Route::get('/staffrole/edit/{id}', [StaffroleController::class, 'edit'])->name('staffrole.edit');
+		Route::post('/staffrole/edit', [StaffroleController::class, 'edit'])->name('staffrole.update');
 		
 	//Leads Start - Updated to modern syntax
 	Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');  
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');   
-	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');    
+	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');
+	Route::post('/leads/import', [LeadController::class, 'import'])->name('leads.import');
 Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
-	// Removed broken edit routes - leads now use detail page for viewing/editing
-	Route::get('/leads/notes/delete/{id}', [LeadController::class, 'leaddeleteNotes']);
-	Route::get('/get-notedetail', [LeadController::class, 'getnotedetail']);
-	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']);
-	Route::get('/leads/pin/{id}', [LeadController::class, 'leadPin']); 	
+	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']); 	
 		//Invoices Start    
 		
 		// Removed routes for deleted views: lists, email, invoicebyid, history, reminder
@@ -505,8 +498,9 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 		//Route::get('/enquiries/covertenquiry/{id}', 'Admin\EnquireController@covertenquiry'); 
 		//Route::get('/enquiries/archived/{id}', 'Admin\EnquireController@archivedenquiry'); 
 	
-		//Audit Logs Start   
+		//Audit Logs Start
 		Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('auditlogs.index');
+		Route::get('/audit-logs/export', [AuditLogController::class, 'exportCsv'])->name('auditlogs.export');
 		
 		//Reports Start   
 		Route::get('/report/client', [ReportController::class, 'client'])->name('reports.client');

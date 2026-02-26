@@ -33,7 +33,7 @@ use App\Http\Controllers\AdminConsole\Sms\SmsTemplateController as AdminConsoleS
 use App\Http\Controllers\Admin\BranchesController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TeamController;
-use App\Http\Controllers\Admin\UserroleController;
+use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\UploadChecklistController;
 
 Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
@@ -164,12 +164,12 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     Route::post('/teams/edit', [TeamController::class, 'edit'])->name('adminconsole.teams.update');
     Route::post('/teams/store', [TeamController::class, 'store'])->name('adminconsole.teams.store');
     
-    //User Role Routes
-    Route::get('/userrole', [UserroleController::class, 'index'])->name('adminconsole.userrole.index');
-    Route::get('/userrole/create', [UserroleController::class, 'create'])->name('adminconsole.userrole.create');  
-    Route::post('/userrole/store', [UserroleController::class, 'store'])->name('adminconsole.userrole.store');
-    Route::get('/userrole/edit/{id}', [UserroleController::class, 'edit'])->name('adminconsole.userrole.edit');
-    Route::post('/userrole/edit', [UserroleController::class, 'edit'])->name('adminconsole.userrole.update');
+    //Staff Role Routes
+    Route::get('/staffrole', [StaffroleController::class, 'index'])->name('adminconsole.staffrole.index');
+    Route::get('/staffrole/create', [StaffroleController::class, 'create'])->name('adminconsole.staffrole.create');  
+    Route::post('/staffrole/store', [StaffroleController::class, 'store'])->name('adminconsole.staffrole.store');
+    Route::get('/staffrole/edit/{id}', [StaffroleController::class, 'edit'])->name('adminconsole.staffrole.edit');
+    Route::post('/staffrole/edit', [StaffroleController::class, 'edit'])->name('adminconsole.staffrole.update');
     
     //Upload Checklists Routes
     Route::get('/upload-checklists', [UploadChecklistController::class, 'index'])->name('adminconsole.upload_checklists.index');

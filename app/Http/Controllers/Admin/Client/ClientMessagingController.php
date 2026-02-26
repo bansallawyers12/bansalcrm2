@@ -104,7 +104,7 @@ class ClientMessagingController extends Controller
                 ], 500);
             }
 
-            Mail::mailer('smtp')->to($request->client_email)->send(new ClientVerifyMail($details));
+            Mail::mailer('sendgrid')->to($request->client_email)->send(new ClientVerifyMail($details));
             
             return response()->json([
                 'status' => true,
@@ -248,7 +248,7 @@ class ClientMessagingController extends Controller
                 if (!$emailService->configureMailerForEmail(null)) {
                     $response['status'] = false;
                     $response['message'] = 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.';
-                } elseif (\Mail::to($userInfo->email)->send(new GoogleReviewMail($details))) {
+                } elseif (\Mail::mailer('sendgrid')->to($userInfo->email)->send(new GoogleReviewMail($details))) {
                     $objs = new ActivitiesLog;
                     $objs->client_id = $data['id'];
                     $objs->created_by = Auth::user()->id;

@@ -141,7 +141,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="email_from">From <span class="span_req">*</span></label>
-								{!! Form::text('email_from', 'support@digitrex.live', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter From' ))  !!}
+								@include('partials.email-from-sendgrid')
 								@if ($errors->has('email_from'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('email_from') }}</strong>

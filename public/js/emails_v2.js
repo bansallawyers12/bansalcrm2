@@ -27,7 +27,16 @@
         if (mailTypeFilter) {
             mailTypeFilter.value = type;
         }
+        updateFolderTabButtons(type);
     };
+
+    function updateFolderTabButtons(folder) {
+        document.querySelectorAll('.folder-tab-btn').forEach(btn => {
+            const isActive = (btn.dataset.folder || btn.getAttribute('data-folder')) === folder;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+    }
 
     // =========================================================================
     // Utility Functions
@@ -63,24 +72,6 @@
             return 'client'; // default
         }
         return container.dataset.entityType || 'client';
-    }
-
-    /**
-     * Get matter ID from the DOM (optional - not required for email upload)
-     * Returns null if not available - this is acceptable
-     */
-    function getMatterId() {
-        const container = document.querySelector('.email-v2-interface-container');
-        if (!container) {
-            return null;
-        }
-        
-        const matterId = container.dataset.matterId;
-        if (!matterId || matterId === '') {
-            return null;
-        }
-        
-        return matterId;
     }
 
     /**
@@ -188,8 +179,8 @@
         if (email.received_date) {
             return email.received_date;
         }
-        // Last resort: use created_at (upload time)
-        return getEmailDate(email);
+        // Last resort: use created_at (upload/send time)
+        return email.created_at || null;
     }
 
     /**
@@ -1212,77 +1203,62 @@
         `;
     }
 
+    // 1x1 transparent GIF - used as fallback when cid: cannot be resolved (avoids ERR_UNKNOWN_URL_SCHEME)
+    const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
     /**
-     * Replace cid: references in email HTML with actual preview URLs for inline attachments
+     * Replace cid: references in email HTML with actual preview URLs for inline attachments.
+     * Browsers cannot load cid: URLs; unresolved refs are replaced with a transparent pixel.
      */
     function replaceCidReferences(htmlContent, attachments) {
-        if (!htmlContent || !attachments || attachments.length === 0) {
-            return htmlContent;
-        }
-        
-        // Create a map of content_id to attachment for quick lookup
+        if (!htmlContent) return htmlContent;
+
+        // Build lookup map when we have attachments
         const cidMap = {};
-        attachments.forEach(att => {
-            if (!att.id) return; // Skip if no attachment ID
-            
-            // Always add filename to map (case-insensitive) as fallback
-            if (att.filename) {
-                const filenameKey = att.filename.toLowerCase();
-                cidMap[filenameKey] = att;
-                // Also try without extension
-                const filenameWithoutExt = filenameKey.replace(/\.[^.]+$/, '');
-                if (filenameWithoutExt !== filenameKey) {
-                    cidMap[filenameWithoutExt] = att;
+        if (attachments && attachments.length > 0) {
+            attachments.forEach(att => {
+                if (!att.id) return;
+                if (att.filename) {
+                    const filenameKey = att.filename.toLowerCase();
+                    cidMap[filenameKey] = att;
+                    const filenameWithoutExt = filenameKey.replace(/\.[^.]+$/, '');
+                    if (filenameWithoutExt !== filenameKey) cidMap[filenameWithoutExt] = att;
                 }
-            }
-            
-            // If content_id exists, add it to map (normalized)
-            if (att.content_id) {
-                // Normalize content_id (remove < > brackets if present)
-                const normalizedCid = att.content_id.replace(/^<|>$/g, '').trim();
-                if (normalizedCid) {
-                    cidMap[normalizedCid.toLowerCase()] = att;
+                if (att.content_id) {
+                    const normalized = att.content_id.replace(/^<|>$/g, '').trim().toLowerCase();
+                    if (normalized) cidMap[normalized] = att;
                 }
+            });
+        }
+
+        function findAttachment(cidValue) {
+            const normalized = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
+            let att = cidMap[normalized] || cidMap[normalized.replace(/:\d+$/, '')];
+            if (!att && normalized.includes('@')) {
+                att = cidMap[normalized.split('@')[0]];
             }
-        });
-        
-        // Replace cid: references in img src attributes
-        // Pattern: cid:filename or cid:<content-id>
-        htmlContent = htmlContent.replace(/src=["']cid:([^"'>]+)["']/gi, (match, cidValue) => {
-            // Remove any brackets and normalize
-            const normalizedCid = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
-            
-            // Try to find matching attachment
-            let attachment = cidMap[normalizedCid];
-            
-            // If not found, try with the original value
-            if (!attachment) {
-                attachment = cidMap[cidValue.toLowerCase()];
-            }
-            
-            // If attachment found and it's an image, replace with preview URL
+            return att;
+        }
+
+        // Replace cid: in img src (always replace to prevent ERR_UNKNOWN_URL_SCHEME)
+        // Handles: src="cid:...", src='cid:...', src=cid:... (unquoted)
+        htmlContent = htmlContent.replace(/src=(["']?)cid:([^"'>\s]+)\1?/gi, (match, quote, cidValue) => {
+            const attachment = findAttachment(cidValue);
             if (attachment && attachment.id) {
-                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
-                return `src="${previewUrl}"`;
+                return `src="/email-v2/attachments/${attachment.id}/preview"`;
             }
-            
-            // If not found, return original (broken image will show)
-            return match;
+            return `src="${TRANSPARENT_PIXEL}"`;
         });
-        
-        // Also handle background-image CSS with cid: references
+
+        // Replace cid: in background-image CSS
         htmlContent = htmlContent.replace(/background-image:\s*url\(["']?cid:([^"')]+)["']?\)/gi, (match, cidValue) => {
-            const normalizedCid = cidValue.replace(/^<|>$/g, '').trim().toLowerCase();
-            let attachment = cidMap[normalizedCid] || cidMap[cidValue.toLowerCase()];
-            
+            const attachment = findAttachment(cidValue);
             if (attachment && attachment.id) {
-                const previewUrl = `/email-v2/attachments/${attachment.id}/preview`;
-                return `background-image: url("${previewUrl}")`;
+                return `background-image: url("/email-v2/attachments/${attachment.id}/preview")`;
             }
-            
-            return match;
+            return 'background-image: none';
         });
-        
+
         return htmlContent;
     }
 
@@ -1832,6 +1808,7 @@
                 populateLabelFilter();
                 populateUploadLabelSelector(); // NEW
                 initializeUploadLabelSelector(); // NEW
+                populateComposeLabelSelector();
             }
         } catch (error) {
             console.error('Error fetching labels:', error);
@@ -1862,6 +1839,91 @@
         });
         
         console.log(`Populated ${availableLabels.length} labels in filter dropdown`);
+    }
+
+    /**
+     * Compose labels: Sent is always applied server-side. Populate Add label dropdown and handle chips.
+     */
+    let composeSelectedLabelIds = [];
+
+    function clearComposeLabelChips() {
+        composeSelectedLabelIds = [];
+        const chipsEl = document.getElementById('composeAdditionalLabelsChips');
+        const containerEl = document.getElementById('composeLabelIdsContainer');
+        if (chipsEl) chipsEl.innerHTML = '';
+        if (containerEl) containerEl.innerHTML = '';
+    }
+
+    function renderComposeLabelChips() {
+        const chipsEl = document.getElementById('composeAdditionalLabelsChips');
+        const containerEl = document.getElementById('composeLabelIdsContainer');
+        if (!chipsEl || !containerEl) return;
+        chipsEl.innerHTML = '';
+        containerEl.innerHTML = '';
+        composeSelectedLabelIds.forEach(labelId => {
+            const label = availableLabels.find(l => l.id == labelId);
+            if (!label) return;
+            const chip = document.createElement('span');
+            chip.className = 'compose-label-chip';
+            chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
+            chip.style.borderColor = label.color || '#3B82F6';
+            chip.style.color = label.color || '#3B82F6';
+            chip.innerHTML = `<i class="${label.icon || 'fas fa-tag'}"></i><span>${escapeHtml(label.name || '')}</span><i class="fas fa-times chip-remove" data-label-id="${label.id}"></i>`;
+            chip.querySelector('.chip-remove').addEventListener('click', function() {
+                composeSelectedLabelIds = composeSelectedLabelIds.filter(id => id != label.id);
+                renderComposeLabelChips();
+            });
+            chipsEl.appendChild(chip);
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'label_ids[]';
+            input.value = label.id;
+            containerEl.appendChild(input);
+        });
+    }
+
+    function populateComposeLabelSelector() {
+        const dropdown = document.getElementById('composeLabelDropdown');
+        if (!dropdown) return;
+
+        dropdown.innerHTML = '';
+        const sortedLabels = availableLabels
+            .filter(l => (l.name || '').toLowerCase() !== 'sent')
+            .sort((a, b) => {
+                if (a.type === 'system' && b.type !== 'system') return -1;
+                if (a.type !== 'system' && b.type === 'system') return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+        if (sortedLabels.length === 0) {
+            dropdown.innerHTML = '<li><span class="dropdown-item text-muted">No additional labels</span></li>';
+            return;
+        }
+
+        sortedLabels.forEach(label => {
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.className = 'dropdown-item';
+            link.href = '#';
+            link.innerHTML = `<span class="label-color-dot" style="background:${label.color || '#3B82F6'}"></span>${escapeHtml(label.name || '')}`;
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!composeSelectedLabelIds.includes(label.id)) {
+                    composeSelectedLabelIds.push(label.id);
+                    renderComposeLabelChips();
+                }
+            });
+            item.appendChild(link);
+            dropdown.appendChild(item);
+        });
+
+        // Clear chips when modal opens (emails_v2 may load before/without email-handlers on partners)
+        const emailModal = document.getElementById('emailmodal');
+        if (emailModal && !emailModal.dataset.composeLabelsInit) {
+            emailModal.dataset.composeLabelsInit = '1';
+            $(emailModal).on('shown.bs.modal', clearComposeLabelChips);
+            $('form[name="sendmail"]').on('reset', clearComposeLabelChips);
+        }
     }
 
     /**
@@ -2297,14 +2359,27 @@
             window.initializeSearch();
         }
 
-        // Mail type filter (Inbox/Sent)
-        const mailTypeFilter = document.getElementById('mailTypeFilter');
+        // Mail type filter (Inbox/Sent) - support both tab buttons and hidden select
+        const mailTypeFilter = document.getElementById('mailTypeFilterV2');
         if (mailTypeFilter) {
             mailTypeFilter.addEventListener('change', function() {
                 currentMailType = this.value;
+                updateFolderTabButtons(currentMailType);
                 loadEmailsFromServer();
             });
         }
+        // Folder tab buttons (Inbox | Sent)
+        document.querySelectorAll('.folder-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const folder = this.dataset.folder || this.getAttribute('data-folder');
+                if (folder && folder !== currentMailType) {
+                    currentMailType = folder;
+                    if (mailTypeFilter) mailTypeFilter.value = folder;
+                    updateFolderTabButtons(folder);
+                    loadEmailsFromServer();
+                }
+            });
+        });
         
         // Initialize search functionality
         if (typeof window.initializeSearch === 'function') {

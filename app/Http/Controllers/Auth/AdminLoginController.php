@@ -64,8 +64,7 @@ class AdminLoginController extends Controller
 			\Cookie::queue(\Cookie::forget('password'));
 		}
 	
-		$obj = new \App\Models\UserLog;
-		$obj->level = 'info';
+		$obj = new \App\Models\StaffLoginLog;
 		$obj->user_id = @$user->id;
 		$obj->ip_address = $request->getClientIp();
 		$obj->user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -105,7 +104,7 @@ class AdminLoginController extends Controller
             }
           
             // Temporarily commented out to avoid SMTP errors during development
-            /* if(! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
+            /* if(! \App\Models\StaffLoginLog::where('ip_address', '=', $request->getClientIp() )->exists())
             {
                 $message  = '<html><body>';
                 $message .= '<p>Dear Admin,</p>';
@@ -121,8 +120,7 @@ class AdminLoginController extends Controller
             } */
 
 
-            $obj = new \App\Models\UserLog;
-            $obj->level = 'info';
+            $obj = new \App\Models\StaffLoginLog;
             // PostgreSQL NOT NULL constraint - user_id must be set
             $obj->user_id = $user->id;
             $obj->ip_address = $request->getClientIp();
@@ -153,7 +151,7 @@ class AdminLoginController extends Controller
         }
        
          // Only send email if user exists (email found in database)
-         if($user && ! \App\Models\UserLog::where('ip_address', '=', $request->getClientIp() )->exists())
+         if($user && ! \App\Models\StaffLoginLog::where('ip_address', '=', $request->getClientIp() )->exists())
          {
            $message  = '<html><body>';
            $message .= '<p>Dear Admin,</p>';
@@ -173,8 +171,7 @@ class AdminLoginController extends Controller
 		// PostgreSQL NOT NULL constraint - user_id must be set
 		// If user exists, use their ID; if not, use null (column should be nullable for failed logins)
 		try {
-			$obj = new \App\Models\UserLog;
-			$obj->level = 'critical';
+			$obj = new \App\Models\StaffLoginLog;
 			$obj->user_id = $user ? $user->id : null; // null for unknown/non-existent users
 			$obj->ip_address = $request->getClientIp();
 			$obj->user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -198,8 +195,7 @@ class AdminLoginController extends Controller
 		// Get authenticated user ID before logout
 		$userId = Auth::guard('admin')->id();
 	
-		$obj = new \App\Models\UserLog;
-		$obj->level = 'info';
+		$obj = new \App\Models\StaffLoginLog;
 		// PostgreSQL NOT NULL constraint - user_id must be set. Use authenticated user ID
 		$obj->user_id = $userId;
 		$obj->ip_address = $request->getClientIp();

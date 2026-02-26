@@ -4,7 +4,6 @@ namespace Tests\Unit\Traits;
 
 use Tests\TestCase;
 use App\Models\Admin;
-use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;

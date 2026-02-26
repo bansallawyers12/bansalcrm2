@@ -856,15 +856,19 @@ class PublicDocumentController extends Controller
                 return redirect()->back()->with('error', 'Maximum reminders already sent.');
             }
 
-            // Send reminder email - uses .env by default when no From email provided
+            // Send reminder email via SendGrid
             $emailService = app(\App\Services\EmailService::class);
-            if (!$emailService->configureMailerForEmail(null)) {
+            $emailConfig = $emailService->configureMailerForEmail(null);
+            if (!$emailConfig) {
                 return redirect()->back()->with('error', 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.');
             }
 
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
-            Mail::raw("This is a reminder to sign your document: " . $signingUrl, function ($message) use ($signer) {
+            $mailFrom = $emailConfig->email;
+            $mailFromName = $emailConfig->display_name ?? $emailConfig->email;
+            Mail::mailer('sendgrid')->raw("This is a reminder to sign your document: " . $signingUrl, function ($message) use ($signer, $mailFrom, $mailFromName) {
                 $message->to($signer->email, $signer->name)
+                        ->from($mailFrom, $mailFromName)
                         ->subject('Reminder: Please Sign Your Document');
             });
 

@@ -10,14 +10,14 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'userrole/store', 'name'=>"add-userrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
+			{!! Form::open(array('url' => request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.store') : route('staffrole.store'), 'name'=>"add-staffrole", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!}
 				<div class="row">
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-header">
 								<h4>Add Roles and Permissions</h4>
 								<div class="card-header-action">
-									<a href="{{route('userrole.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{ request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.index') : route('staffrole.index') }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -53,8 +53,8 @@
 											<ul>
 												<li><label><input type="checkbox" name="module_access[1]" class="office_team"> Can create new offices, edit and archive all the associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[2]" class="office_team"> Can only view associated office details and its information.</label></li>
-												<li><label><input type="checkbox" name="module_access[3]" class="office_team"> Can invite users, cancel invitations, edit and change their status.</label></li>
-												<li><label><input type="checkbox" name="module_access[4]" class="office_team"> Can only view users list and details of associated offices.</label></li>
+												<li><label><input type="checkbox" name="module_access[3]" class="office_team"> Can invite staff, cancel invitations, edit and change their status.</label></li>
+												<li><label><input type="checkbox" name="module_access[4]" class="office_team"> Can only view staff list and details of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[5]" class="office_team"> Can access Service Page.</label></li>
 												<li><label><input type="checkbox" name="module_access[6]" class="office_team"> Can manage Roles and Permissions</label></li>
 											</ul>
@@ -139,16 +139,12 @@
 												<a href="javascript:;" data-class="clients" class="btn btn-secondary deselect_all">Deselect All</a>
 											</div>
 											<ul>
-												<li><label><input type="checkbox" name="module_access[20]" class="clients"> Can view all the clients of all the associated offices. Can assign clients to any users of the associated offices, respectively.</label></li>
+												<li><label><input type="checkbox" name="module_access[20]" class="clients"> Can view all the clients of all the associated offices. Can assign clients to any staff of the associated offices, respectively.</label></li>
 												<li><label><input type="checkbox" name="module_access[21]" class="clients"> Can add, edit and archive the clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[22]" class="clients"> Can only edit and archive assigned clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[23]" class="clients"> Can only view assigned clients.</label></li>
 												<li><label><input type="checkbox" name="module_access[24]" class="clients">  Can delete client.</label></li>
 												<li><label><input type="checkbox" name="module_access[25]" class="clients">  Can delete client's comments.</label></li>
-												<!-- Enquiries/Queries permissions removed - feature not in use -->
-												<!--<li><label><input type="checkbox" name="module_access[27]" class="clients">  Can view, edit and archive enquiries.</label></li>-->
-												<!--<li><label><input type="checkbox" name="module_access[28]" class="clients">  Can view archived enquiries.</label></li>-->
-												<!--<li><label><input type="checkbox" name="module_access[29]" class="clients">  Can restore archived enquiries.</label></li>-->
 											</ul>
 										</div>
 									</div>
@@ -169,8 +165,8 @@
 												<li><label><input type="checkbox" name="module_access[37]" class="applications"> Can add a new payment schedule.</label></li>
 												<li><label><input type="checkbox" name="module_access[38]" class="applications"> Can edit a payment schedule.</label></li>
 												<li><label><input type="checkbox" name="module_access[39]" class="applications"> Can delete a payment schedule.</label></li>
-												<li><label><input type="checkbox" name="module_access[40]" class="applications"> Can view/edit assigned and added application by the users of primary office.</label></li>
-												<li><label><input type="checkbox" name="module_access[41]" class="applications"> Can view/edit assigned and added application by the users of secondary office.</label></li>
+												<li><label><input type="checkbox" name="module_access[40]" class="applications"> Can view/edit assigned and added application by the staff of primary office.</label></li>
+												<li><label><input type="checkbox" name="module_access[41]" class="applications"> Can view/edit assigned and added application by the staff of secondary office.</label></li>
 												<li><label><input type="checkbox" name="module_access[42]" class="applications"> Can view commission in product fees and payment schedule of application.</label></li>
 												<li><label><input type="checkbox" name="module_access[43]" class="applications"> Can edit commission in product fees and payment schedule of application.</label></li>
 												<li><label><input type="checkbox" name="module_access[44]" class="applications"> Can view sales forecast of application.</label></li>
@@ -192,7 +188,6 @@
 												<li><label><input type="checkbox" name="module_access[46]" class="accounts"> Can create invoices of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[47]" class="accounts"> Can add, edit, delete and make/revert payments of clients invoices of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[48]" class="accounts"> Can add, edit, delete and make/revert payments of invoices of only assigned clients.</label></li>
-												<!-- NOTE: module_access[49] removed - Invoice Schedule feature has been removed -->
 												<li><label><input type="checkbox" name="module_access[50]" class="accounts"> Can view invoices of all the clients of associated offices and shared applications.</label></li>
 												<li><label><input type="checkbox" name="module_access[51]" class="accounts">  Can view income shared receivables of associated offices.</label></li>
 												<li><label><input type="checkbox" name="module_access[52]" class="accounts"> Can make payments, revert and delete payables of income shared offices and agents.</label></li>
@@ -244,23 +239,6 @@
 										</div>
 									</div>
 									
-									{{-- Appointments permission removed - feature deprecated --}}
-									
-									{{-- Task system removed - December 2025 --}}
-									<!--<div class="accordion">
-										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-13">
-											<h4>TASKS</h4>
-										</div>
-										<div class="accordion-body collapse" id="panel-body-13" data-parent="#accordion">
-											<div class="select_toggle">
-												<a href="javascript:;" data-class="tasks" class="btn btn-primary select_all">Select All</a>
-												<a href="javascript:;" data-class="tasks" class="btn btn-secondary deselect_all">Deselect All</a>
-											</div>
-											<ul>
-												<li><label><input type="checkbox" name="module_access[82]" class="tasks"> Can create tasks.</label></li>
-											</ul>
-										</div>
-									</div>-->
 									<div class="accordion">
 										<div class="accordion-header" role="button" data-bs-toggle="collapse" data-bs-target="#panel-body-14">
 											<h4>OFFICE CHECK-IN</h4>

@@ -15,7 +15,7 @@ use App\Mail\InvoiceEmailManager;
 use App\Mail\MultipleattachmentEmailManager;
 use App\Services\EmailService;
 
-use App\Models\UserRole;
+use App\Models\StaffRole;
 use App\Models\WebsiteSetting;
 
 use Auth;
@@ -153,7 +153,7 @@ class Controller extends BaseController
 		$sender = $emailConfig->email;
 		$displayName = is_object($sendername) ? \App\Helpers\Helper::defaultCrmCompanyName() : ($sendername ?: $emailConfig->display_name);
 
-		Mail::to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName));
+		Mail::mailer('sendgrid')->to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
 
 		// check for failures
 		if (Mail::failures()) {
@@ -178,7 +178,7 @@ class Controller extends BaseController
 		$sendername = $sendername ?: $emailConfig->display_name;
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::to($explodeTo);
+		$q = Mail::mailer('sendgrid')->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}
@@ -213,7 +213,7 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {
@@ -238,7 +238,7 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {
@@ -254,7 +254,7 @@ class Controller extends BaseController
 	{	
 		$explodeTo = explode(';', $to);//for multiple and single to
             $invoicearray['from'] = $sender;
-		Mail::to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
+		Mail::mailer('sendgrid')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 	
 		// check for failures
 		if (Mail::failures()) {
@@ -269,14 +269,18 @@ class Controller extends BaseController
 	public function checkAuthorizationAction($controller = NULL, $action = NULL, $role = NULL)
 	{	
 		
-		$userrole = UserRole::where('usertype',$role)->first();
-		if($userrole && $role != 1){
-			 $module_access  = $userrole->module_access; 
+		$staffRole = StaffRole::where('id', $role)->first();
+		if($staffRole && $role != 1){
+			 $module_access  = $staffRole->module_access; 
 			 //for test series vendor & organizations & professors authentication
 
 				$noAccessController = json_decode($module_access);
+				// Ensure we have an array: json_decode returns stdClass for JSON objects, array for JSON arrays
+				if (!is_array($noAccessController)) {
+					$noAccessController = $noAccessController ? (array) $noAccessController : [];
+				}
 				
-					if (!in_array($controller, $noAccessController)) //pass from controller
+					if (!in_array($controller, $noAccessController))
 					{
 						return true;
 					}

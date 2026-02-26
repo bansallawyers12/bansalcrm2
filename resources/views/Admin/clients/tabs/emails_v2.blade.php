@@ -1,30 +1,46 @@
 <!-- Emails V2 Interface - Generic for Clients and Partners -->
 
 <!-- Email V2 Styles -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}">
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
 
 @php
     // Support both $client and $fetchedData variable names
     $entityData = $client ?? $partner ?? $fetchedData ?? null;
     
-    // Determine entity type (client or partner)
+    // Determine entity type (client, lead, or partner)
     $entityType = 'client'; // default
     if (isset($partner)) {
         $entityType = 'partner';
     } elseif (isset($fetchedData)) {
-        // Check if it's a Partner model by checking if it has partner_name attribute
+        // Check if it's a Partner model
         if (isset($fetchedData->partner_name) || (method_exists($fetchedData, 'getTable') && $fetchedData->getTable() === 'partners')) {
             $entityType = 'partner';
         } else {
-            $entityType = 'client';
+            // Admin: use actual type (client or lead) so sent emails match
+            $entityType = $fetchedData->type ?? 'client';
         }
     }
 @endphp
 <div class="email-v2-interface-container" 
      data-entity-id="{{ $entityData->id ?? '' }}" 
      data-entity-type="{{ $entityType }}">
-    <!-- Top Control Bar (Search & Filters) -->
+    <!-- Top Control Bar: Inbox | Sent tabs + Search + Labels -->
     <div class="email-v2-control-bar">
+        <div class="control-section mail-type-section">
+            <div class="email-v2-folder-tabs" role="tablist">
+                <button type="button" class="folder-tab-btn active" data-folder="inbox" id="folder-tab-inbox" aria-selected="true">
+                    <i class="fas fa-inbox"></i> Inbox
+                </button>
+                <button type="button" class="folder-tab-btn" data-folder="sent" id="folder-tab-sent" aria-selected="false">
+                    <i class="fas fa-paper-plane"></i> Sent
+                </button>
+            </div>
+            <!-- Hidden select kept for JS compatibility -->
+            <select id="mailTypeFilterV2" class="filter-select" style="display:none;" aria-hidden="true">
+                <option value="inbox" selected>Inbox</option>
+                <option value="sent">Sent</option>
+            </select>
+        </div>
         <div class="control-section search-section">
             <label for="emailV2SearchInput">Search:</label>
             <input type="text" id="emailV2SearchInput" class="search-input" placeholder="Search emails...">
@@ -153,8 +169,8 @@
 <div id="contextMenuOverlayV2" class="context-menu-overlay" style="display: none;"></div>
 
 <!-- Include necessary CSS and JavaScript -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}">
-<script src="{{ asset('js/emails_v2.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
+<script src="{{ asset('js/emails_v2.js') }}?v={{ filemtime(public_path('js/emails_v2.js')) }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

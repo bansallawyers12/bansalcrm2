@@ -97,12 +97,6 @@
 														@endif
 													</div>
 												</div>
-												<div class="col-12 col-md-12 col-lg-12">
-													<div class="form-group"> 
-														<label for="status">Company Email Signature</label><br>
-														<textarea class="form-control tinymce-simple" name="email_signature">{{@$fetchedData->email_signature}}</textarea>
-													</div>
-												</div>
 											</div>
 										</div>
 									</div>
@@ -118,9 +112,5 @@
 		</div>
 	</section>
 </div>
-
-@push('tinymce-scripts')
-@include('partials.tinymce')
-@endpush
 
 @endsection

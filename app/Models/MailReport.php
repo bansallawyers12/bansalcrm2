@@ -25,7 +25,6 @@ class MailReport extends Model
         'attachments',
         'mail_type',
         'client_id',
-        'client_matter_id',
         'conversion_type',
         'mail_body_type',
         'fetch_mail_sent_time',

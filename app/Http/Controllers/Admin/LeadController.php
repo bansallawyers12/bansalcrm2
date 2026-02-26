@@ -6,17 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 
 use App\Models\Admin;
-use App\Models\Lead;
-use App\Models\FollowupType;
-use App\Models\Followup;
- 
-use Auth; 
-use Config;
-use Carbon\Carbon;
+use App\Services\ClientImportService;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use App\Helpers\PhoneHelper;
 
 class LeadController extends Controller
@@ -42,57 +38,14 @@ class LeadController extends Controller
 			/* $check = $this->checkAuthorizationAction('lead_management', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}*/	
 		//check authorization end
 
 		$baseQuery = Admin::where('type', 'lead')->where('converted', 0);
-
-		$not_contacted = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 0)->count();
-		$create_porposal = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 1)->count();
-		$followup = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)->count();
-		$undecided = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 11)->count();
-		$lost = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 12)->count();
-		$won = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 13)->count();
-		$ready_to_pay = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 14)->count();
-		$todaycall = (clone $baseQuery)->where('assignee', Auth::user()->id)->where('status', 15)
-			->whereExists(function ($q) {
-				$q->select(DB::raw(1))->from('followups')
-					->where(function ($q2) {
-						$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-							->orWhereColumn('followups.client_id', 'admins.id');
-					})
-					->whereDate('followups.followup_date', Carbon::today());
-			})->count();
-
 		$query = clone $baseQuery;
 
 		$totalData = $query->count();
-		if ($request->has('type')) 
-		{	
-			 $type 		= 	$request->input('type'); 
-			if(trim($type) != '')
-			{
-				if($type != 'not_contacted' && $type != 'today'){
-					$FollowupType = FollowupType::where('type', '=', $type)->first();
-					
-					$query->where('status', '=', @$FollowupType->id);
-				}else if($type == 'today'){
-					
-					$query->whereExists(function ($q) {
-						$q->select(DB::raw(1))->from('followups')
-							->where(function ($q2) {
-								$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-									->orWhereColumn('followups.client_id', 'admins.id');
-							})
-							->whereDate('followups.followup_date', Carbon::today());
-					});
-				}else{
-					$query->where('status', '=', 0);
-				}
-				
-			}	
-		}
 		if ($request->has('id')) 
 		{
 			$lead_id 		= 	$request->input('id'); 
@@ -140,7 +93,7 @@ class LeadController extends Controller
 				$query->whereDate('created_at', '>=', @$from);
 			}
 
-		}if ($request->has('to')) 
+		}		if ($request->has('to')) 
 		{
 			$to 		= 	$request->input('to'); 
 			if(trim($to) != '')
@@ -149,30 +102,13 @@ class LeadController extends Controller
 			}
 
 		}
-		if ($request->has('followupdate')) 
-		{
-			$followupdate 		= 	$request->input('followupdate'); 
-			if(trim($followupdate) != '')
-			{
-			   
-				$query->whereExists(function ($q) use ($followupdate) {
-					$q->select(DB::raw(1))->from('followups')
-						->where(function ($q2) {
-							$q2->whereColumn('followups.lead_id', 'admins.lead_id')
-								->orWhereColumn('followups.client_id', 'admins.id');
-						})
-						->whereDate('followups.followup_date', $followupdate)
-						->whereNotNull('followups.followup_date');
-				});
-			}
-		}
-	if ($request->has('type') || $request->has('lead_id') || $request->has('email')|| $request->has('name') || $request->has('phone') || $request->has('status')|| $request->has('followupdate')) 
+	if ($request->has('id') || $request->has('email') || $request->has('name') || $request->has('phone') || $request->has('status'))
 		{
 			$totalData 	= $query->count();//after search
 		}
 		$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit')); 
 		$cur_url = $request->fullUrl();
-		return view('Admin.leads.index',compact(['lists', 'totalData', 'not_contacted', 'create_porposal', 'followup', 'undecided', 'lost', 'won', 'ready_to_pay', 'cur_url', 'todaycall'])); 
+		return view('Admin.leads.index', compact(['lists', 'totalData', 'cur_url'])); 
 
 	}   
 	
@@ -182,7 +118,7 @@ class LeadController extends Controller
 			/* $check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
 			if($check)
 			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
+				return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
 			}*/	 
 		//check authorization end
 		
@@ -200,7 +136,7 @@ class LeadController extends Controller
 			$currentAssignee = $admin->assignee;
 			if($currentAssignee != '' && $currentAssignee != null){
 				if($currentAssignee == $requestData['assignto']){
-					return redirect()->back()->with('error', 'Already Assigned to this user');
+					return redirect()->back()->with('error', 'Already Assigned to this Staff');
 				}
 				$assignfrom = \App\Models\Staff::find($currentAssignee);
 				$assignto = \App\Models\Staff::find($requestData['assignto']);
@@ -210,21 +146,6 @@ class LeadController extends Controller
 			}
 			Admin::where('id', $admin->id)->update(['assignee' => $requestData['assignto']]);
 			$saved = true;
-			// Create followup only when changing from one assignee to another (original behavior)
-			if (isset($assignfrom) && $assignfrom) {
-				$assignto = \App\Models\Staff::find($requestData['assignto']);
-				$followup = new Followup;
-				// For admin-only leads use client_id; for migrated use lead_id
-				if ($admin->lead_id === null) {
-					$followup->client_id = $admin->id;
-				} else {
-					$followup->lead_id = $admin->lead_id;
-				}
-				$followup->user_id = Auth::user()->id;
-				$followup->note = $assignto ? 'changed from '.$assignfrom->first_name.' '.$assignfrom->last_name.' to '.$assignto->first_name.' '.$assignto->last_name : 'Assigned';
-				$followup->followup_type = 'assigned_to';
-				$followup->save();
-			}
 			if(!$saved) {
 				return redirect()->back()->with('error', 'Please try again');
 			}
@@ -237,11 +158,11 @@ class LeadController extends Controller
 	 public function store(Request $request)
 	{
 		//check authorization start	
-			  $check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
-			if($check)
-			{
-				return Redirect::to('/admin/dashboard')->with('error',config('constants.unauthorized'));
-			}	 
+		/*$check = $this->checkAuthorizationAction('add_lead', $request->route()->getActionMethod(), Auth::user()->role);
+		if($check)
+		{
+			return redirect()->route('dashboard')->with('error',config('constants.unauthorized'));
+		}	*/ 
 		//check authorization end
 		if ($request->isMethod('post')) 
 		{
@@ -402,173 +323,25 @@ class LeadController extends Controller
 	 * To edit a lead, users should now click on the lead to open the detail page.
 	 */ 
 	
-	public function leadPin(Request $request, $id)
-	{
-	    if(Followup::where('id', $id)->exists()){
-	        $a = Followup::find($id);
-	        if($a->pin == 1){
-	           $a->pin =  0;
-	        }else{
-	           $a->pin =  1;  
-	        }
-	        $save = $a->save();
-	        if($save){
-	            return redirect()->route('leads.index')->with('success', 'Record Updated successfully');
-	        }else{
-	            return redirect()->route('leads.index')->with('error', 'Please try again');
-	        }
-	    }
-	}
 	public function convertoClient(Request $request, $id = null)
 	{ 
-		$requestData 		= 	$request->all();
-		$enqdatas = Lead::query()->paginate(500);
-	//	if(Lead::where('id', $id)->exists()){
-		foreach($enqdatas as $lead){
-		    $id = $lead->id;
-			$enqdata = Admin::where('lead_id', $id)->first();
-			if($enqdata){
-			$obj = Admin::find($enqdata->id);
-			$obj->created_at = $lead->created_at;
-			$obj->updated_at = $lead->updated_at;
-			$obj->save();
+		$requestData = $request->all();
+		// Use Admin model only: iterate migrated leads (admins with lead_id set)
+		$admins = Admin::where('type', 'lead')->whereNotNull('lead_id')->paginate(500);
+		foreach ($admins as $admin) {
+			$leadId = $admin->lead_id;
+			// Sync timestamps from leads table if it exists (using DB, not Lead model)
+			if (Schema::hasTable('leads')) {
+				$leadRow = DB::table('leads')->where('id', $leadId)->first();
+				if ($leadRow) {
+					Admin::where('id', $admin->id)->update([
+						'created_at' => $leadRow->created_at,
+						'updated_at' => $leadRow->updated_at,
+					]);
+				}
 			}
-			/*if(!Admin::where('email', $enqdata->email)->exists()){
-				$first_name = substr(@$enqdata->first_name, 0, 4);
-				$obj				= 	new Admin;
-					$obj->lead_id	=	$id;
-			$obj->first_name	=	@$enqdata->first_name;
-			$obj->last_name	=	@$enqdata->last_name;
-			$obj->age	=	@$enqdata->first_name;
-			$obj->dob	=		@$enqdata->dob;
-			$obj->gender = @$enqdata->gender;
-			$obj->marital_status	=	@$enqdata->marital_status;
-			$obj->contact_type	=	@$enqdata->contact_type;
-			$obj->email_type	=	@$enqdata->email_type;
-			$obj->service	=	@$enqdata->service;
-			$obj->related_files	=	@$enqdata->related_files;
-			$obj->email	=	@$enqdata->email;
-			$obj->phone	=	@$enqdata->phone;
-			$obj->address	=	@$enqdata->address;
-			$obj->city	=	@$enqdata->city;
-			$obj->state	=	@$enqdata->state;
-			$obj->zip	=	@$enqdata->zip;
-			$obj->country	=	@$enqdata->country;
-			// preferredIntake column removed
-			$obj->country_passport			=	@$enqdata->country_passport;
-			$obj->passport_number			=	@$enqdata->passport_no;
-			$obj->visa_type			=	@$enqdata->visa_type;
-			$obj->visaExpiry			=	@$enqdata->visa_expiry_date;
-			//$obj->applications	=@$enqdata->first_name;
-			$obj->assignee	=	@$enqdata->assign_to;
-			
-			$obj->nomi_occupation	=@$enqdata->nomi_occupation;
-			$obj->skill_assessment	=@$enqdata->skill_assessment;
-			$obj->high_quali_aus	=@$enqdata->high_quali_aus;
-			$obj->high_quali_overseas	=	@$enqdata->high_quali_overseas;
-			$obj->relevant_work_exp_aus	=	@$enqdata->relevant_work_exp_aus;
-			$obj->relevant_work_exp_over	=	@$enqdata->relevant_work_exp_over;
-			$obj->naati_py	=	@$enqdata->naati_py;
-			$obj->married_partner	=@$enqdata->married_partner;
-			$obj->total_points	=@$enqdata->total_points;
-			$obj->source	=	@$enqdata->lead_source;
-			$obj->comments_note	=	@$enqdata->comments_note;
-			$obj->type	=	'lead';
-			// profile_img column removed
-			
-				$saved				=	$obj->save(); 
-			$objs							= 	Admin::find($obj->id);
-		    	$objs->client_id	=	strtoupper($first_name).date('ym').$obj->id;
-		    	$saveds				=	$objs->save();  	
-				
-				if(!$saved)
-				{
-					$response['status'] 	= 	false;
-					$response['message']	=	'Please try again';
-					return redirect()->route('leads.index')->with('error', 'Please try again');
-				}
-				else
-				{
-				    $o = Lead::find($id);
-				    $o->converted = 1;
-				    $o->converted_date = date('Y-m-d');
-				    $o->save();
-				    $Followups = Followup::where('lead_id', $id)->get();
-				    foreach($Followups as $Followup){
-	                	$Followupstype = FollowupType::where('type', $Followup->followup_type)->first();
-	                	$r = '';
-	                	if(@$Followup->subject != ''){
-	                	    $r .= @$Followup->subject.'<br>';
-	                	}
-	                	if(@$Followup->followup_date != ''){
-	                	    $r .= @$Followup->followup_date.'<br>';
-	                	}
-	                	if(@$Followup->note != ''){
-	                	    $r .= @$Followup->note;
-	                	}
-				        $objn = new \App\Models\Note;
-				        $objn->client_id = $obj->id;
-		            	$objn->user_id = Auth::user()->id;
-		        	    $objn->title = @$Followupstype->name;
-		        	    $objn->description = $r;
-		        	    $objn->mail_id = 0;
-		        	    $objn->type = 'client';
-		        	    // Set required NOT NULL fields for PostgreSQL
-		        	    $objn->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
-		        	    $objn->is_action = 0; // Required NOT NULL field (0 = not a followup, 1 = followup)
-		        	    $objn->status = 0; // Required NOT NULL field (0 = active/open, 1 = closed/completed)
-		        	    $objn->save();
-				    }
-			
-    				$enq = new Followup;
-    				$enq->lead_id = $id;
-    				$enq->user_id = @Auth::user()->id;
-    				$enq->note = 'Lead converted to client';
-    				$enq->followup_type = 'converted';
-    				$enq->save(); 
-					$response['status'] 	= 	true;
-					$response['message']	=	'Client saved successfully';
-				//	return Redirect::to('/admin/leads')->with('success', 'Client saved successfully');
-				}
-			}*/
-			echo $id.'<br>';
+				echo $leadId . '<br>';
 		}
-		//	echo json_encode($response);
-		//}
-	}
-	
-	public function leaddeleteNotes(Request $request, $id = Null){
-	    if(isset($id) && !empty($id)) 
-			{
-		 
-				if(Followup::where('id', '=', $id)->exists()) 
-				{
-			    $leadid = Followup::where('id', '=', $id)->first()->lead_id;
-			    $res = Followup::where('id', '=', $id)->delete();
-				if($res){
-				    return redirect()->route('leads.index')->with('success', 'Record deleted successfully');
-				}else{
-				    return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
-				}
-				}
-				else
-				{
-					return redirect()->route('leads.index')->with('error', 'Lead Not Exist');
-				}	
-			}
-			else
-			{
-				return redirect()->route('leads.index')->with('error', Config::get('constants.unauthorized'));
-			}
-	}
-	
-	public function getnotedetail(Request $request){
-	    $id = $request->id;
-	    // Followup edit feature removed - followup routes deleted
-	    if(Followup::where('id', '=', $id)->exists()) {
-		    return response('Followup edit feature has been removed.', 410);
-		}
-	    echo 'No Found';
 	}
 	
 	//Check Email is unique or not
@@ -599,5 +372,87 @@ class LeadController extends Controller
             $response['message']	=	"";
         }
         echo json_encode($response);
+    }
+
+    /**
+     * Import lead data from JSON file
+     */
+    public function import(Request $request)
+    {
+        try {
+            $request->validate([
+                'import_file' => 'required|file|mimes:json|max:10240',
+            ]);
+
+            $file = $request->file('import_file');
+            $jsonContent = file_get_contents($file->getRealPath());
+            $importData = json_decode($jsonContent, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return redirect()->back()
+                    ->withErrors(['import_file' => 'Invalid JSON file: ' . json_last_error_msg()])
+                    ->withInput();
+            }
+
+            if (!isset($importData['client'])) {
+                return redirect()->back()
+                    ->withErrors(['import_file' => 'Invalid import file format: missing client data'])
+                    ->withInput();
+            }
+
+            if (empty($importData['client']['email'])) {
+                return redirect()->back()
+                    ->withErrors(['import_file' => 'Lead email is required and cannot be empty'])
+                    ->withInput();
+            }
+
+            if (empty($importData['client']['first_name'])) {
+                return redirect()->back()
+                    ->withErrors(['import_file' => 'Lead first name is required'])
+                    ->withInput();
+            }
+
+            // Force type=lead when importing from Leads page
+            $importData['client']['type'] = 'lead';
+
+            $skipDuplicates = $request->has('skip_duplicates');
+            $importService = app(ClientImportService::class);
+            $result = $importService->importClient($importData, $skipDuplicates);
+
+            if ($result['success']) {
+                return redirect()->route('leads.index')
+                    ->with('success', $result['message']);
+            } else {
+                return redirect()->back()
+                    ->withErrors(['import_file' => $result['message']])
+                    ->withInput();
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstError = $e->validator->errors()->first();
+            return redirect()->back()
+                ->withErrors(['import_file' => $firstError])
+                ->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Lead import error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'file' => $request->file('import_file') ? $request->file('import_file')->getClientOriginalName() : 'unknown'
+            ]);
+
+            $errorMessage = $e->getMessage();
+            if (strpos($errorMessage, 'file_get_contents') !== false || strpos($errorMessage, 'failed to open stream') !== false) {
+                $errorMessage = 'File error: Could not read the uploaded file. Please ensure the file is not corrupted and try again.';
+            } elseif (strpos($errorMessage, 'json_decode') !== false) {
+                $errorMessage = 'JSON error: The file is not a valid JSON file. Please check the file format.';
+            } elseif (strpos($errorMessage, 'mimes') !== false || strpos($errorMessage, 'mime type') !== false) {
+                $errorMessage = 'File type error: Please upload a valid JSON file (.json extension).';
+            } elseif (strpos($errorMessage, 'max:') !== false) {
+                $errorMessage = 'File size error: The file is too large. Maximum file size is 10MB.';
+            }
+
+            return redirect()->back()
+                ->withErrors(['import_file' => $errorMessage])
+                ->withInput();
+        }
     }
 }

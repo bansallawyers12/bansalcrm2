@@ -1897,7 +1897,7 @@ use App\Http\Controllers\Controller;
 														    </div>
 														    	<?php } */ ?>
 											@endif
-														{!!$mailreport->message!!}
+														{!! \App\Helpers\Helper::stripCidReferences($mailreport->message) !!}
 														</div>
 														<div class="divider"></div>
 														<?php
@@ -1936,6 +1936,7 @@ use App\Http\Controllers\Controller;
 												$clientDobDisplay = (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') ? date('d/m/Y', strtotime($client->dob)) : '';
 												$subject = str_replace('{DOB}', $clientDobDisplay, $subject);
 												$message = str_replace('{DOB}', $clientDobDisplay, $message);
+												$message = \App\Helpers\Helper::stripCidReferences($message);
 											?>
 												<div class="conversation_list" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;margin-bottom: 10px;border-bottom: 1px solid rgba(34, 36, 38, .15);">
 													<div class="conversa_item">
@@ -2040,24 +2041,15 @@ use App\Http\Controllers\Controller;
 			<div class="modal-body">
 				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
+				<input type="hidden" name="client_id" value="{{ $fetchedData->id ?? '' }}">
+				<input type="hidden" name="type" value="{{ $fetchedData->type ?? 'client' }}">
 				<input type="hidden" name="application_id" id="sendmail_application_id" value="">
 				<input type="hidden" name="send_context" id="sendmail_send_context" value="">
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="email_from">From <span class="span_req">*</span></label>
-								<select class="form-control" name="email_from" data-valid="required">
-                                    <option value="">Select From</option>
-									<?php
-									$emails = \App\Models\Email::select('email')->where('status', 1)->get();
-									foreach($emails as $nemail){
-										?>
-											<option value="<?php echo $nemail->email; ?>"><?php echo $nemail->email; ?></option>
-										<?php
-									}
-
-									?>
-								</select>
+								@include('partials.email-from-sendgrid')
 								@if ($errors->has('email_from'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('email_from') }}</strong>
@@ -2165,6 +2157,25 @@ use App\Http\Controllers\Controller;
 										<strong>{{ @$errors->first('message') }}</strong>
 									</span>
 								@endif
+							</div>
+						</div>
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group compose-labels-section">
+								<label>Labels</label>
+								<div class="compose-labels-display">
+									<span class="compose-label-badge compose-label-sent" title="All sent emails are automatically tagged"><i class="fas fa-paper-plane"></i> Sent</span>
+									<div id="composeAdditionalLabelsChips" class="compose-label-chips"></div>
+									<div class="compose-add-label-wrapper dropdown">
+										<button type="button" class="btn btn-outline-secondary btn-sm compose-add-label-btn" id="composeAddLabelBtn" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="fas fa-plus"></i> Add label
+										</button>
+										<ul class="dropdown-menu compose-label-dropdown" id="composeLabelDropdown" aria-labelledby="composeAddLabelBtn">
+											<!-- Populated by JS when labels are loaded -->
+										</ul>
+									</div>
+								</div>
+								<div id="composeLabelIdsContainer"><!-- Hidden inputs for label_ids[] added by JS --></div>
+								<small class="form-text text-muted">All sent emails are tagged with "Sent" for records. Add optional labels to filter in the Emails tab.</small>
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">

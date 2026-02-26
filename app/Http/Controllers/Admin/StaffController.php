@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Staff;
 use App\Models\Email;
-use App\Models\UserRole;
+use App\Models\StaffRole;
 
 use Auth;
 use Config;
@@ -32,7 +32,7 @@ class StaffController extends Controller
         }
 
         // Staff roles only (exclude role 7 = client)
-        $usertype = UserRole::where('id', '!=', 7)->get();
+        $usertype = StaffRole::where('id', '!=', 7)->get();
         $emails = Email::where('status', 1)->orderBy('email')->get();
         return view('Admin.staff.create', compact(['usertype', 'emails']));
     }
@@ -99,7 +99,7 @@ class StaffController extends Controller
             return redirect()->route('dashboard')->with('error', config('constants.unauthorized'));
         }
 
-        $usertype = UserRole::where('id', '!=', 7)->get();
+        $usertype = StaffRole::where('id', '!=', 7)->get();
         if ($request->isMethod('post')) {
             $requestData = $request->all();
 

@@ -9,7 +9,7 @@
 		<ul class="sidebar-menu">
 		<?php
 		
-		$roles = \App\Models\UserRole::find(Auth::user()->role);
+		$roles = \App\Models\StaffRole::find(Auth::user()->role);
 		$newarray = json_decode($roles->module_access);
 	
 		$module_access = (array) $newarray;
@@ -348,7 +348,7 @@
 
 			@if(Auth::user()->role ===1)
 			<li class="dropdown {{@$auditlogsclasstype}}">
-				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Login Report</span></a>  
+				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Staff Login Log</span></a>  
 			</li>
 			@endif
 			<?php
@@ -361,8 +361,7 @@
 				class="fas fa-user"></i><span>Staff & Access Management</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'staff.index' || Route::currentRouteName() == 'staff.active' || Route::currentRouteName() == 'staff.create' || Route::currentRouteName() == 'staff.edit' || Route::currentRouteName() == 'staff.view') ? 'active' : ''}}"><a class="nav-link" href="{{route('staff.active')}}">Staff</a></li>
-					<li class="{{(Route::currentRouteName() == 'usertype.index' || Route::currentRouteName() == 'usertype.create' || Route::currentRouteName() == 'usertype.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('usertype.index')}}">User Type</a></li>
-					<li class="{{(Route::currentRouteName() == 'userrole.index' || Route::currentRouteName() == 'userrole.create' || Route::currentRouteName() == 'userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('userrole.index')}}">User Role</a></li>
+					<li class="{{(Route::currentRouteName() == 'staffrole.index' || Route::currentRouteName() == 'staffrole.create' || Route::currentRouteName() == 'staffrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('staffrole.index')}}">Staff Role</a></li>
 				</ul>
 			</li>
 			<?php 

@@ -1,5 +1,5 @@
 <?php
-		$roles = \App\Models\UserRole::find(Auth::user()->role);
+		$roles = \App\Models\StaffRole::find(Auth::user()->role);
 		$newarray = json_decode($roles->module_access);
 		$module_access = (array) $newarray;
 ?>
@@ -34,7 +34,7 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.recentclients.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.recentclients.index')}}">Recently Modified Clients</a></li>
 		
 		<?php
-			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.staff.active' || Route::currentRouteName() == 'adminconsole.staff.inactive' || Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
+			if(Route::currentRouteName() == 'adminconsole.branch.index' || Route::currentRouteName() == 'adminconsole.branch.create' || Route::currentRouteName() == 'adminconsole.branch.edit' || Route::currentRouteName() == 'adminconsole.branch.userview' || Route::currentRouteName() == 'adminconsole.branch.clientview' || Route::currentRouteName() == 'adminconsole.staff.active' || Route::currentRouteName() == 'adminconsole.staff.inactive' || Route::currentRouteName() == 'adminconsole.staffrole.index' || Route::currentRouteName() == 'adminconsole.staffrole.create' || Route::currentRouteName() == 'adminconsole.staffrole.edit' || Route::currentRouteName() == 'adminconsole.teams.index' || Route::currentRouteName() == 'adminconsole.teams.edit' || Route::currentRouteName() == 'adminconsole.upload_checklists.index'){ 
 				$teamclasstype = 'active';
 			}  
 		?> 
@@ -52,7 +52,7 @@
 			<?php
 			if(array_key_exists('6',  $module_access)) {
 			?>
-			<li class="{{(Route::currentRouteName() == 'adminconsole.userrole.index' || Route::currentRouteName() == 'adminconsole.userrole.create' || Route::currentRouteName() == 'adminconsole.userrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.userrole.index')}}">Roles</a></li>
+			<li class="{{(Route::currentRouteName() == 'adminconsole.staffrole.index' || Route::currentRouteName() == 'adminconsole.staffrole.create' || Route::currentRouteName() == 'adminconsole.staffrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.staffrole.index')}}">Roles</a></li>
 			<?php } ?>
 			<li class="{{(Route::currentRouteName() == 'adminconsole.upload_checklists.index' ) ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.upload_checklists.index')}}">Upload Checklists</a></li>
             

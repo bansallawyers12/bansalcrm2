@@ -32,6 +32,9 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 					<div class="card-header">
 						<h4>Leads</h4>
 						<div class="card-header-action">
+							<a href="javascript:;" class="btn btn-theme btn-theme-sm" data-bs-toggle="modal" data-bs-target="#importLeadModal" title="Import Lead">
+								<i class="fas fa-upload"></i> Import Lead
+							</a>
 							<a href="{{route('leads.create')}}" class="btn btn-primary">Add Lead</a>
 							<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 						</div>
@@ -112,11 +115,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										$leadIdForLinks = $list->lead_id ?? $list->id;
 										$displayId = $list->lead_id ?? $list->id;
 										$assigneeId = $list->assignee ?? $list->assign_to ?? null;
-										$followupQuery = $list->lead_id
-											? \App\Models\Followup::where('lead_id', $list->lead_id)
-											: \App\Models\Followup::where('client_id', $list->id);
-										$followpe = (clone $followupQuery)->where('followup_type','!=','assigned_to')->orderby('id','DESC')->with(['followutype'])->first(); 
-										$followp = (clone $followupQuery)->where('followup_type','=','follow_up')->orderby('id','DESC')->with(['followutype'])->first();
+										$statusDisplay = ($list->status === 0 || $list->status === '0') ? 'Not Contacted' : ((is_string($list->status) && $list->status !== '') ? $list->status : '—');
 										?> 
 										<tr id="id_{{@$list->id}}">
 											<td><i class="fa fa-ticket-alt"></i> <a class="" href="{{route('leads.detail', base64_encode(convert_uuencode($leadIdForLinks)))}}">Lead - {{str_pad($displayId, 3, '0', STR_PAD_LEFT)}}</a> <br/><i class="fa fa-calendar-alt"></i> 
@@ -134,21 +133,8 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 											</td>
 											<td><i class="fa fa-user"></i>  {{@$list->first_name}} {{@$list->last_name}} <br/> <i class="fa fa-mobile"></i> {{@$list->phone}} <br/> <i class="fa fa-envelope"></i> {{@$list->email}}</td>
 											<td>{{@$list->service}} <br/> {{@$list->created_at}}</td>
-											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $followpe && $followpe->followutype ? $followpe->followutype->name : '—' }}</div></td>
-											@if($followp)
-											@if(@$followp->followutype->type == 'follow_up')
-											<td>{{$followp->followutype->name}}<br> {{date('d-m-Y h:i A', strtotime($followp->followup_date))}}</td>
-											@else
-											<td>{{@$followp->followutype->name}}</td>
-											@endif
-											@else
-											<td>Not Contacted</td>
-											@endif
-											{{-- @if($followp)
-											<td>{{ @$followp->note == "" ? config('constants.empty') : str_limit(@$followp->note, '20', '...') }}</td>
-											@else
-											<td>{{ @$list->latest_comment == "" ? config('constants.empty') : str_limit(@$list->latest_comment, '20', '...') }}</td>
-											@endif --}}
+											<td><div class="lead_stars"><i class="fa fa-star"></i><span>{{@$list->lead_quality}}</span> {{ $statusDisplay }}</div></td>
+											<td>{{ $statusDisplay }}</td>
 											<td>
 												<div class="dropdown action_toggle">
 													<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
@@ -211,9 +197,64 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 			<div class="modal-footer">
 				{!! Form::button('<i class="fa fa-save"></i> Assign Lead', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-assign")' ])  !!}
 			</div>
-			 {!! Form::close()  !!}
+			{!! Form::close()  !!}
 		</div>
 	</div>
+</div>
+
+<!-- Import Lead Modal -->
+<div id="importLeadModal" data-bs-backdrop="static" data-bs-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-upload"></i> Import Lead from File
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" name="importLeadForm" action="{{ route('leads.import') }}" autocomplete="off" enctype="multipart/form-data">
+                    @csrf
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Instructions:</strong> Upload a JSON file exported from migrationmanager2, bansalcrm2, or the Office Visit Form (<code>office-visit-{id}-crm.json</code>).
+                    </div>
+
+                    <div class="form-group">
+                        <label for="import_file">Select JSON File <span class="span_req">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="import_file" name="import_file" accept=".json" required>
+                            <label class="custom-file-label" for="import_file">Choose file...</label>
+                        </div>
+                        <small class="form-text text-muted">Supported: CRM exports (migrationmanager2, bansalcrm2) and Office Visit Form JSON.</small>
+                        @if ($errors->has('import_file'))
+                            <span class="custom-error" role="alert">
+                                <strong>{{ @$errors->first('import_file') }}</strong>
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="skip_duplicates" name="skip_duplicates" value="1" checked>
+                            <label class="form-check-label" for="skip_duplicates">
+                                Skip if lead with same email or phone number already exists
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Import Lead
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -221,13 +262,47 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 <script>
     jQuery(document).ready(function($){
         $('.filter_btn').on('click', function(){
-		$('.filter_panel').slideToggle();
-	});
-         $('.assignlead_modal').on('click', function(){
-			  var val = $(this).attr('mleadid');
-			  $('#assignlead_modal #mlead_id').val(val);
-			  $('#assignlead_modal').modal('show');
-		  });
+            $('.filter_panel').slideToggle();
+        });
+        $('.assignlead_modal').on('click', function(){
+            var val = $(this).attr('mleadid');
+            $('#assignlead_modal #mlead_id').val(val);
+            $('#assignlead_modal').modal('show');
+        });
+
+        // File input label update for import modal
+        $('#import_file').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName || 'Choose file...');
+        });
     });
+
+    // Show error toast when import fails
+    @if ($errors->has('import_file'))
+    $(document).ready(function() {
+        var modalElement = document.getElementById('importLeadModal');
+        if (modalElement) {
+            var modal = bootstrap.Modal.getInstance(modalElement);
+            if (!modal) { modal = new bootstrap.Modal(modalElement); }
+            modal.show();
+        }
+        var errorMessage = {!! json_encode($errors->first('import_file')) !!};
+        if (typeof iziToast !== 'undefined') {
+            iziToast.error({ title: 'Import Failed', message: errorMessage, position: 'topRight', timeout: 8000 });
+        } else {
+            alert('Import Error:\n\n' + errorMessage);
+        }
+    });
+    @endif
+
+    // Show success toast when import succeeds
+    @if (Session::has('success'))
+    $(document).ready(function() {
+        var successMessage = {!! json_encode(Session::get('success')) !!};
+        if (typeof iziToast !== 'undefined') {
+            iziToast.success({ title: 'Import Successful', message: successMessage, position: 'topRight', timeout: 5000 });
+        }
+    });
+    @endif
 </script>
 @endsection

@@ -84,9 +84,6 @@
 										
 									</div>
 								</div>
-								<a href="javascript:;" class="btn btn-theme btn-theme-sm" data-bs-toggle="modal" data-bs-target="#importClientModal" title="Import Client">
-									<i class="fas fa-upload"></i> Import Client
-								</a>
 								<a href="javascript:;" class="btn btn-theme btn-theme-sm filter_btn"><i class="fas fa-filter"></i> Filter</a>
 							</div>
 						</div>
@@ -292,17 +289,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="email_from">From <span class="span_req">*</span></label>
-								<select class="form-control" name="email_from">
-									<?php
-									$emails = \App\Models\Email::select('email')->where('status', 1)->get();
-									foreach($emails as $email){
-										?>
-											<option value="<?php echo $email->email; ?>"><?php echo $email->email; ?></option>
-										<?php
-									}
-									
-									?>
-								</select>
+								@include('partials.email-from-sendgrid')
 								@if ($errors->has('email_from'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('email_from') }}</strong>
@@ -380,60 +367,6 @@
 	</div>
 </div>
 
-<!-- Import Client Modal -->
-<div id="importClientModal" data-bs-backdrop="static" data-bs-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-upload"></i> Import Client from File
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" name="importClientForm" action="{{URL::to('/clients/import')}}" autocomplete="off" enctype="multipart/form-data">
-                    @csrf
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> 
-                        <strong>Instructions:</strong> One JSON file works for both systems. Upload a file exported from migrationmanager2 or bansalcrm2 to import client data.
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="import_file">Select JSON File <span class="span_req">*</span></label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="import_file" name="import_file" accept=".json" required>
-                            <label class="custom-file-label" for="import_file">Choose file...</label>
-                        </div>
-                        <small class="form-text text-muted">Only JSON files exported from CRM systems are supported.</small>
-                        @if ($errors->has('import_file'))
-                            <span class="custom-error" role="alert">
-                                <strong>{{ @$errors->first('import_file') }}</strong>
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="skip_duplicates" name="skip_duplicates" value="1" checked>
-                            <label class="form-check-label" for="skip_duplicates">
-                                Skip if client with same email or phone number already exists
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload"></i> Import Client
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 @section('scripts')
 <script>
@@ -767,51 +700,13 @@ function formatRepoSelection (repo) {
 }
 });
 
-// File input label update for import modal
-$('#import_file').on('change', function() {
-    var fileName = $(this).val().split('\\').pop();
-    $(this).next('.custom-file-label').html(fileName || 'Choose file...');
-});
-
-// Show error toast notification when import fails
-@if ($errors->has('import_file'))
-    $(document).ready(function() {
-        // Keep modal open if there's an error
-        var modalElement = document.getElementById('importClientModal');
-        if (modalElement) {
-            var modal = bootstrap.Modal.getInstance(modalElement);
-            if (!modal) {
-                modal = new bootstrap.Modal(modalElement);
-            }
-            modal.show();
-        }
-        
-        // Show toast notification with specific error
-        var errorMessage = {!! json_encode($errors->first('import_file')) !!};
-        if (typeof iziToast !== 'undefined') {
-            iziToast.error({
-                title: 'Import Failed',
-                message: errorMessage,
-                position: 'topRight',
-                timeout: 8000,
-                closeOnClick: true,
-                pauseOnHover: true,
-                displayMode: 'replace'
-            });
-        } else {
-            // Fallback to alert if iziToast is not available
-            alert('Import Error:\n\n' + errorMessage);
-        }
-    });
-@endif
-
-// Show success toast notification when import succeeds
+// Show success toast notification
 @if (Session::has('success'))
     $(document).ready(function() {
         var successMessage = {!! json_encode(Session::get('success')) !!};
         if (typeof iziToast !== 'undefined') {
             iziToast.success({
-                title: 'Import Successful',
+                title: 'Success',
                 message: successMessage,
                 position: 'topRight',
                 timeout: 5000,

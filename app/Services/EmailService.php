@@ -3,17 +3,14 @@
 namespace App\Services;
 
 use App\Models\Email;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
 
 class EmailService
 {
-    /** Zoho SMTP settings - both domains are hosted on Zoho */
-    protected const SMTP_HOST = 'smtp.zoho.com.au';
-    protected const SMTP_PORT = 587;
-    protected const SMTP_ENCRYPTION = 'tls';
+    /** Default mailer for all CRM emails - SendGrid */
+    protected const DEFAULT_MAILER = 'sendgrid';
 
     /**
      * Get the first active email (default for system emails).
@@ -26,18 +23,18 @@ class EmailService
     }
 
     /**
-     * Configure the mailer for sending emails.
-     * - When From email is explicitly provided and exists in emails table: use that email's credentials from DB.
-     * - When no From email is provided: use .env (MAIL_*) credentials.
+     * Resolve email config for From address (email + display_name).
+     * Uses emails table when address provided, else .env or first active email.
+     * SendGrid uses a single API key - no per-email SMTP credentials.
      *
      * @param string|null $emailAddress Email address to use (must exist in emails table when provided)
-     * @return \App\Models\Email|object|null The email config (Email model or object with email, display_name), or null
+     * @return \App\Models\Email|object|null The email config (email, display_name), or null
      */
     public function configureMailerForEmail(?string $emailAddress = null): ?object
     {
         $emailConfig = null;
 
-        // Explicit From email provided: use credentials from emails table
+        // Explicit From email provided: use from emails table
         if ($emailAddress && trim($emailAddress) !== '') {
             $trimmed = trim($emailAddress);
             $emailConfig = Email::where('status', true)
@@ -45,62 +42,18 @@ class EmailService
                 ->first();
         }
 
-        // No explicit From: use .env credentials (default)
+        // No explicit From: use .env or first active email from DB
         if (!$emailConfig) {
-            $envUser = env('MAIL_USERNAME');
-            $envPass = env('MAIL_PASSWORD');
-            if ($envUser && $envPass !== null) {
+            $envFrom = env('MAIL_FROM_ADDRESS');
+            if ($envFrom) {
                 $emailConfig = (object) [
-                    'email' => env('MAIL_FROM_ADDRESS', $envUser),
-                    'display_name' => env('MAIL_FROM_NAME', $envUser),
+                    'email' => $envFrom,
+                    'display_name' => env('MAIL_FROM_NAME', $envFrom),
                 ];
-                $host = env('MAIL_HOST', self::SMTP_HOST);
-                $port = (int) (env('MAIL_PORT') ?: self::SMTP_PORT);
-                $encryption = env('MAIL_ENCRYPTION', self::SMTP_ENCRYPTION);
-
-                Config::set('mail.default', 'smtp');
-                Config::set('mail.mailers.smtp', [
-                    'transport' => 'smtp',
-                    'host' => $host,
-                    'port' => $port,
-                    'encryption' => $encryption,
-                    'username' => $envUser,
-                    'password' => trim((string) $envPass),
-                ]);
-                Config::set('mail.from.address', $emailConfig->email);
-                Config::set('mail.from.name', $emailConfig->display_name);
-
-                app()->forgetInstance('mailer');
-                app()->forgetInstance('mail.manager');
-
                 return $emailConfig;
             }
-
-            // Fallback: first active email from emails table (when .env not configured)
             $emailConfig = $this->getDefaultEmail();
         }
-
-        if (!$emailConfig) {
-            return null;
-        }
-
-        // Use credentials from emails table
-        $password = is_string($emailConfig->password) ? trim($emailConfig->password) : '';
-
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp', [
-            'transport' => 'smtp',
-            'host' => self::SMTP_HOST,
-            'port' => self::SMTP_PORT,
-            'encryption' => self::SMTP_ENCRYPTION,
-            'username' => trim($emailConfig->email),
-            'password' => $password,
-        ]);
-        Config::set('mail.from.address', $emailConfig->email);
-        Config::set('mail.from.name', $emailConfig->display_name ?? $emailConfig->email);
-
-        app()->forgetInstance('mailer');
-        app()->forgetInstance('mail.manager');
 
         return $emailConfig;
     }
@@ -118,51 +71,49 @@ class EmailService
     }
 
     /**
-     * Send an email using the specified email configuration.
+     * Send an email via SendGrid.
      *
      * @param string $view
      * @param array $data
      * @param string $to
      * @param string $subject
-     * @param int $fromEmailId
+     * @param string $fromEmailAddress From email (must exist in emails table)
+     * @param array $attachments
+     * @param array $cc
      * @return bool
      * @throws \Exception
      */
-    public function sendEmail($view, $data, $to, $subject, $fromEmailId, $attachments = [], $cc = [])
+    public function sendEmail($view, $data, $to, $subject, $fromEmailAddress, $attachments = [], $cc = [])
     {
         try {
-            $trimmed = trim($fromEmailId);
+            $trimmed = trim((string) $fromEmailAddress);
+            if ($trimmed === '') {
+                throw new \Exception('From email address is required.');
+            }
             $emailConfig = Email::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
             if (!$emailConfig) {
-                throw new \Exception("Email '{$fromEmailId}' not found in emails table. Add it in Admin Console → Emails.");
+                // Allow SendGrid verified senders (From dropdown is populated from SendGrid API)
+                if (! filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    throw new \Exception("Invalid From email address: {$trimmed}");
+                }
+                $emailConfig = (object) [
+                    'email' => $trimmed,
+                    'display_name' => $trimmed,
+                ];
             }
 
-            // Log email config from DB
-            Log::info('EmailService - Sending Email', [
+            Log::info('EmailService - Sending Email via SendGrid', [
                 'from_email' => $emailConfig->email,
-                'password_length' => strlen($emailConfig->password ?? ''),
                 'to' => $to,
                 'subject' => $subject,
             ]);
 
-            // Configure mailer from emails table (not .env)
-            $this->configureMailerForEmail($emailConfig->email);
-
-            // Log SMTP config after setting
-            Log::info('EmailService - SMTP Config', [
-                'host' => Config::get('mail.mailers.smtp.host'),
-                'port' => Config::get('mail.mailers.smtp.port'),
-                'username' => Config::get('mail.mailers.smtp.username'),
-                'encryption' => Config::get('mail.mailers.smtp.encryption'),
-            ]);
-
-            // Send the email
-            Mail::send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
+            Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
                 $message->to($to)
                     ->subject($subject)
-                    ->from($emailConfig->email, $emailConfig->display_name);
+                    ->from($emailConfig->email, $emailConfig->display_name ?? $emailConfig->email);
 
                 if (!empty($cc)) {
                     $message->cc($cc);
@@ -170,7 +121,7 @@ class EmailService
 
                 if (!empty($attachments)) {
                     foreach ($attachments as $attachment) {
-                        if (file_exists($attachment)) {
+                        if (is_string($attachment) && file_exists($attachment)) {
                             $message->attach($attachment);
                         }
                     }
@@ -186,7 +137,7 @@ class EmailService
         } catch (\Exception $e) {
             Log::error('EmailService - Send Failed', [
                 'error' => $e->getMessage(),
-                'from_email_id' => $fromEmailId ?? 'unknown',
+                'from_email' => $fromEmailAddress ?? 'unknown',
                 'to' => $to ?? 'unknown',
             ]);
             throw new \Exception('Email could not be sent: ' . $e->getMessage());

@@ -21,6 +21,7 @@ use App\Models\Note;
 
 use App\Services\EmailService;
 use App\Services\DashboardService;
+use App\Services\CrmSentEmailS3Service;
 use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
@@ -33,12 +34,14 @@ class AdminController extends Controller
   
     protected $emailService;
     protected $dashboardService;
+    protected $crmSentEmailS3Service;
   
-    public function __construct(EmailService $emailService, DashboardService $dashboardService)
+    public function __construct(EmailService $emailService, DashboardService $dashboardService, CrmSentEmailS3Service $crmSentEmailS3Service)
     {
         $this->middleware('auth:admin');
         $this->emailService = $emailService;
         $this->dashboardService = $dashboardService;
+        $this->crmSentEmailS3Service = $crmSentEmailS3Service;
     }
     
     /**
@@ -251,7 +254,7 @@ class AdminController extends Controller
 				}
 			else
 				{
-					return redirect()->back()->with('error', 'User is not exist, so you can not change the password.');
+					return redirect()->back()->with('error', 'Staff member does not exist, so you cannot change the password.');
 				}
 		}
 		return view('Admin.change_password');
@@ -1331,7 +1334,7 @@ class AdminController extends Controller
 		$obj = new \App\Models\MailReport;
 		$obj->user_id 		=  $user_id;
 		$obj->from_mail 	=  isset($requestData['email_from']) ? $requestData['email_from'] : '';
-		$obj->to_mail 		=  isset($requestData['email_to']) ? implode(',',$requestData['email_to']) : '';
+		$obj->to_mail 		=  isset($requestData['email_to']) ? $this->resolveRecipientsToEmails($requestData['email_to'], $requestData['type'] ?? 'client') : '';
 		if(isset($requestData['email_cc'])){
 		$obj->cc 			=  implode(',',@$requestData['email_cc']);
 		}
@@ -1347,6 +1350,8 @@ class AdminController extends Controller
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
 		$obj->mail_type		=  1;
+		// client_id for Email tab / S3 archival (required for sent emails to appear)
+		$obj->client_id		=  $requestData['client_id'] ?? ($requestData['email_to'][0] ?? null);
       
 		$attachments = array();
       
@@ -1391,6 +1396,24 @@ class AdminController extends Controller
         }
 
 		$saved	=	$obj->save();
+
+		// Always attach "Sent" label for better records; plus any additional user-selected labels
+		if ($saved) {
+			$labelIds = [];
+			// Permanent Sent label
+			$sentLabel = \App\Models\EmailLabel::where('name', 'Sent')->where('type', 'system')->first();
+			if ($sentLabel) {
+				$labelIds[] = $sentLabel->id;
+			}
+			// User-selected additional labels
+			if (isset($requestData['label_ids']) && is_array($requestData['label_ids']) && !empty($requestData['label_ids'])) {
+				$userLabelIds = array_map('intval', array_filter($requestData['label_ids']));
+				$labelIds = array_unique(array_merge($labelIds, $userLabelIds));
+			}
+			if (!empty($labelIds)) {
+				$obj->labels()->attach($labelIds);
+			}
+		}
 
 		// Activity log based on which button user clicked (send_context)
         $sendContext = $requestData['send_context'] ?? '';
@@ -1507,6 +1530,32 @@ class AdminController extends Controller
                 $objs->save();
             }
         }
+
+        // Plain compose: log "Sent email" when no checklist/reminder activity was created
+        $loggedChecklistOrReminder = $isChecklistContext
+            || (isset($requestData['checklistfile']) && !empty($requestData['checklistfile']))
+            || $isEmailReminderContext
+            || (!empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext);
+        if ($saved && !$loggedChecklistOrReminder) {
+            $clientIdForLog = is_numeric($obj->client_id) ? (int)$obj->client_id : null;
+            if ($clientIdForLog === null && !empty($requestData['email_to'][0]) && is_numeric($requestData['email_to'][0])) {
+                $clientIdForLog = (int)$requestData['email_to'][0];
+            }
+            if ($clientIdForLog) {
+                $sentDate = now()->format('d/m/Y H:i');
+                $toDisplay = is_string($obj->to_mail) ? $obj->to_mail : (is_array($obj->to_mail) ? implode(', ', $obj->to_mail) : '');
+                $subjectDisplay = $obj->subject ?? $requestData['subject'] ?? '';
+                $logDescription = 'Email sent to ' . $toDisplay . ' - Subject: "' . $subjectDisplay . '" on ' . $sentDate;
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $clientIdForLog;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = 'Sent email';
+                $objs->description = $logDescription;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+            }
+        }
       
       
         if(isset($requestData['checklistfile_document']) && !$isChecklistContext){
@@ -1523,6 +1572,7 @@ class AdminController extends Controller
 
 		$subject = $requestData['subject'];
 		$message = $requestData['message'];
+		$s3Stored = false; // Store to S3 only once (not per recipient)
 		foreach($requestData['email_to'] as $l){
 			if(@$requestData['type'] == 'partner'){
 				$client = \App\Models\Partner::Where('id', $l)->first();
@@ -1646,6 +1696,22 @@ class AdminController extends Controller
                     $attachments,
                     $ccarray
                 );
+
+                // Store full email to S3 for archival (HTML snapshot + attachments) - once per MailReport, not per recipient
+                if (!$s3Stored) {
+                    try {
+                        $attachmentTuples = [];
+                        foreach ($attachments as $p) {
+                            if (is_string($p) && file_exists($p)) {
+                                $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                            }
+                        }
+                        $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
+                        $s3Stored = true;
+                    } catch (\Exception $s3Ex) {
+                        \Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
+                    }
+                }
                 
                 // Clean up temp files after email is sent
                 if(isset($array['file']) && file_exists($array['file'])){
@@ -1683,6 +1749,38 @@ class AdminController extends Controller
         }
 	}
 
+	/**
+	 * Resolve recipient IDs (client/partner/agent) to email addresses for MailReport.to_mail.
+	 */
+	protected function resolveRecipientsToEmails(array $recipients, string $type): string
+	{
+		$emails = [];
+		foreach ($recipients as $r) {
+			$r = trim($r);
+			if (empty($r)) continue;
+			if (strpos($r, '@') !== false) {
+				$emails[] = $r;
+				continue;
+			}
+			if (!is_numeric($r)) {
+				$emails[] = $r;
+				continue;
+			}
+			$email = null;
+			if ($type === 'partner') {
+				$p = \App\Models\Partner::find($r);
+				$email = ($p && isset($p->email) && $p->email !== '') ? $p->email : null;
+			} elseif ($type === 'agent') {
+				$a = \App\Models\Agent::find($r);
+				$email = ($a && !empty($a->email)) ? $a->email : null;
+			} else {
+				$a = \App\Models\Admin::withoutGlobalScopes()->find($r);
+				$email = ($a && !empty($a->email)) ? $a->email : null;
+			}
+			$emails[] = $email ?: $r;
+		}
+		return implode(', ', $emails);
+	}
 
 	public function getbranch(Request $request){
 		$catid = $request->cat_id;
@@ -1752,9 +1850,6 @@ class AdminController extends Controller
 		}
 		echo ob_get_clean();
 	}
-
-	// Removed: getsubcategories() - Dead code that queries non-existent fields (cat_id, sub_id) in SubCategory model
-
 
 		public function getpartnerajax(Request $request){
 	    $fetchedData = \App\Models\Partner::where('partner_name','LIKE', '%'.$request->likevalue.'%')->get();

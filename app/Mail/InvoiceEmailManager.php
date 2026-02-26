@@ -36,7 +36,7 @@ class InvoiceEmailManager extends Mailable
              $this->array['name'] = $emailConfig->display_name ?? $this->array['name'] ?? $emailConfig->email;
          }
 
-         return $this->view($this->array['view'])
+         return $this->mailer('sendgrid')->view($this->array['view'])
                      ->from($this->array['from'], $this->array['name'] ?? $this->array['from'])
                      ->subject($this->array['subject'])
                      ->attach($this->array['file'],[
