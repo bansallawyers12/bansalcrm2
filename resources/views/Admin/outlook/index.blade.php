@@ -184,9 +184,11 @@
     padding: 10px 20px;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 8px;
 }
-.inbox-toolbar .search-wrap { flex: 1; max-width: 300px; position: relative; }
+.inbox-toolbar .search-wrap { flex: 1; min-width: 180px; max-width: 240px; position: relative; }
 .inbox-toolbar .search-wrap input {
     width: 100%;
     padding: 8px 12px 8px 36px;
@@ -194,7 +196,7 @@
     border-radius: 4px;
     font-size: 13px;
 }
-.inbox-toolbar .ms-2 { margin-left: 8px; }
+.inbox-toolbar .ms-2 { margin-left: 0; }
 .inbox-toolbar .search-wrap i {
     position: absolute;
     left: 12px;
@@ -202,6 +204,12 @@
     transform: translateY(-50%);
     color: #888;
 }
+.inbox-toolbar .filter-select,
+.inbox-toolbar .filter-date { padding: 6px 10px; font-size: 12px; border: 1px solid #d4d4d4; border-radius: 4px; min-width: 100px; }
+.inbox-toolbar .filter-from-to { min-width: 160px; max-width: 200px; }
+.inbox-toolbar .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inbox-toolbar .filter-attach { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; white-space: nowrap; }
+.inbox-toolbar .filter-attach input { margin: 0; }
 
 .empty-state {
     flex: 1;
@@ -352,6 +360,24 @@
                         <i class="fas fa-search"></i>
                         <input type="text" class="form-control folder-search" placeholder="Search mail...">
                     </div>
+                    <select class="filter-select filter-date-range" data-folder="inbox">
+                        <option value="">All time</option>
+                        <option value="today">Today</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="custom">Custom range</option>
+                    </select>
+                    <span class="filter-custom-dates filter-custom-inbox" style="display:none;">
+                        <input type="date" class="filter-date filter-date-from" data-folder="inbox">
+                        <input type="date" class="filter-date filter-date-to" data-folder="inbox">
+                    </span>
+                    <select class="filter-select filter-sort" data-folder="inbox">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                    </select>
+                    <label class="filter-attach">
+                        <input type="checkbox" class="filter-has-attachments" data-folder="inbox"> With attachments
+                    </label>
                     <button type="button" class="btn btn-primary btn-sm ms-2 btn-fetch" data-folder="inbox">
                         <i class="fas fa-sync-alt"></i> Get Emails
                     </button>
@@ -371,6 +397,30 @@
                         <i class="fas fa-search"></i>
                         <input type="text" class="form-control folder-search" placeholder="Search sent...">
                     </div>
+                    <select class="filter-select filter-date-range" data-folder="sent">
+                        <option value="">All time</option>
+                        <option value="today">Today</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="custom">Custom range</option>
+                    </select>
+                    <span class="filter-custom-dates filter-custom-sent" style="display:none;">
+                        <input type="date" class="filter-date filter-date-from" data-folder="sent">
+                        <input type="date" class="filter-date filter-date-to" data-folder="sent">
+                    </span>
+                    <select class="filter-select filter-sort" data-folder="sent">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                    </select>
+                    <select class="filter-select filter-from filter-from-to" data-folder="sent">
+                        <option value="">All senders</option>
+                    </select>
+                    <select class="filter-select filter-to filter-from-to" data-folder="sent">
+                        <option value="">All recipients</option>
+                    </select>
+                    <label class="filter-attach">
+                        <input type="checkbox" class="filter-has-attachments" data-folder="sent"> With attachments
+                    </label>
                     <button type="button" class="btn btn-primary btn-sm ms-2 btn-fetch" data-folder="sent">
                         <i class="fas fa-sync-alt"></i> Get Emails
                     </button>
@@ -664,6 +714,40 @@
 
     document.getElementById('btnSend').addEventListener('click', submitForm);
 
+    // Date range presets
+    function getDateRangeParams(folder) {
+        var view = document.getElementById('folder' + folder.charAt(0).toUpperCase() + folder.slice(1)) || document.querySelector('.view-' + folder);
+        if (!view) return { date_from: '', date_to: '' };
+        var rangeSel = view.querySelector('.filter-date-range');
+        var customSpan = view.querySelector('.filter-custom-dates, .filter-custom-inbox, .filter-custom-sent');
+        var fromInput = view.querySelector('.filter-date-from[data-folder="' + folder + '"]');
+        var toInput = view.querySelector('.filter-date-to[data-folder="' + folder + '"]');
+        if (!rangeSel) return { date_from: '', date_to: '' };
+        var val = rangeSel.value;
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        var dateFrom = '', dateTo = today.toISOString().slice(0, 10);
+        if (val === 'custom' && fromInput && toInput) {
+            dateFrom = fromInput.value || '';
+            dateTo = toInput.value || '';
+        } else if (val === 'today') {
+            dateFrom = dateTo = today.toISOString().slice(0, 10);
+        } else if (val === '7' || val === '30') {
+            var from = new Date(today);
+            from.setDate(from.getDate() - parseInt(val, 10));
+            dateFrom = from.toISOString().slice(0, 10);
+        }
+        return { date_from: dateFrom, date_to: dateTo };
+    }
+
+    document.querySelectorAll('.filter-date-range').forEach(function(sel) {
+        sel.addEventListener('change', function() {
+            var isCustom = this.value === 'custom';
+            var customSpan = this.closest('.inbox-toolbar').querySelector('.filter-custom-dates, .filter-custom-inbox, .filter-custom-sent');
+            if (customSpan) customSpan.style.display = isCustom ? 'inline' : 'none';
+        });
+    });
+
     document.querySelectorAll('.btn-fetch').forEach(function(btnEl) {
         btnEl.addEventListener('click', function() {
         var btn = this;
@@ -671,10 +755,27 @@
         var view = btn.closest('.folder-view');
         var searchInput = view.querySelector('.folder-search');
         var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
+        var dateParams = getDateRangeParams(folder);
+        var sortSel = view.querySelector('.filter-sort');
+        var sort = (sortSel && sortSel.value) ? sortSel.value : 'newest';
+        var filterFromSel = view.querySelector('.filter-from');
+        var filterToSel = view.querySelector('.filter-to');
+        var filterFrom = (filterFromSel && filterFromSel.value) ? encodeURIComponent(filterFromSel.value) : '';
+        var filterTo = (filterToSel && filterToSel.value) ? encodeURIComponent(filterToSel.value) : '';
+        var hasAttachCb = view.querySelector('.filter-has-attachments');
+        var hasAttachments = hasAttachCb && hasAttachCb.checked;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
         var token = document.querySelector('meta[name="csrf-token"]');
-        var url = '{{ route("admin.outlook.inbox") }}?folder=' + folder + (search ? '&search=' + search : '');
+        var params = ['folder=' + folder];
+        if (search) params.push('search=' + search);
+        if (dateParams.date_from) params.push('date_from=' + encodeURIComponent(dateParams.date_from));
+        if (dateParams.date_to) params.push('date_to=' + encodeURIComponent(dateParams.date_to));
+        params.push('sort=' + sort);
+        if (filterFrom) params.push('filter_from=' + filterFrom);
+        if (filterTo) params.push('filter_to=' + filterTo);
+        if (hasAttachments) params.push('has_attachments=1');
+        var url = '{{ route("admin.outlook.inbox") }}?' + params.join('&');
         fetch(url, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': token ? token.getAttribute('content') : '' }
         })
@@ -684,6 +785,32 @@
                 var empty = view.querySelector('.folder-empty');
                 if (!list) return;
                 list.innerHTML = '';
+                if (folder === 'sent' && data.filter_options) {
+                    var fromSel = view.querySelector('.filter-from');
+                    var toSel = view.querySelector('.filter-to');
+                    var curFrom = fromSel ? fromSel.value : '';
+                    var curTo = toSel ? toSel.value : '';
+                    if (fromSel) {
+                        fromSel.innerHTML = '<option value="">All senders</option>';
+                        (data.filter_options.from_list || []).forEach(function(e) {
+                            var opt = document.createElement('option');
+                            opt.value = e;
+                            opt.textContent = e;
+                            if (e === curFrom) opt.selected = true;
+                            fromSel.appendChild(opt);
+                        });
+                    }
+                    if (toSel) {
+                        toSel.innerHTML = '<option value="">All recipients</option>';
+                        (data.filter_options.to_list || []).forEach(function(e) {
+                            var opt = document.createElement('option');
+                            opt.value = e;
+                            opt.textContent = e;
+                            if (e === curTo) opt.selected = true;
+                            toSel.appendChild(opt);
+                        });
+                    }
+                }
                 var hasSentGroups = folder === 'sent' && data.sent_groups && data.sent_groups.length > 0;
                 var hasEmails = data.emails && data.emails.length > 0;
                 if (hasSentGroups) {

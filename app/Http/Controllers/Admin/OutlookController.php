@@ -241,6 +241,7 @@ class OutlookController extends Controller
     /**
      * Fetch emails by folder (inbox, sent, drafts, trash).
      * Sent folder returns all sent emails from mail_reports (CRM + Outlook).
+     * Supports filters: search, date_from, date_to, sort, filter_from, filter_to, has_attachments.
      */
     public function inbox(Request $request)
     {
@@ -248,7 +249,14 @@ class OutlookController extends Controller
             return redirect()->route('admin.outlook.index');
         }
         $folder = $request->get('folder', 'inbox');
-        $search = $request->get('search', '');
+        $search = trim($request->get('search', ''));
+        $dateFrom = $request->get('date_from', '');
+        $dateTo = $request->get('date_to', '');
+        $sort = $request->get('sort', 'newest');
+        $filterFrom = trim($request->get('filter_from', ''));
+        $filterTo = trim($request->get('filter_to', ''));
+        $hasAttachments = $request->boolean('has_attachments');
+
         $messages = [
             'inbox' => 'No emails yet. Configure SendGrid API and Inbound Parse to receive emails.',
             'sent' => 'No sent messages.',
@@ -258,9 +266,12 @@ class OutlookController extends Controller
 
         $emails = [];
         $sent_groups = [];
+        $filterOptions = ['from_list' => [], 'to_list' => []];
+
         if ($folder === 'sent') {
             // Use mail_reports (same table as CRM) - mail_type 1 = sent/composed emails
-            $query = MailReport::where('mail_type', 1)->orderBy('created_at', 'desc');
+            $query = MailReport::where('mail_type', 1);
+
             if ($search !== '') {
                 $query->where(function ($q) use ($search) {
                     $q->where('from_mail', 'like', '%' . $search . '%')
@@ -268,7 +279,41 @@ class OutlookController extends Controller
                         ->orWhere('subject', 'like', '%' . $search . '%');
                 });
             }
+            if ($dateFrom !== '') {
+                $query->whereDate('created_at', '>=', $dateFrom);
+            }
+            if ($dateTo !== '') {
+                $query->whereDate('created_at', '<=', $dateTo);
+            }
+            if ($filterFrom !== '') {
+                $query->where('from_mail', $filterFrom);
+            }
+            if ($filterTo !== '') {
+                $query->where('to_mail', $filterTo);
+            }
+            if ($hasAttachments) {
+                $query->whereHas('attachments');
+            }
+
+            $sortColumn = 'created_at';
+            $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
+            $query->orderBy($sortColumn, $sortDir);
+
             $list = $query->get();
+
+            // Build filter options (unique from/to) from base sent data for dropdowns
+            $baseQuery = MailReport::where('mail_type', 1);
+            if ($dateFrom !== '') {
+                $baseQuery->whereDate('created_at', '>=', $dateFrom);
+            }
+            if ($dateTo !== '') {
+                $baseQuery->whereDate('created_at', '<=', $dateTo);
+            }
+            $filterOptions['from_list'] = $baseQuery->distinct()->pluck('from_mail')->filter()->values()->toArray();
+            $filterOptions['to_list'] = MailReport::where('mail_type', 1)
+                ->when($dateFrom !== '', fn ($q) => $q->whereDate('created_at', '>=', $dateFrom))
+                ->when($dateTo !== '', fn ($q) => $q->whereDate('created_at', '<=', $dateTo))
+                ->distinct()->pluck('to_mail')->filter()->values()->toArray();
             foreach ($list as $sent) {
                 $emails[] = [
                     'id' => $sent->id,
@@ -302,11 +347,44 @@ class OutlookController extends Controller
                 ];
             }
             $sent_groups = array_values($byFrom);
+        } elseif ($folder === 'inbox') {
+            // Inbox: same filter logic when data source exists (e.g. mail_type 0)
+            $query = MailReport::where('mail_type', 0);
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('from_mail', 'like', '%' . $search . '%')
+                        ->orWhere('to_mail', 'like', '%' . $search . '%')
+                        ->orWhere('subject', 'like', '%' . $search . '%');
+                });
+            }
+            if ($dateFrom !== '') {
+                $query->whereDate('created_at', '>=', $dateFrom);
+            }
+            if ($dateTo !== '') {
+                $query->whereDate('created_at', '<=', $dateTo);
+            }
+            if ($hasAttachments) {
+                $query->whereHas('attachments');
+            }
+            $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
+            $query->orderBy('created_at', $sortDir);
+            $list = $query->get();
+            foreach ($list as $item) {
+                $emails[] = [
+                    'id' => $item->id,
+                    'from' => $item->from_mail,
+                    'to' => $item->to_mail,
+                    'subject' => $item->subject,
+                    'body' => $item->message,
+                    'date' => $item->created_at->format('d/m/Y g:i A'),
+                ];
+            }
         }
 
         return response()->json([
             'emails' => $emails,
             'sent_groups' => $sent_groups,
+            'filter_options' => $filterOptions,
             'message' => $messages[$folder] ?? $messages['inbox'],
         ]);
     }

@@ -82,7 +82,7 @@
 													<td>
 														@if(\Auth::user()->id != $list->id)
 														<div class="card-header-action">
-															<a href="{{URL::to('staff/edit/'.$list->id)}}" class="btn btn-primary">Edit Staff</a>
+															<a href="{{ route('staff.edit', ['id' => base64_encode(convert_uuencode($list->id))]) }}" class="btn btn-primary">Edit Staff</a>
 														</div>
 														@endif
 													</td>
