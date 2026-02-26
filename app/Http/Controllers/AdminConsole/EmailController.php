@@ -80,7 +80,6 @@ class EmailController extends Controller
 			
 			$obj				= 	new Email; 
 			$obj->email	=	@$requestData['email'];
-			$obj->email_signature	=	@$requestData['email_signature'];
 			$obj->display_name	=	@$requestData['display_name'];
             $obj->password	=	@$requestData['password'];
 			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
@@ -121,7 +120,6 @@ class EmailController extends Controller
 								  					  
 			$obj			= 	Email::find(@$requestData['id']);
 			$obj->email	=	@$requestData['email'];
-			$obj->email_signature	=	@$requestData['email_signature'];
 			$obj->display_name	=	@$requestData['display_name'];
 			// Only update password when a new value is provided (avoids overwriting with empty on edit)
 			if (!empty(trim($requestData['password'] ?? ''))) {

@@ -1397,11 +1397,21 @@ class AdminController extends Controller
 
 		$saved	=	$obj->save();
 
-		// Attach labels if provided (for Email tab filtering)
-		if ($saved && isset($requestData['label_ids']) && is_array($requestData['label_ids']) && !empty($requestData['label_ids'])) {
-			$labelIds = array_map('intval', array_filter($requestData['label_ids']));
+		// Always attach "Sent" label for better records; plus any additional user-selected labels
+		if ($saved) {
+			$labelIds = [];
+			// Permanent Sent label
+			$sentLabel = \App\Models\EmailLabel::where('name', 'Sent')->where('type', 'system')->first();
+			if ($sentLabel) {
+				$labelIds[] = $sentLabel->id;
+			}
+			// User-selected additional labels
+			if (isset($requestData['label_ids']) && is_array($requestData['label_ids']) && !empty($requestData['label_ids'])) {
+				$userLabelIds = array_map('intval', array_filter($requestData['label_ids']));
+				$labelIds = array_unique(array_merge($labelIds, $userLabelIds));
+			}
 			if (!empty($labelIds)) {
-				$obj->labels()->attach(array_unique($labelIds));
+				$obj->labels()->attach($labelIds);
 			}
 		}
 
