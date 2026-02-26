@@ -311,17 +311,35 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix">
 								<span class="float-start">Email / Is verified:</span>
 								<span class="float-end text-muted">
-								    {{$fetchedData->email}}
-
-                                    <?php
-                                    if( isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1' )
-                                    {
-                                        //echo '<span style="color:green;">/Already Verified</span>';
-                                        echo '<i class="fas fa-check-circle verified-icon fa-lg"></i>';
-                                    } else {
-                                        //echo '<span style="color:red;">/Not Now</span>';
-                                        echo '<i class="far fa-circle unverified-icon fa-lg"></i>';
-                                    }?>
+								    <?php
+								    $allEmails = [];
+								    $primaryFromAdmins = trim($fetchedData->email ?? '');
+								    $clientEmails = \App\Models\ClientEmail::where('client_id', $fetchedData->id)->orderBy('id')->get();
+								    if ($primaryFromAdmins !== '' && $clientEmails->isEmpty()) {
+								        $allEmails[] = ['email' => $primaryFromAdmins, 'verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1')];
+								    } else {
+								        $emailsFromCe = $clientEmails->pluck('client_email')->map(function($e){ return strtolower(trim($e)); })->toArray();
+								        if ($primaryFromAdmins !== '' && !in_array(strtolower($primaryFromAdmins), $emailsFromCe)) {
+								            $allEmails[] = ['email' => $primaryFromAdmins, 'verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1')];
+								        }
+								        foreach ($clientEmails as $ce) {
+								            $allEmails[] = ['email' => $ce->client_email, 'verified' => false];
+								        }
+								    }
+								    if (empty($allEmails) && $primaryFromAdmins !== '') {
+								        $allEmails[] = ['email' => $primaryFromAdmins, 'verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1')];
+								    }
+								    foreach ($allEmails as $i => $e) {
+								        if ($i > 0) echo '<br/>';
+								        echo e($e['email']);
+								        if ($e['verified']) {
+								            echo ' <i class="fas fa-check-circle verified-icon fa-lg"></i>';
+								        } else {
+								            echo ' <i class="far fa-circle unverified-icon fa-lg"></i>';
+								        }
+								    }
+								    if (empty($allEmails)) echo '—';
+								    ?>
                                 </span>
 							</p>
 

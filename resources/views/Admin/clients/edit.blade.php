@@ -607,7 +607,7 @@
 											
 											<div class="clientemaildata compact-contact-list">
 												@php
-												// Load all emails: from client_emails, or fallback to admins.email if empty
+												// Load all emails: merge client_emails + admins.email (when admins.email not already in client_emails)
 												$clientEmails = \App\Models\ClientEmail::where('client_id', $fetchedData->id)->orderBy('id')->get();
 												$oldEmails = old('email');
 												$oldEmailTypes = old('email_type');
@@ -625,29 +625,40 @@
 															'email_verified' => ($idx === 0 && isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
 														];
 													}
-												} elseif ($clientEmails->isNotEmpty()) {
+												} else {
 													$emailList = [];
-													$primaryEmail = $fetchedData->email ?? '';
+													$primaryFromAdmins = trim($fetchedData->email ?? '');
+													$emailsFromCe = $clientEmails->pluck('client_email')->map(function($e){ return strtolower(trim($e)); })->toArray();
+													// If admins.email exists and is NOT in client_emails, add it first (legacy/migration gap)
+													if ($primaryFromAdmins !== '' && !in_array(strtolower($primaryFromAdmins), $emailsFromCe)) {
+														$emailList[] = (object)[
+															'id' => 'main',
+															'client_email' => $primaryFromAdmins,
+															'email_type' => $fetchedData->email_type ?? 'Personal',
+															'is_main' => true,
+															'email_verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+														];
+													}
+													// Add all from client_emails
 													foreach ($clientEmails as $idx => $ce) {
 														$emailList[] = (object)[
 															'id' => $ce->id,
 															'client_email' => $ce->client_email,
 															'email_type' => $ce->email_type ?? 'Personal',
-															'is_main' => ($idx === 0 || $ce->client_email === $primaryEmail),
-															'email_verified' => ($idx === 0 && isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+															'is_main' => ($idx === 0 && empty($emailList)),
+															'email_verified' => false,
 														];
 													}
-												} elseif (!empty($fetchedData->email)) {
-													// Fallback: legacy single email from admins
-													$emailList = [(object)[
-														'id' => 'main',
-														'client_email' => $fetchedData->email,
-														'email_type' => $fetchedData->email_type ?? 'Personal',
-														'is_main' => true,
-														'email_verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
-													]];
-												} else {
-													$emailList = [];
+													// If still empty and admins has email, use it
+													if (empty($emailList) && $primaryFromAdmins !== '') {
+														$emailList[] = (object)[
+															'id' => 'main',
+															'client_email' => $primaryFromAdmins,
+															'email_type' => $fetchedData->email_type ?? 'Personal',
+															'is_main' => true,
+															'email_verified' => (isset($fetchedData->manual_email_phone_verified) && $fetchedData->manual_email_phone_verified == '1'),
+														];
+													}
 												}
 												@endphp
 												@foreach ($emailList as $idx => $emailRow)
