@@ -522,6 +522,22 @@
 													$iii = 0;
 													$clientphonedata = array();
 
+													// Fallback: if no ClientPhone records but admins has phone, render one row (fixes 422 for imported/legacy clients)
+													if(count($clientphones) == 0 && !empty($fetchedData->phone)) {
+														$clientphones = collect([new class($fetchedData) {
+															public $id = '';
+															public $contact_type = 'Personal';
+															public $client_country_code;
+															public $client_phone;
+															public $is_verified = false;
+															public function __construct($data) {
+																$this->client_country_code = $data->country_code ?? '+61';
+																$this->client_phone = $data->phone;
+															}
+															public function canVerify() { return false; }
+														}]);
+													}
+
 													if(count($clientphones)>0) {
 														foreach($clientphones as $clientphone){
 														?>

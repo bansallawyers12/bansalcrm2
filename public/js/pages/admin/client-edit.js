@@ -47,12 +47,33 @@
 // ============================================================================
 
 jQuery(document).ready(function($){
+    /**
+     * Sync contact_type[] and client_phone[] from .editclientphone data attributes to hidden inputs before form submit.
+     * Ensures validation never fails due to stale/empty arrays.
+     */
+    function syncPhoneContactArrays() {
+        $('.clientphonedata .compact-contact-item').each(function() {
+            var $item = $(this);
+            var $edit = $item.find('.editclientphone');
+            if ($edit.length) {
+                var type = $edit.data('type') || $item.find('input[name="contact_type[]"]').val();
+                var country = $edit.data('country') || $item.find('input[name="client_country_code[]"]').val();
+                var phone = $edit.data('phone') || $item.find('input[name="client_phone[]"]').val();
+                $item.find('input[name="contact_type[]"]').val(type);
+                $item.find('input[name="client_country_code[]"]').val(country);
+                $item.find('input[name="client_phone[]"]').val(phone);
+            }
+        });
+    }
+
     function autoSaveClientEditForm(successMessage) {
         if (window.__clientEditAutoSaveInProgress) {
             return;
         }
         window.__clientEditAutoSaveInProgress = true;
-        
+
+        syncPhoneContactArrays();
+
         if (successMessage) {
             if (typeof iziToast !== 'undefined') {
                 iziToast.success({
@@ -64,7 +85,7 @@ jQuery(document).ready(function($){
                 alert(successMessage);
             }
         }
-        
+
         var $form = $('form[name="edit-clients"]');
         if ($form.length > 0) {
             var formEl = $form[0];
@@ -98,8 +119,13 @@ jQuery(document).ready(function($){
     // ============================================================================
     // PHONE MANAGEMENT
     // ============================================================================
-    
-    var itag_phone = $('.clientphonedata .row').length;
+
+    // Sync phone arrays before form submit (fixes 422 when Save Changes is clicked)
+    $('form[name="edit-clients"]').on('submit', function() {
+        syncPhoneContactArrays();
+    });
+
+    var itag_phone = $('.clientphonedata .compact-contact-item').length;
     var clientphonedata = {};
 
     // Add client phone
@@ -119,6 +145,15 @@ jQuery(document).ready(function($){
 
     $('.addclientphone').on('shown.bs.modal', function () {
         $('.country_code').removeClass('error');
+    });
+
+    // Fix aria-hidden focus warning: move focus out of modal before it hides
+    $('.addclientphone').on('hide.bs.modal', function () {
+        var activeEl = document.activeElement;
+        if (activeEl && $(activeEl).closest('.addclientphone').length) {
+            var $target = $('.openclientphonenew, .editclientphone, button[onclick*="edit-clients"]').filter(':visible').first();
+            if ($target.length) $target[0].focus();
+        }
     });
   
     // Save client phone

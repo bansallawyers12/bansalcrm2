@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\OutlookSentEmail;
+use App\Models\MailReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -240,7 +240,7 @@ class OutlookController extends Controller
 
     /**
      * Fetch emails by folder (inbox, sent, drafts, trash).
-     * Sent folder returns all emails sent from Outlook, with from/to like Outlook.
+     * Sent folder returns all sent emails from mail_reports (CRM + Outlook).
      */
     public function inbox(Request $request)
     {
@@ -259,11 +259,12 @@ class OutlookController extends Controller
         $emails = [];
         $sent_groups = [];
         if ($folder === 'sent') {
-            $query = OutlookSentEmail::orderBy('sent_at', 'desc');
+            // Use mail_reports (same table as CRM) - mail_type 1 = sent/composed emails
+            $query = MailReport::where('mail_type', 1)->orderBy('created_at', 'desc');
             if ($search !== '') {
                 $query->where(function ($q) use ($search) {
-                    $q->where('from_email', 'like', '%' . $search . '%')
-                        ->orWhere('to_email', 'like', '%' . $search . '%')
+                    $q->where('from_mail', 'like', '%' . $search . '%')
+                        ->orWhere('to_mail', 'like', '%' . $search . '%')
                         ->orWhere('subject', 'like', '%' . $search . '%');
                 });
             }
@@ -271,19 +272,19 @@ class OutlookController extends Controller
             foreach ($list as $sent) {
                 $emails[] = [
                     'id' => $sent->id,
-                    'from' => $sent->from_email,
-                    'to' => $sent->to_email,
+                    'from' => $sent->from_mail,
+                    'to' => $sent->to_mail,
                     'cc' => $sent->cc,
                     'subject' => $sent->subject,
-                    'body' => $sent->body,
-                    'date' => $sent->sent_at->format('d/m/Y g:i A'),
-                    'date_short' => $sent->sent_at->format('g:i A'),
+                    'body' => $sent->message,
+                    'date' => $sent->created_at->format('d/m/Y g:i A'),
+                    'date_short' => $sent->created_at->format('g:i A'),
                 ];
             }
-            // Group by from_email (different section per sender, like Outlook accounts)
+            // Group by from_mail (different section per sender, like Outlook accounts)
             $byFrom = [];
             foreach ($list as $sent) {
-                $from = $sent->from_email;
+                $from = $sent->from_mail;
                 if (! isset($byFrom[$from])) {
                     $byFrom[$from] = [
                         'from_email' => $from,
@@ -292,12 +293,12 @@ class OutlookController extends Controller
                 }
                 $byFrom[$from]['emails'][] = [
                     'id' => $sent->id,
-                    'to' => $sent->to_email,
+                    'to' => $sent->to_mail,
                     'cc' => $sent->cc,
                     'subject' => $sent->subject,
-                    'body' => $sent->body,
-                    'date' => $sent->sent_at->format('d/m/Y g:i A'),
-                    'date_short' => $sent->sent_at->format('g:i A'),
+                    'body' => $sent->message,
+                    'date' => $sent->created_at->format('d/m/Y g:i A'),
+                    'date_short' => $sent->created_at->format('g:i A'),
                 ];
             }
             $sent_groups = array_values($byFrom);
@@ -349,16 +350,18 @@ class OutlookController extends Controller
                 }
             });
 
-            // Record sent email so Sent folder shows which message was sent from which email (like Outlook)
+            // Record sent email in mail_reports (same table as CRM) so Sent folder shows all emails
             try {
-                OutlookSentEmail::create([
-                    'from_email' => $from,
-                    'to_email' => $to,
+                MailReport::create([
+                    'user_id' => auth('admin')->id(),
+                    'from_mail' => $from,
+                    'to_mail' => $to,
                     'cc' => count($cc) > 0 ? implode(', ', $cc) : null,
                     'subject' => $subject,
-                    'body' => $body,
-                    'sent_at' => now(),
-                    'admin_id' => auth('admin')->id(),
+                    'message' => $body,
+                    'type' => 'outlook',
+                    'client_id' => null,
+                    'mail_type' => 1,
                 ]);
             } catch (\Throwable $createEx) {
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
