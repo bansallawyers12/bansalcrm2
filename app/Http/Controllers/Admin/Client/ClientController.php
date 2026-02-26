@@ -12,7 +12,6 @@ use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
 use App\Services\SearchService;
 use App\Services\ClientExportService;
-use App\Services\ClientImportService;
 use App\Models\CheckinLog;
 use App\Models\ClientPhone;
 use App\Models\ClientTestScore;
@@ -1084,92 +1083,6 @@ class ClientController extends Controller
 
             return redirect()->route('clients.index')
                 ->with('error', 'Failed to export client data: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Import client data from JSON file
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function import(Request $request)
-    {
-        try {
-            $request->validate([
-                'import_file' => 'required|file|mimes:json|max:10240',
-            ]);
-
-            $file = $request->file('import_file');
-            $jsonContent = file_get_contents($file->getRealPath());
-            $importData = json_decode($jsonContent, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return redirect()->back()
-                    ->withErrors(['import_file' => 'Invalid JSON file: ' . json_last_error_msg()])
-                    ->withInput();
-            }
-
-            if (!isset($importData['client'])) {
-                return redirect()->back()
-                    ->withErrors(['import_file' => 'Invalid import file format: missing client data'])
-                    ->withInput();
-            }
-
-            if (empty($importData['client']['email'])) {
-                return redirect()->back()
-                    ->withErrors(['import_file' => 'Client email is required and cannot be empty'])
-                    ->withInput();
-            }
-
-            if (empty($importData['client']['first_name'])) {
-                return redirect()->back()
-                    ->withErrors(['import_file' => 'Client first name is required'])
-                    ->withInput();
-            }
-
-            $skipDuplicates = $request->has('skip_duplicates');
-            $importService = app(ClientImportService::class);
-            $result = $importService->importClient($importData, $skipDuplicates);
-
-            if ($result['success']) {
-                return redirect()->route('clients.index')
-                    ->with('success', $result['message']);
-            } else {
-                return redirect()->back()
-                    ->withErrors(['import_file' => $result['message']])
-                    ->withInput();
-            }
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Get the first validation error message for better UX
-            $firstError = $e->validator->errors()->first();
-            return redirect()->back()
-                ->withErrors(['import_file' => $firstError])
-                ->withInput();
-        } catch (\Exception $e) {
-            \Log::error('Client import error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'file' => $request->file('import_file') ? $request->file('import_file')->getClientOriginalName() : 'unknown'
-            ]);
-
-            // Provide more user-friendly error messages
-            $errorMessage = $e->getMessage();
-            
-            // Check for file-related errors
-            if (strpos($errorMessage, 'file_get_contents') !== false || strpos($errorMessage, 'failed to open stream') !== false) {
-                $errorMessage = 'File error: Could not read the uploaded file. Please ensure the file is not corrupted and try again.';
-            } elseif (strpos($errorMessage, 'json_decode') !== false) {
-                $errorMessage = 'JSON error: The file is not a valid JSON file. Please check the file format.';
-            } elseif (strpos($errorMessage, 'mimes') !== false || strpos($errorMessage, 'mime type') !== false) {
-                $errorMessage = 'File type error: Please upload a valid JSON file (.json extension).';
-            } elseif (strpos($errorMessage, 'max:') !== false) {
-                $errorMessage = 'File size error: The file is too large. Maximum file size is 10MB.';
-            }
-
-            return redirect()->back()
-                ->withErrors(['import_file' => $errorMessage])
-                ->withInput();
         }
     }
 

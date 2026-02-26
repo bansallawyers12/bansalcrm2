@@ -224,7 +224,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');  
 	Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
 	Route::post('/leads/store', [LeadController::class, 'store'])->name('leads.store');   
-	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');    
+	Route::post('/leads/assign', [LeadController::class, 'assign'])->name('leads.assign');
+	Route::post('/leads/import', [LeadController::class, 'import'])->name('leads.import');
 Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])->name('leads.detail');  // Lead detail page (uses client detail view)
 	Route::get('/leads/convert/{id?}', [LeadController::class, 'convertoClient']); 	
 		//Invoices Start    
