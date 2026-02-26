@@ -2049,9 +2049,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="email_from">From <span class="span_req">*</span></label>
-								<select class="form-control" name="email_from" id="email_from_select" data-valid="required">
-									<option value="">Select From</option>
-								</select>
+								@include('partials.email-from-sendgrid')
 								@if ($errors->has('email_from'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('email_from') }}</strong>
@@ -2977,8 +2975,7 @@ use App\Http\Controllers\Controller;
         updateApplicationDates: '{{ url("/application/updatedates") }}',
         showProductFee: '{{ url("/showproductfee") }}',
         showProductFeeLatest: '{{ url("/showproductfeelatest") }}',
-        changeApplicationAssignee: '{{ route("application.change-assignee") }}',
-        sendGridSenders: '{{ route("admin.outlook.senders") }}'
+        changeApplicationAssignee: '{{ route("application.change-assignee") }}'
     };
     
     // Page-Specific Configuration
@@ -3029,36 +3026,6 @@ use App\Http\Controllers\Controller;
 
 {{-- Main client-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
-
-{{-- Load SendGrid verified senders for Compose Email From dropdown --}}
-<script>
-(function() {
-    var sendersUrl = window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.sendGridSenders;
-    if (!sendersUrl) return;
-    var select = document.getElementById('email_from_select');
-    if (!select) return;
-    fetch(sendersUrl, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var senders = data.senders || [];
-            var defaultFrom = data.default_from || '';
-            select.innerHTML = '<option value="">Select From</option>';
-            senders.forEach(function(s) {
-                var opt = document.createElement('option');
-                opt.value = s.email;
-                opt.textContent = s.email;
-                if (s.email === defaultFrom) opt.selected = true;
-                select.appendChild(opt);
-            });
-            if (senders.length === 0) {
-                select.innerHTML = '<option value="">No SendGrid senders found</option>';
-            }
-        })
-        .catch(function() {
-            select.innerHTML = '<option value="">SendGrid unavailable - check .env SENDGRID_API_KEY</option>';
-        });
-})();
-</script>
 
 {{-- Initialize Document Category Manager --}}
 <script>
