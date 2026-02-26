@@ -331,7 +331,7 @@ class OutlookController extends Controller
         $body = $validated['body'] ?? '';
 
         try {
-            Mail::html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject) {
+            Mail::mailer('sendgrid_outlook')->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject) {
                 $message->to($to)->from($from)->subject($subject);
                 if (count($cc) > 0) {
                     $message->cc($cc);
