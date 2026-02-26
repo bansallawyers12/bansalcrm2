@@ -140,6 +140,10 @@ jQuery(document).ready(function($){
         $('#contact_type').parent().removeClass('error');
         $('.country_code').removeClass('error');
         $('#clientphoneform')[0].reset();
+        // Disable Personal option if one already exists (only one Personal/primary per client)
+        var hasPersonal = $('.clientphonedata .contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+        $('#contact_type option[value="Personal"]').prop('disabled', hasPersonal);
+        if (hasPersonal) { $('#contact_type').val(''); }
         $('.addclientphone').modal('show');
     });
 
@@ -200,6 +204,15 @@ jQuery(document).ready(function($){
             $('.client_phone_error').html('Please select a valid country code.');
             $('.country_code').addClass('error');
             flag = true;
+        }
+        // Personal (primary) phone type can only be used once
+        if (!flag && contact_type === 'Personal') {
+            var hasPersonal = $('.clientphonedata .contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+            if (hasPersonal) {
+                $('.contact_type_error').html("'Personal' phone type can only be used once. Please choose another type (e.g. Office, Work).");
+                $('#contact_type').parent().addClass('error');
+                flag = true;
+            }
         }
 
         if(!flag){
@@ -276,6 +289,13 @@ jQuery(document).ready(function($){
         // Populate form
         $('#contact_type').val(contact_type);
         $('input[name="client_phone"]').val(phone_number);
+        // Disable Personal if another phone already has it (excluding the one being edited)
+        var $item = $('#metatag2_' + phone_index);
+        if ($item.length === 0 && phone_id) {
+            $item = $('.clientphonedata input[name="clientphoneid[]"][value="' + phone_id + '"]').closest('.compact-contact-item');
+        }
+        var otherHasPersonal = $('.clientphonedata .compact-contact-item').not($item).find('.contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+        $('#contact_type option[value="Personal"]').prop('disabled', otherHasPersonal);
         
         // Set country code in select
         var $countrySelect = $('select[name="client_country_code"]');
@@ -329,6 +349,22 @@ jQuery(document).ready(function($){
             $('.client_phone_error').html('Please select a valid country code.');
             $('.country_code').addClass('error');
             flag = true;
+        }
+        // Personal (primary) phone type can only be used once (exclude the item being edited)
+        if (!flag && contact_type === 'Personal') {
+            var $phoneItem = null;
+            if (phone_id) {
+                $phoneItem = $('.clientphonedata input[name="clientphoneid[]"][value="' + phone_id + '"]').closest('.compact-contact-item');
+            }
+            if (!$phoneItem || $phoneItem.length === 0) {
+                $phoneItem = $('#metatag2_' + phone_index);
+            }
+            var otherHasPersonal = $('.clientphonedata .compact-contact-item').not($phoneItem).find('.contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+            if (otherHasPersonal) {
+                $('.contact_type_error').html("'Personal' phone type can only be used once. Please choose another type (e.g. Office, Work).");
+                $('#contact_type').parent().addClass('error');
+                flag = true;
+            }
         }
 
         if(!flag){
