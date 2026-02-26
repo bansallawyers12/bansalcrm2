@@ -563,45 +563,7 @@ i[style*="color:rgba"] {
 	<!-- Auto-logout after 15 minutes of inactivity -->
 	<script src="{{ asset('js/inactivity-logout.js') }}" defer></script>
 
-	{{-- Populate Compose Email From dropdowns with SendGrid verified senders --}}
-	<script>
-	(function() {
-		var sendersUrl = '{{ route("admin.outlook.senders") }}';
-		function refreshEmailFromSenders() {
-			var selects = document.querySelectorAll('.email-from-sendgrid');
-			if (selects.length === 0) return;
-			fetch(sendersUrl, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
-				.then(function(r) { return r.json(); })
-				.then(function(data) {
-					var senders = data.senders || [];
-					var defaultFrom = data.default_from || '';
-					selects.forEach(function(select) {
-						select.innerHTML = '<option value="">Select From</option>';
-						senders.forEach(function(s) {
-							var opt = document.createElement('option');
-							opt.value = s.email;
-							opt.textContent = s.email;
-							if (s.email === defaultFrom) opt.selected = true;
-							select.appendChild(opt);
-						});
-						if (senders.length === 0) {
-							select.innerHTML = '<option value="">No SendGrid senders found</option>';
-						}
-					});
-				})
-				.catch(function() {
-					selects.forEach(function(select) {
-						select.innerHTML = '<option value="">SendGrid unavailable</option>';
-					});
-				});
-		}
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', refreshEmailFromSenders);
-		} else {
-			refreshEmailFromSenders();
-		}
-	})();
-	</script>
+	@include('partials.email-from-sendgrid-script')
 
 @stack('scripts')
 @yield('scripts')	

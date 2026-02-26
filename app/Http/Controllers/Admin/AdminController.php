@@ -1530,6 +1530,32 @@ class AdminController extends Controller
                 $objs->save();
             }
         }
+
+        // Plain compose: log "Sent email" when no checklist/reminder activity was created
+        $loggedChecklistOrReminder = $isChecklistContext
+            || (isset($requestData['checklistfile']) && !empty($requestData['checklistfile']))
+            || $isEmailReminderContext
+            || (!empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext);
+        if ($saved && !$loggedChecklistOrReminder) {
+            $clientIdForLog = is_numeric($obj->client_id) ? (int)$obj->client_id : null;
+            if ($clientIdForLog === null && !empty($requestData['email_to'][0]) && is_numeric($requestData['email_to'][0])) {
+                $clientIdForLog = (int)$requestData['email_to'][0];
+            }
+            if ($clientIdForLog) {
+                $sentDate = now()->format('d/m/Y H:i');
+                $toDisplay = is_string($obj->to_mail) ? $obj->to_mail : (is_array($obj->to_mail) ? implode(', ', $obj->to_mail) : '');
+                $subjectDisplay = $obj->subject ?? $requestData['subject'] ?? '';
+                $logDescription = 'Email sent to ' . $toDisplay . ' - Subject: "' . $subjectDisplay . '" on ' . $sentDate;
+                $objs = new \App\Models\ActivitiesLog;
+                $objs->client_id = $clientIdForLog;
+                $objs->created_by = Auth::user()->id;
+                $objs->subject = 'Sent email';
+                $objs->description = $logDescription;
+                $objs->task_status = 0;
+                $objs->pin = 0;
+                $objs->save();
+            }
+        }
       
       
         if(isset($requestData['checklistfile_document']) && !$isChecklistContext){

@@ -86,12 +86,18 @@ class EmailService
     public function sendEmail($view, $data, $to, $subject, $fromEmailAddress, $attachments = [], $cc = [])
     {
         try {
-            $trimmed = trim($fromEmailAddress);
+            $trimmed = trim((string) $fromEmailAddress);
+            if ($trimmed === '') {
+                throw new \Exception('From email address is required.');
+            }
             $emailConfig = Email::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
             if (!$emailConfig) {
                 // Allow SendGrid verified senders (From dropdown is populated from SendGrid API)
+                if (! filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    throw new \Exception("Invalid From email address: {$trimmed}");
+                }
                 $emailConfig = (object) [
                     'email' => $trimmed,
                     'display_name' => $trimmed,

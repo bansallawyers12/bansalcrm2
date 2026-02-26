@@ -319,6 +319,8 @@
 	<!-- Auto-logout after 15 minutes of inactivity -->
 	<script src="{{ asset('js/inactivity-logout.js') }}" defer></script>
 
+	@include('partials.email-from-sendgrid-script')
+
 	@stack('scripts')
 	@yield('scripts')	
 </body>
