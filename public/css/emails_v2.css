@@ -1647,3 +1647,99 @@
 .label-options-list::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* Compose modal labels section */
+.compose-labels-section .compose-labels-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.compose-label-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.compose-label-sent {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10B981;
+    color: #059669;
+}
+
+.compose-label-sent i {
+    font-size: 11px;
+}
+
+.compose-label-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.compose-label-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+    cursor: default;
+}
+
+.compose-label-chip .chip-remove {
+    cursor: pointer;
+    padding: 0 2px;
+    opacity: 0.7;
+}
+
+.compose-label-chip .chip-remove:hover {
+    opacity: 1;
+}
+
+.compose-add-label-wrapper .compose-add-label-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+.compose-label-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+    min-width: 180px;
+}
+
+.compose-label-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.compose-label-dropdown .dropdown-item .label-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.compose-label-dropdown .dropdown-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#composeLabelIdsContainer {
+    display: none;
+}

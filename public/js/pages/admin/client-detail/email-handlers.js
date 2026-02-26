@@ -50,30 +50,98 @@ jQuery(document).ready(function($){
         $('#sendmail_send_context').val('');
     });
 
-    // Ensure compose label selector is populated when modal opens (fallback if Emails tab not loaded yet)
-    $('#emailmodal').on('shown.bs.modal', function() {
-        var labelSelect = document.getElementById('sendmail_label_ids');
-        if (labelSelect && labelSelect.options.length === 0) {
+    // Compose labels: Sent is always applied server-side. Populate Add label dropdown and handle chip add/remove.
+    (function initComposeLabels() {
+        var selectedComposeLabelIds = [];
+        var composeLabelsCache = [];
+
+        function clearComposeLabelChips() {
+            selectedComposeLabelIds = [];
+            var chipsEl = document.getElementById('composeAdditionalLabelsChips');
+            var containerEl = document.getElementById('composeLabelIdsContainer');
+            if (chipsEl) chipsEl.innerHTML = '';
+            if (containerEl) containerEl.innerHTML = '';
+        }
+
+        function renderComposeLabelChips() {
+            var chipsEl = document.getElementById('composeAdditionalLabelsChips');
+            var containerEl = document.getElementById('composeLabelIdsContainer');
+            if (!chipsEl || !containerEl) return;
+            chipsEl.innerHTML = '';
+            containerEl.innerHTML = '';
+            selectedComposeLabelIds.forEach(function(labelId) {
+                var label = composeLabelsCache.find(function(l) { return l.id == labelId; });
+                if (!label) return;
+                var chip = document.createElement('span');
+                chip.className = 'compose-label-chip';
+                chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
+                chip.style.borderColor = label.color || '#3B82F6';
+                chip.style.color = label.color || '#3B82F6';
+                chip.innerHTML = '<i class="' + (label.icon || 'fas fa-tag') + '"></i><span>' + (label.name || '') + '</span><i class="fas fa-times chip-remove" data-label-id="' + label.id + '"></i>';
+                chip.querySelector('.chip-remove').addEventListener('click', function() {
+                    selectedComposeLabelIds = selectedComposeLabelIds.filter(function(id) { return id != label.id; });
+                    renderComposeLabelChips();
+                });
+                chipsEl.appendChild(chip);
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'label_ids[]';
+                input.value = label.id;
+                containerEl.appendChild(input);
+            });
+        }
+
+        function populateComposeLabelDropdown(labels) {
+            composeLabelsCache = labels || [];
+            var dropdown = document.getElementById('composeLabelDropdown');
+            if (!dropdown) return;
+            dropdown.innerHTML = '';
+            var sorted = labels.filter(function(l) { return (l.name || '').toLowerCase() !== 'sent'; });
+            sorted.sort(function(a, b) {
+                if (a.type === 'system' && b.type !== 'system') return -1;
+                if (a.type !== 'system' && b.type === 'system') return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+            if (sorted.length === 0) {
+                dropdown.innerHTML = '<li><span class="dropdown-item text-muted">No additional labels</span></li>';
+                return;
+            }
+            sorted.forEach(function(label) {
+                var item = document.createElement('li');
+                var link = document.createElement('a');
+                link.className = 'dropdown-item';
+                link.href = '#';
+                link.innerHTML = '<span class="label-color-dot" style="background:' + (label.color || '#3B82F6') + '"></span>' + (label.name || '');
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (selectedComposeLabelIds.indexOf(label.id) === -1) {
+                        selectedComposeLabelIds.push(label.id);
+                        renderComposeLabelChips();
+                    }
+                });
+                item.appendChild(link);
+                dropdown.appendChild(item);
+            });
+        }
+
+        $('#emailmodal').on('shown.bs.modal', function() {
+            clearComposeLabelChips();
             fetch('/email-v2/labels', {
                 method: 'GET',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': ($('meta[name="csrf-token"]').attr('content') || '') }
             }).then(function(r) { return r.json(); }).then(function(data) {
                 if (data.success && Array.isArray(data.labels) && data.labels.length) {
-                    data.labels.sort(function(a, b) {
-                        if (a.type === 'system' && b.type !== 'system') return -1;
-                        if (a.type !== 'system' && b.type === 'system') return 1;
-                        return (a.name || '').localeCompare(b.name || '');
-                    });
-                    data.labels.forEach(function(label) {
-                        var opt = document.createElement('option');
-                        opt.value = label.id;
-                        opt.textContent = label.name;
-                        labelSelect.appendChild(opt);
-                    });
+                    populateComposeLabelDropdown(data.labels);
+                } else {
+                    document.getElementById('composeLabelDropdown').innerHTML = '<li><span class="dropdown-item text-muted">No labels available</span></li>';
                 }
             }).catch(function(e) { console.warn('Could not load labels for compose:', e); });
-        }
-    });
+        });
+
+        $('form[name="sendmail"]').on('reset', function() {
+            clearComposeLabelChips();
+        });
+    })();
     
     // ============================================================================
     // OPEN EMAIL MODAL

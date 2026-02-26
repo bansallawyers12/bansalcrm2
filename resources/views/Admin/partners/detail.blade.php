@@ -2579,13 +2579,23 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="sendmail_label_ids">Labels</label>
-								<select id="sendmail_label_ids" name="label_ids[]" class="form-control" multiple title="Apply labels to this sent email (optional)">
-									<!-- Populated by JS when labels are loaded -->
-								</select>
-								<small class="form-text text-muted">Optional: Apply labels so you can filter sent emails in the Emails tab.</small>
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group compose-labels-section">
+								<label>Labels</label>
+								<div class="compose-labels-display">
+									<span class="compose-label-badge compose-label-sent" title="All sent emails are automatically tagged"><i class="fas fa-paper-plane"></i> Sent</span>
+									<div id="composeAdditionalLabelsChips" class="compose-label-chips"></div>
+									<div class="compose-add-label-wrapper dropdown">
+										<button type="button" class="btn btn-outline-secondary btn-sm compose-add-label-btn" id="composeAddLabelBtn" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="fas fa-plus"></i> Add label
+										</button>
+										<ul class="dropdown-menu compose-label-dropdown" id="composeLabelDropdown" aria-labelledby="composeAddLabelBtn">
+											<!-- Populated by JS when labels are loaded -->
+										</ul>
+									</div>
+								</div>
+								<div id="composeLabelIdsContainer"><!-- Hidden inputs for label_ids[] added by JS --></div>
+								<small class="form-text text-muted">All sent emails are tagged with "Sent" for records. Add optional labels to filter in the Emails tab.</small>
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">

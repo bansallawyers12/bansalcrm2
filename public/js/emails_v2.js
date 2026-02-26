@@ -1842,30 +1842,88 @@
     }
 
     /**
-     * Populate the compose modal label selector
+     * Compose labels: Sent is always applied server-side. Populate Add label dropdown and handle chips.
      */
-    function populateComposeLabelSelector() {
-        const select = document.getElementById('sendmail_label_ids');
-        if (!select) return;
+    let composeSelectedLabelIds = [];
 
-        const currentValues = Array.from(select.selectedOptions).map(o => o.value);
-        select.innerHTML = '';
+    function clearComposeLabelChips() {
+        composeSelectedLabelIds = [];
+        const chipsEl = document.getElementById('composeAdditionalLabelsChips');
+        const containerEl = document.getElementById('composeLabelIdsContainer');
+        if (chipsEl) chipsEl.innerHTML = '';
+        if (containerEl) containerEl.innerHTML = '';
+    }
 
-        if (availableLabels.length === 0) return;
-
-        const sortedLabels = [...availableLabels].sort((a, b) => {
-            if (a.type === 'system' && b.type !== 'system') return -1;
-            if (a.type !== 'system' && b.type === 'system') return 1;
-            return a.name.localeCompare(b.name);
+    function renderComposeLabelChips() {
+        const chipsEl = document.getElementById('composeAdditionalLabelsChips');
+        const containerEl = document.getElementById('composeLabelIdsContainer');
+        if (!chipsEl || !containerEl) return;
+        chipsEl.innerHTML = '';
+        containerEl.innerHTML = '';
+        composeSelectedLabelIds.forEach(labelId => {
+            const label = availableLabels.find(l => l.id == labelId);
+            if (!label) return;
+            const chip = document.createElement('span');
+            chip.className = 'compose-label-chip';
+            chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
+            chip.style.borderColor = label.color || '#3B82F6';
+            chip.style.color = label.color || '#3B82F6';
+            chip.innerHTML = `<i class="${label.icon || 'fas fa-tag'}"></i><span>${escapeHtml(label.name || '')}</span><i class="fas fa-times chip-remove" data-label-id="${label.id}"></i>`;
+            chip.querySelector('.chip-remove').addEventListener('click', function() {
+                composeSelectedLabelIds = composeSelectedLabelIds.filter(id => id != label.id);
+                renderComposeLabelChips();
+            });
+            chipsEl.appendChild(chip);
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'label_ids[]';
+            input.value = label.id;
+            containerEl.appendChild(input);
         });
+    }
+
+    function populateComposeLabelSelector() {
+        const dropdown = document.getElementById('composeLabelDropdown');
+        if (!dropdown) return;
+
+        dropdown.innerHTML = '';
+        const sortedLabels = availableLabels
+            .filter(l => (l.name || '').toLowerCase() !== 'sent')
+            .sort((a, b) => {
+                if (a.type === 'system' && b.type !== 'system') return -1;
+                if (a.type !== 'system' && b.type === 'system') return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+        if (sortedLabels.length === 0) {
+            dropdown.innerHTML = '<li><span class="dropdown-item text-muted">No additional labels</span></li>';
+            return;
+        }
 
         sortedLabels.forEach(label => {
-            const opt = document.createElement('option');
-            opt.value = label.id;
-            opt.textContent = label.name;
-            if (currentValues.includes(String(label.id))) opt.selected = true;
-            select.appendChild(opt);
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.className = 'dropdown-item';
+            link.href = '#';
+            link.innerHTML = `<span class="label-color-dot" style="background:${label.color || '#3B82F6'}"></span>${escapeHtml(label.name || '')}`;
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!composeSelectedLabelIds.includes(label.id)) {
+                    composeSelectedLabelIds.push(label.id);
+                    renderComposeLabelChips();
+                }
+            });
+            item.appendChild(link);
+            dropdown.appendChild(item);
         });
+
+        // Clear chips when modal opens (emails_v2 may load before/without email-handlers on partners)
+        const emailModal = document.getElementById('emailmodal');
+        if (emailModal && !emailModal.dataset.composeLabelsInit) {
+            emailModal.dataset.composeLabelsInit = '1';
+            $(emailModal).on('shown.bs.modal', clearComposeLabelChips);
+            $('form[name="sendmail"]').on('reset', clearComposeLabelChips);
+        }
     }
 
     /**
