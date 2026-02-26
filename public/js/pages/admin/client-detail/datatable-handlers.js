@@ -45,8 +45,9 @@ jQuery(document).ready(function($){
     
     // Initialize DataTable for the checklist table
     let selectedChecklists = [];
+    let checklistTable = null;
     if($('#mychecklist-datatable').length) {
-        let checklistTable = $('#mychecklist-datatable').DataTable({
+        checklistTable = $('#mychecklist-datatable').DataTable({
             "paging": true,
             "pageLength": 10,
             "searching": true,
@@ -81,6 +82,16 @@ jQuery(document).ready(function($){
             }
         } else {
             selectedChecklists = selectedChecklists.filter(id => id !== checklistId);
+        }
+    });
+
+    // Adjust DataTable columns when Checklist/Documents collapse is shown
+    // (table is inside collapsed div, so initial column widths may be wrong)
+    $('#composeChecklistDocuments').on('shown.bs.collapse', function() {
+        if (checklistTable && $.fn.DataTable) {
+            try {
+                checklistTable.columns().adjust();
+            } catch (e) {}
         }
     });
 

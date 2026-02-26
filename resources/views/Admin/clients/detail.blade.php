@@ -2119,7 +2119,7 @@ use App\Http\Controllers\Controller;
                                         }
 										$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
 										?>
-										<select data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
+										<select id="template" data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
 											<option value="">Select</option>
 											@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
 												<option value="{{$list->id}}">{{$list->name}}</option>
@@ -3082,7 +3082,10 @@ $(document).ready(function() {
 				$toField.select2({ multiple: true, dropdownParent: $('#emailmodal'), data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
 				$toField.val([String(clientId)]).trigger('change');
 				$('#composeChecklistDocuments').collapse('show');
-				$('#composechecklist-tab').tab('show');
+				var checklistTabEl = document.getElementById('composechecklist-tab');
+				if (checklistTabEl && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+					bootstrap.Tab.getOrCreateInstance(checklistTabEl).show();
+				}
 				$('#emailmodal').modal('show');
 			} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {
 				$('#sendmail_application_id').val(applicationId);
