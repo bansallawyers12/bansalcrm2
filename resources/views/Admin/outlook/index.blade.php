@@ -119,11 +119,28 @@
 .ribbon-commands .ribbon-btn.primary { background: #0078d4; color: #fff; }
 .ribbon-commands .ribbon-btn.primary:hover { background: #106ebe; color: #fff; }
 .ribbon-commands .ribbon-btn.send-btn { width: auto; padding: 0 14px; font-weight: 600; }
+/* Buttons with icon + label (e.g. Insert tab) - prevent overlap */
+.ribbon-commands .ribbon-btn.ribbon-btn-with-label { width: auto; min-width: 32px; padding: 0 10px; gap: 6px; font-size: 13px; white-space: nowrap; margin-right: 4px; }
 .ribbon-commands select.ribbon-select { padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; }
+
+/* Ribbon panels (one visible per tab) */
+.ribbon-panel { display: none; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 16px; background: #fff; border-bottom: 1px solid #d4d4d4; }
+.ribbon-panel.active { display: flex; }
+.ribbon-panel.ribbon-panel-placeholder { color: #666; font-size: 13px; }
 
 /* Compose area */
 .compose-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .compose-ribbon-wrapper { flex-shrink: 0; border-bottom: 1px solid #d4d4d4; }
+.draft-saved-msg {
+    padding: 8px 20px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.draft-saved-msg i { color: #16a34a; }
 .compose-body-row { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .compose-fields-full { padding-left: 20px; }
 .compose-send-col { display: none; }
@@ -251,7 +268,30 @@
     align-items: center;
     gap: 8px;
 }
-.sent-section-header i { color: #0078d4; }
+.sent-section-header i.fa-envelope { color: #0078d4; }
+.sent-section-header .sent-toggle {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #475569;
+    flex-shrink: 0;
+}
+.sent-section-header .sent-toggle:hover { background: #e2e8f0; color: #1e293b; }
+.sent-section-body { display: block; }
+.sent-section.collapsed .sent-section-body { display: none; }
+.sent-section.collapsed .sent-section-header { border-bottom: none; }
+.sent-section.collapsed .sent-toggle i { transform: rotate(-90deg); }
+
+/* Sent view filter */
+#folderSent .sent-filter-wrap { display: flex; align-items: center; gap: 8px; margin-left: 12px; }
+#folderSent .sent-filter-wrap label { font-size: 13px; color: #64748b; margin: 0; white-space: nowrap; }
+#folderSent .sent-filter-select { padding: 6px 10px; font-size: 13px; border: 1px solid #d4d4d4; border-radius: 4px; min-width: 200px; }
 .sent-table { width: 100%; border-collapse: collapse; }
 .sent-table th {
     text-align: left;
@@ -371,6 +411,12 @@
                         <i class="fas fa-search"></i>
                         <input type="text" class="form-control folder-search" placeholder="Search sent...">
                     </div>
+                    <div class="sent-filter-wrap">
+                        <label for="sentFilterSender">Filter:</label>
+                        <select class="sent-filter-select form-control" id="sentFilterSender">
+                            <option value="">All senders</option>
+                        </select>
+                    </div>
                     <button type="button" class="btn btn-primary btn-sm ms-2 btn-fetch" data-folder="sent">
                         <i class="fas fa-sync-alt"></i> Get Emails
                     </button>
@@ -428,27 +474,31 @@
                 {{-- Ribbon (full width on top) --}}
                 <div class="compose-ribbon-wrapper">
                     <div class="ribbon-tabs">
-                        <button class="ribbon-tab">File</button>
-                        <button class="ribbon-tab active">Message</button>
-                        <button class="ribbon-tab">Insert</button>
-                        <button class="ribbon-tab">Draw</button>
-                        <button class="ribbon-tab">Options</button>
-                        <button class="ribbon-tab">Format Text</button>
-                        <button class="ribbon-tab">Review</button>
-                        <button class="ribbon-tab">Help</button>
+                        <button type="button" class="ribbon-tab" data-tab="message">File</button>
+                        <button type="button" class="ribbon-tab active" data-tab="message">Message</button>
+                        <button type="button" class="ribbon-tab" data-tab="insert">Insert</button>
+                        <button type="button" class="ribbon-tab" data-tab="extras">Draw</button>
+                        <button type="button" class="ribbon-tab" data-tab="extras">Options</button>
+                        <button type="button" class="ribbon-tab" data-tab="message">Format Text</button>
+                        <button type="button" class="ribbon-tab" data-tab="extras">Review</button>
+                        <button type="button" class="ribbon-tab" data-tab="extras">Help</button>
                     </div>
-                    <div class="ribbon-commands">
+                    {{-- Message / Format Text panel (main toolbar) --}}
+                    <div class="ribbon-panel active ribbon-commands" id="ribbon-panel-message" data-panel="message">
                         <div class="ribbon-group">
                             <button type="button" class="ribbon-btn send-btn primary" id="btnSend" title="Send">
                                 <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                            <button type="button" class="ribbon-btn send-btn" id="btnSaveDraft" title="Save Draft">
+                                <i class="fas fa-save"></i> Save Draft
                             </button>
                         </div>
                         <div class="ribbon-group">
                             <button type="button" class="ribbon-btn btn-attach" title="Attach"><i class="fas fa-paperclip"></i></button>
                         </div>
                         <div class="ribbon-group">
-                            <button type="button" class="ribbon-btn" title="Undo"><i class="fas fa-undo"></i></button>
-                            <button type="button" class="ribbon-btn" title="Redo"><i class="fas fa-redo"></i></button>
+                            <button type="button" class="ribbon-btn ribbon-undo" title="Undo"><i class="fas fa-undo"></i></button>
+                            <button type="button" class="ribbon-btn ribbon-redo" title="Redo"><i class="fas fa-redo"></i></button>
                         </div>
                         <div class="ribbon-group">
                             <select class="ribbon-select" id="ribbonFont" title="Font">
@@ -508,8 +558,24 @@
                             <button type="button" class="ribbon-btn" title="Dictate"><i class="fas fa-microphone"></i></button>
                         </div>
                     </div>
+                    {{-- Insert panel --}}
+                    <div class="ribbon-panel ribbon-commands" id="ribbon-panel-insert" data-panel="insert">
+                        <div class="ribbon-group">
+                            <button type="button" class="ribbon-btn ribbon-btn-with-label" id="ribbonInsertLink" title="Insert link"><i class="fas fa-link"></i> Link</button>
+                            <button type="button" class="ribbon-btn ribbon-btn-with-label" id="ribbonInsertImage" title="Insert image"><i class="fas fa-image"></i> Picture</button>
+                            <button type="button" class="ribbon-btn ribbon-btn-with-label format-btn" data-cmd="insertHorizontalRule" title="Horizontal line"><i class="fas fa-minus"></i> Line</button>
+                        </div>
+                    </div>
+                    {{-- Draw / Options / Review / Help placeholder --}}
+                    <div class="ribbon-panel ribbon-panel-placeholder" id="ribbon-panel-extras" data-panel="extras">
+                        <span>Use the <strong>Message</strong> or <strong>Format Text</strong> tab for formatting and sending. Insert links and pictures from the <strong>Insert</strong> tab.</span>
+                    </div>
                 </div>
 
+                {{-- Draft saved message (hidden by default) --}}
+                <div id="draftSavedMessage" class="draft-saved-msg" style="display:none;">
+                    <i class="fas fa-check-circle"></i> Draft saved. Open Drafts to see it.
+                </div>
                 {{-- Compose form: From/To/Cc/Subject/Body (single Send in ribbon) --}}
                 <div class="compose-body-row">
                 <div class="compose-fields-col compose-fields-full">
@@ -568,6 +634,7 @@
     var attachmentInput = document.getElementById('attachmentInput');
     var attachmentList = document.getElementById('attachmentList');
     var sendersUrl = '{{ route("admin.outlook.senders") }}';
+    var draftUrl = '{{ route("admin.outlook.saveDraft") }}';
     var refreshSentAfterSend = @json(session('refresh_sent', false));
 
     // Refresh From dropdown from SendGrid (live) on page load
@@ -608,6 +675,41 @@
         main.classList.add('mode-compose');
     });
 
+    // Ribbon tabs: switch active tab and show matching panel
+    document.querySelectorAll('.compose-ribbon-wrapper .ribbon-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            var panelId = this.getAttribute('data-tab');
+            document.querySelectorAll('.compose-ribbon-wrapper .ribbon-tab').forEach(function(t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            document.querySelectorAll('.compose-ribbon-wrapper .ribbon-panel').forEach(function(p) { p.classList.remove('active'); });
+            var panel = document.getElementById('ribbon-panel-' + panelId);
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    // Insert panel: Link
+    var insertLinkBtn = document.getElementById('ribbonInsertLink');
+    if (insertLinkBtn) {
+        insertLinkBtn.addEventListener('click', function() {
+            var editor = document.getElementById('outlook-body');
+            if (!editor) return;
+            editor.focus();
+            var url = window.prompt('Enter URL:', 'https://');
+            if (url) document.execCommand('createLink', false, url);
+        });
+    }
+    // Insert panel: Image (URL)
+    var insertImageBtn = document.getElementById('ribbonInsertImage');
+    if (insertImageBtn) {
+        insertImageBtn.addEventListener('click', function() {
+            var editor = document.getElementById('outlook-body');
+            if (!editor) return;
+            editor.focus();
+            var url = window.prompt('Enter image URL:', 'https://');
+            if (url) document.execCommand('insertImage', false, url);
+        });
+    }
+
     document.querySelectorAll('.folder-item').forEach(function(el) {
         el.addEventListener('click', function(e) {
             e.preventDefault();
@@ -623,6 +725,22 @@
             }
         });
     });
+
+    function applySentFilter(senderValue) {
+        var container = document.querySelector('#folderSent .sent-sections');
+        if (!container) return;
+        container.querySelectorAll('.sent-section').forEach(function(section) {
+            var fromEmail = section.dataset.fromEmail || '';
+            var show = !senderValue || fromEmail === senderValue;
+            section.style.display = show ? '' : 'none';
+        });
+    }
+    var sentFilterEl = document.getElementById('sentFilterSender');
+    if (sentFilterEl) {
+        sentFilterEl.addEventListener('change', function() {
+            applySentFilter(this.value);
+        });
+    }
 
     function updateAttachmentList() {
         attachmentList.innerHTML = '';
@@ -664,6 +782,43 @@
 
     document.getElementById('btnSend').addEventListener('click', submitForm);
 
+    document.getElementById('btnSaveDraft').addEventListener('click', function() {
+        var editor = document.getElementById('outlook-body');
+        var fromEl = document.getElementById('from_email');
+        var toEl = document.getElementById('to_email');
+        var ccEl = document.getElementById('cc_email');
+        var subjectEl = document.getElementById('subject_email');
+        if (!fromEl || fromEl.value === '') {
+            alert('Please select a From address.');
+            return;
+        }
+        var body = editor ? editor.innerHTML : '';
+        var token = document.querySelector('input[name="_token"]');
+        var fd = new FormData();
+        if (token) fd.append('_token', token.value);
+        fd.append('from', fromEl.value);
+        fd.append('to', toEl.value || '');
+        fd.append('cc', ccEl ? ccEl.value : '');
+        fd.append('subject', subjectEl ? subjectEl.value : '');
+        fd.append('body', body);
+        var msgEl = document.getElementById('draftSavedMessage');
+        fetch(draftUrl, {
+            method: 'POST',
+            body: fd,
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (msgEl) {
+                    msgEl.style.display = 'flex';
+                    setTimeout(function() { msgEl.style.display = 'none'; }, 4000);
+                }
+            })
+            .catch(function() {
+                alert('Could not save draft. Please try again.');
+            });
+    });
+
     document.querySelectorAll('.btn-fetch').forEach(function(btnEl) {
         btnEl.addEventListener('click', function() {
         var btn = this;
@@ -688,10 +843,29 @@
                 var hasEmails = data.emails && data.emails.length > 0;
                 if (hasSentGroups) {
                     empty.style.display = 'none';
+                    var filterSelect = document.getElementById('sentFilterSender');
+                    if (filterSelect) {
+                        filterSelect.innerHTML = '<option value="">All senders</option>';
+                        data.sent_groups.forEach(function(grp) {
+                            var fromEmail = grp.from_email || '';
+                            if (fromEmail) {
+                                var opt = document.createElement('option');
+                                opt.value = fromEmail;
+                                opt.textContent = fromEmail;
+                                filterSelect.appendChild(opt);
+                            }
+                        });
+                    }
                     data.sent_groups.forEach(function(grp) {
+                        var fromEmail = grp.from_email || '';
                         var section = document.createElement('div');
                         section.className = 'sent-section';
-                        section.innerHTML = '<div class="sent-section-header"><i class="fas fa-envelope"></i> ' + (grp.from_email || '') + '</div>';
+                        section.dataset.fromEmail = fromEmail;
+                        var header = document.createElement('div');
+                        header.className = 'sent-section-header';
+                        header.innerHTML = '<button type="button" class="sent-toggle" title="Expand/Collapse" aria-label="Expand or collapse"><i class="fas fa-chevron-down"></i></button><i class="fas fa-envelope"></i> <span class="sent-section-email">' + fromEmail + '</span>';
+                        var bodyWrap = document.createElement('div');
+                        bodyWrap.className = 'sent-section-body';
                         var table = document.createElement('table');
                         table.className = 'sent-table';
                         table.innerHTML = '<thead><tr><th class="sent-th-to">To</th><th class="sent-th-subject">Subject</th><th class="sent-th-date">Date</th></tr></thead><tbody></tbody>';
@@ -702,9 +876,22 @@
                             tr.innerHTML = '<td class="sent-cell-to">' + (e.to || '') + '</td><td class="sent-cell-subject" title="' + (e.subject || '').replace(/"/g, '&quot;') + '">' + (e.subject || '(No subject)') + '</td><td class="sent-cell-date">' + (e.date || '') + '</td>';
                             tbody.appendChild(tr);
                         });
-                        section.appendChild(table);
+                        bodyWrap.appendChild(table);
+                        section.appendChild(header);
+                        section.appendChild(bodyWrap);
                         list.appendChild(section);
+                        header.querySelector('.sent-toggle').addEventListener('click', function() {
+                            section.classList.toggle('collapsed');
+                            var icon = this.querySelector('i');
+                            if (icon) {
+                                icon.className = section.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
+                            }
+                        });
                     });
+                    var filterSel = document.getElementById('sentFilterSender');
+                    if (filterSel) {
+                        applySentFilter(filterSel.value);
+                    }
                 } else if (hasEmails) {
                     empty.style.display = 'none';
                     data.emails.forEach(function(e) {
@@ -746,6 +933,18 @@
                 editor.focus();
                 document.execCommand(cmd, false, null);
             }
+        });
+    });
+    document.querySelectorAll('.ribbon-undo').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var editor = document.getElementById('outlook-body');
+            if (editor) { editor.focus(); document.execCommand('undo', false, null); }
+        });
+    });
+    document.querySelectorAll('.ribbon-redo').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var editor = document.getElementById('outlook-body');
+            if (editor) { editor.focus(); document.execCommand('redo', false, null); }
         });
     });
 

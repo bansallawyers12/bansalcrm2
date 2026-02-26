@@ -275,6 +275,7 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
 			Route::get('/outlook/debug', [OutlookController::class, 'debug'])->name('outlook.debug');
 			Route::get('/outlook/inbox', [OutlookController::class, 'inbox'])->name('outlook.inbox');
 			Route::post('/outlook/send', [OutlookController::class, 'send'])->name('outlook.send');
+			Route::post('/outlook/draft', [OutlookController::class, 'saveDraft'])->name('outlook.saveDraft');
 		});
 
 	//Email Templates Pages
