@@ -1109,6 +1109,20 @@ form[name="add-leads"] select:invalid {
 	transform: scale(1.1);
 }
 
+.set-email-primary {
+	color: #9ca3af !important;
+	text-decoration: none;
+	padding: 0 2px;
+	transition: color 0.2s ease;
+}
+.set-email-primary:hover {
+	color: #f59e0b !important;
+}
+.primary-badge {
+	display: inline-flex;
+	align-items: center;
+}
+
 /* Extra Small Buttons */
 .btn-xs {
 	padding: 0.25rem 0.5rem !important;

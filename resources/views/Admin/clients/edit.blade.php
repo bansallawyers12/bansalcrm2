@@ -588,7 +588,7 @@
 									<div class="col-md-6 col-sm-12">
 										<div class="contact-subsection">
 											<div class="d-flex justify-content-between align-items-center mb-2">
-												<label class="section-label mb-0"><i class="fas fa-envelope"></i> Email Addresses</label>
+												<label class="section-label mb-0"><i class="fas fa-envelope"></i> Email Addresses <span class="text-muted small">(first = primary, stored in system)</span></label>
 												<a href="javascript:;" class="btn btn-xs btn-primary openclientemailnew">
 													<i class="fa fa-plus"></i> Add
 												</a>
@@ -662,8 +662,13 @@
 												}
 												@endphp
 												@foreach ($emailList as $idx => $emailRow)
-												<div class="compact-contact-item" id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}">
+												<div class="compact-contact-item email-item" id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}">
 													<span class="contact-type-tag">{{ $emailRow->email_type }}</span>
+													@if($idx === 0)
+														<span class="primary-badge me-1" title="Primary email (stored in system)"><i class="fas fa-star text-warning"></i></span>
+													@else
+														<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="email_{{ is_numeric($emailRow->id) ? $emailRow->id : $emailRow->id }}"><i class="far fa-star text-muted"></i></a>
+													@endif
 													<span class="contact-email">{{ $emailRow->client_email }}</span>
 													<div class="contact-actions">
 														<a href="javascript:;" 
@@ -677,7 +682,7 @@
 														@if($emailRow->email_verified)
 															<span class="verified-badge"><i class="fas fa-check-circle"></i></span>
 														@else
-															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="{{ $fetchedData->first_name }}" data-email="{{ $emailRow->client_email }}" data-clientid="{{ $fetchedData->id }}">
+															<button type="button" class="btn-verify manual_email_phone_verified" data-fname="{{ $fetchedData->first_name }}" data-email="{{ $emailRow->client_email }}" data-clientid="{{ $fetchedData->id }}" title="Verify">
 																<i class="fas fa-paper-plane"></i>
 															</button>
 														@endif

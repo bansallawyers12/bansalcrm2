@@ -160,19 +160,26 @@ class ClientController extends Controller
 
             ]);
 
-            // Primary (first) email must be unique in admins
+            // Primary (first) email must be unique in admins table
             $emails = $requestData['email'] ?? [];
             if (!empty($emails)) {
-                $primaryEmail = $emails[0];
-                $existing = Admin::where('email', $primaryEmail)->where('id', '!=', $requestData['id'])->exists();
+                $primaryEmail = trim($emails[0]);
+                $existing = Admin::where('id', '!=', $requestData['id'])
+                    ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($primaryEmail)])
+                    ->exists();
                 if ($existing) {
-                    return redirect()->back()->withInput()->with('error', 'This email address is already in use by another client.');
+                    return redirect()->back()->withInput()->with('error', 'The primary email address is already in use by another client.');
                 }
             }
           
              if ( isset($requestData['contact_type']) && count(array_keys($requestData['contact_type'] , "Personal")) > 1) {
                 //echo "Error: 'Personal' contact type can only be used once.";
                 return redirect()->back()->withInput()->with('error', "Error: 'Personal' contact type can only be used once.");
+            }
+            // Email type 'Personal' can only be used once per client
+            $emailTypes = $requestData['email_type'] ?? [];
+            if (is_array($emailTypes) && count(array_filter($emailTypes, function($t) { return trim($t ?? '') === 'Personal'; })) > 1) {
+                return redirect()->back()->withInput()->with('error', "Error: 'Personal' email type can only be used once.");
             }
           
 			$related_files = '';
@@ -210,13 +217,13 @@ class ClientController extends Controller
             }
           
 			$obj->related_files	=	rtrim($related_files,',');
-			// Primary (first) email and type go to admins
+			// Primary (first) email and type go to admins; all emails also sync to client_emails below
 			$emails = $requestData['email'] ?? [];
 			$emailTypes = $requestData['email_type'] ?? [];
 			$clientEmailIds = $requestData['clientemailid'] ?? [];
 			if (!empty($emails)) {
-				$obj->email = $emails[0];
-				$obj->email_type = $emailTypes[0] ?? 'Personal';
+				$obj->email = trim($emails[0]);
+				$obj->email_type = trim($emailTypes[0] ?? 'Personal') ?: 'Personal';
 			}
           
 			//$obj->contact_type	=	@$requestData['contact_type'];

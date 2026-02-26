@@ -392,6 +392,10 @@ jQuery(document).ready(function($){
         $('#edit_email_mode').val('0');
         $('#edit_email_id').val('');
         $('#clientemailform')[0].reset();
+        // Disable Personal option if one already exists (only one Personal per client)
+        var hasPersonal = $('.clientemaildata .contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+        $('#email_type_modal option[value="Personal"]').prop('disabled', hasPersonal);
+        if (hasPersonal) { $('#email_type_modal').val(''); }
         $('.addclientemail').modal('show');
     });
 
@@ -413,18 +417,27 @@ jQuery(document).ready(function($){
             alert('Please select email type.');
             flag = true;
         }
+        // Personal email type can only be used once
+        if (!flag && email_type === 'Personal') {
+            var hasPersonal = $('.clientemaildata .contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+            if (hasPersonal) {
+                alert("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).");
+                flag = true;
+            }
+        }
 
         if(!flag){
             var emailDomId = 'email_new_' + (new Date().getTime());
             var escapedEmail = $('<div/>').text(client_email).html();
             var escapedType = $('<div/>').text(email_type).html();
             
-            var html = '<div class="compact-contact-item" id="'+emailDomId+'">';
+            var html = '<div class="compact-contact-item email-item" id="'+emailDomId+'">';
             html += '<span class="contact-type-tag">'+escapedType+'</span>';
+            html += '<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+emailDomId+'"><i class="far fa-star text-muted"></i></a>';
             html += '<span class="contact-email">'+escapedEmail+'</span>';
             html += '<div class="contact-actions">';
             html += '<a href="javascript:;" class="editclientemail btn-edit" data-email-id="'+emailDomId+'" data-type="'+escapedType+'" data-email="'+escapedEmail+'" title="Edit"><i class="fa fa-edit"></i></a>';
-            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '"><i class="fas fa-paper-plane"></i></button>';
+            html += '<button type="button" class="btn-verify manual_email_phone_verified" data-fname="' + (App.getPageConfig('clientFirstName') || '') + '" data-email="'+escapedEmail+'" data-clientid="' + (App.getPageConfig('clientId') || '') + '" title="Verify"><i class="fas fa-paper-plane"></i></button>';
             html += '<a href="javascript:;" class="deleteemail btn-delete" data-email-id="'+emailDomId+'" title="Delete"><i class="fa fa-trash"></i></a>';
             html += '</div>';
             html += '<input type="hidden" name="email[]" value="'+escapedEmail+'">';
@@ -436,6 +449,27 @@ jQuery(document).ready(function($){
             $('#clientemailform')[0].reset();
             $('.addclientemail').modal('hide');
             itag_email++;
+        }
+    });
+
+    // Set as primary (move email to first position - first = primary for admins table)
+    $(document).delegate('.set-email-primary','click', function(){
+        var emailId = $(this).attr('data-email-id');
+        var $item = $('#' + emailId);
+        var $container = $('.clientemaildata');
+        if ($item.length && $item.index() !== 0) {
+            $item.prependTo($container);
+            // Refresh badges: first = primary (filled star), others = set-primary (outline star)
+            $container.find('.email-item').each(function(idx){
+                var $el = $(this);
+                var id = $el.attr('id');
+                var $existing = $el.find('.set-email-primary, .primary-badge');
+                if (idx === 0) {
+                    $existing.replaceWith('<span class="primary-badge me-1" title="Primary email (stored in system)"><i class="fas fa-star text-warning"></i></span>');
+                } else {
+                    $existing.replaceWith('<a href="javascript:;" class="set-email-primary me-1" title="Set as primary" data-email-id="'+id+'"><i class="far fa-star text-muted"></i></a>');
+                }
+            });
         }
     });
 
@@ -461,6 +495,7 @@ jQuery(document).ready(function($){
         var email_id = $(this).data('email-id');
         var email_type = $(this).data('type');
         var email_address = $(this).data('email');
+        var $item = $('#' + email_id);
         
         $('#edit_email_mode').val('1');
         $('#edit_email_id').val(email_id);
@@ -470,6 +505,9 @@ jQuery(document).ready(function($){
         
         $('#email_type_modal').val(email_type);
         $('input[name="client_email"]').val(email_address);
+        // Disable Personal if another email already has it (excluding the one being edited)
+        var otherHasPersonal = $('.clientemaildata .compact-contact-item').not($item).find('.contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+        $('#email_type_modal option[value="Personal"]').prop('disabled', otherHasPersonal);
         
         $('.addclientemail').modal('show');
     });
@@ -492,6 +530,15 @@ jQuery(document).ready(function($){
         if(email_type == ''){
             alert('Please select email type.');
             flag = true;
+        }
+        // Personal email type can only be used once (exclude the item being edited)
+        if (!flag && email_type === 'Personal') {
+            var $item = $('#' + email_id);
+            var otherHasPersonal = $('.clientemaildata .compact-contact-item').not($item).find('.contact-type-tag').filter(function() { return $(this).text().trim() === 'Personal'; }).length > 0;
+            if (otherHasPersonal) {
+                alert("'Personal' email type can only be used once. Please choose another type (e.g. Work, Business).");
+                flag = true;
+            }
         }
 
         if(!flag){
