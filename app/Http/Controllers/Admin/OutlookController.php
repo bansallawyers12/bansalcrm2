@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MailReport;
+use App\Models\OutlookDraftEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -268,7 +269,25 @@ class OutlookController extends Controller
         $sent_groups = [];
         $filterOptions = ['from_list' => [], 'to_list' => []];
 
-        if ($folder === 'sent') {
+        if ($folder === 'drafts') {
+            $query = OutlookDraftEmail::orderBy('updated_at', 'desc')->where('admin_id', auth('admin')->id());
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('from_email', 'like', '%' . $search . '%')
+                        ->orWhere('to_email', 'like', '%' . $search . '%')
+                        ->orWhere('subject', 'like', '%' . $search . '%');
+                });
+            }
+            foreach ($query->get() as $draft) {
+                $emails[] = [
+                    'id' => $draft->id,
+                    'from' => $draft->from_email,
+                    'to' => $draft->to_email,
+                    'subject' => $draft->subject ?: '(No subject)',
+                    'date' => $draft->updated_at->format('d/m/Y g:i A'),
+                ];
+            }
+        } elseif ($folder === 'sent') {
             // Use mail_reports (same table as CRM) - mail_type 1 = sent/composed emails
             $query = MailReport::where('mail_type', 1);
 
@@ -454,5 +473,35 @@ class OutlookController extends Controller
                 ->with('error', 'Failed to send email: ' . $e->getMessage())
                 ->withInput($request->only('from', 'to', 'cc', 'subject', 'body'));
         }
+    }
+
+    /**
+     * Save current compose as draft (no email sent). To/Subject can be empty.
+     */
+    public function saveDraft(Request $request)
+    {
+        $validated = $request->validate([
+            'from' => 'required|email',
+            'to' => 'nullable|email',
+            'cc' => 'nullable|email',
+            'subject' => 'nullable|string|max:500',
+            'body' => 'nullable|string',
+        ]);
+
+        OutlookDraftEmail::create([
+            'from_email' => $validated['from'],
+            'to_email' => $request->filled('to') ? $validated['to'] : null,
+            'cc' => $request->filled('cc') ? $validated['cc'] : null,
+            'subject' => $request->filled('subject') ? $validated['subject'] : null,
+            'body' => $validated['body'] ?? null,
+            'admin_id' => auth('admin')->id(),
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Draft saved.']);
+        }
+
+        return redirect()->route('admin.outlook.index')
+            ->with('success', 'Draft saved.');
     }
 }
