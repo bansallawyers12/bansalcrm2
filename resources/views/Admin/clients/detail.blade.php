@@ -2031,23 +2031,23 @@ use App\Http\Controllers\Controller;
 @include('Admin/clients/addclientmodal')
 @include('Admin/clients/editclientmodal')
 
-<div id="emailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
+<div id="emailmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal compose-email-compact" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header compose-modal-header">
 				<h5 class="modal-title" id="clientModalLabel">Compose Email</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body compose-modal-body">
 				<form method="post" name="sendmail" action="{{URL::to('/sendmail')}}" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="client_id" value="{{ $fetchedData->id ?? '' }}">
 				<input type="hidden" name="type" value="{{ $fetchedData->type ?? 'client' }}">
 				<input type="hidden" name="application_id" id="sendmail_application_id" value="">
 				<input type="hidden" name="send_context" id="sendmail_send_context" value="">
-					<div class="row">
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
+					<div class="row compose-row-tight">
+						<div class="col-12 col-md-6">
+							<div class="form-group form-group-compact">
 								<label for="email_from">From <span class="span_req">*</span></label>
 								@include('partials.email-from-sendgrid')
 								@if ($errors->has('email_from'))
@@ -2057,8 +2057,8 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
+						<div class="col-12 col-md-6">
+							<div class="form-group form-group-compact">
 								<label for="email_to">To <span class="span_req">*</span></label>
 								<select data-valid="required" class="js-data-example-ajax" name="email_to[]"></select>
 
@@ -2069,78 +2069,86 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="email_cc">CC </label>
-								<select data-valid="" class="js-data-example-ajaxccd" name="email_cc[]"></select>
-
-								@if ($errors->has('email_cc'))
-									<span class="custom-error" role="alert">
-										<strong>{{ @$errors->first('email_cc') }}</strong>
-									</span>
-								@endif
-							</div>
+						<div class="col-12">
+							<button type="button" class="btn btn-link btn-sm p-0 text-muted compose-more-toggle" data-bs-toggle="collapse" data-bs-target="#composeMoreOptions" aria-expanded="false" aria-controls="composeMoreOptions">
+								<span class="compose-more-text">▼ CC, Templates</span>
+							</button>
 						</div>
+						<div class="col-12 collapse" id="composeMoreOptions">
+							<div class="row">
+								<div class="col-12 col-md-6">
+									<div class="form-group form-group-compact">
+										<label for="email_cc">CC</label>
+										<select data-valid="" class="js-data-example-ajaxccd form-control form-control-sm" name="email_cc[]"></select>
 
-						<div class="col-12 col-md-6 col-lg-6">
-							<div class="form-group">
-								<label for="template">Templates </label>
-                                 <?php
-                                // PostgreSQL doesn't accept empty strings for integer columns - check before querying
-                                // Handle comma-separated assignee values (same pattern as lines 647-653)
-                                $assignee = null;
-                                if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
-                                    // Check if assignee contains multiple IDs (comma-separated)
-                                    if(Str::contains($fetchedData->assignee, ',')){
-                                        // Get the first assignee ID from comma-separated list
-                                        $assigneeUArr = explode(",", $fetchedData->assignee);
-                                        $firstAssigneeId = trim($assigneeUArr[0]);
-                                        if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
-                                            $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
+										@if ($errors->has('email_cc'))
+											<span class="custom-error" role="alert">
+												<strong>{{ @$errors->first('email_cc') }}</strong>
+											</span>
+										@endif
+									</div>
+								</div>
+								<div class="col-12 col-md-6">
+									<div class="form-group form-group-compact">
+										<label for="template">Templates</label>
+                                         <?php
+                                        // PostgreSQL doesn't accept empty strings for integer columns - check before querying
+                                        // Handle comma-separated assignee values (same pattern as lines 647-653)
+                                        $assignee = null;
+                                        if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
+                                            // Check if assignee contains multiple IDs (comma-separated)
+                                            if(Str::contains($fetchedData->assignee, ',')){
+                                                // Get the first assignee ID from comma-separated list
+                                                $assigneeUArr = explode(",", $fetchedData->assignee);
+                                                $firstAssigneeId = trim($assigneeUArr[0]);
+                                                if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
+                                                    $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
+                                                }
+                                            } else {
+                                                // Single assignee ID
+                                                $assigneeId = trim($fetchedData->assignee);
+                                                if(!empty($assigneeId) && is_numeric($assigneeId)) {
+                                                    $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
+                                                }
+                                            }
                                         }
-                                    } else {
-                                        // Single assignee ID
-                                        $assigneeId = trim($fetchedData->assignee);
-                                        if(!empty($assigneeId) && is_numeric($assigneeId)) {
-                                            $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
+                                        if($assignee){
+                                            $clientAssigneeName = $assignee->first_name;
+                                        } else {
+                                            $clientAssigneeName = 'NA';
                                         }
-                                    }
-                                }
-                                if($assignee){
-                                    $clientAssigneeName = $assignee->first_name;
-                                } else {
-                                    $clientAssigneeName = 'NA';
-                                }
-								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
-								?>
-								<select data-valid="" class="form-control select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
-									<option value="">Select</option>
-									@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
-										<option value="{{$list->id}}">{{$list->name}}</option>
-									@endforeach
-								</select>
-
+										$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
+										?>
+										<select data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
+											<option value="">Select</option>
+											@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
+												<option value="{{$list->id}}">{{$list->name}}</option>
+											@endforeach
+										</select>
+									</div>
+								</div>
 							</div>
 						</div>
                         <!-- Inline ChatGPT Section (hidden by default) -->
-                        <div id="chatGptSection" class="collapse mt-3 col-9 col-md-9 col-lg-9">
-                            <div class="card card-body">
-                                <div class="form-group">
-                                    <label for="chatGptInput">Enter your message to enhance:</label>
-                                    <textarea class="form-control" id="chatGptInput" rows="5" placeholder="Type your message here..."></textarea>
+                        <div id="chatGptSection" class="collapse col-12">
+                            <div class="card card-body py-2 px-3 mb-2">
+                                <div class="form-group form-group-compact mb-2">
+                                    <label for="chatGptInput" class="small">Enter your message to enhance:</label>
+                                    <textarea class="form-control form-control-sm" id="chatGptInput" rows="3" placeholder="Type your message here..."></textarea>
                                 </div>
-                                <div class="mt-2 text-end">
-                                    <button type="button" class="btn btn-primary" id="enhanceMessageBtn">Enhance</button>
-                                    <button type="button" class="btn btn-secondary" id="chatGptClose">Close</button>
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-primary btn-sm" id="enhanceMessageBtn">Enhance</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="chatGptClose">Close</button>
                                 </div>
                             </div>
                         </div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="form-group">
-								<label for="subject">Subject <span class="span_req">*</span>
-                                <button type="button" class="btn btn-info" id="chatGptToggle">ChatGPT Enhance</button>  
-                              </label>
-								{!! Form::text('subject', '', array('id'=>'compose_email_subject','class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
+						<div class="col-12">
+							<div class="form-group form-group-compact">
+								<label for="subject">Subject <span class="span_req">*</span></label>
+								<div class="input-group input-group-sm">
+									{!! Form::text('subject', '', array('id'=>'compose_email_subject','class' => 'form-control selectedsubject', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Subject' ))  !!}
+									<button type="button" class="btn btn-outline-info" id="chatGptToggle" title="AI suggestions"><i class="fas fa-magic"></i> Enhance</button>
+								</div>
 								@if ($errors->has('subject'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('subject') }}</strong>
@@ -2148,8 +2156,8 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="form-group">
+						<div class="col-12">
+							<div class="form-group form-group-compact">
 								<label for="message">Message <span class="span_req">*</span></label>
 								<textarea class="tinymce-simple selectedmessage" id="compose_email_message" name="message"></textarea>
 								@if ($errors->has('message'))
@@ -2159,15 +2167,15 @@ use App\Http\Controllers\Controller;
 								@endif
 							</div>
 						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-							<div class="form-group compose-labels-section">
-								<label>Labels</label>
+						<div class="col-12">
+							<div class="form-group form-group-compact compose-labels-section compose-labels-compact">
+								<label class="d-inline">Labels</label>
 								<div class="compose-labels-display">
 									<span class="compose-label-badge compose-label-sent" title="All sent emails are automatically tagged"><i class="fas fa-paper-plane"></i> Sent</span>
 									<div id="composeAdditionalLabelsChips" class="compose-label-chips"></div>
 									<div class="compose-add-label-wrapper dropdown">
 										<button type="button" class="btn btn-outline-secondary btn-sm compose-add-label-btn" id="composeAddLabelBtn" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-plus"></i> Add label
+											<i class="fas fa-plus"></i> Add
 										</button>
 										<ul class="dropdown-menu compose-label-dropdown" id="composeLabelDropdown" aria-labelledby="composeAddLabelBtn">
 											<!-- Populated by JS when labels are loaded -->
@@ -2175,17 +2183,19 @@ use App\Http\Controllers\Controller;
 									</div>
 								</div>
 								<div id="composeLabelIdsContainer"><!-- Hidden inputs for label_ids[] added by JS --></div>
-								<small class="form-text text-muted">All sent emails are tagged with "Sent" for records. Add optional labels to filter in the Emails tab.</small>
 							</div>
 						</div>
-						<div class="col-12 col-md-12 col-lg-12">
-						     <div class="form-group">
-						        <label>Attachment</label>
-						        <input type="file" name="attach[]" class="form-control" multiple>
+						<div class="col-12">
+						     <div class="form-group form-group-compact compose-attach-row">
+						        <label class="d-inline">Attachment</label>
+						        <input type="file" name="attach[]" class="form-control form-control-sm d-inline-block" style="max-width: 220px;" multiple>
+						        <button type="button" class="btn btn-link btn-sm p-0 ms-2 compose-attach-toggle" data-bs-toggle="collapse" data-bs-target="#composeChecklistDocuments" aria-expanded="false" aria-controls="composeChecklistDocuments">
+						            <span>▼ Checklist / Documents</span>
+						        </button>
 						     </div>
 						</div>
                       
-                         <div class="col-12 col-md-12 col-lg-12">
+                         <div class="col-12 collapse" id="composeChecklistDocuments">
                             <div class="composeemail-tab">
                                 <ul class="nav nav-pills round_tabs" id="composeemails-tab" role="tablist">
                                     <li class="nav-item">
@@ -2200,7 +2210,7 @@ use App\Http\Controllers\Controller;
                                     <div class="tab-pane fade show active" id="composechecklist" role="tabpanel" aria-labelledby="composechecklist-tab">
                                         <div class="table-responsive uploadchecklists">
 
-                                            <table id="mychecklist-datatable" class="table text_wrap table-2">
+                                            <table id="mychecklist-datatable" class="table text_wrap table-2 table-sm">
                                                 <thead>
                                                     <tr>
                                                         <th></th>
@@ -2222,8 +2232,7 @@ use App\Http\Controllers\Controller;
                                     </div>
 
                                     <div class="tab-pane fade" id="composedocument" role="tabpanel" aria-labelledby="composedocument-tab">
-                                        <?php echo $fetchedData->id;?>
-                                        <table id="mydocumentlist-datatable" class="table text_wrap table-2">
+                                        <table id="mydocumentlist-datatable" class="table text_wrap table-2 table-sm">
                                             <thead>
                                                 <tr>
                                                     <th></th>
@@ -2295,9 +2304,9 @@ use App\Http\Controllers\Controller;
                             </div>
                         </div>
 						
-						<div class="col-12 col-md-12 col-lg-12">
-							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary">Send</button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<div class="col-12 compose-modal-footer">
+							<button onclick="customValidate('sendmail')" type="button" class="btn btn-primary btn-sm">Send</button>
+							<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>
@@ -3072,6 +3081,7 @@ $(document).ready(function() {
 				if ($toField.data('select2')) { $toField.select2('destroy'); }
 				$toField.select2({ multiple: true, dropdownParent: $('#emailmodal'), data: data, escapeMarkup: function(markup) { return markup; }, templateResult: function(d) { return d.html; }, templateSelection: function(d) { return d.text; } });
 				$toField.val([String(clientId)]).trigger('change');
+				$('#composeChecklistDocuments').collapse('show');
 				$('#composechecklist-tab').tab('show');
 				$('#emailmodal').modal('show');
 			} else if (openEmailReminder === '1' && applicationId && $('#emailmodal').length) {

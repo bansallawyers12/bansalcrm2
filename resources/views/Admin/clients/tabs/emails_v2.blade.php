@@ -59,11 +59,12 @@
     <div class="email-v2-main-content">
         <!-- Left Email List Pane with Upload Area -->
         <div class="email-v2-list-pane">
-            <!-- Drag & Drop Upload Section -->
-            <div class="upload-section-header">
+            <!-- Drag & Drop Upload Section (Collapsible) -->
+            <div class="upload-section-header js-upload-toggle" role="button" tabindex="0" aria-expanded="true" aria-controls="upload-section-body" aria-label="Toggle upload section">
                 <span class="upload-title">Upload Emails</span>
+                <i class="fas fa-chevron-down upload-toggle-icon" aria-hidden="true"></i>
             </div>
-            <div class="upload-section-container">
+            <div id="upload-section-body" class="upload-section-container">
                 <div id="upload-area-v2" class="drag-drop-zone">
                     <div class="drag-drop-content">
                         <i class="fas fa-cloud-upload-alt drag-drop-icon"></i>

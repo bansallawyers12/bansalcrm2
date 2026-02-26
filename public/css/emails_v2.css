@@ -160,11 +160,21 @@
     overflow: hidden;
 }
 
-/* Upload Section */
+/* Upload Section (Collapsible) */
 .upload-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 12px 16px;
     background: #f8f9fa;
     border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+}
+
+.upload-section-header:hover {
+    background: #eef0f2;
 }
 
 .upload-title {
@@ -175,10 +185,31 @@
     letter-spacing: 0.5px;
 }
 
+.upload-toggle-icon {
+    font-size: 12px;
+    color: #6c757d;
+    transition: transform 0.2s ease;
+}
+
+.upload-section-header.collapsed .upload-toggle-icon {
+    transform: rotate(-90deg);
+}
+
 .upload-section-container {
+    max-height: 220px;
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
     background: #ffffff;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out, padding 0.25s ease-out, border-bottom-width 0.25s ease;
+}
+
+.upload-section-container.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+    pointer-events: none;
 }
 
 /* Drag & Drop Zone */
@@ -1742,4 +1773,110 @@
 
 #composeLabelIdsContainer {
     display: none;
+}
+
+/* ===== Compose Email Compact Layout ===== */
+.compose-email-compact .modal-dialog {
+    max-width: 720px;
+}
+
+.compose-email-compact .compose-modal-header {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.compose-email-compact .compose-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+}
+
+.compose-email-compact .compose-row-tight .form-group-compact {
+    margin-bottom: 0.5rem;
+}
+
+.compose-email-compact .form-group-compact label {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.compose-email-compact .compose-more-toggle {
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.compose-email-compact .compose-more-toggle:hover {
+    text-decoration: underline;
+}
+
+.compose-email-compact #composeMoreOptions {
+    margin-bottom: 0.5rem;
+}
+
+.compose-email-compact #composeMoreOptions .row {
+    padding: 0.5rem 0;
+    border-top: 1px dashed #dee2e6;
+}
+
+.compose-email-compact .compose-labels-compact .compose-labels-display {
+    min-height: 32px;
+    padding: 4px 8px;
+}
+
+.compose-email-compact .compose-labels-compact label {
+    margin-right: 0.5rem;
+}
+
+.compose-email-compact .compose-attach-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compose-email-compact .compose-attach-row label {
+    margin-bottom: 0;
+    margin-right: 0.25rem;
+}
+
+.compose-email-compact .compose-attach-toggle {
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.compose-email-compact .compose-attach-toggle:hover {
+    text-decoration: underline;
+}
+
+.compose-email-compact #composeChecklistDocuments {
+    margin-bottom: 0.5rem;
+}
+
+.compose-email-compact .composeemail-tab .nav-pills .nav-link {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+}
+
+.compose-email-compact .composeemail-tab .tab-content {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.compose-email-compact .uploadchecklists .table {
+    font-size: 0.85rem;
+}
+
+.compose-email-compact .compose-modal-footer {
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.compose-email-compact .compose-modal-footer .btn {
+    margin-right: 0.5rem;
+}
+
+/* Subject input-group: ensure Enhance button doesn't shrink */
+.compose-email-compact .input-group.input-group-sm .btn {
+    white-space: nowrap;
 }
