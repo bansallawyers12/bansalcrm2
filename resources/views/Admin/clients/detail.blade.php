@@ -1034,7 +1034,7 @@ use App\Http\Controllers\Controller;
                                                                     if (preg_match('/^(\w[\w_]+):\s*(.+)$/', trim($line), $m)) {
                                                                         $key = $m[1];
                                                                         $value = trim($m[2]);
-                                                                        if (in_array($key, ['action', 'performed_at', 'performed_by'])) continue;
+                                                                        if (in_array($key, ['action', 'performed_at', 'performed_by', 'deposit_amount'])) continue;
                                                                         $label = $displayLabels[$key] ?? ucfirst(str_replace('_', ' ', $key));
                                                                         $receiptFields[] = ['label' => $label, 'value' => $value];
                                                                     }
