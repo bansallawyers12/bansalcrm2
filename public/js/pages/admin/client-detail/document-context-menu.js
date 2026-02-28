@@ -248,10 +248,24 @@
             hideContextMenu();
         }));
 
-        // Position menu
-        menu.style.left = event.pageX + 'px';
-        menu.style.top = event.pageY + 'px';
+        // Show menu off-screen first to measure its real rendered dimensions
+        menu.style.left = '-9999px';
+        menu.style.top = '-9999px';
         menu.classList.add('show');
+
+        // Now use actual rendered size for boundary checks (viewport-relative, matches position:fixed)
+        const menuWidth = menu.offsetWidth;
+        const menuHeight = menu.offsetHeight;
+        const vpWidth = window.innerWidth;
+        const vpHeight = window.innerHeight;
+        let left = event.clientX;
+        let top = event.clientY;
+        if (left + menuWidth > vpWidth) left = vpWidth - menuWidth - 8;
+        if (top + menuHeight > vpHeight) top = vpHeight - menuHeight - 8;
+        if (left < 0) left = 8;
+        if (top < 0) top = 8;
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
 
         // Hide menu on outside click
         setTimeout(() => {
