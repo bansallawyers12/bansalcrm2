@@ -874,7 +874,7 @@ use App\Http\Controllers\Controller;
 									</div>
 								   
 									<!-- Container for File Preview -->
-									<div style="margin-left: 10px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist-partner">
+									<div style="margin-left: 10px; vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist-partner">
 										<p style="color:#000;">Click on a file to preview it here.</p>
 									</div>
 									
@@ -986,7 +986,7 @@ use App\Http\Controllers\Controller;
 									</div>
 
 									<!-- Container for File Preview -->
-									<div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist-partner">
+									<div style="vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist-partner">
 										<p style="color:#000;">Click on a file to preview it here.</p>
 									</div>
 								</div>

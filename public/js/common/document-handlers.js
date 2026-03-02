@@ -159,6 +159,8 @@ function previewFile(fileType, fileUrl, containerClass) {
                 pdfIframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
             }
             pdfIframe.className = 'pdf-viewer';
+            pdfIframe.style.height = '75vh';
+            pdfIframe.style.minHeight = '500px';
             container.appendChild(pdfIframe);
             break;
 
@@ -171,6 +173,8 @@ function previewFile(fileType, fileUrl, containerClass) {
             const officeViewer = document.createElement('iframe');
             officeViewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
             officeViewer.className = 'doc-viewer';
+            officeViewer.style.height = '75vh';
+            officeViewer.style.minHeight = '500px';
             container.appendChild(officeViewer);
             break;
 
