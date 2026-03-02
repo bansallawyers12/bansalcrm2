@@ -1074,7 +1074,7 @@ use App\Http\Controllers\Controller;
                                                         @else
                                                             <div class="activity-content-card">
                                                                 <div class="activity-type-badge activity-type-badge--{{ $inferredType }}">{{ ucfirst(str_replace('_', ' ', $inferredType)) }}</div>
-                                                                <div class="activity-content-body">{!! $description !!}</div>
+                                                                <div class="activity-content-body">{!! \App\Helpers\Helper::normalizeActivityDescriptionHtml($description) !!}</div>
                                                             </div>
                                                         @endif
                                                     @endif
@@ -1582,7 +1582,7 @@ use App\Http\Controllers\Controller;
                                                     @if(strpos($description, '<xml>') !== false || strpos($description, '<o:OfficeDocumentSettings>') !== false)
                                                         <p>{!! htmlentities($description) !!}</p>
                                                     @else
-                                                        <p>{!! $description !!}</p>
+                                                        <p>{!! \App\Helpers\Helper::normalizeActivityDescriptionHtml($description) !!}</p>
                                                     @endif
                                                 @endif
 
