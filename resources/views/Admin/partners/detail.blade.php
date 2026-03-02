@@ -13,9 +13,8 @@
 		'noteterm',
 		'documents',
 		'notuseddocuments',
-		'accounts',
-		'conversations',
-		'promotions',
+	'accounts',
+	'promotions',
 		'student',
 		'invoice',
 		'email-v2'
@@ -284,12 +283,9 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'accounts'])}}" id="accounts-tab" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'conversations'])}}" id="conversations-tab" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'email-v2'])}}" id="email-v2-tab" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
-								</li>
+							<li class="nav-item">
+								<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'email-v2'])}}" id="email-v2-tab" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
+							</li>
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'promotions' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'promotions'])}}" id="promotions-tab" role="tab" aria-controls="promotions" aria-selected="{{ $activeTab === 'promotions' ? 'true' : 'false' }}">Promotions</a>
 								</li>
@@ -1113,19 +1109,19 @@ use App\Http\Controllers\Controller;
 								</div>
                       
                       
-								<div class="tab-pane fade <?php echo ($activeTab === 'conversations') ? 'show active' : ''; ?>" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
-									<div class="conversation_tabs">
-										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
-										    <li class="nav-item">
+							<div class="tab-pane fade <?php echo ($activeTab === 'email-v2') ? 'show active' : ''; ?>" id="conversations" role="tabpanel" aria-labelledby="conversations-tab" style="display:none !important;">
+								<div class="conversation_tabs">
+									<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
+									    <li class="nav-item">
                                                 <a class="nav-link active" data-bs-toggle="tab" id="inbox-tab" href="#inbox" role="tab" aria-controls="inbox" aria-selected="true">Inbox</a>
                                             </li>
 
                                             <li class="nav-item">
                                                 <a class="nav-link" data-bs-toggle="tab" id="sent-tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false">Sent</a>
                                             </li>
-										</ul>
-										<div class="tab-content" id="conversationContent">
-											<div class="tab-pane fade show active" id="inbox" role="tabpanel" aria-labelledby="inbox-tab">
+									</ul>
+									<div class="tab-content" id="conversationContent">
+										<div class="tab-pane fade show active" id="inbox" role="tabpanel" aria-labelledby="inbox-tab">
                                                 <div class="row">
                                                     <div class="col-md-12" style="text-align: right;margin-bottom: 10px;">
                                                         <a class="btn btn-outline-primary btn-sm partnerUploadAndFetchMail" href="javascript:;">Upload Inbox Mail</a>
