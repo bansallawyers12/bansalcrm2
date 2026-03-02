@@ -182,6 +182,8 @@ function previewFile(fileType, fileUrl, containerClass) {
                 </div>
             `;
     }
+
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Export functions for use in other modules

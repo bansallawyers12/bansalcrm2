@@ -810,6 +810,7 @@
     min-height: 300px;
     text-align: center;
     display: inline-block;
+    vertical-align: top;
 }
 
 /* Ensure Bootstrap dropdowns work properly in tables */
