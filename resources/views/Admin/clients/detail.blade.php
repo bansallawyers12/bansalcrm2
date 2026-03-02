@@ -12,6 +12,18 @@
 .select2-dropdown {
     z-index: 1060 !important;
 }
+
+/* Document preview: alignment and height (Blade-only for production) */
+.file-preview-container {
+    vertical-align: top !important;
+    min-height: 500px !important;
+}
+.pdf-viewer, .doc-viewer {
+    width: 100% !important;
+    height: 75vh !important;
+    min-height: 500px !important;
+    border: none !important;
+}
 </style>
 @endpush
 
@@ -1383,7 +1395,7 @@ use App\Http\Controllers\Controller;
                                     </div>
                                    
                                     <!-- Container for File Preview -->
-                                    <div style="margin-left: 10px; vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist">
+                                    <div style="margin-left: 10px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist">
                                         <p style="color:#000;">Click on a file to preview it here.</p>
                                     </div>
                                     
@@ -1533,7 +1545,7 @@ use App\Http\Controllers\Controller;
 									</div>
                                   
                                     <!-- Container for File Preview -->
-                                    <div style="vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist">
+                                    <div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist">
                                         <p style="color:#000;">Click on a file to preview it here.</p>
                                     </div>
                                 </div>
@@ -2778,6 +2790,25 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/common/crud-operations.js') }}"></script>
 <script src="{{ asset('js/common/activity-handlers.js') }}"></script>
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
+<script>
+(function() {
+    var _previewFile = window.previewFile;
+    if (typeof _previewFile === 'function') {
+        window.previewFile = function(fileType, fileUrl, containerClass) {
+            _previewFile(fileType, fileUrl, containerClass);
+            var container = document.querySelector('.' + containerClass);
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                var iframe = container.querySelector('.pdf-viewer, .doc-viewer');
+                if (iframe) {
+                    iframe.style.height = '75vh';
+                    iframe.style.minHeight = '500px';
+                }
+            }
+        };
+    }
+})();
+</script>
 <script src="{{ asset('js/common/ui-components.js') }}"></script>
 
 {{-- Page-Specific JavaScript Modules (load in dependency order) --}}

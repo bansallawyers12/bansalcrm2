@@ -43,6 +43,18 @@
 .small, small {font-size: 85%;}
 .ag-align-end { align-items: flex-end;}
 
+/* Document preview: alignment and height (Blade-only for production) */
+.file-preview-container {
+    vertical-align: top !important;
+    min-height: 500px !important;
+}
+.pdf-viewer, .doc-viewer {
+    width: 100% !important;
+    height: 75vh !important;
+    min-height: 500px !important;
+    border: none !important;
+}
+
 .ui.yellow.label, .ui.yellow.labels .label {background-color: #fbbd08!important;border-color: #fbbd08!important;color: #fff!important;}
 .ui.label:last-child {margin-right: 0;}
 .ui.label:first-child { margin-left: 0;}
@@ -874,7 +886,7 @@ use App\Http\Controllers\Controller;
 									</div>
 								   
 									<!-- Container for File Preview -->
-									<div style="margin-left: 10px; vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist-partner">
+									<div style="margin-left: 10px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-alldocumentlist-partner">
 										<p style="color:#000;">Click on a file to preview it here.</p>
 									</div>
 									
@@ -986,7 +998,7 @@ use App\Http\Controllers\Controller;
 									</div>
 
 									<!-- Container for File Preview -->
-									<div style="vertical-align: top; min-height: 500px;" class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist-partner">
+									<div class="col-5 col-md-5 col-lg-5 file-preview-container preview-container-notuseddocumentlist-partner">
 										<p style="color:#000;">Click on a file to preview it here.</p>
 									</div>
 								</div>
@@ -3528,6 +3540,25 @@ use App\Http\Controllers\Controller;
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
+<script>
+(function() {
+    var _previewFile = window.previewFile;
+    if (typeof _previewFile === 'function') {
+        window.previewFile = function(fileType, fileUrl, containerClass) {
+            _previewFile(fileType, fileUrl, containerClass);
+            var container = document.querySelector('.' + containerClass);
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                var iframe = container.querySelector('.pdf-viewer, .doc-viewer');
+                if (iframe) {
+                    iframe.style.height = '75vh';
+                    iframe.style.minHeight = '500px';
+                }
+            }
+        };
+    }
+})();
+</script>
 
 {{-- Page-Specific JavaScript Modules --}}
 <script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}"></script>
