@@ -96,17 +96,20 @@ class EmailQueryV2Controller extends Controller
             }
 
             $emails = $emails->map(function ($email) use ($url, $uniqueId, $entityType) {
-                $DocInfo = Document::select('id','doc_type','myfile','myfile_key','mail_type')
-                    ->where('id', $email->uploaded_doc_id)
-                    ->first();
-
                 $previewUrl = '';
-                if ($DocInfo) {
-                    if (!empty($DocInfo->myfile_key)) {
-                        $previewUrl = $DocInfo->myfile;
-                    } else {
-                        $docType = ($entityType === 'partner') ? 'partner_email_fetch' : 'conversion_email_fetch';
-                        $previewUrl = $url . $uniqueId . '/' . $docType . '/' . ($DocInfo->mail_type ?? 'inbox') . '/' . $DocInfo->myfile;
+
+                if (!empty($email->uploaded_doc_id)) {
+                    $DocInfo = Document::select('id','doc_type','myfile','myfile_key','mail_type')
+                        ->where('id', $email->uploaded_doc_id)
+                        ->first();
+
+                    if ($DocInfo) {
+                        if (!empty($DocInfo->myfile_key)) {
+                            $previewUrl = $DocInfo->myfile;
+                        } else {
+                            $docType = ($entityType === 'partner') ? 'partner_email_fetch' : 'conversion_email_fetch';
+                            $previewUrl = $url . $uniqueId . '/' . $docType . '/' . ($DocInfo->mail_type ?? 'inbox') . '/' . $DocInfo->myfile;
+                        }
                     }
                 }
 

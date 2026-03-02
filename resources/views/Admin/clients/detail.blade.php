@@ -585,15 +585,14 @@ use App\Http\Controllers\Controller;
 				<div class="card">
 						<div class="card-body">
 							@php
-								$allowedTabs = [
-									'activities',
-									'noteterm',
-									'application',
-									'alldocuments',
-									'notuseddocuments',
-									'accounts',
-									'conversations'
-								];
+							$allowedTabs = [
+								'activities',
+								'noteterm',
+								'application',
+								'alldocuments',
+								'notuseddocuments',
+								'accounts',
+							];
 								$tabAliases = [
 									'notestrm' => 'noteterm',
 									'documents' => 'alldocuments',
@@ -603,12 +602,12 @@ use App\Http\Controllers\Controller;
 								$requestedTab = (isset($forcedTab) && $forcedTab)
 									? $forcedTab
 									: (Request::route('tab') ?? Request::get('tab'));
-								if (in_array($requestedTab, ['documents', 'migrationdocuments'])) {
-									$requestedTab = 'alldocuments';
-								}
-								if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
-									$requestedTab = 'activities';
-								}
+							if (in_array($requestedTab, ['documents', 'migrationdocuments'])) {
+								$requestedTab = 'alldocuments';
+							}
+													if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
+								$requestedTab = 'activities';
+							}
 								$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 								$activeTabSlug = array_search($activeTab, $tabAliases, true);
 								if ($activeTabSlug === false) {
@@ -654,12 +653,9 @@ use App\Http\Controllers\Controller;
 								<li class="nav-item">
 									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="accounts" id="accounts-tab" href="#accounts" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'conversations' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="conversations" id="conversations-tab" href="#conversations" role="tab" aria-controls="conversations" aria-selected="{{ $activeTab === 'conversations' ? 'true' : 'false' }}">Conversations</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="email-v2" id="email-v2-tab" href="#email-v2" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
-								</li>
+							<li class="nav-item">
+								<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" data-bs-toggle="tab" data-tab="email-v2" id="email-v2-tab" href="#email-v2" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
+							</li>
 								<!--<li class="nav-item">
 									<a class="nav-link" data-bs-toggle="tab" id="other_info-tab" href="#other_info" role="tab" aria-controls="other_info" aria-selected="false">Other Information</a>
 								</li>-->
@@ -1836,201 +1832,7 @@ use App\Http\Controllers\Controller;
 										</table>
 									</div>
 								</div>
-								<div class="tab-pane fade {{ $activeTab === 'conversations' ? 'show active' : '' }}" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
-									<div class="conversation_tabs">
-										<ul class="nav nav-pills round_tabs" id="client_tabs" role="tablist">
-											<li class="nav-item">
-												<a class="nav-link active" data-bs-toggle="tab" id="email-tab" href="#email" role="tab" aria-controls="email" aria-selected="true">Email</a>
-											</li>
-
-										</ul>
-										<div class="tab-content" id="conversationContent">
-
-											<div class="tab-pane fade show active" id="email" role="tabpanel" aria-labelledby="email-tab">
-												<div class="row">
-													<div class="col-md-12" style="text-align: right;    margin-bottom: 10px;">
-														<a class="btn btn-outline-primary btn-sm uploadmail"  href="javascript:;" >Upload Mail</a>
-													</div>
-												</div>
-												<ul class="nav nav-pills round_tabs" id="client_mail_tabs" role="tablist">
-													<li class="nav-item">
-														<a class="nav-link active" data-bs-toggle="tab" id="sent-tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false">Sent</a>
-													</li>
-													<li class="nav-item">
-														<a class="nav-link " data-bs-toggle="tab" id="inbox-tab" href="#inbox" role="tab" aria-controls="inbox" aria-selected="true">Inbox</a>
-													</li>
-												</ul>
-										<div class="tab-content" id="conversationContent">
-										<div class="tab-pane fade" id="inbox" role="tabpanel" aria-labelledby="inbox-tab" style="/*max-height: 1443px;*/overflow-y: auto;overflow-x: hidden;">
-
-												<?php
-
-											$mailreports = \App\Models\MailReport::where('client_id',$fetchedData->id)->where('type','client')->where('mail_type',1)->orderby('created_at', 'DESC')->get();
-
-											foreach($mailreports as $mailreport){
-
-											?>
-												<div class="conversation_list" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;margin-bottom: 10px;border-bottom: 1px solid rgba(34, 36, 38, .15);">
-													<div class="conversa_item">
-														<div class="ds_flex">
-															<div class="title">
-																<span>{{@$mailreport->subject}}</span>
-															</div>
-															<div class="conver_action">
-																<div class="date">
-																	<span>{{date('h:i A', strtotime(@$mailreport->created_at))}}</span>
-																</div>
-
-															</div>
-														</div>
-														<div class="email_info">
-															<div class="avatar_img">
-																<span>{{substr(@$mailreport->from_mail, 0, 1)}}</span>
-															</div>
-															<div class="email_content">
-																<span class="email_label">Sent by:</span>
-																<span class="email_sentby"><strong>{{@$mailreport->from_mail}}</strong> </span>
-																<span class="label success">Delivered</span>
-																<span class="span_desc">
-																	<span class="email_label">Sent To</span>
-																	<span class="email_sentby"><i class="fa fa-angle-left"></i>{{@$mailreport->to_mail}}<i class="fa fa-angle-right"></i></span>
-																</span>
-															</div>
-														</div>
-														<div class="divider"></div>
-														<div class="email_desc">
-														 @if(@$mailreport->attachments != '')
-														 <?php
-														/*  $decodeatta = json_decode($mailreport->attachments);
-														 if(!empty($decodeatta)){
-														 ?>
-														    <div class="attachments">
-														        <ul style="list-style: none;">
-										@foreach($decodeatta as $attaa)
-										    <li style="display:inline-block;padding: 0px 11px;
-											border-radius: 4px;
-											box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo asset('checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
-																				@endforeach
-										</ul>
-														    </div>
-														    	<?php } */ ?>
-											@endif
-														{!! \App\Helpers\Helper::stripCidReferences($mailreport->message) !!}
-														</div>
-														<div class="divider"></div>
-														<?php
-														/* if($mailreport->reciept_id != ''){
-															if(\App\Models\InvoicePayment::where('id',$mailreport->reciept_id)->exists()){
-																$invpayment = \App\Models\InvoicePayment::where('id',$mailreport->reciept_id)->first();
-														?>
-														<div class="email_attachment">
-															<span class="attach_label"><i class="fa fa-link"></i> Attachments:</span>
-															<div class="attach_file_list">
-																<div class="attach_col">
-																	<a href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
-																</div>
-															</div>
-														</div>
-														<?php } ?>
-														<?php } */ ?>
-													</div>
-												</div>
-											<?php } ?>
-										</div>
-										<div class="tab-pane fade  show active" id="sent" role="tabpanel" aria-labelledby="sent-tab" style="/*max-height: 1443px;*/overflow-y: auto;overflow-x: hidden;">
-											<?php
-
-											$mailreports = \App\Models\MailReport::whereRaw('? = ANY(string_to_array(to_mail, \',\'))', [$fetchedData->id])->where('type','client')->where('mail_type',0)->orderby('created_at', 'DESC')->get();
-
-											foreach($mailreports as $mailreport){
-												$admin = \App\Models\Staff::select('id', 'first_name','email')->find($mailreport->user_id);
-
-												$client = \App\Models\Admin::select('id', 'first_name','email','dob')->Where('id', $fetchedData->id)->first();
-												$subject = str_replace('{Client First Name}',$client->first_name, $mailreport->subject);
-												$message = $mailreport->message;
-												$message = str_replace('{Client First Name}',$client->first_name, $message);
-												$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
-												$message = str_replace('{Company Name}', \App\Helpers\Helper::defaultCrmCompanyName(), $message);
-												$clientDobDisplay = (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') ? date('d/m/Y', strtotime($client->dob)) : '';
-												$subject = str_replace('{DOB}', $clientDobDisplay, $subject);
-												$message = str_replace('{DOB}', $clientDobDisplay, $message);
-												$message = \App\Helpers\Helper::stripCidReferences($message);
-											?>
-												<div class="conversation_list" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;margin-bottom: 10px;border-bottom: 1px solid rgba(34, 36, 38, .15);">
-													<div class="conversa_item">
-														<div class="ds_flex">
-															<div class="title">
-																<span>{{$subject}}</span>
-															</div>
-															<div class="conver_action">
-																<div class="date">
-																	<span>{{date('h:i A', strtotime($mailreport->created_at))}}</span>
-																</div>
-																<div class="conver_link">
-																	<a datamailid="{{$mailreport->id}}" datasubject="{{$subject}}" class="create_note" datatype="mailnote" href="javascript:;" ><i class="fas fa-file-alt"></i></a>
-																</div>
-															</div>
-														</div>
-														<div class="email_info">
-															<div class="avatar_img">
-																<span>{{substr($admin->first_name, 0, 1)}}</span>
-															</div>
-															<div class="email_content">
-																<span class="email_label">Sent by:</span>
-																<span class="email_sentby"><strong>{{@$admin->first_name}}</strong> [{{$mailreport->from_mail}}]</span>
-																<span class="label success">Delivered</span>
-																<span class="span_desc">
-																	<span class="email_label">Sent To</span>
-																	<span class="email_sentby"><i class="fa fa-angle-left"></i>{{$client->email}}<i class="fa fa-angle-right"></i></span>
-																</span>
-															</div>
-														</div>
-														<div class="divider"></div>
-														<div class="email_desc">
-														 @if($mailreport->attachments != '')
-														 <?php
-														 $decodeatta = json_decode($mailreport->attachments);
-														 if(!empty($decodeatta)){
-														 ?>
-														    <div class="attachments">
-														        <ul style="list-style: none;">
-											@foreach($decodeatta as $attaa)
-												<li style="display:inline-block;padding: 0px 11px;
-												border-radius: 4px;
-												box-shadow: 0 3px 8px 0 rgb(0 0 0 / 8%), 0 1px 2px 0 rgb(0 0 0 / 10%);"><a href="<?php echo asset('checklists/'.$attaa->file_url); ?>" target="_blank">{{$attaa->file_name}}</a></li>
-											@endforeach
-										</ul>
-														    </div>
-														    	<?php } ?>
-											@endif
-														{!!$message!!}
-														</div>
-														<div class="divider"></div>
-														<?php
-														if($mailreport->reciept_id != ''){
-															if(\App\Models\InvoicePayment::where('id',$mailreport->reciept_id)->exists()){
-																$invpayment = \App\Models\InvoicePayment::where('id',$mailreport->reciept_id)->first();
-														?>
-														<div class="email_attachment">
-															<span class="attach_label"><i class="fa fa-link"></i> Attachments:</span>
-															<div class="attach_file_list">
-																<div class="attach_col">
-																	<a href="{{URL::to('payment/view/')}}/{{base64_encode(convert_uuencode(@$invpayment->id))}}">receipt_{{$invpayment->id}}.pdf</a>
-																</div>
-															</div>
-														</div>
-														<?php } ?>
-														<?php } ?>
-													</div>
-												</div>
-											<?php } ?>
-											</div>
-											</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="tab-pane fade {{ $activeTab === 'email-v2' ? 'show active' : '' }}" id="email-v2" role="tabpanel" aria-labelledby="email-v2-tab">
+							<div class="tab-pane fade {{ $activeTab === 'email-v2' ? 'show active' : '' }}" id="email-v2" role="tabpanel" aria-labelledby="email-v2-tab">
 									@include('Admin.clients.tabs.emails_v2')
 								</div>
 							<!--<div class="tab-pane fade" id="other_info" role="tabpanel" aria-labelledby="other_info-tab">

@@ -322,6 +322,9 @@ class ClientMessagingController extends Controller
 		$obj->message		=  $requestData['message'];
 		$obj->mail_type		=  1;
 		$obj->client_id		=  @$requestData['client_id'];
+		$obj->type          =  'client';
+		$obj->conversion_type = 'conversion_email_fetch';
+		$obj->mail_body_type  = 'inbox';
 		$saved				=	$obj->save();
 		if(!$saved)
 			{
