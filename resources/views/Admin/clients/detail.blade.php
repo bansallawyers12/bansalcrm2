@@ -1974,15 +1974,20 @@ use App\Http\Controllers\Controller;
 								<div id="composeLabelIdsContainer"><!-- Hidden inputs for label_ids[] added by JS --></div>
 							</div>
 						</div>
-						<div class="col-12">
-						     <div class="form-group form-group-compact compose-attach-row">
-						        <label class="d-inline">Attachment</label>
-						        <input type="file" name="attach[]" class="form-control form-control-sm d-inline-block" style="max-width: 220px;" multiple>
-						        <button type="button" class="btn btn-link btn-sm p-0 ms-2 compose-attach-toggle" data-bs-toggle="collapse" data-bs-target="#composeChecklistDocuments" aria-expanded="false" aria-controls="composeChecklistDocuments">
-						            <span>▼ Checklist / Documents</span>
-						        </button>
-						     </div>
-						</div>
+					<div class="col-12">
+					     <div class="form-group form-group-compact compose-attach-row">
+					        <label class="d-inline">Attachment</label>
+					        {{-- Hidden file input — triggered by button; files managed in JS array --}}
+					        <input type="file" id="composeAttachFileInput" class="d-none" multiple>
+					        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="composeAttachAddBtn">
+					            <i class="fas fa-paperclip"></i> Add Files
+					        </button>
+					        <button type="button" class="btn btn-link btn-sm p-0 ms-2 compose-attach-toggle" data-bs-toggle="collapse" data-bs-target="#composeChecklistDocuments" aria-expanded="false" aria-controls="composeChecklistDocuments">
+					            <span>▼ Checklist / Documents</span>
+					        </button>
+					     </div>
+					     <div id="composeAttachFileList" class="compose-attach-file-list mt-1"></div>
+					</div>
                       
                          <div class="col-12 collapse" id="composeChecklistDocuments">
                             <div class="composeemail-tab">
