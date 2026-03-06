@@ -1560,13 +1560,28 @@ class AdminController extends Controller
       
         if(isset($requestData['checklistfile_document']) && !$isChecklistContext){
             if(!empty($requestData['checklistfile_document'])){
-                $objs = new \App\Models\ActivitiesLog;
-                $objs->client_id = $obj->to_mail;
-                $objs->created_by = Auth::user()->id;
-                $objs->subject = "Document Checklist sent to client";
-                $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
-                $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
-                $objs->save();
+                $clientIdForLog = null;
+                if (!empty($requestData['application_id'])) {
+                    $app = \App\Models\Application::find((int)$requestData['application_id']);
+                    if ($app && $app->client_id) {
+                        $clientIdForLog = (int) $app->client_id;
+                    }
+                }
+                if ($clientIdForLog === null && !empty($requestData['email_to'][0]) && is_numeric($requestData['email_to'][0])) {
+                    $clientIdForLog = (int) $requestData['email_to'][0];
+                }
+                if ($clientIdForLog === null && isset($obj->client_id) && is_numeric($obj->client_id)) {
+                    $clientIdForLog = (int) $obj->client_id;
+                }
+                if ($clientIdForLog !== null) {
+                    $objs = new \App\Models\ActivitiesLog;
+                    $objs->client_id = $clientIdForLog;
+                    $objs->created_by = Auth::user()->id;
+                    $objs->subject = "Document Checklist sent to client";
+                    $objs->task_status = 0; // Required NOT NULL field for PostgreSQL (0 = activity, 1 = task)
+                    $objs->pin = 0; // Required NOT NULL field for PostgreSQL (0 = not pinned, 1 = pinned)
+                    $objs->save();
+                }
             }
         }
 
