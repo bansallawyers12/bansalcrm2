@@ -24,6 +24,58 @@
     min-height: 500px !important;
     border: none !important;
 }
+
+/* Multi-file attachment list — Compose Email modal */
+.compose-attach-file-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0;
+    list-style: none;
+    margin: 0;
+}
+.compose-attach-file-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.78rem;
+    max-width: 260px;
+}
+.compose-attach-file-icon {
+    color: #64748b;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+.compose-attach-file-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+    color: #1e293b;
+}
+.compose-attach-file-size {
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.compose-attach-remove-btn {
+    background: none;
+    border: none;
+    padding: 0 0 0 0.15rem;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+.compose-attach-remove-btn:hover {
+    color: #ef4444;
+}
 </style>
 @endpush
 
@@ -3120,6 +3172,78 @@ $(document).ready(function(){
 		});
 	});
 });
+
+// ============================================================================
+// MULTI-FILE ATTACHMENT — Compose Email modal (Client Detail)
+// Logic lives here; email-handlers.js calls window.clearComposeAttachFiles()
+// and window.getComposeAttachedFiles() so it stays page-specific.
+// ============================================================================
+(function($) {
+    var composeAttachedFiles = [];
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderAttachFileList() {
+        var list = document.getElementById('composeAttachFileList');
+        if (!list) return;
+        list.innerHTML = '';
+        if (composeAttachedFiles.length === 0) return;
+        composeAttachedFiles.forEach(function(file, idx) {
+            var item = document.createElement('div');
+            item.className = 'compose-attach-file-item';
+            item.innerHTML =
+                '<i class="fas fa-file compose-attach-file-icon"></i>' +
+                '<span class="compose-attach-file-name" title="' + file.name + '">' + file.name + '</span>' +
+                '<span class="compose-attach-file-size">(' + formatFileSize(file.size) + ')</span>' +
+                '<button type="button" class="compose-attach-remove-btn" data-idx="' + idx + '" title="Remove">' +
+                    '<i class="fas fa-times"></i>' +
+                '</button>';
+            list.appendChild(item);
+        });
+        list.querySelectorAll('.compose-attach-remove-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var i = parseInt(this.getAttribute('data-idx'));
+                composeAttachedFiles.splice(i, 1);
+                renderAttachFileList();
+            });
+        });
+    }
+
+    // Exposed globals so email-handlers.js can clear/read without knowing internals
+    window.clearComposeAttachFiles = function() {
+        composeAttachedFiles = [];
+        renderAttachFileList();
+        var input = document.getElementById('composeAttachFileInput');
+        if (input) input.value = '';
+    };
+
+    window.getComposeAttachedFiles = function() {
+        return composeAttachedFiles.slice();
+    };
+
+    $(document).on('click', '#composeAttachAddBtn', function() {
+        var input = document.getElementById('composeAttachFileInput');
+        if (input) { input.value = ''; input.click(); }
+    });
+
+    $(document).on('change', '#composeAttachFileInput', function() {
+        Array.from(this.files || []).forEach(function(newFile) {
+            var exists = composeAttachedFiles.some(function(f) {
+                return f.name === newFile.name && f.size === newFile.size;
+            });
+            if (!exists) composeAttachedFiles.push(newFile);
+        });
+        renderAttachFileList();
+    });
+
+    $('form[name="sendmail"]').on('reset', function() {
+        window.clearComposeAttachFiles();
+    });
+}(jQuery));
 </script>
 
 {{-- Blade-specific inline code (loaded last, uses Blade variables) --}}

@@ -48,78 +48,8 @@ jQuery(document).ready(function($){
     // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
     $('#emailmodal').on('hidden.bs.modal', function() {
         $('#sendmail_send_context').val('');
-        clearAttachFiles();
-    });
-
-    // ============================================================================
-    // MULTI-FILE ATTACHMENT HANDLER
-    // ============================================================================
-
-    var composeAttachedFiles = []; // accumulated File objects
-
-    function formatFileSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
-    function renderAttachFileList() {
-        var list = document.getElementById('composeAttachFileList');
-        if (!list) return;
-        list.innerHTML = '';
-        if (composeAttachedFiles.length === 0) return;
-        composeAttachedFiles.forEach(function(file, idx) {
-            var item = document.createElement('div');
-            item.className = 'compose-attach-file-item';
-            item.innerHTML =
-                '<i class="fas fa-file compose-attach-file-icon"></i>' +
-                '<span class="compose-attach-file-name" title="' + file.name + '">' + file.name + '</span>' +
-                '<span class="compose-attach-file-size">(' + formatFileSize(file.size) + ')</span>' +
-                '<button type="button" class="compose-attach-remove-btn" data-idx="' + idx + '" title="Remove">' +
-                    '<i class="fas fa-times"></i>' +
-                '</button>';
-            list.appendChild(item);
-        });
-
-        // Remove individual file on × click
-        list.querySelectorAll('.compose-attach-remove-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var i = parseInt(this.getAttribute('data-idx'));
-                composeAttachedFiles.splice(i, 1);
-                renderAttachFileList();
-            });
-        });
-    }
-
-    function clearAttachFiles() {
-        composeAttachedFiles = [];
-        renderAttachFileList();
-        var input = document.getElementById('composeAttachFileInput');
-        if (input) input.value = '';
-    }
-
-    // "Add Files" button opens file dialog
-    $(document).on('click', '#composeAttachAddBtn', function() {
-        var input = document.getElementById('composeAttachFileInput');
-        if (input) { input.value = ''; input.click(); }
-    });
-
-    // When files are chosen — merge into accumulated array
-    $(document).on('change', '#composeAttachFileInput', function() {
-        var newFiles = Array.from(this.files || []);
-        newFiles.forEach(function(newFile) {
-            // Skip duplicates by name + size
-            var exists = composeAttachedFiles.some(function(f) {
-                return f.name === newFile.name && f.size === newFile.size;
-            });
-            if (!exists) composeAttachedFiles.push(newFile);
-        });
-        renderAttachFileList();
-    });
-
-    // Clear files when form is reset
-    $('form[name="sendmail"]').on('reset', function() {
-        clearAttachFiles();
+        // Multi-file state is managed in detail.blade.php inline script
+        if (typeof window.clearComposeAttachFiles === 'function') window.clearComposeAttachFiles();
     });
 
     // Compose labels: Sent is always applied server-side. Populate Add label dropdown and handle chip add/remove.
@@ -462,10 +392,11 @@ jQuery(document).ready(function($){
         // Override/ensure message field has TinyMCE content
         formData.set('message', emailContent);
 
-        // Inject accumulated multi-file attachments (managed outside native input)
-        if (composeAttachedFiles.length > 0) {
+        // Inject accumulated multi-file attachments (state managed in detail.blade.php inline script)
+        var attachedFiles = (typeof window.getComposeAttachedFiles === 'function') ? window.getComposeAttachedFiles() : [];
+        if (attachedFiles.length > 0) {
             formData.delete('attach[]');
-            composeAttachedFiles.forEach(function(file) {
+            attachedFiles.forEach(function(file) {
                 formData.append('attach[]', file, file.name);
             });
         }
@@ -490,7 +421,7 @@ jQuery(document).ready(function($){
                     $('#emailmodal').modal('hide');
                     // Reset form and attachments
                     form[0].reset();
-                    clearAttachFiles();
+                    if (typeof window.clearComposeAttachFiles === 'function') window.clearComposeAttachFiles();
                     if($("#emailmodal .tinymce-simple").length && typeof TinyMCEHelpers !== 'undefined') {
                         TinyMCEHelpers.resetBySelector("#emailmodal .tinymce-simple");
                     }
