@@ -129,15 +129,25 @@
         // Download
         menu.appendChild(createMenuItem('Download', function() {
             if (myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
-                // Full URL (e.g. public path) - direct download
-                const a = document.createElement('a');
-                a.href = myfile;
-                a.download = fileName + (fileType ? '.' + fileType : '') || 'download';
-                a.target = '_blank';
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => { if (a.parentNode) document.body.removeChild(a); }, 100);
+                // Cross-origin (e.g. S3): browser ignores <a download>; use app route so server sends Content-Disposition: attachment
+                const isS3OrCrossOrigin = (myfile.indexOf('s3.') !== -1 || myfile.indexOf('amazonaws.com') !== -1) ||
+                    (myfile.indexOf(window.location.origin) !== 0);
+                const downloadFilename = myfileKey || (fileName + (fileType ? '.' + fileType : '')) || 'download';
+                if (isS3OrCrossOrigin) {
+                    const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument')) || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/download-document' : window.location.origin + '/download-document');
+                    const downloadUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'filelink=' + encodeURIComponent(myfile) + '&filename=' + encodeURIComponent(downloadFilename);
+                    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    // Same-origin: <a download> is honored
+                    const a = document.createElement('a');
+                    a.href = myfile;
+                    a.download = downloadFilename;
+                    a.target = '_blank';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() { if (a.parentNode) document.body.removeChild(a); }, 100);
+                }
             } else if (myfileKey) {
                 // New file upload - try to find download element first
                 const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
@@ -159,7 +169,7 @@
                     setTimeout(() => form.remove(), 100);
                 }
             } else {
-                // Old file upload - S3 URL
+                // Old file upload - S3 URL (key is clientId/docType/filename)
                 const url = 'https://' + (window.awsBucket || '') + '.s3.' + (window.awsRegion || '') + '.amazonaws.com/';
                 const clientId = window.PageConfig?.clientId || '';
                 const fileUrl = url + clientId + '/' + docType + '/' + myfile;
@@ -167,13 +177,10 @@
                 if (downloadEl) {
                     downloadEl.click();
                 } else {
-                    const a = document.createElement('a');
-                    a.href = fileUrl;
-                    a.download = fileName + '.' + fileType;
-                    a.style.display = 'none';
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => document.body.removeChild(a), 100);
+                    // S3 is cross-origin; use app route so server sends Content-Disposition: attachment
+                    const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument')) || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/download-document' : window.location.origin + '/download-document');
+                    const downloadUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'filelink=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent((fileName && fileType) ? fileName + '.' + fileType : myfile || 'download');
+                    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
                 }
             }
             hideContextMenu();

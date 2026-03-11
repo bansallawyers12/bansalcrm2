@@ -439,7 +439,8 @@ class PublicDocumentController extends Controller
                 // Generate SHA-256 hash for tamper detection
                 $signedHash = hash_file('sha256', $outputPath);
 
-                $signedPdfUrl = asset('storage/signed/' . $document->id . '_signed.pdf');
+                // Prefer S3 for signed PDF when configured and document has a client (same path pattern as other client docs)
+                $signedPdfUrl = $this->uploadSignedPdfToS3OrLocal($document, $outputPath);
 
                 // Update statuses and save hash
                 $signer->update(['status' => 'signed', 'signed_at' => now()]);
@@ -784,26 +785,100 @@ class PublicDocumentController extends Controller
     }
 
     /**
-     * Download signed document
+     * Upload signed PDF to S3 when configured and document has a client; otherwise return local asset URL.
+     * Keeps existing behavior when S3 is not configured or document has no client (e.g. partner docs).
+     */
+    protected function uploadSignedPdfToS3OrLocal(Document $document, string $localOutputPath): string
+    {
+        $localUrl = asset('storage/signed/' . $document->id . '_signed.pdf');
+
+        if (!file_exists($localOutputPath) || filesize($localOutputPath) === 0) {
+            return $localUrl;
+        }
+
+        $accessKey = env('AWS_ACCESS_KEY_ID');
+        $bucket = env('AWS_BUCKET');
+        if (empty($accessKey) || empty($bucket)) {
+            return $localUrl;
+        }
+
+        $client = $document->client_id ? $document->client : null;
+        $clientUniqueId = $client ? ($client->client_id ?? null) : null;
+        if (empty($clientUniqueId) || !is_string($clientUniqueId)) {
+            return $localUrl;
+        }
+
+        $docType = $document->doc_type ?? 'documents';
+        $s3Key = $clientUniqueId . '/' . $docType . '/' . $document->id . '_signed.pdf';
+
+        try {
+            $contents = file_get_contents($localOutputPath);
+            if ($contents === false) {
+                Log::warning('Could not read signed PDF for S3 upload', ['document_id' => $document->id]);
+                return $localUrl;
+            }
+            Storage::disk('s3')->put($s3Key, $contents);
+            $s3Url = Storage::disk('s3')->url($s3Key);
+            Log::info('Signed PDF uploaded to S3', [
+                'document_id' => $document->id,
+                's3_key' => $s3Key,
+            ]);
+            return $s3Url;
+        } catch (\Exception $e) {
+            Log::warning('S3 upload failed for signed PDF, using local URL', [
+                'document_id' => $document->id,
+                'error' => $e->getMessage(),
+            ]);
+            return $localUrl;
+        }
+    }
+
+    /**
+     * Download signed document (from S3 when signed_doc_link is S3 URL, else from local storage for backward compatibility)
      */
     public function downloadSigned($id)
     {
         try {
             $document = Document::findOrFail($id);
-            
-            if ($document->signed_doc_link) {
-                $filePath = storage_path('app/public/signed/' . $document->id . '_signed.pdf');
-                
-                if (file_exists($filePath)) {
-                    return response()->download($filePath, $document->id . '_signed.pdf');
-                }
+
+            if (!$document->signed_doc_link) {
+                return redirect('/')->with('error', 'Signed document not found.');
             }
-            
+
+            $link = $document->signed_doc_link;
+
+            // S3: same behavior as ClientDocumentController::download_document
+            if (str_contains($link, 's3.') || str_contains($link, 'amazonaws.com')) {
+                $parsed = parse_url($link);
+                if (isset($parsed['path'])) {
+                    $s3Key = ltrim(urldecode($parsed['path']), '/');
+                    if (Storage::disk('s3')->exists($s3Key)) {
+                        $tempUrl = Storage::disk('s3')->temporaryUrl(
+                            $s3Key,
+                            now()->addMinutes(5),
+                            [
+                                'ResponseContentDisposition' => 'attachment; filename="' . $document->id . '_signed.pdf' . '"',
+                                'ResponseContentType' => 'application/pdf',
+                            ]
+                        );
+                        return redirect($tempUrl);
+                    }
+                }
+                Log::warning('Signed document S3 key not found or invalid', ['document_id' => $id, 'link' => $link]);
+                return redirect('/')->with('error', 'Signed document not found.');
+            }
+
+            // Local: backward compatibility for existing records with storage URL
+            $filePath = storage_path('app/public/signed/' . $document->id . '_signed.pdf');
+            if (file_exists($filePath)) {
+                return response()->download($filePath, $document->id . '_signed.pdf');
+            }
+
             return redirect('/')->with('error', 'Signed document not found.');
         } catch (\Exception $e) {
             Log::error('Error downloading signed document', [
                 'document_id' => $id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             return redirect('/')->with('error', 'An error occurred while downloading the document.');
         }
