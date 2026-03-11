@@ -23,6 +23,7 @@ class Email extends Model
         'subject',
         'message',
         'type',
+        'email_category',
         'reciept_id',
         'attachments',
         'mail_type',

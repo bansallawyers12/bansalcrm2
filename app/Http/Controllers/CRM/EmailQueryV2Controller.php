@@ -48,6 +48,15 @@ class EmailQueryV2Controller extends Controller
             } else {
                 $query->where('conversion_type', 'conversion_email_fetch')
                       ->where('mail_body_type', 'inbox');
+                // Client detail: filter by email_category (Client sub-tab = client + NULL, College = college)
+                $emailCategory = $request->input('email_category', 'client');
+                if ($emailCategory === 'college') {
+                    $query->where('email_category', 'college');
+                } else {
+                    $query->where(function ($q) {
+                        $q->where('email_category', 'client')->orWhereNull('email_category');
+                    });
+                }
             }
 
             $query->with(['labels', 'attachments'])
@@ -220,6 +229,15 @@ class EmailQueryV2Controller extends Controller
                                 ->where('mail_body_type', 'sent');
                         });
                 });
+                // Client detail: filter by email_category (Client sub-tab = client + NULL, College = college)
+                $emailCategory = $request->input('email_category', 'client');
+                if ($emailCategory === 'college') {
+                    $query->where('email_category', 'college');
+                } else {
+                    $query->where(function ($q) {
+                        $q->where('email_category', 'client')->orWhereNull('email_category');
+                    });
+                }
             }
 
             $query->with(['labels', 'attachments'])

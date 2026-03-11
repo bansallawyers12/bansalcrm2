@@ -81,6 +81,45 @@
 }
 
 /* Inbox | Sent folder tabs (replaces dropdown) */
+.email-v2-category-tabs {
+    display: flex;
+    gap: 0;
+    background: #dbeafe;
+    padding: 8px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.category-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: #1e40af;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.category-tab-btn:hover {
+    background: rgba(255,255,255,0.7);
+    color: #1e3a8a;
+}
+
+.category-tab-btn.active {
+    background: white;
+    color: #1d4ed8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.category-tab-btn i {
+    font-size: 14px;
+}
+
+/* Inbox | Sent folder tabs (replaces dropdown) */
 .email-v2-folder-tabs {
     display: flex;
     gap: 0;

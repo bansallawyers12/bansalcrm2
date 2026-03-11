@@ -1,7 +1,11 @@
 <!-- Emails V2 Interface - Generic for Clients and Partners -->
 
+@php
+    // Cache-busting version for emails_v2 assets (bump when deploying CSS/JS changes to production)
+    $emailsV2AssetVer = 2;
+@endphp
 <!-- Email V2 Styles -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
 
 @php
     // Support both $client and $fetchedData variable names
@@ -23,7 +27,19 @@
 @endphp
 <div class="email-v2-interface-container" 
      data-entity-id="{{ $entityData->id ?? '' }}" 
-     data-entity-type="{{ $entityType }}">
+     data-entity-type="{{ $entityType }}"
+     data-show-email-category="{{ $entityType !== 'partner' ? '1' : '0' }}">
+    @if($entityType !== 'partner')
+    <!-- Client detail only: Client | College sub-tabs -->
+    <div class="email-v2-category-tabs" role="tablist" aria-label="Email category">
+        <button type="button" class="category-tab-btn active" data-category="client" id="category-tab-client" aria-selected="true">
+            <i class="fas fa-user"></i> Client
+        </button>
+        <button type="button" class="category-tab-btn" data-category="college" id="category-tab-college" aria-selected="false">
+            <i class="fas fa-university"></i> College
+        </button>
+    </div>
+    @endif
     <!-- Top Control Bar: Inbox | Sent tabs + Search + Labels -->
     <div class="email-v2-control-bar">
         <div class="control-section mail-type-section">
@@ -170,8 +186,8 @@
 <div id="contextMenuOverlayV2" class="context-menu-overlay" style="display: none;"></div>
 
 <!-- Include necessary CSS and JavaScript -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ filemtime(public_path('css/emails_v2.css')) }}">
-<script src="{{ asset('js/emails_v2.js') }}?v={{ filemtime(public_path('js/emails_v2.js')) }}"></script>
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
+<script src="{{ asset('js/emails_v2.js') }}?v={{ $emailsV2AssetVer }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

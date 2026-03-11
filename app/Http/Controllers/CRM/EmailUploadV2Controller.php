@@ -51,6 +51,7 @@ class EmailUploadV2Controller extends Controller
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
                 'type' => 'required|in:client,lead,partner',
+                'email_category' => 'nullable|in:client,college',
                 // NEW: Optional manual label selection
                 'label_ids' => 'nullable|array|max:10',
                 'label_ids.*' => 'integer|exists:email_labels,id|distinct',
@@ -220,6 +221,7 @@ class EmailUploadV2Controller extends Controller
                 'email_files.*' => 'mimes:msg|max:30720', // 30MB max
                 'client_id' => 'required',
                 'type' => 'required|in:client,lead,partner',
+                'email_category' => 'nullable|in:client,college',
                 // NEW: Optional manual label selection
                 'label_ids' => 'nullable|array|max:10',
                 'label_ids.*' => 'integer|exists:email_labels,id|distinct',
@@ -473,6 +475,9 @@ class EmailUploadV2Controller extends Controller
             $mailReport->message = $parsedData['html_content'] ?? $parsedData['text_content'] ?? '';
             $mailReport->mail_type = 1;
             $mailReport->type = $request->type; // Set type to 'client' or 'lead' as required by filter
+            if ($request->type !== 'partner') {
+                $mailReport->email_category = $request->input('email_category', 'client');
+            }
             $mailReport->client_id = $clientId;
             $mailReport->conversion_type = $docType;
             $mailReport->mail_body_type = $mailType;

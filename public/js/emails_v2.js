@@ -15,6 +15,7 @@
     let isLoading = false;
     let isUploading = false;
     let currentMailType = 'inbox'; // 'inbox' or 'sent' - determines endpoint
+    let currentEmailCategory = 'client'; // 'client' or 'college' - client detail only
     let currentLabelId = ''; // EmailLabel.id for filtering
     let currentSearch = '';
     let currentSort = 'date';
@@ -33,6 +34,23 @@
     function updateFolderTabButtons(folder) {
         document.querySelectorAll('.folder-tab-btn').forEach(btn => {
             const isActive = (btn.dataset.folder || btn.getAttribute('data-folder')) === folder;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+    }
+
+    /**
+     * Whether to show Client/College category tabs (client detail only, not partner)
+     */
+    function showEmailCategoryTabs() {
+        const container = document.querySelector('.email-v2-interface-container');
+        return container && container.dataset.showEmailCategory === '1';
+    }
+
+    function updateCategoryTabButtons(category) {
+        document.querySelectorAll('.category-tab-btn').forEach(btn => {
+            const cat = btn.dataset.category || btn.getAttribute('data-category');
+            const isActive = cat === category;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
@@ -471,6 +489,9 @@
             // Add required fields based on current mail type (inbox or sent)
             formData.append('client_id', clientId);
             formData.append('type', getEntityType());
+            if (showEmailCategoryTabs()) {
+                formData.append('email_category', currentEmailCategory);
+            }
 
             // NEW: Add selected labels
             const selectedLabels = getSelectedLabelIds();
@@ -835,6 +856,9 @@
                 status: '', // Keep for backward compatibility (mail_is_read)
                 label_id: currentLabelId
             };
+            if (showEmailCategoryTabs()) {
+                requestBody.email_category = currentEmailCategory;
+            }
 
             console.log('Fetching emails from:', endpoint, requestBody);
 
@@ -2427,6 +2451,18 @@
                     currentMailType = folder;
                     if (mailTypeFilter) mailTypeFilter.value = folder;
                     updateFolderTabButtons(folder);
+                    loadEmailsFromServer();
+                }
+            });
+        });
+
+        // Category tab buttons (Client | College) - client detail only
+        document.querySelectorAll('.category-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const category = this.dataset.category || this.getAttribute('data-category');
+                if (category && category !== currentEmailCategory) {
+                    currentEmailCategory = category;
+                    updateCategoryTabButtons(category);
                     loadEmailsFromServer();
                 }
             });
