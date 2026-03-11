@@ -2886,7 +2886,7 @@ use App\Http\Controllers\Controller;
 
 {{-- UI and utility modules --}}
 <script src="{{ asset('js/pages/admin/client-detail/download-and-chatgpt.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>

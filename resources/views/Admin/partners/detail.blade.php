@@ -3370,7 +3370,7 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 
