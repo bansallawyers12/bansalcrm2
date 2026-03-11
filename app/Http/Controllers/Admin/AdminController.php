@@ -1347,6 +1347,10 @@ class AdminController extends Controller
 		if(isset($requestData['type'])){
 		$obj->type 			=  @$requestData['type'];
 		}
+		// Client detail compose: save with email_category='client' so it appears in Emails tab Client sub-tab
+		if (isset($requestData['type']) && in_array($requestData['type'], ['client', 'lead'], true)) {
+			$obj->email_category = 'client';
+		}
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
 		$obj->mail_type		=  1;
