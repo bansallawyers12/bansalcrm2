@@ -2284,7 +2284,7 @@ class PartnersController extends Controller
                         $sentTimeFinal = "";
                     }
 
-                    $obj1				=  new \App\Models\MailReport;
+                    $obj1				=  new \App\Models\Email;
                     $obj1->user_id		=  Auth::user()->id;
                     $obj1->from_mail 	=  $mail_sender;
                     $obj1->to_mail 		=  $mail_to_arr;
@@ -2420,7 +2420,7 @@ class PartnersController extends Controller
                         $sentTimeFinal = "";
                     }
 
-                    $obj1				=  new \App\Models\MailReport;
+                    $obj1				=  new \App\Models\Email;
                     $obj1->user_id		=  Auth::user()->id;
                     $obj1->from_mail 	=  $mail_sender;
                     $obj1->to_mail 		=  $mail_to_arr;

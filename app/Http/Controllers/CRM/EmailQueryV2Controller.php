@@ -5,7 +5,7 @@ namespace App\Http\Controllers\CRM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\MailReport;
+use App\Models\Email;
 use App\Models\MailReportAttachment;
 use App\Models\Document;
 use App\Models\Admin;
@@ -37,7 +37,7 @@ class EmailQueryV2Controller extends Controller
             $label_id = $request->input('label_id');
 
             // Build base query
-            $query = MailReport::where('client_id', $entityId)
+            $query = Email::where('client_id', $entityId)
                 ->where('type', $entityType)
                 ->where('mail_type', 1);
 
@@ -199,7 +199,7 @@ class EmailQueryV2Controller extends Controller
             $label_id = $request->input('label_id');
 
             // Build base query
-            $query = MailReport::where('client_id', $entityId)
+            $query = Email::where('client_id', $entityId)
                 ->where('type', $entityType)
                 ->where('mail_type', 1);
 

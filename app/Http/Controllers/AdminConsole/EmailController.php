@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
-use App\Models\Email; 
-  
+use App\Models\FromEmail;
+
 use Auth; 
 use Config;
 
@@ -40,7 +40,7 @@ class EmailController extends Controller
 	//check authorization end 
 	
 	try {
-			$query 		= Email::query();
+			$query 		= FromEmail::query();
 			$totalData 	= $query->count();	//for all data
 			$lists		= $query->sortable(['id' => 'desc'])->paginate(config('constants.limit'));
 		} catch (\Throwable $e) {
@@ -67,7 +67,7 @@ class EmailController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$this->validate($request, [
-										'email' => 'required|max:255|unique:emails',
+										'email' => 'required|max:255|unique:from_emails',
 										'password' => 'required|string|min:1',
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
@@ -78,7 +78,7 @@ class EmailController extends Controller
 			
 			$requestData 		= 	$request->all();
 			
-			$obj				= 	new Email; 
+			$obj				= 	new FromEmail; 
 			$obj->email	=	@$requestData['email'];
 			$obj->display_name	=	@$requestData['display_name'];
             $obj->password	=	@$requestData['password'];
@@ -110,7 +110,7 @@ class EmailController extends Controller
 			$requestData 		= 	$request->all();
 			
 			$this->validate($request, [										
-										'email' => 'required|max:255|unique:emails,email,'.$requestData['id'],
+										'email' => 'required|max:255|unique:from_emails,email,'.$requestData['id'],
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
@@ -118,7 +118,7 @@ class EmailController extends Controller
 										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
 								  					  
-			$obj			= 	Email::find(@$requestData['id']);
+			$obj			= 	FromEmail::find(@$requestData['id']);
 			$obj->email	=	@$requestData['email'];
 			$obj->display_name	=	@$requestData['display_name'];
 			// Only update password when a new value is provided (avoids overwriting with empty on edit)
@@ -147,9 +147,9 @@ class EmailController extends Controller
 			{
 				
 				$id = $this->decodeString($id);	
-				if(Email::where('id', '=', $id)->exists()) 
+				if(FromEmail::where('id', '=', $id)->exists()) 
 				{
-					$fetchedData = Email::find($id);
+					$fetchedData = FromEmail::find($id);
 					return view('AdminConsole.emails.edit', compact(['fetchedData']));
 				}
 				else 

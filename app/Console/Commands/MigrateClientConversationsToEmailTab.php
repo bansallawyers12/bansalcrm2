@@ -21,7 +21,7 @@ class MigrateClientConversationsToEmailTab extends Command
      *
      * @var string
      */
-    protected $description = 'Migrate Client Conversation tab records to Email tab by filling missing columns in mail_reports';
+    protected $description = 'Migrate Client Conversation tab records to Email tab by filling missing columns in emails';
 
     /**
      * Execute the console command.
@@ -30,7 +30,7 @@ class MigrateClientConversationsToEmailTab extends Command
     {
         $isDryRun     = $this->option('dry-run');
         $skipBackup   = $this->option('skip-backup');
-        $backupTable  = 'mail_reports_conv_migration_backup_' . now()->format('Ymd_His');
+        $backupTable  = 'emails_conv_migration_backup_' . now()->format('Ymd_His');
 
         $this->newLine();
         $this->info('=== Client Conversations → Email Tab Migration ===');
@@ -43,18 +43,18 @@ class MigrateClientConversationsToEmailTab extends Command
 
         // ── Step 1: Count records to be migrated ─────────────────────────────
         // Conversation tab records have type='client' but conversion_type=NULL
-        $toMigrate = DB::table('mail_reports')
+        $toMigrate = DB::table('emails')
             ->where('type', 'client')
             ->whereNull('conversion_type')
             ->count();
 
-        $inboxCount = DB::table('mail_reports')
+        $inboxCount = DB::table('emails')
             ->where('type', 'client')
             ->whereNull('conversion_type')
             ->where('mail_type', 1)
             ->count();
 
-        $sentCount = DB::table('mail_reports')
+        $sentCount = DB::table('emails')
             ->where('type', 'client')
             ->whereNull('conversion_type')
             ->where('mail_type', 0)
@@ -92,7 +92,7 @@ class MigrateClientConversationsToEmailTab extends Command
         if (!$skipBackup) {
             $this->info("Creating backup table: {$backupTable} ...");
             try {
-                DB::statement("CREATE TABLE {$backupTable} AS SELECT * FROM mail_reports WHERE type = 'client' AND conversion_type IS NULL");
+                DB::statement("CREATE TABLE {$backupTable} AS SELECT * FROM emails WHERE type = 'client' AND conversion_type IS NULL");
                 $backupCount = DB::table($backupTable)->count();
                 $this->info("  Backup created successfully. ({$backupCount} rows backed up)");
             } catch (\Throwable $e) {
@@ -110,7 +110,7 @@ class MigrateClientConversationsToEmailTab extends Command
 
         try {
             DB::transaction(function () use ($toMigrate) {
-                $affected = DB::table('mail_reports')
+                $affected = DB::table('emails')
                     ->where('type', 'client')
                     ->whereNull('conversion_type')
                     ->update([
@@ -140,27 +140,27 @@ class MigrateClientConversationsToEmailTab extends Command
         // ── Step 5: Post-migration verification ───────────────────────────────
         $this->info('Verifying migration ...');
 
-        $migratedTotal = DB::table('mail_reports')
+        $migratedTotal = DB::table('emails')
             ->where('type', 'client')
             ->where('conversion_type', 'conversion_email_fetch')
             ->whereNull('uploaded_doc_id')
             ->count();
 
-        $migratedInbox = DB::table('mail_reports')
+        $migratedInbox = DB::table('emails')
             ->where('type', 'client')
             ->where('conversion_type', 'conversion_email_fetch')
             ->where('mail_body_type', 'inbox')
             ->whereNull('uploaded_doc_id')
             ->count();
 
-        $migratedSent = DB::table('mail_reports')
+        $migratedSent = DB::table('emails')
             ->where('type', 'client')
             ->where('conversion_type', 'conversion_email_fetch')
             ->where('mail_body_type', 'sent')
             ->whereNull('uploaded_doc_id')
             ->count();
 
-        $remaining = DB::table('mail_reports')
+        $remaining = DB::table('emails')
             ->where('type', 'client')
             ->whereNull('conversion_type')
             ->count();
@@ -188,7 +188,7 @@ class MigrateClientConversationsToEmailTab extends Command
             $this->newLine();
             $this->line("Backup table: <comment>{$backupTable}</comment>");
             $this->line('To restore if needed, run:');
-            $this->line("  UPDATE mail_reports m SET conversion_type = b.conversion_type, mail_body_type = b.mail_body_type FROM {$backupTable} b WHERE m.id = b.id;");
+            $this->line("  UPDATE emails m SET conversion_type = b.conversion_type, mail_body_type = b.mail_body_type FROM {$backupTable} b WHERE m.id = b.id;");
         }
 
         $this->newLine();

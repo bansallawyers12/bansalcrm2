@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Staff;
-use App\Models\Email;
+use App\Models\FromEmail;
 use App\Models\StaffRole;
 
 use Auth;
@@ -33,8 +33,8 @@ class StaffController extends Controller
 
         // Staff roles only (exclude role 7 = client)
         $usertype = StaffRole::where('id', '!=', 7)->get();
-        $emails = Email::where('status', 1)->orderBy('email')->get();
-        return view('Admin.staff.create', compact(['usertype', 'emails']));
+$emails = FromEmail::where('status', 1)->orderBy('email')->get();
+		return view('Admin.staff.create', compact(['usertype', 'emails']));
     }
 
     public function store(Request $request)
@@ -153,8 +153,8 @@ class StaffController extends Controller
             }
             if (Staff::where('id', '=', $id)->exists()) {
                 $fetchedData = Staff::with(['office'])->find($id);
-                $emails = Email::where('status', 1)->orderBy('email')->get();
-                return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails']));
+$emails = FromEmail::where('status', 1)->orderBy('email')->get();
+				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails']));
             }
             return redirect()->route('staff.active')->with('error', 'Staff Not Exist');
         }

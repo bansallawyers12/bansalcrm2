@@ -66,7 +66,7 @@ class SignatureService
      * Configure mailer from emails table (not .env).
      * Uses from_email from options if in DB, else first active email.
      */
-    protected function configureMailer(array $options = []): ?\App\Models\Email
+    protected function configureMailer(array $options = []): ?\App\Models\FromEmail
     {
         $fromEmail = $options['from_email'] ?? null;
         $emailService = app(EmailService::class);

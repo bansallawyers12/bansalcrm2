@@ -40,11 +40,11 @@ class EmailLabel extends Model
     }
 
     /**
-     * Get the mail reports that have this label.
+     * Get the emails that have this label.
      */
     public function mailReports(): BelongsToMany
     {
-        return $this->belongsToMany(MailReport::class, 'email_label_mail_report', 'email_label_id', 'mail_report_id')
+        return $this->belongsToMany(Email::class, 'email_label_mail_report', 'email_label_id', 'mail_report_id')
                     ->withTimestamps();
     }
 

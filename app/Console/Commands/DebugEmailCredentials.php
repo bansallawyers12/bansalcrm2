@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Email;
+use App\Models\FromEmail;
 
 /**
  * Debug email configuration for SendGrid troubleshooting.
@@ -23,7 +23,7 @@ class DebugEmailCredentials extends Command
 
         // List all active emails if none specified
         if (!$email) {
-            $emails = Email::where('status', true)->orderBy('id')->get();
+            $emails = FromEmail::where('status', true)->orderBy('id')->get();
             $this->info('Active From addresses in DB:');
             foreach ($emails as $e) {
                 $this->line("  - {$e->email} | Display: " . ($e->display_name ?? '(empty)'));
@@ -35,12 +35,12 @@ class DebugEmailCredentials extends Command
         }
 
         // Case-insensitive lookup (trim too)
-        $record = Email::whereRaw('LOWER(TRIM(email)) = ?', [strtolower(trim($email))])->first();
+        $record = FromEmail::whereRaw('LOWER(TRIM(email)) = ?', [strtolower(trim($email))])->first();
 
         if (!$record) {
             $this->error("No record found for: {$email}");
             $this->line('Trying exact match...');
-            $record = Email::where('email', $email)->first();
+            $record = FromEmail::where('email', $email)->first();
             if (!$record) {
                 $this->error('Still not found. Add this email in Admin Console → Emails.');
                 return 1;

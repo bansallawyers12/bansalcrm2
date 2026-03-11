@@ -314,7 +314,7 @@ class ClientMessagingController extends Controller
      */
     public function uploadmail(Request $request){
 		$requestData 		= 	$request->all();
-		$obj				= 	new \App\Models\MailReport;
+		$obj				= 	new \App\Models\Email;
 		$obj->user_id		=	Auth::user()->id;
 		$obj->from_mail 	=  $requestData['from'];
 		$obj->to_mail 		=  $requestData['to'];

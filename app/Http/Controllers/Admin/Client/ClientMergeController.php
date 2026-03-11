@@ -112,10 +112,10 @@ class ClientMergeController extends Controller
             }
 
             //Conversations
-            $conversations = DB::table('mail_reports')->where('client_id', $request->merge_from)->get();
+            $conversations = DB::table('emails')->where('client_id', $request->merge_from)->get();
             if(!empty($conversations)){
                 foreach($conversations as $mailkey=>$mailval){
-                    DB::table('mail_reports')
+                    DB::table('emails')
                     ->where('client_id', $request->merge_from)
                     ->update([
                         'client_id' => $request->merge_into,

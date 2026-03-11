@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MailReport;
+use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -241,7 +241,7 @@ class OutlookController extends Controller
 
     /**
      * Fetch emails by folder (inbox, sent, drafts, trash).
-     * Sent folder returns all sent emails from mail_reports (CRM + Outlook).
+     * Sent folder returns all sent emails from emails table (CRM + Outlook).
      * Supports filters: search, date_from, date_to, sort, filter_from, filter_to, has_attachments.
      */
     public function inbox(Request $request)
@@ -292,8 +292,8 @@ class OutlookController extends Controller
             $verifiedSenders = $this->getVerifiedSenders();
             $verifiedEmails = array_column($verifiedSenders, 'email');
 
-            // Use mail_reports (same table as CRM) - mail_type 1 = sent/composed emails
-            $query = MailReport::where('mail_type', 1);
+            // Use emails table (same as CRM) - mail_type 1 = sent/composed emails
+            $query = Email::where('mail_type', 1);
             if (empty($verifiedEmails)) {
                 // No SendGrid senders configured: return empty so we don't show non-SendGrid emails
                 $query->whereRaw('1 = 0');
@@ -332,7 +332,7 @@ class OutlookController extends Controller
 
             // Sent tab sender filter: show all SendGrid-verified senders (same list as compose "From" dropdown)
             $filterOptions['from_list'] = $verifiedEmails;
-            $toListQuery = MailReport::where('mail_type', 1);
+            $toListQuery = Email::where('mail_type', 1);
             if (! empty($verifiedEmails)) {
                 $toListQuery->whereIn('from_mail', $verifiedEmails);
             } else {
@@ -380,7 +380,7 @@ class OutlookController extends Controller
             $sent_groups = array_values($byFrom);
         } elseif ($folder === 'inbox') {
             // Inbox: same filter logic when data source exists (e.g. mail_type 0)
-            $query = MailReport::where('mail_type', 0);
+            $query = Email::where('mail_type', 0);
             if ($search !== '') {
                 $query->where(function ($q) use ($search) {
                     $q->where('from_mail', 'like', '%' . $search . '%')
@@ -459,9 +459,9 @@ class OutlookController extends Controller
                 }
             });
 
-            // Record sent email in mail_reports (same table as CRM) so Sent folder shows all emails
+            // Record sent email in emails table (same as CRM) so Sent folder shows all emails
             try {
-                MailReport::create([
+                Email::create([
                     'user_id' => auth('admin')->id(),
                     'from_mail' => $from,
                     'to_mail' => $to,

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Document;
-use App\Models\MailReport;
+use App\Models\Email;
 use App\Models\MailReportAttachment;
 use App\Models\Admin;
 use App\Models\Partner;
@@ -19,13 +19,13 @@ class CrmSentEmailS3Service
     /**
      * Store a CRM-sent email to S3 and create Document + MailReportAttachment records.
      *
-     * @param MailReport $mailReport
+     * @param Email $mailReport
      * @param string $subject
      * @param string $messageHtml
      * @param array $attachmentPaths Array of local file paths (or ['path' => ..., 'name' => ...])
      * @return bool Success
      */
-    public function storeToS3(MailReport $mailReport, string $subject, string $messageHtml, array $attachmentPaths = []): bool
+    public function storeToS3(Email $mailReport, string $subject, string $messageHtml, array $attachmentPaths = []): bool
     {
         try {
             $clientId = $mailReport->client_id;
@@ -112,7 +112,7 @@ class CrmSentEmailS3Service
     /**
      * Build full HTML document for the email.
      */
-    protected function buildEmailHtml(MailReport $mailReport, string $subject, string $messageHtml): string
+    protected function buildEmailHtml(Email $mailReport, string $subject, string $messageHtml): string
     {
         $from = htmlspecialchars($mailReport->from_mail ?? '');
         $to = htmlspecialchars($mailReport->to_mail ?? '');

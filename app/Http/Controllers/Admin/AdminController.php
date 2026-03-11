@@ -1331,7 +1331,7 @@ class AdminController extends Controller
             $array['s3_path'] = $filePath; // Store S3 path for potential cleanup if needed
         }
 
-		$obj = new \App\Models\MailReport;
+		$obj = new \App\Models\Email;
 		$obj->user_id 		=  $user_id;
 		$obj->from_mail 	=  isset($requestData['email_from']) ? $requestData['email_from'] : '';
 		$obj->to_mail 		=  isset($requestData['email_to']) ? $this->resolveRecipientsToEmails($requestData['email_to'], $requestData['type'] ?? 'client') : '';
@@ -1712,7 +1712,7 @@ class AdminController extends Controller
                     $ccarray
                 );
 
-                // Store full email to S3 for archival (HTML snapshot + attachments) - once per MailReport, not per recipient
+                // Store full email to S3 for archival (HTML snapshot + attachments) - once per Email, not per recipient
                 if (!$s3Stored) {
                     try {
                         $attachmentTuples = [];
@@ -1765,7 +1765,7 @@ class AdminController extends Controller
 	}
 
 	/**
-	 * Resolve recipient IDs (client/partner/agent) to email addresses for MailReport.to_mail.
+	 * Resolve recipient IDs (client/partner/agent) to email addresses for Email.to_mail.
 	 */
 	protected function resolveRecipientsToEmails(array $recipients, string $type): string
 	{

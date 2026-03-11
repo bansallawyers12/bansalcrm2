@@ -29,7 +29,7 @@ class TransferAllTablesSequentially extends Command
     private $skipTables = [
         'activities_logs',
         'followups',
-        'mail_reports',
+        'emails',
         'notes',
         'application_activities_logs',
     ];

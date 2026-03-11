@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Email;
+use App\Models\FromEmail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
@@ -15,11 +15,11 @@ class EmailService
     /**
      * Get the first active email (default for system emails).
      *
-     * @return \App\Models\Email|null
+     * @return \App\Models\FromEmail|null
      */
-    public function getDefaultEmail(): ?Email
+    public function getDefaultEmail(): ?FromEmail
     {
-        return Email::where('status', true)->orderBy('id')->first();
+        return FromEmail::where('status', true)->orderBy('id')->first();
     }
 
     /**
@@ -27,17 +27,17 @@ class EmailService
      * Uses emails table when address provided, else .env or first active email.
      * SendGrid uses a single API key - no per-email SMTP credentials.
      *
-     * @param string|null $emailAddress Email address to use (must exist in emails table when provided)
-     * @return \App\Models\Email|object|null The email config (email, display_name), or null
+     * @param string|null $emailAddress Email address to use (must exist in from_emails table when provided)
+     * @return \App\Models\FromEmail|object|null The email config (email, display_name), or null
      */
     public function configureMailerForEmail(?string $emailAddress = null): ?object
     {
         $emailConfig = null;
 
-        // Explicit From email provided: use from emails table
+        // Explicit From email provided: use from_emails table
         if ($emailAddress && trim($emailAddress) !== '') {
             $trimmed = trim($emailAddress);
-            $emailConfig = Email::where('status', true)
+            $emailConfig = FromEmail::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
         }
@@ -65,7 +65,7 @@ class EmailService
      */
     public function getAllActiveEmails()
     {
-        return Email::where('status', true)
+        return FromEmail::where('status', true)
             ->select('id', 'email', 'display_name')
             ->get();
     }
@@ -77,7 +77,7 @@ class EmailService
      * @param array $data
      * @param string $to
      * @param string $subject
-     * @param string $fromEmailAddress From email (must exist in emails table)
+     * @param string $fromEmailAddress From email (must exist in from_emails table)
      * @param array $attachments
      * @param array $cc
      * @return bool
@@ -90,7 +90,7 @@ class EmailService
             if ($trimmed === '') {
                 throw new \Exception('From email address is required.');
             }
-            $emailConfig = Email::where('status', true)
+            $emailConfig = FromEmail::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
             if (!$emailConfig) {

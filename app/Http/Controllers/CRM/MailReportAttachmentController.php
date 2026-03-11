@@ -4,7 +4,7 @@ namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
 use App\Models\MailReportAttachment;
-use App\Models\MailReport;
+use App\Models\Email;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
@@ -82,7 +82,7 @@ class MailReportAttachmentController extends Controller
     public function downloadAll($mailReportId)
     {
         try {
-            $mailReport = MailReport::findOrFail($mailReportId);
+            $mailReport = Email::findOrFail($mailReportId);
             $attachments = $mailReport->attachments()->regular()->get();
 
             if ($attachments->isEmpty()) {

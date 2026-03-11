@@ -35,7 +35,7 @@ class MailReportAttachment extends Model
      */
     public function mailReport(): BelongsTo
     {
-        return $this->belongsTo(MailReport::class);
+        return $this->belongsTo(Email::class);
     }
 
     /**

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use App\Models\Document;
-use App\Models\MailReport;
+use App\Models\Email;
 use App\Models\ActivitiesLog;
 use App\Models\Admin;
 use App\Traits\LogsClientActivity;
@@ -462,8 +462,8 @@ class EmailUploadV2Controller extends Controller
                 throw new \Exception('Failed to save document record: ' . ($e->errorInfo[2] ?? $e->getMessage()));
             }
 
-            // 4. Save to MailReport
-            $mailReport = new MailReport();
+            // 4. Save to Email (emails table)
+            $mailReport = new Email();
             $mailReport->user_id = Auth::user()->id;
             $mailReport->from_mail = $parsedData['sender_email'] ?? '';
             $mailReport->to_mail = isset($parsedData['recipients']) && is_array($parsedData['recipients']) 
@@ -551,7 +551,7 @@ class EmailUploadV2Controller extends Controller
             try {
                 $mailReport->save();
             } catch (QueryException $e) {
-                Log::error('Failed to save MailReport record', [
+                Log::error('Failed to save Email record', [
                     'file' => $fileName,
                     'document_id' => $document->id,
                     'mail_report_data' => $mailReport->toArray(),
@@ -1010,7 +1010,7 @@ class EmailUploadV2Controller extends Controller
     /**
      * Assign multiple labels to a mail report (prevents duplicates)
      * 
-     * @param \App\Models\MailReport $mailReport
+     * @param \App\Models\Email $mailReport
      * @param array $labelIds
      * @param string $source ('manual'|'auto')
      * @return int Number of labels assigned
@@ -1055,7 +1055,7 @@ class EmailUploadV2Controller extends Controller
     /**
      * Auto-assign labels based on sender domain
      * 
-     * @param \App\Models\MailReport $mailReport
+     * @param \App\Models\Email $mailReport
      * @param string $mailType
      */
     protected function autoAssignLabels($mailReport, $mailType)
