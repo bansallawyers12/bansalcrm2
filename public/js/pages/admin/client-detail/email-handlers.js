@@ -429,13 +429,17 @@ jQuery(document).ready(function($){
                     if(typeof getallactivities === 'function') {
                         getallactivities();
                     }
-                    // Switch to Emails tab, set to Sent folder, and refresh so user sees their sent email
+                    // Switch to Emails tab, set Sent folder and Client/College sub-tab, then refresh
                     var emailV2Tab = document.getElementById('email-v2-tab');
                     if (emailV2Tab && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
                         try {
                             bootstrap.Tab.getOrCreateInstance(emailV2Tab).show();
                             if (typeof window.setEmailMailTypeV2 === 'function') {
                                 window.setEmailMailTypeV2('sent');
+                            }
+                            // When sent from college address, select College sub-tab; otherwise Client
+                            if (typeof window.setEmailCategoryV2 === 'function') {
+                                window.setEmailCategoryV2(res.email_category || 'client');
                             }
                             if (typeof window.loadEmailsV2 === 'function') {
                                 setTimeout(window.loadEmailsV2, 150);

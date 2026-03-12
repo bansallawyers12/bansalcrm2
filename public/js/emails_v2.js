@@ -31,6 +31,14 @@
         updateFolderTabButtons(type);
     };
 
+    // Expose function to set category tab Client/College (for external use after compose send)
+    window.setEmailCategoryV2 = function(category) {
+        if (!showEmailCategoryTabs()) return;
+        const cat = (category === 'college' || category === 'client') ? category : 'client';
+        currentEmailCategory = cat;
+        updateCategoryTabButtons(currentEmailCategory);
+    };
+
     function updateFolderTabButtons(folder) {
         document.querySelectorAll('.folder-tab-btn').forEach(btn => {
             const isActive = (btn.dataset.folder || btn.getAttribute('data-folder')) === folder;

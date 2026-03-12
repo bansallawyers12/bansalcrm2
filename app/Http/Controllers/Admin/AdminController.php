@@ -1347,9 +1347,27 @@ class AdminController extends Controller
 		if(isset($requestData['type'])){
 		$obj->type 			=  @$requestData['type'];
 		}
-		// Client detail compose: save with email_category='client' so it appears in Emails tab Client sub-tab
-		if (isset($requestData['type']) && in_array($requestData['type'], ['client', 'lead'], true)) {
-			$obj->email_category = 'client';
+		// Client detail compose: email_category = 'college' when sent from college addresses (College sent tab), else 'client'
+		$entityType = isset($requestData['type']) ? trim((string) $requestData['type']) : '';
+		if (in_array(strtolower($entityType), ['client', 'lead'], true)) {
+			$collegeFromEmails = [
+				'admin2@bansaleducation.com.au',
+				'admin@bansaleducation.com.au',
+				'apply@bansaleducation.com.au',
+				'admission@bansalimmigration.com.au',
+				'admission@bansaleducation.com.au',
+			];
+			$fromMailRaw = isset($requestData['email_from']) ? $requestData['email_from'] : '';
+			if (is_array($fromMailRaw)) {
+				$fromMailRaw = reset($fromMailRaw);
+			}
+			$fromMailRaw = trim((string) $fromMailRaw);
+			$fromEmail = $fromMailRaw;
+			if (preg_match('/<([^>]+)>/', $fromMailRaw, $m)) {
+				$fromEmail = trim($m[1]);
+			}
+			$fromEmail = strtolower(trim($fromEmail));
+			$obj->email_category = in_array($fromEmail, $collegeFromEmails, true) ? 'college' : 'client';
 		}
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
@@ -1737,9 +1755,13 @@ class AdminController extends Controller
                     @unlink($array['file']);
                 }
 
-                // Return JSON response for AJAX requests
+                // Return JSON response for AJAX requests (include email_category so client detail can open College tab when sent from college address)
                 if($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['status' => true, 'message' => 'Email sent successfully!']);
+                    $json = ['status' => true, 'message' => 'Email sent successfully!'];
+                    if (isset($obj->email_category)) {
+                        $json['email_category'] = $obj->email_category;
+                    }
+                    return response()->json($json);
                 }
                 return redirect()->back()->with('success', 'Email sent successfully!');
             } catch (\Exception $e) {
@@ -1760,9 +1782,13 @@ class AdminController extends Controller
             }
             return redirect()->back()->with('error', Config::get('constants.server_error'));
         } else {
-            // Return JSON response for AJAX requests
+            // Return JSON response for AJAX requests (include email_category so client detail can open College tab when sent from college address)
             if($request->ajax() || $request->wantsJson()) {
-                return response()->json(['status' => true, 'message' => 'Email Sent Successfully']);
+                $json = ['status' => true, 'message' => 'Email Sent Successfully'];
+                if (isset($obj->email_category)) {
+                    $json['email_category'] = $obj->email_category;
+                }
+                return response()->json($json);
             }
             return redirect()->back()->with('success', 'Email Sent Successfully');
         }
