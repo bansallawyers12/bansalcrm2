@@ -1355,7 +1355,6 @@ class AdminController extends Controller
 				'admin@bansaleducation.com.au',
 				'apply@bansaleducation.com.au',
 				'admission@bansalimmigration.com.au',
-				'admission@bansaleducation.com.au',
 			];
 			$fromMailRaw = isset($requestData['email_from']) ? $requestData['email_from'] : '';
 			if (is_array($fromMailRaw)) {
