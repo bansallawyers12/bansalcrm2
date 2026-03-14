@@ -1006,6 +1006,15 @@ class RecentlyModifiedClientsController extends Controller
 		$candidatePath = public_path('img/documents/' . $relativePath);
 		$resolvedPath = realpath($candidatePath);
 		if ($resolvedPath === false) {
+			Log::warning('Delete public doc: realpath failed (file not found or not resolvable)', [
+				'document_id' => $document->id,
+				'doc_public_path' => $document->doc_public_path,
+				'relative_path' => $relativePath,
+				'candidate_path' => $candidatePath,
+				'public_path_base' => public_path(),
+				'file_exists' => file_exists($candidatePath),
+				'is_readable' => is_readable($candidatePath),
+			]);
 			$document->doc_public_path = null;
 			$document->save();
 			return ['success' => true];
