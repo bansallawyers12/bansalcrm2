@@ -827,8 +827,103 @@ class RecentlyModifiedClientsController extends Controller
 			return response()->json(['success' => false, 'message' => 'No public path stored; local copy may already be deleted'], 400);
 		}
 
+		$result = $this->deleteOnePublicDocInternal($document);
+		if (!$result['success']) {
+			return response()->json(['success' => false, 'message' => $result['message']], $result['status'] ?? 400);
+		}
+		return response()->json([
+			'success' => true,
+			'message' => 'Public document deleted successfully',
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Delete all public (local) copies for documents in a category that are already on S3.
+	 * Only documents that have doc_public_path set are processed.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function deleteAllPublicDocsByCategory(Request $request)
+	{
+		$clientId = (int) $request->input('client_id');
+		$category = $request->input('category');
+		$category = is_array($category) ? '' : trim((string) $category);
+
+		if (!$clientId || $clientId < 1) {
+			return response()->json(['success' => false, 'message' => 'Client ID is required'], 400);
+		}
+		if (!in_array($category, ['application', 'education', 'migration'], true)) {
+			return response()->json(['success' => false, 'message' => 'Invalid category'], 400);
+		}
+
+		$categoryId = null;
+		if ($category === 'application') {
+			$categoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		} elseif ($category === 'education') {
+			$categoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		} else {
+			$categoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+		}
+
+		if (!$categoryId) {
+			return response()->json(['success' => true, 'message' => 'No documents found', 'deleted_count' => 0]);
+		}
+
+		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->where('category_id', $categoryId)
+			->whereNotNull('myfile_key')
+			->where('myfile_key', '!=', '')
+			->whereNotNull('doc_public_path')
+			->where('doc_public_path', '!=', '');
+
+		if ($category !== 'application') {
+			$query->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+		}
+
+		$documents = $query->get();
+		$deleted = 0;
+		$failed = 0;
+
+		foreach ($documents as $document) {
+			$result = $this->deleteOnePublicDocInternal($document);
+			if ($result['success']) {
+				$deleted++;
+			} else {
+				$failed++;
+			}
+		}
+
+		$message = $deleted > 0
+			? $deleted . ' public document(s) deleted successfully.' . ($failed > 0 ? ' ' . $failed . ' failed.' : '')
+			: ($failed > 0 ? 'No documents were deleted. ' . $failed . ' failed.' : 'No public documents found to delete.');
+
+		return response()->json([
+			'success' => $deleted > 0,
+			'message' => $message,
+			'deleted_count' => $deleted,
+		]);
+	}
+
+	/**
+	 * Internal: delete the local file for one document (on S3 with doc_public_path). Clears doc_public_path.
+	 *
+	 * @param Document $document
+	 * @return array{success: bool, message?: string, status?: int}
+	 */
+	private function deleteOnePublicDocInternal(Document $document): array
+	{
+		$publicPath = trim((string) ($document->doc_public_path ?? ''));
+		if ($publicPath === '') {
+			return ['success' => true];
+		}
+
 		$relativePath = ltrim(str_replace('\\', '/', $publicPath), '/');
-		// If stored as full URL (e.g. https://bansalcrm.com/img/documents/file.pdf), extract path after /img/documents/
 		if (preg_match('#^https?://#i', $relativePath)) {
 			$parsed = parse_url($relativePath);
 			$path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
@@ -840,48 +935,41 @@ class RecentlyModifiedClientsController extends Controller
 			}
 			$relativePath = ltrim($relativePath, '/');
 		}
-		// If stored with img/documents/ prefix (path only), strip it so we don't build img/documents/img/documents/...
 		if ($relativePath !== '' && stripos($relativePath, 'img/documents/') === 0) {
 			$relativePath = ltrim(substr($relativePath, strlen('img/documents/')), '/');
 		}
 		if ($relativePath === '' || preg_match('#\.\./#', $relativePath)) {
-			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+			return ['success' => false, 'message' => 'Invalid path', 'status' => 400];
 		}
 
 		$baseDir = realpath(public_path('img/documents'));
 		if ($baseDir === false) {
 			$document->doc_public_path = null;
 			$document->save();
-			return response()->json(['success' => true, 'message' => 'Public path cleared', 'document_id' => $document->id]);
+			return ['success' => true];
 		}
 
 		$candidatePath = public_path('img/documents/' . $relativePath);
 		$resolvedPath = realpath($candidatePath);
 		if ($resolvedPath === false) {
-			// File already missing or path invalid; clear stored path and return success
 			$document->doc_public_path = null;
 			$document->save();
-			return response()->json(['success' => true, 'message' => 'Public path cleared (file was already missing)', 'document_id' => $document->id]);
+			return ['success' => true];
 		}
 		if (strpos($resolvedPath, $baseDir) !== 0 || !is_file($resolvedPath)) {
-			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+			return ['success' => false, 'message' => 'Invalid path', 'status' => 400];
 		}
 
 		try {
 			unlink($resolvedPath);
 		} catch (\Throwable $e) {
-			Log::error('Delete public doc: unlink failed', ['document_id' => $documentId, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
-			return response()->json(['success' => false, 'message' => 'Failed to delete file'], 500);
+			Log::error('Delete public doc: unlink failed', ['document_id' => $document->id, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
+			return ['success' => false, 'message' => 'Failed to delete file', 'status' => 500];
 		}
 
 		$document->doc_public_path = null;
 		$document->save();
-
-		return response()->json([
-			'success' => true,
-			'message' => 'Public document deleted successfully',
-			'document_id' => $document->id,
-		]);
+		return ['success' => true];
 	}
 
 	/**

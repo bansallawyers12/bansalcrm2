@@ -779,17 +779,14 @@ $(document).ready(function() {
 					// Category doc counts (local/public folder only) - clickable to show documents in popup
 					html += '<div class="mt-3 pt-2 border-top">';
 					html += '<small class="text-muted d-block mb-1">In public folder (not S3):</small>';
-					html += '<div class="d-flex flex-wrap gap-2">';
+					html += '<div class="d-flex flex-wrap gap-2 align-items-center">';
 					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="application" data-count="' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Application: ' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '</span>';
 					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="education" data-count="' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Education: ' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '</span>';
 					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="migration" data-count="' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Migration: ' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '</span>';
-					html += '</div>';
-					// Upload all (Application, Education, Migration) to S3 - only for Local or Both storage
 					if (data.document_storage === 'local' || data.document_storage === 'both') {
-						html += '<div class="mt-2">';
-						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3"><i class="fas fa-cloud-upload-alt"></i> Upload To S3</button>';
-						html += '</div>';
+						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3"><i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3</button>';
 					}
+					html += '</div>';
 					html += '</div>';
 					html += '</div>';
 					html += '</div>';
@@ -859,6 +856,11 @@ $(document).ready(function() {
 						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
 					} else {
 						var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
+						// Show "Delete All Public Document" only when all docs are on S3 and have a public (local) copy
+						var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
+						if (allOnS3WithPublic) {
+							html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All Public Document</button></div>';
+						}
 						html += '<ul class="list-group list-group-flush">';
 						for (var i = 0; i < docs.length; i++) {
 							var d = docs[i];
@@ -896,6 +898,83 @@ $(document).ready(function() {
 		});
 	});
 
+	// Delete all public documents in this category (modal) - only when all docs are on S3 and have local copy
+	$(document).on('click', '.btn-delete-all-public-docs', function() {
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		var category = $btn.data('category');
+		if (!clientId || !category) return;
+		if (!confirm('Delete all local (public) copies for these documents? They will remain on S3.')) return;
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Deleting...');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deleteallpublicdocsbycategory") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId, category: category },
+			success: function(response) {
+				if (response.message) alert(response.message);
+				// Refetch document list so modal updates (button may disappear if no public docs left)
+				$.ajax({
+					url: '{{ route("adminconsole.recentclients.documentsbycategory") }}',
+					type: 'POST',
+					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+					data: { client_id: clientId, category: category },
+					success: function(resp) {
+						if (resp.success) {
+							var docs = resp.documents || [];
+							var label = resp.category_label || category.charAt(0).toUpperCase() + category.slice(1);
+							if (docs.length === 0) {
+								$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
+							} else {
+								var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
+								var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
+								if (allOnS3WithPublic) {
+									html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All Public Document</button></div>';
+								}
+								html += '<ul class="list-group list-group-flush">';
+								for (var i = 0; i < docs.length; i++) {
+									var d = docs[i];
+									html += '<li class="list-group-item d-flex justify-content-between align-items-start" data-document-id="' + d.id + '">';
+									html += '<div class="text-break flex-grow-1 mr-2" style="min-width: 0;">';
+									html += '<span style="word-wrap: break-word; overflow-wrap: break-word;"><strong>' + (i + 1) + '.</strong> ' + (d.file_name || 'Document #' + d.id) + '</span>';
+									if (d.created_at) html += '<br><small class="text-muted">' + d.created_at + '</small>';
+									if (!d.is_on_s3) {
+										html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document"><i class="fas fa-trash-alt"></i> Delete Document</button>';
+									}
+									html += '</div>';
+									html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0" style="gap: 10px;">';
+									if (d.preview_url) {
+										html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link"><i class="fas fa-external-link-alt"></i> View</a>';
+									}
+									if (!d.is_on_s3) {
+										html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-doc-to-s3" data-document-id="' + d.id + '" title="Upload this document to S3"><i class="fas fa-cloud-upload-alt"></i> Upload to S3</button>';
+									}
+									if (d.has_public_path) {
+										html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc" data-document-id="' + d.id + '" title="Delete the local copy (document remains on S3)"><i class="fas fa-trash-alt"></i> Delete public doc</button>';
+									}
+									html += '</span></li>';
+								}
+								html += '</ul>';
+								$('#clientDocumentsModalBody').html(html);
+							}
+						} else {
+							$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + (resp.message || 'Failed to load documents') + '</div>');
+						}
+					},
+					error: function() {
+						$('#clientDocumentsModalBody').html('<div class="alert alert-danger">Failed to refresh document list.</div>');
+					}
+				});
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All Public Document');
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public documents';
+				alert(msg);
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All Public Document');
+			}
+		});
+	});
+
 	// Upload all Application, Education, Migration documents to S3 (button in expanded client details)
 	$(document).on('click', '.btn-upload-all-docs-to-s3', function() {
 		var $btn = $(this);
@@ -912,12 +991,12 @@ $(document).ready(function() {
 			success: function(response) {
 				if (response.message) alert(response.message);
 				if ($detailsContent.length) loadClientDetails(clientId, $detailsContent);
-				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload To S3');
+				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3');
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
 				alert(msg);
-				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload To S3');
+				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3');
 			}
 		});
 	});
