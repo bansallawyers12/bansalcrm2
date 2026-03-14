@@ -217,13 +217,13 @@
 							@endphp
 							<ul class="nav nav-tabs mb-3 storage-tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link {{ (@$docStorage === 'local') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'local'])) }}" role="tab">Local Only</a>
+									<a class="nav-link {{ (@$docStorage === 'local') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'local'])) }}" role="tab">Local Only <span class="storage-tab-count">({{ (int) (@$storageCounts['local'] ?? 0) }})</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ (@$docStorage === 'both') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'both'])) }}" role="tab">Both</a>
+									<a class="nav-link {{ (@$docStorage === 'both') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'both'])) }}" role="tab">Both <span class="storage-tab-count">({{ (int) (@$storageCounts['both'] ?? 0) }})</span></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ (@$docStorage === 'aws') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'aws'])) }}" role="tab">AWS</a>
+									<a class="nav-link {{ (@$docStorage === 'aws') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'aws'])) }}" role="tab">AWS <span class="storage-tab-count">({{ (int) (@$storageCounts['aws'] ?? 0) }})</span></a>
 								</li>
 							</ul>
 							@if($lists->count() > 0)
@@ -573,6 +573,11 @@
 		background-color: #fff;
 		border-color: #dee2e6 #dee2e6 #fff;
 		font-weight: 600;
+	}
+	ul.storage-tabs .storage-tab-count {
+		font-weight: 500;
+		opacity: 0.9;
+		margin-left: 2px;
 	}
 </style>
 @endpush

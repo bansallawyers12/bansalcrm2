@@ -258,7 +258,10 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		$totalData = null; // Not computed for fast load; use filters and Next/Previous to navigate
-		
+
+		// Storage tab counts: same filters as listing, count clients per storage (local, both, aws)
+		$storageCounts = $this->getStorageTabCounts($request, $fromDate, $toDate, $search, $activityType, $hasApplications, $lastActivityYears, $documentCount, $noPhone, $noEmail);
+
 		return view('AdminConsole.recent_clients.index', compact([
 			'lists', 
 			'totalData', 
@@ -274,8 +277,122 @@ class RecentlyModifiedClientsController extends Controller
 			'documentCount',
 			'docStorage',
 			'noPhone',
-			'noEmail'
+			'noEmail',
+			'storageCounts'
 		])); 	
+	}
+
+	/**
+	 * Get client counts per storage tab (local, both, aws) with same filters as index.
+	 *
+	 * @param Request $request
+	 * @param string $fromDate
+	 * @param string $toDate
+	 * @param string $search
+	 * @param string $activityType
+	 * @param string $hasApplications
+	 * @param string $lastActivityYears
+	 * @param string $documentCount
+	 * @param string $noPhone
+	 * @param string $noEmail
+	 * @return array{local: int, both: int, aws: int}
+	 */
+	private function getStorageTabCounts(Request $request, $fromDate, $toDate, $search, $activityType, $hasApplications, $lastActivityYears, $documentCount, $noPhone, $noEmail): array
+	{
+		$subQuery = ActivitiesLog::select('client_id', DB::raw('MAX(created_at) as last_activity'))
+			->whereNotNull('client_id')
+			->groupBy('client_id');
+
+		$docStatsSubQuery = Document::select(
+				'client_id',
+				DB::raw('COUNT(*) as doc_count'),
+				DB::raw("SUM(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS count_local"),
+				DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
+			)
+			->whereNull('archived_at')
+			->appEduMigForStorage()
+			->groupBy('client_id');
+
+		$docStorageExpr = "CASE
+			WHEN COALESCE(doc_stats.count_local, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) > 0 THEN 'both'
+			WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_local, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'local'
+			WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'aws'
+			ELSE 'none'
+		END";
+
+		$query = ActivitiesLog::select('activities_logs.client_id')
+			->joinSub($subQuery, 'latest_activities', function ($join) {
+				$join->on('activities_logs.client_id', '=', 'latest_activities.client_id')
+					->on('activities_logs.created_at', '=', 'latest_activities.last_activity');
+			})
+			->join('admins as client_admins', function ($join) {
+				$join->on('activities_logs.client_id', '=', 'client_admins.id')
+					->where(function ($q) {
+						$q->whereIn('client_admins.is_archived', [0, '0'])
+							->orWhereNull('client_admins.is_archived');
+					});
+			})
+			->leftJoinSub($docStatsSubQuery, 'doc_stats', 'activities_logs.client_id', '=', 'doc_stats.client_id');
+
+		if (!empty($search)) {
+			$query->where(function ($q) use ($search) {
+				$q->where(DB::raw("CONCAT(client_admins.first_name, ' ', client_admins.last_name)"), 'LIKE', "%{$search}%")
+					->orWhere('client_admins.email', 'LIKE', "%{$search}%")
+					->orWhere('client_admins.phone', 'LIKE', "%{$search}%")
+					->orWhere('client_admins.client_id', 'LIKE', "%{$search}%");
+			});
+		}
+		if (!empty($activityType)) {
+			$query->where(function ($q) use ($activityType) {
+				$q->where('activities_logs.subject', 'LIKE', "%{$activityType}%")
+					->orWhere('activities_logs.description', 'LIKE', "%{$activityType}%");
+			});
+		}
+		if ($fromDate !== '') {
+			$query->where('activities_logs.created_at', '>=', $fromDate);
+		}
+		if ($toDate !== '') {
+			$query->where('activities_logs.created_at', '<=', $toDate);
+		}
+		if ($hasApplications === '0') {
+			$query->whereNotIn('activities_logs.client_id', Application::select('client_id'));
+		}
+		if ($lastActivityYears !== '' && in_array((int) $lastActivityYears, [1, 2, 3, 4, 5], true)) {
+			$query->where('activities_logs.created_at', '<=', Carbon::now()->subYears((int) $lastActivityYears));
+		}
+		if ($documentCount !== '') {
+			if ($documentCount === '0') {
+				$query->where(function ($q) {
+					$q->whereNull('doc_stats.doc_count')->orWhere('doc_stats.doc_count', 0);
+				});
+			} elseif ($documentCount === '10+') {
+				$query->whereNotNull('doc_stats.doc_count')->where('doc_stats.doc_count', '>=', 10);
+			} elseif (in_array($documentCount, ['1', '2', '3', '4', '5', '6', '7', '8', '9'], true)) {
+				$query->where('doc_stats.doc_count', '=', (int) $documentCount);
+			}
+		}
+		if ($noPhone === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.phone')
+					->orWhere(DB::raw("TRIM(COALESCE(client_admins.phone, ''))"), '=', '');
+			});
+		}
+		if ($noEmail === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.email')
+					->orWhere(DB::raw("TRIM(COALESCE(client_admins.email, ''))"), '=', '');
+			});
+		}
+
+		$countLocal = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['local'])->count();
+		$countBoth = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['both'])->count();
+		$countAws = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['aws'])->count();
+
+		return [
+			'local' => $countLocal,
+			'both'  => $countBoth,
+			'aws'   => $countAws,
+		];
 	}
 	
 	/**
