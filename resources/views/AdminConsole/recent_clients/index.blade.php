@@ -787,6 +787,16 @@ $(document).ready(function() {
 						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3"><i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3</button>';
 					}
 					html += '</div>';
+					// Status lines: All Docs at S3, All Public documents removed (green = Yes, red = No)
+					var allDocsAtS3 = (data.document_count === 0) || (data.document_storage === 'aws');
+					var appLocal = (data.application_doc_count_local != null ? data.application_doc_count_local : 0);
+					var eduLocal = (data.education_doc_count_local != null ? data.education_doc_count_local : 0);
+					var migLocal = (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0);
+					var allPublicRemoved = (appLocal === 0 && eduLocal === 0 && migLocal === 0);
+					html += '<div class="mt-3 pt-2 border-top">';
+					html += '<div class="small ' + (allDocsAtS3 ? 'text-success' : 'text-danger') + '"><strong>All Docs are at S3 - ' + (allDocsAtS3 ? 'Yes' : 'No') + '</strong></div>';
+					html += '<div class="small mt-1 ' + (allPublicRemoved ? 'text-success' : 'text-danger') + '"><strong>All Public documents removed - ' + (allPublicRemoved ? 'Yes' : 'No') + '</strong></div>';
+					html += '</div>';
 					html += '</div>';
 					html += '</div>';
 					html += '</div>';
