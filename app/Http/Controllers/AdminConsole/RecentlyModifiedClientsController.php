@@ -55,6 +55,10 @@ class RecentlyModifiedClientsController extends Controller
 		$lastActivityYears = $request->input('last_activity_years', ''); // 1, 2, 3, 4, 5 = X+ years ago
 		$documentCount = $request->input('document_count', ''); // '', '0', '1', ... '9', '10+' = documents count filter
 		$docStorage = $request->input('doc_storage', ''); // '', 'local', 'aws', 'both', 'none' = document storage location filter
+		// Default to 'local' so the "Local Only" tab is selected by default on this page
+		if ($docStorage === '') {
+			$docStorage = 'local';
+		}
 		$noPhone = $request->input('no_phone', ''); // '' = all, '1' = only clients with no phone number
 		$noEmail = $request->input('no_email', ''); // '' = all, '1' = only clients with no email address
 
@@ -529,30 +533,133 @@ class RecentlyModifiedClientsController extends Controller
 			return response()->json(['success' => false, 'message' => 'Document category not allowed for this upload'], 400);
 		}
 
-		// Client unique ID for S3 path (e.g. MANV230200201)
+		$result = $this->uploadSingleDocumentToS3Internal($document);
+		if (!$result['success']) {
+			return response()->json(['success' => false, 'message' => $result['message']], $result['status'] ?? 400);
+		}
+		return response()->json([
+			'success' => true,
+			'message' => 'Document uploaded to S3 successfully',
+			's3_url' => $result['s3_url'],
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Upload all Application, Education, Migration (local) documents for a client to S3.
+	 * Only allowed when client storage is Local or Both (i.e. has some local docs).
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function uploadAllDocumentsToS3(Request $request)
+	{
+		$clientId = (int) $request->input('client_id');
+		if (!$clientId || $clientId < 1) {
+			return response()->json(['success' => false, 'message' => 'Client ID is required'], 400);
+		}
+
+		$client = Admin::find($clientId);
+		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Client not found or has no unique ID'], 404);
+		}
+
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+
+		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->where(function ($q) {
+				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
+			});
+
+		$categoryIds = array_filter([$applicationCategoryId, $educationCategoryId, $migrationCategoryId]);
+		if (count($categoryIds) > 0) {
+			$query->where(function ($q) use ($applicationCategoryId, $educationCategoryId, $migrationCategoryId) {
+				if ($applicationCategoryId) {
+					$q->where('category_id', $applicationCategoryId);
+				}
+				if ($educationCategoryId) {
+					$q->orWhere(function ($q2) use ($educationCategoryId) {
+						$q2->where('category_id', $educationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+				if ($migrationCategoryId) {
+					$q->orWhere(function ($q2) use ($migrationCategoryId) {
+						$q2->where('category_id', $migrationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+			});
+		} else {
+			$query->whereRaw('1 = 0');
+		}
+
+		$documents = $query->get();
+		$uploaded = 0;
+		$failed = 0;
+		$errors = [];
+
+		foreach ($documents as $document) {
+			$result = $this->uploadSingleDocumentToS3Internal($document);
+			if ($result['success']) {
+				$uploaded++;
+			} else {
+				$failed++;
+				$errors[$document->id] = $result['message'];
+			}
+		}
+
+		$message = $uploaded > 0
+			? $uploaded . ' document(s) uploaded to S3 successfully.' . ($failed > 0 ? ' ' . $failed . ' failed.' : '')
+			: ($failed > 0 ? 'No documents were uploaded. ' . $failed . ' failed.' : 'No local documents found to upload.');
+
+		return response()->json([
+			'success' => $uploaded > 0,
+			'message' => $message,
+			'uploaded_count' => $uploaded,
+			'failed_count' => $failed,
+			'errors' => $errors,
+		]);
+	}
+
+	/**
+	 * Internal: upload one document (local, App/Edu/Mig) to S3. Updates document record.
+	 *
+	 * @param Document $document
+	 * @return array{success: bool, message?: string, status?: int, s3_url?: string}
+	 */
+	private function uploadSingleDocumentToS3Internal(Document $document): array
+	{
+		$documentId = $document->id;
 		$client = Admin::where('id', $document->client_id)->first();
 		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
-			return response()->json(['success' => false, 'message' => 'Client unique ID not found'], 400);
+			return ['success' => false, 'message' => 'Client unique ID not found', 'status' => 400];
 		}
 		$clientUniqueId = trim($client->client_id);
 
-		// Local file path: public/img/documents/{myfile}
 		$relativePath = ltrim(str_replace('\\', '/', $document->myfile), '/');
 		$localPath = public_path('img/documents/' . $relativePath);
 		if (!file_exists($localPath) || !is_readable($localPath)) {
 			Log::warning('Upload to S3: local file not found or not readable', ['document_id' => $documentId, 'path' => $localPath]);
-			return response()->json(['success' => false, 'message' => 'Local file not found or not readable'], 404);
+			return ['success' => false, 'message' => 'Local file not found or not readable', 'status' => 404];
 		}
 
 		$fileContents = file_get_contents($localPath);
 		if ($fileContents === false) {
-			return response()->json(['success' => false, 'message' => 'Failed to read local file'], 500);
+			return ['success' => false, 'message' => 'Failed to read local file', 'status' => 500];
 		}
 
-		// S3 path: {client_unique_id}/documents/{filename} - same structure as existing S3 documents
 		$originalName = basename($relativePath);
 		$sanitized = $this->sanitizeFilenameForS3($originalName);
-		$s3FileName = time() . $sanitized;
+		$s3FileName = time() . '_' . $documentId . '_' . $sanitized;
 		$docType = $document->doc_type ?: 'documents';
 		$s3Key = $clientUniqueId . '/' . $docType . '/' . $s3FileName;
 
@@ -560,26 +667,20 @@ class RecentlyModifiedClientsController extends Controller
 			$put = Storage::disk('s3')->put($s3Key, $fileContents);
 			if (!$put) {
 				Log::error('Upload to S3: put returned false', ['document_id' => $documentId, 's3_key' => $s3Key]);
-				return response()->json(['success' => false, 'message' => 'S3 upload failed'], 500);
+				return ['success' => false, 'message' => 'S3 upload failed', 'status' => 500];
 			}
 			$fileUrl = Storage::disk('s3')->url($s3Key);
 		} catch (\Throwable $e) {
 			Log::error('Upload to S3 exception', ['document_id' => $documentId, 'error' => $e->getMessage()]);
-			return response()->json(['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage()], 500);
+			return ['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage(), 'status' => 500];
 		}
 
-		// Save public path before overwriting, so "Delete public doc" can remove the local file later
 		$document->doc_public_path = $document->myfile;
 		$document->myfile = $fileUrl;
 		$document->myfile_key = $s3FileName;
 		$document->save();
 
-		return response()->json([
-			'success' => true,
-			'message' => 'Document uploaded to S3 successfully',
-			's3_url' => $fileUrl,
-			'document_id' => $document->id,
-		]);
+		return ['success' => true, 's3_url' => $fileUrl];
 	}
 
 	/**

@@ -211,6 +211,21 @@
 									<input type="hidden" name="sort_column" id="sort_column" value="{{ @$sortColumn }}">
 								</form>
 							</div>
+							<!-- Storage tabs: filter listing by Storage column (Local Only / Both / AWS) -->
+							@php
+								$storageTabParams = request()->except('doc_storage');
+							@endphp
+							<ul class="nav nav-tabs mb-3 storage-tabs" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link {{ (@$docStorage === 'local') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'local'])) }}" role="tab">Local Only</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ (@$docStorage === 'both') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'both'])) }}" role="tab">Both</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ (@$docStorage === 'aws') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'aws'])) }}" role="tab">AWS</a>
+								</li>
+							</ul>
 							@if($lists->count() > 0)
 							<div class="mb-3 d-flex align-items-center flex-wrap">
 								<button type="button" class="btn btn-danger mr-2" id="bulkArchiveBtn" disabled title="Select one or more clients to archive">
@@ -538,6 +553,27 @@
 	#refreshBtn i.fa-spin {
 		animation: fa-spin 1s infinite linear;
 	}
+	
+	/* Storage tabs above listing */
+	ul.storage-tabs.nav-tabs {
+		border-bottom: 2px solid #dee2e6;
+	}
+	ul.storage-tabs .nav-link {
+		color: #495057;
+		border: 1px solid transparent;
+		border-radius: 4px 4px 0 0;
+		padding: 0.5rem 1rem;
+	}
+	ul.storage-tabs .nav-link:hover {
+		border-color: #e9ecef #e9ecef #dee2e6;
+		color: #007bff;
+	}
+	ul.storage-tabs .nav-link.active {
+		color: #495057;
+		background-color: #fff;
+		border-color: #dee2e6 #dee2e6 #fff;
+		font-weight: 600;
+	}
 </style>
 @endpush
 
@@ -743,6 +779,12 @@ $(document).ready(function() {
 					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="education" data-count="' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Education: ' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '</span>';
 					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="migration" data-count="' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Migration: ' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '</span>';
 					html += '</div>';
+					// Upload all (Application, Education, Migration) to S3 - only for Local or Both storage
+					if (data.document_storage === 'local' || data.document_storage === 'both') {
+						html += '<div class="mt-2">';
+						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3"><i class="fas fa-cloud-upload-alt"></i> Upload To S3</button>';
+						html += '</div>';
+					}
 					html += '</div>';
 					html += '</div>';
 					html += '</div>';
@@ -845,6 +887,32 @@ $(document).ready(function() {
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load documents';
 				$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + msg + '</div>');
+			}
+		});
+	});
+
+	// Upload all Application, Education, Migration documents to S3 (button in expanded client details)
+	$(document).on('click', '.btn-upload-all-docs-to-s3', function() {
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		if (!clientId) return;
+		if (!confirm('Upload all Application, Education and Migration documents (in public folder) to S3 for this client?')) return;
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+		var $detailsContent = $('#client-details-content-' + clientId);
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.uploadalldocumentstos3") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId },
+			success: function(response) {
+				if (response.message) alert(response.message);
+				if ($detailsContent.length) loadClientDetails(clientId, $detailsContent);
+				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload To S3');
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
+				alert(msg);
+				$btn.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Upload To S3');
 			}
 		});
 	});
