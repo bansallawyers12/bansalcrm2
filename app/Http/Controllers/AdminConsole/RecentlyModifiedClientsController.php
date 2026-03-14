@@ -1005,6 +1005,22 @@ class RecentlyModifiedClientsController extends Controller
 
 		$candidatePath = public_path('img/documents/' . $relativePath);
 		$resolvedPath = realpath($candidatePath);
+		$usedBaseDir = $baseDir;
+
+		// Fallback: on some servers document root is app root (not public/), so file may be at base_path('img/documents/...')
+		if ($resolvedPath === false) {
+			$fallbackPath = base_path('img/documents/' . $relativePath);
+			$fallbackBaseDir = realpath(base_path('img/documents'));
+			if ($fallbackBaseDir !== false) {
+				$resolvedPath = realpath($fallbackPath);
+				if ($resolvedPath !== false && strpos($resolvedPath, $fallbackBaseDir) === 0 && is_file($resolvedPath)) {
+					$usedBaseDir = $fallbackBaseDir;
+				} else {
+					$resolvedPath = false;
+				}
+			}
+		}
+
 		if ($resolvedPath === false) {
 			Log::warning('Delete public doc: realpath failed (file not found or not resolvable)', [
 				'document_id' => $document->id,
@@ -1019,7 +1035,7 @@ class RecentlyModifiedClientsController extends Controller
 			$document->save();
 			return ['success' => true];
 		}
-		if (strpos($resolvedPath, $baseDir) !== 0 || !is_file($resolvedPath)) {
+		if (strpos($resolvedPath, $usedBaseDir) !== 0 || !is_file($resolvedPath)) {
 			return ['success' => false, 'message' => 'Invalid path', 'status' => 400];
 		}
 
