@@ -1022,6 +1022,9 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		if ($resolvedPath === false) {
+			$fallbackPath = base_path('img/documents/' . $relativePath);
+			$fallbackBaseDirRaw = base_path('img/documents');
+			$fallbackBaseDirResolved = realpath($fallbackBaseDirRaw);
 			Log::warning('Delete public doc: realpath failed (file not found or not resolvable)', [
 				'document_id' => $document->id,
 				'doc_public_path' => $document->doc_public_path,
@@ -1030,6 +1033,9 @@ class RecentlyModifiedClientsController extends Controller
 				'public_path_base' => public_path(),
 				'file_exists' => file_exists($candidatePath),
 				'is_readable' => is_readable($candidatePath),
+				'fallback_path' => $fallbackPath,
+				'fallback_base_dir_exists' => $fallbackBaseDirResolved !== false,
+				'fallback_file_exists' => file_exists($fallbackPath),
 			]);
 			$document->doc_public_path = null;
 			$document->save();
