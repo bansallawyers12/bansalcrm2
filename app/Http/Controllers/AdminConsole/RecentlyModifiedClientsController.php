@@ -506,6 +506,57 @@ class RecentlyModifiedClientsController extends Controller
 				->storedLocally()
 				->count();
 		}
+
+		// Count docs that still have a public folder presence (local-only OR on S3 with doc_public_path) - same as popup list
+		$applicationPublicPathCount = 0;
+		$educationPublicPathCount = 0;
+		$migrationPublicPathCount = 0;
+		$publicPathCondition = function ($q) {
+			$q->where(function ($q2) {
+				$q2->whereNull('myfile_key')->orWhere('myfile_key', '');
+			})->orWhere(function ($q2) {
+				$q2->whereNotNull('myfile_key')->where('myfile_key', '!=', '')
+					->whereNotNull('doc_public_path')->where('doc_public_path', '!=', '');
+			});
+		};
+		if ($applicationCategoryId) {
+			$applicationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('category_id', $applicationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
+		if ($educationCategoryId) {
+			$educationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $educationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
+		if ($migrationCategoryId) {
+			$migrationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $migrationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
 		
 		// Check if client is archived
 		$isArchived = $client->is_archived == 1;
@@ -529,6 +580,9 @@ class RecentlyModifiedClientsController extends Controller
 				'application_doc_count_local' => $applicationDocCountLocal,
 				'education_doc_count_local' => $educationDocCountLocal,
 				'migration_doc_count_local' => $migrationDocCountLocal,
+				'application_public_path_count' => $applicationPublicPathCount,
+				'education_public_path_count' => $educationPublicPathCount,
+				'migration_public_path_count' => $migrationPublicPathCount,
 				'is_archived' => $isArchived
 			]
 		]);

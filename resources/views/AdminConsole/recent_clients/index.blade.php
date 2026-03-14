@@ -788,11 +788,12 @@ $(document).ready(function() {
 					}
 					html += '</div>';
 					// Status lines: All Docs at S3, All Public documents removed (green = Yes, red = No)
+					// Use public_path counts (docs that still have a public copy: local-only OR on S3 with doc_public_path) so status matches popup
 					var allDocsAtS3 = (data.document_count === 0) || (data.document_storage === 'aws');
-					var appLocal = (data.application_doc_count_local != null ? data.application_doc_count_local : 0);
-					var eduLocal = (data.education_doc_count_local != null ? data.education_doc_count_local : 0);
-					var migLocal = (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0);
-					var allPublicRemoved = (appLocal === 0 && eduLocal === 0 && migLocal === 0);
+					var appPublic = (data.application_public_path_count != null ? data.application_public_path_count : 0);
+					var eduPublic = (data.education_public_path_count != null ? data.education_public_path_count : 0);
+					var migPublic = (data.migration_public_path_count != null ? data.migration_public_path_count : 0);
+					var allPublicRemoved = (appPublic === 0 && eduPublic === 0 && migPublic === 0);
 					html += '<div class="mt-3 pt-2 border-top">';
 					html += '<div class="small ' + (allDocsAtS3 ? 'text-success' : 'text-danger') + '"><strong>All Docs are at S3 - ' + (allDocsAtS3 ? 'Yes' : 'No') + '</strong></div>';
 					html += '<div class="small mt-1 ' + (allPublicRemoved ? 'text-success' : 'text-danger') + '"><strong>All Public documents removed - ' + (allPublicRemoved ? 'Yes' : 'No') + '</strong></div>';
