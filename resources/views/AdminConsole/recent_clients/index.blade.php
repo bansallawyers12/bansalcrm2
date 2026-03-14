@@ -787,7 +787,7 @@ $(document).ready(function() {
 						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3"><i class="fas fa-cloud-upload-alt"></i> Upload All These Docs to S3</button>';
 					}
 					html += '</div>';
-					// Status lines: All Docs at S3, All Public documents removed (green = Yes, red = No)
+					// Status lines: All Docs uploaded at S3, All Docs Public Path Removed (green = Yes, red = No)
 					// Use public_path counts (docs that still have a public copy: local-only OR on S3 with doc_public_path) so status matches popup
 					var allDocsAtS3 = (data.document_count === 0) || (data.document_storage === 'aws');
 					var appPublic = (data.application_public_path_count != null ? data.application_public_path_count : 0);
@@ -795,8 +795,8 @@ $(document).ready(function() {
 					var migPublic = (data.migration_public_path_count != null ? data.migration_public_path_count : 0);
 					var allPublicRemoved = (appPublic === 0 && eduPublic === 0 && migPublic === 0);
 					html += '<div class="mt-3 pt-2 border-top">';
-					html += '<div class="small ' + (allDocsAtS3 ? 'text-success' : 'text-danger') + '"><strong>All Docs are at S3 - ' + (allDocsAtS3 ? 'Yes' : 'No') + '</strong></div>';
-					html += '<div class="small mt-1 ' + (allPublicRemoved ? 'text-success' : 'text-danger') + '"><strong>All Public documents removed - ' + (allPublicRemoved ? 'Yes' : 'No') + '</strong></div>';
+					html += '<div class="small ' + (allDocsAtS3 ? 'text-success' : 'text-danger') + '"><strong>All Docs are uploaded at S3 - ' + (allDocsAtS3 ? 'Yes' : 'No') + '</strong></div>';
+					html += '<div class="small mt-1 ' + (allPublicRemoved ? 'text-success' : 'text-danger') + '"><strong>All Docs Public Path Removed - ' + (allPublicRemoved ? 'Yes' : 'No') + '</strong></div>';
 					html += '</div>';
 					html += '</div>';
 					html += '</div>';
