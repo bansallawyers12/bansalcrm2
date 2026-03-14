@@ -856,10 +856,10 @@ $(document).ready(function() {
 						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
 					} else {
 						var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
-						// Show "Delete All Public Document" only when all docs are on S3 and have a public (local) copy
+						// Show "Delete All [Category] Public Docs" only when all docs are on S3 and have a public (local) copy
 						var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
 						if (allOnS3WithPublic) {
-							html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All Public Document</button></div>';
+							html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All ' + label + ' Public Docs</button></div>';
 						}
 						html += '<ul class="list-group list-group-flush">';
 						for (var i = 0; i < docs.length; i++) {
@@ -929,7 +929,7 @@ $(document).ready(function() {
 								var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
 								var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
 								if (allOnS3WithPublic) {
-									html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All Public Document</button></div>';
+									html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3"><i class="fas fa-trash-alt"></i> Delete All ' + label + ' Public Docs</button></div>';
 								}
 								html += '<ul class="list-group list-group-flush">';
 								for (var i = 0; i < docs.length; i++) {
@@ -965,12 +965,14 @@ $(document).ready(function() {
 						$('#clientDocumentsModalBody').html('<div class="alert alert-danger">Failed to refresh document list.</div>');
 					}
 				});
-				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All Public Document');
+				var catLabel = (category && category.length) ? (category.charAt(0).toUpperCase() + category.slice(1)) : 'Public';
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All ' + catLabel + ' Public Docs');
 			},
 			error: function(xhr) {
 				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public documents';
 				alert(msg);
-				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All Public Document');
+				var catLabel = (category && category.length) ? (category.charAt(0).toUpperCase() + category.slice(1)) : 'Public';
+				$btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Delete All ' + catLabel + ' Public Docs');
 			}
 		});
 	});
