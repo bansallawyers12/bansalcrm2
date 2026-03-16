@@ -55,6 +55,10 @@ class RecentlyModifiedClientsController extends Controller
 		$lastActivityYears = $request->input('last_activity_years', ''); // 1, 2, 3, 4, 5 = X+ years ago
 		$documentCount = $request->input('document_count', ''); // '', '0', '1', ... '9', '10+' = documents count filter
 		$docStorage = $request->input('doc_storage', ''); // '', 'local', 'aws', 'both', 'none' = document storage location filter
+		// Default to 'local' so the "Local Only" tab is selected by default on this page
+		if ($docStorage === '') {
+			$docStorage = 'local';
+		}
 		$noPhone = $request->input('no_phone', ''); // '' = all, '1' = only clients with no phone number
 		$noEmail = $request->input('no_email', ''); // '' = all, '1' = only clients with no email address
 
@@ -254,7 +258,10 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		$totalData = null; // Not computed for fast load; use filters and Next/Previous to navigate
-		
+
+		// Storage tab counts: same filters as listing, count clients per storage (local, both, aws)
+		$storageCounts = $this->getStorageTabCounts($request, $fromDate, $toDate, $search, $activityType, $hasApplications, $lastActivityYears, $documentCount, $noPhone, $noEmail);
+
 		return view('AdminConsole.recent_clients.index', compact([
 			'lists', 
 			'totalData', 
@@ -270,8 +277,122 @@ class RecentlyModifiedClientsController extends Controller
 			'documentCount',
 			'docStorage',
 			'noPhone',
-			'noEmail'
+			'noEmail',
+			'storageCounts'
 		])); 	
+	}
+
+	/**
+	 * Get client counts per storage tab (local, both, aws) with same filters as index.
+	 *
+	 * @param Request $request
+	 * @param string $fromDate
+	 * @param string $toDate
+	 * @param string $search
+	 * @param string $activityType
+	 * @param string $hasApplications
+	 * @param string $lastActivityYears
+	 * @param string $documentCount
+	 * @param string $noPhone
+	 * @param string $noEmail
+	 * @return array{local: int, both: int, aws: int}
+	 */
+	private function getStorageTabCounts(Request $request, $fromDate, $toDate, $search, $activityType, $hasApplications, $lastActivityYears, $documentCount, $noPhone, $noEmail): array
+	{
+		$subQuery = ActivitiesLog::select('client_id', DB::raw('MAX(created_at) as last_activity'))
+			->whereNotNull('client_id')
+			->groupBy('client_id');
+
+		$docStatsSubQuery = Document::select(
+				'client_id',
+				DB::raw('COUNT(*) as doc_count'),
+				DB::raw("SUM(CASE WHEN (myfile_key IS NULL OR TRIM(COALESCE(myfile_key, '')) = '') AND myfile IS NOT NULL AND TRIM(COALESCE(myfile, '')) != '' THEN 1 ELSE 0 END) AS count_local"),
+				DB::raw("SUM(CASE WHEN myfile_key IS NOT NULL AND TRIM(myfile_key) != '' THEN 1 ELSE 0 END) AS count_aws")
+			)
+			->whereNull('archived_at')
+			->appEduMigForStorage()
+			->groupBy('client_id');
+
+		$docStorageExpr = "CASE
+			WHEN COALESCE(doc_stats.count_local, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) > 0 THEN 'both'
+			WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_local, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'local'
+			WHEN COALESCE(doc_stats.doc_count, 0) > 0 AND COALESCE(doc_stats.count_aws, 0) = COALESCE(doc_stats.doc_count, 0) THEN 'aws'
+			ELSE 'none'
+		END";
+
+		$query = ActivitiesLog::select('activities_logs.client_id')
+			->joinSub($subQuery, 'latest_activities', function ($join) {
+				$join->on('activities_logs.client_id', '=', 'latest_activities.client_id')
+					->on('activities_logs.created_at', '=', 'latest_activities.last_activity');
+			})
+			->join('admins as client_admins', function ($join) {
+				$join->on('activities_logs.client_id', '=', 'client_admins.id')
+					->where(function ($q) {
+						$q->whereIn('client_admins.is_archived', [0, '0'])
+							->orWhereNull('client_admins.is_archived');
+					});
+			})
+			->leftJoinSub($docStatsSubQuery, 'doc_stats', 'activities_logs.client_id', '=', 'doc_stats.client_id');
+
+		if (!empty($search)) {
+			$query->where(function ($q) use ($search) {
+				$q->where(DB::raw("CONCAT(client_admins.first_name, ' ', client_admins.last_name)"), 'LIKE', "%{$search}%")
+					->orWhere('client_admins.email', 'LIKE', "%{$search}%")
+					->orWhere('client_admins.phone', 'LIKE', "%{$search}%")
+					->orWhere('client_admins.client_id', 'LIKE', "%{$search}%");
+			});
+		}
+		if (!empty($activityType)) {
+			$query->where(function ($q) use ($activityType) {
+				$q->where('activities_logs.subject', 'LIKE', "%{$activityType}%")
+					->orWhere('activities_logs.description', 'LIKE', "%{$activityType}%");
+			});
+		}
+		if ($fromDate !== '') {
+			$query->where('activities_logs.created_at', '>=', $fromDate);
+		}
+		if ($toDate !== '') {
+			$query->where('activities_logs.created_at', '<=', $toDate);
+		}
+		if ($hasApplications === '0') {
+			$query->whereNotIn('activities_logs.client_id', Application::select('client_id'));
+		}
+		if ($lastActivityYears !== '' && in_array((int) $lastActivityYears, [1, 2, 3, 4, 5], true)) {
+			$query->where('activities_logs.created_at', '<=', Carbon::now()->subYears((int) $lastActivityYears));
+		}
+		if ($documentCount !== '') {
+			if ($documentCount === '0') {
+				$query->where(function ($q) {
+					$q->whereNull('doc_stats.doc_count')->orWhere('doc_stats.doc_count', 0);
+				});
+			} elseif ($documentCount === '10+') {
+				$query->whereNotNull('doc_stats.doc_count')->where('doc_stats.doc_count', '>=', 10);
+			} elseif (in_array($documentCount, ['1', '2', '3', '4', '5', '6', '7', '8', '9'], true)) {
+				$query->where('doc_stats.doc_count', '=', (int) $documentCount);
+			}
+		}
+		if ($noPhone === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.phone')
+					->orWhere(DB::raw("TRIM(COALESCE(client_admins.phone, ''))"), '=', '');
+			});
+		}
+		if ($noEmail === '1') {
+			$query->where(function ($q) {
+				$q->whereNull('client_admins.email')
+					->orWhere(DB::raw("TRIM(COALESCE(client_admins.email, ''))"), '=', '');
+			});
+		}
+
+		$countLocal = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['local'])->count();
+		$countBoth = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['both'])->count();
+		$countAws = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['aws'])->count();
+
+		return [
+			'local' => $countLocal,
+			'both'  => $countBoth,
+			'aws'   => $countAws,
+		];
 	}
 	
 	/**
@@ -385,6 +506,57 @@ class RecentlyModifiedClientsController extends Controller
 				->storedLocally()
 				->count();
 		}
+
+		// Count docs that still have a public folder presence (local-only OR on S3 with doc_public_path) - same as popup list
+		$applicationPublicPathCount = 0;
+		$educationPublicPathCount = 0;
+		$migrationPublicPathCount = 0;
+		$publicPathCondition = function ($q) {
+			$q->where(function ($q2) {
+				$q2->whereNull('myfile_key')->orWhere('myfile_key', '');
+			})->orWhere(function ($q2) {
+				$q2->whereNotNull('myfile_key')->where('myfile_key', '!=', '')
+					->whereNotNull('doc_public_path')->where('doc_public_path', '!=', '');
+			});
+		};
+		if ($applicationCategoryId) {
+			$applicationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('category_id', $applicationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
+		if ($educationCategoryId) {
+			$educationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $educationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
+		if ($migrationCategoryId) {
+			$migrationPublicPathCount = Document::where('client_id', $clientId)
+				->where('type', 'client')
+				->whereNull('archived_at')
+				->whereNull('not_used_doc')
+				->where('doc_type', 'documents')
+				->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS)
+				->where('category_id', $migrationCategoryId)
+				->whereNotNull('myfile')
+				->where('myfile', '!=', '')
+				->where($publicPathCondition)
+				->count();
+		}
 		
 		// Check if client is archived
 		$isArchived = $client->is_archived == 1;
@@ -408,6 +580,9 @@ class RecentlyModifiedClientsController extends Controller
 				'application_doc_count_local' => $applicationDocCountLocal,
 				'education_doc_count_local' => $educationDocCountLocal,
 				'migration_doc_count_local' => $migrationDocCountLocal,
+				'application_public_path_count' => $applicationPublicPathCount,
+				'education_public_path_count' => $educationPublicPathCount,
+				'migration_public_path_count' => $migrationPublicPathCount,
 				'is_archived' => $isArchived
 			]
 		]);
@@ -529,30 +704,133 @@ class RecentlyModifiedClientsController extends Controller
 			return response()->json(['success' => false, 'message' => 'Document category not allowed for this upload'], 400);
 		}
 
-		// Client unique ID for S3 path (e.g. MANV230200201)
+		$result = $this->uploadSingleDocumentToS3Internal($document);
+		if (!$result['success']) {
+			return response()->json(['success' => false, 'message' => $result['message']], $result['status'] ?? 400);
+		}
+		return response()->json([
+			'success' => true,
+			'message' => 'Document uploaded to S3 successfully',
+			's3_url' => $result['s3_url'],
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Upload all Application, Education, Migration (local) documents for a client to S3.
+	 * Only allowed when client storage is Local or Both (i.e. has some local docs).
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function uploadAllDocumentsToS3(Request $request)
+	{
+		$clientId = (int) $request->input('client_id');
+		if (!$clientId || $clientId < 1) {
+			return response()->json(['success' => false, 'message' => 'Client ID is required'], 400);
+		}
+
+		$client = Admin::find($clientId);
+		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
+			return response()->json(['success' => false, 'message' => 'Client not found or has no unique ID'], 404);
+		}
+
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+
+		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->where(function ($q) {
+				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
+			});
+
+		$categoryIds = array_filter([$applicationCategoryId, $educationCategoryId, $migrationCategoryId]);
+		if (count($categoryIds) > 0) {
+			$query->where(function ($q) use ($applicationCategoryId, $educationCategoryId, $migrationCategoryId) {
+				if ($applicationCategoryId) {
+					$q->where('category_id', $applicationCategoryId);
+				}
+				if ($educationCategoryId) {
+					$q->orWhere(function ($q2) use ($educationCategoryId) {
+						$q2->where('category_id', $educationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+				if ($migrationCategoryId) {
+					$q->orWhere(function ($q2) use ($migrationCategoryId) {
+						$q2->where('category_id', $migrationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+			});
+		} else {
+			$query->whereRaw('1 = 0');
+		}
+
+		$documents = $query->get();
+		$uploaded = 0;
+		$failed = 0;
+		$errors = [];
+
+		foreach ($documents as $document) {
+			$result = $this->uploadSingleDocumentToS3Internal($document);
+			if ($result['success']) {
+				$uploaded++;
+			} else {
+				$failed++;
+				$errors[$document->id] = $result['message'];
+			}
+		}
+
+		$message = $uploaded > 0
+			? $uploaded . ' document(s) uploaded to S3 successfully.' . ($failed > 0 ? ' ' . $failed . ' failed.' : '')
+			: ($failed > 0 ? 'No documents were uploaded. ' . $failed . ' failed.' : 'No local documents found to upload.');
+
+		return response()->json([
+			'success' => $uploaded > 0,
+			'message' => $message,
+			'uploaded_count' => $uploaded,
+			'failed_count' => $failed,
+			'errors' => $errors,
+		]);
+	}
+
+	/**
+	 * Internal: upload one document (local, App/Edu/Mig) to S3. Updates document record.
+	 *
+	 * @param Document $document
+	 * @return array{success: bool, message?: string, status?: int, s3_url?: string}
+	 */
+	private function uploadSingleDocumentToS3Internal(Document $document): array
+	{
+		$documentId = $document->id;
 		$client = Admin::where('id', $document->client_id)->first();
 		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
-			return response()->json(['success' => false, 'message' => 'Client unique ID not found'], 400);
+			return ['success' => false, 'message' => 'Client unique ID not found', 'status' => 400];
 		}
 		$clientUniqueId = trim($client->client_id);
 
-		// Local file path: public/img/documents/{myfile}
 		$relativePath = ltrim(str_replace('\\', '/', $document->myfile), '/');
 		$localPath = public_path('img/documents/' . $relativePath);
 		if (!file_exists($localPath) || !is_readable($localPath)) {
 			Log::warning('Upload to S3: local file not found or not readable', ['document_id' => $documentId, 'path' => $localPath]);
-			return response()->json(['success' => false, 'message' => 'Local file not found or not readable'], 404);
+			return ['success' => false, 'message' => 'Local file not found or not readable', 'status' => 404];
 		}
 
 		$fileContents = file_get_contents($localPath);
 		if ($fileContents === false) {
-			return response()->json(['success' => false, 'message' => 'Failed to read local file'], 500);
+			return ['success' => false, 'message' => 'Failed to read local file', 'status' => 500];
 		}
 
-		// S3 path: {client_unique_id}/documents/{filename} - same structure as existing S3 documents
 		$originalName = basename($relativePath);
 		$sanitized = $this->sanitizeFilenameForS3($originalName);
-		$s3FileName = time() . $sanitized;
+		$s3FileName = time() . '_' . $documentId . '_' . $sanitized;
 		$docType = $document->doc_type ?: 'documents';
 		$s3Key = $clientUniqueId . '/' . $docType . '/' . $s3FileName;
 
@@ -560,26 +838,20 @@ class RecentlyModifiedClientsController extends Controller
 			$put = Storage::disk('s3')->put($s3Key, $fileContents);
 			if (!$put) {
 				Log::error('Upload to S3: put returned false', ['document_id' => $documentId, 's3_key' => $s3Key]);
-				return response()->json(['success' => false, 'message' => 'S3 upload failed'], 500);
+				return ['success' => false, 'message' => 'S3 upload failed', 'status' => 500];
 			}
 			$fileUrl = Storage::disk('s3')->url($s3Key);
 		} catch (\Throwable $e) {
 			Log::error('Upload to S3 exception', ['document_id' => $documentId, 'error' => $e->getMessage()]);
-			return response()->json(['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage()], 500);
+			return ['success' => false, 'message' => 'S3 upload error: ' . $e->getMessage(), 'status' => 500];
 		}
 
-		// Save public path before overwriting, so "Delete public doc" can remove the local file later
 		$document->doc_public_path = $document->myfile;
 		$document->myfile = $fileUrl;
 		$document->myfile_key = $s3FileName;
 		$document->save();
 
-		return response()->json([
-			'success' => true,
-			'message' => 'Document uploaded to S3 successfully',
-			's3_url' => $fileUrl,
-			'document_id' => $document->id,
-		]);
+		return ['success' => true, 's3_url' => $fileUrl];
 	}
 
 	/**
@@ -609,8 +881,103 @@ class RecentlyModifiedClientsController extends Controller
 			return response()->json(['success' => false, 'message' => 'No public path stored; local copy may already be deleted'], 400);
 		}
 
+		$result = $this->deleteOnePublicDocInternal($document);
+		if (!$result['success']) {
+			return response()->json(['success' => false, 'message' => $result['message']], $result['status'] ?? 400);
+		}
+		return response()->json([
+			'success' => true,
+			'message' => 'Public document deleted successfully',
+			'document_id' => $document->id,
+		]);
+	}
+
+	/**
+	 * Delete all public (local) copies for documents in a category that are already on S3.
+	 * Only documents that have doc_public_path set are processed.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function deleteAllPublicDocsByCategory(Request $request)
+	{
+		$clientId = (int) $request->input('client_id');
+		$category = $request->input('category');
+		$category = is_array($category) ? '' : trim((string) $category);
+
+		if (!$clientId || $clientId < 1) {
+			return response()->json(['success' => false, 'message' => 'Client ID is required'], 400);
+		}
+		if (!in_array($category, ['application', 'education', 'migration'], true)) {
+			return response()->json(['success' => false, 'message' => 'Invalid category'], 400);
+		}
+
+		$categoryId = null;
+		if ($category === 'application') {
+			$categoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		} elseif ($category === 'education') {
+			$categoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		} else {
+			$categoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+		}
+
+		if (!$categoryId) {
+			return response()->json(['success' => true, 'message' => 'No documents found', 'deleted_count' => 0]);
+		}
+
+		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->where('category_id', $categoryId)
+			->whereNotNull('myfile_key')
+			->where('myfile_key', '!=', '')
+			->whereNotNull('doc_public_path')
+			->where('doc_public_path', '!=', '');
+
+		if ($category !== 'application') {
+			$query->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+		}
+
+		$documents = $query->get();
+		$deleted = 0;
+		$failed = 0;
+
+		foreach ($documents as $document) {
+			$result = $this->deleteOnePublicDocInternal($document);
+			if ($result['success']) {
+				$deleted++;
+			} else {
+				$failed++;
+			}
+		}
+
+		$message = $deleted > 0
+			? $deleted . ' public document(s) deleted successfully.' . ($failed > 0 ? ' ' . $failed . ' failed.' : '')
+			: ($failed > 0 ? 'No documents were deleted. ' . $failed . ' failed.' : 'No public documents found to delete.');
+
+		return response()->json([
+			'success' => $deleted > 0,
+			'message' => $message,
+			'deleted_count' => $deleted,
+		]);
+	}
+
+	/**
+	 * Internal: delete the local file for one document (on S3 with doc_public_path). Clears doc_public_path.
+	 *
+	 * @param Document $document
+	 * @return array{success: bool, message?: string, status?: int}
+	 */
+	private function deleteOnePublicDocInternal(Document $document): array
+	{
+		$publicPath = trim((string) ($document->doc_public_path ?? ''));
+		if ($publicPath === '') {
+			return ['success' => true];
+		}
+
 		$relativePath = ltrim(str_replace('\\', '/', $publicPath), '/');
-		// If stored as full URL (e.g. https://bansalcrm.com/img/documents/file.pdf), extract path after /img/documents/
 		if (preg_match('#^https?://#i', $relativePath)) {
 			$parsed = parse_url($relativePath);
 			$path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
@@ -622,48 +989,72 @@ class RecentlyModifiedClientsController extends Controller
 			}
 			$relativePath = ltrim($relativePath, '/');
 		}
-		// If stored with img/documents/ prefix (path only), strip it so we don't build img/documents/img/documents/...
 		if ($relativePath !== '' && stripos($relativePath, 'img/documents/') === 0) {
 			$relativePath = ltrim(substr($relativePath, strlen('img/documents/')), '/');
 		}
 		if ($relativePath === '' || preg_match('#\.\./#', $relativePath)) {
-			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+			return ['success' => false, 'message' => 'Invalid path', 'status' => 400];
 		}
 
 		$baseDir = realpath(public_path('img/documents'));
 		if ($baseDir === false) {
 			$document->doc_public_path = null;
 			$document->save();
-			return response()->json(['success' => true, 'message' => 'Public path cleared', 'document_id' => $document->id]);
+			return ['success' => true];
 		}
 
 		$candidatePath = public_path('img/documents/' . $relativePath);
 		$resolvedPath = realpath($candidatePath);
+		$usedBaseDir = $baseDir;
+
+		// Fallback: on some servers document root is app root (not public/), so file may be at base_path('img/documents/...')
 		if ($resolvedPath === false) {
-			// File already missing or path invalid; clear stored path and return success
+			$fallbackPath = base_path('img/documents/' . $relativePath);
+			$fallbackBaseDir = realpath(base_path('img/documents'));
+			if ($fallbackBaseDir !== false) {
+				$resolvedPath = realpath($fallbackPath);
+				if ($resolvedPath !== false && strpos($resolvedPath, $fallbackBaseDir) === 0 && is_file($resolvedPath)) {
+					$usedBaseDir = $fallbackBaseDir;
+				} else {
+					$resolvedPath = false;
+				}
+			}
+		}
+
+		if ($resolvedPath === false) {
+			$fallbackPath = base_path('img/documents/' . $relativePath);
+			$fallbackBaseDirRaw = base_path('img/documents');
+			$fallbackBaseDirResolved = realpath($fallbackBaseDirRaw);
+			Log::warning('Delete public doc: realpath failed (file not found or not resolvable)', [
+				'document_id' => $document->id,
+				'doc_public_path' => $document->doc_public_path,
+				'relative_path' => $relativePath,
+				'candidate_path' => $candidatePath,
+				'public_path_base' => public_path(),
+				'file_exists' => file_exists($candidatePath),
+				'is_readable' => is_readable($candidatePath),
+				'fallback_path' => $fallbackPath,
+				'fallback_base_dir_exists' => $fallbackBaseDirResolved !== false,
+				'fallback_file_exists' => file_exists($fallbackPath),
+			]);
 			$document->doc_public_path = null;
 			$document->save();
-			return response()->json(['success' => true, 'message' => 'Public path cleared (file was already missing)', 'document_id' => $document->id]);
+			return ['success' => true];
 		}
-		if (strpos($resolvedPath, $baseDir) !== 0 || !is_file($resolvedPath)) {
-			return response()->json(['success' => false, 'message' => 'Invalid path'], 400);
+		if (strpos($resolvedPath, $usedBaseDir) !== 0 || !is_file($resolvedPath)) {
+			return ['success' => false, 'message' => 'Invalid path', 'status' => 400];
 		}
 
 		try {
 			unlink($resolvedPath);
 		} catch (\Throwable $e) {
-			Log::error('Delete public doc: unlink failed', ['document_id' => $documentId, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
-			return response()->json(['success' => false, 'message' => 'Failed to delete file'], 500);
+			Log::error('Delete public doc: unlink failed', ['document_id' => $document->id, 'path' => $resolvedPath, 'error' => $e->getMessage()]);
+			return ['success' => false, 'message' => 'Failed to delete file', 'status' => 500];
 		}
 
 		$document->doc_public_path = null;
 		$document->save();
-
-		return response()->json([
-			'success' => true,
-			'message' => 'Public document deleted successfully',
-			'document_id' => $document->id,
-		]);
+		return ['success' => true];
 	}
 
 	/**
