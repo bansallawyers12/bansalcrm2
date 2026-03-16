@@ -225,6 +225,9 @@
 								<li class="nav-item">
 									<a class="nav-link {{ (@$docStorage === 'aws') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'aws'])) }}" role="tab">AWS <span class="storage-tab-count">({{ (int) (@$storageCounts['aws'] ?? 0) }})</span></a>
 								</li>
+								<li class="nav-item">
+									<a class="nav-link {{ (@$docStorage === 'none') ? 'active' : '' }}" href="{{ route('adminconsole.recentclients.index', array_merge($storageTabParams, ['doc_storage' => 'none'])) }}" role="tab">None <span class="storage-tab-count">({{ (int) (@$storageCounts['storage'] ?? 0) }})</span></a>
+								</li>
 							</ul>
 							@if($lists->count() > 0)
 							<div class="mb-3 d-flex align-items-center flex-wrap">

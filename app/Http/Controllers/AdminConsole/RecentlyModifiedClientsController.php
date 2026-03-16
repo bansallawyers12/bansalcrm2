@@ -295,7 +295,7 @@ class RecentlyModifiedClientsController extends Controller
 	 * @param string $documentCount
 	 * @param string $noPhone
 	 * @param string $noEmail
-	 * @return array{local: int, both: int, aws: int}
+	 * @return array{local: int, both: int, aws: int, storage: int}
 	 */
 	private function getStorageTabCounts(Request $request, $fromDate, $toDate, $search, $activityType, $hasApplications, $lastActivityYears, $documentCount, $noPhone, $noEmail): array
 	{
@@ -387,11 +387,13 @@ class RecentlyModifiedClientsController extends Controller
 		$countLocal = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['local'])->count();
 		$countBoth = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['both'])->count();
 		$countAws = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['aws'])->count();
+		$countStorage = (clone $query)->whereRaw("({$docStorageExpr}) = ?", ['none'])->count();
 
 		return [
-			'local' => $countLocal,
-			'both'  => $countBoth,
-			'aws'   => $countAws,
+			'local'   => $countLocal,
+			'both'    => $countBoth,
+			'aws'     => $countAws,
+			'storage' => $countStorage,
 		];
 	}
 	
