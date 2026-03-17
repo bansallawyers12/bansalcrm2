@@ -382,6 +382,18 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    @if($showStageEntryDateFilters ?? false)
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
+                                        <label class="form-label">From Date</label>
+                                        <input type="text" name="stage_entry_from" class="form-control dobdatepicker" 
+                                               placeholder="DD/MM/YYYY" value="{{ request('stage_entry_from') }}" autocomplete="off">
+                                    </div>
+                                    <div class="col-6 col-md-3 ongoing-filter-field">
+                                        <label class="form-label">To Date</label>
+                                        <input type="text" name="stage_entry_to" class="form-control dobdatepicker" 
+                                               placeholder="DD/MM/YYYY" value="{{ request('stage_entry_to') }}" autocomplete="off">
+                                    </div>
+                                    @endif
                                     <div class="col-12 col-md-9">
                                         <label class="form-label">Search (Name, CRM Ref, Stage)</label>
                                         <input type="text" name="search" class="form-control" 

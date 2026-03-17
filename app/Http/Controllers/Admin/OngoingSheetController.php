@@ -86,7 +86,7 @@ class OngoingSheetController extends Controller
         $query = $this->buildBaseQuery($request, $sheetType);
 
         // Apply filters
-        $query = $this->applyFilters($query, $request);
+        $query = $this->applyFilters($query, $request, $sheetType);
 
         // Apply sorting
         $query = $this->applySorting($query, $request, $sheetType);
@@ -110,7 +110,8 @@ class OngoingSheetController extends Controller
             ->orderBy('first_name')->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name']);
         $currentStages = $this->getCurrentStagesForSheet($sheetType);
-        $activeFilterCount = $this->countActiveFilters($request);
+        $activeFilterCount = $this->countActiveFilters($request, $sheetType);
+        $showStageEntryDateFilters = $sheetType === 'coe_enrolled' && in_array((int) Auth::user()->role, [1, 12], true);
 
         return view('Admin.sheets.ongoing', compact(
             'rows',
@@ -120,7 +121,8 @@ class OngoingSheetController extends Controller
             'assignees',
             'assigneesForChangeModal',
             'currentStages',
-            'sheetType'
+            'sheetType',
+            'showStageEntryDateFilters'
         ) + [
             'sheetTitle' => $config['title'],
             'sheetRoute' => $config['route'],
@@ -132,7 +134,7 @@ class OngoingSheetController extends Controller
      */
     protected function getFiltersFromSession(Request $request): array
     {
-        $filterParams = ['branch', 'assignee', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'search', 'per_page'];
+        $filterParams = ['branch', 'assignee', 'current_stage', 'visa_expiry_from', 'visa_expiry_to', 'stage_entry_from', 'stage_entry_to', 'search', 'per_page'];
         $hasAnyParam = false;
         foreach ($filterParams as $key) {
             if ($request->has($key) && $request->input($key) !== null && $request->input($key) !== '') {
@@ -158,6 +160,8 @@ class OngoingSheetController extends Controller
             'current_stage' => $request->input('current_stage'),
             'visa_expiry_from' => $request->input('visa_expiry_from'),
             'visa_expiry_to' => $request->input('visa_expiry_to'),
+            'stage_entry_from' => $request->input('stage_entry_from'),
+            'stage_entry_to' => $request->input('stage_entry_to'),
             'search' => $request->input('search'),
             'per_page' => $request->input('per_page'),
         ];
@@ -404,7 +408,7 @@ class OngoingSheetController extends Controller
     /**
      * Apply filters to query
      */
-    protected function applyFilters($query, Request $request)
+    protected function applyFilters($query, Request $request, string $sheetType = 'ongoing')
     {
         // Branch filter (client's office/branch; multi-select)
         if ($request->filled('branch')) {
@@ -443,6 +447,26 @@ class OngoingSheetController extends Controller
                 $query->whereDate('admins.visaexpiry', '<=', $toDate);
             } catch (\Exception $e) {
                 // Ignore invalid date format
+            }
+        }
+
+        // COE Enrolled only (superadmin/admin): filter by date when course entered Coe Issued or Enrolled stage (uses application updated_at as proxy)
+        if ($sheetType === 'coe_enrolled' && in_array((int) Auth::user()->role, [1, 12], true)) {
+            if ($request->filled('stage_entry_from')) {
+                try {
+                    $fromDate = Carbon::createFromFormat('d/m/Y', $request->input('stage_entry_from'))->startOfDay();
+                    $query->whereDate('applications.updated_at', '>=', $fromDate);
+                } catch (\Exception $e) {
+                    // Ignore invalid date format
+                }
+            }
+            if ($request->filled('stage_entry_to')) {
+                try {
+                    $toDate = Carbon::createFromFormat('d/m/Y', $request->input('stage_entry_to'))->endOfDay();
+                    $query->whereDate('applications.updated_at', '<=', $toDate);
+                } catch (\Exception $e) {
+                    // Ignore invalid date format
+                }
             }
         }
 
@@ -501,7 +525,7 @@ class OngoingSheetController extends Controller
     /**
      * Count active filters
      */
-    protected function countActiveFilters(Request $request)
+    protected function countActiveFilters(Request $request, string $sheetType = 'ongoing')
     {
         $count = 0;
         if ($request->filled('branch')) {
@@ -518,6 +542,14 @@ class OngoingSheetController extends Controller
         }
         if ($request->filled('visa_expiry_to')) {
             $count++;
+        }
+        if ($sheetType === 'coe_enrolled' && in_array((int) Auth::user()->role, [1, 12], true)) {
+            if ($request->filled('stage_entry_from')) {
+                $count++;
+            }
+            if ($request->filled('stage_entry_to')) {
+                $count++;
+            }
         }
         if ($request->filled('search')) {
             $count++;
