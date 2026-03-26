@@ -191,8 +191,9 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Stage filter options for the current sheet (config-driven with DB fallback).
-     * Uses config first; if config is empty (e.g. cache, or production without updated config), falls back to DB.
+     * Stage filter options for the current sheet (config + DB).
+     * Config supplies preferred order and “always show” labels; DB adds any stages
+     * that appear on the sheet but are missing from config (e.g. “Offer letter sent”).
      */
     protected function getCurrentStagesForSheet(string $sheetType): \Illuminate\Support\Collection
     {
@@ -212,12 +213,44 @@ class OngoingSheetController extends Controller
             ->values()
             ->mapWithKeys(fn ($s) => [trim((string) $s) => trim((string) $s)]);
 
-        if ($fromConfig->isNotEmpty()) {
-            return $fromConfig;
+        $fromDb = $this->getCurrentStagesFromDatabase($sheetType);
+
+        if ($fromConfig->isEmpty()) {
+            return $fromDb;
         }
 
-        // Fallback: load from DB when config is empty (e.g. config cache stale, or production config not updated)
-        return $this->getCurrentStagesFromDatabase($sheetType);
+        return $this->mergeStageFilterOptions($fromConfig, $fromDb);
+    }
+
+    /**
+     * Config stages first (deduped case-insensitively), then remaining DB stages sorted by label.
+     *
+     * @param  \Illuminate\Support\Collection<string, string>  $fromConfig
+     * @param  \Illuminate\Support\Collection<string, string>  $fromDb
+     */
+    protected function mergeStageFilterOptions(\Illuminate\Support\Collection $fromConfig, \Illuminate\Support\Collection $fromDb): \Illuminate\Support\Collection
+    {
+        $seen = [];
+        $ordered = collect();
+        foreach ($fromConfig as $value => $label) {
+            $norm = strtolower(trim((string) $value));
+            if ($norm === '') {
+                continue;
+            }
+            $seen[$norm] = true;
+            $ordered->put($value, $label);
+        }
+        $extras = collect();
+        foreach ($fromDb as $value => $label) {
+            $norm = strtolower(trim((string) $value));
+            if ($norm === '' || isset($seen[$norm])) {
+                continue;
+            }
+            $seen[$norm] = true;
+            $extras->put($value, $label);
+        }
+
+        return $ordered->merge($extras->sortBy(fn ($l) => strtolower((string) $l), SORT_NATURAL));
     }
 
     /**
@@ -225,24 +258,44 @@ class OngoingSheetController extends Controller
      */
     protected function getCurrentStagesFromDatabase(string $sheetType): \Illuminate\Support\Collection
     {
+        $visibleClient = function ($q) {
+            $q->where('admins.is_archived', 0)
+                ->whereNull('admins.is_deleted');
+        };
+
         if ($sheetType === 'coe_enrolled') {
-            return Application::select('stage')
-                ->whereNotIn('status', [2, 8])
-                ->whereRaw('LOWER(TRIM(stage)) IN (?, ?)', ['coe issued', 'enrolled'])
-                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+            return Application::query()
+                ->select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->where($visibleClient)
+                ->whereNotIn('applications.status', [2, 8])
+                ->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled'])
+                ->whereNotNull('applications.stage')
+                ->whereRaw('TRIM(applications.stage) <> ?', [''])
+                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
         }
         if ($sheetType === 'discontinue') {
-            return Application::where(function ($q) {
-                $q->where('status', 2)
-                  ->orWhereRaw('LOWER(TRIM(stage)) = ?', ['coe cancelled']);
-            })
-                ->select('stage')
-                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+            return Application::query()
+                ->select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->where($visibleClient)
+                ->where(function ($q) {
+                    $q->where('applications.status', 2)
+                      ->orWhereRaw('LOWER(TRIM(applications.stage)) = ?', ['coe cancelled']);
+                })
+                ->whereNotNull('applications.stage')
+                ->whereRaw('TRIM(applications.stage) <> ?', [''])
+                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
         }
         if ($sheetType === 'refund') {
-            return Application::where('status', 8) // 8 = Refund
-                ->select('stage')
-                ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+            return Application::query()
+                ->select('applications.stage')
+                ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->where($visibleClient)
+                ->where('applications.status', 8) // 8 = Refund
+                ->whereNotNull('applications.stage')
+                ->whereRaw('TRIM(applications.stage) <> ?', [''])
+                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
         }
         if ($sheetType === 'checklist') {
             $earlyStages = $this->getChecklistEarlyStages();
@@ -250,21 +303,31 @@ class OngoingSheetController extends Controller
                 return collect();
             }
             $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
-            return Application::select('applications.stage')
+
+            return Application::query()
+                ->select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
+                ->where($visibleClient)
                 ->whereNotIn('applications.status', [2, 8])
                 ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
                 ->where(function ($q) {
                     $q->whereNull('applications.checklist_sheet_status')
                       ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
                 })
-                ->distinct()->orderBy('applications.stage')->pluck('stage', 'stage');
+                ->whereNotNull('applications.stage')
+                ->whereRaw('TRIM(applications.stage) <> ?', [''])
+                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
         }
-        // Ongoing
-        return Application::select('stage')
-            ->whereNotIn('status', [2, 8])
-            ->whereRaw('LOWER(TRIM(stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
-            ->distinct()->orderBy('stage')->pluck('stage', 'stage');
+        // Ongoing (same client visibility and stage rules as buildBaseQuery)
+        return Application::query()
+            ->select('applications.stage')
+            ->join('admins', 'applications.client_id', '=', 'admins.id')
+            ->where($visibleClient)
+            ->whereNotIn('applications.status', [2, 8])
+            ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
+            ->whereNotNull('applications.stage')
+            ->whereRaw('TRIM(applications.stage) <> ?', [''])
+            ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
     }
 
     /**

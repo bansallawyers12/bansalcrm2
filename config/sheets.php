@@ -25,20 +25,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Stage filter options per sheet (Option 1: config-driven)
+    | Stage filter options per sheet (config + database)
     |--------------------------------------------------------------------------
     |
-    | These lists define which stages appear in the "Current Stage" filter
-    | dropdown on each sheet. They always show regardless of whether
-    | applications exist. Add or reorder stages to match your workflow.
+    | These lists are shown first in the "Current Stage" dropdown (in this order).
+    | Distinct stages from applications on that sheet are merged in after them,
+    | so stages not listed here (e.g. new workflow names) still appear.
     |
     */
+    /*
+     | Leave empty to let the dropdown be driven entirely by distinct stages in the DB.
+     | Add stage names here only to pin them at the top of the dropdown in a fixed order.
+     | Stages present in the DB but absent from this list are always appended automatically.
+     | Stages listed here but absent from the DB appear in the dropdown but match no rows.
+     */
     'ongoing_stages' => [
-        'Document received',
-        'Visa applied',
-        'Visa received',
-        'Enrollment',
-        // Add other ongoing stages as needed (exclude COE issued, Enrolled, COE cancelled, Awaiting document).
+        // Pinned preferred order — DB stages not listed here are appended automatically.
+        'Offer letter processing',
+        'Offer letter sent',
+        'Coe processing',
+        'Payment Received from Client',
+        'Payment verified By',
     ],
 
     'coe_enrolled_stages' => [
