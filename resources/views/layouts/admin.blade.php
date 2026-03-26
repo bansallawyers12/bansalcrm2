@@ -479,9 +479,14 @@ i[style*="color:rgba"] {
 			card.id = id;
 			card.setAttribute('data-notification-id', notification.id);
 			card.setAttribute('data-checkin-id', notification.checkin_id || '');
+			var headerTitle = notification.popup_title || 'Office Visit Assignment';
+			var showPlsSend = notification.show_pls_send_button !== false;
+			var plsSendBtn = showPlsSend
+				? '<button type="button" class="btn btn-success teams-notification-plssend">Pls Send The Client</button>'
+				: '';
 			card.innerHTML =
 				'<div class="teams-notification-header">' +
-					'<h6>Office Visit Assignment</h6>' +
+					'<h6>' + headerTitle + '</h6>' +
 					'<div class="teams-notification-actions">' +
 						'<button type="button" class="btn btn-sm btn-outline-secondary teams-notification-minimize" aria-label="Minimize">−</button>' +
 						'<button type="button" class="btn btn-sm btn-outline-secondary teams-notification-close" aria-label="Close">×</button>' +
@@ -493,7 +498,7 @@ i[style*="color:rgba"] {
 					'<p>Purpose: ' + (notification.visit_purpose || '') + '</p>' +
 					'<p>Time: ' + (notification.created_at || '') + '</p>' +
 					'<div class="btn-group">' +
-						'<button type="button" class="btn btn-success teams-notification-plssend">Pls Send The Client</button>' +
+						plsSendBtn +
 						'<a href="' + (notification.url || baseUrl + '/office-visits/waiting') + '" class="btn btn-outline-primary">View Details</a>' +
 					'</div>' +
 				'</div>';
@@ -501,9 +506,12 @@ i[style*="color:rgba"] {
 
 			card.querySelector('.teams-notification-close').addEventListener('click', function() { closeNotification(notification.id); });
 			card.querySelector('.teams-notification-minimize').addEventListener('click', function() { card.classList.toggle('minimized'); });
-			card.querySelector('.teams-notification-plssend').addEventListener('click', function() {
-				attendSession(notification.checkin_id, notification.id, card);
-			});
+			var plsSendEl = card.querySelector('.teams-notification-plssend');
+			if (plsSendEl) {
+				plsSendEl.addEventListener('click', function() {
+					attendSession(notification.checkin_id, notification.id, card);
+				});
+			}
 		}
 
 		function closeNotification(notificationId) {

@@ -720,6 +720,8 @@ class OfficeVisitController extends Controller
 				$log = $n->checkinLog;
 				$client = Admin::find($log->client_id);
 				$sender = \App\Models\Staff::find($n->sender_id) ?? Admin::find($n->sender_id);
+				$isPleaseSendMsg = $log && (int) $log->wait_type === 1
+					&& $n->message && str_contains($n->message, 'asked reception to send the client');
 				return [
 					'id' => $n->id,
 					'checkin_id' => $log->id,
@@ -729,6 +731,8 @@ class OfficeVisitController extends Controller
 					'visit_purpose' => $log->visit_purpose,
 					'created_at' => $n->created_at ? $n->created_at->format('d/m/Y h:i A') : '',
 					'url' => $n->url,
+					'popup_title' => $isPleaseSendMsg ? 'Please send the client' : null,
+					'show_pls_send_button' => $isPleaseSendMsg ? false : null,
 				];
 			});
 		return response()->json(['notifications' => $notifications, 'count' => $notifications->count()]);
@@ -751,8 +755,9 @@ class OfficeVisitController extends Controller
 	}
 
 	/**
-	 * POST: Update check-in status (e.g. reception "Pls Send The Client": status=0, wait_type=1).
+	 * POST: Update check-in status (staff popup "Pls Send The Client": status=0, wait_type=1).
 	 * Optionally pass notification_id to mark that notification seen.
+	 * When staff sets wait_type to 1, reception gets a new notification + realtime popup.
 	 */
 	public function updateCheckinStatus(Request $request)
 	{
@@ -761,6 +766,9 @@ class OfficeVisitController extends Controller
 		if (!$obj) {
 			return response()->json(['status' => false, 'message' => 'Check-in not found.'], 404);
 		}
+
+		$previousWaitType = (int) $obj->wait_type;
+
 		if ($request->has('status')) {
 			$obj->status = (int) $request->input('status');
 		}
@@ -768,6 +776,53 @@ class OfficeVisitController extends Controller
 			$obj->wait_type = (int) $request->input('wait_type');
 		}
 		$obj->save();
+
+		$requestedPlsSend = $request->has('wait_type') && (int) $request->input('wait_type') === 1;
+		if ($requestedPlsSend && $previousWaitType !== 1 && (int) $obj->status === 0) {
+			$receptionId = config('constants.reception_user_id');
+			$receiverId = $receptionId ? (int) $receptionId : (int) $obj->user_id;
+
+			$sender = Auth::user();
+			$senderName = trim(($sender->first_name ?? '') . ' ' . ($sender->last_name ?? ''));
+			$client = Admin::find($obj->client_id);
+			$clientName = $client ? trim($client->first_name . ' ' . $client->last_name) : 'Unknown Client';
+
+			$o = new \App\Models\Notification;
+			$o->sender_id = $sender->id;
+			$o->receiver_id = $receiverId;
+			$o->module_id = $obj->id;
+			$o->url = \URL::to('/office-visits/waiting');
+			$o->notification_type = 'officevisit';
+			$o->message = ($senderName !== '' ? $senderName : 'Staff') . ' asked reception to send the client.';
+			$o->seen = 0;
+			$o->receiver_status = 0;
+			$o->sender_status = 1;
+			$o->save();
+
+			try {
+				broadcast(new OfficeVisitNotificationCreated(
+					$o->id,
+					$o->receiver_id,
+					[
+						'id' => $o->id,
+						'checkin_id' => $obj->id,
+						'message' => $o->message,
+						'sender_name' => $senderName,
+						'client_name' => $clientName,
+						'visit_purpose' => $obj->visit_purpose,
+						'created_at' => $o->created_at ? $o->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
+						'url' => $o->url,
+						'popup_title' => 'Please send the client',
+						'show_pls_send_button' => false,
+					]
+				));
+			} catch (\Exception $e) {
+				\Log::warning('Failed to broadcast reception please-send notification', [
+					'notification_id' => $o->id,
+					'error' => $e->getMessage(),
+				]);
+			}
+		}
 
 		$notificationId = $request->input('notification_id');
 		if ($notificationId) {
