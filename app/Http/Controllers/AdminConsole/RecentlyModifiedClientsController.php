@@ -873,6 +873,67 @@ class RecentlyModifiedClientsController extends Controller
 	}
 
 	/**
+	 * Get bulk upload summary for selected clients:
+	 * client reference ID and total eligible local files (App/Edu/Mig) to upload.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function bulkUploadSummary(Request $request)
+	{
+		$clientIds = $request->input('client_ids', []);
+		if (empty($clientIds) || !is_array($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'First Select Client atlest 1 client.'
+			], 400);
+		}
+
+		$clientIds = array_values(array_unique(array_map('intval', array_filter($clientIds))));
+		if (empty($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'First Select Client atlest 1 client.'
+			], 400);
+		}
+
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+
+		$rows = [];
+		$totalFiles = 0;
+		foreach ($clientIds as $clientId) {
+			$client = Admin::select('id', 'client_id')->find($clientId);
+			$referenceId = trim((string) ($client->client_id ?? ''));
+			if ($referenceId === '') {
+				$referenceId = 'ID-' . $clientId;
+			}
+
+			$fileCount = $this->countEligibleLocalDocsForClientInternal(
+				$clientId,
+				$applicationCategoryId,
+				$educationCategoryId,
+				$migrationCategoryId
+			);
+			$totalFiles += $fileCount;
+
+			$rows[] = [
+				'client_id' => $clientId,
+				'client_reference_id' => $referenceId,
+				'total_files' => $fileCount,
+			];
+		}
+
+		return response()->json([
+			'success' => true,
+			'total_clients' => count($rows),
+			'total_files' => $totalFiles,
+			'rows' => $rows,
+		]);
+	}
+
+	/**
 	 * Internal: upload one document (local, App/Edu/Mig) to S3. Updates document record.
 	 *
 	 * @param Document $document
@@ -1040,6 +1101,57 @@ class RecentlyModifiedClientsController extends Controller
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Internal: count eligible local docs for S3 upload by client (Application/Education/Migration).
+	 *
+	 * @param int $clientId
+	 * @param int|null $applicationCategoryId
+	 * @param int|null $educationCategoryId
+	 * @param int|null $migrationCategoryId
+	 * @return int
+	 */
+	private function countEligibleLocalDocsForClientInternal(
+		int $clientId,
+		$applicationCategoryId,
+		$educationCategoryId,
+		$migrationCategoryId
+	): int {
+		$categoryIds = array_filter([$applicationCategoryId, $educationCategoryId, $migrationCategoryId]);
+		if ($clientId < 1 || count($categoryIds) === 0) {
+			return 0;
+		}
+
+		$query = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->where(function ($q) {
+				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
+			})
+			->where(function ($q) use ($applicationCategoryId, $educationCategoryId, $migrationCategoryId) {
+				if ($applicationCategoryId) {
+					$q->where('category_id', $applicationCategoryId);
+				}
+				if ($educationCategoryId) {
+					$q->orWhere(function ($q2) use ($educationCategoryId) {
+						$q2->where('category_id', $educationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+				if ($migrationCategoryId) {
+					$q->orWhere(function ($q2) use ($migrationCategoryId) {
+						$q2->where('category_id', $migrationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+			});
+
+		return (int) $query->count();
 	}
 
 	/**

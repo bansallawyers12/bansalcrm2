@@ -1208,30 +1208,65 @@ $(document).ready(function() {
 			return;
 		}
 
-		if (!confirm('Upload all Application, Education and Migration documents to S3 for selected clients and remove their public path copies?')) {
-			return;
-		}
-
 		var $btn = $('#bulkUploadAllDocsToS3Btn');
 		var $archiveBtn = $('#bulkArchiveBtn');
 		var originalHtml = $btn.html();
 
-		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Checking...');
 		$archiveBtn.prop('disabled', true);
 
 		$.ajax({
-			url: '{{ route("adminconsole.recentclients.bulkuploadalldocumentstos3") }}',
+			url: '{{ route("adminconsole.recentclients.bulkuploadsummary") }}',
 			type: 'POST',
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			data: { client_ids: ids },
-			success: function(response) {
-				alert(response.message || 'Bulk upload completed.');
-				window.location.reload();
+			success: function(summary) {
+				var rows = (summary && summary.rows) ? summary.rows : [];
+				var totalClients = (summary && summary.total_clients != null) ? summary.total_clients : rows.length;
+				var totalFiles = (summary && summary.total_files != null) ? summary.total_files : 0;
+				var lines = [];
+				for (var i = 0; i < rows.length; i++) {
+					lines.push((rows[i].client_reference_id || ('ID-' + rows[i].client_id)) + ' - ' + (rows[i].total_files || 0) + ' files');
+				}
+
+				var confirmText =
+					'Selected Clients: ' + totalClients + '\n' +
+					'Total Files To Upload: ' + totalFiles + '\n\n' +
+					'Client Reference Id - Total Files:\n' +
+					(lines.length ? lines.join('\n') : 'No clients found') +
+					'\n\nProceed with upload to S3 and remove public path copies?';
+
+				if (!confirm(confirmText)) {
+					$btn.prop('disabled', false).html(originalHtml);
+					updateBulkArchiveState();
+					return;
+				}
+
+				$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+
+				$.ajax({
+					url: '{{ route("adminconsole.recentclients.bulkuploadalldocumentstos3") }}',
+					type: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					},
+					data: { client_ids: ids },
+					success: function(response) {
+						alert(response.message || 'Bulk upload completed.');
+						window.location.reload();
+					},
+					error: function(xhr) {
+						var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Bulk upload failed';
+						alert(msg);
+						$btn.prop('disabled', false).html(originalHtml);
+						updateBulkArchiveState();
+					}
+				});
 			},
 			error: function(xhr) {
-				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Bulk upload failed';
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load upload summary';
 				alert(msg);
 				$btn.prop('disabled', false).html(originalHtml);
 				updateBulkArchiveState();
