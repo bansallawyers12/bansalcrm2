@@ -50,6 +50,6 @@ return [
 	'added' => ' has been added successfully.',	
 	'edited' => ' has been edited successfully.',	
 
-	// Office visit / In Person: reception user ID (gets "Pls Send The Client" popup when assignee clicks Waiting)
+	// Office visit / In Person: reception Staff id (auth guard admin). Gets popup when assignee clicks Waiting on the waiting list, and when assignee clicks "Pls Send The Client" on the assignment popup.
 	'reception_user_id' => env('RECEPTION_USER_ID', null),
 ];
