@@ -30,10 +30,8 @@
         border: 1px solid #9ec5fe;
     }
     
-    /* Hover effect for rows */
     tbody tr:hover {
         background-color: #f8f9fa;
-        cursor: pointer;
     }
     
     /* Current status column - allow text wrapping */
@@ -472,9 +470,9 @@
                                             $clientEncodedId = base64_encode(convert_uuencode($row->client_id));
                                             $appDetailUrl = route('clients.detail.application', ['id' => $clientEncodedId, 'applicationId' => $row->application_id]);
                                         @endphp
-                                        <tr onclick="window.location.href='{{ $appDetailUrl }}'">
+                                        <tr>
                                             <td class="ongoing-course-cell">
-                                                <a href="{{ $appDetailUrl }}" class="ongoing-course-link" onclick="event.stopPropagation();">{{ $row->course_name ?? '—' }}</a>
+                                                <a href="{{ $appDetailUrl }}" class="ongoing-course-link">{{ $row->course_name ?? '—' }}</a>
                                             </td>
                                             @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td>{{ $row->crm_ref ?? '—' }}</td>
@@ -494,7 +492,7 @@
                                             @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td class="branch-cell">{{ $row->branch_name ?? '—' }}</td>
                                             @endif
-                                            <td onclick="event.stopPropagation();">
+                                            <td>
                                                 <span class="ongoing-assignee-display">{{ trim(($row->assignee_first_name ?? '') . ' ' . ($row->assignee_last_name ?? '')) ?: '—' }}</span>
                                                 <a href="javascript:;" class="ongoing-assignee-edit ms-1" data-app-id="{{ $row->application_id }}" data-assignee-id="{{ $row->assignee_id ?? '' }}" title="Change assignee"><i class="fas fa-edit text-muted small"></i></a>
                                             </td>
@@ -518,12 +516,12 @@
                                             @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td class="status-cell">{{ $row->application_stage ?? '—' }}</td>
                                             @endif
-                                            <td class="comment-cell" onclick="event.stopPropagation();">
+                                            <td class="comment-cell">
                                                 <span class="sheet-comment-text">{{ $row->sheet_comment_text ?? '—' }}</span>
                                                 <a href="javascript:;" class="sheet-comment-edit ms-1" data-app-id="{{ $row->application_id }}" data-comment="{{ e($row->sheet_comment_text ?? '') }}" title="Add/Edit comment"><i class="fas fa-edit text-muted small"></i></a>
                                             </td>
                                             @if(isset($sheetType) && $sheetType === 'checklist')
-                                            <td class="checklist-status-cell" onclick="event.stopPropagation();">
+                                            <td class="checklist-status-cell">
                                                 @php
                                                     $currentStatus = $row->checklist_sheet_status ?? 'active';
                                                     $statusLabels = ['active' => 'Active', 'convert_to_client' => 'Convert to client', 'discontinue' => 'Discontinue', 'hold' => 'Hold'];
@@ -534,7 +532,7 @@
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="checklist-sent-cell" onclick="event.stopPropagation();">
+                                            <td class="checklist-sent-cell">
                                                 @php
                                                     $clientEncodedIdForResend = base64_encode(convert_uuencode($row->client_id));
                                                     $resendChecklistUrl = route('clients.detail', ['id' => $clientEncodedIdForResend]) . '?applicationId=' . $row->application_id . '&open_checklist_email=1';
@@ -543,13 +541,13 @@
                                                 @endphp
                                                 @if($row->checklist_sent_at)
                                                     {{ \Carbon\Carbon::parse($row->checklist_sent_at)->format('d/m/Y') }}
-                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-secondary mt-1" onclick="event.stopPropagation();" title="Resend checklist email">Resend checklist</a>
+                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-secondary mt-1" title="Resend checklist email">Resend checklist</a>
                                                 @else
                                                     Not sent
-                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-primary mt-1" onclick="event.stopPropagation();" title="Send checklist email">Send checklist</a>
+                                                    <br><a href="{{ $resendChecklistUrl }}" class="btn btn-sm btn-outline-primary mt-1" title="Send checklist email">Send checklist</a>
                                                 @endif
                                             </td>
-                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                            <td class="reminder-cell">
                                                 @if(!empty($row->email_reminder_latest))
                                                     {{ \Carbon\Carbon::parse($row->email_reminder_latest)->format('d/m/Y') }}@if($row->email_reminder_count > 0) ({{ $row->email_reminder_count }})@endif
                                                 @else
@@ -557,7 +555,7 @@
                                                 @endif
                                                 <br><a href="{{ $emailReminderUrl }}" class="btn btn-sm btn-outline-secondary mt-1 checklist-reminder-link" data-msg="Open email to send reminder?" title="Email reminder">Email reminder</a>
                                             </td>
-                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                            <td class="reminder-cell">
                                                 @if(!empty($row->sms_reminder_latest))
                                                     {{ \Carbon\Carbon::parse($row->sms_reminder_latest)->format('d/m/Y') }}@if($row->sms_reminder_count > 0) ({{ $row->sms_reminder_count }})@endif
                                                 @else
@@ -565,7 +563,7 @@
                                                 @endif
                                                 <br><a href="{{ $smsReminderUrl }}" class="btn btn-sm btn-outline-secondary mt-1 checklist-reminder-link" data-msg="Open SMS to send reminder?" title="SMS reminder">SMS reminder</a>
                                             </td>
-                                            <td class="reminder-cell" onclick="event.stopPropagation();">
+                                            <td class="reminder-cell">
                                                 @if(!empty($row->phone_reminder_latest))
                                                     {{ \Carbon\Carbon::parse($row->phone_reminder_latest)->format('d/m/Y') }}@if($row->phone_reminder_count > 0) ({{ $row->phone_reminder_count }})@endif
                                                 @else
@@ -713,8 +711,6 @@ $(document).ready(function() {
         window.location.href = '{{ route($sheetRoute ?? "clients.sheets.ongoing") }}?' + params.toString();
     });
     
-    // Sheet comment: open modal. Bind directly to the link (not delegated) because the
-    // td's onclick="event.stopPropagation()" prevents the event from bubbling to document.
     $('.sheet-comment-edit').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -731,8 +727,6 @@ $(document).ready(function() {
         }
     });
 
-    // Change assignee: open modal. Direct binding (same as sheet-comment-edit) because
-    // the td's onclick="event.stopPropagation()" prevents bubbling to document.
     $('.ongoing-assignee-edit').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
