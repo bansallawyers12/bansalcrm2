@@ -804,6 +804,75 @@ class RecentlyModifiedClientsController extends Controller
 	}
 
 	/**
+	 * Bulk upload all Application/Education/Migration local documents for selected clients to S3,
+	 * then remove public(local) paths for docs that are on S3.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function bulkUploadAllDocumentsToS3(Request $request)
+	{
+		$clientIds = $request->input('client_ids', []);
+		if (empty($clientIds) || !is_array($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'First Select Client atlest 1 client.'
+			], 400);
+		}
+
+		$clientIds = array_values(array_unique(array_map('intval', array_filter($clientIds))));
+		if (empty($clientIds)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'First Select Client atlest 1 client.'
+			], 400);
+		}
+
+		$totalUploaded = 0;
+		$totalUploadFailed = 0;
+		$totalPublicDeleted = 0;
+		$totalPublicDeleteFailed = 0;
+		$processedClients = 0;
+		$errors = [];
+
+		foreach ($clientIds as $clientId) {
+			$clientResult = $this->uploadAndCleanupClientDocsToS3Internal($clientId);
+			if ($clientResult['processed']) {
+				$processedClients++;
+			}
+
+			$totalUploaded += (int) ($clientResult['uploaded'] ?? 0);
+			$totalUploadFailed += (int) ($clientResult['upload_failed'] ?? 0);
+			$totalPublicDeleted += (int) ($clientResult['public_deleted'] ?? 0);
+			$totalPublicDeleteFailed += (int) ($clientResult['public_delete_failed'] ?? 0);
+
+			if (!empty($clientResult['message'])) {
+				$errors['client_' . $clientId] = $clientResult['message'];
+			}
+		}
+
+		$success = $totalUploaded > 0 || $totalPublicDeleted > 0;
+		$message = $success
+			? 'Bulk upload completed. Uploaded: ' . $totalUploaded . ', Public paths removed: ' . $totalPublicDeleted . '.'
+			: 'No documents were processed. Please check selected clients.';
+
+		if ($totalUploadFailed > 0 || $totalPublicDeleteFailed > 0) {
+			$message .= ' Failed uploads: ' . $totalUploadFailed . ', Failed public path removals: ' . $totalPublicDeleteFailed . '.';
+		}
+
+		return response()->json([
+			'success' => $success,
+			'message' => $message,
+			'processed_clients' => $processedClients,
+			'uploaded_count' => $totalUploaded,
+			'upload_failed_count' => $totalUploadFailed,
+			'public_deleted_count' => $totalPublicDeleted,
+			'public_delete_failed_count' => $totalPublicDeleteFailed,
+			'errors' => $errors,
+		]);
+	}
+
+	/**
 	 * Internal: upload one document (local, App/Edu/Mig) to S3. Updates document record.
 	 *
 	 * @param Document $document
@@ -854,6 +923,123 @@ class RecentlyModifiedClientsController extends Controller
 		$document->save();
 
 		return ['success' => true, 's3_url' => $fileUrl];
+	}
+
+	/**
+	 * Internal: for one client, upload all local App/Edu/Mig docs to S3,
+	 * then delete all public(local) copies for App/Edu/Mig docs already on S3.
+	 *
+	 * @param int $clientId
+	 * @return array{processed: bool, uploaded: int, upload_failed: int, public_deleted: int, public_delete_failed: int, message?: string}
+	 */
+	private function uploadAndCleanupClientDocsToS3Internal(int $clientId): array
+	{
+		$result = [
+			'processed' => false,
+			'uploaded' => 0,
+			'upload_failed' => 0,
+			'public_deleted' => 0,
+			'public_delete_failed' => 0,
+		];
+
+		if ($clientId < 1) {
+			$result['message'] = 'Invalid client ID';
+			return $result;
+		}
+
+		$client = Admin::find($clientId);
+		if (!$client || empty(trim((string) ($client->client_id ?? '')))) {
+			$result['message'] = 'Client not found or has no unique ID';
+			return $result;
+		}
+
+		$result['processed'] = true;
+
+		$applicationCategoryId = DocumentCategory::where('name', 'Application')->default()->value('id');
+		$educationCategoryId = DocumentCategory::where('name', 'Education')->default()->value('id');
+		$migrationCategoryId = DocumentCategory::where('name', 'Migration')->default()->value('id');
+
+		$categoryIds = array_filter([$applicationCategoryId, $educationCategoryId, $migrationCategoryId]);
+		if (count($categoryIds) === 0) {
+			return $result;
+		}
+
+		$uploadQuery = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->whereNotNull('myfile')
+			->where('myfile', '!=', '')
+			->where(function ($q) {
+				$q->whereNull('myfile_key')->orWhere('myfile_key', '');
+			})
+			->where(function ($q) use ($applicationCategoryId, $educationCategoryId, $migrationCategoryId) {
+				if ($applicationCategoryId) {
+					$q->where('category_id', $applicationCategoryId);
+				}
+				if ($educationCategoryId) {
+					$q->orWhere(function ($q2) use ($educationCategoryId) {
+						$q2->where('category_id', $educationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+				if ($migrationCategoryId) {
+					$q->orWhere(function ($q2) use ($migrationCategoryId) {
+						$q2->where('category_id', $migrationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+			});
+
+		$docsToUpload = $uploadQuery->get();
+		foreach ($docsToUpload as $document) {
+			$upload = $this->uploadSingleDocumentToS3Internal($document);
+			if ($upload['success']) {
+				$result['uploaded']++;
+			} else {
+				$result['upload_failed']++;
+			}
+		}
+
+		$cleanupQuery = Document::where('client_id', $clientId)
+			->where('type', 'client')
+			->whereNull('archived_at')
+			->whereNull('not_used_doc')
+			->where('doc_type', 'documents')
+			->whereNotNull('myfile_key')
+			->where('myfile_key', '!=', '')
+			->whereNotNull('doc_public_path')
+			->where('doc_public_path', '!=', '')
+			->where(function ($q) use ($applicationCategoryId, $educationCategoryId, $migrationCategoryId) {
+				if ($applicationCategoryId) {
+					$q->where('category_id', $applicationCategoryId);
+				}
+				if ($educationCategoryId) {
+					$q->orWhere(function ($q2) use ($educationCategoryId) {
+						$q2->where('category_id', $educationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+				if ($migrationCategoryId) {
+					$q->orWhere(function ($q2) use ($migrationCategoryId) {
+						$q2->where('category_id', $migrationCategoryId)
+							->where('is_edu_and_mig_doc_migrate', Document::EDU_MIG_MIGRATE_SUCCESS);
+					});
+				}
+			});
+
+		$docsToCleanup = $cleanupQuery->get();
+		foreach ($docsToCleanup as $document) {
+			$cleanup = $this->deleteOnePublicDocInternal($document);
+			if ($cleanup['success']) {
+				$result['public_deleted']++;
+			} else {
+				$result['public_delete_failed']++;
+			}
+		}
+
+		return $result;
 	}
 
 	/**

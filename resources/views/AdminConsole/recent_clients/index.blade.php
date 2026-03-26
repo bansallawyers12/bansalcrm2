@@ -234,6 +234,11 @@
 								<button type="button" class="btn btn-danger mr-2" id="bulkArchiveBtn" disabled title="Select one or more clients to archive">
 									<i class="fas fa-archive"></i> Bulk Archive
 								</button>
+								@if(in_array(@$docStorage, ['local', 'both'], true))
+								<button type="button" class="btn btn-success mr-2" id="bulkUploadAllDocsToS3Btn" disabled title="Select one or more clients to upload all docs to S3">
+									<i class="fas fa-cloud-upload-alt"></i> Upload All Docs To S3
+								</button>
+								@endif
 								<span class="text-muted small" id="selectedCountText">0 selected</span>
 							</div>
 							@endif
@@ -1121,6 +1126,7 @@ $(document).ready(function() {
 		var count = $('.client-checkbox:checked').length;
 		$('#selectedCountText').text(count + ' selected');
 		$('#bulkArchiveBtn').prop('disabled', count === 0);
+		$('#bulkUploadAllDocsToS3Btn').prop('disabled', count === 0);
 		$('#selectAllClients').prop('checked', count > 0 && count === $('.client-checkbox').length);
 	}
 	
@@ -1185,6 +1191,50 @@ $(document).ready(function() {
 				alert('Error: ' + errorMsg);
 				$btn.prop('disabled', false);
 				$btn.html(originalHtml);
+			}
+		});
+	});
+
+	// Bulk upload all docs (Application, Education, Migration) to S3 + remove public paths
+	$('#bulkUploadAllDocsToS3Btn').on('click', function() {
+		var ids = [];
+		$('.client-checkbox:checked').each(function() {
+			var id = $(this).val();
+			if (id) ids.push(id);
+		});
+
+		if (ids.length === 0) {
+			alert('First Select Client atlest 1 client.');
+			return;
+		}
+
+		if (!confirm('Upload all Application, Education and Migration documents to S3 for selected clients and remove their public path copies?')) {
+			return;
+		}
+
+		var $btn = $('#bulkUploadAllDocsToS3Btn');
+		var $archiveBtn = $('#bulkArchiveBtn');
+		var originalHtml = $btn.html();
+
+		$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+		$archiveBtn.prop('disabled', true);
+
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.bulkuploadalldocumentstos3") }}',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: { client_ids: ids },
+			success: function(response) {
+				alert(response.message || 'Bulk upload completed.');
+				window.location.reload();
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Bulk upload failed';
+				alert(msg);
+				$btn.prop('disabled', false).html(originalHtml);
+				updateBulkArchiveState();
 			}
 		});
 	});
