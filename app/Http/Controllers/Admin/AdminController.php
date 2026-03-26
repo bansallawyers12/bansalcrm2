@@ -1347,26 +1347,31 @@ class AdminController extends Controller
 		if(isset($requestData['type'])){
 		$obj->type 			=  @$requestData['type'];
 		}
-		// Client detail compose: email_category = 'college' when sent from college addresses (College sent tab), else 'client'
+		// Client detail: Sent tab Client/College — explicit compose target wins, else infer from From address
 		$entityType = isset($requestData['type']) ? trim((string) $requestData['type']) : '';
 		if (in_array(strtolower($entityType), ['client', 'lead'], true)) {
-			$collegeFromEmails = [
-				'admin2@bansaleducation.com.au',
-				'admin@bansaleducation.com.au',
-				'apply@bansaleducation.com.au',
-				'admission@bansalimmigration.com.au',
-			];
-			$fromMailRaw = isset($requestData['email_from']) ? $requestData['email_from'] : '';
-			if (is_array($fromMailRaw)) {
-				$fromMailRaw = reset($fromMailRaw);
+			$explicitCategory = isset($requestData['compose_email_category']) ? strtolower(trim((string) $requestData['compose_email_category'])) : '';
+			if ($explicitCategory === 'college' || $explicitCategory === 'client') {
+				$obj->email_category = $explicitCategory;
+			} else {
+				$collegeFromEmails = [
+					'admin2@bansaleducation.com.au',
+					'admin@bansaleducation.com.au',
+					'apply@bansaleducation.com.au',
+					'admission@bansalimmigration.com.au',
+				];
+				$fromMailRaw = isset($requestData['email_from']) ? $requestData['email_from'] : '';
+				if (is_array($fromMailRaw)) {
+					$fromMailRaw = reset($fromMailRaw);
+				}
+				$fromMailRaw = trim((string) $fromMailRaw);
+				$fromEmail = $fromMailRaw;
+				if (preg_match('/<([^>]+)>/', $fromMailRaw, $m)) {
+					$fromEmail = trim($m[1]);
+				}
+				$fromEmail = strtolower(trim($fromEmail));
+				$obj->email_category = in_array($fromEmail, $collegeFromEmails, true) ? 'college' : 'client';
 			}
-			$fromMailRaw = trim((string) $fromMailRaw);
-			$fromEmail = $fromMailRaw;
-			if (preg_match('/<([^>]+)>/', $fromMailRaw, $m)) {
-				$fromEmail = trim($m[1]);
-			}
-			$fromEmail = strtolower(trim($fromEmail));
-			$obj->email_category = in_array($fromEmail, $collegeFromEmails, true) ? 'college' : 'client';
 		}
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
@@ -1438,6 +1443,7 @@ class AdminController extends Controller
 
 		// Activity log based on which button user clicked (send_context)
         $sendContext = $requestData['send_context'] ?? '';
+        $isApplicationComposeContext = ($sendContext === 'application_compose');
         
 		// When send_context=checklist (Send checklist button): always log "Checklist Email sent"
         $isChecklistContext = ($sendContext === 'checklist');
@@ -1531,7 +1537,7 @@ class AdminController extends Controller
 
         // When application_id present, no send_context (legacy): record email reminder and log
         $isChecklistEmail = (!empty($requestData['checklistfile']) || !empty($requestData['checklistfile_document']));
-        if ($saved && !empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext) {
+        if ($saved && !empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext && !$isApplicationComposeContext) {
             $app = \App\Models\Application::find((int)$requestData['application_id']);
             if ($app && $app->client_id) {
                 \App\Models\ApplicationReminder::create([
@@ -1556,7 +1562,7 @@ class AdminController extends Controller
         $loggedChecklistOrReminder = $isChecklistContext
             || (isset($requestData['checklistfile']) && !empty($requestData['checklistfile']))
             || $isEmailReminderContext
-            || (!empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext);
+            || (!empty($requestData['application_id']) && !$isChecklistEmail && !$isChecklistContext && !$isEmailReminderContext && !$isApplicationComposeContext);
         if ($saved && !$loggedChecklistOrReminder) {
             $clientIdForLog = is_numeric($obj->client_id) ? (int)$obj->client_id : null;
             if ($clientIdForLog === null && !empty($requestData['email_to'][0]) && is_numeric($requestData['email_to'][0])) {

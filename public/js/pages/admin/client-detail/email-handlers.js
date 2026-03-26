@@ -44,10 +44,39 @@
 // ============================================================================
 
 jQuery(document).ready(function($){
+
+    /**
+     * Replace To field with fixed Select2 options (client id or raw email for college).
+     */
+    function setComposeToRecipients(entries) {
+        var $toField = $('.js-data-example-ajax');
+        var ids = entries.map(function (e) { return String(e.id); });
+        if ($toField.data('select2')) {
+            $toField.select2('destroy');
+        }
+        $toField.select2({
+            multiple: true,
+            closeOnSelect: false,
+            dropdownParent: $('#emailmodal'),
+            data: entries,
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            templateResult: function (data) {
+                return data.html;
+            },
+            templateSelection: function (data) {
+                return data.text;
+            }
+        });
+        $toField.val(ids).trigger('change');
+    }
     
     // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
     $('#emailmodal').on('hidden.bs.modal', function() {
         $('#sendmail_send_context').val('');
+        $('#sendmail_application_id').val('');
+        $('#compose_email_category').val('');
         // Multi-file state is managed in detail.blade.php inline script
         if (typeof window.clearComposeAttachFiles === 'function') window.clearComposeAttachFiles();
     });
@@ -151,19 +180,22 @@ jQuery(document).ready(function($){
     
     $(document).on('click', '.clientemail', function(){
         $('#sendmail_send_context').val(''); // Clear context when opening from generic email link
+        $('#sendmail_application_id').val('');
+        $('#compose_email_category').val('');
         $('#emailmodal').modal('show');
         var id = $(this).attr('data-id');
-        var array = [String(id)];
         var email = $(this).attr('data-email');
         var name = $(this).attr('data-name');
         var status = 'Client';
+        var safeName = $('<span>').text(name || '').html();
+        var safeEmail = $('<span>').text(email || '').html();
         var data = [{
             id: id,
             text: name,
             html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
                 "<div  class='ag-flex ag-align-start'>" +
-                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+name+"</span>&nbsp;</div>" +
-                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+email+"</small ></div>" +
+                    "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+safeName+"</span>&nbsp;</div>" +
+                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+safeEmail+"</small ></div>" +
                 "</div>" +
             "</div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
@@ -173,25 +205,41 @@ jQuery(document).ready(function($){
             "</div>",
             title: name
         }];
+        setComposeToRecipients(data);
+    });
 
-        var $toField = $(".js-data-example-ajax");
-        if ($toField.data('select2')) { $toField.select2('destroy'); }
-        $toField.select2({
-            multiple: true,
-            closeOnSelect: false,
-            dropdownParent: $('#emailmodal'),
-            data: data,
-            escapeMarkup: function(markup) {
-                return markup;
-            },
-            templateResult: function(data) {
-                return data.html;
-            },
-            templateSelection: function(data) {
-                return data.text;
-            }
-        });
-        $toField.val(array).trigger('change');
+    // Applications tab: compose to college (category + application_id; send_context avoids "email reminder" logging)
+    $(document).on('click', '.application-compose-email', function () {
+        var $btn = $(this);
+        if ($btn.is(':disabled')) {
+            return;
+        }
+        var appId = $btn.attr('data-application-id') || '';
+        var cEmail = ($btn.attr('data-college-email') || '').trim();
+        var cName = ($btn.attr('data-college-name') || 'College').trim();
+        if (!cEmail) {
+            alert('No college email on file. Add branch or partner email in the partner profile.');
+            return;
+        }
+        $('#sendmail_application_id').val(appId);
+        $('#sendmail_send_context').val('application_compose');
+        $('#compose_email_category').val('college');
+        var safeCollegeName = $('<span>').text(cName).html();
+        var safeCollegeEmail = $('<span>').text(cEmail).html();
+        var collegeEntry = [{
+            id: cEmail,
+            text: cName,
+            html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
+                "<div class='ag-flex ag-align-start'>" +
+                "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>" + safeCollegeName + "</span>&nbsp;</div>" +
+                "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + safeCollegeEmail + "</small></div></div></div>" +
+                "<div class='ag-flex ag-flex-column ag-align-end'>" +
+                "<span class='ui label select2-result-repository__statistics' style='background:#6366f1;color:#fff;'>College</span>" +
+                "</div></div>",
+            title: cName
+        }];
+        setComposeToRecipients(collegeEntry);
+        $('#emailmodal').modal('show');
     });
 
     // ============================================================================
@@ -418,6 +466,8 @@ jQuery(document).ready(function($){
                 if(res.status) {
                     alert(res.message || 'Email sent successfully');
                     $('#sendmail_send_context').val(''); // Clear context after successful send
+                    $('#sendmail_application_id').val('');
+                    $('#compose_email_category').val('');
                     $('#emailmodal').modal('hide');
                     // Reset form and attachments
                     form[0].reset();

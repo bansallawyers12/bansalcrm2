@@ -3,6 +3,12 @@ $productdetail = \App\Models\Product::where('id', $fetchData->product_id)->first
 $partnerdetail = \App\Models\Partner::where('id', $fetchData->partner_id)->first();
 $PartnerBranch = \App\Models\PartnerBranch::where('id', $fetchData->branch)->first();
 $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
+$branchEmail = ($PartnerBranch && !empty($PartnerBranch->email)) ? trim((string) $PartnerBranch->email) : '';
+$partnerPrimaryEmail = ($partnerdetail && !empty($partnerdetail->email)) ? trim((string) $partnerdetail->email) : '';
+$partnerAltEmail = \App\Models\PartnerEmail::where('partner_id', $fetchData->partner_id)->orderBy('id')->value('partner_email');
+$partnerAltEmail = $partnerAltEmail ? trim((string) $partnerAltEmail) : '';
+$collegeRecipientEmail = $branchEmail !== '' ? $branchEmail : ($partnerPrimaryEmail !== '' ? $partnerPrimaryEmail : $partnerAltEmail);
+$collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 ?>
 <style>
 .checklist .round{background: #fff;border: 1px solid #000; border-radius: 50%;font-size: 10px;line-height: 14px; padding: 2px 5px;width: 16px; height: 16px; display: inline-block;}
@@ -29,6 +35,15 @@ $workflow = \App\Models\Workflow::where('id', $fetchData->workflow)->first();
 	</div>
 	<div class="float-end">
 		<div class="application_btns">
+			@if($collegeRecipientEmail !== '')
+			<button type="button" class="btn btn-outline-secondary btn-sm application-compose-email me-1 mb-1"
+				title="Compose to school / college on this application"
+				data-application-id="{{ (int) $fetchData->id }}"
+				data-college-email="{{ e($collegeRecipientEmail) }}"
+				data-college-name="{{ e($collegeRecipientName) }}">
+				<i class="fa fa-envelope" aria-hidden="true"></i> College
+			</button>
+			@endif
 			<a target="_blank" href="{{URL::to('/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fa fa-print"></i></a>
           
 			<a style="<?php if($fetchData->status == 2 || $fetchData->status == 1){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger discon_application ifdiscont"><i class="fa fa-times"></i> Discontinue</a>

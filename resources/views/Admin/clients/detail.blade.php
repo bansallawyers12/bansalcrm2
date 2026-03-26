@@ -1929,6 +1929,7 @@ use App\Http\Controllers\Controller;
 				<input type="hidden" name="type" value="{{ $fetchedData->type ?? 'client' }}">
 				<input type="hidden" name="application_id" id="sendmail_application_id" value="">
 				<input type="hidden" name="send_context" id="sendmail_send_context" value="">
+				<input type="hidden" name="compose_email_category" id="compose_email_category" value="">
 					<div class="row compose-row-tight">
 						<div class="col-12 col-md-6">
 							<div class="form-group form-group-compact">
