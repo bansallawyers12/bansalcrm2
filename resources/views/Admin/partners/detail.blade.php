@@ -2856,7 +2856,7 @@ use App\Http\Controllers\Controller;
         partnersUploadAllDocument: '{{ URL::to("/partners/upload-alldocument") }}',
         partnersUploadPartnerDocument: '{{ url("/upload-partner-document-upload") }}',
         partnersSaveStudentNote: '{{ url("/partners/save-student-note") }}',
-        partnersGetStudentTabData: '{{ url("/partners/getStudentTabData/".base64_encode(convert_uuencode($fetchedData->id))) }}',
+        partnersGetStudentTabData: '{{ route("partners.getStudentTabData", ["id" => base64_encode(convert_uuencode($fetchedData->id))]) }}',
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',
