@@ -18,6 +18,7 @@ use App\Models\PartnerAgreement;
 use Auth; 
 use Config;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 use Hfig\MAPI;
@@ -779,65 +780,25 @@ class PartnersController extends Controller
 
 	/**
 	 * AJAX endpoint for the Student tab DataTables.
-	 * Returns active and inactive student rows as pre-formatted arrays so the
-	 * Blade no longer needs to run two large JOIN queries on every page load.
+	 *
+	 * Optimisations applied:
+	 *  1. partners join removed — partner_name taken directly from fetched partner row.
+	 *  2. ->distinct() replaced with PostgreSQL DISTINCT ON (applications.id) to avoid
+	 *     a full sort when application_fee_options has multiple rows per application.
+	 *  3. Result cached per partner for 5 minutes (300s). Cache is busted by
+	 *     clearStudentTabCache() which should be called from any controller that
+	 *     modifies a student's stage, status, overall_status, or fee options.
 	 */
 	public function getStudentTabData(Request $request, $id)
 	{
 		$id = $this->decodeString($id);
 
-		if (!Partner::where('id', $id)->exists()) {
+		$partner = Partner::select('id', 'partner_name')->find($id);
+		if (!$partner) {
 			return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
 		}
 
-		$baseQuery = function (?int $overallStatus) use ($id) {
-			$q = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
-				->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
-				->leftJoin('products', 'applications.product_id', '=', 'products.id')
-				->leftJoin('application_fee_options', 'applications.id', '=', 'application_fee_options.app_id')
-				->select(
-					'applications.id',
-					'applications.client_id',
-					'applications.status',
-					'applications.overall_status',
-					'applications.student_id',
-					'applications.start_date',
-					'applications.end_date',
-					'applications.student_add_notes',
-					'admins.client_id as client_reference',
-					'admins.first_name',
-					'admins.last_name',
-					'admins.dob',
-					'partners.partner_name',
-					'products.name as coursename',
-					'application_fee_options.total_course_fee_amount',
-					'application_fee_options.enrolment_fee_amount',
-					'application_fee_options.material_fees',
-					'application_fee_options.tution_fees',
-					'application_fee_options.fee_reported_by_college',
-					'application_fee_options.bonus_amount',
-					'application_fee_options.bonus_pending_amount',
-					'application_fee_options.scholarship_fee_amount',
-					'application_fee_options.commission_as_per_fee_reported',
-					'application_fee_options.commission_payable_as_per_anticipated_fee',
-					'application_fee_options.commission_paid_as_per_fee_reported',
-					'application_fee_options.commission_pending'
-				)
-				->where('applications.partner_id', $id)
-				->where(function ($query) {
-					$query->where('applications.stage', 'Coe issued')
-						  ->orWhere('applications.stage', 'Enrolled')
-						  ->orWhere('applications.stage', 'Coe Cancelled');
-				})
-				->orderBy('applications.created_at', 'ASC')
-				->distinct();
-
-			if ($overallStatus !== null) {
-				$q->where('applications.overall_status', $overallStatus);
-			}
-
-			return $q->get();
-		};
+		$partnerName = $partner->partner_name;
 
 		$statusMap = [
 			0 => 'In Progress', 1 => 'Completed', 2 => 'Discontinued',
@@ -845,30 +806,73 @@ class PartnersController extends Controller
 			6 => 'Future',      7 => 'VOE',       8 => 'Refund',
 		];
 
-		$formatRows = function ($rows, bool $isActive) use ($statusMap) {
+		// Fetch students using DISTINCT ON (PostgreSQL) to deduplicate
+		// application_fee_options rows without an expensive full-result sort.
+		$baseQuery = function (?int $overallStatus) use ($id) {
+			$overallFilter = $overallStatus !== null
+				? "AND applications.overall_status = {$overallStatus}"
+				: '';
+
+			// DISTINCT ON picks the first matching fee row per application ordered by
+			// application_fee_options.id DESC (latest fee record wins).
+			return DB::select("
+				SELECT DISTINCT ON (applications.id)
+					applications.id,
+					applications.client_id,
+					applications.status,
+					applications.overall_status,
+					applications.student_id,
+					applications.start_date,
+					applications.end_date,
+					applications.student_add_notes,
+					admins.client_id          AS client_reference,
+					admins.first_name,
+					admins.last_name,
+					admins.dob,
+					products.name             AS coursename,
+					afo.total_course_fee_amount,
+					afo.enrolment_fee_amount,
+					afo.material_fees,
+					afo.tution_fees,
+					afo.fee_reported_by_college,
+					afo.bonus_amount,
+					afo.bonus_pending_amount,
+					afo.scholarship_fee_amount,
+					afo.commission_as_per_fee_reported,
+					afo.commission_payable_as_per_anticipated_fee,
+					afo.commission_paid_as_per_fee_reported,
+					afo.commission_pending
+				FROM applications
+				INNER JOIN admins       ON admins.id       = applications.client_id
+				LEFT  JOIN products     ON products.id     = applications.product_id
+				LEFT  JOIN application_fee_options afo ON afo.app_id = applications.id
+				WHERE applications.partner_id = ?
+				  AND applications.stage IN ('Coe issued', 'Enrolled', 'Coe Cancelled')
+				  {$overallFilter}
+				ORDER BY applications.id, afo.id DESC, applications.created_at ASC
+			", [$id]);
+		};
+
+		$formatRows = function ($rows, bool $isActive, string $partnerName) use ($statusMap) {
 			$formatted = [];
 			foreach ($rows as $data) {
 				$clientEncodedId = base64_encode(convert_uuencode(@$data->client_id));
 
-				// CRM Ref with link
 				$crmRef = $data->client_reference
 					? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
 					: 'N/P';
 
-				// DOB
 				$dob = 'N/P';
 				if (!empty($data->dob)) {
 					$dobArr = explode('-', $data->dob);
-					$dob = ($dobArr[2] ?? '').'/' .($dobArr[1] ?? '').'/'.($dobArr[0] ?? '');
+					$dob = ($dobArr[2] ?? '').'/'.($dobArr[1] ?? '').'/'.($dobArr[0] ?? '');
 				}
 
-				// Course name with link
 				$coursename = 'N/P';
 				if (!empty($data->coursename)) {
 					$coursename = '<a href="'.url('/clients/detail/'.$clientEncodedId.'/application/'.$data->id).'" target="_blank">'.e($data->coursename).'</a>';
 				}
 
-				// Action dropdown — button text differs by active/inactive
 				$overallStatusBtn = $isActive
 					? '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>'
 					: '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Active</button>';
@@ -882,41 +886,57 @@ class PartnersController extends Controller
 				</div>';
 
 				$formatted[] = [
-					'',                                                                   // 0  SNo — overwritten by DataTables render
-					$crmRef,                                                              // 1  CRM Ref
-					$data->first_name != '' ? $data->first_name.' '.$data->last_name : 'N/P', // 2  Student Name
-					$dob,                                                                 // 3  DOB
-					$data->student_id != '' ? $data->student_id : 'N/P',                 // 4  Student Id
-					$data->partner_name != '' ? e($data->partner_name) : 'N/P',          // 5  College Name
-					$coursename,                                                          // 6  Course Name
-					$data->start_date != '' ? date('d/m/Y', strtotime($data->start_date)) : 'N/P', // 7  Start Date
-					$data->end_date   != '' ? date('d/m/Y', strtotime($data->end_date))   : 'N/P', // 8  End Date
-					$data->total_course_fee_amount                ?? '0.00',              // 9  Total Course Fee
-					$data->enrolment_fee_amount                   ?? '0.00',              // 10 Enrolment Fee
-					$data->material_fees                          ?? '0.00',              // 11 Material Fee
-					$data->tution_fees                            ?? '0.00',              // 12 Tution Fee
-					$data->fee_reported_by_college                ?? '0.00',              // 13 Fee Reported
-					$data->bonus_amount                           ?? '0.00',              // 14 Total Bonus
-					$data->bonus_pending_amount                   ?? '0.00',              // 15 Bonus Pending
-					$data->scholarship_fee_amount                 ?? '0.00',              // 16 Scholarship Fee
-					$data->commission_as_per_fee_reported         ?? '0.00',              // 17 Commission per fee reported
-					$data->commission_payable_as_per_anticipated_fee ?? '0.00',           // 18 Commission payable anticipated
-					$data->commission_paid_as_per_fee_reported    ?? '0.00',              // 19 Commission paid
-					$data->commission_pending                     ?? '0.00',              // 20 Commission Pending
-					$statusMap[$data->status] ?? '',                                      // 21 Student Status (plain text for filter)
-					(string) $data->id,                                                   // 22 Hidden Student ID (for note JS)
+					'',                                                                             // 0  SNo
+					$crmRef,                                                                        // 1  CRM Ref
+					($data->first_name ?? '') != '' ? $data->first_name.' '.$data->last_name : 'N/P', // 2  Student Name
+					$dob,                                                                           // 3  DOB
+					($data->student_id ?? '') != '' ? $data->student_id : 'N/P',                   // 4  Student Id
+					e($partnerName) ?: 'N/P',                                                       // 5  College Name (from partner row, not join)
+					$coursename,                                                                    // 6  Course Name
+					!empty($data->start_date) ? date('d/m/Y', strtotime($data->start_date)) : 'N/P', // 7  Start Date
+					!empty($data->end_date)   ? date('d/m/Y', strtotime($data->end_date))   : 'N/P', // 8  End Date
+					$data->total_course_fee_amount                        ?? '0.00',                // 9
+					$data->enrolment_fee_amount                           ?? '0.00',                // 10
+					$data->material_fees                                  ?? '0.00',                // 11
+					$data->tution_fees                                    ?? '0.00',                // 12
+					$data->fee_reported_by_college                        ?? '0.00',                // 13
+					$data->bonus_amount                                   ?? '0.00',                // 14
+					$data->bonus_pending_amount                           ?? '0.00',                // 15
+					$data->scholarship_fee_amount                         ?? '0.00',                // 16
+					$data->commission_as_per_fee_reported                 ?? '0.00',                // 17
+					$data->commission_payable_as_per_anticipated_fee      ?? '0.00',                // 18
+					$data->commission_paid_as_per_fee_reported            ?? '0.00',                // 19
+					$data->commission_pending                             ?? '0.00',                // 20
+					$statusMap[$data->status] ?? '',                                                // 21 Status text
+					(string) $data->id,                                                             // 22 Hidden ID
 					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 23 Note
-					$actionHtml,                                                          // 24 Action
+					$actionHtml,                                                                    // 24 Action
 				];
 			}
 			return $formatted;
 		};
 
-		return response()->json([
-			'status'   => true,
-			'active'   => $formatRows($baseQuery(null), true),   // overall_status not filtered (matches original)
-			'inactive' => $formatRows($baseQuery(1),    false),  // overall_status = 1
-		]);
+		// Cache for 5 minutes per partner. Bust with clearStudentTabCache($id).
+		$cacheKey = "partner_students_{$id}";
+		$result = Cache::remember($cacheKey, 300, function () use ($baseQuery, $formatRows, $partnerName) {
+			return [
+				'status'   => true,
+				'active'   => $formatRows($baseQuery(null), true,  $partnerName),
+				'inactive' => $formatRows($baseQuery(1),    false, $partnerName),
+			];
+		});
+
+		return response()->json($result);
+	}
+
+	/**
+	 * Bust the student tab cache for a given partner.
+	 * Call this from any method that updates a student's stage, status,
+	 * overall_status, or application_fee_options for this partner.
+	 */
+	public function clearStudentTabCache(int $partnerId): void
+	{
+		Cache::forget("partner_students_{$partnerId}");
 	}
 
 	public function getrecipients(Request $request){
