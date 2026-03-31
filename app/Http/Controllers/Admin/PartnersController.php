@@ -808,13 +808,17 @@ class PartnersController extends Controller
 
 		// Fetch students using DISTINCT ON (PostgreSQL) to deduplicate
 		// application_fee_options rows without an expensive full-result sort.
+		// DISTINCT ON (applications.id) must be the first ORDER BY key; within each
+		// application group afo.id DESC picks the latest fee record.
 		$baseQuery = function (?int $overallStatus) use ($id) {
-			$overallFilter = $overallStatus !== null
-				? "AND applications.overall_status = {$overallStatus}"
-				: '';
+			// Always use bound parameters — never interpolate values into raw SQL.
+			$bindings = [$id];
+			$overallFilter = '';
+			if ($overallStatus !== null) {
+				$overallFilter = 'AND applications.overall_status = ?';
+				$bindings[]    = $overallStatus;
+			}
 
-			// DISTINCT ON picks the first matching fee row per application ordered by
-			// application_fee_options.id DESC (latest fee record wins).
 			return DB::select("
 				SELECT DISTINCT ON (applications.id)
 					applications.id,
@@ -849,8 +853,8 @@ class PartnersController extends Controller
 				WHERE applications.partner_id = ?
 				  AND applications.stage IN ('Coe issued', 'Enrolled', 'Coe Cancelled')
 				  {$overallFilter}
-				ORDER BY applications.id, afo.id DESC, applications.created_at ASC
-			", [$id]);
+				ORDER BY applications.id ASC, afo.id DESC
+			", $bindings);
 		};
 
 		$formatRows = function ($rows, bool $isActive, string $partnerName) use ($statusMap) {
@@ -916,15 +920,24 @@ class PartnersController extends Controller
 			return $formatted;
 		};
 
-		// Cache for 5 minutes per partner. Bust with clearStudentTabCache($id).
+		// Cache for 5 minutes per partner (keyed by partner ID).
+		// If Redis is unavailable we fall back to running the queries directly
+		// so the endpoint never errors out due to a cache driver issue.
 		$cacheKey = "partner_students_{$id}";
-		$result = Cache::remember($cacheKey, 300, function () use ($baseQuery, $formatRows, $partnerName) {
+		$build = function () use ($baseQuery, $formatRows, $partnerName) {
 			return [
 				'status'   => true,
 				'active'   => $formatRows($baseQuery(null), true,  $partnerName),
 				'inactive' => $formatRows($baseQuery(1),    false, $partnerName),
 			];
-		});
+		};
+
+		try {
+			$result = Cache::remember($cacheKey, 300, $build);
+		} catch (\Exception $e) {
+			// Redis down or misconfigured — serve live data so the tab still works.
+			$result = $build();
+		}
 
 		return response()->json($result);
 	}
@@ -2096,6 +2109,12 @@ class PartnersController extends Controller
         $updatedRows = DB::table('applications')->where('id', $request->student_id)->update(['status' => $request->new_status]);
         // Check if the update was successful
         if ($updatedRows > 0) {
+            // Bust student tab cache so the next tab load reflects the new status.
+            $app = DB::table('applications')->select('partner_id')->where('id', $request->student_id)->first();
+            if ($app && $app->partner_id) {
+                $this->clearStudentTabCache((int) $app->partner_id);
+            }
+
             $response['status'] 	= 	true;
             $response['message']	=	'Student status updated successfully.';
             $response['studentId']	=   $request->student_id;
@@ -2907,6 +2926,12 @@ class PartnersController extends Controller
         $updatedRows = DB::table('applications')->where('id', $request->application_student_id)->update(['overall_status' => $application_overall_status]);
         // Check if the update was successful
         if ($updatedRows > 0) {
+            // Bust student tab cache — active/inactive split has changed.
+            $app = DB::table('applications')->select('partner_id')->where('id', $request->application_student_id)->first();
+            if ($app && $app->partner_id) {
+                $this->clearStudentTabCache((int) $app->partner_id);
+            }
+
             $response['status'] 	= 	true;
             $response['message']	=	'Student application overall status updated successfully.';
         } else {
@@ -3033,6 +3058,12 @@ class PartnersController extends Controller
         $updatedRows = DB::table('applications')->where('id', $request->rowId)->update(['student_add_notes' => $request->note]);
         // Check if the update was successful
         if ($updatedRows > 0) {
+            // Bust student tab cache so the saved note appears on next tab load.
+            $app = DB::table('applications')->select('partner_id')->where('id', $request->rowId)->first();
+            if ($app && $app->partner_id) {
+                $this->clearStudentTabCache((int) $app->partner_id);
+            }
+
             $response['status'] 	= 	true;
             $response['message']	=	'Student note added successfully.';
             $response['studentId']	=   $request->rowId;
