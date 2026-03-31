@@ -432,8 +432,12 @@
                                     <th>Course Name</th>
                                     @if(!isset($sheetType) || $sheetType !== 'checklist')
                                     <th>CRM Reference</th>
+                                    <th>Application created</th>
                                     @endif
                                     <th>Client Name</th>
+                                    @if(isset($sheetType) && $sheetType === 'checklist')
+                                    <th>Application created</th>
+                                    @endif
                                     <th>Date of Birth</th>
                                     <th>Payment Received</th>
                                     <th>Institute</th>
@@ -459,7 +463,7 @@
                             <tbody>
                                 @if($rows->isEmpty())
                                     <tr>
-                                        <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 14 : 12 }}" class="text-center py-4">
+                                        <td colspan="{{ (isset($sheetType) && $sheetType === 'checklist') ? 15 : 13 }}" class="text-center py-4">
                                             <i class="fas fa-info-circle fa-2x text-muted mb-2 d-block"></i>
                                             <p class="mb-0">No records found.</p>
                                         </td>
@@ -476,8 +480,12 @@
                                             </td>
                                             @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td>{{ $row->crm_ref ?? '—' }}</td>
+                                            <td>{{ $row->application_created_at ? \Carbon\Carbon::parse($row->application_created_at)->format('d/m/Y') : '—' }}</td>
                                             @endif
                                             <td>{{ trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')) ?: '—' }}</td>
+                                            @if(isset($sheetType) && $sheetType === 'checklist')
+                                            <td>{{ $row->application_created_at ? \Carbon\Carbon::parse($row->application_created_at)->format('d/m/Y') : '—' }}</td>
+                                            @endif
                                             <td>{{ $row->dob ? \Carbon\Carbon::parse($row->dob)->format('d/m/Y') : '—' }}</td>
                                             <td class="@if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) text-success fw-semibold @endif" @if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) title="Paid directly to college" @endif>
                                                 @if($row->payment_display_note)

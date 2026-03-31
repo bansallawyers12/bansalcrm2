@@ -339,6 +339,7 @@ class OngoingSheetController extends Controller
         $query = Application::query()
             ->select([
                 'applications.id as application_id',
+                'applications.created_at as application_created_at',
                 'applications.stage as application_stage',
                 'products.name as course_name',
                 'admins.id as client_id',
@@ -564,6 +565,7 @@ class OngoingSheetController extends Controller
 
         $sortableFields = [
             'application_id' => 'applications.id',
+            'created_at' => 'applications.created_at',
             'client_id' => 'admins.client_id',
             'name' => 'admins.first_name',
             'dob' => 'admins.dob',
