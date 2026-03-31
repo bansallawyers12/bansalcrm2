@@ -164,6 +164,8 @@ class OngoingSheetController extends Controller
             'stage_entry_to' => $request->input('stage_entry_to'),
             'search' => $request->input('search'),
             'per_page' => $request->input('per_page'),
+            'sort' => $request->input('sort'),
+            'direction' => $request->input('direction'),
         ];
         $payload = array_filter($payload, function ($v) {
             if (is_array($v)) {
@@ -553,36 +555,89 @@ class OngoingSheetController extends Controller
      * Apply sorting to query. Rows for the same client always stay together:
      * order by sort column (client-level), then client id, then application id.
      * For checklist sheet: Hold status rows sort to the bottom.
+     *
+     * Sort keys are whitelisted; unknown sort falls back to CRM ref (admins.client_id).
      */
     protected function applySorting($query, Request $request, string $sheetType = 'ongoing')
     {
-        $sortField = $request->get('sort', 'client_id');
-        $sortDirection = $request->get('direction', 'asc');
+        $sortField = (string) $request->get('sort', 'client_id');
+        $sortDirection = strtolower((string) $request->get('direction', 'asc'));
 
-        if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
+        if (!in_array($sortDirection, ['asc', 'desc'], true)) {
             $sortDirection = 'asc';
         }
-
-        $sortableFields = [
-            'application_id' => 'applications.id',
-            'created_at' => 'applications.created_at',
-            'client_id' => 'admins.client_id',
-            'name' => 'admins.first_name',
-            'dob' => 'admins.dob',
-            'visa_expiry' => 'admins.visaexpiry',
-        ];
-
-        $actualSortField = $sortableFields[$sortField] ?? 'admins.client_id';
 
         // Checklist: Hold rows at the bottom (order by hold last)
         if ($sheetType === 'checklist') {
             $query->orderByRaw("CASE WHEN COALESCE(applications.checklist_sheet_status, 'active') = 'hold' THEN 1 ELSE 0 END ASC");
         }
 
-        // Keep all applications of the same client together: sort by chosen field, then client, then application
-        $query->orderBy($actualSortField, $sortDirection)
-              ->orderBy('admins.id', 'asc')
-              ->orderBy('applications.id', 'asc');
+        switch ($sortField) {
+            case 'course_name':
+                $query->orderBy('products.name', $sortDirection);
+                break;
+            case 'crm_ref':
+            case 'client_id':
+                $query->orderBy('admins.client_id', $sortDirection);
+                break;
+            case 'created_at':
+                $query->orderBy('applications.created_at', $sortDirection);
+                break;
+            case 'name':
+                $query->orderBy('admins.last_name', $sortDirection)
+                    ->orderBy('admins.first_name', $sortDirection);
+                break;
+            case 'dob':
+                $query->orderBy('admins.dob', $sortDirection);
+                break;
+            case 'total_payment':
+                $query->orderBy('total_payment', $sortDirection);
+                break;
+            case 'institute':
+                $query->orderByRaw('COALESCE(ongoing.institute_override, partners.partner_name, \'\') ' . $sortDirection);
+                break;
+            case 'branch':
+                $query->orderBy('branches.office_name', $sortDirection);
+                break;
+            case 'assignee':
+                $query->orderBy('assignee.last_name', $sortDirection)
+                    ->orderBy('assignee.first_name', $sortDirection);
+                break;
+            case 'visa_expiry':
+                $query->orderBy('admins.visaexpiry', $sortDirection);
+                break;
+            case 'visa_category':
+                $query->orderByRaw(
+                    'COALESCE(ongoing.visa_category_override, TRIM(CONCAT(COALESCE(admins.visa_type, \'\'), \' \', COALESCE(admins.visa_opt, \'\')))) ' . $sortDirection
+                );
+                break;
+            case 'stage':
+                $query->orderBy('applications.stage', $sortDirection);
+                break;
+            case 'application_id':
+                $query->orderBy('applications.id', $sortDirection);
+                break;
+            case 'checklist_sent_at':
+                if ($sheetType === 'checklist') {
+                    $query->orderBy('applications.checklist_sent_at', $sortDirection);
+                } else {
+                    $query->orderBy('admins.client_id', $sortDirection);
+                }
+                break;
+            case 'checklist_status':
+                if ($sheetType === 'checklist') {
+                    $query->orderBy('applications.checklist_sheet_status', $sortDirection);
+                } else {
+                    $query->orderBy('admins.client_id', $sortDirection);
+                }
+                break;
+            default:
+                $query->orderBy('admins.client_id', $sortDirection);
+                break;
+        }
+
+        $query->orderBy('admins.id', 'asc')
+            ->orderBy('applications.id', 'asc');
 
         return $query;
     }

@@ -347,6 +347,12 @@
                             <form method="get" action="{{ route($sheetRoute ?? 'clients.sheets.ongoing') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                                 <input type="hidden" name="assignee" value="{{ request('assignee') }}">
+                                @if(request()->filled('sort'))
+                                    <input type="hidden" name="sort" value="{{ request('sort') }}">
+                                @endif
+                                @if(request()->filled('direction'))
+                                    <input type="hidden" name="direction" value="{{ request('direction') }}">
+                                @endif
                                 <div class="row g-2 align-items-end">
                                     <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Branch</label>
@@ -426,34 +432,73 @@
                         <div class="ongoing-sheet-scroll-indicator ongoing-sheet-scroll-indicator-left"></div>
                         <div class="ongoing-sheet-scroll-indicator ongoing-sheet-scroll-indicator-right visible"></div>
                         <div class="table-responsive ongoing-sheet-table-wrap" id="ongoing-sheet-scroll-container">
+                            @php
+                                $_ongoingSheetRoute = $sheetRoute ?? 'clients.sheets.ongoing';
+                                $ongoingSheetSortUrl = function (string $field, string $defaultDirection = 'asc') use ($_ongoingSheetRoute) {
+                                    $params = request()->except('page');
+                                    $params['sort'] = $field;
+                                    $active = (string) request('sort') === $field;
+                                    $curr = strtolower((string) request('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+                                    $params['direction'] = $active ? ($curr === 'asc' ? 'desc' : 'asc') : $defaultDirection;
+                                    return route($_ongoingSheetRoute, $params);
+                                };
+                                $ongoingSheetSortTh = function (string $field, string $label, string $defaultDirection = 'asc') use ($ongoingSheetSortUrl) {
+                                    $active = (string) request('sort') === $field;
+                                    $dir = strtolower((string) request('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+                                    $icon = $dir === 'desc' ? '▼' : '▲';
+                                    $ariaSort = $active ? ($dir === 'asc' ? 'ascending' : 'descending') : null;
+                                    return [
+                                        'url' => $ongoingSheetSortUrl($field, $defaultDirection),
+                                        'active' => $active,
+                                        'icon' => $icon,
+                                        'ariaSort' => $ariaSort,
+                                        'label' => $label,
+                                    ];
+                                };
+                            @endphp
                             <table class="table table-striped table-bordered mb-0">
                             <thead>
                                 <tr class="ongoing-sheet-header">
-                                    <th>Course Name</th>
-                                    @if(!isset($sheetType) || $sheetType !== 'checklist')
-                                    <th>CRM Reference</th>
-                                    <th>Application created</th>
-                                    @endif
-                                    <th>Client Name</th>
+                                    @php $th = $ongoingSheetSortTh('course_name', 'Course Name', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     @if(isset($sheetType) && $sheetType === 'checklist')
-                                    <th>Application created</th>
+                                    @php $th = $ongoingSheetSortTh('created_at', 'Application created', 'desc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     @endif
-                                    <th>Date of Birth</th>
-                                    <th>Payment Received</th>
-                                    <th>Institute</th>
                                     @if(!isset($sheetType) || $sheetType !== 'checklist')
-                                    <th class="branch-cell">Branch</th>
+                                    @php $th = $ongoingSheetSortTh('crm_ref', 'CRM Reference', 'asc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('created_at', 'Application created', 'desc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     @endif
-                                    <th>Assignee</th>
-                                    <th>Visa Expiry Date</th>
-                                    <th>Visa Category</th>
+                                    @php $th = $ongoingSheetSortTh('name', 'Client Name', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('dob', 'Date of Birth', 'asc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('total_payment', 'Payment Received', 'desc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('institute', 'Institute', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     @if(!isset($sheetType) || $sheetType !== 'checklist')
-                                    <th>Current Stage</th>
+                                    @php $th = $ongoingSheetSortTh('branch', 'Branch', 'asc'); @endphp
+                                    <th class="branch-cell" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @endif
+                                    @php $th = $ongoingSheetSortTh('assignee', 'Assignee', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('visa_expiry', 'Visa Expiry Date', 'asc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('visa_category', 'Visa Category', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @if(!isset($sheetType) || $sheetType !== 'checklist')
+                                    @php $th = $ongoingSheetSortTh('stage', 'Current Stage', 'asc'); @endphp
+                                    <th class="status-cell" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     @endif
                                     <th>Comment</th>
                                     @if(isset($sheetType) && $sheetType === 'checklist')
-                                    <th>Status</th>
-                                    <th>Checklist sent</th>
+                                    @php $th = $ongoingSheetSortTh('checklist_status', 'Status', 'asc'); @endphp
+                                    <th @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
+                                    @php $th = $ongoingSheetSortTh('checklist_sent_at', 'Checklist sent', 'desc'); @endphp
+                                    <th class="text-nowrap" @if($th['ariaSort']) aria-sort="{{ $th['ariaSort'] }}" @endif><a href="{{ $th['url'] }}" class="text-dark text-decoration-none">{{ $th['label'] }}@if($th['active'])<span class="text-muted small ms-1" aria-hidden="true">{{ $th['icon'] }}</span>@endif</a></th>
                                     <th>Email reminder</th>
                                     <th>SMS reminder</th>
                                     <th>Phone reminder</th>
@@ -473,19 +518,29 @@
                                         @php
                                             $clientEncodedId = base64_encode(convert_uuencode($row->client_id));
                                             $appDetailUrl = route('clients.detail.application', ['id' => $clientEncodedId, 'applicationId' => $row->application_id]);
+                                            $applicationCreatedDisplay = '—';
+                                            if (!empty($row->application_created_at)) {
+                                                try {
+                                                    $applicationCreatedDisplay = \Carbon\Carbon::parse($row->application_created_at)
+                                                        ->timezone(config('app.timezone'))
+                                                        ->format('d/m/Y');
+                                                } catch (\Throwable $e) {
+                                                    $applicationCreatedDisplay = '—';
+                                                }
+                                            }
                                         @endphp
                                         <tr>
                                             <td class="ongoing-course-cell">
                                                 <a href="{{ $appDetailUrl }}" class="ongoing-course-link">{{ $row->course_name ?? '—' }}</a>
                                             </td>
+                                            @if(isset($sheetType) && $sheetType === 'checklist')
+                                            <td>{{ $applicationCreatedDisplay }}</td>
+                                            @endif
                                             @if(!isset($sheetType) || $sheetType !== 'checklist')
                                             <td>{{ $row->crm_ref ?? '—' }}</td>
-                                            <td>{{ $row->application_created_at ? \Carbon\Carbon::parse($row->application_created_at)->format('d/m/Y') : '—' }}</td>
+                                            <td>{{ $applicationCreatedDisplay }}</td>
                                             @endif
                                             <td>{{ trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')) ?: '—' }}</td>
-                                            @if(isset($sheetType) && $sheetType === 'checklist')
-                                            <td>{{ $row->application_created_at ? \Carbon\Carbon::parse($row->application_created_at)->format('d/m/Y') : '—' }}</td>
-                                            @endif
                                             <td>{{ $row->dob ? \Carbon\Carbon::parse($row->dob)->format('d/m/Y') : '—' }}</td>
                                             <td class="@if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) text-success fw-semibold @endif" @if(($row->total_payment ?? 0) > 0 && empty($row->payment_display_note) && ($row->is_paid_to_college ?? 0)) title="Paid directly to college" @endif>
                                                 @if($row->payment_display_note)
