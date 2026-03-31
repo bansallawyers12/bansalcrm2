@@ -51,8 +51,43 @@ jQuery(document).ready(function($){
         order: [[1, "desc"]]
     });
 
-    // For student active list
+    // For student active list — data loaded via AJAX from /partners/getStudentTabData/{id}
+    var studentDataUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetStudentTabData)
+        ? AppConfig.urls.partnersGetStudentTabData
+        : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetStudentTabData') : null);
+
     var table33 = $(".table-3").DataTable({
+        ajax: {
+            url: studentDataUrl,
+            dataSrc: 'active'
+        },
+        columns: [
+            { data: 0 }, // 0  SNo
+            { data: 1 }, // 1  CRM Ref
+            { data: 2 }, // 2  Student Name
+            { data: 3 }, // 3  DOB
+            { data: 4 }, // 4  Student Id
+            { data: 5 }, // 5  College Name
+            { data: 6 }, // 6  Course Name
+            { data: 7 }, // 7  Start Date
+            { data: 8 }, // 8  End Date
+            { data: 9 }, // 9  Total Course Fee
+            { data: 10 }, // 10 Enrolment Fee
+            { data: 11 }, // 11 Material Fee
+            { data: 12 }, // 12 Tution Fee
+            { data: 13 }, // 13 Fee Reported
+            { data: 14 }, // 14 Total Bonus
+            { data: 15 }, // 15 Bonus Pending
+            { data: 16 }, // 16 Scholarship Fee
+            { data: 17 }, // 17 Commission as per fee reported
+            { data: 18 }, // 18 Commission payable anticipated
+            { data: 19 }, // 19 Commission paid
+            { data: 20 }, // 20 Commission Pending
+            { data: 21 }, // 21 Student Status
+            { data: 22 }, // 22 Hidden Student ID
+            { data: 23 }, // 23 Note textarea
+            { data: 24 }  // 24 Action
+        ],
         dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
         buttons: [
             {
@@ -128,7 +163,8 @@ jQuery(document).ready(function($){
                     .column(index, { search: "applied" })
                     .data()
                     .reduce(function (a, b) {
-                        return parseFloat(a) + parseFloat(b.replace(/[^0-9.-]+/g, "") || 0);
+                        var val = typeof b === 'string' ? b.replace(/[^0-9.-]+/g, '') : String(b);
+                        return parseFloat(a) + (parseFloat(val) || 0);
                     }, 0);
             };
 
@@ -195,8 +231,19 @@ jQuery(document).ready(function($){
         });
     });
 
-    // For student inactive list
-    var table331 = $(".table-31").dataTable({
+    // For student inactive list — data loaded via same AJAX endpoint, dataSrc: 'inactive'
+    var table331 = $(".table-31").DataTable({
+        ajax: {
+            url: studentDataUrl,
+            dataSrc: 'inactive'
+        },
+        columns: [
+            { data: 0 }, { data: 1 }, { data: 2 }, { data: 3 }, { data: 4 },
+            { data: 5 }, { data: 6 }, { data: 7 }, { data: 8 }, { data: 9 },
+            { data: 10 }, { data: 11 }, { data: 12 }, { data: 13 }, { data: 14 },
+            { data: 15 }, { data: 16 }, { data: 17 }, { data: 18 }, { data: 19 },
+            { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }
+        ],
         dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
         buttons: [
             {
@@ -261,7 +308,8 @@ jQuery(document).ready(function($){
                 render: function (data, type, row, meta) {
                     return meta.row + 1;
                 }
-            }
+            },
+            { targets: 22, visible: false }
         ],
         order: [],
         drawCallback: function () {
@@ -271,7 +319,8 @@ jQuery(document).ready(function($){
                     .column(index, { page: "current" })
                     .data()
                     .reduce(function (a, b) {
-                        return parseFloat(a) + parseFloat(b.replace(/[^0-9.-]+/g, "") || 0);
+                        var val = typeof b === 'string' ? b.replace(/[^0-9.-]+/g, '') : String(b);
+                        return parseFloat(a) + (parseFloat(val) || 0);
                     }, 0);
             };
 

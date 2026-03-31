@@ -3,32 +3,36 @@
 
 @section('content')
 @php
-	// Determine active tab early for layout conditionals
-	$allowedTabs = [
-		'application',
-		'partner-activities',
-		'products',
-		'branches',
-		'agreements',
-		'noteterm',
-		'documents',
-		'notuseddocuments',
-	'accounts',
-	'promotions',
-		'student',
-		'invoice',
-		'email-v2'
-	];
-	$tabAliases = [
-		'activities' => 'partner-activities',
-		'notestrm' => 'noteterm'
-	];
-	$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
-	$requestedTab = Request::route('tab') ?? Request::get('tab');
-	if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
-		$requestedTab = 'application';
+	// Use activeTab resolved by the controller if already passed, otherwise resolve from request.
+	// The controller resolves it early so that Blade query guards (@if $activeTab === 'student' etc.)
+	// can skip heavy queries for inactive tabs.
+	if (!isset($activeTab)) {
+		$allowedTabs = [
+			'application',
+			'partner-activities',
+			'products',
+			'branches',
+			'agreements',
+			'noteterm',
+			'documents',
+			'notuseddocuments',
+			'accounts',
+			'promotions',
+			'student',
+			'invoice',
+			'email-v2'
+		];
+		$tabAliases = [
+			'activities' => 'partner-activities',
+			'notestrm' => 'noteterm'
+		];
+		$allowedTabSlugs = array_unique(array_merge($allowedTabs, array_keys($tabAliases)));
+		$requestedTab = Request::route('tab') ?? Request::get('tab');
+		if (empty($requestedTab) || !in_array($requestedTab, $allowedTabSlugs, true)) {
+			$requestedTab = 'application';
+		}
+		$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 	}
-	$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 @endphp
 <link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
 <style>
@@ -1293,6 +1297,8 @@ use App\Http\Controllers\Controller;
                                                                 </tr>
                                                             </thead>
                                                             <tbody class="invoicedatalist">
+                                                                {{-- Rows injected via AJAX by DataTables (datatable-handlers.js) --}}
+                                                                @if(false) {{-- dead code preserved for reference only --}}
                                                                 <?php
                                                                 //dd($fetchedData->id);
                                                                 $studentdatas = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
@@ -1580,6 +1586,7 @@ use App\Http\Controllers\Controller;
                                                                     </tr>
                                                                 <?php
                                                                 } //end foreach?>
+                                                                @endif
                                                             </tbody>
                                                           
                                                             
@@ -1654,6 +1661,8 @@ use App\Http\Controllers\Controller;
                                                             </tr>
                                                         </thead>
                                                         <tbody class="invoicedatalist">
+                                                            {{-- Rows injected via AJAX by DataTables (datatable-handlers.js) --}}
+                                                            @if(false) {{-- dead code preserved for reference only --}}
                                                             <?php
                                                             //dd($fetchedData->id);
                                                             $studentdatas1 = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
@@ -1939,6 +1948,7 @@ use App\Http\Controllers\Controller;
                                                                 </tr>
                                                             <?php
                                                             } //end foreach?>
+                                                            @endif
                                                         </tbody>
                                                       
                                                         <tfoot>
@@ -2846,6 +2856,7 @@ use App\Http\Controllers\Controller;
         partnersUploadAllDocument: '{{ URL::to("/partners/upload-alldocument") }}',
         partnersUploadPartnerDocument: '{{ url("/upload-partner-document-upload") }}',
         partnersSaveStudentNote: '{{ url("/partners/save-student-note") }}',
+        partnersGetStudentTabData: '{{ url("/partners/getStudentTabData/".base64_encode(convert_uuencode($fetchedData->id))) }}',
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',

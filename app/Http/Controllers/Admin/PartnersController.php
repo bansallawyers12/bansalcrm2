@@ -752,8 +752,19 @@ class PartnersController extends Controller
                         $oef1->updated_at = date('Y-m-d H:i:s');
                         $oef1->save();
                     }
+
+                    // Resolve active tab so Blade can skip heavy queries for inactive tabs
+                    $allowedTabs = ['application','partner-activities','products','branches','agreements',
+                                    'noteterm','documents','notuseddocuments','accounts','promotions',
+                                    'student','invoice','email-v2'];
+                    $tabAliases  = ['activities' => 'partner-activities', 'notestrm' => 'noteterm'];
+                    $requestedTab = $tab ?? $request->get('tab', 'application');
+                    if (empty($requestedTab) || !in_array($requestedTab, array_merge($allowedTabs, array_keys($tabAliases)), true)) {
+                        $requestedTab = 'application';
+                    }
+                    $activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
                   
-					return view('Admin.partners.detail', compact(['fetchedData']));
+					return view('Admin.partners.detail', compact(['fetchedData', 'activeTab']));
 				}
 				else 
 				{  
@@ -765,7 +776,149 @@ class PartnersController extends Controller
 				return redirect()->route('partners.index')->with('error', Config::get('constants.unauthorized'));
 			}
 	}
-	
+
+	/**
+	 * AJAX endpoint for the Student tab DataTables.
+	 * Returns active and inactive student rows as pre-formatted arrays so the
+	 * Blade no longer needs to run two large JOIN queries on every page load.
+	 */
+	public function getStudentTabData(Request $request, $id)
+	{
+		$id = $this->decodeString($id);
+
+		if (!Partner::where('id', $id)->exists()) {
+			return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
+		}
+
+		$baseQuery = function (?int $overallStatus) use ($id) {
+			$q = \App\Models\Application::join('admins', 'applications.client_id', '=', 'admins.id')
+				->leftJoin('partners', 'applications.partner_id', '=', 'partners.id')
+				->leftJoin('products', 'applications.product_id', '=', 'products.id')
+				->leftJoin('application_fee_options', 'applications.id', '=', 'application_fee_options.app_id')
+				->select(
+					'applications.id',
+					'applications.client_id',
+					'applications.status',
+					'applications.overall_status',
+					'applications.student_id',
+					'applications.start_date',
+					'applications.end_date',
+					'applications.student_add_notes',
+					'admins.client_id as client_reference',
+					'admins.first_name',
+					'admins.last_name',
+					'admins.dob',
+					'partners.partner_name',
+					'products.name as coursename',
+					'application_fee_options.total_course_fee_amount',
+					'application_fee_options.enrolment_fee_amount',
+					'application_fee_options.material_fees',
+					'application_fee_options.tution_fees',
+					'application_fee_options.fee_reported_by_college',
+					'application_fee_options.bonus_amount',
+					'application_fee_options.bonus_pending_amount',
+					'application_fee_options.scholarship_fee_amount',
+					'application_fee_options.commission_as_per_fee_reported',
+					'application_fee_options.commission_payable_as_per_anticipated_fee',
+					'application_fee_options.commission_paid_as_per_fee_reported',
+					'application_fee_options.commission_pending'
+				)
+				->where('applications.partner_id', $id)
+				->where(function ($query) {
+					$query->where('applications.stage', 'Coe issued')
+						  ->orWhere('applications.stage', 'Enrolled')
+						  ->orWhere('applications.stage', 'Coe Cancelled');
+				})
+				->orderBy('applications.created_at', 'ASC')
+				->distinct();
+
+			if ($overallStatus !== null) {
+				$q->where('applications.overall_status', $overallStatus);
+			}
+
+			return $q->get();
+		};
+
+		$statusMap = [
+			0 => 'In Progress', 1 => 'Completed', 2 => 'Discontinued',
+			3 => 'Cancelled',   4 => 'Withdrawn', 5 => 'Deferred',
+			6 => 'Future',      7 => 'VOE',       8 => 'Refund',
+		];
+
+		$formatRows = function ($rows, bool $isActive) use ($statusMap) {
+			$formatted = [];
+			foreach ($rows as $data) {
+				$clientEncodedId = base64_encode(convert_uuencode(@$data->client_id));
+
+				// CRM Ref with link
+				$crmRef = $data->client_reference
+					? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
+					: 'N/P';
+
+				// DOB
+				$dob = 'N/P';
+				if (!empty($data->dob)) {
+					$dobArr = explode('-', $data->dob);
+					$dob = ($dobArr[2] ?? '').'/' .($dobArr[1] ?? '').'/'.($dobArr[0] ?? '');
+				}
+
+				// Course name with link
+				$coursename = 'N/P';
+				if (!empty($data->coursename)) {
+					$coursename = '<a href="'.url('/clients/detail/'.$clientEncodedId.'/application/'.$data->id).'" target="_blank">'.e($data->coursename).'</a>';
+				}
+
+				// Action dropdown — button text differs by active/inactive
+				$overallStatusBtn = $isActive
+					? '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>'
+					: '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Active</button>';
+
+				$actionHtml = '<div class="dropdown d-inline">
+					<button style="margin-top:3px;margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+					<div class="dropdown-menu">
+						<button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="'.$data->id.'" data-current-status="'.$data->status.'" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
+						'.$overallStatusBtn.'
+					</div>
+				</div>';
+
+				$formatted[] = [
+					'',                                                                   // 0  SNo — overwritten by DataTables render
+					$crmRef,                                                              // 1  CRM Ref
+					$data->first_name != '' ? $data->first_name.' '.$data->last_name : 'N/P', // 2  Student Name
+					$dob,                                                                 // 3  DOB
+					$data->student_id != '' ? $data->student_id : 'N/P',                 // 4  Student Id
+					$data->partner_name != '' ? e($data->partner_name) : 'N/P',          // 5  College Name
+					$coursename,                                                          // 6  Course Name
+					$data->start_date != '' ? date('d/m/Y', strtotime($data->start_date)) : 'N/P', // 7  Start Date
+					$data->end_date   != '' ? date('d/m/Y', strtotime($data->end_date))   : 'N/P', // 8  End Date
+					$data->total_course_fee_amount                ?? '0.00',              // 9  Total Course Fee
+					$data->enrolment_fee_amount                   ?? '0.00',              // 10 Enrolment Fee
+					$data->material_fees                          ?? '0.00',              // 11 Material Fee
+					$data->tution_fees                            ?? '0.00',              // 12 Tution Fee
+					$data->fee_reported_by_college                ?? '0.00',              // 13 Fee Reported
+					$data->bonus_amount                           ?? '0.00',              // 14 Total Bonus
+					$data->bonus_pending_amount                   ?? '0.00',              // 15 Bonus Pending
+					$data->scholarship_fee_amount                 ?? '0.00',              // 16 Scholarship Fee
+					$data->commission_as_per_fee_reported         ?? '0.00',              // 17 Commission per fee reported
+					$data->commission_payable_as_per_anticipated_fee ?? '0.00',           // 18 Commission payable anticipated
+					$data->commission_paid_as_per_fee_reported    ?? '0.00',              // 19 Commission paid
+					$data->commission_pending                     ?? '0.00',              // 20 Commission Pending
+					$statusMap[$data->status] ?? '',                                      // 21 Student Status (plain text for filter)
+					(string) $data->id,                                                   // 22 Hidden Student ID (for note JS)
+					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 23 Note
+					$actionHtml,                                                          // 24 Action
+				];
+			}
+			return $formatted;
+		};
+
+		return response()->json([
+			'status'   => true,
+			'active'   => $formatRows($baseQuery(null), true),   // overall_status not filtered (matches original)
+			'inactive' => $formatRows($baseQuery(1),    false),  // overall_status = 1
+		]);
+	}
+
 	public function getrecipients(Request $request){
 		$squery = $request->q;
 		if($squery != ''){

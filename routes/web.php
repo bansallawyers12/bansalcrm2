@@ -601,6 +601,8 @@ Route::get('/leads/detail/{id}/{tab?}', [ClientController::class, 'leaddetail'])
         //get student info
         Route::post('/partners/getStudentInfo', [PartnersController::class, 'getStudentInfo'])->name('partners.getStudentInfo');
         Route::post('/partners/getStudentCourseInfo', [PartnersController::class, 'getStudentCourseInfo'])->name('partners.getStudentCourseInfo');
+        // Student tab AJAX data endpoint
+        Route::get('/partners/getStudentTabData/{id}', [PartnersController::class, 'getStudentTabData'])->name('partners.getStudentTabData');
 
         Route::post('/partners/getTopInvoiceValInDB', [PartnersController::class, 'getTopInvoiceValInDB'])->name('partners.getTopInvoiceValInDB');
         Route::get('/partners/printpreviewcreateinvoice/{id}', [PartnersController::class, 'printpreviewcreateinvoice']); //Create Student Invoice print preview
