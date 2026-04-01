@@ -3368,7 +3368,7 @@ use App\Http\Controllers\Controller;
 </script>
 
 {{-- Page-Specific JavaScript Modules --}}
-<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/notes-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/mail-upload.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/application-tab.js') }}"></script>
