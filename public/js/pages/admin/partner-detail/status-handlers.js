@@ -43,14 +43,17 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Change student status button click
-    document.querySelectorAll('.change-status-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const studentId = this.getAttribute('data-id');
-            const currentStatus = this.getAttribute('data-current-status');
-            document.getElementById('studentId').value = studentId;
-            document.getElementById('newStatus').value = currentStatus;
-        });
+    // Use delegated handlers because DataTables redraws action buttons dynamically.
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.change-status-btn');
+        if (!button) {
+            return;
+        }
+
+        const studentId = button.getAttribute('data-id');
+        const currentStatus = button.getAttribute('data-current-status');
+        document.getElementById('studentId').value = studentId || '';
+        document.getElementById('newStatus').value = currentStatus || '0';
     });
 
     // Change status form submission
@@ -99,14 +102,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // APPLICATION OVERALL STATUS CHANGE HANDLERS
     // ============================================================================
     
-    // Change application overall status button click
-    document.querySelectorAll('.change-application-overall-status-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const applicationStudentId = this.getAttribute('data-id');
-            const applicationOverallStatus = this.getAttribute('data-application-overall-status');
-            document.getElementById('applicationStudentId').value = applicationStudentId;
-            document.getElementById('applicationOverallStatus').value = applicationOverallStatus;
-        });
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.change-application-overall-status-btn');
+        if (!button) {
+            return;
+        }
+
+        const applicationStudentId = button.getAttribute('data-id');
+        const applicationOverallStatus = button.getAttribute('data-application-overall-status');
+        document.getElementById('applicationStudentId').value = applicationStudentId || '';
+        document.getElementById('applicationOverallStatus').value = applicationOverallStatus || '';
     });
 
     // Change application overall status form submission
