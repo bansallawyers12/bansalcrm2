@@ -32,6 +32,8 @@ Route::middleware(['auth:admin'])->group(function() {
             ->whereNumber('adminId')
             ->name('request');
         Route::get('/queue', [AccessGrantController::class, 'queue'])->name('queue');
+        Route::get('/dashboard', [AccessGrantController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard/export', [AccessGrantController::class, 'dashboardExport'])->name('dashboard.export');
         Route::get('/my-grants', [AccessGrantController::class, 'myGrants'])->name('my-grants');
         Route::post('/quick', [AccessGrantController::class, 'quick'])->name('quick')->middleware('throttle:30,1');
         Route::post('/supervisor', [AccessGrantController::class, 'supervisor'])->name('supervisor')->middleware('throttle:20,1');

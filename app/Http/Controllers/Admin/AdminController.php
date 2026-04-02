@@ -19,8 +19,10 @@ use App\Models\ActivitiesLog;
 use App\Models\Note;
 
 
+use App\Models\ClientAccessGrant;
 use App\Services\EmailService;
 use App\Services\DashboardService;
+use App\Services\CrmAccess\CrmAccessService;
 use App\Services\CrmSentEmailS3Service;
 use Illuminate\Support\Facades\Storage;
 
@@ -58,13 +60,16 @@ class AdminController extends Controller
             $clientsWithRecentActivities = $this->dashboardService->getClientsWithRecentActivities(10);
             $loginStats = $this->dashboardService->getLoginStatistics();
             $recentActivities = $this->dashboardService->getRecentActivities(10);
+
+            $accessApprovals = $this->accessApprovalsPanelData();
             
             return view('Admin.dashboard', compact([
                 'todayTasks',
                 'checkInQueue',
                 'clientsWithRecentActivities',
                 'loginStats',
-                'recentActivities'
+                'recentActivities',
+                'accessApprovals',
             ]));
         } catch (\Exception $e) {
             \Log::error('Dashboard error: ' . $e->getMessage());
@@ -76,9 +81,40 @@ class AdminController extends Controller
                 'checkInQueue' => ['total' => 0, 'items' => collect([])],
                 'clientsWithRecentActivities' => collect([]),
                 'loginStats' => $this->dashboardService->getLoginStatistics(),
-                'recentActivities' => collect([])
+                'recentActivities' => collect([]),
+                'accessApprovals' => null,
             ])->with('error', 'An error occurred while loading the dashboard. Some data may not be available.');
         }
+    }
+
+    /**
+     * Pending supervisor access requests for dashboard (approvers only).
+     *
+     * @return array{count: int, preview: \Illuminate\Support\Collection}|null
+     */
+    protected function accessApprovalsPanelData(): ?array
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user instanceof Staff) {
+            return null;
+        }
+        if (! app(CrmAccessService::class)->isApprover($user)) {
+            return null;
+        }
+
+        return [
+            'count' => ClientAccessGrant::query()
+                ->where('status', 'pending')
+                ->where('grant_type', 'supervisor_approved')
+                ->count(),
+            'preview' => ClientAccessGrant::query()
+                ->with(['staff', 'admin'])
+                ->where('status', 'pending')
+                ->where('grant_type', 'supervisor_approved')
+                ->orderByDesc('requested_at')
+                ->limit(5)
+                ->get(),
+        ];
     }
 
     public function fetchnotification(Request $request){

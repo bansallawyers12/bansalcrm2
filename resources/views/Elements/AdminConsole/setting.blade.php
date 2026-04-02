@@ -2,6 +2,9 @@
 		$roles = \App\Models\StaffRole::find(Auth::user()->role);
 		$newarray = json_decode($roles->module_access);
 		$module_access = (array) $newarray;
+		$crmAccessService = app(\App\Services\CrmAccess\CrmAccessService::class);
+		$canViewGrantsDashboard = auth('admin')->user() instanceof \App\Models\Staff
+			&& $crmAccessService->isApprover(auth('admin')->user());
 ?>
 <div class="custom_nav_setting">
     <ul>
@@ -30,6 +33,9 @@
 		<li class="{{(Route::currentRouteName() == 'adminconsole.emaillabels.index' || Route::currentRouteName() == 'adminconsole.emaillabels.create' || Route::currentRouteName() == 'adminconsole.emaillabels.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.emaillabels.index')}}">Email Labels</a></li>
 
 		<li class="{{(str_starts_with(Route::currentRouteName() ?? '', 'adminconsole.features.sms')) ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.features.sms.dashboard')}}">SMS Management</a></li>
+		@if($canViewGrantsDashboard)
+		<li class="{{(Route::currentRouteName() == 'crm.access.dashboard') ? 'active' : ''}}"><a class="nav-link" href="{{ route('crm.access.dashboard') }}">Grants Dashboard</a></li>
+		@endif
 		
 		<li class="{{(Route::currentRouteName() == 'adminconsole.recentclients.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('adminconsole.recentclients.index')}}">Recently Modified Clients</a></li>
 		

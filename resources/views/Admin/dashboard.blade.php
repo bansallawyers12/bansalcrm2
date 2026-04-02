@@ -571,6 +571,76 @@
         color: #6b7280;
         font-size: 0.7rem;
     }
+
+    /* Access approvals (CRM cross-access queue preview) */
+    .access-approvals-panel {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #60a5fa;
+        overflow: hidden;
+    }
+    .access-approvals-panel .access-approvals-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .access-approvals-panel .access-approvals-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .access-approvals-panel .access-approvals-title i {
+        color: #3b82f6;
+        font-size: 1.1rem;
+    }
+    .access-approvals-panel .access-approvals-queue-link {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #2563eb;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .access-approvals-panel .access-approvals-queue-link:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    .access-approvals-panel .access-approvals-body {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+    .access-approvals-panel .access-approvals-empty {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #9ca3af;
+    }
+    .access-approvals-panel table {
+        width: 100%;
+        font-size: 0.8125rem;
+        margin: 0;
+    }
+    .access-approvals-panel table th {
+        color: #6b7280;
+        font-weight: 600;
+        padding: 0.35rem 0.5rem 0.35rem 0;
+        border: none;
+    }
+    .access-approvals-panel table td {
+        padding: 0.45rem 0.5rem 0.45rem 0;
+        color: #374151;
+        border-top: 1px solid #f3f4f6;
+        vertical-align: top;
+    }
 </style>
 
 <!-- Main Content -->
@@ -750,7 +820,63 @@
                     </div>
                 </div>
           </div>
-      	</div>  
+      	</div>
+
+        @if(!empty($accessApprovals))
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="access-approvals-panel">
+                    <div class="access-approvals-header">
+                        <h3 class="access-approvals-title">
+                            <i class="fas fa-user-shield"></i>
+                            Access approvals
+                            @if($accessApprovals['count'] > 0)
+                                <span class="badge bg-warning text-dark ms-1">{{ $accessApprovals['count'] }}</span>
+                            @endif
+                        </h3>
+                        <a href="{{ route('crm.access.queue') }}" class="access-approvals-queue-link">
+                            <i class="fas fa-folder-open"></i>
+                            Full access queue
+                        </a>
+                    </div>
+                    <div class="access-approvals-body">
+                        @if($accessApprovals['preview']->isEmpty())
+                            <p class="access-approvals-empty mb-0">No pending supervisor requests.</p>
+                        @else
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Requested</th>
+                                            <th>Requester</th>
+                                            <th>Record</th>
+                                            <th>Note</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($accessApprovals['preview'] as $g)
+                                            <tr>
+                                                <td>{{ $g->requested_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</td>
+                                                <td>{{ $g->staff?->first_name }} {{ $g->staff?->last_name }}</td>
+                                                <td>#{{ $g->admin_id }} <span class="text-muted">({{ $g->record_type }})</span></td>
+                                                <td class="text-muted">{{ \Illuminate\Support\Str::limit($g->requester_note ?? '', 72) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if($accessApprovals['count'] > $accessApprovals['preview']->count())
+                                <p class="text-muted small mb-0 mt-2">
+                                    Showing {{ $accessApprovals['preview']->count() }} of {{ $accessApprovals['count'] }}.
+                                    <a href="{{ route('crm.access.queue') }}">Open queue to approve or reject</a>
+                                </p>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
           
           <div class="row">
             <!-- Left Column: Clients with Recent Activities -->

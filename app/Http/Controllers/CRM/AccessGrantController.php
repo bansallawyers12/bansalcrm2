@@ -9,8 +9,11 @@ use App\Models\Staff;
 use App\Services\CrmAccess\CrmAccessDeniedException;
 use App\Services\CrmAccess\CrmAccessService;
 use App\Support\StaffClientVisibility;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AccessGrantController extends Controller
 {
@@ -126,6 +129,198 @@ class AccessGrantController extends Controller
             ->paginate(25);
 
         return view('crm.access.queue', compact('pending'));
+    }
+
+    /**
+     * Approver-only grants overview (filters + export), aligned with CRM cross-access tooling.
+     */
+    public function dashboard(Request $request)
+    {
+        /** @var Staff $user */
+        $user = Auth::guard('admin')->user();
+        if (! $this->crmAccess->isApprover($user)) {
+            abort(403);
+        }
+
+        $filters = $this->validatedDashboardFilters($request);
+
+        $filtered = $this->grantsFilteredQuery($filters);
+        $globalPending = ClientAccessGrant::query()->where('status', 'pending')->count();
+        $globalActive = ClientAccessGrant::query()->where('status', 'active')->count();
+        $rowCount = (clone $filtered)->count();
+        $distinctRecords = (int) DB::query()
+            ->fromSub(
+                $this->grantsFilteredQuery($filters)->select('admin_id')->distinct(),
+                'grant_distinct_admins'
+            )
+            ->count();
+
+        $pendingPreview = ClientAccessGrant::query()
+            ->with(['staff', 'admin'])
+            ->where('status', 'pending')
+            ->where('grant_type', 'supervisor_approved')
+            ->orderByDesc('requested_at')
+            ->limit(15)
+            ->get();
+
+        $grants = (clone $filtered)
+            ->with(['staff', 'admin', 'approvedBy'])
+            ->orderByDesc('requested_at')
+            ->orderByDesc('id')
+            ->paginate(50)
+            ->withQueryString();
+
+        $offices = \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
+        $teams = \App\Models\Team::query()->orderBy('name')->get(['id', 'name']);
+        $reasonLabels = config('crm_access.quick_reason_options', []);
+
+        return view('crm.access.dashboard', compact(
+            'filters',
+            'globalPending',
+            'globalActive',
+            'rowCount',
+            'distinctRecords',
+            'pendingPreview',
+            'grants',
+            'offices',
+            'teams',
+            'reasonLabels'
+        ));
+    }
+
+    public function dashboardExport(Request $request)
+    {
+        /** @var Staff $user */
+        $user = Auth::guard('admin')->user();
+        if (! $this->crmAccess->isApprover($user)) {
+            abort(403);
+        }
+
+        $filters = $this->validatedDashboardFilters($request);
+
+        $filename = 'grants-export-' . date('Y-m-d-His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $query = $this->grantsFilteredQuery($filters)
+            ->with(['staff', 'admin', 'approvedBy'])
+            ->orderByDesc('requested_at')
+            ->orderByDesc('id');
+
+        return response()->stream(function () use ($query): void {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, [
+                'id',
+                'staff_id',
+                'staff_name',
+                'admin_id',
+                'record_type',
+                'grant_type',
+                'access_type',
+                'status',
+                'reason_code',
+                'reason_label',
+                'office_id',
+                'office_label',
+                'team_id',
+                'team_label',
+                'requested_at',
+                'approved_at',
+                'approved_by_staff_id',
+                'ends_at',
+                'revoked_at',
+                'requester_note',
+            ]);
+            foreach ($query->cursor() as $g) {
+                /** @var ClientAccessGrant $g */
+                $reasons = config('crm_access.quick_reason_options', []);
+                fputcsv($out, [
+                    $g->id,
+                    $g->staff_id,
+                    $g->staff ? trim(($g->staff->first_name ?? '') . ' ' . ($g->staff->last_name ?? '')) : '',
+                    $g->admin_id,
+                    $g->record_type,
+                    $g->grant_type,
+                    $g->access_type,
+                    $g->status,
+                    $g->quick_reason_code,
+                    $reasons[$g->quick_reason_code] ?? $g->quick_reason_code,
+                    $g->office_id,
+                    $g->office_label_snapshot,
+                    $g->team_id,
+                    $g->team_label_snapshot,
+                    $g->requested_at?->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                    $g->approved_at?->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                    $g->approved_by_staff_id,
+                    $g->ends_at?->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                    $g->revoked_at?->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                    preg_replace('/\s+/u', ' ', (string) ($g->requester_note ?? '')),
+                ]);
+            }
+            fclose($out);
+        }, 200, $headers);
+    }
+
+    /**
+     * @return array{staff_id?: int, admin_id?: int, from?: string, to?: string, office_id?: int, team_id?: int, grant_type?: string, status?: string}
+     */
+    protected function validatedDashboardFilters(Request $request): array
+    {
+        $validated = $request->validate([
+            'staff_id' => 'nullable|integer|min:1',
+            'admin_id' => 'nullable|integer|min:1',
+            'from' => 'nullable|date',
+            'to' => 'nullable|date',
+            'office_id' => 'nullable|integer|exists:branches,id',
+            'team_id' => 'nullable|integer|exists:teams,id',
+            'grant_type' => 'nullable|in:quick,supervisor_approved',
+            'status' => 'nullable|in:pending,active,rejected,revoked,expired',
+        ]);
+
+        if (! empty($validated['from']) && ! empty($validated['to']) && $validated['to'] < $validated['from']) {
+            throw ValidationException::withMessages([
+                'to' => 'The to date must be on or after the from date.',
+            ]);
+        }
+
+        return $validated;
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    protected function grantsFilteredQuery(array $filters): Builder
+    {
+        $q = ClientAccessGrant::query();
+
+        if (! empty($filters['staff_id'])) {
+            $q->where('staff_id', (int) $filters['staff_id']);
+        }
+        if (! empty($filters['admin_id'])) {
+            $q->where('admin_id', (int) $filters['admin_id']);
+        }
+        if (! empty($filters['from'])) {
+            $q->whereDate('requested_at', '>=', $filters['from']);
+        }
+        if (! empty($filters['to'])) {
+            $q->whereDate('requested_at', '<=', $filters['to']);
+        }
+        if (! empty($filters['office_id'])) {
+            $q->where('office_id', (int) $filters['office_id']);
+        }
+        if (! empty($filters['team_id'])) {
+            $q->where('team_id', (int) $filters['team_id']);
+        }
+        if (! empty($filters['grant_type'])) {
+            $q->where('grant_type', (string) $filters['grant_type']);
+        }
+        if (! empty($filters['status'])) {
+            $q->where('status', (string) $filters['status']);
+        }
+
+        return $q;
     }
 
     public function myGrants(Request $request)
