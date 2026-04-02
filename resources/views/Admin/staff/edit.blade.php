@@ -212,19 +212,19 @@
 								<div class="form-group">
 									<label class="d-block font-weight-bold">{{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access</label>
 									<input type="hidden" name="quick_access_enabled" value="0">
-									<label><input @if(old('quick_access_enabled', $fetchedData->quick_access_enabled ?? false)) checked @endif value="1" type="checkbox" name="quick_access_enabled"> Allow this user to start short ({{ config('crm_access.quick_grant_minutes', 15) }} min) access to records they are not assigned to</label>
+									<label><input @checked(filter_var(old('quick_access_enabled', $fetchedData->quick_access_enabled ?? false), FILTER_VALIDATE_BOOLEAN)) value="1" type="checkbox" name="quick_access_enabled"> Allow this user to start short ({{ config('crm_access.quick_grant_minutes', 15) }} min) access to records they are not assigned to</label>
 								</div>
 								<hr class="my-3">
 								<div class="form-group">
 									<label class="d-block font-weight-bold">Full access</label>
 									<input type="hidden" name="crm_full_access" value="0">
-									<label><input @if(old('crm_full_access', $fetchedData->crm_full_access ?? false)) checked @endif value="1" type="checkbox" name="crm_full_access"> See all clients and leads (bypass assignee / allocation when strict access is on)</label>
+									<label><input @checked(filter_var(old('crm_full_access', $fetchedData->crm_full_access ?? false), FILTER_VALIDATE_BOOLEAN)) value="1" type="checkbox" name="crm_full_access"> See all clients and leads (bypass assignee / allocation when strict access is on)</label>
 								</div>
 								<hr class="my-3">
 								<div class="form-group mb-0">
 									<label class="d-block font-weight-bold">Supervisor access approvals</label>
 									<input type="hidden" name="crm_access_approver" value="0">
-									<label><input @if(old('crm_access_approver', $fetchedData->crm_access_approver ?? false)) checked @endif value="1" type="checkbox" name="crm_access_approver"> Can approve or reject pending supervisor access requests (queue)</label>
+									<label><input @checked(filter_var(old('crm_access_approver', $fetchedData->crm_access_approver ?? false), FILTER_VALIDATE_BOOLEAN)) value="1" type="checkbox" name="crm_access_approver"> Can approve or reject pending supervisor access requests (queue)</label>
 									<p class="text-muted small mb-0">Super Admin and Admin roles can always approve; use this for additional staff without changing their role.</p>
 								</div>
 							</div>
