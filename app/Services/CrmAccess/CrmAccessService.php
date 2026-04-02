@@ -24,11 +24,19 @@ class CrmAccessService
             return false;
         }
 
-        return in_array((int) ($user->role ?? 0), $this->approverRoleIds(), true);
+        if (in_array((int) ($user->role ?? 0), $this->approverRoleIds(), true)) {
+            return true;
+        }
+
+        return (bool) ($user->crm_access_approver ?? false);
     }
 
     public function isExemptFromAllocation(Staff $user): bool
     {
+        if ((bool) ($user->crm_full_access ?? false)) {
+            return true;
+        }
+
         $staffId = (int) ($user->id ?? 0);
         if ($staffId > 0 && in_array($staffId, config('crm_access.exempt_staff_ids', []), true)) {
             return true;
@@ -46,16 +54,22 @@ class CrmAccessService
     public function getApproverStaffIds(): array
     {
         $roles = $this->approverRoleIds();
-        if ($roles === []) {
-            return [];
-        }
 
-        return Staff::query()
+        $byRole = $roles === [] ? [] : Staff::query()
             ->whereIn('role', $roles)
             ->where('status', 1)
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();
+
+        $byFlag = Staff::query()
+            ->where('status', 1)
+            ->where('crm_access_approver', true)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        return array_values(array_unique(array_merge($byRole, $byFlag)));
     }
 
     public function hasActiveGrant(Staff $user, int $adminId): bool

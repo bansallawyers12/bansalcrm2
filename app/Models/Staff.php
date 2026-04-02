@@ -25,6 +25,8 @@ class Staff extends Authenticatable
         'show_dashboard_per', 'time_zone',
         'email_signature',
         'quick_access_enabled',
+        'crm_full_access',
+        'crm_access_approver',
     ];
 
     protected $hidden = [
@@ -36,6 +38,8 @@ class Staff extends Authenticatable
         'verified' => 'integer',
         'show_dashboard_per' => 'integer',
         'quick_access_enabled' => 'boolean',
+        'crm_full_access' => 'boolean',
+        'crm_access_approver' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

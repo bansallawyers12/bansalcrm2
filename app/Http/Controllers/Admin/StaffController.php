@@ -35,8 +35,8 @@ class StaffController extends Controller
         // Staff roles only (exclude role 7 = client)
         $usertype = StaffRole::where('id', '!=', 7)->get();
 $emails = FromEmail::where('status', 1)->orderBy('email')->get();
-        $canManageQuickAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
-		return view('Admin.staff.create', compact(['usertype', 'emails', 'canManageQuickAccess']));
+        $canManageCrmAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
+		return view('Admin.staff.create', compact(['usertype', 'emails', 'canManageCrmAccess']));
     }
 
     public function store(Request $request)
@@ -85,6 +85,8 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
             if (app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user())) {
                 $obj->quick_access_enabled = $request->boolean('quick_access_enabled');
+                $obj->crm_full_access = $request->boolean('crm_full_access');
+                $obj->crm_access_approver = $request->boolean('crm_access_approver');
             }
 
             $saved = $obj->save();
@@ -149,6 +151,8 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             if ($crmAccess->canManageStaffQuickAccess(Auth::user())) {
                 $wasQuick = (bool) ($obj->quick_access_enabled ?? false);
                 $obj->quick_access_enabled = $request->boolean('quick_access_enabled');
+                $obj->crm_full_access = $request->boolean('crm_full_access');
+                $obj->crm_access_approver = $request->boolean('crm_access_approver');
                 if ($wasQuick && ! $obj->quick_access_enabled) {
                     $crmAccess->revokeGrantsForStaff((int) $obj->id, 'Quick access disabled by admin');
                 }
@@ -170,8 +174,8 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             if (Staff::where('id', '=', $id)->exists()) {
                 $fetchedData = Staff::with(['office'])->find($id);
 $emails = FromEmail::where('status', 1)->orderBy('email')->get();
-                $canManageQuickAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
-				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails', 'canManageQuickAccess']));
+                $canManageCrmAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
+				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails', 'canManageCrmAccess']));
             }
             return redirect()->route('staff.active')->with('error', 'Staff Not Exist');
         }

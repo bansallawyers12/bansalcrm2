@@ -195,12 +195,6 @@
 								<div class="form-group">
 							    	<label><input @if($fetchedData->show_dashboard_per == 1) checked @endif value="1" type="checkbox" name="show_dashboard_per" class="show_dashboard_per"> Can view on dashboard</label>
 								</div>
-								@if(!empty($canManageQuickAccess))
-								<div class="form-group">
-									<label><input @if(!empty($fetchedData->quick_access_enabled)) checked @endif value="1" type="checkbox" name="quick_access_enabled"> Enable {{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access (quick grant)</label>
-									<p class="text-muted small mb-0">Super Admin / Admin only. Staff can request short access to records they are not assigned to.</p>
-								</div>
-								@endif
 								<div class="form-group float-end">
 									{!! Form::submit('Update Staff', ['class'=>'btn btn-primary' ])  !!}
 								</div> 
