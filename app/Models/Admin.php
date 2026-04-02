@@ -11,6 +11,12 @@ class Admin extends Authenticatable
 {
     use Notifiable;
 	use Sortable, SanitizesEmail;
+
+    /** Staff reminder on client/lead detail — never show modal again */
+    public const GOOGLE_REVIEW_REMINDER_NOT_INTERESTED = 'not_interested';
+
+    /** Client has left a review — never show modal again */
+    public const GOOGLE_REVIEW_REMINDER_REVIEW_RECEIVED = 'review_received';
 	
 	// The authentication guard for admin
     protected $guard = 'admin';
@@ -27,6 +33,7 @@ class Admin extends Authenticatable
         'office_id', 'show_dashboard_per',
         'verified', 'client_id', 'phone', 'country_code',
         'visa_type_id', 'visa_grant_date', 'is_archived', 'archived_by', 'archived_on',
+        'google_review_reminder_status', 'google_review_reminder_snooze_until',
     ];
 
     /**
@@ -36,6 +43,7 @@ class Admin extends Authenticatable
      */
     protected $casts = [
         'visa_grant_date' => 'date',
+        'google_review_reminder_snooze_until' => 'datetime',
     ];
     
 	/**

@@ -2765,6 +2765,33 @@ use App\Http\Controllers\Controller;
 	</div>
 </div>
 
+@if($showGoogleReviewReminderModal ?? false)
+<div class="modal fade google-review-reminder-modal" id="googleReviewReminderModal" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="googleReviewReminderModalLabel" aria-describedby="googleReviewReminderModalDesc googleReviewReminderModalHint" data-bs-backdrop="static" data-bs-keyboard="false" data-auto-open="1">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+		<div class="modal-content grr-modal-content">
+			<div class="modal-header grr-modal-header">
+				<h5 class="modal-title grr-modal-title" id="googleReviewReminderModalLabel"><i class="fab fa-google grr-modal-google-icon me-2" aria-hidden="true"></i>Google review reminder</h5>
+				<button type="button" class="btn-close grr-modal-close js-google-review-reminder" data-action="snooze_one_day" aria-label="Close and remind again tomorrow" title="Close — ask again tomorrow"></button>
+			</div>
+			<div class="modal-body grr-modal-body">
+				<p class="mb-3 grr-modal-lead" id="googleReviewReminderModalDesc">Has this contact been asked to leave a Google review? Choose an option so we know whether to remind you next time you open their record.</p>
+				<p class="mb-0 grr-modal-hint" id="googleReviewReminderModalHint">Using the <strong>close</strong> button above will hide this reminder until tomorrow (one-day snooze).</p>
+			</div>
+			<div class="modal-footer flex-column align-items-stretch gap-2 grr-modal-footer">
+				<button type="button" class="btn w-100 m-0 js-google-review-send-sms grr-btn grr-btn-sms">
+					<i class="fas fa-sms me-1" aria-hidden="true"></i>Send SMS with review link
+				</button>
+				<div class="d-flex flex-wrap gap-2 justify-content-stretch grr-modal-actions-row">
+					<button type="button" class="btn flex-grow-1 m-0 js-google-review-reminder grr-btn grr-btn-neutral" data-action="not_interested">Not interested</button>
+					<button type="button" class="btn flex-grow-1 m-0 js-google-review-reminder grr-btn grr-btn-neutral" data-action="snooze">Remind me in 1 week</button>
+					<button type="button" class="btn flex-grow-1 m-0 js-google-review-reminder grr-btn grr-btn-done" data-action="review_received">Review received</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@endif
+
 @endsection
 @section('scripts')
 <script src="{{asset('js/popover.js')}}"></script>
@@ -2840,6 +2867,142 @@ use App\Http\Controllers\Controller;
     PageConfig.clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
     PageConfig.clientType = 'client';
 </script>
+
+@if($showGoogleReviewReminderModal ?? false)
+<script>
+$(function () {
+    var $modal = $('#googleReviewReminderModal');
+    if (!$modal.length) { return; }
+    var clientId = parseInt(PageConfig.clientId, 10);
+    if (!clientId || clientId < 1) { return; }
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var postUrl = @json(route('clients.google-review-reminder'));
+    var postSmsUrl = @json(route('clients.google-review-reminder.sms'));
+    var submitting = false;
+
+    function grrAllControls() {
+        return $modal.find('.js-google-review-reminder, .js-google-review-send-sms');
+    }
+    var reminderDelayMs = @json((int) config('crm.google_review_reminder_modal_delay_ms', 60000));
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        reminderDelayMs = Math.min(reminderDelayMs, 400);
+    }
+    var grrShowTimer = setTimeout(function () {
+        $modal.modal('show');
+    }, reminderDelayMs);
+    $(window).on('pagehide.grr', function () {
+        clearTimeout(grrShowTimer);
+    });
+    $modal.on('shown.bs.modal', function () {
+        var $sms = $modal.find('.js-google-review-send-sms');
+        var $first = $sms.length ? $sms : $modal.find('.js-google-review-reminder').first();
+        if ($first.length) {
+            $first.trigger('focus');
+        }
+    });
+    $modal.off('click.grr', '.js-google-review-reminder').on('click.grr', '.js-google-review-reminder', function () {
+        if (submitting) { return; }
+        var action = $(this).data('action');
+        var $btns = grrAllControls();
+        submitting = true;
+        $btns.prop('disabled', true);
+        $.ajax({
+            url: postUrl,
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'application/json'
+            },
+            data: { client_id: clientId, action: action, _token: token },
+            success: function (res) {
+                if (res && res.ok) {
+                    $modal.modal('hide');
+                    if (typeof iziToast !== 'undefined') {
+                        var toastMessages = {
+                            snooze_one_day: 'Reminder snoozed until tomorrow',
+                            snooze: 'Reminder snoozed for 1 week',
+                            not_interested: 'Noted — won\'t be reminded again',
+                            review_received: 'Great! Review marked as received'
+                        };
+                        iziToast.success({ message: toastMessages[action] || 'Saved', position: 'topRight' });
+                    }
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({ message: (res && res.message) ? res.message : 'Could not save', position: 'topRight' });
+                    }
+                }
+            },
+            error: function (xhr) {
+                var msg = 'Could not save';
+                var j = xhr.responseJSON;
+                if (j) {
+                    if (j.message) { msg = j.message; }
+                    if (j.errors && typeof j.errors === 'object') {
+                        var keys = Object.keys(j.errors);
+                        if (keys.length && j.errors[keys[0]] && j.errors[keys[0]][0]) {
+                            msg = j.errors[keys[0]][0];
+                        }
+                    }
+                }
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({ message: msg, position: 'topRight' });
+                }
+            },
+            complete: function () {
+                submitting = false;
+                $btns.prop('disabled', false);
+            }
+        });
+    });
+
+    $modal.off('click.grr-sms', '.js-google-review-send-sms').on('click.grr-sms', '.js-google-review-send-sms', function () {
+        if (submitting) { return; }
+        var $btns = grrAllControls();
+        submitting = true;
+        $btns.prop('disabled', true);
+        $.ajax({
+            url: postSmsUrl,
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'application/json'
+            },
+            data: { client_id: clientId, _token: token },
+            success: function (res) {
+                if (res && res.ok) {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.success({ message: res.message || 'SMS sent successfully', position: 'topRight' });
+                    }
+                    if (typeof getallactivities === 'function') {
+                        getallactivities();
+                    }
+                } else {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({ message: (res && res.message) ? res.message : 'SMS failed', position: 'topRight' });
+                    }
+                }
+            },
+            error: function (xhr) {
+                var msg = 'SMS failed';
+                var j = xhr.responseJSON;
+                if (j && j.message) { msg = j.message; }
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({ message: msg, position: 'topRight' });
+                }
+            },
+            complete: function () {
+                submitting = false;
+                grrAllControls().prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+@endif
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>

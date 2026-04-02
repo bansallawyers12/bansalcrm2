@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\CrmEmailTemplate;
+use App\Models\SmsTemplate;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
 use App\Traits\ClientHelpers;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
+use App\Services\Sms\UnifiedSmsManager;
 use Auth;
 use Config;
 
@@ -50,6 +53,8 @@ use Config;
 class ClientController extends Controller
 {
     use ClientHelpers, ClientQueries, ClientAuthorization;
+
+    protected ?bool $googleReviewCrmTemplateExistsCache = null;
 
     public function __construct()
     {
@@ -688,9 +693,11 @@ class ClientController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
 
+                $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
+
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
                 );
             }
             else
@@ -741,9 +748,10 @@ class ClientController extends Controller
                     ->with(['product', 'partner'])
                     ->orderBy('created_at', 'desc')
                     ->get();
+                $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
                 );
             }
             // Fallback: legacy lead in leads table (unmigrated) - use DB, not Lead model
@@ -814,9 +822,10 @@ class ClientController extends Controller
                         ->with(['product', 'partner'])
                         ->orderBy('created_at', 'desc')
                         ->get();
+                    $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
                     return view(
                         $this->getClientViewPath('clients.detail'),
-                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications'])
+                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
                     );
                 }
             }
@@ -1153,6 +1162,227 @@ class ClientController extends Controller
             return redirect()->route('clients.index')
                 ->with('error', 'Failed to export client data: ' . $e->getMessage());
         }
+    }
+
+    protected function googleReviewCrmTemplateExists(): bool
+    {
+        if ($this->googleReviewCrmTemplateExistsCache !== null) {
+            return $this->googleReviewCrmTemplateExistsCache;
+        }
+
+        $this->googleReviewCrmTemplateExistsCache = CrmEmailTemplate::query()
+            ->whereRaw('LOWER(name) LIKE ?', ['%google review%'])
+            ->exists();
+
+        return $this->googleReviewCrmTemplateExistsCache;
+    }
+
+    /**
+     * Roles in config `crm.google_review_reminder_exclude_role_ids` do not see the reminder modal or related APIs.
+     */
+    protected function currentStaffIsExcludedFromGoogleReviewReminder(): bool
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user) {
+            return false;
+        }
+
+        $roleId = (int) ($user->role ?? 0);
+        $excluded = config('crm.google_review_reminder_exclude_role_ids', [14, 15]);
+
+        return $roleId > 0 && in_array($roleId, $excluded, true);
+    }
+
+    protected function shouldShowGoogleReviewReminderModal(Admin $record): bool
+    {
+        if ($this->currentStaffIsExcludedFromGoogleReviewReminder()) {
+            return false;
+        }
+
+        if (Schema::hasColumn('admins', 'is_company') && (int) ($record->is_company ?? 0) === 1) {
+            return false;
+        }
+        if ((int) ($record->is_archived ?? 0) === 1) {
+            return false;
+        }
+        if (! in_array($record->type, ['client', 'lead'], true)) {
+            return false;
+        }
+        if (trim((string) $record->email) === '') {
+            return false;
+        }
+
+        $status = strtolower(trim((string) ($record->google_review_reminder_status ?? '')));
+        if (in_array($status, [
+            Admin::GOOGLE_REVIEW_REMINDER_NOT_INTERESTED,
+            Admin::GOOGLE_REVIEW_REMINDER_REVIEW_RECEIVED,
+        ], true)) {
+            return false;
+        }
+
+        $until = $record->google_review_reminder_snooze_until;
+        if ($until && $until->isFuture()) {
+            return false;
+        }
+
+        if (! $this->googleReviewCrmTemplateExists()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function updateGoogleReviewReminder(Request $request)
+    {
+        if ($this->currentStaffIsExcludedFromGoogleReviewReminder()) {
+            return response()->json(['ok' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'client_id' => 'required|integer|min:1',
+            'action' => 'required|in:snooze,snooze_one_day,not_interested,review_received',
+        ]);
+
+        $admin = Admin::query()
+            ->where('id', $validated['client_id'])
+            ->whereIn('type', ['client', 'lead'])
+            ->first();
+
+        if (! $admin) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if (Schema::hasColumn('admins', 'is_company') && (int) ($admin->is_company ?? 0) === 1) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if ((int) ($admin->is_archived ?? 0) === 1) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if (! $this->canViewClient($admin)) {
+            return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        switch ($validated['action']) {
+            case 'snooze':
+                $admin->google_review_reminder_snooze_until = Carbon::now()->addWeek();
+                break;
+            case 'snooze_one_day':
+                $admin->google_review_reminder_snooze_until = Carbon::now()->addDay();
+                break;
+            case 'not_interested':
+                $admin->google_review_reminder_status = Admin::GOOGLE_REVIEW_REMINDER_NOT_INTERESTED;
+                $admin->google_review_reminder_snooze_until = null;
+                break;
+            case 'review_received':
+                $admin->google_review_reminder_status = Admin::GOOGLE_REVIEW_REMINDER_REVIEW_RECEIVED;
+                $admin->google_review_reminder_snooze_until = null;
+                break;
+        }
+
+        $admin->save();
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Send SMS with Google review link from the client/lead detail reminder modal.
+     * Looks up an active SMS template by title (case-insensitive): "google_review_link" first,
+     * then legacy "Google review link".
+     * Template variables supported: {client_name} (primary), plus {first_name}, {last_name} for older templates.
+     */
+    public function sendGoogleReviewReminderSms(Request $request)
+    {
+        if ($this->currentStaffIsExcludedFromGoogleReviewReminder()) {
+            return response()->json(['ok' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'client_id' => 'required|integer|min:1',
+        ]);
+
+        $admin = Admin::query()
+            ->where('id', $validated['client_id'])
+            ->whereIn('type', ['client', 'lead'])
+            ->first();
+
+        if (! $admin) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if (Schema::hasColumn('admins', 'is_company') && (int) ($admin->is_company ?? 0) === 1) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if ((int) ($admin->is_archived ?? 0) === 1) {
+            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
+        }
+
+        if (! $this->canViewClient($admin)) {
+            return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $rawPhone = trim((string) ($admin->country_code ?? '')).trim((string) ($admin->phone ?? ''));
+        if ($rawPhone === '') {
+            return response()->json(['ok' => false, 'message' => 'No phone number on file for this contact'], 422);
+        }
+
+        $rawFirst = trim((string) ($admin->first_name ?? ''));
+        $rawLast = trim((string) ($admin->last_name ?? ''));
+        $firstDisplay = $rawFirst !== ''
+            ? mb_convert_case(mb_strtolower($rawFirst), MB_CASE_TITLE, 'UTF-8')
+            : 'there';
+        $fullName = trim($rawFirst.' '.$rawLast);
+        $clientNameDisplay = $fullName !== ''
+            ? mb_convert_case(mb_strtolower($fullName), MB_CASE_TITLE, 'UTF-8')
+            : 'there';
+
+        $variables = [
+            'client_name' => $clientNameDisplay,
+            'first_name' => $firstDisplay,
+            'last_name' => $rawLast,
+        ];
+
+        $template = null;
+        foreach (['google_review_link', 'Google review link'] as $tryTitle) {
+            $found = SmsTemplate::active()
+                ->whereRaw('LOWER(TRIM(title)) = ?', [mb_strtolower(trim($tryTitle))])
+                ->orderBy('id')
+                ->first();
+            if ($found) {
+                $template = $found;
+                break;
+            }
+        }
+
+        if (! $template) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Google review SMS template not found. Create an active SMS template with title "google_review_link" in Admin Console.',
+            ], 422);
+        }
+
+        $smsManager = app(UnifiedSmsManager::class);
+        $senderId = Auth::guard('admin')->id();
+        $result = $smsManager->sendFromTemplate(
+            $rawPhone,
+            (int) $template->id,
+            $variables,
+            ['client_id' => (int) $admin->id, 'sender_id' => $senderId]
+        );
+
+        if ($result['success'] ?? false) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Review link sent by SMS',
+            ]);
+        }
+
+        return response()->json([
+            'ok' => false,
+            'message' => $result['message'] ?? $result['error'] ?? 'Failed to send SMS',
+        ], 422);
     }
 
     /**

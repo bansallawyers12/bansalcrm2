@@ -126,6 +126,8 @@ Route::middleware(['auth:admin'])->group(function() {
     Route::post('/phone-verification/lead/resend-otp', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'resendOTPForLead'])->name('leads.phone.resendOTP');
     Route::get('/phone-verification/lead/status/{leadId}', [\App\Http\Controllers\Admin\Client\PhoneVerificationController::class, 'getStatusForLead'])->name('leads.phone.status');
     Route::post('/mail/enhance', [ClientMessagingController::class, 'enhanceMessage'])->name('clients.enhanceMessage');
+    Route::post('/clients/google-review-reminder', [ClientController::class, 'updateGoogleReviewReminder'])->name('clients.google-review-reminder');
+    Route::post('/clients/google-review-reminder/sms', [ClientController::class, 'sendGoogleReviewReminderSms'])->name('clients.google-review-reminder.sms');
     
     // Address routes
     Route::post('/address_auto_populate', [ClientController::class, 'address_auto_populate'])->name('clients.address_auto_populate');

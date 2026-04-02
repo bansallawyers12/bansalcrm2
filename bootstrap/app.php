@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/sms.php'));
+
+            Route::middleware('web')
+                ->namespace('App\Http\Controllers')
+                ->group(base_path('routes/elite.php'));
         },
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
@@ -45,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/*',
             'webhooks/sms/*',
+            'elite/emails',
             'update_visit_purpose',
             'update_visit_comment',
             'attend_session',
