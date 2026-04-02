@@ -19,7 +19,8 @@ return [
     // Roles that bypass allocation (see all clients/leads) and can approve supervisor requests.
     'exempt_role_ids' => $intList('CRM_ACCESS_EXEMPT_ROLE_IDS', '1,12', [1, 12]),
 
-    // Specific staff.id values that bypass allocation (optional).
+    // Specific staff.id values that bypass allocation (optional). Also set per-user in Staff → CRM access → Full access (crm_full_access).
+
     'exempt_staff_ids' => $intList('CRM_ACCESS_EXEMPT_STAFF_IDS', '', []),
 
     'quick_reason_options' => [

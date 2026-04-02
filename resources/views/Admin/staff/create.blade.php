@@ -174,18 +174,38 @@
 								<div class="form-group">
 							    	<label><input value="1" type="checkbox" name="show_dashboard_per" class="show_dashboard_per"> Can view on dashboard</label>
 								</div>
-								@if(!empty($canManageQuickAccess))
-								<div class="form-group">
-									<label><input value="1" type="checkbox" name="quick_access_enabled"> Enable {{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access (quick grant)</label>
-									<p class="text-muted small mb-0">Super Admin / Admin only.</p>
-								</div>
-								@endif
 								<div class="form-group float-end">
 									{!! Form::submit('Save Staff', ['class'=>'btn btn-primary' ])  !!}
 								</div> 
 							</div>
 						</div>
 					</div>
+					@if(!empty($canManageCrmAccess))
+					<div class="col-12 col-md-12 col-lg-12">
+						<div class="card">
+							<div class="card-header">
+								<h4>CRM access</h4>
+								<p class="text-muted small mb-0">Super Admin / Admin only.</p>
+							</div>
+							<div class="card-body">
+								<div class="form-group">
+									<label class="d-block font-weight-bold">{{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access</label>
+									<label><input value="1" type="checkbox" name="quick_access_enabled"> Allow short ({{ config('crm_access.quick_grant_minutes', 15) }} min) access to unassigned records</label>
+								</div>
+								<hr class="my-3">
+								<div class="form-group">
+									<label class="d-block font-weight-bold">Full access</label>
+									<label><input value="1" type="checkbox" name="crm_full_access"> See all clients and leads (bypass allocation)</label>
+								</div>
+								<hr class="my-3">
+								<div class="form-group mb-0">
+									<label class="d-block font-weight-bold">Supervisor access approvals</label>
+									<label><input value="1" type="checkbox" name="crm_access_approver"> Can approve or reject supervisor access requests</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					@endif
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
 							<div class="card-body">

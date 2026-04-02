@@ -95,6 +95,14 @@ use App\Http\Controllers\Controller;
 								<span class="float-start">Position:</span>
 								<span class="float-end text-muted">{{$fetchedData->position}}</span>
 							</p>
+							<p class="clearfix">
+								<span class="float-start">CRM access:</span>
+								<span class="float-end text-muted text-end" style="max-width: 65%;">
+									{{ !empty($fetchedData->quick_access_enabled) ? config('crm_access.quick_grant_minutes', 15).'-minute cross-access: Yes' : 'Short cross-access: No' }}<br>
+									{{ !empty($fetchedData->crm_full_access) ? 'Full access (all records): Yes' : 'Full access: No' }}<br>
+									{{ !empty($fetchedData->crm_access_approver) ? 'Supervisor approvals: Yes' : 'Supervisor approvals: No' }}
+								</span>
+							</p>
 							
 							<p class="clearfix">
 								<span class="float-start">Department:</span>
