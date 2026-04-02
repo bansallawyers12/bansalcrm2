@@ -20,15 +20,32 @@ class AccessGrantController extends Controller
         $this->middleware('auth:admin');
     }
 
-    protected function ensureStaffClientsModule(): void
+    protected function ensureStaffMayOpenCrossAccessRequest(?Staff $user, int $adminId): void
     {
-        $user = Auth::guard('admin')->user();
-        if (! $user instanceof Staff || ! StaffClientVisibility::staffHasClientsModule($user)) {
+        if (! $user instanceof Staff || ! StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId)) {
             abort(403);
         }
     }
 
-    /** Approvers may open "My grants" even if their role JSON omits clients module (queue still approver-only). */
+    /** JSON helper for access UI: clients module, approval queue users, or quick-access-only staff. */
+    protected function ensureStaffForCrmAccessMeta(?Staff $user): void
+    {
+        if (! $user instanceof Staff) {
+            abort(403);
+        }
+        if (StaffClientVisibility::staffHasClientsModule($user)) {
+            return;
+        }
+        if ($this->crmAccess->isApprover($user)) {
+            return;
+        }
+        if ((bool) ($user->quick_access_enabled ?? false)) {
+            return;
+        }
+        abort(403);
+    }
+
+    /** Approvers, clients module, or quick-access users may view their grant history. */
     protected function ensureStaffClientsModuleOrApprover(): void
     {
         $user = Auth::guard('admin')->user();
@@ -38,17 +55,27 @@ class AccessGrantController extends Controller
         if ($this->crmAccess->isApprover($user)) {
             return;
         }
-        if (! StaffClientVisibility::staffHasClientsModule($user)) {
-            abort(403);
+        if (StaffClientVisibility::staffHasClientsModule($user)) {
+            return;
         }
+        if ((bool) ($user->quick_access_enabled ?? false)) {
+            return;
+        }
+        abort(403);
     }
 
     public function requestForm(Request $request, int $adminId)
     {
-        $this->ensureStaffClientsModule();
+        /** @var Staff|null $user */
+        $user = Auth::guard('admin')->user();
+        $this->ensureStaffMayOpenCrossAccessRequest($user instanceof Staff ? $user : null, $adminId);
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
-        $admin = Admin::query()->whereNull('is_deleted')->findOrFail($adminId);
+        $admin = Admin::query()
+            ->where(function ($q) {
+                $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+            })
+            ->findOrFail($adminId);
 
         if (StaffClientVisibility::canAccessAdminRecord($adminId, $user)) {
             $encodeId = base64_encode(convert_uuencode($admin->id));
@@ -61,14 +88,16 @@ class AccessGrantController extends Controller
         $offices = \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
         $reasons = config('crm_access.quick_reason_options', []);
         $quickEnabled = (bool) ($user->quick_access_enabled ?? false);
-        $canSupervisor = ! in_array((int) ($user->role ?? 0), config('crm_access.quick_access_only_role_ids', [9]), true);
+        $canSupervisor = StaffClientVisibility::staffMayUseSupervisorAccessPath($user);
 
         return view('crm.access.request', compact('admin', 'offices', 'reasons', 'quickEnabled', 'canSupervisor'));
     }
 
     public function meta(Request $request)
     {
-        $this->ensureStaffClientsModule();
+        /** @var Staff|null $user */
+        $user = Auth::guard('admin')->user();
+        $this->ensureStaffForCrmAccessMeta($user instanceof Staff ? $user : null);
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
 
@@ -116,16 +145,39 @@ class AccessGrantController extends Controller
 
     public function quick(Request $request)
     {
-        $this->ensureStaffClientsModule();
         $request->validate([
             'admin_id' => 'required|integer|exists:admins,id',
             'office_id' => 'required|integer|exists:branches,id',
             'reason' => 'required|string|max:50',
         ]);
 
-        /** @var Staff $user */
+        /** @var Staff|null $user */
         $user = Auth::guard('admin')->user();
-        $admin = Admin::query()->whereNull('is_deleted')->findOrFail((int) $request->input('admin_id'));
+        if (! $user instanceof Staff) {
+            return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $adminId = (int) $request->input('admin_id');
+
+        // Same as migrationmanager-style: already able to open record → go to detail (no grant needed)
+        if (StaffClientVisibility::canAccessAdminRecord($adminId, $user)) {
+            return response()->json([
+                'ok' => true,
+                'mode' => 'already_can_view',
+                'grant_id' => null,
+                'ends_at' => null,
+            ]);
+        }
+
+        if (! StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId)) {
+            return response()->json(['ok' => false, 'message' => 'You are not allowed to request cross-access for this record.'], 403);
+        }
+
+        $admin = Admin::query()
+            ->where(function ($q) {
+                $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+            })
+            ->findOrFail($adminId);
         $recordType = strtolower((string) ($admin->type ?? 'client')) === 'lead' ? 'lead' : 'client';
 
         try {
@@ -142,6 +194,7 @@ class AccessGrantController extends Controller
 
         return response()->json([
             'ok' => true,
+            'mode' => 'new_grant',
             'grant_id' => $grant->id,
             'ends_at' => $grant->ends_at?->toIso8601String(),
         ]);
@@ -149,7 +202,6 @@ class AccessGrantController extends Controller
 
     public function supervisor(Request $request)
     {
-        $this->ensureStaffClientsModule();
         $request->validate([
             'admin_id' => 'required|integer|exists:admins,id',
             'office_id' => 'required|integer|exists:branches,id',
@@ -157,9 +209,19 @@ class AccessGrantController extends Controller
             'note' => 'nullable|string|max:2000',
         ]);
 
+        /** @var Staff|null $user */
+        $user = Auth::guard('admin')->user();
+        $this->ensureStaffMayOpenCrossAccessRequest($user instanceof Staff ? $user : null, (int) $request->input('admin_id'));
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
-        $admin = Admin::query()->whereNull('is_deleted')->findOrFail((int) $request->input('admin_id'));
+        if (! StaffClientVisibility::staffMayUseSupervisorAccessPath($user)) {
+            return response()->json(['ok' => false, 'message' => 'Supervisor access requests are not enabled for your account.'], 403);
+        }
+        $admin = Admin::query()
+            ->where(function ($q) {
+                $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+            })
+            ->findOrFail((int) $request->input('admin_id'));
         $recordType = strtolower((string) ($admin->type ?? 'client')) === 'lead' ? 'lead' : 'client';
 
         try {

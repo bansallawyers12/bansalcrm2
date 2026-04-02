@@ -62,6 +62,37 @@ mark.search-highlight {
     line-height: 1.4;
 }
 
+.modern-search-result--locked {
+    opacity: 0.95;
+    border-left-color: #fd7e14 !important;
+}
+.modern-search-lock {
+    margin-right: 4px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+.modern-search-result-quickview {
+    font-size: 12px;
+    margin-top: 8px;
+    font-weight: 600;
+    color: #5b21b6;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+}
+.modern-search-result-quickview:hover {
+    text-decoration: underline;
+}
+.modern-search-result-quickview .fa-bolt {
+    color: #7c3aed;
+}
+.modern-search-result-quickview .quickview-hint {
+    font-weight: 400;
+    color: #6c757d;
+}
+
 .modern-search-result-subtitle {
     font-size: 12px;
     color: #6c757d;

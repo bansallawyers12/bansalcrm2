@@ -47,7 +47,7 @@
 	<!-- Custom style CSS -->
 	<link rel="stylesheet" href="{{asset('css/custom.css')}}">
 	<!-- Modern Search CSS -->
-	<link rel="stylesheet" href="{{asset('css/modern-search.css')}}">
+	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ filemtime(public_path('css/modern-search.css')) }}">
 	
     <link rel="stylesheet" href="{{asset('css/dataTables_min_latest.css')}}">
     
@@ -309,7 +309,7 @@
 	@vite(['resources/js/legacy-init.js'])
 	
 	<!-- Modern Search - Replaces inline search initialization to prevent conflicts -->
-	<script src="{{asset('js/modern-search.js')}}" defer></script>
+	<script src="{{ asset('js/modern-search.js') }}?v={{ filemtime(public_path('js/modern-search.js')) }}" defer></script>
 	
 	<form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
 		@csrf

@@ -596,8 +596,11 @@ class ClientController extends Controller
 				if(Admin::where('id', '=', $id)->exists())
 				{
 					$fetchedData = Admin::with('office')->find($id);
-					if (! $fetchedData || ! $this->canViewClient($fetchedData)) {
+					if (! $fetchedData) {
 						return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+					}
+					if (! $this->canViewClient($fetchedData)) {
+						return $this->redirectWhenCannotViewClientRecord($fetchedData);
 					}
                   
                     if(!empty($fetchedData) && $fetchedData->dob != ""){
@@ -646,6 +649,22 @@ class ClientController extends Controller
 
 	}
 
+    /**
+     * Staff with the clients module but no allocation/grant for this admins row: offer cross-access request.
+     * Otherwise send them to the listing with an error (e.g. no module access).
+     */
+    protected function redirectWhenCannotViewClientRecord(Admin $client, string $fallbackRoute = 'clients.index')
+    {
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff
+            && ! StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
+            && StaffClientVisibility::staffMayOpenCrossAccessRequest($user, (int) $client->id)) {
+            return redirect()->route('crm.access.request', ['adminId' => (int) $client->id]);
+        }
+
+        return redirect()->route($fallbackRoute)->with('error', config('constants.unauthorized'));
+    }
+
     //Client detail page
     public function clientdetail(Request $request, $id = NULL, $tab = NULL){ 
         $showAlert = false;
@@ -684,9 +703,9 @@ class ClientController extends Controller
                 }
 
                 if (! $this->canViewClient($fetchedData)) {
-                    return Redirect::to($this->getClientRedirectUrl('index'))->with('error', config('constants.unauthorized'));
+                    return $this->redirectWhenCannotViewClientRecord($fetchedData);
                 }
-                
+
                 if(!empty($fetchedData) && $fetchedData->dob != ""){
                     $calculate_age  = $this->calculateAge($fetchedData->dob); //dd($age);
                     $fetchedData->age = $calculate_age;  // Update age in the database
@@ -759,7 +778,7 @@ class ClientController extends Controller
             if ($adminLead) {
                 $fetchedData = $adminLead;
                 if (! $this->canViewClient($fetchedData)) {
-                    return redirect()->route('leads.index')->with('error', config('constants.unauthorized'));
+                    return $this->redirectWhenCannotViewClientRecord($fetchedData, 'leads.index');
                 }
                 $encodeId = base64_encode(convert_uuencode($adminLead->id));
                 $clientApplications = Application::where('client_id', $fetchedData->id)
@@ -830,7 +849,7 @@ class ClientController extends Controller
                 }
                 if (!empty($fetchedData)) {
                     if (! $this->canViewClient($fetchedData)) {
-                        return redirect()->route('leads.index')->with('error', config('constants.unauthorized'));
+                        return $this->redirectWhenCannotViewClientRecord($fetchedData, 'leads.index');
                     }
                     if ($fetchedData->updated_at) {
                         $updatedAt = Carbon::parse($fetchedData->updated_at);
@@ -850,11 +869,11 @@ class ClientController extends Controller
                     );
                 }
             }
-            return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client or Lead Not Found');
+            return redirect()->route('leads.index')->with('error', 'Client or Lead Not Found');
         }
         else
         {
-            return Redirect::to($this->getClientRedirectUrl('index'))->with('error', Config::get('constants.unauthorized'));
+            return redirect()->route('leads.index')->with('error', Config::get('constants.unauthorized'));
         }
     }
   
@@ -1197,8 +1216,7 @@ class ClientController extends Controller
             }
 
             if (! $this->canViewClient($client)) {
-                return redirect()->route('clients.index')
-                    ->with('error', config('constants.unauthorized'));
+                return $this->redirectWhenCannotViewClientRecord($client);
             }
 
             $exportService = app(ClientExportService::class);

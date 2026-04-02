@@ -6,6 +6,324 @@
 (function() {
     'use strict';
 
+    var crmAccessModalCtx = null;
+
+    function stripHtml(s) {
+        if (!s) {
+            return '';
+        }
+        var t = document.createElement('div');
+        t.innerHTML = s;
+        return t.textContent || t.innerText || '';
+    }
+
+    function getCsrfToken() {
+        var m = document.querySelector('meta[name="csrf-token"]');
+        return m ? m.getAttribute('content') : '';
+    }
+
+    function siteBase() {
+        return (typeof site_url !== 'undefined' ? site_url : '');
+    }
+
+    function openCrmAccessRequestModal(ctx) {
+        crmAccessModalCtx = ctx;
+        var modalEl = document.getElementById('crmAccessRequestModal');
+        var labelEl = document.getElementById('crm-access-record-label');
+        var blockedEl = document.getElementById('crm-access-modal-blocked');
+        var formEl = document.getElementById('crm-access-modal-form');
+        var msgEl = document.getElementById('crm-access-msg');
+        var officeSel = document.getElementById('crm-access-office');
+        var reasonSel = document.getElementById('crm-access-reason');
+        var noteWrap = document.getElementById('crm-access-supervisor-note-wrap');
+        var btnQuick = document.getElementById('crm-access-btn-quick');
+        var btnSuper = document.getElementById('crm-access-btn-supervisor');
+
+        if (!modalEl || typeof bootstrap === 'undefined') {
+            window.location.href = siteBase() + '/crm/access/request/' + encodeURIComponent(ctx.adminId);
+            return;
+        }
+
+        if (labelEl) {
+            labelEl.textContent = ctx.displayName
+                ? ('Record: ' + ctx.displayName)
+                : ('Record ID #' + ctx.adminId);
+        }
+        if (msgEl) {
+            msgEl.textContent = '';
+            msgEl.className = 'small mt-2';
+        }
+        if (blockedEl) {
+            blockedEl.classList.add('d-none');
+            blockedEl.textContent = '';
+        }
+        if (formEl) {
+            formEl.classList.remove('d-none');
+        }
+        if (officeSel) {
+            officeSel.innerHTML = '';
+        }
+        if (reasonSel) {
+            reasonSel.innerHTML = '';
+        }
+        if (noteWrap) {
+            noteWrap.classList.add('d-none');
+        }
+        var noteTa = document.getElementById('crm-access-note');
+        if (noteTa) {
+            noteTa.value = '';
+        }
+        if (btnQuick) {
+            btnQuick.classList.remove('d-none');
+        }
+        if (btnSuper) {
+            btnSuper.classList.add('d-none');
+        }
+
+        fetch(siteBase() + '/crm/access/meta', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        }).then(function(r) {
+            return r.json().then(function(j) {
+                return { ok: r.ok, j: j };
+            });
+        }).then(function(res) {
+            if (!res.ok || !res.j) {
+                throw new Error('meta');
+            }
+            var d = res.j;
+            if (officeSel && Array.isArray(d.offices)) {
+                d.offices.forEach(function(o) {
+                    var opt = document.createElement('option');
+                    opt.value = o.id;
+                    opt.textContent = o.office_name;
+                    officeSel.appendChild(opt);
+                });
+            }
+            if (reasonSel && d.reasons && typeof d.reasons === 'object') {
+                Object.keys(d.reasons).forEach(function(code) {
+                    var opt = document.createElement('option');
+                    opt.value = code;
+                    opt.textContent = d.reasons[code];
+                    reasonSel.appendChild(opt);
+                });
+            }
+            var quickOn = !!d.quick_access_enabled;
+            var canSup = !!d.can_supervisor;
+            if (btnQuick) {
+                if (quickOn) {
+                    btnQuick.classList.remove('d-none');
+                } else {
+                    btnQuick.classList.add('d-none');
+                }
+            }
+            if (btnSuper) {
+                if (canSup) {
+                    btnSuper.classList.remove('d-none');
+                } else {
+                    btnSuper.classList.add('d-none');
+                }
+            }
+            if (noteWrap) {
+                if (canSup) {
+                    noteWrap.classList.remove('d-none');
+                }
+            }
+            if (!quickOn && !canSup && blockedEl && formEl) {
+                blockedEl.textContent = 'Quick access is not enabled on your account, and your role cannot use supervisor requests. Ask a Super Admin or Admin to enable quick access for you.';
+                blockedEl.classList.remove('d-none');
+                formEl.classList.add('d-none');
+                if (btnQuick) {
+                    btnQuick.classList.add('d-none');
+                }
+                if (btnSuper) {
+                    btnSuper.classList.add('d-none');
+                }
+            }
+        }).catch(function() {
+            if (blockedEl && formEl) {
+                blockedEl.textContent = 'Unable to load access options. You can try again or open the full request page.';
+                blockedEl.classList.remove('d-none');
+                formEl.classList.add('d-none');
+            }
+            if (btnQuick) {
+                btnQuick.classList.add('d-none');
+            }
+            if (btnSuper) {
+                btnSuper.classList.add('d-none');
+            }
+        });
+
+        try {
+            var $hdrSearch = $('.js-data-example-ajaxccsearch');
+            if ($hdrSearch.length && $hdrSearch.hasClass('select2-hidden-accessible')) {
+                $hdrSearch.select2('close');
+            }
+        } catch (ignoreClose) {}
+
+        var inst = bootstrap.Modal.getOrCreateInstance(modalEl);
+        inst.show();
+    }
+
+    function crmAccessPost(url, body, cb) {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(body)
+        }).then(function(r) {
+            return r.text().then(function(text) {
+                var j = {};
+                if (text) {
+                    try {
+                        j = JSON.parse(text);
+                    } catch (err) {
+                        j = { message: text.slice(0, 200) || 'Unexpected server response' };
+                    }
+                }
+                if (!r.ok && j.message && j.errors) {
+                    var first = j.errors && typeof j.errors === 'object' ? Object.values(j.errors)[0] : null;
+                    if (Array.isArray(first) && first[0]) {
+                        j.message = first[0];
+                    }
+                }
+                return { ok: r.ok, j: j, status: r.status };
+            });
+        }).then(cb).catch(function() {
+            cb({ ok: false, j: { message: 'Network error' } });
+        });
+    }
+
+    function wireCrmAccessModalOnce() {
+        var q = document.getElementById('crm-access-btn-quick');
+        var s = document.getElementById('crm-access-btn-supervisor');
+        if (q && !q.dataset.wired) {
+            q.dataset.wired = '1';
+            q.addEventListener('click', function() {
+                var ctx = crmAccessModalCtx;
+                if (!ctx) {
+                    return;
+                }
+                var office = document.getElementById('crm-access-office');
+                var reason = document.getElementById('crm-access-reason');
+                var msgEl = document.getElementById('crm-access-msg');
+                var oid = parseInt(office && office.value, 10);
+                var rcode = reason && reason.value ? String(reason.value).trim() : '';
+                if (!Number.isFinite(oid) || oid <= 0 || !rcode) {
+                    if (msgEl) {
+                        msgEl.textContent = 'Choose an office and reason, then try again.';
+                        msgEl.className = 'small mt-2 text-danger';
+                    }
+                    return;
+                }
+                crmAccessPost(siteBase() + '/crm/access/quick', {
+                    admin_id: ctx.adminId,
+                    office_id: oid,
+                    reason: rcode
+                }, function(res) {
+                    if (res.ok && res.j && res.j.ok) {
+                        if (msgEl) {
+                            if (res.j.mode === 'already_can_view') {
+                                msgEl.textContent = 'You already have access. Opening record…';
+                            } else {
+                                msgEl.textContent = 'Access granted. Opening record…';
+                            }
+                            msgEl.className = 'small mt-2 text-success';
+                        }
+                        var path = ctx.isLead ? '/leads/detail/' : '/clients/detail/';
+                        setTimeout(function() {
+                            window.location.href = siteBase() + path + encodeURIComponent(ctx.encodedId);
+                        }, 400);
+                    } else if (msgEl) {
+                        msgEl.textContent = (res.j && res.j.message) ? res.j.message : 'Request failed';
+                        msgEl.className = 'small mt-2 text-danger';
+                    }
+                });
+            });
+        }
+        if (s && !s.dataset.wired) {
+            s.dataset.wired = '1';
+            s.addEventListener('click', function() {
+                var ctx = crmAccessModalCtx;
+                if (!ctx) {
+                    return;
+                }
+                var office = document.getElementById('crm-access-office');
+                var reason = document.getElementById('crm-access-reason');
+                var note = document.getElementById('crm-access-note');
+                var msgEl = document.getElementById('crm-access-msg');
+                var oidS = parseInt(office && office.value, 10);
+                var rcodeS = reason && reason.value ? String(reason.value).trim() : '';
+                if (!Number.isFinite(oidS) || oidS <= 0 || !rcodeS) {
+                    if (msgEl) {
+                        msgEl.textContent = 'Choose an office and reason, then try again.';
+                        msgEl.className = 'small mt-2 text-danger';
+                    }
+                    return;
+                }
+                crmAccessPost(siteBase() + '/crm/access/supervisor', {
+                    admin_id: ctx.adminId,
+                    office_id: oidS,
+                    reason: rcodeS,
+                    note: note ? note.value : ''
+                }, function(res) {
+                    if (res.ok && res.j && res.j.ok) {
+                        if (msgEl) {
+                            msgEl.textContent = 'Supervisor request submitted.';
+                            msgEl.className = 'small mt-2 text-success';
+                        }
+                    } else if (msgEl) {
+                        msgEl.textContent = (res.j && res.j.message) ? res.j.message : 'Request failed';
+                        msgEl.className = 'small mt-2 text-danger';
+                    }
+                });
+            });
+        }
+    }
+
+    /**
+     * Quick view row: Select2's select2:selecting often lacks a reliable originalEvent
+     * (migrationmanager2 opens the modal from select; we intercept the row via delegation).
+     */
+    function wireModernSearchQuickViewRowOnce() {
+        if (typeof window !== 'undefined' && window.__modernSearchQuickViewWired) {
+            return;
+        }
+        if (typeof window !== 'undefined') {
+            window.__modernSearchQuickViewWired = true;
+        }
+        $(document).on('mousedown', '.modern-search-result-quickview', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        $(document).on('click', '.modern-search-result-quickview', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var el = this;
+            var adminId = parseInt(el.getAttribute('data-admin-id'), 10);
+            var encId = el.getAttribute('data-encoded-id') || '';
+            var isLead = el.getAttribute('data-is-lead') === '1';
+            if (!Number.isFinite(adminId) || adminId <= 0 || !encId) {
+                return false;
+            }
+            openCrmAccessRequestModal({
+                adminId: adminId,
+                encodedId: encId,
+                isLead: isLead,
+                displayName: ''
+            });
+            return false;
+        });
+    }
+
     // Debounce function
     function debounce(func, delay = 300) {
         let timeoutId;
@@ -76,6 +394,34 @@
             escapeMarkup: function(markup) {
                 return markup; // Allow HTML
             }
+        });
+
+        // "Quick view" row: backup if originalEvent is present (primary handler is delegated click)
+        $searchElement.on('select2:selecting', function(e) {
+            const originalEvent = e.params.args.originalEvent || e.params.args.event;
+            if (!originalEvent || !originalEvent.target) {
+                return;
+            }
+            if (!$(originalEvent.target).closest('.modern-search-result-quickview').length) {
+                return;
+            }
+            const data = e.params.args.data;
+            if (!data || !data.id || !data.admin_id) {
+                return;
+            }
+            const parts = String(data.id).split('/');
+            const type = parts[1];
+            const encId = parts[0];
+            if (type !== 'Client' && type !== 'Lead') {
+                return;
+            }
+            e.preventDefault();
+            openCrmAccessRequestModal({
+                adminId: parseInt(data.admin_id, 10),
+                encodedId: encId,
+                isLead: !!(data.is_lead || type === 'Lead'),
+                displayName: stripHtml(data.name || data.text || '')
+            });
         });
 
         // Keyboard shortcut: Ctrl+K or Cmd+K
@@ -160,30 +506,70 @@
             return $('<strong class="select2-category-header">' + repo.text + '</strong>');
         }
 
+        const idStr = repo.id ? String(repo.id) : '';
+        const idParts = idStr.split('/');
+        const encIdForRow = idParts[0] || '';
+        const typeFromId = idParts[1] || '';
+        const isCrmPersonRow = idStr.indexOf('/Client') !== -1 || idStr.indexOf('/Lead') !== -1;
+
         // Show client ID as blue badge before name
         const clientId = repo.client_id ? `<span style="color: #007bff; font-weight: 600; margin-right: 8px;">#${repo.client_id}</span>` : '';
-        
+
+        const lockPrefix = repo.locked ? '<span class="modern-search-lock" title="No direct access — use Quick view below">&#128274;</span>' : '';
+
         // Build additional details array for subtitle
         const details = [];
-        
         if (repo.email) {
             details.push(repo.email);
         }
-        
         if (repo.phone) {
             details.push(`Phone: ${repo.phone}`);
         }
-        
-        // Join details with separator
         const detailsText = details.join(' • ');
 
+        let accessChips = '';
+        if (repo.locked && repo.access_ui) {
+            const ui = repo.access_ui;
+            if (ui.show_quick) {
+                accessChips += '<span class="badge rounded-pill bg-light text-dark border">Quick</span>';
+            }
+            if (ui.show_supervisor) {
+                accessChips += '<span class="badge rounded-pill bg-light text-dark border">Supervisor</span>';
+            }
+        }
+
+        const statusBadge = repo.status
+            ? `<span class="badge bg-warning text-dark">${repo.status}</span>`
+            : '';
+
+        const adminIdAttr = repo.admin_id != null && repo.admin_id !== '' ? String(repo.admin_id) : '';
+        const isLeadRow = !!(repo.is_lead || typeFromId === 'Lead');
+
+        // Staff only (server flag); hide while a time-boxed grant is active (go straight to record from main row)
+        const quickViewLine = isCrmPersonRow && repo.allow_access_modal && !repo.has_active_temp_access && adminIdAttr && encIdForRow
+            ? `<div class="modern-search-result-quickview" data-admin-id="${adminIdAttr}" data-encoded-id="${encIdForRow}" data-is-lead="${isLeadRow ? '1' : '0'}" title="Request access (Quick access in modal), then open record"><i class="fas fa-bolt" aria-hidden="true"></i><span>Quick view</span><span class="quickview-hint"> — Request access</span></div>`
+            : '';
+
+        const metaParts = [];
+        if (accessChips) {
+            metaParts.push('<div class="d-flex flex-wrap justify-content-end gap-1">' + accessChips + '</div>');
+        }
+        if (statusBadge) {
+            metaParts.push('<div class="mt-1">' + statusBadge + '</div>');
+        }
+        const metaHtml = metaParts.length
+            ? `<div class="modern-search-result-meta text-end">${metaParts.join('')}</div>`
+            : '';
+
         const $container = $(`
-            <div class="select2-result-repository modern-search-result">
+            <div class="select2-result-repository modern-search-result${repo.locked ? ' modern-search-result--locked' : ''}">
                 <div class="modern-search-result-content">
                     <div class="modern-search-result-main">
-                        <div class="modern-search-result-title">${clientId}${repo.name || repo.text}</div>
+                        <div class="modern-search-result-title">${lockPrefix}${clientId}${repo.name || repo.text}</div>
                         <div class="modern-search-result-subtitle">${detailsText}</div>
+                        ${quickViewLine}
                     </div>
+                    ${metaHtml}
                 </div>
             </div>
         `);
@@ -207,15 +593,23 @@
         const type = parts[1];  //alert('type='+type);
         const id = parts[0];  //alert('id='+id);
 
+        if ((type === 'Client' || type === 'Lead') && data.locked && data.admin_id) {
+            openCrmAccessRequestModal({
+                adminId: parseInt(data.admin_id, 10),
+                encodedId: id,
+                isLead: !!(data.is_lead || type === 'Lead'),
+                displayName: stripHtml(data.name || data.text || '')
+            });
+            return;
+        }
+
         let url = '';
 
         switch (type) {
             case 'Client':
-                 // Both clients and leads (old and new) route to client detail page
-                 url = siteUrl + '/clients/detail/' + id;
+                 url = siteUrl + (data.is_lead ? '/leads/detail/' : '/clients/detail/') + id;
                  break;
             case 'Lead':
-                // Both clients and leads (old and new) route to client detail page
                 url = siteUrl + '/leads/detail/' + id;
                 break;
             case 'Partner':
@@ -272,6 +666,8 @@
             $(document).ready(function() {
                 // Small delay to ensure DOM is fully ready
                 setTimeout(function() {
+                    wireCrmAccessModalOnce();
+                    wireModernSearchQuickViewRowOnce();
                     initModernSearch();
                 }, 100);
             });
@@ -283,6 +679,8 @@
     // Re-initialize on Turbolinks/AJAX page loads if needed
     $(document).on('turbolinks:load', function() {
         if (typeof $.fn.select2 !== 'undefined') {
+            wireCrmAccessModalOnce();
+            wireModernSearchQuickViewRowOnce();
             initModernSearch();
         }
     });

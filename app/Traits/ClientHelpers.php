@@ -260,24 +260,21 @@ trait ClientHelpers
      */
     protected function getClientRedirectUrl(string $action, $id = null): string
     {
-        $basePath = '/clients'; // Unified route (will be implemented in Phase 4)
-        
-        // For now, use context-aware paths
+        // Unified client routes (see routes/clients.php) — /admin/clients was removed.
         if ($this->isAgentContext()) {
-            $basePath = '/agent/clients';
-        } else {
-            $basePath = '/admin/clients';
+            $encoded = $id !== null ? $this->encodeString($id) : null;
+            return match ($action) {
+                'detail', 'edit' => url('/clients/' . $action . '/' . $encoded),
+                default => url('/clients'),
+            };
         }
-        
-        switch ($action) {
-            case 'index':
-                return $basePath;
-            case 'detail':
-            case 'edit':
-                return $basePath . '/' . $action . '/' . $this->encodeString($id);
-            default:
-                return $basePath;
-        }
+
+        return match ($action) {
+            'index' => route('clients.index'),
+            'detail' => route('clients.detail', ['id' => $this->encodeString($id)]),
+            'edit' => route('clients.edit', ['id' => $this->encodeString($id)]),
+            default => route('clients.index'),
+        };
     }
     
     // Note: isAgentContext() is defined in ClientQueries trait

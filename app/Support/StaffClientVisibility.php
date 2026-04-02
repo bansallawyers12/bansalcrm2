@@ -32,6 +32,20 @@ class StaffClientVisibility
     }
 
     /**
+     * May use /crm/access/request/{adminId} and quick/supervisor POST for this record.
+     * Includes normal clients-module roles plus staff who only have cross-access (e.g. quick access
+     * without module "20" in role JSON) when strict allocation applies.
+     */
+    public static function staffMayOpenCrossAccessRequest(Staff $user, int $adminId): bool
+    {
+        if (self::staffHasClientsModule($user)) {
+            return true;
+        }
+
+        return self::canRequestCrossAccessGrant($adminId, $user);
+    }
+
+    /**
      * Whether this staff may create a quick/supervisor cross-access grant for this admins.id.
      */
     public static function canRequestCrossAccessGrant(int $adminId, Staff $user): bool
@@ -61,6 +75,59 @@ class StaffClientVisibility
         return app(CrmAccessService::class)->isExemptFromAllocation($user);
     }
 
+    public static function isQuickAccessOnly(?Authenticatable $user): bool
+    {
+        if (! $user instanceof Staff) {
+            return false;
+        }
+
+        return in_array((int) ($user->role ?? 0), config('crm_access.quick_access_only_role_ids', [9]), true);
+    }
+
+    /**
+     * May use supervisor-approved access requests (beyond time-boxed quick grant).
+     * Quick-grant-only roles and staff who only have quick cross-access (no clients module / full CRM / approver) cannot.
+     */
+    public static function staffMayUseSupervisorAccessPath(?Authenticatable $user): bool
+    {
+        if (! $user instanceof Staff) {
+            return false;
+        }
+
+        if (self::isQuickAccessOnly($user)) {
+            return false;
+        }
+
+        return self::staffHasClientsModule($user)
+            || (bool) ($user->crm_full_access ?? false)
+            || (bool) ($user->crm_access_approver ?? false);
+    }
+
+    /**
+     * Which cross-access entry points to show in global search (see migrationmanager2 StaffClientVisibility).
+     *
+     * @return array{show_quick: bool, show_supervisor: bool}
+     */
+    public static function crossAccessUiFlags(?Authenticatable $user): array
+    {
+        if (! $user || ! ($user instanceof Staff) || self::isExemptFromAllocation($user)) {
+            return ['show_quick' => false, 'show_supervisor' => false];
+        }
+
+        if (self::isQuickAccessOnly($user)) {
+            $enabled = (bool) ($user->quick_access_enabled ?? false);
+
+            return ['show_quick' => $enabled, 'show_supervisor' => false];
+        }
+
+        $quick = (bool) ($user->quick_access_enabled ?? false);
+
+        return [
+            'show_quick' => $quick,
+            'show_supervisor' => self::staffMayUseSupervisorAccessPath($user),
+        ];
+    }
+
     /**
      * Whether the logged-in staff may open this admins row (by admins.id).
      */
@@ -74,7 +141,9 @@ class StaffClientVisibility
 
         $row = Admin::query()
             ->where('id', $adminId)
-            ->whereNull('is_deleted')
+            ->where(function ($q) {
+                $q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+            })
             ->first(['id', 'type', 'user_id', 'assignee']);
 
         if (! $row) {

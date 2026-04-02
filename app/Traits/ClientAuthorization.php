@@ -72,14 +72,16 @@ trait ClientAuthorization
     protected function canViewClient(Admin $client): bool
     {
         if ($this->isAdminUser()) {
-            if (! $this->hasModuleAccess('20')) {
-                return false;
-            }
             $user = Auth::guard('admin')->user();
 
-            return $user instanceof Staff
-                ? StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
-                : false;
+            if (! $user instanceof Staff) {
+                return false;
+            }
+
+            // Do not require module 20 here: active quick/supervisor grants and strict allocation
+            // can allow viewing a record even when the role has no Clients module (e.g. search → Quick access).
+            // Listing routes (e.g. clients index) still gate on module 20 separately.
+            return StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user);
         }
         
         // Agents can only view their own clients

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Admin;
 use App\Models\Staff;
+use App\Services\CrmAccess\CrmAccessService;
 use App\Support\StaffClientVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -65,7 +66,16 @@ class SearchService
         $cacheKey = 'search:' . md5($this->query . ':' . $this->limit . ':' . $this->visibilityCacheSuffix());
 
         if ($this->cacheEnabled) {
-            return Cache::remember($cacheKey, 300, function () {
+            $user = Auth::guard('admin')->user();
+            $ttl = 300;
+            if ($user instanceof Staff
+                && StaffClientVisibility::strictAllocationEnabled()
+                && ! StaffClientVisibility::isExemptFromAllocation($user)) {
+                // Short TTL so Quick access / grants refresh locked flags in the dropdown quickly
+                $ttl = 15;
+            }
+
+            return Cache::remember($cacheKey, $ttl, function () {
                 return $this->performSearch();
             });
         }
@@ -96,6 +106,39 @@ class SearchService
         }
 
         return $query;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    protected function withClientAccessFlags(array $item, Admin $client): array
+    {
+        $user = Auth::guard('admin')->user();
+        $adminId = (int) $client->id;
+        $item['admin_id'] = $adminId;
+        $item['is_lead'] = (($client->type ?? '') === 'lead');
+        if (! $user instanceof Staff) {
+            $item['locked'] = false;
+            $item['access_ui'] = ['show_quick' => false, 'show_supervisor' => false];
+            $item['requires_access_grant'] = false;
+            $item['has_active_temp_access'] = false;
+            $item['allow_access_modal'] = false;
+
+            return $item;
+        }
+
+        $canAccess = StaffClientVisibility::canAccessAdminRecord($adminId, $user);
+        $item['locked'] = ! $canAccess;
+        $item['access_ui'] = $item['locked']
+            ? StaffClientVisibility::crossAccessUiFlags($user)
+            : ['show_quick' => false, 'show_supervisor' => false];
+        $item['requires_access_grant'] = $item['locked']
+            && StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId);
+        $item['has_active_temp_access'] = app(CrmAccessService::class)->hasActiveGrant($user, $adminId);
+        $item['allow_access_modal'] = true;
+
+        return $item;
     }
 
     /**
@@ -217,7 +260,7 @@ class SearchService
             $lastName = $client->last_name ?? '';
             $fullName = trim($firstName . ' ' . $lastName);
             
-            return [
+            return $this->withClientAccessFlags([
                 'name' => $this->highlightMatch($fullName ?: 'Unknown'),
                 'email' => $this->highlightMatch($client->email ?? ''),
                 'phone' => $this->highlightMatch($client->phone ?? ''),
@@ -228,7 +271,7 @@ class SearchService
                 'raw_id' => $client->id,
                 'category' => 'clients',
                 'badge_color' => $badgeColor
-            ];
+            ], $client);
         })->filter()->values()->toArray();
     }
 
@@ -258,7 +301,7 @@ class SearchService
             $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
             $badgeColor = $client->is_archived == 1 ? 'gray' : ($client->type == 'lead' ? 'blue' : 'yellow');
             
-            return [
+            return $this->withClientAccessFlags([
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
                 'phone' => $client->phone ?? '',
@@ -269,7 +312,7 @@ class SearchService
                 'raw_id' => $client->id,
                 'category' => 'clients',
                 'badge_color' => $badgeColor
-            ];
+            ], $client);
         })->toArray();
     }
 
@@ -301,16 +344,17 @@ class SearchService
             $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
             $badgeColor = $client->type == 'lead' ? 'blue' : 'yellow';
             
-            $results[] = [
+            $results[] = $this->withClientAccessFlags([
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
                 'phone' => $client->phone ?? '',
                 'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
+                'raw_id' => $client->id,
                 'category' => 'clients',
                 'badge_color' => $badgeColor
-            ];
+            ], $client);
         }
 
         return $results;
@@ -366,16 +410,17 @@ class SearchService
             $displayType = $client->type == 'lead' ? 'Lead' : 'Client';
             $badgeColor = $client->type == 'lead' ? 'blue' : 'yellow';
             
-            $results[] = [
+            $results[] = $this->withClientAccessFlags([
                 'name' => $client->first_name . ' ' . $client->last_name,
                 'email' => $client->email ?? '',
                 'phone' => $client->phone ?? '',
                 'status' => $displayType,
                 'type' => 'Client',
                 'id' => base64_encode(convert_uuencode($client->id)) . '/Client',
+                'raw_id' => $client->id,
                 'category' => 'clients',
                 'badge_color' => $badgeColor
-            ];
+            ], $client);
         }
 
         return $results;
