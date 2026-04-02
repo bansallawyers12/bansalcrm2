@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 use App\Models\Admin;
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use App\Services\ClientImportService;
 
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +45,10 @@ class LeadController extends Controller
 		//check authorization end
 
 		$baseQuery = Admin::where('type', 'lead')->where('converted', 0);
+		$user = Auth::guard('admin')->user();
+		if ($user instanceof Staff) {
+			StaffClientVisibility::restrictAdminsQueryForStaff($baseQuery, $user);
+		}
 		$query = clone $baseQuery;
 
 		$totalData = $query->count();

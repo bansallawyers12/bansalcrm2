@@ -174,6 +174,12 @@
 								<div class="form-group">
 							    	<label><input value="1" type="checkbox" name="show_dashboard_per" class="show_dashboard_per"> Can view on dashboard</label>
 								</div>
+								@if(!empty($canManageQuickAccess))
+								<div class="form-group">
+									<label><input value="1" type="checkbox" name="quick_access_enabled"> Enable {{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access (quick grant)</label>
+									<p class="text-muted small mb-0">Super Admin / Admin only.</p>
+								</div>
+								@endif
 								<div class="form-group float-end">
 									{!! Form::submit('Save Staff', ['class'=>'btn btn-primary' ])  !!}
 								</div> 

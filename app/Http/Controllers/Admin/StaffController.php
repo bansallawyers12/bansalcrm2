@@ -147,7 +147,7 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
             $crmAccess = app(CrmAccessService::class);
             if ($crmAccess->canManageStaffQuickAccess(Auth::user())) {
-                $wasQuick = (bool) ($obj->getOriginal('quick_access_enabled') ?? false);
+                $wasQuick = (bool) ($obj->quick_access_enabled ?? false);
                 $obj->quick_access_enabled = $request->boolean('quick_access_enabled');
                 if ($wasQuick && ! $obj->quick_access_enabled) {
                     $crmAccess->revokeGrantsForStaff((int) $obj->id, 'Quick access disabled by admin');
@@ -170,7 +170,8 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             if (Staff::where('id', '=', $id)->exists()) {
                 $fetchedData = Staff::with(['office'])->find($id);
 $emails = FromEmail::where('status', 1)->orderBy('email')->get();
-				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails']));
+                $canManageQuickAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
+				return view('Admin.staff.edit', compact(['fetchedData', 'usertype', 'emails', 'canManageQuickAccess']));
             }
             return redirect()->route('staff.active')->with('error', 'Staff Not Exist');
         }

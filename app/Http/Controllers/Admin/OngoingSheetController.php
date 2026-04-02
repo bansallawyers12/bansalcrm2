@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
 use App\Models\ApplicationActivitiesLog;
@@ -84,6 +86,10 @@ class OngoingSheetController extends Controller
 
         // Build base query (depends on sheet type)
         $query = $this->buildBaseQuery($request, $sheetType);
+        $staffUser = Auth::guard('admin')->user();
+        if ($staffUser instanceof Staff) {
+            StaffClientVisibility::restrictApplicationsToVisibleClients($query, $staffUser);
+        }
 
         // Apply filters
         $query = $this->applyFilters($query, $request, $sheetType);
@@ -696,6 +702,11 @@ class OngoingSheetController extends Controller
             ->join('admins', 'applications.client_id', '=', 'admins.id')
             ->where('admins.is_archived', 0)
             ->whereNull('admins.is_deleted');
+
+        $insightsStaff = Auth::guard('admin')->user();
+        if ($insightsStaff instanceof Staff) {
+            StaffClientVisibility::restrictApplicationsToVisibleClients($appBase, $insightsStaff);
+        }
 
         if ($branchFilter) {
             $appBase->whereIn('admins.office_id', $branchFilter);

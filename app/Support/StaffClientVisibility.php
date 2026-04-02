@@ -122,4 +122,27 @@ class StaffClientVisibility
                 });
         });
     }
+
+    /**
+     * Limit an applications query to clients the staff may see (same rules as admins listing).
+     *
+     * @param  Builder|\Illuminate\Database\Query\Builder  $applicationQuery
+     */
+    public static function restrictApplicationsToVisibleClients($applicationQuery, ?Authenticatable $user = null)
+    {
+        $user = $user ?? Auth::guard('admin')->user();
+
+        if (! $user instanceof Staff) {
+            return $applicationQuery->whereRaw('1 = 0');
+        }
+
+        if (! self::strictAllocationEnabled() || self::isExemptFromAllocation($user)) {
+            return $applicationQuery;
+        }
+
+        $sub = Admin::query();
+        self::restrictAdminsQueryForStaff($sub, $user);
+
+        return $applicationQuery->whereIn('applications.client_id', $sub->select('id'));
+    }
 }

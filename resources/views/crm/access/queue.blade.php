@@ -31,7 +31,7 @@
                                         <td>{{ $g->staff?->first_name }} {{ $g->staff?->last_name }}</td>
                                         <td>#{{ $g->admin_id }} ({{ $g->record_type }})</td>
                                         <td>{{ config('crm_access.quick_reason_options')[$g->quick_reason_code] ?? $g->quick_reason_code }}</td>
-                                        <td class="small">{{ Str::limit($g->requester_note, 80) }}</td>
+                                        <td class="small">{{ \Illuminate\Support\Str::limit($g->requester_note ?? '', 80) }}</td>
                                         <td class="text-nowrap">
                                             <form action="{{ route('crm.access.approve', $g->id) }}" method="post" class="d-inline">
                                                 @csrf
@@ -39,8 +39,7 @@
                                             </form>
                                             <form action="{{ route('crm.access.reject', $g->id) }}" method="post" class="d-inline ms-1">
                                                 @csrf
-                                                <input type="hidden" name="reason" value="">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="this.form.reason.value=prompt('Reason (optional):')||''">Reject</button>
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
                                             </form>
                                         </td>
                                     </tr>
