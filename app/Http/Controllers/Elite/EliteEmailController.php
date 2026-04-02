@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Elite;
 
 use App\Http\Controllers\Controller;
 use App\Models\EliteEmail;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class EliteEmailController extends Controller
 {
-    private const ELITE_DOMAIN = '@educationelite.com.au';
+    public function __construct()
+    {
+        $this->middleware('auth:admin')->only(['index', 'inbox', 'simulate']);
+    }
 
     public function index()
     {
@@ -18,7 +24,9 @@ class EliteEmailController extends Controller
             ->limit(200)
             ->get();
 
-        return view('elite.emails-inbox', compact('emails'));
+        $webhookUrl = $this->inboundWebhookUrl();
+
+        return view('elite.emails-inbox', compact('emails', 'webhookUrl'));
     }
 
     /**
@@ -64,40 +72,67 @@ class EliteEmailController extends Controller
             ];
         }
 
+        $domain = config('crm.education_elite_sender_domain', 'educationelite.com.au');
+
         return response()->json([
             'emails' => $emails,
             'sent_groups' => [],
             'filter_options' => ['from_list' => [], 'to_list' => []],
-            'message' => 'No messages from @educationelite.com.au yet. POST inbound mail to this URL or use “Simulate inbound” below.',
+            'message' => 'No messages from @' . $domain . ' yet. POST inbound mail to the webhook URL or use “Simulate inbound”.',
         ]);
     }
 
     /**
-     * Inbound parse / webhook: only accepts senders @educationelite.com.au.
+     * SendGrid Inbound Parse (and other providers): POST multipart, no CSRF.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse|Response
     {
-        $fromRaw = $request->input('from')
-            ?? $request->input('sender')
-            ?? $request->input('from_email')
-            ?? $request->input('From');
+        $this->assertInboundSecret($request);
 
-        if ($fromRaw === null && is_array($request->input('envelope'))) {
-            $fromRaw = data_get($request->input('envelope'), 'from');
+        return $this->persistInbound($request);
+    }
+
+    /**
+     * Staff-only test post (CSRF protected — not in CSRF except list).
+     */
+    public function simulate(Request $request): JsonResponse|RedirectResponse
+    {
+        return $this->persistInbound($request);
+    }
+
+    private function assertInboundSecret(Request $request): void
+    {
+        $secret = (string) config('crm.education_elite_inbound_secret', '');
+        if ($secret === '') {
+            return;
         }
 
-        $fromAddress = $this->parseEmailAddress((string) $fromRaw);
+        $given = (string) ($request->query('secret', $request->header('X-Elite-Webhook-Secret', '')));
+
+        if (! hash_equals($secret, $given)) {
+            Log::warning('elite.emails.forbidden', ['ip' => $request->ip()]);
+            abort(403, 'Invalid inbound secret');
+        }
+    }
+
+    private function persistInbound(Request $request): JsonResponse|RedirectResponse
+    {
+        $fromAddress = $this->resolveFromAddress($request);
+        $fromRaw = $request->input('from')
+            ?? $request->input('sender')
+            ?? $request->input('envelope');
+
         if (! $fromAddress || ! $this->isEliteSender($fromAddress)) {
             Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'ip' => $request->ip()]);
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'ok' => false,
-                    'error' => 'Sender must be an @educationelite.com.au address.',
+                    'error' => 'Sender must be an @' . config('crm.education_elite_sender_domain', 'educationelite.com.au') . ' address.',
                 ], 422);
             }
 
-            return back()->with('error', 'Sender must be an @educationelite.com.au address.');
+            return back()->with('error', 'Sender must be an allowed Education Elite address.');
         }
 
         $subject = $request->input('subject') ?? $request->input('Subject');
@@ -105,15 +140,12 @@ class EliteEmailController extends Controller
         $text = $request->input('text') ?? $request->input('body_text') ?? $request->input('plain');
         $html = $request->input('html') ?? $request->input('body_html') ?? $request->input('body');
 
-        if (is_string($html) && strip_tags($html) === $html && $text === null) {
+        if (is_string($html) && $this->looksLikePlainText($html) && $text === null) {
             $text = $html;
             $html = null;
         }
 
-        $payload = $request->except(['_token']);
-        if (count($payload) > 80) {
-            $payload = array_slice($payload, 0, 80, true);
-        }
+        $payload = $this->compactPayload($request);
 
         $record = EliteEmail::create([
             'from_address' => $fromAddress,
@@ -129,6 +161,72 @@ class EliteEmailController extends Controller
         }
 
         return back()->with('success', 'Email recorded.');
+    }
+
+    /**
+     * SendGrid sends `envelope` as a JSON string: {"to":["…"],"from":"…"}.
+     */
+    private function resolveFromAddress(Request $request): ?string
+    {
+        $headerCandidates = [
+            $request->input('from'),
+            $request->input('sender'),
+            $request->input('from_email'),
+            $request->input('From'),
+        ];
+
+        foreach ($headerCandidates as $c) {
+            if ($c !== null && $c !== '') {
+                $parsed = $this->parseEmailAddress((string) $c);
+                if ($parsed) {
+                    return $parsed;
+                }
+            }
+        }
+
+        $envelope = $request->input('envelope');
+        if (is_string($envelope)) {
+            $decoded = json_decode($envelope, true);
+            $envelope = is_array($decoded) ? $decoded : null;
+        }
+        if (is_array($envelope) && ! empty($envelope['from'])) {
+            return $this->parseEmailAddress((string) $envelope['from']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Drop huge SendGrid fields (raw MIME) from stored JSON; keep metadata only.
+     */
+    private function compactPayload(Request $request): ?array
+    {
+        $payload = $request->except(['_token']);
+        foreach (['email', 'html', 'text', 'content-id_map'] as $key) {
+            unset($payload[$key]);
+        }
+
+        if (count($payload) > 60) {
+            $payload = array_slice($payload, 0, 60, true);
+        }
+
+        return $payload === [] ? null : $payload;
+    }
+
+    private function looksLikePlainText(string $html): bool
+    {
+        return ! preg_match('/<[a-z][\s\S]*>/i', $html);
+    }
+
+    private function inboundWebhookUrl(): string
+    {
+        $url = url('/elite/emails');
+        $secret = (string) config('crm.education_elite_inbound_secret', '');
+        if ($secret !== '') {
+            $url .= '?secret=' . urlencode($secret);
+        }
+
+        return $url;
     }
 
     private function parseEmailAddress(string $raw): ?string
@@ -150,6 +248,9 @@ class EliteEmailController extends Controller
 
     private function isEliteSender(string $email): bool
     {
-        return str_ends_with(strtolower($email), strtolower(self::ELITE_DOMAIN));
+        $domain = strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'));
+        $domain = ltrim($domain, '@');
+
+        return str_ends_with(strtolower($email), '@' . $domain);
     }
 }

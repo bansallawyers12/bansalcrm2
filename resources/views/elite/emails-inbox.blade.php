@@ -139,7 +139,7 @@
 .email-list .email-row .email-sender { min-width: 180px; font-weight: 600; color: #1e293b; }
 .email-list .email-row .email-subject { flex: 1; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .email-list .email-row .email-date { color: #94a3b8; font-size: 13px; white-space: nowrap; margin-left: 8px; }
-.sendgrid-badge {
+.outlook-module-badge {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
@@ -216,8 +216,8 @@
 @section('content')
 <div class="outlook-page">
     <header class="outlook-topbar">
-        <h1 class="outlook-title">Inbox <span class="sendgrid-badge">Education Elite</span></h1>
-        <a href="{{ url('/admin') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Admin login</a>
+        <h1 class="outlook-title">Inbox <span class="outlook-module-badge">Education Elite</span></h1>
+        <a href="{{ route('dashboard') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to CRM</a>
     </header>
 
     <div class="server-error">@include('Elements.flash-message')</div>
@@ -228,13 +228,16 @@
                 <div class="folder-item active"><i class="fas fa-inbox"></i> Inbox</div>
             </nav>
             <div class="elite-sidebar-foot">
-                <div>Inbound POST URL (webhook):</div>
-                <code>{{ url('/elite/emails') }}</code>
-                <div class="mt-2">Only <strong>@educationelite.com.au</strong> senders are stored.</div>
+                <div>Inbound POST URL (SendGrid Inbound Parse):</div>
+                <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
+                <div class="mt-2">Only <strong>@{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> senders are stored.</div>
+                @if(config('crm.education_elite_inbound_secret'))
+                    <div class="mt-2 text-success"><i class="fas fa-lock"></i> Webhook secret is enabled (URL includes <code>?secret=</code>).</div>
+                @endif
             </div>
             <div class="simulate-panel">
                 <h3><i class="fas fa-flask"></i> Simulate inbound</h3>
-                <form method="post" action="{{ route('elite.emails.store') }}">
+                <form method="post" action="{{ route('elite.emails.simulate') }}">
                     @csrf
                     <div class="field">
                         <label for="sim_from">From</label>

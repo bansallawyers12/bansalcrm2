@@ -79,4 +79,17 @@ return [
         'senders' => env('SENDGRID_SENDERS', ''),
     ],
 
+    /*
+    | Second SendGrid account (e.g. Education Elite subuser).
+    | API: config('services.sendgrid_elite.api_key')
+    | SMTP: Mail::mailer('sendgrid_elite')->...
+    | Falls back to SENDGRID_API_KEY only if SENDGRID_ELITE_API_KEY is empty.
+    */
+    'sendgrid_elite' => [
+        'api_key' => env('SENDGRID_ELITE_API_KEY'),
+        'base_url' => env('SENDGRID_ELITE_BASE_URL', env('SENDGRID_BASE_URL', 'https://api.sendgrid.com')),
+        'from_email' => env('SENDGRID_ELITE_FROM_EMAIL', ''),
+        'senders' => env('SENDGRID_ELITE_SENDERS', ''),
+    ],
+
 ];

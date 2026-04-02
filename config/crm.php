@@ -25,4 +25,21 @@ return [
         30 * 60 * 1000,
         max(0, (int) env('CRM_GOOGLE_REVIEW_REMINDER_DELAY_MS', 60000))
     ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Education Elite inbound email (/elite/emails)
+    |--------------------------------------------------------------------------
+    |
+    | education_elite_sender_domain — only this domain may appear in From
+    | (e.g. educationelite.com.au → accepts *@educationelite.com.au).
+    |
+    | education_elite_inbound_secret — if non-empty, POST /elite/emails must
+    | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
+    | Use this in your SendGrid Inbound Parse URL. Rotate if leaked.
+    |
+    */
+    'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
+
+    'education_elite_inbound_secret' => env('EDUCATION_ELITE_INBOUND_SECRET', ''),
 ];
