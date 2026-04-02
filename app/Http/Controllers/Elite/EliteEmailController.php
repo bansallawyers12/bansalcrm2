@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
 
 class EliteEmailController extends Controller
 {
@@ -85,11 +84,11 @@ class EliteEmailController extends Controller
     /**
      * SendGrid Inbound Parse (and other providers): POST multipart, no CSRF.
      */
-    public function store(Request $request): JsonResponse|Response
+    public function store(Request $request): JsonResponse
     {
         $this->assertInboundSecret($request);
 
-        return $this->persistInbound($request);
+        return $this->persistInbound($request, asWebhook: true);
     }
 
     /**
@@ -97,7 +96,7 @@ class EliteEmailController extends Controller
      */
     public function simulate(Request $request): JsonResponse|RedirectResponse
     {
-        return $this->persistInbound($request);
+        return $this->persistInbound($request, asWebhook: false);
     }
 
     private function assertInboundSecret(Request $request): void
@@ -115,7 +114,7 @@ class EliteEmailController extends Controller
         }
     }
 
-    private function persistInbound(Request $request): JsonResponse|RedirectResponse
+    private function persistInbound(Request $request, bool $asWebhook): JsonResponse|RedirectResponse
     {
         $fromAddress = $this->resolveFromAddress($request);
         $fromRaw = $request->input('from')
@@ -125,11 +124,10 @@ class EliteEmailController extends Controller
         if (! $fromAddress || ! $this->isEliteSender($fromAddress)) {
             Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'ip' => $request->ip()]);
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'ok' => false,
-                    'error' => 'Sender must be an @' . config('crm.education_elite_sender_domain', 'educationelite.com.au') . ' address.',
-                ], 422);
+            $msg = 'Sender must be an @' . config('crm.education_elite_sender_domain', 'educationelite.com.au') . ' address.';
+
+            if ($asWebhook || $request->expectsJson()) {
+                return response()->json(['ok' => false, 'error' => $msg], 422);
             }
 
             return back()->with('error', 'Sender must be an allowed Education Elite address.');
@@ -156,7 +154,7 @@ class EliteEmailController extends Controller
             'payload' => $payload,
         ]);
 
-        if ($request->expectsJson()) {
+        if ($asWebhook || $request->expectsJson()) {
             return response()->json(['ok' => true, 'id' => $record->id]);
         }
 

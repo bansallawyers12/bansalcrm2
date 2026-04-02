@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
-use App\Models\CrmEmailTemplate;
 use App\Models\SmsTemplate;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
@@ -54,7 +53,7 @@ class ClientController extends Controller
 {
     use ClientHelpers, ClientQueries, ClientAuthorization;
 
-    protected ?bool $googleReviewCrmTemplateExistsCache = null;
+    protected ?bool $googleReviewSmsTemplateExistsCache = null;
 
     public function __construct()
     {
@@ -1164,17 +1163,21 @@ class ClientController extends Controller
         }
     }
 
-    protected function googleReviewCrmTemplateExists(): bool
+    /**
+     * Check (once per request) that an active SMS template titled "google_review_link"
+     * exists so we only show the modal when there is a real send path available.
+     */
+    protected function googleReviewSmsTemplateExists(): bool
     {
-        if ($this->googleReviewCrmTemplateExistsCache !== null) {
-            return $this->googleReviewCrmTemplateExistsCache;
+        if ($this->googleReviewSmsTemplateExistsCache !== null) {
+            return $this->googleReviewSmsTemplateExistsCache;
         }
 
-        $this->googleReviewCrmTemplateExistsCache = CrmEmailTemplate::query()
-            ->whereRaw('LOWER(name) LIKE ?', ['%google review%'])
+        $this->googleReviewSmsTemplateExistsCache = SmsTemplate::active()
+            ->whereRaw('LOWER(TRIM(title)) = ?', ['google_review_link'])
             ->exists();
 
-        return $this->googleReviewCrmTemplateExistsCache;
+        return $this->googleReviewSmsTemplateExistsCache;
     }
 
     /**
@@ -1195,23 +1198,20 @@ class ClientController extends Controller
 
     protected function shouldShowGoogleReviewReminderModal(Admin $record): bool
     {
+        // Role excluded (e.g. Calling Team, Accounts)
         if ($this->currentStaffIsExcludedFromGoogleReviewReminder()) {
             return false;
         }
 
-        if (Schema::hasColumn('admins', 'is_company') && (int) ($record->is_company ?? 0) === 1) {
-            return false;
-        }
+        // Only show for active, non-archived client/lead records
         if ((int) ($record->is_archived ?? 0) === 1) {
             return false;
         }
         if (! in_array($record->type, ['client', 'lead'], true)) {
             return false;
         }
-        if (trim((string) $record->email) === '') {
-            return false;
-        }
 
+        // Terminal statuses — never show again
         $status = strtolower(trim((string) ($record->google_review_reminder_status ?? '')));
         if (in_array($status, [
             Admin::GOOGLE_REVIEW_REMINDER_NOT_INTERESTED,
@@ -1220,12 +1220,14 @@ class ClientController extends Controller
             return false;
         }
 
+        // Active snooze
         $until = $record->google_review_reminder_snooze_until;
         if ($until && $until->isFuture()) {
             return false;
         }
 
-        if (! $this->googleReviewCrmTemplateExists()) {
+        // Only show when the SMS template is configured so staff can actually send the link
+        if (! $this->googleReviewSmsTemplateExists()) {
             return false;
         }
 
@@ -1249,10 +1251,6 @@ class ClientController extends Controller
             ->first();
 
         if (! $admin) {
-            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
-        }
-
-        if (Schema::hasColumn('admins', 'is_company') && (int) ($admin->is_company ?? 0) === 1) {
             return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
         }
 
@@ -1308,10 +1306,6 @@ class ClientController extends Controller
             ->first();
 
         if (! $admin) {
-            return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
-        }
-
-        if (Schema::hasColumn('admins', 'is_company') && (int) ($admin->is_company ?? 0) === 1) {
             return response()->json(['ok' => false, 'message' => 'Record not found'], 404);
         }
 

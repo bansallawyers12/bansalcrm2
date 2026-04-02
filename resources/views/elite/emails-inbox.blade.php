@@ -230,7 +230,7 @@
             <div class="elite-sidebar-foot">
                 <div>Inbound POST URL (SendGrid Inbound Parse):</div>
                 <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
-                <div class="mt-2">Only <strong>@{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> senders are stored.</div>
+                <div class="mt-2">Only senders at <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> are stored.</div>
                 @if(config('crm.education_elite_inbound_secret'))
                     <div class="mt-2 text-success"><i class="fas fa-lock"></i> Webhook secret is enabled (URL includes <code>?secret=</code>).</div>
                 @endif
@@ -242,8 +242,8 @@
                     <div class="field">
                         <label for="sim_from">From</label>
                         <input id="sim_from" name="from" type="text" required
-                               value="{{ old('from', 'noreply@educationelite.com.au') }}"
-                               placeholder="name@educationelite.com.au">
+                               value="{{ old('from', 'noreply@' . config('crm.education_elite_sender_domain', 'educationelite.com.au')) }}"
+                               placeholder="name@{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}">
                     </div>
                     <div class="field">
                         <label for="sim_to">To (optional)</label>
@@ -313,7 +313,7 @@
                 <div class="empty-state folder-empty" id="eliteEmpty" style="{{ $emails->isEmpty() ? '' : 'display:none;' }}">
                     <i class="fas fa-inbox"></i>
                     <p>Your inbox is empty</p>
-                    <span>POST inbound mail to this page’s webhook URL, or use “Simulate inbound” on the left. Only @educationelite.com.au senders are accepted.</span>
+                    <span>POST inbound mail to the webhook URL, or use “Simulate inbound”. Only senders at <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> are accepted.</span>
                 </div>
             </div>
         </main>
