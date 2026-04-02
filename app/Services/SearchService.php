@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Models\Admin;
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -58,7 +62,7 @@ class SearchService
             return $this->emptyResponse();
         }
 
-        $cacheKey = 'search:' . md5($this->query . ':' . $this->limit);
+        $cacheKey = 'search:' . md5($this->query . ':' . $this->limit . ':' . $this->visibilityCacheSuffix());
 
         if ($this->cacheEnabled) {
             return Cache::remember($cacheKey, 300, function () {
@@ -67,6 +71,31 @@ class SearchService
         }
 
         return $this->performSearch();
+    }
+
+    /**
+     * Per-staff cache segment when strict CRM row visibility applies (prevents cached leaks across users).
+     */
+    protected function visibilityCacheSuffix(): string
+    {
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff
+            && StaffClientVisibility::strictAllocationEnabled()
+            && ! StaffClientVisibility::isExemptFromAllocation($user)) {
+            return 'u' . (int) $user->id;
+        }
+
+        return 'all';
+    }
+
+    protected function applyStaffVisibilityToAdminQuery(Builder $query): Builder
+    {
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff) {
+            return StaffClientVisibility::restrictAdminsQueryForStaff($query, $user);
+        }
+
+        return $query;
     }
 
     /**
@@ -169,7 +198,8 @@ class SearchService
                 if ($dob) {
                     $q->orWhere('admins.dob', '=', $dob);
                 }
-            })
+            });
+        $clients = $this->applyStaffVisibilityToAdminQuery($clients)
             ->select('admins.*', 'phone_data.phones')
             ->limit($this->limit)
             ->get();
@@ -219,7 +249,8 @@ class SearchService
             ->where(function ($q) use ($clientId) {
                 $q->where('client_id', 'ilike', '%' . $clientId . '%')
                   ->orWhere('id', '=', $clientId);
-            })
+            });
+        $clients = $this->applyStaffVisibilityToAdminQuery($clients)
             ->limit(10)
             ->get();
 
@@ -261,7 +292,8 @@ class SearchService
             })*/
             ->where(function ($q) use ($email) {
                 $q->where('email', 'ilike', '%' . $email . '%');
-            })
+            });
+        $clients = $this->applyStaffVisibilityToAdminQuery($clients)
             ->limit(10)
             ->get();
 
@@ -323,7 +355,8 @@ class SearchService
                     $q->orWhere('admins.phone', 'ilike', $pattern)
                       ->orWhere('phone_data.phones', 'ilike', $pattern);
                 }
-            })
+            });
+        $clients = $this->applyStaffVisibilityToAdminQuery($clients)
             ->select('admins.*')
             ->distinct()
             ->limit(10)

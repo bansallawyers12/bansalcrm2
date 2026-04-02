@@ -20,8 +20,32 @@ class AccessGrantController extends Controller
         $this->middleware('auth:admin');
     }
 
+    protected function ensureStaffClientsModule(): void
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user instanceof Staff || ! StaffClientVisibility::staffHasClientsModule($user)) {
+            abort(403);
+        }
+    }
+
+    /** Approvers may open "My grants" even if their role JSON omits clients module (queue still approver-only). */
+    protected function ensureStaffClientsModuleOrApprover(): void
+    {
+        $user = Auth::guard('admin')->user();
+        if (! $user instanceof Staff) {
+            abort(403);
+        }
+        if ($this->crmAccess->isApprover($user)) {
+            return;
+        }
+        if (! StaffClientVisibility::staffHasClientsModule($user)) {
+            abort(403);
+        }
+    }
+
     public function requestForm(Request $request, int $adminId)
     {
+        $this->ensureStaffClientsModule();
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
         $admin = Admin::query()->whereNull('is_deleted')->findOrFail($adminId);
@@ -44,6 +68,7 @@ class AccessGrantController extends Controller
 
     public function meta(Request $request)
     {
+        $this->ensureStaffClientsModule();
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
 
@@ -76,6 +101,7 @@ class AccessGrantController extends Controller
 
     public function myGrants(Request $request)
     {
+        $this->ensureStaffClientsModuleOrApprover();
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
 
@@ -90,6 +116,7 @@ class AccessGrantController extends Controller
 
     public function quick(Request $request)
     {
+        $this->ensureStaffClientsModule();
         $request->validate([
             'admin_id' => 'required|integer|exists:admins,id',
             'office_id' => 'required|integer|exists:branches,id',
@@ -122,6 +149,7 @@ class AccessGrantController extends Controller
 
     public function supervisor(Request $request)
     {
+        $this->ensureStaffClientsModule();
         $request->validate([
             'admin_id' => 'required|integer|exists:admins,id',
             'office_id' => 'required|integer|exists:branches,id',

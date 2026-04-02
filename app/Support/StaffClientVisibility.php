@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Admin;
 use App\Models\Staff;
+use App\Models\StaffRole;
 use App\Services\CrmAccess\CrmAccessService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +12,41 @@ use Illuminate\Support\Facades\Auth;
 
 class StaffClientVisibility
 {
+    /**
+     * Module key for clients/leads in user_roles.module_access JSON (see ClientAuthorization).
+     */
+    public static function staffHasClientsModule(?Authenticatable $user): bool
+    {
+        if (! $user instanceof Staff) {
+            return false;
+        }
+
+        $role = StaffRole::query()->find($user->role);
+        if (! $role || $role->module_access === null || $role->module_access === '') {
+            return false;
+        }
+
+        $moduleAccess = json_decode($role->module_access, true);
+
+        return is_array($moduleAccess) && array_key_exists('20', $moduleAccess);
+    }
+
+    /**
+     * Whether this staff may create a quick/supervisor cross-access grant for this admins.id.
+     */
+    public static function canRequestCrossAccessGrant(int $adminId, Staff $user): bool
+    {
+        if (! self::strictAllocationEnabled()) {
+            return false;
+        }
+
+        if (self::isExemptFromAllocation($user)) {
+            return false;
+        }
+
+        return ! self::canAccessAdminRecord($adminId, $user);
+    }
+
     public static function strictAllocationEnabled(): bool
     {
         return (bool) config('crm_access.strict_allocation', true);
@@ -86,7 +122,7 @@ class StaffClientVisibility
     /**
      * Restrict admins query to rows the current staff may see (allocation + active grants).
      */
-    public static function restrictAdminsQueryForStaff(Builder $query, ?Authenticatable $user = null): Builder
+    public static function restrictAdminsQueryForStaff(Builder $query, ?Authenticatable $user = null, string $adminsIdColumn = 'admins.id'): Builder
     {
         $user = $user ?? Auth::guard('admin')->user();
 
@@ -105,16 +141,16 @@ class StaffClientVisibility
         $staffId = (int) $user->id;
         $now = now('UTC')->format('Y-m-d H:i:s');
 
-        return $query->where(function (Builder $outer) use ($staffId, $now) {
+        return $query->where(function (Builder $outer) use ($staffId, $now, $adminsIdColumn) {
             $outer->where('user_id', $staffId)
                 ->orWhere('assignee', (string) $staffId)
                 ->orWhere('assignee', 'like', $staffId . ',%')
                 ->orWhere('assignee', 'like', '%,' . $staffId . ',%')
                 ->orWhere('assignee', 'like', '%,' . $staffId)
-                ->orWhereExists(function ($sub) use ($staffId, $now) {
+                ->orWhereExists(function ($sub) use ($staffId, $now, $adminsIdColumn) {
                     $sub->selectRaw('1')
                         ->from('client_access_grants as cag')
-                        ->whereColumn('cag.admin_id', 'admins.id')
+                        ->whereColumn('cag.admin_id', $adminsIdColumn)
                         ->where('cag.staff_id', $staffId)
                         ->where('cag.status', 'active')
                         ->whereNotNull('cag.ends_at')

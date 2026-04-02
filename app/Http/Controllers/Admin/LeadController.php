@@ -44,7 +44,10 @@ class LeadController extends Controller
 			}*/	
 		//check authorization end
 
-		$baseQuery = Admin::where('type', 'lead')->where('converted', 0);
+		$baseQuery = Admin::where('type', 'lead')->where('converted', 0)
+			->where(function ($q) {
+				$q->whereNull('is_deleted')->orWhere('is_deleted', 0);
+			});
 		$user = Auth::guard('admin')->user();
 		if ($user instanceof Staff) {
 			StaffClientVisibility::restrictAdminsQueryForStaff($baseQuery, $user);

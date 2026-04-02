@@ -6,8 +6,8 @@ use App\Models\Branch;
 use App\Models\ClientAccessGrant;
 use App\Models\Notification;
 use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CrmAccessService
@@ -77,6 +77,9 @@ class CrmAccessService
 
     public function requestQuickGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode): ClientAccessGrant
     {
+        if (! StaffClientVisibility::canRequestCrossAccessGrant($adminId, $user)) {
+            throw new CrmAccessDeniedException('You cannot request cross-access for this record (already have access, or cross-access is disabled).');
+        }
         if (! (bool) ($user->quick_access_enabled ?? false)) {
             throw new CrmAccessDeniedException('Quick access is not enabled for your account.');
         }
@@ -117,6 +120,9 @@ class CrmAccessService
 
     public function requestSupervisorGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode, string $note = ''): ClientAccessGrant
     {
+        if (! StaffClientVisibility::canRequestCrossAccessGrant($adminId, $user)) {
+            throw new CrmAccessDeniedException('You cannot request cross-access for this record (already have access, or cross-access is disabled).');
+        }
         $quickOnly = config('crm_access.quick_access_only_role_ids', [9]);
         if (in_array((int) ($user->role ?? 0), $quickOnly, true)) {
             throw new CrmAccessDeniedException('Your role only supports quick access.');

@@ -13,6 +13,8 @@ use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
 use App\Services\SearchService;
 use App\Services\ClientExportService;
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use App\Models\CheckinLog;
 use App\Models\ClientPhone;
 use App\Models\ClientEmail;
@@ -876,6 +878,12 @@ class ClientController extends Controller
     public function updatesessioncompleted(Request $request,CheckinLog $checkinLog)
     {
         $data = $request->all(); //dd($data['client_id']);
+        $cid = (int) ($data['client_id'] ?? 0);
+        $clientRow = $cid > 0 ? Admin::find($cid) : null;
+        if (! $clientRow || ! $this->canEditClient($clientRow)) {
+            echo json_encode(['status' => false, 'message' => 'Unauthorized']);
+            return;
+        }
         $sessionExist = CheckinLog::where('client_id', $data['client_id'])
         ->where('status', 2)
         ->update(['status' => 1]);
@@ -892,6 +900,10 @@ class ClientController extends Controller
 	public function updateclientstatus(Request $request){
 		if(Admin::where('id', $request->id)->exists()){
 			$client = Admin::where('id', $request->id)->first();
+			if (! $this->canEditClient($client)) {
+				echo json_encode(['status' => false, 'message' => 'Unauthorized']);
+				return;
+			}
 
 			$obj = Admin::find($request->id);
 			$saved = $obj->save();
@@ -945,8 +957,12 @@ class ClientController extends Controller
 							->orWhere('client_id', $operator, '%'.$squery.'%')
 							->orWhere('phone', $operator, '%'.$squery.'%')
 							->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, '%'.$squery.'%');
-					})
-					->get();
+					});
+				$user = Auth::guard('admin')->user();
+				if ($user instanceof Staff) {
+					StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
+				}
+				$clients = $clients->get();
 
 				$items = array();
 				foreach($clients as $clint){
@@ -984,8 +1000,12 @@ class ClientController extends Controller
 						->orwhere('client_id', $operator, '%'.$squery.'%')
 						->orwhere('phone', $operator, '%'.$squery.'%')
 						->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), $operator, "%".$squery."%");
-				})
-				->get();
+				});
+			$user = Auth::guard('admin')->user();
+			if ($user instanceof Staff) {
+				StaffClientVisibility::restrictAdminsQueryForStaff($clients, $user);
+			}
+			$clients = $clients->get();
 
 			$items = array();
 			foreach($clients as $clint){
@@ -1004,6 +1024,9 @@ class ClientController extends Controller
 		if(Admin::where('id',$id)->exists()){
 			$rawTags = $request->input('tagname', '');
 			$obj = Admin::find($id);
+			if (! $obj || ! $this->canEditClient($obj)) {
+				return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+			}
 			$obj->tagname = $this->normalizeTags($rawTags);
 			$saved = $obj->save();
 			if($saved){
@@ -1018,6 +1041,10 @@ class ClientController extends Controller
 
 	public function change_assignee(Request $request){
 		$objs = Admin::find($request->id);
+		if (! $objs || ! $this->canEditClient($objs)) {
+			echo json_encode(['status' => false, 'message' => 'Unauthorized']);
+			return;
+		}
 		$assigneeInput = $request->assignee ?? $request->assinee;
 		if ( is_array($assigneeInput) ) {
 			$assigneeCount = count($assigneeInput);
@@ -1056,6 +1083,9 @@ class ClientController extends Controller
 
 	public function removetag(Request $request){
 		$objs = Admin::find($request->c);
+		if (! $objs || ! $this->canEditClient($objs)) {
+			return redirect()->route('clients.index')->with('error', Config::get('constants.unauthorized'));
+		}
 		$itag = $request->rem_id;
 
 		if($objs->tagname != ''){
@@ -1131,6 +1161,9 @@ class ClientController extends Controller
             if(Admin::where('id', '=', $id)->exists())
             {
                 $obj = Admin::find($id);
+                if (! $obj || ! $this->canEditClient($obj)) {
+                    return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+                }
                 $obj->type = $slug;
                 $saved = $obj->save();
 
@@ -1161,6 +1194,11 @@ class ClientController extends Controller
             if (!$client) {
                 return redirect()->route('clients.index')
                     ->with('error', 'Client not found.');
+            }
+
+            if (! $this->canViewClient($client)) {
+                return redirect()->route('clients.index')
+                    ->with('error', config('constants.unauthorized'));
             }
 
             $exportService = app(ClientExportService::class);

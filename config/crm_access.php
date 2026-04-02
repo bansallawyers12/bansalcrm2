@@ -11,6 +11,11 @@ $intList = static function (string $envKey, string $envDefault, array $hardDefau
 };
 
 return [
+    /*
+     | Global search (SearchService) cache keys include the staff id when strict_allocation is on,
+     | so results are not shared across users via Redis/file cache.
+     */
+
     // Roles that bypass allocation (see all clients/leads) and can approve supervisor requests.
     'exempt_role_ids' => $intList('CRM_ACCESS_EXEMPT_ROLE_IDS', '1,12', [1, 12]),
 

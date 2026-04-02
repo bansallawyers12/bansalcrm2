@@ -276,6 +276,12 @@ class OngoingSheetController extends Controller
                 ->select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
                 ->where($visibleClient)
+                ->tap(function ($q) {
+                    $u = Auth::guard('admin')->user();
+                    if ($u instanceof Staff) {
+                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
+                    }
+                })
                 ->whereNotIn('applications.status', [2, 8])
                 ->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled'])
                 ->whereNotNull('applications.stage')
@@ -287,6 +293,12 @@ class OngoingSheetController extends Controller
                 ->select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
                 ->where($visibleClient)
+                ->tap(function ($q) {
+                    $u = Auth::guard('admin')->user();
+                    if ($u instanceof Staff) {
+                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
+                    }
+                })
                 ->where(function ($q) {
                     $q->where('applications.status', 2)
                       ->orWhereRaw('LOWER(TRIM(applications.stage)) = ?', ['coe cancelled']);
@@ -300,6 +312,12 @@ class OngoingSheetController extends Controller
                 ->select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
                 ->where($visibleClient)
+                ->tap(function ($q) {
+                    $u = Auth::guard('admin')->user();
+                    if ($u instanceof Staff) {
+                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
+                    }
+                })
                 ->where('applications.status', 8) // 8 = Refund
                 ->whereNotNull('applications.stage')
                 ->whereRaw('TRIM(applications.stage) <> ?', [''])
@@ -316,6 +334,12 @@ class OngoingSheetController extends Controller
                 ->select('applications.stage')
                 ->join('admins', 'applications.client_id', '=', 'admins.id')
                 ->where($visibleClient)
+                ->tap(function ($q) {
+                    $u = Auth::guard('admin')->user();
+                    if ($u instanceof Staff) {
+                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
+                    }
+                })
                 ->whereNotIn('applications.status', [2, 8])
                 ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
                 ->where(function ($q) {
@@ -331,6 +355,12 @@ class OngoingSheetController extends Controller
             ->select('applications.stage')
             ->join('admins', 'applications.client_id', '=', 'admins.id')
             ->where($visibleClient)
+            ->tap(function ($q) {
+                $u = Auth::guard('admin')->user();
+                if ($u instanceof Staff) {
+                    StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
+                }
+            })
             ->whereNotIn('applications.status', [2, 8])
             ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
             ->whereNotNull('applications.stage')
