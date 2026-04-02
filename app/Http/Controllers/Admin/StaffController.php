@@ -213,15 +213,12 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
     public function active(Request $request)
     {
-        $req_data = $request->all();
-        $search_by = $req_data['search_by'] ?? '';
+        $search_by = trim((string) $request->input('search_by', ''));
 
-        if ($search_by) {
-            $query = Staff::where('status', '=', 1)
-                ->where(function ($q) use ($search_by) {
-                    $q->where('first_name', 'LIKE', '%' . $search_by . '%')
-                        ->orWhere('last_name', 'LIKE', '%' . $search_by . '%');
-                })->with(['usertype', 'office']);
+        if ($search_by !== '') {
+            $query = Staff::where('status', '=', 1);
+            $this->applyStaffListSearch($query, $search_by);
+            $query->with(['usertype', 'office']);
         } else {
             $query = Staff::where('status', '=', 1)->with(['usertype', 'office']);
         }
@@ -234,15 +231,12 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
 
     public function inactive(Request $request)
     {
-        $req_data = $request->all();
-        $search_by = $req_data['search_by'] ?? '';
+        $search_by = trim((string) $request->input('search_by', ''));
 
-        if ($search_by) {
-            $query = Staff::where('status', '=', 0)
-                ->where(function ($q) use ($search_by) {
-                    $q->where('first_name', 'LIKE', '%' . $search_by . '%')
-                        ->orWhere('last_name', 'LIKE', '%' . $search_by . '%');
-                })->with(['usertype', 'office']);
+        if ($search_by !== '') {
+            $query = Staff::where('status', '=', 0);
+            $this->applyStaffListSearch($query, $search_by);
+            $query->with(['usertype', 'office']);
         } else {
             $query = Staff::where('status', '=', 0)->with(['usertype', 'office']);
         }
@@ -251,6 +245,21 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
         $lists = $query->orderby('first_name', 'ASC')->paginate(config('constants.limit'));
         $viewType = 'inactive';
         return view('Admin.staff.index', compact(['lists', 'totalData', 'viewType']));
+    }
+
+    /**
+     * Free-text filter for staff listings (aligned with getassigneeajax). Uses ILIKE for PostgreSQL.
+     */
+    private function applyStaffListSearch($query, string $searchTerm): void
+    {
+        $like = '%' . $searchTerm . '%';
+        $query->where(function ($q) use ($like) {
+            $q->where('first_name', 'ILIKE', $like)
+                ->orWhere('last_name', 'ILIKE', $like)
+                ->orWhere('email', 'ILIKE', $like)
+                ->orWhere('phone', 'ILIKE', $like)
+                ->orWhere(DB::raw("COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')"), 'ILIKE', $like);
+        });
     }
 
     /**
