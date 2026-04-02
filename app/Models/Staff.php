@@ -24,6 +24,7 @@ class Staff extends Authenticatable
         'role', 'position', 'team', 'permission', 'office_id',
         'show_dashboard_per', 'time_zone',
         'email_signature',
+        'quick_access_enabled',
     ];
 
     protected $hidden = [
@@ -34,6 +35,7 @@ class Staff extends Authenticatable
         'status' => 'integer',
         'verified' => 'integer',
         'show_dashboard_per' => 'integer',
+        'quick_access_enabled' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

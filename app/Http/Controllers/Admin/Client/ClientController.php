@@ -124,6 +124,13 @@ class ClientController extends Controller
 		if ($request->isMethod('post'))
 		{
 			$requestData 		= 	$request->all();
+
+			$editClientId = (int) ($requestData['id'] ?? 0);
+			$editClientRow = $editClientId > 0 ? Admin::find($editClientId) : null;
+			if (! $editClientRow || ! $this->canEditClient($editClientRow)) {
+				return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+			}
+
 			//echo '<pre>'; print_r($requestData); die;
 
 			// Normalize email/email_type to arrays (handles legacy form, cached views, or string values)
@@ -587,6 +594,9 @@ class ClientController extends Controller
 				if(Admin::where('id', '=', $id)->exists())
 				{
 					$fetchedData = Admin::with('office')->find($id);
+					if (! $fetchedData || ! $this->canViewClient($fetchedData)) {
+						return redirect()->route('clients.index')->with('error', config('constants.unauthorized'));
+					}
                   
                     if(!empty($fetchedData) && $fetchedData->dob != ""){
                         $calculate_age  = $this->calculateAge($fetchedData->dob); //dd($age);
@@ -670,6 +680,10 @@ class ClientController extends Controller
                 {
                     return Redirect::to($this->getClientRedirectUrl('index'))->with('error', 'Client data not found');
                 }
+
+                if (! $this->canViewClient($fetchedData)) {
+                    return Redirect::to($this->getClientRedirectUrl('index'))->with('error', config('constants.unauthorized'));
+                }
                 
                 if(!empty($fetchedData) && $fetchedData->dob != ""){
                     $calculate_age  = $this->calculateAge($fetchedData->dob); //dd($age);
@@ -742,6 +756,9 @@ class ClientController extends Controller
                 ?? Admin::where('lead_id', '=', $id)->where('type', 'lead')->first();
             if ($adminLead) {
                 $fetchedData = $adminLead;
+                if (! $this->canViewClient($fetchedData)) {
+                    return redirect()->route('leads.index')->with('error', config('constants.unauthorized'));
+                }
                 $encodeId = base64_encode(convert_uuencode($adminLead->id));
                 $clientApplications = Application::where('client_id', $fetchedData->id)
                     ->with(['product', 'partner'])
@@ -810,6 +827,9 @@ class ClientController extends Controller
                     }
                 }
                 if (!empty($fetchedData)) {
+                    if (! $this->canViewClient($fetchedData)) {
+                        return redirect()->route('leads.index')->with('error', config('constants.unauthorized'));
+                    }
                     if ($fetchedData->updated_at) {
                         $updatedAt = Carbon::parse($fetchedData->updated_at);
                         $fourWeeksAgo = Carbon::now()->subWeeks(4);

@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Admin;
 
@@ -69,9 +71,15 @@ trait ClientAuthorization
      */
     protected function canViewClient(Admin $client): bool
     {
-        // Admins can view all clients (if they have module access)
         if ($this->isAdminUser()) {
-            return $this->hasModuleAccess('20');
+            if (! $this->hasModuleAccess('20')) {
+                return false;
+            }
+            $user = Auth::guard('admin')->user();
+
+            return $user instanceof Staff
+                ? StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
+                : false;
         }
         
         // Agents can only view their own clients
@@ -90,9 +98,15 @@ trait ClientAuthorization
      */
     protected function canEditClient(Admin $client): bool
     {
-        // Admins can edit all clients (if they have module access)
         if ($this->isAdminUser()) {
-            return $this->hasModuleAccess('20');
+            if (! $this->hasModuleAccess('20')) {
+                return false;
+            }
+            $user = Auth::guard('admin')->user();
+
+            return $user instanceof Staff
+                ? StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
+                : false;
         }
         
         // Agents can only edit their own clients
@@ -111,9 +125,15 @@ trait ClientAuthorization
      */
     protected function canDeleteClient(Admin $client): bool
     {
-        // Only admins can delete clients
         if ($this->isAdminUser()) {
-            return $this->hasModuleAccess('20');
+            if (! $this->hasModuleAccess('20')) {
+                return false;
+            }
+            $user = Auth::guard('admin')->user();
+
+            return $user instanceof Staff
+                ? StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
+                : false;
         }
         
         // Agents cannot delete clients

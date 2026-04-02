@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use App\Models\Admin;
+use App\Models\Staff;
+use App\Support\StaffClientVisibility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -30,8 +32,8 @@ trait ClientQueries
         if ($this->isAgentContext()) {
             $query->where('agent_id', Auth::user()->id);
         }
-        
-        return $query;
+
+        return $this->applyStaffRowVisibilityIfNeeded($query);
     }
     
     /**
@@ -48,7 +50,20 @@ trait ClientQueries
         if ($this->isAgentContext()) {
             $query->where('agent_id', Auth::user()->id);
         }
-        
+
+        return $this->applyStaffRowVisibilityIfNeeded($query);
+    }
+
+    /**
+     * When strict CRM allocation is on, limit listings to assigned rows or active grants.
+     */
+    protected function applyStaffRowVisibilityIfNeeded(Builder $query): Builder
+    {
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff) {
+            return StaffClientVisibility::restrictAdminsQueryForStaff($query, $user);
+        }
+
         return $query;
     }
     
@@ -185,6 +200,11 @@ trait ClientQueries
         // Agent filtering
         if ($this->isAgentContext()) {
             $query->where('agent_id', Auth::user()->id);
+        }
+
+        $user = Auth::guard('admin')->user();
+        if ($user instanceof Staff) {
+            StaffClientVisibility::restrictAdminsQueryForStaff($query, $user);
         }
         
         return $query->first();

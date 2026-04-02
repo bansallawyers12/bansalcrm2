@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         '\App\Console\Commands\InPersonCompleteTaskRemoval',
        // '\App\Console\Commands\VisaExpireReminderEmail',
        '\App\Console\Commands\MonthlyPartnerRecurringNotes',
+        \App\Console\Commands\ExpireCrmAccessGrants::class,
     ];
 
     /**
@@ -40,6 +41,8 @@ class Kernel extends ConsoleKernel
 
         //Fetch partner notes with recurring deadlines on the 1st of each month
        $schedule->command('MonthlyPartnerRecurringNotes:monthly')->monthly();
+
+        $schedule->command('access:expire-grants')->hourly();
     }
 
     /**

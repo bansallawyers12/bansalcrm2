@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\Client\DocumentSignatureController;
 use App\Http\Controllers\Admin\Client\ClientMessagingController;
 use App\Http\Controllers\Admin\Client\ClientReceiptController;
 use App\Http\Controllers\Admin\Client\ClientMergeController;
+use App\Http\Controllers\CRM\AccessGrantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,16 @@ use App\Http\Controllers\Admin\Client\ClientMergeController;
 */
 
 Route::middleware(['auth:admin'])->group(function() {
-    
+    Route::prefix('crm/access')->name('crm.access.')->group(function () {
+        Route::get('/meta', [AccessGrantController::class, 'meta'])->name('meta');
+        Route::get('/queue', [AccessGrantController::class, 'queue'])->name('queue');
+        Route::get('/my-grants', [AccessGrantController::class, 'myGrants'])->name('my-grants');
+        Route::post('/quick', [AccessGrantController::class, 'quick'])->name('quick')->middleware('throttle:30,1');
+        Route::post('/supervisor', [AccessGrantController::class, 'supervisor'])->name('supervisor')->middleware('throttle:20,1');
+        Route::post('/{id}/approve', [AccessGrantController::class, 'approve'])->name('approve')->whereNumber('id');
+        Route::post('/{id}/reject', [AccessGrantController::class, 'reject'])->name('reject')->whereNumber('id');
+    });
+
     // Main CRUD routes
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/edit/{id}', [ClientController::class, 'edit'])->name('clients.edit');
