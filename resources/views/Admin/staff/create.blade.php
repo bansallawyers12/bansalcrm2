@@ -190,17 +190,20 @@
 							<div class="card-body">
 								<div class="form-group">
 									<label class="d-block font-weight-bold">{{ config('crm_access.quick_grant_minutes', 15) }}-minute cross-access</label>
-									<label><input value="1" type="checkbox" name="quick_access_enabled"> Allow short ({{ config('crm_access.quick_grant_minutes', 15) }} min) access to unassigned records</label>
+									<input type="hidden" name="quick_access_enabled" value="0">
+									<label><input @if(old('quick_access_enabled')) checked @endif value="1" type="checkbox" name="quick_access_enabled"> Allow short ({{ config('crm_access.quick_grant_minutes', 15) }} min) access to unassigned records</label>
 								</div>
 								<hr class="my-3">
 								<div class="form-group">
 									<label class="d-block font-weight-bold">Full access</label>
-									<label><input value="1" type="checkbox" name="crm_full_access"> See all clients and leads (bypass allocation)</label>
+									<input type="hidden" name="crm_full_access" value="0">
+									<label><input @if(old('crm_full_access')) checked @endif value="1" type="checkbox" name="crm_full_access"> See all clients and leads (bypass allocation)</label>
 								</div>
 								<hr class="my-3">
 								<div class="form-group mb-0">
 									<label class="d-block font-weight-bold">Supervisor access approvals</label>
-									<label><input value="1" type="checkbox" name="crm_access_approver"> Can approve or reject supervisor access requests</label>
+									<input type="hidden" name="crm_access_approver" value="0">
+									<label><input @if(old('crm_access_approver')) checked @endif value="1" type="checkbox" name="crm_access_approver"> Can approve or reject supervisor access requests</label>
 								</div>
 							</div>
 						</div>

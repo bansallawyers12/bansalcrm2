@@ -120,6 +120,9 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
             ]);
 
             $obj = Staff::find(@$requestData['id']);
+            if (! $obj) {
+                return redirect()->route('staff.active')->with('error', 'Staff not found.');
+            }
             $obj->first_name = @$requestData['first_name'];
             $obj->last_name = @$requestData['last_name'];
             $obj->email = @$requestData['email'];

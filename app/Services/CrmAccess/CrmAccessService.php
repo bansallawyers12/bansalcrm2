@@ -45,9 +45,18 @@ class CrmAccessService
         return in_array((int) ($user->role ?? 0), config('crm_access.exempt_role_ids', [1, 12]), true);
     }
 
+    /**
+     * Who may edit Staff → CRM access (quick / full / approver flags).
+     * Role-based only (Super Admin + Admin): delegated {@see crm_access_approver} users can use the queue
+     * but must not grant full access or further approvers to others.
+     */
     public function canManageStaffQuickAccess(Staff $actor): bool
     {
-        return $this->isApprover($actor);
+        if ((int) ($actor->status ?? 0) !== 1) {
+            return false;
+        }
+
+        return in_array((int) ($actor->role ?? 0), $this->approverRoleIds(), true);
     }
 
     /** @return list<int> */
