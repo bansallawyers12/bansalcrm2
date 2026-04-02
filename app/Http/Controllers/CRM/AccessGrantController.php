@@ -8,6 +8,7 @@ use App\Models\ClientAccessGrant;
 use App\Models\Staff;
 use App\Services\CrmAccess\CrmAccessDeniedException;
 use App\Services\CrmAccess\CrmAccessService;
+use App\Support\StaffClientVisibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,28 @@ class AccessGrantController extends Controller
         protected CrmAccessService $crmAccess
     ) {
         $this->middleware('auth:admin');
+    }
+
+    public function requestForm(Request $request, int $adminId)
+    {
+        /** @var Staff $user */
+        $user = Auth::guard('admin')->user();
+        $admin = Admin::query()->whereNull('is_deleted')->findOrFail($adminId);
+
+        if (StaffClientVisibility::canAccessAdminRecord($adminId, $user)) {
+            $encodeId = base64_encode(convert_uuencode($admin->id));
+
+            return $admin->type === 'lead'
+                ? redirect()->to('/leads/detail/' . $encodeId)
+                : redirect()->to('/clients/detail/' . $encodeId);
+        }
+
+        $offices = \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']);
+        $reasons = config('crm_access.quick_reason_options', []);
+        $quickEnabled = (bool) ($user->quick_access_enabled ?? false);
+        $canSupervisor = ! in_array((int) ($user->role ?? 0), config('crm_access.quick_access_only_role_ids', [9]), true);
+
+        return view('crm.access.request', compact('admin', 'offices', 'reasons', 'quickEnabled', 'canSupervisor'));
     }
 
     public function meta(Request $request)

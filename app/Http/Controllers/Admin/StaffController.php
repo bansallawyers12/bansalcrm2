@@ -13,6 +13,7 @@ use App\Models\StaffRole;
 use Auth;
 use Config;
 use App\Helpers\PhoneHelper;
+use App\Services\CrmAccess\CrmAccessService;
 
 class StaffController extends Controller
 {
@@ -34,7 +35,8 @@ class StaffController extends Controller
         // Staff roles only (exclude role 7 = client)
         $usertype = StaffRole::where('id', '!=', 7)->get();
 $emails = FromEmail::where('status', 1)->orderBy('email')->get();
-		return view('Admin.staff.create', compact(['usertype', 'emails']));
+        $canManageQuickAccess = app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user());
+		return view('Admin.staff.create', compact(['usertype', 'emails', 'canManageQuickAccess']));
     }
 
     public function store(Request $request)
@@ -79,6 +81,10 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
                 $obj->permission = implode(',', $requestData['permission']);
             } else {
                 $obj->permission = '';
+            }
+
+            if (app(CrmAccessService::class)->canManageStaffQuickAccess(Auth::user())) {
+                $obj->quick_access_enabled = $request->boolean('quick_access_enabled');
             }
 
             $saved = $obj->save();
@@ -138,6 +144,16 @@ $emails = FromEmail::where('status', 1)->orderBy('email')->get();
                 $obj->password = Hash::make(@$requestData['password']);
             }
             $obj->phone = @$requestData['phone'];
+
+            $crmAccess = app(CrmAccessService::class);
+            if ($crmAccess->canManageStaffQuickAccess(Auth::user())) {
+                $wasQuick = (bool) ($obj->getOriginal('quick_access_enabled') ?? false);
+                $obj->quick_access_enabled = $request->boolean('quick_access_enabled');
+                if ($wasQuick && ! $obj->quick_access_enabled) {
+                    $crmAccess->revokeGrantsForStaff((int) $obj->id, 'Quick access disabled by admin');
+                }
+            }
+
             $saved = $obj->save();
 
             if (!$saved) {

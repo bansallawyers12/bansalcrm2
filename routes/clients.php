@@ -28,6 +28,9 @@ use App\Http\Controllers\CRM\AccessGrantController;
 Route::middleware(['auth:admin'])->group(function() {
     Route::prefix('crm/access')->name('crm.access.')->group(function () {
         Route::get('/meta', [AccessGrantController::class, 'meta'])->name('meta');
+        Route::get('/request/{adminId}', [AccessGrantController::class, 'requestForm'])
+            ->whereNumber('adminId')
+            ->name('request');
         Route::get('/queue', [AccessGrantController::class, 'queue'])->name('queue');
         Route::get('/my-grants', [AccessGrantController::class, 'myGrants'])->name('my-grants');
         Route::post('/quick', [AccessGrantController::class, 'quick'])->name('quick')->middleware('throttle:30,1');
