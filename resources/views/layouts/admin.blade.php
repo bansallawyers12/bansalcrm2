@@ -50,7 +50,7 @@
 	<!-- Custom style CSS -->
 	<link rel="stylesheet" href="{{asset('css/custom.css')}}">
 	<!-- Modern Search CSS -->
-	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ filemtime(public_path('css/modern-search.css')) }}">
+	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	
     <!--<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">-->
     
@@ -345,7 +345,7 @@ i[style*="color:rgba"] {
 	@vite(['resources/js/legacy-init.js'])
 	
 	<!-- Modern Search - Replaces inline search initialization to prevent conflicts -->
-	<script src="{{ asset('js/modern-search.js') }}?v={{ filemtime(public_path('js/modern-search.js')) }}" defer></script>
+	<script src="{{ asset('js/modern-search.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/modern-search.js')) }}" defer></script>
 	
 	<div id="checkinmodal"  data-backdrop="static" data-keyboard="false" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">

@@ -121,6 +121,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Static asset cache bust (production)
+    |--------------------------------------------------------------------------
+    |
+    | Set in .env on each deploy (e.g. git short SHA or date build id).
+    | Prepended to filemtime() in ?v= for modern-search assets so deploys
+    | bust caches even when the server file modification time does not change.
+    |
+    */
+
+    'asset_version' => env('ASSET_VERSION'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |
