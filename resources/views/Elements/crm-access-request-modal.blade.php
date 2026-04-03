@@ -25,12 +25,12 @@
 					<div id="crm-access-msg" class="small mt-2"></div>
 				</div>
 			</div>
-			<div class="modal-footer flex-wrap justify-content-end gap-2">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary" id="crm-access-btn-quick">
+			<div class="modal-footer flex-nowrap justify-content-end align-items-center gap-2 overflow-x-auto py-2">
+				<button type="button" class="btn btn-secondary flex-shrink-0" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary flex-shrink-0" id="crm-access-btn-quick">
 					Quick access (<span id="crm-access-quick-mins-label">{{ (int) config('crm_access.quick_grant_minutes', 15) }}</span> min)
 				</button>
-				<button type="button" class="btn btn-outline-primary d-none" id="crm-access-btn-supervisor">Request supervisor access</button>
+				<button type="button" class="btn btn-outline-primary flex-shrink-0 d-none" id="crm-access-btn-supervisor">Request supervisor access</button>
 			</div>
 		</div>
 	</div>
