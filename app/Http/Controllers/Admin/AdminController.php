@@ -3,8 +3,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 use App\Models\Admin;
@@ -13,8 +16,8 @@ use App\Models\Staff;
 // use App\Models\TaxRate;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\InvoicePayment;
-use Auth;
-use Config;
+use App\Models\Country;
+use App\Models\State;
 use App\Models\ActivitiesLog;
 use App\Models\Note;
 
@@ -72,8 +75,8 @@ class AdminController extends Controller
                 'accessApprovals',
             ]));
         } catch (\Exception $e) {
-            \Log::error('Dashboard error: ' . $e->getMessage());
-            \Log::error('Dashboard error trace: ' . $e->getTraceAsString());
+            Log::error('Dashboard error: ' . $e->getMessage());
+            Log::error('Dashboard error trace: ' . $e->getTraceAsString());
             
             // Return view with empty data on error
             return view('Admin.dashboard', [
@@ -160,7 +163,7 @@ class AdminController extends Controller
    }
 
     public function fetchTotalActivityCount(Request $request){
-        if(\Auth::user()->role == 1){
+        if (Auth::user()->role == 1) {
             $assigneesCount = \App\Models\Note::where('type','client')->whereNotNull('client_id')->where('is_action',1)->where('status',0)->count();
         }else{
             $assigneesCount = \App\Models\Note::where('assigned_to',Auth::user()->id)->where('type','client')->where('is_action',1)->where('status',0)->count();
@@ -1787,7 +1790,7 @@ class AdminController extends Controller
                         $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
                         $s3Stored = true;
                     } catch (\Exception $s3Ex) {
-                        \Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
+                        Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
                     }
                 }
                 
@@ -1929,9 +1932,9 @@ class AdminController extends Controller
 			<?php
 
 		}
-		}else{
+		} else {
 			?>
-			<option value="<?php echo $list->id; ?>"><?php echo $list->name; ?></option>
+			<option value="">Please select branch</option>
 			<?php
 		}
 		echo ob_get_clean();
@@ -2319,8 +2322,8 @@ class AdminController extends Controller
                 }, $e->errors()))
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Error completing action: ' . $e->getMessage());
-            \Log::error('Error trace: ' . $e->getTraceAsString());
+            Log::error('Error completing action: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'status' => false,
