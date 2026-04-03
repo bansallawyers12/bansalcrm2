@@ -84,18 +84,33 @@ class SearchService
     }
 
     /**
-     * Per-staff cache segment when strict CRM row visibility applies (prevents cached leaks across users).
+     * Per-staff cache segment: every logged-in staff user gets their own search cache namespace so
+     * locked / grant flags cannot leak across users. {@see bumpGlobalSearchCacheForStaff()} increments
+     * the revision when cross-access grants change so Quick access is reflected immediately.
      */
     protected function visibilityCacheSuffix(): string
     {
         $user = Auth::guard('admin')->user();
-        if ($user instanceof Staff
-            && StaffClientVisibility::strictAllocationEnabled()
-            && ! StaffClientVisibility::isExemptFromAllocation($user)) {
-            return 'u' . (int) $user->id;
+        if ($user instanceof Staff) {
+            $staffId = (int) $user->id;
+            $rev = (int) Cache::get('search:staff_rev:' . $staffId, 0);
+
+            return 'u' . $staffId . ':' . $rev;
         }
 
         return 'all';
+    }
+
+    /**
+     * Invalidate cached header/global search for this staff member (grant created, approved, revoked, expired).
+     */
+    public static function bumpGlobalSearchCacheForStaff(int $staffId): void
+    {
+        if ($staffId <= 0) {
+            return;
+        }
+        $key = 'search:staff_rev:' . $staffId;
+        Cache::put($key, (int) Cache::get($key, 0) + 1);
     }
 
     protected function applyStaffVisibilityToAdminQuery(Builder $query): Builder

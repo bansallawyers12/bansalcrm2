@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\ClientAccessGrant;
 use App\Models\Notification;
 use App\Models\Staff;
+use App\Services\SearchService;
 use App\Support\StaffClientVisibility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -122,7 +123,7 @@ class CrmAccessService
             throw new CrmAccessDeniedException('Invalid office.');
         }
 
-        return ClientAccessGrant::query()->create([
+        $grant = ClientAccessGrant::query()->create([
             'staff_id' => (int) $user->id,
             'admin_id' => $adminId,
             'record_type' => $recordType,
@@ -138,6 +139,10 @@ class CrmAccessService
             'starts_at' => $starts,
             'ends_at' => $ends,
         ]);
+
+        SearchService::bumpGlobalSearchCacheForStaff((int) $user->id);
+
+        return $grant;
     }
 
     public function requestSupervisorGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode, string $note = ''): ClientAccessGrant
@@ -209,6 +214,8 @@ class CrmAccessService
         $starts = Carbon::now('UTC');
         $ends = $starts->copy()->addHours($hours);
 
+        $requesterStaffId = (int) $grant->staff_id;
+
         $grant->update([
             'status' => 'active',
             'approved_by_staff_id' => (int) $approver->id,
@@ -216,6 +223,8 @@ class CrmAccessService
             'starts_at' => $starts,
             'ends_at' => $ends,
         ]);
+
+        SearchService::bumpGlobalSearchCacheForStaff($requesterStaffId);
 
         $this->notifyRequesterGrantProcessed($grant->fresh(), 'approved');
 
@@ -249,7 +258,7 @@ class CrmAccessService
 
     public function revokeGrantsForStaff(int $staffId, string $reason): int
     {
-        return ClientAccessGrant::query()
+        $count = ClientAccessGrant::query()
             ->where('staff_id', $staffId)
             ->whereIn('status', ['active', 'pending'])
             ->update([
@@ -257,11 +266,26 @@ class CrmAccessService
                 'revoked_at' => Carbon::now('UTC'),
                 'revoke_reason' => $reason,
             ]);
+
+        if ($count > 0) {
+            SearchService::bumpGlobalSearchCacheForStaff((int) $staffId);
+        }
+
+        return $count;
     }
 
     public function expireStaleGrants(): int
     {
         $now = Carbon::now('UTC');
+
+        $activeExpiredStaffIds = ClientAccessGrant::query()
+            ->where('status', 'active')
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', $now)
+            ->pluck('staff_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->all();
 
         $expired = ClientAccessGrant::query()
             ->where('status', 'active')
@@ -272,10 +296,22 @@ class CrmAccessService
         $pendingTtlDays = max(1, (int) config('crm_access.pending_ttl_days', 14));
         $pendingCutoff = $now->copy()->subDays($pendingTtlDays);
 
+        $pendingExpiredStaffIds = ClientAccessGrant::query()
+            ->where('status', 'pending')
+            ->where('requested_at', '<', $pendingCutoff)
+            ->pluck('staff_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->all();
+
         $pendingExpired = ClientAccessGrant::query()
             ->where('status', 'pending')
             ->where('requested_at', '<', $pendingCutoff)
             ->update(['status' => 'expired', 'revoke_reason' => 'Auto-expired: not actioned within ' . $pendingTtlDays . ' days']);
+
+        foreach (array_unique(array_merge($activeExpiredStaffIds, $pendingExpiredStaffIds)) as $sid) {
+            SearchService::bumpGlobalSearchCacheForStaff($sid);
+        }
 
         return $expired + $pendingExpired;
     }
