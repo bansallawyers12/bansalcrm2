@@ -354,19 +354,9 @@ class AccessGrantController extends Controller
 
         $adminId = (int) $request->input('admin_id');
 
-        // Same as migrationmanager-style: already able to open record → go to detail (no grant needed)
-        if (StaffClientVisibility::canAccessAdminRecord($adminId, $user)) {
-            return response()->json([
-                'ok' => true,
-                'mode' => 'already_can_view',
-                'grant_id' => null,
-                'ends_at' => null,
-            ]);
-        }
-
-        if (! StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId)) {
-            return response()->json(['ok' => false, 'message' => 'You are not allowed to request cross-access for this record.'], 403);
-        }
+        // Align with migrationmanager2: POST /quick always persists an active quick grant when checks pass
+        // (quick_access_enabled, valid reason, no duplicate active quick grant, valid office). No short-circuit
+        // for users who already pass canAccessAdminRecord — grants table is the audit trail.
 
         $admin = Admin::query()
             ->where(function ($q) {

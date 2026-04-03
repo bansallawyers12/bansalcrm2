@@ -100,9 +100,8 @@ class CrmAccessService
 
     public function requestQuickGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode): ClientAccessGrant
     {
-        if (! StaffClientVisibility::canRequestCrossAccessGrant($adminId, $user)) {
-            throw new CrmAccessDeniedException('You cannot request cross-access for this record (already have access, or cross-access is disabled).');
-        }
+        // Match migrationmanager2: do not gate on canRequestCrossAccessGrant here (assignees / exempt users may
+        // still log a quick grant for audit). Authorization is auth:admin + quick_access_enabled + duplicate check.
         if (! (bool) ($user->quick_access_enabled ?? false)) {
             throw new CrmAccessDeniedException('Quick access is not enabled for your account.');
         }
