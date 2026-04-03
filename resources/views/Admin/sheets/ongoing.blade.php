@@ -517,7 +517,13 @@
                                     @foreach($rows as $row)
                                         @php
                                             $clientEncodedId = base64_encode(convert_uuencode($row->client_id));
-                                            $appDetailUrl = route('clients.detail.application', ['id' => $clientEncodedId, 'applicationId' => $row->application_id]);
+                                            $isLeadClient = strtolower((string) ($row->client_type ?? 'client')) === 'lead';
+                                            $appDetailUrl = $isLeadClient
+                                                ? route('leads.detail.application', ['id' => $clientEncodedId, 'applicationId' => $row->application_id])
+                                                : route('clients.detail.application', ['id' => $clientEncodedId, 'applicationId' => $row->application_id]);
+                                            $gateCourseNav = Auth::guard('admin')->user() instanceof \App\Models\Staff
+                                                && \App\Services\SearchService::staffShouldGateClientNavigation((int) $row->client_id, Auth::guard('admin')->user());
+                                            $accessModalDisplayName = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
                                             $applicationCreatedDisplay = '—';
                                             if (!empty($row->application_created_at)) {
                                                 try {
@@ -531,7 +537,16 @@
                                         @endphp
                                         <tr>
                                             <td class="ongoing-course-cell">
-                                                <a href="{{ $appDetailUrl }}" class="ongoing-course-link">{{ $row->course_name ?? '—' }}</a>
+                                                @if($gateCourseNav)
+                                                    <a href="#" class="ongoing-course-link ongoing-course-link--crm-access-gate"
+                                                       data-admin-id="{{ (int) $row->client_id }}"
+                                                       data-encoded-id="{{ $clientEncodedId }}"
+                                                       data-is-lead="{{ $isLeadClient ? '1' : '0' }}"
+                                                       data-after-access-url="{{ $appDetailUrl }}"
+                                                       data-display-name="{{ e($accessModalDisplayName !== '' ? $accessModalDisplayName : ($row->course_name ?? '')) }}">{{ $row->course_name ?? '—' }}</a>
+                                                @else
+                                                    <a href="{{ $appDetailUrl }}" class="ongoing-course-link">{{ $row->course_name ?? '—' }}</a>
+                                                @endif
                                             </td>
                                             @if(isset($sheetType) && $sheetType === 'checklist')
                                             <td>{{ $applicationCreatedDisplay }}</td>

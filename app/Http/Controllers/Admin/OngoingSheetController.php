@@ -381,6 +381,7 @@ class OngoingSheetController extends Controller
                 'applications.stage as application_stage',
                 'products.name as course_name',
                 'admins.id as client_id',
+                'admins.type as client_type',
                 'admins.client_id as crm_ref',
                 'admins.first_name',
                 'admins.last_name',

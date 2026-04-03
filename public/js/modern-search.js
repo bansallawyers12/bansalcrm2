@@ -202,6 +202,44 @@
         });
     }
 
+    /**
+     * Ongoing / sheet views: course name links use the same Quick access modal as global search.
+     */
+    function wireOngoingSheetCourseLinkAccessOnce() {
+        if (window.__ongoingSheetCourseGateWired) {
+            return;
+        }
+        window.__ongoingSheetCourseGateWired = true;
+        $(document).on('click', 'a.ongoing-course-link--crm-access-gate', function(e) {
+            e.preventDefault();
+            var el = this;
+            var adminId = parseInt(el.getAttribute('data-admin-id'), 10);
+            var encId = el.getAttribute('data-encoded-id') || '';
+            var isLead = el.getAttribute('data-is-lead') === '1';
+            var afterUrl = el.getAttribute('data-after-access-url') || '';
+            var disp = el.getAttribute('data-display-name') || '';
+            if (!Number.isFinite(adminId) || adminId <= 0 || !encId) {
+                return;
+            }
+            var opener = typeof window.openCrmAccessRequestModal === 'function'
+                ? window.openCrmAccessRequestModal
+                : openCrmAccessRequestModal;
+            if (typeof opener !== 'function') {
+                if (afterUrl) {
+                    window.location.href = afterUrl;
+                }
+                return;
+            }
+            opener({
+                adminId: adminId,
+                encodedId: encId,
+                isLead: isLead,
+                displayName: disp,
+                afterAccessUrl: afterUrl
+            });
+        });
+    }
+
     function wireCrmAccessModalOnce() {
         var q = document.getElementById('crm-access-btn-quick');
         var s = document.getElementById('crm-access-btn-supervisor');
@@ -240,7 +278,12 @@
                         }
                         var path = ctx.isLead ? '/leads/detail/' : '/clients/detail/';
                         setTimeout(function() {
-                            window.location.href = siteBase() + path + encodeURIComponent(ctx.encodedId);
+                            var dest = ctx.afterAccessUrl;
+                            if (dest && String(dest).trim() !== '') {
+                                window.location.href = dest;
+                            } else {
+                                window.location.href = siteBase() + path + encodeURIComponent(ctx.encodedId);
+                            }
                         }, 400);
                     } else if (msgEl) {
                         msgEl.textContent = (res.j && res.j.message) ? res.j.message : 'Request failed';
@@ -706,6 +749,7 @@
                 // Small delay to ensure DOM is fully ready
                 setTimeout(function() {
                     wireCrmAccessModalOnce();
+                    wireOngoingSheetCourseLinkAccessOnce();
                     wireModernSearchQuickViewRowOnce();
                     initModernSearch();
                 }, 100);
@@ -719,10 +763,13 @@
     $(document).on('turbolinks:load', function() {
         if (typeof $.fn.select2 !== 'undefined') {
             wireCrmAccessModalOnce();
+            wireOngoingSheetCourseLinkAccessOnce();
             wireModernSearchQuickViewRowOnce();
             initModernSearch();
         }
     });
+
+    window.openCrmAccessRequestModal = openCrmAccessRequestModal;
 
 })();
 

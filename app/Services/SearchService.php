@@ -113,6 +113,29 @@ class SearchService
         Cache::put($key, (int) Cache::get($key, 0) + 1);
     }
 
+    /**
+     * Same rules as {@see searchResultNeedsAccessModal} in modern-search.js: open Quick access first when
+     * the staff member has no active temp grant and (record is locked OR BI-style search gating applies).
+     */
+    public static function staffShouldGateClientNavigation(int $adminId, Staff $user): bool
+    {
+        if ($adminId <= 0) {
+            return false;
+        }
+
+        if (app(CrmAccessService::class)->hasActiveGrant($user, $adminId)) {
+            return false;
+        }
+
+        if (! StaffClientVisibility::canAccessAdminRecord($adminId, $user)) {
+            return true;
+        }
+
+        $noClientsModule = ! StaffClientVisibility::staffHasClientsModule($user);
+
+        return $noClientsModule && (bool) ($user->quick_access_enabled ?? false);
+    }
+
     protected function applyStaffVisibilityToAdminQuery(Builder $query): Builder
     {
         $user = Auth::guard('admin')->user();
