@@ -26,8 +26,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
 use App\Services\Sms\UnifiedSmsManager;
-use Auth;
-use Config;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Core client CRUD and listing operations
@@ -465,10 +466,10 @@ class ClientController extends Controller
 				return redirect()->back()->with('error', Config::get('constants.server_error'));
 			}
              else  if($route==url('/action')){
-				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. \Auth::user()->first_name;
+				$subject = 'Lead status has changed to '.@$requestData['status'].' from '. Auth::user()->first_name;
 				$objs = new ActivitiesLog;
 				$objs->client_id = $request->id;
-				$objs->created_by = \Auth::user()->id;
+				$objs->created_by = Auth::user()->id;
 				$objs->subject = $subject;
 				$objs->task_status = 0; // Required NOT NULL field (0 = activity, 1 = task)
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
@@ -998,7 +999,7 @@ class ClientController extends Controller
 
 				return response()->json(array('items'=>$items));
 			} catch (\Exception $e) {
-				\Log::error('getrecipients error: ' . $e->getMessage());
+				Log::error('getrecipients error: ' . $e->getMessage());
 				return response()->json(array('items'=>array(), 'error' => $e->getMessage()));
 			}
 		} else {
@@ -1229,7 +1230,7 @@ class ClientController extends Controller
                 ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         } catch (\Exception $e) {
-            \Log::error('Client export error: ' . $e->getMessage(), [
+            Log::error('Client export error: ' . $e->getMessage(), [
                 'client_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
