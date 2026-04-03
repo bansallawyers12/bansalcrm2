@@ -102,15 +102,15 @@ class AdminController extends Controller
             return null;
         }
 
+        $pendingForOthers = ClientAccessGrant::query()
+            ->where('status', 'pending')
+            ->where('grant_type', 'supervisor_approved')
+            ->where('staff_id', '!=', (int) $user->id);
+
         return [
-            'count' => ClientAccessGrant::query()
-                ->where('status', 'pending')
-                ->where('grant_type', 'supervisor_approved')
-                ->count(),
-            'preview' => ClientAccessGrant::query()
+            'count' => (clone $pendingForOthers)->count(),
+            'preview' => (clone $pendingForOthers)
                 ->with(['staff', 'admin'])
-                ->where('status', 'pending')
-                ->where('grant_type', 'supervisor_approved')
                 ->orderByDesc('requested_at')
                 ->limit(5)
                 ->get(),

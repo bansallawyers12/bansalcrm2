@@ -646,6 +646,7 @@
 <!-- Main Content -->
 <div class="main-content">
 	<section class="section">
+        @include('../Elements/flash-message')
 		<!-- Dashboard Header -->
 		<div class="row mb-2">
 			<div class="col-12">
@@ -851,6 +852,7 @@
                                             <th>Requester</th>
                                             <th>Record</th>
                                             <th>Note</th>
+                                            <th class="text-nowrap">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -858,8 +860,24 @@
                                             <tr>
                                                 <td>{{ $g->requested_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</td>
                                                 <td>{{ $g->staff?->first_name }} {{ $g->staff?->last_name }}</td>
-                                                <td>#{{ $g->admin_id }} <span class="text-muted">({{ $g->record_type }})</span></td>
+                                                <td>
+                                                    @php
+                                                        $recordName = trim((string) ($g->admin?->first_name ?? '') . ' ' . (string) ($g->admin?->last_name ?? ''));
+                                                    @endphp
+                                                    {{ $recordName !== '' ? $recordName : ('#' . $g->admin_id) }}
+                                                    <span class="text-muted">({{ $g->record_type }})</span>
+                                                </td>
                                                 <td class="text-muted">{{ \Illuminate\Support\Str::limit($g->requester_note ?? '', 72) }}</td>
+                                                <td class="text-nowrap">
+                                                    <form action="{{ route('crm.access.approve', $g->id) }}" method="post" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                                    </form>
+                                                    <form action="{{ route('crm.access.reject', $g->id) }}" method="post" class="d-inline ms-1">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

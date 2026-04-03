@@ -29,7 +29,13 @@
                                     <tr>
                                         <td>{{ $g->requested_at?->timezone(config('app.timezone'))->format('Y-m-d H:i') }}</td>
                                         <td>{{ $g->staff?->first_name }} {{ $g->staff?->last_name }}</td>
-                                        <td>#{{ $g->admin_id }} ({{ $g->record_type }})</td>
+                                        <td>
+                                            @php
+                                                $recordName = trim((string) ($g->admin?->first_name ?? '') . ' ' . (string) ($g->admin?->last_name ?? ''));
+                                            @endphp
+                                            {{ $recordName !== '' ? $recordName : ('#' . $g->admin_id) }}
+                                            <span class="text-muted">({{ $g->record_type }})</span>
+                                        </td>
                                         <td>{{ config('crm_access.quick_reason_options')[$g->quick_reason_code] ?? $g->quick_reason_code }}</td>
                                         <td class="small">{{ \Illuminate\Support\Str::limit($g->requester_note ?? '', 80) }}</td>
                                         <td class="text-nowrap">

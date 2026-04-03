@@ -23,11 +23,22 @@ class AccessGrantController extends Controller
         $this->middleware('auth:admin');
     }
 
-    protected function ensureStaffMayOpenCrossAccessRequest(?Staff $user, int $adminId): void
+    /**
+     * Full-page request form + modal POST /supervisor: allow usual cross-access rules, or staff who may use the
+     * supervisor path (module 20 not required — aligns with quick grant + migrationmanager2).
+     */
+    protected function ensureStaffMayOpenCrossAccessOrSupervisorEligible(?Staff $user, int $adminId): void
     {
-        if (! $user instanceof Staff || ! StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId)) {
+        if (! $user instanceof Staff) {
             abort(403);
         }
+        if (StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId)) {
+            return;
+        }
+        if (StaffClientVisibility::staffMayUseSupervisorAccessPath($user)) {
+            return;
+        }
+        abort(403);
     }
 
     /** JSON helper for access UI: clients module, approval queue users, or quick-access-only staff. */
@@ -71,7 +82,7 @@ class AccessGrantController extends Controller
     {
         /** @var Staff|null $user */
         $user = Auth::guard('admin')->user();
-        $this->ensureStaffMayOpenCrossAccessRequest($user instanceof Staff ? $user : null, $adminId);
+        $this->ensureStaffMayOpenCrossAccessOrSupervisorEligible($user instanceof Staff ? $user : null, $adminId);
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
         $admin = Admin::query()
@@ -108,7 +119,7 @@ class AccessGrantController extends Controller
             'offices' => \App\Models\Branch::query()->orderBy('office_name')->get(['id', 'office_name']),
             'reasons' => config('crm_access.quick_reason_options', []),
             'quick_access_enabled' => (bool) ($user->quick_access_enabled ?? false),
-            'can_supervisor' => ! in_array((int) ($user->role ?? 0), config('crm_access.quick_access_only_role_ids', [9]), true),
+            'can_supervisor' => StaffClientVisibility::staffMayUseSupervisorAccessPath($user),
             'is_approver' => $this->crmAccess->isApprover($user),
         ]);
     }
@@ -396,7 +407,7 @@ class AccessGrantController extends Controller
 
         /** @var Staff|null $user */
         $user = Auth::guard('admin')->user();
-        $this->ensureStaffMayOpenCrossAccessRequest($user instanceof Staff ? $user : null, (int) $request->input('admin_id'));
+        $this->ensureStaffMayOpenCrossAccessOrSupervisorEligible($user instanceof Staff ? $user : null, (int) $request->input('admin_id'));
         /** @var Staff $user */
         $user = Auth::guard('admin')->user();
         if (! StaffClientVisibility::staffMayUseSupervisorAccessPath($user)) {

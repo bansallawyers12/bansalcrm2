@@ -147,9 +147,9 @@ class CrmAccessService
 
     public function requestSupervisorGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode, string $note = ''): ClientAccessGrant
     {
-        if (! StaffClientVisibility::canRequestCrossAccessGrant($adminId, $user)) {
-            throw new CrmAccessDeniedException('You cannot request cross-access for this record (already have access, or cross-access is disabled).');
-        }
+        // Match requestQuickGrant / migrationmanager2: do not gate on canRequestCrossAccessGrant (module 20 /
+        // strict allocation assignee rules). Controller enforces auth + staffMayUseSupervisorAccessPath; pending
+        // requests are still bounded by max_pending and reason validation.
         $quickOnly = config('crm_access.quick_access_only_role_ids', [9]);
         if (in_array((int) ($user->role ?? 0), $quickOnly, true)) {
             throw new CrmAccessDeniedException('Your role only supports quick access.');
