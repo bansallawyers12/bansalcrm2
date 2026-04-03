@@ -293,6 +293,36 @@
      * Quick view row: Select2's select2:selecting often lacks a reliable originalEvent
      * (migrationmanager2 opens the modal from select; we intercept the row via delegation).
      */
+    function isTruthyLocked(v) {
+        return v === true || v === 1 || v === '1' || v === 'true';
+    }
+
+    function searchResultNeedsAccessModal(repo) {
+        if (!repo || repo.has_active_temp_access) {
+            return false;
+        }
+        if (isTruthyLocked(repo.locked)) {
+            return true;
+        }
+        return !!repo.search_selection_requires_access_modal;
+    }
+
+    function openAccessModalFromSearchRow(el) {
+        var adminId = parseInt(el.getAttribute('data-admin-id'), 10);
+        var encId = el.getAttribute('data-encoded-id') || '';
+        var isLead = el.getAttribute('data-is-lead') === '1';
+        if (!Number.isFinite(adminId) || adminId <= 0 || !encId) {
+            return false;
+        }
+        openCrmAccessRequestModal({
+            adminId: adminId,
+            encodedId: encId,
+            isLead: isLead,
+            displayName: ''
+        });
+        return true;
+    }
+
     function wireModernSearchQuickViewRowOnce() {
         if (typeof window !== 'undefined' && window.__modernSearchQuickViewWired) {
             return;
@@ -307,19 +337,24 @@
         $(document).on('click', '.modern-search-result-quickview', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            var el = this;
-            var adminId = parseInt(el.getAttribute('data-admin-id'), 10);
-            var encId = el.getAttribute('data-encoded-id') || '';
-            var isLead = el.getAttribute('data-is-lead') === '1';
-            if (!Number.isFinite(adminId) || adminId <= 0 || !encId) {
-                return false;
+            openAccessModalFromSearchRow(this);
+            return false;
+        });
+        // Main row (title / ID / contact): Select2 would otherwise navigate; open Request access like Quick view.
+        $(document).on('mousedown', '.modern-search-result--access-gate', function(e) {
+            if ($(e.target).closest('.modern-search-result-quickview').length) {
+                return;
             }
-            openCrmAccessRequestModal({
-                adminId: adminId,
-                encodedId: encId,
-                isLead: isLead,
-                displayName: ''
-            });
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        $(document).on('click', '.modern-search-result--access-gate', function(e) {
+            if ($(e.target).closest('.modern-search-result-quickview').length) {
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            openAccessModalFromSearchRow(this);
             return false;
         });
     }
@@ -396,25 +431,21 @@
             }
         });
 
-        // "Quick view" row: backup if originalEvent is present (primary handler is delegated click)
+        // Locked / quick-access gated rows: intercept so Select2 does not navigate away (mouse + keyboard).
         $searchElement.on('select2:selecting', function(e) {
-            const originalEvent = e.params.args.originalEvent || e.params.args.event;
-            if (!originalEvent || !originalEvent.target) {
-                return;
-            }
-            if (!$(originalEvent.target).closest('.modern-search-result-quickview').length) {
-                return;
-            }
             const data = e.params.args.data;
             if (!data || !data.id || !data.admin_id) {
                 return;
             }
             const parts = String(data.id).split('/');
             const type = parts[1];
-            const encId = parts[0];
             if (type !== 'Client' && type !== 'Lead') {
                 return;
             }
+            if (!searchResultNeedsAccessModal(data)) {
+                return;
+            }
+            const encId = parts[0];
             e.preventDefault();
             openCrmAccessRequestModal({
                 adminId: parseInt(data.admin_id, 10),
@@ -545,10 +576,18 @@
         const adminIdAttr = repo.admin_id != null && repo.admin_id !== '' ? String(repo.admin_id) : '';
         const isLeadRow = !!(repo.is_lead || typeFromId === 'Lead');
 
+        const needsAccessFlow = !!(isCrmPersonRow && repo.allow_access_modal && !repo.has_active_temp_access && adminIdAttr && encIdForRow
+            && searchResultNeedsAccessModal(repo));
+
         // Staff only (server flag); hide while a time-boxed grant is active (go straight to record from main row)
-        const quickViewLine = isCrmPersonRow && repo.allow_access_modal && !repo.has_active_temp_access && adminIdAttr && encIdForRow
+        const quickViewLine = needsAccessFlow
             ? `<div class="modern-search-result-quickview" data-admin-id="${adminIdAttr}" data-encoded-id="${encIdForRow}" data-is-lead="${isLeadRow ? '1' : '0'}" title="Request access (Quick access in modal), then open record"><i class="fas fa-bolt" aria-hidden="true"></i><span>Quick view</span><span class="quickview-hint"> — Request access</span></div>`
             : '';
+
+        const gateDataAttrs = needsAccessFlow
+            ? ` data-admin-id="${adminIdAttr}" data-encoded-id="${encIdForRow}" data-is-lead="${isLeadRow ? '1' : '0'}"`
+            : '';
+        const accessGateClass = needsAccessFlow ? ' modern-search-result--access-gate' : '';
 
         const metaParts = [];
         if (accessChips) {
@@ -562,7 +601,7 @@
             : '';
 
         const $container = $(`
-            <div class="select2-result-repository modern-search-result${repo.locked ? ' modern-search-result--locked' : ''}">
+            <div class="select2-result-repository modern-search-result${repo.locked ? ' modern-search-result--locked' : ''}${accessGateClass}"${gateDataAttrs}>
                 <div class="modern-search-result-content">
                     <div class="modern-search-result-main">
                         <div class="modern-search-result-title">${lockPrefix}${clientId}${repo.name || repo.text}</div>
@@ -593,7 +632,7 @@
         const type = parts[1];  //alert('type='+type);
         const id = parts[0];  //alert('id='+id);
 
-        if ((type === 'Client' || type === 'Lead') && data.locked && data.admin_id) {
+        if ((type === 'Client' || type === 'Lead') && data.admin_id && searchResultNeedsAccessModal(data)) {
             openCrmAccessRequestModal({
                 adminId: parseInt(data.admin_id, 10),
                 encodedId: id,

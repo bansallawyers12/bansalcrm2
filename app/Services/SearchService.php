@@ -124,6 +124,7 @@ class SearchService
             $item['requires_access_grant'] = false;
             $item['has_active_temp_access'] = false;
             $item['allow_access_modal'] = false;
+            $item['search_selection_requires_access_modal'] = false;
 
             return $item;
         }
@@ -137,6 +138,14 @@ class SearchService
             && StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId);
         $item['has_active_temp_access'] = app(CrmAccessService::class)->hasActiveGrant($user, $adminId);
         $item['allow_access_modal'] = true;
+
+        // Staff with Quick access enabled but no Clients module (e.g. BI): may appear in search via
+        // allocation but should not open full detail directly from global search — same as Quick view row.
+        $noClientsModule = ! StaffClientVisibility::staffHasClientsModule($user);
+        $item['search_selection_requires_access_modal'] = ! $item['has_active_temp_access']
+            && ! $item['locked']
+            && $noClientsModule
+            && (bool) ($user->quick_access_enabled ?? false);
 
         return $item;
     }
