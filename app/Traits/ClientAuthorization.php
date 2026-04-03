@@ -94,29 +94,17 @@ trait ClientAuthorization
     
     /**
      * Check if user can edit a specific client
-     * 
+     *
+     * Aligned with canViewClient: staff who may open a record (allocation, active quick/supervisor
+     * grant, etc.) may also save it. Clients module (20) still gates listing, assign, and delete
+     * via index(), canAssignClients(), and canDeleteClient().
+     *
      * @param Admin $client
      * @return bool
      */
     protected function canEditClient(Admin $client): bool
     {
-        if ($this->isAdminUser()) {
-            if (! $this->hasModuleAccess('20')) {
-                return false;
-            }
-            $user = Auth::guard('admin')->user();
-
-            return $user instanceof Staff
-                ? StaffClientVisibility::canAccessAdminRecord((int) $client->id, $user)
-                : false;
-        }
-        
-        // Agents can only edit their own clients
-        if ($this->isAgentUser()) {
-            return $client->agent_id == Auth::user()->id;
-        }
-        
-        return false;
+        return $this->canViewClient($client);
     }
     
     /**
