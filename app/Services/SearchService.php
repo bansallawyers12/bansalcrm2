@@ -175,15 +175,32 @@ class SearchService
         $item['requires_access_grant'] = $item['locked']
             && StaffClientVisibility::staffMayOpenCrossAccessRequest($user, $adminId);
         $item['has_active_temp_access'] = app(CrmAccessService::class)->hasActiveGrant($user, $adminId);
-        $item['allow_access_modal'] = true;
 
-        // Staff with Quick access enabled but no Clients module (e.g. BI): may appear in search via
-        // allocation but should not open full detail directly from global search — same as Quick view row.
+        // Full access (Staff → CRM access): open any client/lead from search directly — never gate on
+        // Quick view / Request access modal in the dropdown (modern-search.js uses allow_access_modal +
+        // search_selection_requires_access_modal).
+        $crmFullAccess = (bool) ($user->crm_full_access ?? false);
+        $item['allow_access_modal'] = ! $crmFullAccess;
+
+        // Optional Quick view / Request access row (unlocked hits only): BI users (no module 20) always
+        // qualified historically. Also include:
+        // - Exempt-from-allocation staff without the Full access *checkbox* but with 15-minute cross-access:
+        //   they see every row unlocked, often with module 20, and still need the Quick view affordance.
+        // - Strict allocation off: every row is "unlocked" in API terms; module-20 + quick users still need
+        //   optional quick/supervisor entry when Full access checkbox is off.
+        $quickOn = (bool) ($user->quick_access_enabled ?? false);
         $noClientsModule = ! StaffClientVisibility::staffHasClientsModule($user);
+        $exemptNotFullAccess = StaffClientVisibility::isExemptFromAllocation($user) && ! $crmFullAccess;
+        $strictAllocation = StaffClientVisibility::strictAllocationEnabled();
+        $showOptionalQuickAccessRow = $noClientsModule
+            || $exemptNotFullAccess
+            || (! $strictAllocation && $quickOn && ! $crmFullAccess);
+
         $item['search_selection_requires_access_modal'] = ! $item['has_active_temp_access']
             && ! $item['locked']
-            && $noClientsModule
-            && (bool) ($user->quick_access_enabled ?? false);
+            && $quickOn
+            && ! $crmFullAccess
+            && $showOptionalQuickAccessRow;
 
         return $item;
     }
