@@ -86,7 +86,8 @@ class StaffClientVisibility
 
     /**
      * May use supervisor-approved access requests (beyond time-boxed quick grant).
-     * Quick-grant-only roles and staff who only have quick cross-access (no clients module / full CRM / approver) cannot.
+     * Any staff who is not allocation-exempt may request (including quick-access-only / calling roles).
+     * Exempt = full access flag, exempt staff ids, or exempt roles (e.g. Super Admin / Admin).
      */
     public static function staffMayUseSupervisorAccessPath(?Authenticatable $user): bool
     {
@@ -94,13 +95,7 @@ class StaffClientVisibility
             return false;
         }
 
-        if (self::isQuickAccessOnly($user)) {
-            return false;
-        }
-
-        return self::staffHasClientsModule($user)
-            || (bool) ($user->crm_full_access ?? false)
-            || (bool) ($user->crm_access_approver ?? false);
+        return ! self::isExemptFromAllocation($user);
     }
 
     /**
@@ -114,16 +109,8 @@ class StaffClientVisibility
             return ['show_quick' => false, 'show_supervisor' => false];
         }
 
-        if (self::isQuickAccessOnly($user)) {
-            $enabled = (bool) ($user->quick_access_enabled ?? false);
-
-            return ['show_quick' => $enabled, 'show_supervisor' => false];
-        }
-
-        $quick = (bool) ($user->quick_access_enabled ?? false);
-
         return [
-            'show_quick' => $quick,
+            'show_quick' => (bool) ($user->quick_access_enabled ?? false),
             'show_supervisor' => self::staffMayUseSupervisorAccessPath($user),
         ];
     }

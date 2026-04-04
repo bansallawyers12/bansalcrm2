@@ -148,13 +148,8 @@ class CrmAccessService
     public function requestSupervisorGrant(Staff $user, int $adminId, string $recordType, int $officeId, string $reasonCode, string $note = ''): ClientAccessGrant
     {
         // Match requestQuickGrant / migrationmanager2: do not gate on canRequestCrossAccessGrant (module 20 /
-        // strict allocation assignee rules). Controller enforces auth + staffMayUseSupervisorAccessPath; pending
-        // requests are still bounded by max_pending and reason validation.
-        $quickOnly = config('crm_access.quick_access_only_role_ids', [9]);
-        if (in_array((int) ($user->role ?? 0), $quickOnly, true)) {
-            throw new CrmAccessDeniedException('Your role only supports quick access.');
-        }
-
+        // strict allocation). Controller enforces staffMayUseSupervisorAccessPath (non-exempt staff). Quick-only /
+        // calling roles may submit supervisor requests; pending requests are bounded by max_pending and reason validation.
         $reasons = config('crm_access.quick_reason_options', []);
         if ($reasonCode === '' || ! array_key_exists($reasonCode, $reasons)) {
             throw new CrmAccessDeniedException('Invalid reason.');

@@ -16,7 +16,7 @@
                 </div>
                 <div class="card-body">
                     @if(!$quickEnabled && !$canSupervisor)
-                        <p class="text-warning">Quick access is not enabled on your account, and your role cannot use supervisor requests. Ask a Super Admin or Admin to enable quick access for you.</p>
+                        <p class="text-warning">Temporary access requests are not available for your account (for example, unrestricted / full client access). If this seems wrong, contact a Super Admin or Admin.</p>
                     @else
                         <div class="mb-3">
                             <label class="form-label">Office</label>

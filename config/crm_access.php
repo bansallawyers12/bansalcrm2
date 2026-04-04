@@ -30,7 +30,7 @@ return [
         'admin_task' => 'Administrative Task',
     ],
 
-    // Staff Calling (role 9): quick grant only, no supervisor approval path.
+    // Staff Calling (role 9): 15-minute quick grant; may also request supervisor-approved longer access.
     'quick_access_only_role_ids' => $intList('CRM_ACCESS_QUICK_ONLY_ROLE_IDS', '9', [9]),
 
     'quick_grant_minutes' => max(1, (int) env('CRM_ACCESS_QUICK_GRANT_MINUTES', 15)),

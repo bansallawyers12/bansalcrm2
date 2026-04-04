@@ -24,8 +24,8 @@ class AccessGrantController extends Controller
     }
 
     /**
-     * Full-page request form + modal POST /supervisor: allow usual cross-access rules, or staff who may use the
-     * supervisor path (module 20 not required — aligns with quick grant + migrationmanager2).
+     * Full-page request form + modal POST /supervisor: allow usual cross-access rules, or any non-exempt staff
+     * eligible for supervisor requests (module 20 not required).
      */
     protected function ensureStaffMayOpenCrossAccessOrSupervisorEligible(?Staff $user, int $adminId): void
     {
@@ -41,16 +41,22 @@ class AccessGrantController extends Controller
         abort(403);
     }
 
-    /** JSON helper for access UI: clients module, approval queue users, or quick-access-only staff. */
+    /**
+     * JSON helper for access UI (global search modal). Non-exempt staff may load options; exempt users only if they
+     * still use cross-access tools (approver, clients module, or quick access enabled).
+     */
     protected function ensureStaffForCrmAccessMeta(?Staff $user): void
     {
         if (! $user instanceof Staff) {
             abort(403);
         }
-        if (StaffClientVisibility::staffHasClientsModule($user)) {
+        if (! StaffClientVisibility::isExemptFromAllocation($user)) {
             return;
         }
         if ($this->crmAccess->isApprover($user)) {
+            return;
+        }
+        if (StaffClientVisibility::staffHasClientsModule($user)) {
             return;
         }
         if ((bool) ($user->quick_access_enabled ?? false)) {

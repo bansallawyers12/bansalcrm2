@@ -133,7 +133,7 @@
                 }
             }
             if (!quickOn && !canSup && blockedEl && formEl) {
-                blockedEl.textContent = 'Quick access is not enabled on your account, and your role cannot use supervisor requests. Ask a Super Admin or Admin to enable quick access for you.';
+                blockedEl.textContent = 'Temporary access requests are not available for your account. If this seems wrong, contact a Super Admin or Admin.';
                 blockedEl.classList.remove('d-none');
                 formEl.classList.add('d-none');
                 if (btnQuick) {
