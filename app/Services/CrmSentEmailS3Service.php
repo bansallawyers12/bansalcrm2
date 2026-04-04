@@ -145,8 +145,7 @@ class CrmSentEmailS3Service
 
             $sanitized = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $displayName);
             $sanitized = preg_replace('/_+/', '_', trim($sanitized, '_')) ?: 'attachment';
-            $ext = pathinfo($displayName, PATHINFO_EXTENSION);
-            $s3Key = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $clientUniqueId) . '/attachments/' . time() . '_' . substr(uniqid(), -6) . '_' . $sanitized . ($ext ? '.' . $ext : '');
+            $s3Key = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $clientUniqueId) . '/attachments/' . time() . '_' . substr(uniqid(), -6) . '_' . $sanitized;
 
             $uploaded = Storage::disk('s3')->put($s3Key, $content);
             $s3Path = $uploaded ? Storage::disk('s3')->url($s3Key) : null;

@@ -1654,6 +1654,42 @@ class AdminController extends Controller
 		$subject = $requestData['subject'];
 		$message = $requestData['message'];
 		$s3Stored = false; // Store to S3 only once (not per recipient)
+
+        // Build attachment tuples once before the recipient loop so UploadedFile objects
+        // are only moved once and paths are valid for every recipient and archival.
+        $attachmentTuples = [];
+
+        // Ensure upload directory exists
+        if (!is_dir(storage_path('app/uploads'))) {
+            mkdir(storage_path('app/uploads'), 0755, true);
+        }
+
+        if ($request->hasFile('attach')) {
+            foreach ($request->file('attach') as $file1) {
+                $originalName = $file1->getClientOriginalName();
+                $filename = time() . '_' . $originalName;
+                $filePath = storage_path('app/uploads/' . $filename);
+                $file1->move(storage_path('app/uploads'), $filename);
+                $attachmentTuples[] = ['path' => $filePath, 'name' => $originalName];
+            }
+        }
+
+        // Include receipt/invoice PDF so it is both sent and archived
+        if (isset($array['file']) && file_exists($array['file'])) {
+            $attachmentTuples[] = ['path' => $array['file'], 'name' => $array['file_name'] ?? basename($array['file'])];
+        }
+
+        // CC list resolved once (emails only)
+        $ccEmails = [];
+        if (isset($requestData['email_cc']) && !empty($requestData['email_cc'])) {
+            foreach ($requestData['email_cc'] as $cc) {
+                $clientcc = \App\Models\Admin::where('id', $cc)->first();
+                if ($clientcc) {
+                    $ccEmails[] = $clientcc->email;
+                }
+            }
+        }
+
 		foreach($requestData['email_to'] as $l){
 			if(@$requestData['type'] == 'partner'){
 				$client = \App\Models\Partner::Where('id', $l)->first();
@@ -1675,17 +1711,10 @@ class AdminController extends Controller
 			if (isset($client->dob) && $client->dob && $client->dob != '0000-00-00') {
 				$client_dob = date('d/m/Y', strtotime($client->dob));
 			}
-			$subject = str_replace('{DOB}', $client_dob, $subject);
-			$message = str_replace('{DOB}', $client_dob, $message);
-			$ccarray = array();
-			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
-				foreach($requestData['email_cc'] as $cc){
-					$clientcc = \App\Models\Admin::Where('id', $cc)->first();
-					$ccarray[] = $clientcc;
-				}
-			}
+		$subject = str_replace('{DOB}', $client_dob, $subject);
+		$message = str_replace('{DOB}', $client_dob, $message);
 
-			if(isset($requestData['checklistfile'])){
+		if(isset($requestData['checklistfile'])){
     		    if(!empty($requestData['checklistfile'])){
     		       $checklistfiles = $requestData['checklistfile'];
     		        foreach($checklistfiles as $checklistfile){
@@ -1721,62 +1750,22 @@ class AdminController extends Controller
                     }
                 }
             }
-          
-            //echo "<pre>array=";print_r($array);die;
-          
-		    /*if($request->hasfile('attach'))
-            {
-                 $array['filesatta'][] =  $request->attach;
-            }*/
-          
-            // Process Uploaded Files
-            if ($request->hasFile('attach')) {
-                foreach ($request->file('attach') as $file1) {
-                    $array['filesatta'][] =  $file1;
-                }
-            }
            
             //$this->send_compose_template($client->email, $subject, $requestData['email_from'], $message, '', $array,@$ccarray);
           
             try {
-                // Build as tuples ['path' => ..., 'name' => ...] to preserve original display names
-                $attachmentTuples = [];
-
+                // Merge per-recipient checklist paths into the attachment tuple list
+                $recipientTuples = $attachmentTuples;
                 if (isset($array['files'])) {
                     foreach ($array['files'] as $p) {
                         if (is_string($p)) {
-                            $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                            $recipientTuples[] = ['path' => $p, 'name' => basename($p)];
                         }
                     }
-                }
-
-                if (isset($array['filesatta'])) {
-                    foreach ($array['filesatta'] as $file) {
-                        $originalName = $file->getClientOriginalName();
-                        $filename = time() . '_' . $originalName;
-                        $filePath = storage_path('app/uploads/' . $filename);
-                        $file->move(storage_path('app/uploads'), $filename);
-                        $attachmentTuples[] = ['path' => $filePath, 'name' => $originalName];
-                    }
-                }
-
-                // Include receipt/invoice PDF so it is both sent and archived
-                if (isset($array['file']) && file_exists($array['file'])) {
-                    $attachmentTuples[] = ['path' => $array['file'], 'name' => $array['file_name'] ?? basename($array['file'])];
                 }
 
                 // Flat paths for EmailService (expects plain strings)
-                $attachmentPaths = array_column($attachmentTuples, 'path');
-
-                $ccarray = [];
-                if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
-                    foreach($requestData['email_cc'] as $cc){
-                        $clientcc = \App\Models\Admin::Where('id', $cc)->first();
-                        if($clientcc) {
-                            $ccarray[] = $clientcc->email;
-                        }
-                    }
-                }
+                $attachmentPaths = array_column($recipientTuples, 'path');
 
                 $this->emailService->sendEmail(
                     'emails.template',
@@ -1785,13 +1774,13 @@ class AdminController extends Controller
                     $subject,
                     $requestData['email_from'],
                     $attachmentPaths,
-                    $ccarray
+                    $ccEmails
                 );
 
                 // Archive email to S3 (HTML snapshot + attachments) — once per email, not per recipient
                 if (!$s3Stored) {
                     try {
-                        $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
+                        $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $recipientTuples);
                         $s3Stored = true;
                     } catch (\Exception $s3Ex) {
                         Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
