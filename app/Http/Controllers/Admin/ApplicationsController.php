@@ -1192,6 +1192,10 @@ class ApplicationsController extends Controller
 				$response['message']	=	'Record not found';
 			}
 		}
+		if (!empty($response['status'])) {
+			$partnerIdForStudentTab = Application::where('id', $request->id)->value('partner_id');
+			PartnersController::forgetPartnerStudentTabCache($partnerIdForStudentTab ? (int) $partnerIdForStudentTab : null);
+		}
 		echo json_encode($response);
 	}
 
@@ -2289,6 +2293,10 @@ class ApplicationsController extends Controller
 				$response['status'] 	= 	false;
 				$response['message']	=	'Record not found';
 			}
+		}
+		if (!empty($response['status'])) {
+			$partnerIdForStudentTab = Application::where('id', $request->id)->value('partner_id');
+			PartnersController::forgetPartnerStudentTabCache($partnerIdForStudentTab ? (int) $partnerIdForStudentTab : null);
 		}
 		echo json_encode($response);
 	}

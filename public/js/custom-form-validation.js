@@ -1068,6 +1068,16 @@ function customValidate(formName, savetype = '')
 											});
 										}
 									}
+									try {
+										if (typeof $.fn.DataTable !== 'undefined') {
+											if ($('.table-3').length && $.fn.DataTable.isDataTable($('.table-3')[0])) {
+												$('.table-3').DataTable().ajax.reload(null, false);
+											}
+											if ($('.table-31').length && $.fn.DataTable.isDataTable($('.table-31')[0])) {
+												$('.table-31').DataTable().ajax.reload(null, false);
+											}
+										}
+									} catch (eReload) { /* not on partner page or DataTables unavailable */ }
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+(obj && obj.message ? obj.message : 'An error occurred.')+'</span>');
                                 }

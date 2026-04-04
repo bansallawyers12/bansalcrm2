@@ -949,7 +949,23 @@ class PartnersController extends Controller
 	 */
 	public function clearStudentTabCache(int $partnerId): void
 	{
-		Cache::forget("partner_students_{$partnerId}");
+		self::forgetPartnerStudentTabCache($partnerId);
+	}
+
+	/**
+	 * Invalidate cached JSON for /partners/getStudentTabData (used by partner Student tab DataTables).
+	 * Safe if partner_id is missing; cache driver failures are swallowed so callers are not broken.
+	 */
+	public static function forgetPartnerStudentTabCache(?int $partnerId): void
+	{
+		if ($partnerId === null || $partnerId < 1) {
+			return;
+		}
+		try {
+			Cache::forget("partner_students_{$partnerId}");
+		} catch (\Throwable $e) {
+			// Same resilience as getStudentTabData when cache is unavailable
+		}
 	}
 
 	public function getrecipients(Request $request){
