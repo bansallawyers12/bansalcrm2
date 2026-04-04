@@ -1031,7 +1031,8 @@
     overflow: hidden;
 }
 
-#previewFrame {
+#previewFrame,
+#previewFrameV2 {
     width: 100%;
     height: 100%;
     border: none;

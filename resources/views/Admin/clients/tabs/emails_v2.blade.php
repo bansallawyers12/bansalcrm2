@@ -141,7 +141,7 @@
     <div class="preview-modal-content">
         <div class="preview-modal-header">
             <h3 id="previewFileNameV2">Preview</h3>
-            <button class="preview-close" id="closePreviewBtnV2">&times;</button>
+            <button class="preview-close" id="closePreviewBtnV2" aria-label="Close preview">&times;</button>
         </div>
         <div class="preview-modal-body">
             <iframe id="previewFrameV2" src=""></iframe>

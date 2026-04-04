@@ -2476,11 +2476,6 @@
             });
         });
         
-        // Initialize search functionality
-        if (typeof window.initializeSearch === 'function') {
-            window.initializeSearch();
-        }
-
         // Apply button removed - all filters auto-apply:
         // - Search auto-applies as you type (debounced)
         // - Label filter auto-applies on change
@@ -2490,14 +2485,22 @@
         // Labels can only be created via /adminconsole/features/email-labels
 
         // Preview modal close
-        const closePreviewBtn = document.getElementById('closePreviewBtn');
-        const previewOverlay = document.getElementById('previewOverlay');
+        const closePreviewBtn = document.getElementById('closePreviewBtnV2');
+        const previewOverlay = document.getElementById('previewOverlayV2');
         if (closePreviewBtn) {
             closePreviewBtn.addEventListener('click', hidePreviewModal);
         }
         if (previewOverlay) {
             previewOverlay.addEventListener('click', hidePreviewModal);
         }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('attachmentPreviewModalV2');
+                if (modal && modal.style.display !== 'none') {
+                    hidePreviewModal();
+                }
+            }
+        });
 
         // Initialize attachment handlers
         initializeAttachmentHandlers();
@@ -2573,8 +2576,8 @@
      * Hide preview modal
      */
     function hidePreviewModal() {
-        const modal = document.getElementById('attachmentPreviewModal');
-        const frame = document.getElementById('previewFrame');
+        const modal = document.getElementById('attachmentPreviewModalV2');
+        const frame = document.getElementById('previewFrameV2');
         if (modal && frame) {
             modal.style.display = 'none';
             frame.src = ''; // Stop loading
