@@ -2,7 +2,7 @@
 
 @php
     // Cache-busting version for emails_v2 assets (bump when deploying CSS/JS changes to production)
-    $emailsV2AssetVer = 2;
+    $emailsV2AssetVer = 3;
 @endphp
 <!-- Email V2 Styles -->
 <link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
@@ -136,7 +136,7 @@
 </div>
 
 <!-- Attachment Preview Modal -->
-<div id="attachmentPreviewModalV2" class="preview-modal" style="display: none;">
+<div id="attachmentPreviewModalV2" class="preview-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="previewFileNameV2">
     <div class="preview-modal-overlay" id="previewOverlayV2"></div>
     <div class="preview-modal-content">
         <div class="preview-modal-header">
@@ -144,7 +144,11 @@
             <button class="preview-close" id="closePreviewBtnV2" aria-label="Close preview">&times;</button>
         </div>
         <div class="preview-modal-body">
-            <iframe id="previewFrameV2" src=""></iframe>
+            <div class="preview-loading" id="previewLoadingV2">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Loading preview&hellip;</span>
+            </div>
+            <iframe id="previewFrameV2" src="" style="display:none;"></iframe>
         </div>
     </div>
 </div>
@@ -185,8 +189,7 @@
 <!-- Context Menu Overlay (for closing menu on outside click) -->
 <div id="contextMenuOverlayV2" class="context-menu-overlay" style="display: none;"></div>
 
-<!-- Include necessary CSS and JavaScript -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
+<!-- Include necessary JavaScript -->
 <script src="{{ asset('js/emails_v2.js') }}?v={{ $emailsV2AssetVer }}"></script>
 
 <script>

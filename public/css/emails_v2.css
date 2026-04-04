@@ -1029,9 +1029,28 @@
 .preview-modal-body {
     flex: 1;
     overflow: hidden;
+    position: relative;
 }
 
-#previewFrame,
+.preview-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #6b7280;
+    font-size: 14px;
+    background: #fff;
+    z-index: 2;
+}
+
+.preview-loading i {
+    font-size: 28px;
+    color: #6366f1;
+}
+
 #previewFrameV2 {
     width: 100%;
     height: 100%;

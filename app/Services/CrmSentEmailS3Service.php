@@ -41,45 +41,45 @@ class CrmSentEmailS3Service
 
             $entityType = $mailReport->type ?? 'client';
             $clientUniqueId = $this->resolveClientUniqueId($clientId, $entityType);
-
             $sanitizedClientId = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $clientUniqueId);
 
-            $docType = 'crm_sent';
-            $uniqueFileName = time() . '-' . substr(uniqid(), -6) . '-email.html';
-            $s3Path = $sanitizedClientId . '/' . $docType . '/sent/' . $uniqueFileName;
-
-            $htmlContent = $this->buildEmailHtml($mailReport, $subject, $messageHtml);
-
+            // HTML snapshot — isolated so failure does not block attachment archival
             try {
+                $docType = 'crm_sent';
+                $uniqueFileName = time() . '-' . substr(uniqid(), -6) . '-email.html';
+                $s3Path = $sanitizedClientId . '/' . $docType . '/sent/' . $uniqueFileName;
+                $htmlContent = $this->buildEmailHtml($mailReport, $subject, $messageHtml);
+
                 $uploaded = Storage::disk('s3')->put($s3Path, $htmlContent);
                 if (!$uploaded) {
                     throw new \Exception('S3 put returned false');
                 }
                 $fileUrl = Storage::disk('s3')->url($s3Path);
+
+                $document = new Document();
+                $document->file_name = 'email-' . $mailReport->id;
+                $document->filetype = 'html';
+                $document->user_id = $mailReport->user_id;
+                $document->myfile = $fileUrl;
+                $document->myfile_key = $uniqueFileName;
+                $document->client_id = $clientId;
+                $document->type = $entityType;
+                $document->mail_type = 'sent';
+                $document->file_size = strlen($htmlContent);
+                $document->doc_type = $docType;
+                $document->save();
+
+                $mailReport->uploaded_doc_id = $document->id;
+                $mailReport->save();
             } catch (\Exception $e) {
-                Log::error('CrmSentEmailS3Service: S3 upload failed', [
+                Log::error('CrmSentEmailS3Service: HTML snapshot upload failed', [
                     'mail_report_id' => $mailReport->id,
                     'error' => $e->getMessage(),
                 ]);
-                return false;
+                // Continue — attachment archival must still proceed
             }
 
-            $document = new Document();
-            $document->file_name = 'email-' . $mailReport->id;
-            $document->filetype = 'html';
-            $document->user_id = $mailReport->user_id;
-            $document->myfile = $fileUrl;
-            $document->myfile_key = $uniqueFileName;
-            $document->client_id = $clientId;
-            $document->type = $entityType;
-            $document->mail_type = 'sent';
-            $document->file_size = strlen($htmlContent);
-            $document->doc_type = $docType;
-            $document->save();
-
-            $mailReport->uploaded_doc_id = $document->id;
-            $mailReport->save();
-
+            // Always archive attachments regardless of whether the HTML snapshot succeeded
             foreach ($attachmentPaths as $pathOrTuple) {
                 $filePath = is_array($pathOrTuple) ? ($pathOrTuple['path'] ?? null) : $pathOrTuple;
                 $displayName = is_array($pathOrTuple) ? ($pathOrTuple['name'] ?? basename($filePath)) : basename($filePath);

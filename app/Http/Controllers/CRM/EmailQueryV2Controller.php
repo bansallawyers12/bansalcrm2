@@ -158,7 +158,8 @@ class EmailQueryV2Controller extends Controller
                         ];
                     })->values()->toArray();
                 } else {
-                    $emailArray['attachments'] = [];
+                    // Fallback for older emails that stored attachments in the JSON column
+                    $emailArray['attachments'] = $this->legacyAttachmentsFromJson($email);
                 }
                 
                 // Format labels explicitly
@@ -339,7 +340,8 @@ class EmailQueryV2Controller extends Controller
                         ];
                     })->values()->toArray();
                 } else {
-                    $emailArray['attachments'] = [];
+                    // Fallback for older emails that stored attachments in the JSON column
+                    $emailArray['attachments'] = $this->legacyAttachmentsFromJson($email);
                 }
                 
                 // Format labels explicitly
@@ -380,6 +382,43 @@ class EmailQueryV2Controller extends Controller
                 'message' => 'An error occurred while fetching emails'
             ], 500);
         }
+    }
+
+    /**
+     * Build attachment list from legacy emails.attachments JSON column.
+     * Used when no MailReportAttachment rows exist for older sent emails.
+     * Returns entries with id=null so the list is visible but download is not available.
+     */
+    protected function legacyAttachmentsFromJson(Email $email): array
+    {
+        $raw = $email->getAttributes()['attachments'] ?? null;
+        if (empty($raw)) {
+            return [];
+        }
+        $items = is_string($raw) ? json_decode($raw, true) : $raw;
+        if (!is_array($items) || empty($items)) {
+            return [];
+        }
+        return array_values(array_filter(array_map(function ($item) use ($email) {
+            $name = $item['file_name'] ?? basename($item['file_url'] ?? '');
+            if (empty($name)) {
+                return null;
+            }
+            return [
+                'id' => null,
+                'mail_report_id' => $email->id,
+                'filename' => $name,
+                'display_name' => $name,
+                'content_type' => 'application/octet-stream',
+                'file_path' => $item['file_url'] ?? null,
+                's3_key' => null,
+                'file_size' => 0,
+                'content_id' => null,
+                'is_inline' => false,
+                'description' => null,
+                'extension' => pathinfo($name, PATHINFO_EXTENSION),
+            ];
+        }, $items)));
     }
 
     /**

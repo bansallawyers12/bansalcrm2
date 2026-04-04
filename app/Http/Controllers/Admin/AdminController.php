@@ -1739,24 +1739,34 @@ class AdminController extends Controller
             //$this->send_compose_template($client->email, $subject, $requestData['email_from'], $message, '', $array,@$ccarray);
           
             try {
-                $attachments = [];
+                // Build as tuples ['path' => ..., 'name' => ...] to preserve original display names
+                $attachmentTuples = [];
 
-                if(isset($array['files'])){
-                    $attachments = array_merge($attachments, $array['files']);
-                }
-
-                if(isset($array['filesatta'])){
-                    foreach($array['filesatta'] as $file) {
-                        $filename = time().'_'.$file->getClientOriginalName(); // Unique filename
-                        $filePath = storage_path('app/uploads/'.$filename); // Save in storage/uploads folder
-
-                        // Move the file to storage folder
-                        $file->move(storage_path('app/uploads'), $filename);
-
-                        // Add saved file path to attachments
-                        $attachments[] = $filePath;
+                if (isset($array['files'])) {
+                    foreach ($array['files'] as $p) {
+                        if (is_string($p)) {
+                            $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
+                        }
                     }
                 }
+
+                if (isset($array['filesatta'])) {
+                    foreach ($array['filesatta'] as $file) {
+                        $originalName = $file->getClientOriginalName();
+                        $filename = time() . '_' . $originalName;
+                        $filePath = storage_path('app/uploads/' . $filename);
+                        $file->move(storage_path('app/uploads'), $filename);
+                        $attachmentTuples[] = ['path' => $filePath, 'name' => $originalName];
+                    }
+                }
+
+                // Include receipt/invoice PDF so it is both sent and archived
+                if (isset($array['file']) && file_exists($array['file'])) {
+                    $attachmentTuples[] = ['path' => $array['file'], 'name' => $array['file_name'] ?? basename($array['file'])];
+                }
+
+                // Flat paths for EmailService (expects plain strings)
+                $attachmentPaths = array_column($attachmentTuples, 'path');
 
                 $ccarray = [];
                 if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
@@ -1774,28 +1784,22 @@ class AdminController extends Controller
                     $client->email,
                     $subject,
                     $requestData['email_from'],
-                    $attachments,
+                    $attachmentPaths,
                     $ccarray
                 );
 
-                // Store full email to S3 for archival (HTML snapshot + attachments) - once per Email, not per recipient
+                // Archive email to S3 (HTML snapshot + attachments) — once per email, not per recipient
                 if (!$s3Stored) {
                     try {
-                        $attachmentTuples = [];
-                        foreach ($attachments as $p) {
-                            if (is_string($p) && file_exists($p)) {
-                                $attachmentTuples[] = ['path' => $p, 'name' => basename($p)];
-                            }
-                        }
                         $this->crmSentEmailS3Service->storeToS3($obj, $subject, $message, $attachmentTuples);
                         $s3Stored = true;
                     } catch (\Exception $s3Ex) {
                         Log::warning('CRM sent email S3 storage failed (email still sent)', ['error' => $s3Ex->getMessage()]);
                     }
                 }
-                
-                // Clean up temp files after email is sent
-                if(isset($array['file']) && file_exists($array['file'])){
+
+                // Clean up receipt/invoice temp file after archival
+                if (isset($array['file']) && file_exists($array['file'])) {
                     @unlink($array['file']);
                 }
 

@@ -2332,6 +2332,9 @@
         }
     }
 
+    // Timeout handle for preview load — cancelled on successful load or modal close
+    let previewLoadTimeout = null;
+
     /**
      * Preview attachment
      */
@@ -2341,11 +2344,45 @@
             const modal = document.getElementById('attachmentPreviewModalV2');
             const frame = document.getElementById('previewFrameV2');
             const filenameEl = document.getElementById('previewFileNameV2');
+            const loading = document.getElementById('previewLoadingV2');
 
             if (modal && frame && filenameEl) {
                 filenameEl.textContent = filename;
-                frame.src = previewUrl;
+
+                // Cancel any pending timeout from a previous preview
+                clearTimeout(previewLoadTimeout);
+
+                // Show spinner, hide stale iframe content
+                if (loading) loading.style.display = 'flex';
+                frame.style.display = 'none';
+                frame.src = '';
+
+                // Reveal modal
                 modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // Focus the close button so Escape works immediately
+                const closeBtn = document.getElementById('closePreviewBtnV2');
+                if (closeBtn) closeBtn.focus();
+
+                // When iframe finishes loading show it and hide spinner
+                // NOTE: for iframes, onload fires even for HTTP error pages,
+                // so this reliably covers success AND server-side errors.
+                frame.onload = function() {
+                    clearTimeout(previewLoadTimeout);
+                    if (loading) loading.style.display = 'none';
+                    frame.style.display = 'block';
+                };
+
+                // Timeout fallback: if onload hasn't fired after 15 s, show error
+                previewLoadTimeout = setTimeout(function() {
+                    frame.onload = null;
+                    if (loading) {
+                        loading.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#e53e3e;font-size:28px;"></i><span>Preview timed out. Try downloading instead.</span>';
+                    }
+                }, 15000);
+
+                frame.src = previewUrl;
             }
         } catch (error) {
             console.error('Error previewing attachment:', error);
@@ -2578,9 +2615,21 @@
     function hidePreviewModal() {
         const modal = document.getElementById('attachmentPreviewModalV2');
         const frame = document.getElementById('previewFrameV2');
+        const loading = document.getElementById('previewLoadingV2');
         if (modal && frame) {
+            // Cancel pending load timeout
+            clearTimeout(previewLoadTimeout);
+            frame.onload = null;
+
             modal.style.display = 'none';
+            frame.style.display = 'none';
             frame.src = ''; // Stop loading
+            // Reset spinner for next open
+            if (loading) {
+                loading.style.display = 'flex';
+                loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading preview&hellip;</span>';
+            }
+            document.body.style.overflow = '';
         }
     }
 
