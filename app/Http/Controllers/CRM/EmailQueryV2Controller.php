@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CRM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Email;
 use App\Models\MailReportAttachment;
 use App\Models\Document;
@@ -443,8 +444,13 @@ class EmailQueryV2Controller extends Controller
         if (!is_string($url)) {
             return 0;
         }
-        // Remote URLs: no local size without HTTP; keep 0 unless file_size was stored above
+        // Remote HTTPS: resolve size from S3 when URL matches our bucket (same as download path)
         if (preg_match('#^https?://#i', $url)) {
+            $s3Size = $this->resolveS3ObjectSizeFromUrl($url);
+            if ($s3Size > 0) {
+                return $s3Size;
+            }
+
             return 0;
         }
         $norm = str_replace('\\', '/', $url);
@@ -482,6 +488,7 @@ class EmailQueryV2Controller extends Controller
 
     /**
      * Prefer DB file_size; if zero, match legacy JSON by filename and resolve size (stored or filesystem).
+     * Finally, resolve from S3 or local path when metadata is missing (matches actual download bytes).
      */
     protected function attachmentFileSizeWithLegacyFallback(Email $email, MailReportAttachment $attachment, array $legacyItems): int
     {
@@ -489,32 +496,141 @@ class EmailQueryV2Controller extends Controller
         if ($size > 0) {
             return $size;
         }
-        if (empty($legacyItems)) {
-            return 0;
-        }
-        $attrs = $attachment->getAttributes();
-        $names = array_unique(array_filter([
-            (string) ($attrs['filename'] ?? ''),
-            (string) ($attrs['display_name'] ?? ''),
-        ]));
-        foreach ($legacyItems as $item) {
-            if (!is_array($item)) {
-                continue;
-            }
-            $legacyName = $item['file_name'] ?? basename($item['file_url'] ?? '');
-            if ($legacyName === '') {
-                continue;
-            }
-            foreach ($names as $n) {
-                if ($this->legacyAttachmentNamesMatch($n, $legacyName)) {
-                    $resolved = $this->resolveLegacyAttachmentFileSize($item);
-                    if ($resolved > 0) {
-                        return $resolved;
+        if (!empty($legacyItems)) {
+            $attrs = $attachment->getAttributes();
+            $names = array_unique(array_filter([
+                (string) ($attrs['filename'] ?? ''),
+                (string) ($attrs['display_name'] ?? ''),
+            ]));
+            foreach ($legacyItems as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $legacyName = $item['file_name'] ?? basename($item['file_url'] ?? '');
+                if ($legacyName === '') {
+                    continue;
+                }
+                foreach ($names as $n) {
+                    if ($this->legacyAttachmentNamesMatch($n, $legacyName)) {
+                        $resolved = $this->resolveLegacyAttachmentFileSize($item);
+                        if ($resolved > 0) {
+                            return $resolved;
+                        }
                     }
                 }
             }
         }
+
+        $fromStorage = $this->resolveMailReportAttachmentSizeFromS3OrLocal($attachment);
+        if ($fromStorage > 0) {
+            return $fromStorage;
+        }
+
         return 0;
+    }
+
+    /**
+     * When DB file_size is 0, get object size from S3 (s3_key or URL) or local file_path.
+     */
+    protected function resolveMailReportAttachmentSizeFromS3OrLocal(MailReportAttachment $attachment): int
+    {
+        $fp = $attachment->file_path;
+        if (is_string($fp) && $fp !== '' && !preg_match('#^https?://#i', $fp)) {
+            if (@is_file($fp)) {
+                $sz = @filesize($fp);
+                if ($sz !== false) {
+                    return (int) $sz;
+                }
+            }
+        }
+
+        if (!$this->s3Configured()) {
+            return 0;
+        }
+
+        try {
+            $disk = Storage::disk('s3');
+            $key = $attachment->s3_key;
+            if (is_string($key) && $key !== '' && $disk->exists($key)) {
+                return (int) $disk->size($key);
+            }
+            $keyFromUrl = $this->extractS3KeyFromPublicUrl($attachment->file_path);
+            if (is_string($keyFromUrl) && $keyFromUrl !== '' && $disk->exists($keyFromUrl)) {
+                return (int) $disk->size($keyFromUrl);
+            }
+        } catch (\Exception $e) {
+            Log::debug('EmailQueryV2: attachment size from S3 failed', [
+                'attachment_id' => $attachment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return 0;
+    }
+
+    protected function resolveS3ObjectSizeFromUrl(string $url): int
+    {
+        if (!$this->s3Configured()) {
+            return 0;
+        }
+        try {
+            $key = $this->extractS3KeyFromPublicUrl($url);
+            if (!$key) {
+                return 0;
+            }
+            $disk = Storage::disk('s3');
+            if ($disk->exists($key)) {
+                return (int) $disk->size($key);
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return 0;
+    }
+
+    protected function s3Configured(): bool
+    {
+        return !empty(config('filesystems.disks.s3.key')) && !empty(config('filesystems.disks.s3.bucket'));
+    }
+
+    /**
+     * Derive S3 object key from a public URL (aligned with MailReportAttachmentController).
+     */
+    protected function extractS3KeyFromPublicUrl(?string $url): ?string
+    {
+        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        $configured = rtrim((string) config('filesystems.disks.s3.url'), '/');
+        if ($configured !== '' && str_starts_with($url, $configured)) {
+            return rawurldecode(ltrim(substr($url, strlen($configured)), '/'));
+        }
+
+        $bucket = config('filesystems.disks.s3.bucket');
+        $region = (string) config('filesystems.disks.s3.region');
+        if (empty($bucket)) {
+            return null;
+        }
+
+        $bucketQ = preg_quote($bucket, '#');
+        $regionQ = preg_quote($region, '#');
+
+        $patterns = [
+            "#https?://{$bucketQ}\\.s3\\.{$regionQ}\\.amazonaws\\.com/(.+)#i",
+            "#https?://{$bucketQ}\\.s3\\.amazonaws\\.com/(.+)#i",
+            "#https?://s3\\.{$regionQ}\\.amazonaws\\.com/{$bucketQ}/(.+)#i",
+            "#https?://s3\\.amazonaws\\.com/{$bucketQ}/(.+)#i",
+        ];
+
+        foreach ($patterns as $p) {
+            if (preg_match($p, $url, $m)) {
+                return rawurldecode($m[1]);
+            }
+        }
+
+        return null;
     }
 
     protected function legacyAttachmentNamesMatch(string $a, string $b): bool
@@ -527,9 +643,15 @@ class EmailQueryV2Controller extends Controller
         if (strcasecmp($a, $b) === 0) {
             return true;
         }
-        $ba = basename(str_replace('\\', '/', $a));
-        $bb = basename(str_replace('\\', '/', $b));
-        return strcasecmp($ba, $bb) === 0;
+        $normalize = function (string $s): string {
+            $s = basename(str_replace('\\', '/', $s));
+            $s = preg_replace('/\.(pdf|docx?|jpe?g|png|gif|webp)$/i', '', $s);
+            $s = preg_replace('/_signed$/i', '', $s);
+
+            return strtolower($s);
+        };
+
+        return $normalize($a) === $normalize($b);
     }
 
     /**
