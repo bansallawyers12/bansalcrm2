@@ -299,11 +299,92 @@
     function sanitizeFilename(filename) {
         if (!filename) return 'download';
         
-        // Remove invalid filename characters
+        // Remove invalid filename characters (Windows + common problem chars)
         return filename
-            .replace(/[/\\?%*:|"<>]/g, '-')  // Replace invalid chars
+            .replace(/[/\\?%*:|"<>]/g, '-')
+            .replace(/[\[\]]/g, '-')
             .replace(/\s+/g, '_')             // Replace spaces with underscore
             .substring(0, 200);               // Limit length
+    }
+
+    /**
+     * Map Content-Type to a file extension when DB filename omits it.
+     */
+    function extensionFromContentType(ct) {
+        if (!ct || typeof ct !== 'string') return '';
+        const base = ct.split(';')[0].trim().toLowerCase();
+        const map = {
+            'application/pdf': 'pdf',
+            'image/jpeg': 'jpg',
+            'image/jpg': 'jpg',
+            'image/png': 'png',
+            'image/gif': 'gif',
+            'image/webp': 'webp',
+            'image/bmp': 'bmp',
+            'application/msword': 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+            'application/vnd.ms-excel': 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+            'text/plain': 'txt',
+            'text/csv': 'csv',
+        };
+        return map[base] || '';
+    }
+
+    function extensionFromPathOrUrl(s) {
+        if (!s || typeof s !== 'string') return '';
+        const path = s.replace(/\\/g, '/').split('?')[0];
+        const seg = path.split('/').pop() || '';
+        const m = seg.match(/\.([a-zA-Z0-9]{1,8})$/);
+        return m ? m[1].toLowerCase() : '';
+    }
+
+    /**
+     * Build a download filename with extension for attachment rows (matches server-side naming).
+     */
+    function resolveAttachmentDownloadFilename(att) {
+        if (!att || typeof att !== 'object') return 'download';
+        let name = String(att.filename || att.display_name || 'file').trim() || 'file';
+        name = sanitizeFilename(name);
+
+        let ext = '';
+        if (att.extension) {
+            ext = String(att.extension).replace(/^\./, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+        if (!ext && att.content_type) {
+            ext = extensionFromContentType(att.content_type);
+        }
+        if (!ext) {
+            ext = extensionFromPathOrUrl(att.file_path) || extensionFromPathOrUrl(att.s3_key);
+        }
+
+        const lower = name.toLowerCase();
+        if (ext && !lower.endsWith('.' + ext)) {
+            name = name + '.' + ext;
+        }
+        return name;
+    }
+
+    /**
+     * Parse filename from Content-Disposition (RFC 5987 filename* preferred).
+     */
+    function parseFilenameFromContentDisposition(header) {
+        if (!header || typeof header !== 'string') return null;
+        const star = /filename\*=UTF-8''([^;\n]+)/i.exec(header);
+        if (star && star[1]) {
+            try {
+                return decodeURIComponent(star[1].trim());
+            } catch (e) {
+                return null;
+            }
+        }
+        const quoted = /filename="([^"]+)"/i.exec(header);
+        if (quoted && quoted[1]) return quoted[1];
+        const plain = /filename=([^;\n]+)/i.exec(header);
+        if (plain && plain[1]) {
+            return plain[1].trim().replace(/^["']|["']$/g, '');
+        }
+        return null;
     }
 
     /**
@@ -1155,8 +1236,11 @@
         // Build attachment list HTML
         let attachmentHtml = '';
         if (hasAttachments) {
-            const attachmentItems = regularAttachments.map(att => `
-                <div class="attachment-item" data-attachment-id="${att.id}">
+            const attachmentItems = regularAttachments.map((att, attIndex) => {
+                const downloadName = resolveAttachmentDownloadFilename(att);
+                const hasNumericId = att.id !== null && att.id !== undefined && /^\d+$/.test(String(att.id));
+                return `
+                <div class="attachment-item" data-attachment-id="${hasNumericId ? att.id : ''}">
                     <div class="attachment-info">
                         <i class="${getAttachmentIcon(att.content_type)} attachment-icon ${getAttachmentIconColor(att.content_type)}"></i>
                         <div class="attachment-details">
@@ -1166,22 +1250,25 @@
                     </div>
                     <div class="attachment-actions">
                         <button class="download-btn download-attachment-btn" 
-                                data-attachment-id="${att.id}" 
-                                data-filename="${escapeHtml(att.filename || att.display_name || 'file')}"
+                                data-attachment-id="${hasNumericId ? att.id : ''}" 
+                                data-mail-report-id="${email.id}"
+                                data-legacy-index="${hasNumericId ? '' : attIndex}"
+                                data-filename="${escapeHtml(downloadName)}"
                                 title="Download ${escapeHtml(att.filename || 'file')}">
                             <i class="fas fa-download"></i> Download
                         </button>
-                        ${canPreviewAttachment(att.content_type) ? `
+                        ${hasNumericId && canPreviewAttachment(att.content_type) ? `
                         <button class="preview-btn preview-attachment-btn" 
                                 data-attachment-id="${att.id}" 
-                                data-filename="${escapeHtml(att.filename || att.display_name || 'file')}"
+                                data-filename="${escapeHtml(downloadName)}"
                                 title="Preview ${escapeHtml(att.filename || 'file')}">
                             <i class="fas fa-eye"></i> Preview
                         </button>
                         ` : ''}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             attachmentHtml = `
                 <div class="attachment-list">
@@ -2266,32 +2353,95 @@
     // =========================================================================
 
     /**
-     * Download individual attachment
+     * Download individual attachment (mail_report_attachments row)
      */
     async function downloadAttachment(attachmentId, filename) {
         try {
+            if (!attachmentId || !/^\d+$/.test(String(attachmentId))) {
+                showNotification('Invalid attachment.', 'error');
+                return;
+            }
             const response = await fetch(`/email-v2/attachments/${attachmentId}/download`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/octet-stream'
-                }
+                },
+                credentials: 'same-origin'
             });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            const cd = response.headers.get('Content-Disposition');
+            let saveName = parseFilenameFromContentDisposition(cd);
+            if (saveName) {
+                saveName = sanitizeFilename(saveName);
+            } else {
+                saveName = filename;
+            }
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = filename;
+            a.download = saveName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
 
-            showNotification(`Downloaded: ${filename}`, 'success');
+            showNotification(`Downloaded: ${saveName}`, 'success');
+        } catch (error) {
+            console.error('Error downloading attachment:', error);
+            showNotification('Error downloading attachment: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * Download legacy attachment (emails.attachments JSON only — no DB row id)
+     */
+    async function downloadLegacyAttachment(mailReportId, index, filename) {
+        try {
+            if (!mailReportId || !/^\d+$/.test(String(mailReportId))) {
+                showNotification('Cannot download this attachment.', 'error');
+                return;
+            }
+            if (typeof index !== 'number' || !Number.isFinite(index) || index < 0) {
+                showNotification('Cannot download this attachment.', 'error');
+                return;
+            }
+            const response = await fetch(`/email-v2/attachments/mail/${mailReportId}/legacy/${index}/download`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/octet-stream'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const cd = response.headers.get('Content-Disposition');
+            let saveName = parseFilenameFromContentDisposition(cd);
+            if (saveName) {
+                saveName = sanitizeFilename(saveName);
+            } else {
+                saveName = filename;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = saveName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showNotification(`Downloaded: ${saveName}`, 'success');
         } catch (error) {
             console.error('Error downloading attachment:', error);
             showNotification('Error downloading attachment: ' + error.message, 'error');
@@ -2307,7 +2457,8 @@
                 method: 'GET',
                 headers: {
                     'Accept': 'application/octet-stream'
-                }
+                },
+                credentials: 'same-origin'
             });
 
             if (!response.ok) {
@@ -2557,18 +2708,39 @@
             if (target.classList.contains('download-attachment-btn')) {
                 e.preventDefault();
                 const attachmentId = target.dataset.attachmentId;
+                const mailReportId = target.dataset.mailReportId;
+                const legacyIndexRaw = target.dataset.legacyIndex;
                 const filename = target.dataset.filename;
-                
-                if (attachmentId && filename) {
-                    // Disable button during download
-                    const originalHtml = target.innerHTML;
+
+                const originalHtml = target.innerHTML;
+                const runDownload = () => {
                     target.disabled = true;
                     target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
-                    
-                    downloadAttachment(attachmentId, filename).finally(() => {
-                        target.disabled = false;
-                        target.innerHTML = originalHtml;
-                    });
+                };
+                const finishDownload = () => {
+                    target.disabled = false;
+                    target.innerHTML = originalHtml;
+                };
+
+                if (attachmentId && /^\d+$/.test(String(attachmentId)) && filename) {
+                    runDownload();
+                    downloadAttachment(attachmentId, filename).finally(finishDownload);
+                } else if (
+                    mailReportId &&
+                    /^\d+$/.test(String(mailReportId)) &&
+                    legacyIndexRaw !== undefined &&
+                    legacyIndexRaw !== '' &&
+                    /^\d+$/.test(String(legacyIndexRaw)) &&
+                    filename
+                ) {
+                    runDownload();
+                    downloadLegacyAttachment(
+                        mailReportId,
+                        parseInt(legacyIndexRaw, 10),
+                        filename
+                    ).finally(finishDownload);
+                } else {
+                    showNotification('Cannot download this attachment.', 'error');
                 }
             }
 

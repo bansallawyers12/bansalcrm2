@@ -1427,7 +1427,13 @@ class AdminController extends Controller
                 foreach($checklistfiles as $checklistfile){
                     $filechecklist =  \App\Models\UploadChecklist::where('id', $checklistfile)->first();
                     if($filechecklist){
-                        $attachments[] = array('file_name' => $filechecklist->name,'file_url' => $filechecklist->file);
+                        $checkPath = public_path('checklists/' . $filechecklist->file);
+                        $checkSize = (is_file($checkPath)) ? (int) filesize($checkPath) : 0;
+                        $attachments[] = array(
+                            'file_name' => $filechecklist->name,
+                            'file_url' => $filechecklist->file,
+                            'file_size' => $checkSize,
+                        );
                     }
                 }
                 //$obj->attachments = json_encode($attachments);
@@ -1445,9 +1451,22 @@ class AdminController extends Controller
                         $useLocalPath = in_array($filechecklist_doc->doc_type, ['education', 'migration'])
                             || ($filechecklist_doc->doc_type === 'documents' && $filechecklist_doc->category && in_array($filechecklist_doc->category->name, ['Education', 'Migration']));
                         if ($useLocalPath) {
-                            $attachments2[] = array('file_name' => $filechecklist_doc->file_name, 'file_url' => public_path() . '/' . 'img/documents/' . $filechecklist_doc->myfile);
+                            $docLocal = public_path('img/documents/' . $filechecklist_doc->myfile);
+                            $docSize = (is_file($docLocal)) ? (int) filesize($docLocal) : 0;
+                            $attachments2[] = array(
+                                'file_name' => $filechecklist_doc->file_name,
+                                'file_url' => $docLocal,
+                                'file_size' => $docSize,
+                            );
                         } else {
-                            $attachments2[] = array('file_name' => $filechecklist_doc->file_name, 'file_url' => $filechecklist_doc->myfile);
+                            $docSize = (isset($filechecklist_doc->file_size) && (int) $filechecklist_doc->file_size > 0)
+                                ? (int) $filechecklist_doc->file_size
+                                : 0;
+                            $attachments2[] = array(
+                                'file_name' => $filechecklist_doc->file_name,
+                                'file_url' => $filechecklist_doc->myfile,
+                                'file_size' => $docSize,
+                            );
                         }
                     }
                 }

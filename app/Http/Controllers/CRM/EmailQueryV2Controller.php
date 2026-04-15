@@ -138,10 +138,13 @@ class EmailQueryV2Controller extends Controller
                 if (!$attachments || (method_exists($attachments, 'count') && $attachments->count() === 0)) {
                     $attachments = MailReportAttachment::where('mail_report_id', $email->id)->get();
                 }
+
+                $legacyAttachmentItems = $this->parseEmailLegacyAttachmentItems($email);
                 
                 // Format attachments
                 if ($attachments && method_exists($attachments, 'count') && $attachments->count() > 0) {
-                    $emailArray['attachments'] = $attachments->map(function ($attachment) {
+                    $emailArray['attachments'] = $attachments->map(function ($attachment) use ($email, $legacyAttachmentItems) {
+                        $fileSize = $this->attachmentFileSizeWithLegacyFallback($email, $attachment, $legacyAttachmentItems);
                         return [
                             'id' => $attachment->id,
                             'mail_report_id' => $attachment->mail_report_id,
@@ -150,7 +153,7 @@ class EmailQueryV2Controller extends Controller
                             'content_type' => $attachment->content_type,
                             'file_path' => $attachment->file_path,
                             's3_key' => $attachment->s3_key,
-                            'file_size' => (int) $attachment->file_size,
+                            'file_size' => $fileSize,
                             'content_id' => $attachment->content_id,
                             'is_inline' => (bool) $attachment->is_inline,
                             'description' => $attachment->description,
@@ -320,10 +323,13 @@ class EmailQueryV2Controller extends Controller
                 if (!$attachments || (method_exists($attachments, 'count') && $attachments->count() === 0)) {
                     $attachments = MailReportAttachment::where('mail_report_id', $email->id)->get();
                 }
+
+                $legacyAttachmentItems = $this->parseEmailLegacyAttachmentItems($email);
                 
                 // Format attachments
                 if ($attachments && method_exists($attachments, 'count') && $attachments->count() > 0) {
-                    $emailArray['attachments'] = $attachments->map(function ($attachment) {
+                    $emailArray['attachments'] = $attachments->map(function ($attachment) use ($email, $legacyAttachmentItems) {
+                        $fileSize = $this->attachmentFileSizeWithLegacyFallback($email, $attachment, $legacyAttachmentItems);
                         return [
                             'id' => $attachment->id,
                             'mail_report_id' => $attachment->mail_report_id,
@@ -332,7 +338,7 @@ class EmailQueryV2Controller extends Controller
                             'content_type' => $attachment->content_type,
                             'file_path' => $attachment->file_path,
                             's3_key' => $attachment->s3_key,
-                            'file_size' => (int) $attachment->file_size,
+                            'file_size' => $fileSize,
                             'content_id' => $attachment->content_id,
                             'is_inline' => (bool) $attachment->is_inline,
                             'description' => $attachment->description,
@@ -404,6 +410,7 @@ class EmailQueryV2Controller extends Controller
             if (empty($name)) {
                 return null;
             }
+            $fileSize = $this->resolveLegacyAttachmentFileSize($item);
             return [
                 'id' => null,
                 'mail_report_id' => $email->id,
@@ -412,13 +419,117 @@ class EmailQueryV2Controller extends Controller
                 'content_type' => 'application/octet-stream',
                 'file_path' => $item['file_url'] ?? null,
                 's3_key' => null,
-                'file_size' => 0,
+                'file_size' => $fileSize,
                 'content_id' => null,
                 'is_inline' => false,
                 'description' => null,
                 'extension' => pathinfo($name, PATHINFO_EXTENSION),
             ];
         }, $items)));
+    }
+
+    /**
+     * Resolve byte size for a legacy JSON attachment: prefer stored file_size, then local filesystem.
+     */
+    protected function resolveLegacyAttachmentFileSize(array $item): int
+    {
+        if (isset($item['file_size']) && is_numeric($item['file_size']) && (int) $item['file_size'] > 0) {
+            return (int) $item['file_size'];
+        }
+        $url = $item['file_url'] ?? null;
+        if ($url === null || $url === '') {
+            return 0;
+        }
+        if (!is_string($url)) {
+            return 0;
+        }
+        // Remote URLs: no local size without HTTP; keep 0 unless file_size was stored above
+        if (preg_match('#^https?://#i', $url)) {
+            return 0;
+        }
+        $norm = str_replace('\\', '/', $url);
+        $candidates = array_unique(array_filter([
+            $url,
+            public_path('checklists/' . basename($norm)),
+            public_path('checklists/' . ltrim($norm, '/')),
+            public_path('img/documents/' . basename($norm)),
+        ]));
+        foreach ($candidates as $path) {
+            if ($path !== '' && @is_file($path)) {
+                $sz = @filesize($path);
+                if ($sz !== false) {
+                    return (int) $sz;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Parsed legacy JSON items from emails.attachments (for size fallback when mail_report_attachments.file_size is 0).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function parseEmailLegacyAttachmentItems(Email $email): array
+    {
+        $raw = $email->getAttributes()['attachments'] ?? null;
+        if (empty($raw)) {
+            return [];
+        }
+        $items = is_string($raw) ? json_decode($raw, true) : $raw;
+        return is_array($items) ? $items : [];
+    }
+
+    /**
+     * Prefer DB file_size; if zero, match legacy JSON by filename and resolve size (stored or filesystem).
+     */
+    protected function attachmentFileSizeWithLegacyFallback(Email $email, MailReportAttachment $attachment, array $legacyItems): int
+    {
+        $size = (int) ($attachment->file_size ?? 0);
+        if ($size > 0) {
+            return $size;
+        }
+        if (empty($legacyItems)) {
+            return 0;
+        }
+        $attrs = $attachment->getAttributes();
+        $names = array_unique(array_filter([
+            (string) ($attrs['filename'] ?? ''),
+            (string) ($attrs['display_name'] ?? ''),
+        ]));
+        foreach ($legacyItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $legacyName = $item['file_name'] ?? basename($item['file_url'] ?? '');
+            if ($legacyName === '') {
+                continue;
+            }
+            foreach ($names as $n) {
+                if ($this->legacyAttachmentNamesMatch($n, $legacyName)) {
+                    $resolved = $this->resolveLegacyAttachmentFileSize($item);
+                    if ($resolved > 0) {
+                        return $resolved;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    protected function legacyAttachmentNamesMatch(string $a, string $b): bool
+    {
+        $a = trim($a);
+        $b = trim($b);
+        if ($a === '' || $b === '') {
+            return false;
+        }
+        if (strcasecmp($a, $b) === 0) {
+            return true;
+        }
+        $ba = basename(str_replace('\\', '/', $a));
+        $bb = basename(str_replace('\\', '/', $b));
+        return strcasecmp($ba, $bb) === 0;
     }
 
     /**

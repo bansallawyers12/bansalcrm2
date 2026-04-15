@@ -222,9 +222,21 @@ Route::middleware(['auth:admin'])->group(function() {
         
         // Email Attachments routes
         Route::prefix('attachments')->name('attachments.')->group(function() {
-            Route::get('/{id}/download', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'download'])->name('download');
-            Route::get('/{id}/preview', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'preview'])->name('preview');
-            Route::get('/email/{mailReportId}/download-all', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'downloadAll'])->name('download-all');
+            // Must be distinct from /{id}/download — frontend calls /attachments/{mailReportId}/download-all
+            Route::get('/{mailReportId}/download-all', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'downloadAll'])
+                ->whereNumber('mailReportId')
+                ->name('download-all');
+            // Legacy JSON-only attachments (no mail_report_attachments.id)
+            Route::get('/mail/{mailReportId}/legacy/{index}/download', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'downloadLegacy'])
+                ->whereNumber('mailReportId')
+                ->whereNumber('index')
+                ->name('download-legacy');
+            Route::get('/{id}/download', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'download'])
+                ->whereNumber('id')
+                ->name('download');
+            Route::get('/{id}/preview', [\App\Http\Controllers\CRM\MailReportAttachmentController::class, 'preview'])
+                ->whereNumber('id')
+                ->name('preview');
         });
     });
     
