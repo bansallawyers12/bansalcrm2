@@ -1201,6 +1201,19 @@
     color: #111827;
 }
 
+.attachment-details a.attachment-name.attachment-name-link {
+    display: inline-block;
+    color: #2563eb;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.attachment-details a.attachment-name.attachment-name-link:hover {
+    text-decoration: underline;
+    color: #1d4ed8;
+}
+
 .attachment-size {
     font-size: 11px;
     color: #6b7280;

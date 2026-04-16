@@ -288,9 +288,38 @@
      */
     function canPreviewAttachment(contentType) {
         if (!contentType) return false;
-        
+
         const type = contentType.toLowerCase();
         return type.includes('image/') || type.includes('pdf');
+    }
+
+    /**
+     * Whether /email-v2/attachments/{id}/preview can show this file (aligns with MailReportAttachment::canPreview — MIME + extension fallbacks).
+     */
+    function attachmentSupportsBrowserPreview(att) {
+        if (!att || typeof att !== 'object') return false;
+        if (canPreviewAttachment(att.content_type)) {
+            return true;
+        }
+        const ext = String(att.extension || '').toLowerCase().replace(/^\./, '');
+        if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext)) {
+            return true;
+        }
+        const name = String(att.filename || att.display_name || '');
+        let m = name.match(/\.([a-zA-Z0-9]{1,8})$/i);
+        if (m && ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(m[1].toLowerCase())) {
+            return true;
+        }
+        const resolved = resolveAttachmentDownloadFilename(att);
+        m = resolved.match(/\.([a-zA-Z0-9]{1,8})$/i);
+        if (m && ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(m[1].toLowerCase())) {
+            return true;
+        }
+        const fromPath = extensionFromPathOrUrl(att.file_path || '') || extensionFromPathOrUrl(att.s3_key || '');
+        if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(fromPath)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -1239,17 +1268,22 @@
             const attachmentItems = regularAttachments.map((att, attIndex) => {
                 const downloadName = resolveAttachmentDownloadFilename(att);
                 const hasNumericId = att.id !== null && att.id !== undefined && /^\d+$/.test(String(att.id));
+                const displayLabel = escapeHtml(att.filename || att.display_name || 'Unknown');
+                const openPreviewInNewTab = hasNumericId && attachmentSupportsBrowserPreview(att);
+                const nameRowHtml = openPreviewInNewTab
+                    ? `<a class="attachment-name attachment-name-link" href="/email-v2/attachments/${att.id}/preview" target="_blank" rel="noopener noreferrer" title="Open preview in new tab">${displayLabel}</a>`
+                    : `<div class="attachment-name">${displayLabel}</div>`;
                 return `
                 <div class="attachment-item" data-attachment-id="${hasNumericId ? att.id : ''}">
                     <div class="attachment-info">
                         <i class="${getAttachmentIcon(att.content_type)} attachment-icon ${getAttachmentIconColor(att.content_type)}"></i>
                         <div class="attachment-details">
-                            <div class="attachment-name">${escapeHtml(att.filename || att.display_name || 'Unknown')}</div>
+                            ${nameRowHtml}
                             <div class="attachment-size">${formatFileSize(att.file_size || 0)}</div>
                         </div>
                     </div>
                     <div class="attachment-actions">
-                        <button class="download-btn download-attachment-btn" 
+                        <button type="button" class="download-btn download-attachment-btn" 
                                 data-attachment-id="${hasNumericId ? att.id : ''}" 
                                 data-mail-report-id="${email.id}"
                                 data-legacy-index="${hasNumericId ? '' : attIndex}"
@@ -1257,11 +1291,11 @@
                                 title="Download ${escapeHtml(att.filename || 'file')}">
                             <i class="fas fa-download"></i> Download
                         </button>
-                        ${hasNumericId && canPreviewAttachment(att.content_type) ? `
-                        <button class="preview-btn preview-attachment-btn" 
+                        ${hasNumericId && attachmentSupportsBrowserPreview(att) ? `
+                        <button type="button" class="preview-btn preview-attachment-btn" 
                                 data-attachment-id="${att.id}" 
                                 data-filename="${escapeHtml(downloadName)}"
-                                title="Preview ${escapeHtml(att.filename || 'file')}">
+                                title="Open preview in new tab">
                             <i class="fas fa-eye"></i> Preview
                         </button>
                         ` : ''}
@@ -2483,62 +2517,19 @@
         }
     }
 
-    // Timeout handle for preview load — cancelled on successful load or modal close
+    // Timeout handle for legacy preview modal (still used if modal opened elsewhere)
     let previewLoadTimeout = null;
 
     /**
-     * Preview attachment
+     * Open attachment preview in a new browser tab (same URL as server preview endpoint).
      */
-    async function previewAttachment(attachmentId, filename) {
-        try {
-            const previewUrl = `/email-v2/attachments/${attachmentId}/preview`;
-            const modal = document.getElementById('attachmentPreviewModalV2');
-            const frame = document.getElementById('previewFrameV2');
-            const filenameEl = document.getElementById('previewFileNameV2');
-            const loading = document.getElementById('previewLoadingV2');
-
-            if (modal && frame && filenameEl) {
-                filenameEl.textContent = filename;
-
-                // Cancel any pending timeout from a previous preview
-                clearTimeout(previewLoadTimeout);
-
-                // Show spinner, hide stale iframe content
-                if (loading) loading.style.display = 'flex';
-                frame.style.display = 'none';
-                frame.src = '';
-
-                // Reveal modal
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-
-                // Focus the close button so Escape works immediately
-                const closeBtn = document.getElementById('closePreviewBtnV2');
-                if (closeBtn) closeBtn.focus();
-
-                // When iframe finishes loading show it and hide spinner
-                // NOTE: for iframes, onload fires even for HTTP error pages,
-                // so this reliably covers success AND server-side errors.
-                frame.onload = function() {
-                    clearTimeout(previewLoadTimeout);
-                    if (loading) loading.style.display = 'none';
-                    frame.style.display = 'block';
-                };
-
-                // Timeout fallback: if onload hasn't fired after 15 s, show error
-                previewLoadTimeout = setTimeout(function() {
-                    frame.onload = null;
-                    if (loading) {
-                        loading.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#e53e3e;font-size:28px;"></i><span>Preview timed out. Try downloading instead.</span>';
-                    }
-                }, 15000);
-
-                frame.src = previewUrl;
-            }
-        } catch (error) {
-            console.error('Error previewing attachment:', error);
-            showNotification('Error previewing attachment: ' + error.message, 'error');
+    function openAttachmentPreviewInNewTab(attachmentId) {
+        if (!attachmentId || !/^\d+$/.test(String(attachmentId))) {
+            showNotification('Invalid attachment.', 'error');
+            return;
         }
+        const url = `/email-v2/attachments/${attachmentId}/preview`;
+        window.open(url, '_blank', 'noopener,noreferrer');
     }
 
     // =========================================================================
@@ -2744,14 +2735,12 @@
                 }
             }
 
-            // Preview attachment
+            // Preview attachment (new tab — same behaviour as clicking the filename link)
             if (target.classList.contains('preview-attachment-btn')) {
                 e.preventDefault();
                 const attachmentId = target.dataset.attachmentId;
-                const filename = target.dataset.filename;
-                
-                if (attachmentId && filename) {
-                    previewAttachment(attachmentId, filename);
+                if (attachmentId && /^\d+$/.test(String(attachmentId))) {
+                    openAttachmentPreviewInNewTab(attachmentId);
                 }
             }
 
