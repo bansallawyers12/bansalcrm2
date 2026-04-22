@@ -85,7 +85,9 @@ class EducationEliteInboxService
                 }
             }
         }
-        $list = array_values($out);
+        $list = array_values(array_filter($out, static function (string $addr): bool {
+            return ! str_starts_with($addr, 'noreply@') && ! str_starts_with($addr, 'no-reply@');
+        }));
         sort($list);
 
         return $list;
@@ -243,6 +245,10 @@ class EducationEliteInboxService
             'e.created_at as received_at',
         ]);
 
+        // Exclude automated no-reply addresses — they are system notifications, not real mail
+        $q->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['noreply@%'])
+          ->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['no-reply@%']);
+
         $this->whereSearchOr($q, $search, [
             'e.from_address', 'e.to_address', 'e.subject', 'e.body_text', 'e.body_html',
         ]);
@@ -289,7 +295,9 @@ class EducationEliteInboxService
             'c.subject as subj',
             DB::raw("{$bodyExpr} as body"),
             'c.created_at as received_at',
-        ])->where('c.mail_type', 0);
+        ])->where('c.mail_type', 0)
+          ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['noreply@%'])
+          ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['no-reply@%']);
 
         $like = $this->domainNeedleForLike();
         if ($this->isPostgres()) {

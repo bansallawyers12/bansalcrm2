@@ -469,8 +469,8 @@
                         <i class="fas fa-inbox" aria-hidden="true"></i>
                         <p>No incoming messages</p>
                         <span id="eliteEmptyHint">
-                            Point SendGrid Inbound Parse at the webhook and send from
-                            <strong>@{{ config('crm.education_elite_sender_domain','educationelite.com.au') }}</strong>.
+                            Point SendGrid Inbound Parse at the webhook and send to
+                            <strong>{{ '@' . config('crm.education_elite_sender_domain','educationelite.com.au') }}</strong>.
                         </span>
                     </div>
                 </div>
