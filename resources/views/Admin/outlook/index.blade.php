@@ -516,10 +516,10 @@
                         <input type="text" class="form-control folder-search" placeholder="Search mail...">
                     </div>
                     <select class="filter-select filter-date-range" data-folder="inbox">
-                        <option value="">All time</option>
+                        <option value="" selected>All time</option>
                         <option value="today">Today</option>
                         <option value="7">Last 7 days</option>
-                        <option value="30" selected>Last 30 days</option>
+                        <option value="30">Last 30 days</option>
                         <option value="custom">Custom range</option>
                     </select>
                     <span class="filter-custom-dates filter-custom-inbox" style="display:none;">
@@ -1242,6 +1242,12 @@
         if (sentTab) sentTab.classList.add('active');
         var sentBtn = document.querySelector('.btn-fetch[data-folder="sent"]');
         if (sentBtn) sentBtn.click();
+    } else {
+        // Auto-load inbox on page open so user sees emails without clicking "Get Emails"
+        var inboxAutoBtn = document.querySelector('.btn-fetch[data-folder="inbox"]');
+        if (inboxAutoBtn && !inboxAutoBtn.disabled) {
+            setTimeout(function() { inboxAutoBtn.click(); }, 300);
+        }
     }
 
     document.querySelectorAll('.format-btn').forEach(function(btn) {

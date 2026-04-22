@@ -96,13 +96,14 @@ class EliteEmailController extends Controller
         $emails = [];
         foreach ($query->get() as $row) {
             $emails[] = [
-                'id'      => $row->id,
-                'from'    => $row->from_mail,
-                'to'      => $row->to_mail,
-                'cc'      => $row->cc,
-                'subject' => $row->subject ?: '(No subject)',
-                'body'    => $row->message ?? '',
-                'date'    => $row->created_at->format('d/m/Y g:i A'),
+                'id'         => $row->id,
+                'from'       => $row->from_mail,
+                'to'         => $row->to_mail,
+                'cc'         => $row->cc,
+                'subject'    => $row->subject ?: '(No subject)',
+                'body'       => $row->message ?? '',
+                'date'       => $row->created_at->format('d/m/Y g:i A'),
+                'date_short' => $row->created_at->format('g:i A'),
             ];
         }
 
