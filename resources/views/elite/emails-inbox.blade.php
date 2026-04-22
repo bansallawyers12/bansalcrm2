@@ -130,7 +130,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
 }
 
 /* ── Folder view system (identical to Outlook page) ─────────────────────── */
-.folder-view { flex: 1; display: none !important; flex-direction: column; overflow: hidden; }
+.folder-view { flex: 1; display: none; flex-direction: column; overflow: hidden; }
 .outlook-main.mode-inbox  .view-inbox  { display: flex !important; }
 .outlook-main.mode-sent   .view-sent   { display: flex !important; }
 .outlook-main.mode-drafts .view-drafts { display: flex !important; }
@@ -349,10 +349,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
 
         {{-- ── Sidebar (identical to Admin Outlook) ───────────────────────── --}}
         <aside class="outlook-sidebar">
-            {{-- New Message → goes to full Outlook compose page --}}
-            <a href="{{ route('admin.outlook.index') }}" class="btn-compose">
+            {{-- New Message → opens compose modal inline --}}
+            <button type="button" class="btn-compose" id="eliteBtnCompose">
                 <i class="fas fa-plus" aria-hidden="true"></i> New Message
-            </a>
+            </button>
 
             <nav class="outlook-folders" aria-label="Folders">
                 <button type="button" class="folder-item active" data-view="inbox" id="eliteFolderInbox">
@@ -407,7 +407,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
         <main class="outlook-main mode-inbox" id="eliteMain">
 
             {{-- ── INBOX VIEW (3-col: list + reading pane) ─────────────────── --}}
-            <div class="outlook-triple view-inbox folder-view" id="folderInbox">
+            <div class="folder-view view-inbox" id="folderInbox">
+            <div class="outlook-triple">
 
                 {{-- List col --}}
                 <div class="outlook-list-col">
@@ -492,7 +493,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         </div>
                     </div>
                 </aside>
-            </div>
+            </div>{{-- /outlook-triple --}}
+            </div>{{-- /folder-view view-inbox --}}
 
             {{-- ── SENT VIEW — list + reading pane ──────────────────────── --}}
             <div class="folder-view view-sent" id="folderSent">
@@ -582,7 +584,67 @@ html, body { margin: 0; padding: 0; height: 100%; }
     </div>{{-- /outlook-container --}}
 </div>{{-- /outlook-page --}}
 
-{{-- Sent modal removed — reading pane used instead --}}
+{{-- ── Compose modal ──────────────────────────────────────────────────────── --}}
+<div id="eliteComposeOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1050;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:6px;width:680px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.25);overflow:hidden;">
+        {{-- Modal header --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+            <span style="font-size:15px;font-weight:600;color:#0f172a;">New Message</span>
+            <button type="button" id="eliteComposeClose" style="border:none;background:transparent;font-size:20px;color:#64748b;cursor:pointer;line-height:1;padding:0 4px;" title="Close">&times;</button>
+        </div>
+        {{-- Alert bar (success / error) --}}
+        <div id="eliteComposeAlert" style="display:none;padding:10px 20px;font-size:13px;flex-shrink:0;"></div>
+        {{-- Compose form --}}
+        <form id="eliteComposeForm" action="{{ route('admin.outlook.send') }}" method="POST" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+            @csrf
+            <input type="hidden" name="_elite_compose" value="1">
+            <div style="padding:16px 20px 0;flex-shrink:0;">
+                {{-- From --}}
+                <div style="display:flex;align-items:center;margin-bottom:12px;">
+                    <label style="min-width:56px;font-size:13px;color:#555;">From</label>
+                    <select name="from" id="eliteComposeFrom"
+                            style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
+                        <option value="">Loading senders…</option>
+                    </select>
+                </div>
+                {{-- To --}}
+                <div style="display:flex;align-items:center;margin-bottom:12px;">
+                    <label style="min-width:56px;font-size:13px;color:#555;">To</label>
+                    <input type="email" name="to" id="eliteComposeTo" required placeholder="recipient@example.com"
+                           style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
+                </div>
+                {{-- Cc --}}
+                <div style="display:flex;align-items:center;margin-bottom:12px;">
+                    <label style="min-width:56px;font-size:13px;color:#555;">Cc</label>
+                    <input type="email" name="cc" placeholder="Optional"
+                           style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
+                </div>
+                {{-- Subject --}}
+                <div style="display:flex;align-items:center;margin-bottom:12px;">
+                    <label style="min-width:56px;font-size:13px;color:#555;">Subject</label>
+                    <input type="text" name="subject" required placeholder="Subject"
+                           style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
+                </div>
+            </div>
+            {{-- Body --}}
+            <div style="flex:1;min-height:0;padding:0 20px 20px;display:flex;flex-direction:column;">
+                <textarea name="body" placeholder="Write your message here…"
+                          style="flex:1;min-height:160px;padding:12px;border:1px solid #d4d4d4;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
+            </div>
+            {{-- Footer buttons --}}
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid #e2e8f0;flex-shrink:0;background:#fafafa;">
+                <button type="submit" id="eliteComposeSend"
+                        style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:#0078d4;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <button type="button" id="eliteComposeCancel"
+                        style="padding:9px 16px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @push('scripts')
 <script>
@@ -918,6 +980,108 @@ html, body { margin: 0; padding: 0; height: 100%; }
         }).catch(function () { draftEmpty.style.display = 'flex'; })
           .finally(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Drafts'; });
     });
+
+    /* ═══════════════════════════════════════════════════════════════════════ */
+    /* COMPOSE MODAL                                                             */
+    /* ═══════════════════════════════════════════════════════════════════════ */
+    (function () {
+        var overlay   = document.getElementById('eliteComposeOverlay');
+        var form      = document.getElementById('eliteComposeForm');
+        var alertBar  = document.getElementById('eliteComposeAlert');
+        var sendBtn   = document.getElementById('eliteComposeSend');
+        var fromSel   = document.getElementById('eliteComposeFrom');
+        var SENDERS_URL = @json(route('admin.outlook.senders'));
+
+        var sendersLoaded = false;
+
+        function loadSenders() {
+            if (sendersLoaded) return;
+            fetch(SENDERS_URL, {
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json',
+                           'X-CSRF-TOKEN': tokenMeta ? tokenMeta.getAttribute('content') : '' }
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                var senders = data.senders || [];
+                if (!fromSel) return;
+                fromSel.innerHTML = '';
+                if (senders.length === 0) {
+                    fromSel.innerHTML = '<option value="">No verified senders found</option>';
+                    return;
+                }
+                senders.forEach(function (s) {
+                    var opt = document.createElement('option');
+                    opt.value = s.email;
+                    opt.textContent = s.name && s.name !== s.email ? s.name + ' <' + s.email + '>' : s.email;
+                    if (s.email === data.default_from) opt.selected = true;
+                    fromSel.appendChild(opt);
+                });
+                sendersLoaded = true;
+            }).catch(function () {
+                if (fromSel) fromSel.innerHTML = '<option value="">Could not load senders</option>';
+            });
+        }
+
+        function openModal() {
+            if (form) form.reset();
+            if (alertBar) { alertBar.style.display = 'none'; alertBar.textContent = ''; }
+            if (overlay) { overlay.style.display = 'flex'; }
+            loadSenders();
+            var toInput = document.getElementById('eliteComposeTo');
+            if (toInput) setTimeout(function () { toInput.focus(); }, 50);
+        }
+        function closeModal() {
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        var btnOpen   = document.getElementById('eliteBtnCompose');
+        var btnClose  = document.getElementById('eliteComposeClose');
+        var btnCancel = document.getElementById('eliteComposeCancel');
+        if (btnOpen)   btnOpen.addEventListener('click',   openModal);
+        if (btnClose)  btnClose.addEventListener('click',  closeModal);
+        if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+        if (overlay) {
+            overlay.addEventListener('click', function (ev) {
+                if (ev.target === overlay) closeModal();
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function (ev) {
+                ev.preventDefault();
+                if (alertBar) { alertBar.style.display = 'none'; }
+                if (sendBtn)  { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
+                var fd = new FormData(form);
+                var csrfToken = (tokenMeta ? tokenMeta.getAttribute('content') : '') || '';
+                fetch(form.action, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: fd
+                }).then(function (res) {
+                    return res.json().catch(function () { return { ok: res.ok }; }).then(function (body) {
+                        if (res.ok && body.ok !== false) {
+                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;';
+                            alertBar.textContent = body.message || 'Email sent successfully.';
+                            var prevFrom = fromSel ? fromSel.value : '';
+                            form.reset();
+                            if (fromSel && prevFrom) fromSel.value = prevFrom;
+                            setTimeout(closeModal, 1800);
+                        } else {
+                            var msg = (body && body.message) ? body.message : 'Failed to send. Please try again.';
+                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                            alertBar.textContent = msg;
+                        }
+                    });
+                }).catch(function () {
+                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                    alertBar.textContent = 'Network error. Please check your connection and try again.';
+                }).finally(function () {
+                    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send'; }
+                });
+            });
+        }
+    }());
 
 }());
 </script>

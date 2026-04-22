@@ -471,11 +471,20 @@ class OutlookController extends Controller
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
             }
 
+            if ($request->boolean('_elite_compose') || $request->wantsJson()) {
+                return response()->json(['ok' => true, 'message' => 'Email sent successfully.']);
+            }
+
             return redirect()->route('admin.outlook.index')
                 ->with('success', 'Email sent successfully.')
                 ->with('refresh_sent', true);
         } catch (\Throwable $e) {
             Log::error('Email sending error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            if ($request->boolean('_elite_compose') || $request->wantsJson()) {
+                return response()->json(['ok' => false, 'message' => 'Failed to send email: ' . $e->getMessage()], 500);
+            }
+
             return redirect()->route('admin.outlook.index')
                 ->with('error', 'Failed to send email: ' . $e->getMessage())
                 ->withInput($request->only('from', 'to', 'cc', 'subject', 'body'));
