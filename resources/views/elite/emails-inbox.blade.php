@@ -52,8 +52,8 @@
 
 /* ── Left sidebar — identical to Admin Outlook ──────────────────────────── */
 .outlook-sidebar {
-    width: 200px;
-    min-width: 200px;
+    width: 220px;
+    min-width: 220px;
     background: #fff;
     border-right: 1px solid #d4d4d4;
     display: flex;
@@ -133,9 +133,9 @@
 /* ── 3-col split (inbox only) ───────────────────────────────────────────── */
 .outlook-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .outlook-list-col {
-    width: 360px;
-    min-width: 260px;
-    max-width: 48%;
+    width: 440px;
+    min-width: 300px;
+    max-width: 50%;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -144,7 +144,7 @@
 }
 .outlook-reading {
     flex: 1;
-    min-width: 260px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -153,15 +153,15 @@
 
 /* ── Toolbar ─────────────────────────────────────────────────────────────── */
 .folder-view .inbox-toolbar {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
 }
-.inbox-toolbar .search-wrap { flex: 1; min-width: 140px; max-width: 240px; position: relative; }
+.inbox-toolbar .search-wrap { flex: 1; min-width: 140px; max-width: 220px; position: relative; }
 .inbox-toolbar .search-wrap input {
     width: 100%;
     padding: 8px 12px 8px 36px;

@@ -270,9 +270,9 @@
 /* Sent view: 3-col split (list + reading pane) identical to inbox */
 .sent-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .sent-list-col {
-    width: 360px;
-    min-width: 260px;
-    max-width: 48%;
+    width: 440px;
+    min-width: 300px;
+    max-width: 50%;
     display: flex;
     flex-direction: column;
     border-right: 1px solid #d4d4d4;
@@ -281,7 +281,7 @@
 }
 .sent-reading-col {
     flex: 1;
-    min-width: 260px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     background: #fff;
