@@ -100,37 +100,6 @@
     color: #64748b;
 }
 .elite-sidebar-foot code { font-size: 11px; word-break: break-all; }
-.simulate-panel {
-    border-top: 1px solid #e2e8f0;
-    padding: 12px 14px;
-    background: #fff;
-    max-height: 45vh;
-    overflow-y: auto;
-}
-.simulate-panel h3 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: #334155; }
-.simulate-panel .field { margin-bottom: 10px; }
-.simulate-panel label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
-.simulate-panel input, .simulate-panel textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #d4d4d4;
-    border-radius: 4px;
-    font-size: 13px;
-    box-sizing: border-box;
-}
-.simulate-panel textarea { min-height: 80px; resize: vertical; }
-.simulate-panel .btn-submit {
-    width: 100%;
-    padding: 8px 12px;
-    background: #0078d4;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-}
-.simulate-panel .btn-submit:hover { background: #106ebe; }
 .outlook-main { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .folder-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .inbox-list-heading {
@@ -238,10 +207,6 @@
     background: #e8f5e9;
     color: #2e7d32;
 }
-.email-row--outgoing .email-dir-icon {
-    background: #e3f2fd;
-    color: #1565c0;
-}
 .elite-msg-main { flex: 1; min-width: 0; }
 .elite-msg-line1 {
     display: flex;
@@ -291,18 +256,6 @@
     text-decoration: underline;
     padding: 0;
 }
-.elite-msg-item .email-source-badge {
-    display: inline-block;
-    vertical-align: top;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 9px;
-    font-weight: 600;
-    background: #f1f5f9;
-    color: #475569;
-}
 @media (max-width: 1200px) {
     .outlook-list-col { max-width: 100%; }
     .outlook-reading { min-width: 0; }
@@ -343,34 +296,27 @@
         <aside class="outlook-sidebar">
             <nav class="outlook-folders outlook-account-tree" id="eliteAccountTree" aria-label="Mailboxes and folders">
                 @php
-                    $allInbox = ($eliteInitialAccount ?? 'all') === 'all' && ($eliteInitialFolder ?? 'inbox') === 'inbox';
-                    $allSent = ($eliteInitialAccount ?? 'all') === 'all' && ($eliteInitialFolder ?? 'inbox') === 'sent';
+                    $activeAcct = $eliteInitialAccount ?? 'all';
                 @endphp
-                <div class="elite-account{{ ($eliteInitialAccount ?? 'all') === 'all' ? ' is-picked' : '' }}" data-account="all" id="eliteAccountAll">
+                <div class="elite-account{{ $activeAcct === 'all' ? ' is-picked' : '' }}" data-account="all" id="eliteAccountAll">
                     <div class="elite-account-header">All mailboxes</div>
                     <div class="elite-account-folders">
-                        <button type="button" class="folder-item--nested{{ $allInbox ? ' active' : '' }}" data-account="all" data-folder="inbox" {!! $allInbox ? 'aria-current="page"' : '' !!}>
+                        <button type="button" class="folder-item--nested{{ $activeAcct === 'all' ? ' active' : '' }}"
+                            data-account="all"
+                            {!! $activeAcct === 'all' ? 'aria-current="page"' : '' !!}>
                             <i class="fas fa-inbox" aria-hidden="true"></i> Inbox
-                        </button>
-                        <button type="button" class="folder-item--nested{{ $allSent ? ' active' : '' }}" data-account="all" data-folder="sent" {!! $allSent ? 'aria-current="page"' : '' !!}>
-                            <i class="fas fa-paper-plane" aria-hidden="true"></i> Sent
                         </button>
                     </div>
                 </div>
                 @foreach($eliteMailboxes ?? [] as $mbox)
-                    @php
-                        $mActive = (string)($eliteInitialAccount ?? '') === (string)$mbox;
-                        $mInbox = $mActive && ($eliteInitialFolder ?? 'inbox') === 'inbox';
-                        $mSent = $mActive && ($eliteInitialFolder ?? 'inbox') === 'sent';
-                    @endphp
+                    @php $mActive = $activeAcct === $mbox; @endphp
                     <div class="elite-account{{ $mActive ? ' is-picked' : '' }}" data-account="{{ e($mbox) }}">
                         <div class="elite-account-header" title="{{ e($mbox) }}">{{ e($mbox) }}</div>
                         <div class="elite-account-folders">
-                            <button type="button" class="folder-item--nested{{ $mInbox ? ' active' : '' }}" data-account="{{ e($mbox) }}" data-folder="inbox" {!! $mInbox ? 'aria-current="page"' : '' !!}>
+                            <button type="button" class="folder-item--nested{{ $mActive ? ' active' : '' }}"
+                                data-account="{{ e($mbox) }}"
+                                {!! $mActive ? 'aria-current="page"' : '' !!}>
                                 <i class="fas fa-inbox" aria-hidden="true"></i> Inbox
-                            </button>
-                            <button type="button" class="folder-item--nested{{ $mSent ? ' active' : '' }}" data-account="{{ e($mbox) }}" data-folder="sent" {!! $mSent ? 'aria-current="page"' : '' !!}>
-                                <i class="fas fa-paper-plane" aria-hidden="true"></i> Sent
                             </button>
                         </div>
                     </div>
@@ -384,35 +330,10 @@
                     <div class="mt-2 text-success"><i class="fas fa-lock"></i> Webhook secret is enabled (URL includes <code>?secret=</code>).</div>
                 @endif
             </div>
-            <div class="simulate-panel">
-                <h3><i class="fas fa-flask"></i> Simulate inbound</h3>
-                <form method="post" action="{{ route('elite.emails.simulate') }}">
-                    @csrf
-                    <div class="field">
-                        <label for="sim_from">From</label>
-                        <input id="sim_from" name="from" type="text" required
-                               value="{{ old('from', 'noreply@' . config('crm.education_elite_sender_domain', 'educationelite.com.au')) }}"
-                               placeholder="name@{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}">
-                    </div>
-                    <div class="field">
-                        <label for="sim_to">To (optional)</label>
-                        <input id="sim_to" name="to" type="text" value="{{ old('to') }}" placeholder="recipient@example.com">
-                    </div>
-                    <div class="field">
-                        <label for="sim_subject">Subject</label>
-                        <input id="sim_subject" name="subject" type="text" value="{{ old('subject') }}" placeholder="Subject">
-                    </div>
-                    <div class="field">
-                        <label for="sim_body">Body</label>
-                        <textarea id="sim_body" name="text" placeholder="Plain text body">{{ old('text') }}</textarea>
-                    </div>
-                    <button type="submit" class="btn-submit">Create record</button>
-                </form>
-            </div>
         </aside>
 
         <div class="outlook-triple" id="eliteTriple">
-            <main class="outlook-list-col outlook-main mode-inbox" id="eliteMain">
+            <main class="outlook-list-col outlook-main" id="eliteMain">
                 <div class="folder-view view-inbox" id="folderInbox">
                     <div class="inbox-toolbar">
                         <span class="inbox-list-heading" id="eliteListTitle">Inbox</span>
@@ -452,30 +373,19 @@
                         <ul class="elite-message-list" id="eliteEmailList" role="listbox" aria-label="Message list" aria-multiselectable="false">
                             @forelse($inboxList as $e)
                                 @php
-                                    $dir = (string) ($e['direction'] ?? '');
-                                    $incoming = in_array($dir, ['inbound', 'inbox'], true);
-                                    $rowClass = $incoming ? 'email-row--incoming' : 'email-row--outgoing';
-                                    $iconClass = $incoming ? 'fa-arrow-down' : 'fa-arrow-up';
-                                    $initialF = $eliteInitialFolder ?? 'inbox';
-                                    $lineAddr = $initialF === 'sent' ? ($e['to'] ?? '—') : ($e['from'] ?? '—');
+                                    $lineAddr = $e['from'] ?? '—';
                                     $subj = ($e['subject'] ?? '') !== '' ? $e['subject'] : '(No subject)';
-                                    $dlabel = $e['direction_label'] ?? '';
                                 @endphp
-                                <li class="elite-msg-item {{ $rowClass }}"
+                                <li class="elite-msg-item email-row--incoming"
                                     role="option"
                                     tabindex="0"
-                                    data-id="{{ $e['id'] }}"
-                                    data-direction="{{ e($dir) }}"
-                                    data-direction-label="{{ e($dlabel) }}">
-                                    <span class="email-dir-icon" title="{{ $incoming ? 'Incoming' : 'Outgoing' }}"><i class="fas {{ $iconClass }}"></i></span>
+                                    data-id="{{ $e['id'] }}">
+                                    <span class="email-dir-icon" title="Incoming"><i class="fas fa-arrow-down"></i></span>
                                     <div class="elite-msg-main">
                                         <div class="elite-msg-line1">
                                             <span class="elite-msg-addr">{{ $lineAddr }}</span>
                                             <span class="elite-msg-when">{{ $e['date'] ?? '' }}</span>
                                         </div>
-                                        @if($dlabel !== '')
-                                            <span class="email-source-badge">{{ $dlabel }}</span>
-                                        @endif
                                         <div class="elite-msg-subj">{{ $subj }}</div>
                                     </div>
                                 </li>
@@ -486,7 +396,7 @@
                     <div class="empty-state folder-empty" id="eliteEmpty" style="{{ count($inboxList) ? 'display:none;' : '' }}">
                         <i class="fas fa-inbox" id="eliteEmptyIcon"></i>
                         <p id="eliteEmptyTitle">No incoming messages</p>
-                        <span id="eliteEmptyHint">Point SendGrid Inbound Parse at the webhook, send from <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> per the rules, or use “Simulate inbound”.</span>
+                        <span id="eliteEmptyHint">Point SendGrid Inbound Parse at the webhook and send from <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> per the rules.</span>
                     </div>
                 </div>
             </main>
@@ -518,327 +428,315 @@
 @push('scripts')
 <script>
 (function() {
+    'use strict';
     var listUrl = @json(route('elite.emails.inbox'));
-    var activeFolder = @json($eliteInitialFolder ?? 'inbox');
     var activeAccount = @json($eliteInitialAccount ?? 'all');
-    var view = document.getElementById('folderInbox');
-    if (!view) { return; }
-    var listEl = document.getElementById('eliteEmailList');
-    var listWrap = document.getElementById('eliteListWrap');
-    var emptyEl = document.getElementById('eliteEmpty');
-    var emptyIcon = document.getElementById('eliteEmptyIcon');
-    var emptyTitle = document.getElementById('eliteEmptyTitle');
-    var emptyHint = document.getElementById('eliteEmptyHint');
-    var listTitle = document.getElementById('eliteListTitle');
-    var readingEmpty = document.getElementById('eliteReadingEmpty');
-    var readingContent = document.getElementById('eliteReadingContent');
-    var tokenMeta = document.querySelector('meta[name="csrf-token"]');
-    var initialJson = document.getElementById('elite-emails-initial');
-    var initialMap = {};
-    try {
-        initialMap = initialJson ? JSON.parse(initialJson.textContent || '{}') : {};
-    } catch (err) { initialMap = {}; }
 
-    var fetchErrEl = document.getElementById('eliteFetchError');
+    var view       = document.getElementById('folderInbox');
+    if (!view) return;
+    var listEl     = document.getElementById('eliteEmailList');
+    if (!listEl) return;
+    var listWrap   = document.getElementById('eliteListWrap');
+    var emptyEl    = document.getElementById('eliteEmpty');
+    var emptyIcon  = document.getElementById('eliteEmptyIcon');
+    var emptyTitle = document.getElementById('eliteEmptyTitle');
+    var emptyHint  = document.getElementById('eliteEmptyHint');
+    var listTitle  = document.getElementById('eliteListTitle');
+    var readingEmpty   = document.getElementById('eliteReadingEmpty');
+    var readingContent = document.getElementById('eliteReadingContent');
+    var readingScroll  = document.getElementById('eliteReadingScroll');
+    var tokenMeta  = document.querySelector('meta[name="csrf-token"]');
+
+    var initialJson = document.getElementById('elite-emails-initial');
+    var initialMap  = {};
+    try { initialMap = initialJson ? JSON.parse(initialJson.textContent || '{}') : {}; }
+    catch (e) { initialMap = {}; }
+
+    // ── error bar ────────────────────────────────────────────────────────────
+    var fetchErrEl   = document.getElementById('eliteFetchError');
     var fetchErrText = document.getElementById('eliteFetchErrorText');
     function showFetchError(msg) {
         if (fetchErrText) fetchErrText.textContent = msg;
-        if (fetchErrEl) fetchErrEl.classList.add('show');
+        if (fetchErrEl)   fetchErrEl.classList.add('show');
     }
     function clearFetchError() {
         if (fetchErrEl) fetchErrEl.classList.remove('show');
     }
-    var fetchErrDismiss = document.getElementById('eliteFetchErrorDismiss');
-    if (fetchErrDismiss) fetchErrDismiss.addEventListener('click', clearFetchError);
+    var dismissBtn = document.getElementById('eliteFetchErrorDismiss');
+    if (dismissBtn) dismissBtn.addEventListener('click', clearFetchError);
 
+    // ── HTML body detection (proper tag regex, not just < >) ─────────────────
     function safeSrcdoc(html) {
         return String(html).replace(/<\/iframe/gi, '<\\/iframe');
     }
+    var HTML_TAG_RE = /<([a-z][a-z0-9]*)\b[^>]*>/i;
     function looksLikeHtml(body) {
-        if (!body || typeof body !== 'string') return false;
-        var t = body.trim();
-        return t.indexOf('<') !== -1 && t.indexOf('>') !== -1;
+        return typeof body === 'string' && HTML_TAG_RE.test(body.trim());
     }
 
+    // ── reading pane ─────────────────────────────────────────────────────────
     function clearReading() {
         if (readingContent) readingContent.style.display = 'none';
-        if (readingEmpty) readingEmpty.style.display = 'flex';
-        var frame = document.getElementById('eliteReadFrame');
-        if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; }
+        if (readingEmpty)   readingEmpty.style.display   = 'flex';
+        var frame  = document.getElementById('eliteReadFrame');
         var bodyEl = document.getElementById('eliteReadBody');
+        if (frame)  { frame.srcdoc = '';   frame.style.display  = 'none'; }
         if (bodyEl) { bodyEl.textContent = ''; bodyEl.style.display = ''; }
-        if (listEl) {
-            listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function(n) { n.classList.remove('is-selected'); });
-        }
+        listEl.querySelectorAll('.elite-msg-item.is-selected')
+              .forEach(function(n) { n.classList.remove('is-selected'); });
     }
 
     function showReading(payload) {
-        if (readingEmpty) readingEmpty.style.display = 'none';
+        if (readingEmpty)   readingEmpty.style.display   = 'none';
         if (readingContent) readingContent.style.display = 'flex';
+
+        // scroll to top so a long previous email doesn't leave position mid-way
+        if (readingScroll) readingScroll.scrollTop = 0;
+
         var typeRow = document.getElementById('eliteReadTypeRow');
-        var typeEl = document.getElementById('eliteReadType');
-        var t = payload.direction_label || '';
+        var typeEl  = document.getElementById('eliteReadType');
         if (typeRow && typeEl) {
-            typeEl.textContent = t;
-            typeRow.style.display = t ? 'block' : 'none';
+            typeEl.textContent        = payload.direction_label || '';
+            typeRow.style.display     = payload.direction_label ? 'block' : 'none';
         }
-        var subj = (payload.subject && String(payload.subject).length) ? payload.subject : '(No subject)';
+
         var subjEl = document.getElementById('eliteReadSubject');
-        if (subjEl) subjEl.textContent = subj;
+        if (subjEl) subjEl.textContent = payload.subject || '(No subject)';
+
         document.getElementById('eliteReadFrom').textContent = payload.from || '';
-        document.getElementById('eliteReadTo').textContent = payload.to || '';
-        document.getElementById('eliteReadDate').textContent = payload.date || '';
-        var body = payload.body || '';
+        document.getElementById('eliteReadTo').textContent   = payload.to   || '';
+        document.getElementById('eliteReadDate').textContent = payload.date  || '';
+
+        var body    = payload.body || '';
         var plainEl = document.getElementById('eliteReadBody');
-        var frame = document.getElementById('eliteReadFrame');
+        var frame   = document.getElementById('eliteReadFrame');
         if (plainEl && frame) {
             if (looksLikeHtml(body)) {
-                plainEl.textContent = '';
-                plainEl.style.display = 'none';
-                frame.style.display = 'block';
-                frame.srcdoc = safeSrcdoc(body);
+                plainEl.textContent   = ''; plainEl.style.display = 'none';
+                frame.style.display   = 'block';
+                frame.srcdoc          = safeSrcdoc(body);
             } else {
-                frame.srcdoc = '';
-                frame.style.display = 'none';
+                frame.srcdoc         = ''; frame.style.display   = 'none';
                 plainEl.style.display = '';
-                plainEl.textContent = body;
+                plainEl.textContent   = body;
             }
         }
     }
 
-    function updateListContextTitle() {
+    // ── list title ───────────────────────────────────────────────────────────
+    function updateListTitle() {
         if (!listTitle) return;
-        var folderLabel = activeFolder === 'sent' ? 'Sent Items' : 'Inbox';
-        if (activeAccount && activeAccount !== 'all') {
-            listTitle.textContent = folderLabel + ' \u2014 ' + activeAccount;
-        } else {
-            listTitle.textContent = folderLabel;
-        }
+        listTitle.textContent = (activeAccount && activeAccount !== 'all')
+            ? 'Inbox \u2014 ' + activeAccount
+            : 'Inbox';
     }
 
-    function showEmptyState(folder, message) {
+    // ── empty / non-empty states ──────────────────────────────────────────────
+    function showEmptyState(message) {
         clearReading();
-        if (listWrap) listWrap.style.display = 'none';
-        if (!emptyEl) return;
+        if (listWrap)   listWrap.style.display = 'none';
+        if (!emptyEl)   return;
         emptyEl.style.display = 'flex';
-        if (emptyIcon) {
-            emptyIcon.className = 'fas ' + (folder === 'sent' ? 'fa-paper-plane' : 'fa-inbox');
-        }
-        if (emptyTitle) emptyTitle.textContent = folder === 'sent' ? 'No sent messages' : 'No incoming messages';
-        if (emptyHint) emptyHint.textContent = message || '';
+        if (emptyIcon)  emptyIcon.className = 'fas fa-inbox';
+        if (emptyTitle) emptyTitle.textContent = 'No incoming messages';
+        if (emptyHint)  emptyHint.textContent  = message || '';
     }
-
     function hideEmptyState() {
         if (listWrap) listWrap.style.display = '';
-        if (emptyEl) emptyEl.style.display = 'none';
+        if (emptyEl)  emptyEl.style.display  = 'none';
     }
 
-    function buildEmailRow(e, folder) {
+    // ── build list row (JS, after fetch) ────────────────────────────────────
+    function buildEmailRow(e) {
         var li = document.createElement('li');
-        var direction = e.direction || '';
-        var incoming = folder !== 'sent' && (direction === 'inbound' || direction === 'inbox');
-        li.className = 'elite-msg-item ' + (incoming ? 'email-row--incoming' : 'email-row--outgoing');
+        li.className = 'elite-msg-item email-row--incoming';
         li.setAttribute('role', 'option');
         li.setAttribute('tabindex', '0');
         li.dataset.id = e.id || '';
-        li.dataset.direction = direction;
-        li.dataset.directionLabel = e.direction_label || '';
 
         var iconWrap = document.createElement('span');
         iconWrap.className = 'email-dir-icon';
-        iconWrap.title = incoming ? 'Incoming' : 'Outgoing';
+        iconWrap.title = 'Incoming';
         var ic = document.createElement('i');
-        ic.className = 'fas ' + (incoming ? 'fa-arrow-down' : 'fa-arrow-up');
+        ic.className = 'fas fa-arrow-down';
         iconWrap.appendChild(ic);
 
-        var main = document.createElement('div');
+        var main  = document.createElement('div');
         main.className = 'elite-msg-main';
+
         var line1 = document.createElement('div');
         line1.className = 'elite-msg-line1';
         var addr = document.createElement('span');
-        addr.className = 'elite-msg-addr';
-        addr.textContent = folder === 'sent' ? (e.to || '—') : (e.from || '—');
+        addr.className   = 'elite-msg-addr';
+        addr.textContent = e.from || '—';
         var when = document.createElement('span');
-        when.className = 'elite-msg-when';
+        when.className   = 'elite-msg-when';
         when.textContent = e.date || '';
         line1.appendChild(addr);
         line1.appendChild(when);
         main.appendChild(line1);
-        var dlabel = e.direction_label || '';
-        if (dlabel) {
-            var badge = document.createElement('span');
-            badge.className = 'email-source-badge';
-            badge.textContent = dlabel;
-            main.appendChild(badge);
-        }
+
         var subj = document.createElement('div');
-        subj.className = 'elite-msg-subj';
+        subj.className   = 'elite-msg-subj';
         subj.textContent = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
         main.appendChild(subj);
+
         li.appendChild(iconWrap);
         li.appendChild(main);
         return li;
     }
 
+    // ── row activation ───────────────────────────────────────────────────────
     function onRowActivate(row) {
-        if (!row || !listEl || !listEl.contains(row)) return;
-        var id = row.dataset.id;
-        var payload = (id && initialMap[id]) ? initialMap[id] : null;
+        if (!row || !listEl.contains(row)) return;
+        var payload = initialMap[row.dataset.id];
         if (!payload) return;
-        listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function(n) { n.classList.remove('is-selected'); });
+        listEl.querySelectorAll('.elite-msg-item.is-selected')
+              .forEach(function(n) { n.classList.remove('is-selected'); });
         row.classList.add('is-selected');
         showReading({
-            from: payload.from || '',
-            to: payload.to || '',
-            subject: (payload.subject && String(payload.subject).length) ? payload.subject : '(No subject)',
-            date: payload.date || '',
-            body: payload.body || '',
+            from:            payload.from            || '',
+            to:              payload.to              || '',
+            subject:         payload.subject         || '',
+            date:            payload.date            || '',
+            body:            payload.body            || '',
             direction_label: payload.direction_label || ''
         });
     }
 
-    if (listEl) {
-        listEl.addEventListener('click', function(ev) {
-            var row = ev.target.closest('.elite-msg-item');
-            if (!row || !listEl.contains(row)) return;
-            onRowActivate(row);
-        });
-        listEl.addEventListener('keydown', function(ev) {
-            if (ev.key !== 'Enter' && ev.key !== ' ') return;
-            var row = ev.target.closest('.elite-msg-item');
-            if (!row || !listEl.contains(row)) return;
-            ev.preventDefault();
-            onRowActivate(row);
-        });
-    }
+    listEl.addEventListener('click', function(ev) {
+        var row = ev.target.closest('.elite-msg-item');
+        if (row) onRowActivate(row);
+    });
+    listEl.addEventListener('keydown', function(ev) {
+        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+        var row = ev.target.closest('.elite-msg-item');
+        if (!row || !listEl.contains(row)) return;
+        ev.preventDefault();
+        onRowActivate(row);
+    });
 
-    function syncFolderTree(activeBtn) {
+    // ── sidebar account tree ─────────────────────────────────────────────────
+    function syncAccountTree(activeBtn) {
         document.querySelectorAll('#eliteAccountTree .folder-item--nested').forEach(function(b) {
-            if (b === activeBtn) {
-                b.setAttribute('aria-current', 'page');
-                b.classList.add('active');
-            } else {
-                b.removeAttribute('aria-current');
-                b.classList.remove('active');
-            }
+            var isActive = (b === activeBtn);
+            b.classList.toggle('active', isActive);
+            if (isActive) b.setAttribute('aria-current', 'page');
+            else          b.removeAttribute('aria-current');
         });
         if (!activeBtn) return;
         var acc = activeBtn.getAttribute('data-account') || 'all';
         document.querySelectorAll('#eliteAccountTree .elite-account').forEach(function(block) {
-            var id = block.getAttribute('data-account') || 'all';
-            block.classList.toggle('is-picked', id === acc);
+            block.classList.toggle('is-picked', (block.getAttribute('data-account') || 'all') === acc);
         });
     }
-    var initialNavBtn = document.querySelector('#eliteAccountTree .folder-item--nested.active');
-    if (initialNavBtn) syncFolderTree(initialNavBtn);
 
-    function getDateRangeParams() {
-        var rangeSel = view.querySelector('.filter-date-range');
-        var fromInput = view.querySelector('.filter-date-from');
-        var toInput = view.querySelector('.filter-date-to');
-        if (!rangeSel) return { date_from: '', date_to: '' };
-        var val = rangeSel.value;
-        var today = new Date();
-        today.setHours(0, 0, 0, 0);
-        var dateFrom = '', dateTo = today.toISOString().slice(0, 10);
-        if (val === 'custom' && fromInput && toInput) {
-            dateFrom = fromInput.value || '';
-            dateTo = toInput.value || '';
-        } else if (val === 'today') {
-            dateFrom = dateTo = today.toISOString().slice(0, 10);
-        } else if (val === '7' || val === '30') {
-            var from = new Date(today);
-            from.setDate(from.getDate() - parseInt(val, 10));
-            dateFrom = from.toISOString().slice(0, 10);
-        } else if (val === '') {
-            dateFrom = '';
-            dateTo = '';
-        }
-        return { date_from: dateFrom, date_to: dateTo };
-    }
-
-    view.querySelector('.filter-date-range').addEventListener('change', function() {
-        var customSpan = view.querySelector('.filter-custom-inbox');
-        if (customSpan) customSpan.style.display = this.value === 'custom' ? 'inline-flex' : 'none';
-    });
-
-    function fetchEmails() {
-        if (!view || !listEl) return;
-        clearFetchError();
-        clearReading();
-        var btn = view.querySelector('.btn-fetch');
-        if (!btn) return;
-        var searchInput = view.querySelector('.folder-search');
-        var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
-        var dr = getDateRangeParams();
-        var sortSel = view.querySelector('.filter-sort');
-        var sort = (sortSel && sortSel.value) ? sortSel.value : 'newest';
-        var params = ['folder=' + encodeURIComponent(activeFolder)];
-        if (search) params.push('search=' + search);
-        if (dr.date_from) params.push('date_from=' + encodeURIComponent(dr.date_from));
-        if (dr.date_to) params.push('date_to=' + encodeURIComponent(dr.date_to));
-        params.push('sort=' + sort);
-        params.push('account=' + encodeURIComponent(activeAccount || 'all'));
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Loading...';
-        fetch(listUrl + '?' + params.join('&'), {
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': tokenMeta ? tokenMeta.getAttribute('content') : ''
-            }
-        })
-            .then(function(r) {
-                if (!r.ok) {
-                    throw new Error('Server returned ' + r.status);
-                }
-                return r.json();
-            })
-            .then(function(data) {
-                clearFetchError();
-                if (data.folder) activeFolder = data.folder;
-                if (data && Object.prototype.hasOwnProperty.call(data, 'account')) {
-                    activeAccount = data.account;
-                }
-                updateListContextTitle();
-                listEl.innerHTML = '';
-                initialMap = {};
-                var rows = data.emails || [];
-                rows.forEach(function(e) {
-                    if (e.id) initialMap[e.id] = e;
-                });
-                if (rows.length === 0) {
-                    showEmptyState(activeFolder, data.message || '');
-                    return;
-                }
-                hideEmptyState();
-                rows.forEach(function(e) {
-                    listEl.appendChild(buildEmailRow(e, activeFolder));
-                });
-            })
-            .catch(function() {
-                showFetchError('Could not refresh the list. Check your connection or try again.');
-            })
-            .finally(function() {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt" aria-hidden="true"></i> Get Emails';
-            });
-    }
+    var initialBtn = document.querySelector('#eliteAccountTree .folder-item--nested.active');
+    if (initialBtn) syncAccountTree(initialBtn);
 
     document.querySelectorAll('#eliteAccountTree .folder-item--nested').forEach(function(btn) {
         btn.addEventListener('click', function() {
             activeAccount = btn.getAttribute('data-account') || 'all';
-            activeFolder = btn.getAttribute('data-folder') || 'inbox';
-            syncFolderTree(btn);
-            updateListContextTitle();
+            syncAccountTree(btn);
+            updateListTitle();
             fetchEmails();
         });
     });
 
-    view.querySelector('.btn-fetch').addEventListener('click', fetchEmails);
+    // ── date range helpers ────────────────────────────────────────────────────
+    var dateRangeSel = view.querySelector('.filter-date-range');
+    var customSpan   = view.querySelector('.filter-custom-inbox');
+    if (dateRangeSel) {
+        dateRangeSel.addEventListener('change', function() {
+            if (customSpan) customSpan.style.display = this.value === 'custom' ? 'inline-flex' : 'none';
+        });
+    }
 
-    updateListContextTitle();
+    function getDateRangeParams() {
+        if (!dateRangeSel) return { date_from: '', date_to: '' };
+        var val       = dateRangeSel.value;
+        var fromInput = view.querySelector('.filter-date-from');
+        var toInput   = view.querySelector('.filter-date-to');
+        var today     = new Date();
+        today.setHours(0, 0, 0, 0);
+        var todayStr = today.toISOString().slice(0, 10);
+        if (val === 'custom' && fromInput && toInput) {
+            return { date_from: fromInput.value || '', date_to: toInput.value || '' };
+        }
+        if (val === 'today')  return { date_from: todayStr, date_to: todayStr };
+        if (val === '7' || val === '30') {
+            var from = new Date(today);
+            from.setDate(from.getDate() - parseInt(val, 10));
+            return { date_from: from.toISOString().slice(0, 10), date_to: todayStr };
+        }
+        return { date_from: '', date_to: '' };
+    }
+
+    // ── fetch ─────────────────────────────────────────────────────────────────
+    function fetchEmails() {
+        clearFetchError();
+        clearReading();
+        var btn = view.querySelector('.btn-fetch');
+        if (!btn) return;
+
+        var searchInput = view.querySelector('.folder-search');
+        var search      = (searchInput && searchInput.value.trim()) ? encodeURIComponent(searchInput.value.trim()) : '';
+        var dr          = getDateRangeParams();
+        var sortSel     = view.querySelector('.filter-sort');
+        var sort        = (sortSel && sortSel.value) || 'newest';
+
+        var params = ['folder=inbox'];
+        if (search)          params.push('search='    + search);
+        if (dr.date_from)    params.push('date_from=' + encodeURIComponent(dr.date_from));
+        if (dr.date_to)      params.push('date_to='   + encodeURIComponent(dr.date_to));
+        params.push('sort='    + sort);
+        params.push('account=' + encodeURIComponent(activeAccount || 'all'));
+
+        btn.disabled   = true;
+        btn.innerHTML  = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Loading...';
+
+        fetch(listUrl + '?' + params.join('&'), {
+            credentials: 'same-origin',
+            headers: {
+                'Accept':           'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN':     tokenMeta ? tokenMeta.getAttribute('content') : ''
+            }
+        })
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function(data) {
+            clearFetchError();
+            if (data && data.account) activeAccount = data.account;
+            updateListTitle();
+
+            listEl.innerHTML = '';
+            initialMap = {};
+            var rows = data.emails || [];
+            rows.forEach(function(e) { if (e.id) initialMap[e.id] = e; });
+
+            if (rows.length === 0) {
+                showEmptyState(data.message || '');
+            } else {
+                hideEmptyState();
+                rows.forEach(function(e) { listEl.appendChild(buildEmailRow(e)); });
+            }
+        })
+        .catch(function() {
+            showFetchError('Could not refresh. Check your connection and try again.');
+        })
+        .finally(function() {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt" aria-hidden="true"></i> Get Emails';
+        });
+    }
+
+    var fetchBtn = view.querySelector('.btn-fetch');
+    if (fetchBtn) fetchBtn.addEventListener('click', fetchEmails);
+
+    updateListTitle();
 })();
 </script>
 @endpush

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\EliteEmail;
 use App\Services\EducationEliteInboxService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,13 +13,13 @@ class EliteEmailController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:admin')->only(['index', 'inbox', 'simulate']);
+        $this->middleware('auth:admin')->only(['index', 'inbox']);
     }
 
     public function index()
     {
         $service = EducationEliteInboxService::make();
-        $items = $service->getMergedInbox('', '', '', 'newest', 200, 'inbox', null);
+        $items = $service->getInbox('', '', '', 'newest', 200, 'inbox', null);
 
         $webhookUrl = $this->inboundWebhookUrl();
 
@@ -35,6 +34,7 @@ class EliteEmailController extends Controller
 
     /**
      * JSON list for the Elite inbox (SendGrid Inbound Parse / elite_emails only).
+     * folder is always treated as 'inbox'; 'sent' returns [] immediately in the service.
      */
     public function inbox(Request $request)
     {
@@ -45,26 +45,19 @@ class EliteEmailController extends Controller
         if (! in_array($sort, ['newest', 'oldest'], true)) {
             $sort = 'newest';
         }
-        $folder = $request->get('folder', 'inbox');
-        if (! in_array($folder, ['inbox', 'sent'], true)) {
-            $folder = 'inbox';
-        }
         $accountRaw = (string) $request->get('account', 'all');
         $account = ($accountRaw === 'all' || $accountRaw === '') ? null : $accountRaw;
 
         $service = EducationEliteInboxService::make();
-        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500, $folder, $account);
-        $mailboxes = $service->listMailboxes();
+        $emails = $service->getInbox($search, $dateFrom, $dateTo, $sort, 500, 'inbox', $account);
         $normalized = $service->normalizeAccountFilter($account);
 
         return response()->json([
             'emails' => $emails,
-            'folder' => $folder,
-            'account' => $normalized ? $normalized : 'all',
-            'accounts' => $mailboxes,
-            'sent_groups' => [],
-            'filter_options' => ['from_list' => [], 'to_list' => []],
-            'message' => $service->emptyListMessage($folder),
+            'folder' => 'inbox',
+            'account' => $normalized ?? 'all',
+            'accounts' => $service->listMailboxes(),
+            'message' => $service->emptyListMessage('inbox'),
         ]);
     }
 
@@ -75,15 +68,7 @@ class EliteEmailController extends Controller
     {
         $this->assertInboundSecret($request);
 
-        return $this->persistInbound($request, asWebhook: true);
-    }
-
-    /**
-     * Staff-only test post (CSRF protected — not in CSRF except list).
-     */
-    public function simulate(Request $request): JsonResponse|RedirectResponse
-    {
-        return $this->persistInbound($request, asWebhook: false);
+        return $this->persistInbound($request);
     }
 
     private function assertInboundSecret(Request $request): void
@@ -101,7 +86,7 @@ class EliteEmailController extends Controller
         }
     }
 
-    private function persistInbound(Request $request, bool $asWebhook): JsonResponse|RedirectResponse
+    private function persistInbound(Request $request): JsonResponse
     {
         $fromAddress = $this->resolveFromAddress($request);
         $fromRaw = $request->input('from')
@@ -113,11 +98,7 @@ class EliteEmailController extends Controller
 
             $msg = 'Sender must be an @'.config('crm.education_elite_sender_domain', 'educationelite.com.au').' address.';
 
-            if ($asWebhook || $request->expectsJson()) {
-                return response()->json(['ok' => false, 'error' => $msg], 422);
-            }
-
-            return back()->with('error', 'Sender must be an allowed Education Elite address.');
+            return response()->json(['ok' => false, 'error' => $msg], 422);
         }
 
         $subject = $request->input('subject') ?? $request->input('Subject');
@@ -141,11 +122,7 @@ class EliteEmailController extends Controller
             'payload' => $payload,
         ]);
 
-        if ($asWebhook || $request->expectsJson()) {
-            return response()->json(['ok' => true, 'id' => $record->id]);
-        }
-
-        return back()->with('success', 'Email recorded.');
+        return response()->json(['ok' => true, 'id' => $record->id]);
     }
 
     /**

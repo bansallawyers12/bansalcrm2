@@ -27,28 +27,25 @@ class EducationEliteInboxService
     }
 
     /**
-     * @return list<string> Lowercase mailboxes at the Elite domain, sorted, deduplicated.
+     * @return list<string> Lowercase mailboxes discovered in elite_emails, sorted, deduplicated.
      */
     public function listMailboxes(): array
     {
-        if ($this->domain === '') {
+        if ($this->domain === '' || ! Schema::hasTable('elite_emails')) {
             return [];
         }
 
         $like = $this->domainNeedleForLike();
         $chunks = [];
-        $driver = DB::getDriverName();
 
-        if (Schema::hasTable('elite_emails')) {
-            foreach (['from_address', 'to_address'] as $col) {
-                $q = DB::table('elite_emails')->whereNotNull($col)->where($col, '!=', '');
-                if ($driver === 'pgsql') {
-                    $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
-                } else {
-                    $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
-                }
-                $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
+        foreach (['from_address', 'to_address'] as $col) {
+            $q = DB::table('elite_emails')->whereNotNull($col)->where($col, '!=', '');
+            if ($this->isPostgres()) {
+                $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
+            } else {
+                $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
             }
+            $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
         }
 
         return $this->dedupeMailboxes($chunks);
@@ -84,7 +81,7 @@ class EducationEliteInboxService
     }
 
     /**
-     * Returns null to mean “all mailboxes” (no per-account filter).
+     * Returns null to mean "all mailboxes" (no per-account filter).
      */
     public function normalizeAccountFilter(?string $account): ?string
     {
@@ -106,21 +103,6 @@ class EducationEliteInboxService
     }
 
     /**
-     * True if the free-text field contains an address at the Elite domain (Option A).
-     */
-    public function fieldMentionsElite(?string $value): bool
-    {
-        if ($value === null || $value === '') {
-            return false;
-        }
-        if ($this->domain === '') {
-            return false;
-        }
-
-        return str_contains(strtolower($value), '@'.$this->domain);
-    }
-
-    /**
      * Escape user text for LIKE / ILIKE with operator … ESCAPE '!'.
      */
     private function escapeCharMetaForLikeExclamation(string $value): string
@@ -136,11 +118,57 @@ class EducationEliteInboxService
     }
 
     /**
-     * SendGrid Inbound Parse only (`elite_emails`). No CRM `emails` merge.
+     * SendGrid Inbound Parse only (`elite_emails`). Folder is always 'inbox';
+     * 'sent' has no records and returns [] immediately.
      *
-     * @param  string|null  $folder  'inbox' = inbound only; 'sent' = none (inbound store has no sent rows)
-     * @param  string|null  $account  Lowercase *@{$domain} address to filter, or null for all mailboxes
+     * @param  string|null  $folder  'inbox' or null → all inbound; 'sent' → always empty
+     * @param  string|null  $account  Normalised *@{domain} address to filter to-address, or null for all
      * @return array<int, array<string, mixed>>
+     */
+    public function getInbox(
+        string $search,
+        string $dateFrom,
+        string $dateTo,
+        string $sort,
+        int $limit,
+        ?string $folder = null,
+        ?string $account = null
+    ): array {
+        // elite_emails only stores inbound; sent folder is always empty
+        if ($folder === 'sent') {
+            return [];
+        }
+
+        $search = trim($search);
+        $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
+        $limit = max(1, min(1000, $limit));
+
+        $q = $this->buildQuery($search, $dateFrom, $dateTo);
+
+        $acc = $this->normalizeAccountFilter($account);
+        if ($acc !== null) {
+            // Use contains match (%acc%) so it handles display name format: "Name <email>"
+            $accLike = '%'.$acc.'%';
+            $q->whereRaw($this->isPostgres()
+                ? "LOWER(COALESCE(e.to_address, '')) LIKE ?"
+                : "LOWER(COALESCE(e.to_address, '')) LIKE ?",
+                [$accLike]
+            );
+        }
+
+        $q->orderBy('e.created_at', $orderDir)->orderBy('e.id', 'desc');
+        $rows = $q->limit($limit)->get();
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = $this->rowToItem($row);
+        }
+
+        return $out;
+    }
+
+    /**
+     * @deprecated Use getInbox(). Kept for any legacy callers; delegates to getInbox().
      */
     public function getMergedInbox(
         string $search,
@@ -151,75 +179,55 @@ class EducationEliteInboxService
         ?string $folder = null,
         ?string $account = null
     ): array {
-        $search = trim($search);
-        $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
-        $limit = max(1, min(1000, $limit));
+        return $this->getInbox($search, $dateFrom, $dateTo, $sort, $limit, $folder, $account);
+    }
 
-        $merged = $this->eliteSubquery($search, $dateFrom, $dateTo);
+    private function buildQuery(string $search, string $dateFrom, string $dateTo): Builder
+    {
+        $q = DB::table('elite_emails as e')->select([
+            'e.id',
+            'e.from_address as from_addr',
+            'e.to_address as to_addr',
+            'e.subject as subj',
+            DB::raw('COALESCE(e.body_html, e.body_text) as body'),
+            'e.created_at as received_at',
+        ]);
 
-        $outer = DB::query()->fromSub($merged, 'merged')
-            ->orderBy('sort_at', $orderDir)
-            ->orderBy('src', 'desc')
-            ->orderBy('ref_id', 'desc');
+        $this->whereSearchOr($q, $search, [
+            'e.from_address', 'e.to_address', 'e.subject', 'e.body_text', 'e.body_html',
+        ]);
 
-        $folderNorm = $folder === 'sent' ? 'sent' : ($folder === 'inbox' ? 'inbox' : null);
-        if ($folderNorm === 'inbox') {
-            $outer->where('direction', 'inbound');
-        } elseif ($folderNorm === 'sent') {
-            $outer->where('direction', 'sent');
-        }
+        $this->whereDateOnColumn($q, 'e.created_at', $dateFrom, $dateTo);
 
-        $acc = $this->normalizeAccountFilter($account);
-        if ($acc !== null) {
-            $accLike = '%'.$acc;
-            if ($folderNorm === 'inbox') {
-                $outer->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", [$accLike]);
-            } elseif ($folderNorm === 'sent') {
-                $outer->whereRaw("LOWER(COALESCE(merged.from_addr, '')) LIKE ?", [$accLike]);
-            }
-        }
-
-        $rows = $outer->limit($limit)->get();
-
-        $out = [];
-        foreach ($rows as $row) {
-            $out[] = $this->rowToItem($row);
-        }
-
-        return $out;
+        return $q;
     }
 
     private function rowToItem(object $row): array
     {
-        $src = (string) ($row->src ?? '');
-        $refId = (int) ($row->ref_id ?? 0);
-        $display = $row->display_at ?? $row->sort_at ?? null;
-        if ($display === null) {
+        $received = $row->received_at ?? null;
+        if ($received === null) {
             $dateStr = '';
         } else {
-            $c = $display instanceof Carbon
-                ? $display
-                : Carbon::parse((string) $display);
+            $c = $received instanceof Carbon
+                ? $received
+                : Carbon::parse((string) $received);
             $dateStr = $c->format('d/m/Y g:i A');
         }
 
-        $dir = (string) ($row->direction ?? 'inbox');
-        $dlabel = (string) ($row->direction_label ?? '');
-
         return [
-            'id' => $src.'-'.$refId,
+            'id' => 'elite-'.(int) $row->id,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
             'body' => (string) ($row->body ?? ''),
             'date' => $dateStr,
-            'direction' => $dir,
-            'direction_label' => $dlabel,
+            'direction' => 'inbound',
+            'direction_label' => 'Inbound (SendGrid)',
         ];
     }
 
     /**
-     * @param  array<int, string>  $orColumns  e.g. "e.from_address" (include table alias)
+     * @param  array<int, string>  $orColumns  Column expressions including table alias, e.g. "e.from_address"
      */
     private function whereSearchOr(Builder $q, string $search, array $orColumns): void
     {
@@ -260,37 +268,10 @@ class EducationEliteInboxService
         }
     }
 
-    private function eliteSubquery(string $search, string $dateFrom, string $dateTo): Builder
-    {
-        $q = DB::table('elite_emails as e')->selectRaw("
-            'elite' as src,
-            e.id as ref_id,
-            e.from_address as from_addr,
-            e.to_address as to_addr,
-            e.subject as subj,
-            COALESCE(e.body_html, e.body_text) as body,
-            e.created_at as sort_at,
-            e.created_at as display_at,
-            'inbound' as direction,
-            'Inbound (SendGrid)' as direction_label
-        ");
-
-        $this->whereSearchOr($q, $search, [
-            'e.from_address', 'e.to_address', 'e.subject', 'e.body_text', 'e.body_html',
-        ]);
-
-        $this->whereDateOnColumn($q, 'e.created_at', $dateFrom, $dateTo);
-
-        return $q;
-    }
-
     public function emptyListMessage(?string $folder = null): string
     {
         $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
-        if ($folder === 'sent') {
-            return 'This view only shows messages received through SendGrid Inbound Parse. Sent/outbound mail is not listed here. Use the CRM or SendGrid for outbound history.';
-        }
 
-        return 'No incoming mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook below, or use “Simulate inbound” to test.';
+        return 'No inbound mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook URL shown below, or use "Simulate inbound" to test.';
     }
 }
