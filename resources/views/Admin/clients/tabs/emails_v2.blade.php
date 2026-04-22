@@ -2,7 +2,7 @@
 
 @php
     // Cache-busting version for emails_v2 assets (bump when deploying CSS/JS changes to production)
-    $emailsV2AssetVer = 8;
+    $emailsV2AssetVer = 9;
 @endphp
 <!-- Email V2 Styles -->
 <link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
