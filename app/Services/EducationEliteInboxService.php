@@ -192,10 +192,14 @@ class EducationEliteInboxService
 
         $acc = $this->normalizeAccountFilter($account);
         if ($acc !== null) {
+            $accLike = '%'.$acc;
             if ($folderNorm === 'inbox') {
-                $outer->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", ['%'.$acc]);
+                $outer->where(function ($w) use ($accLike) {
+                    $w->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", [$accLike])
+                        ->orWhereRaw("LOWER(COALESCE(merged.cc_addr, '')) LIKE ?", [$accLike]);
+                });
             } elseif ($folderNorm === 'sent') {
-                $outer->whereRaw("LOWER(COALESCE(merged.from_addr, '')) LIKE ?", ['%'.$acc]);
+                $outer->whereRaw("LOWER(COALESCE(merged.from_addr, '')) LIKE ?", [$accLike]);
             }
         }
 
@@ -282,11 +286,13 @@ class EducationEliteInboxService
 
     private function eliteSubquery(string $search, string $dateFrom, string $dateTo): Builder
     {
+        $ccNull = $this->isPostgres() ? 'CAST(NULL AS TEXT)' : 'NULL';
         $q = DB::table('elite_emails as e')->selectRaw("
             'elite' as src,
             e.id as ref_id,
             e.from_address as from_addr,
             e.to_address as to_addr,
+            {$ccNull} as cc_addr,
             e.subject as subj,
             COALESCE(e.body_html, e.body_text) as body,
             e.created_at as sort_at,
@@ -314,6 +320,11 @@ class EducationEliteInboxService
 
         $mailCase = "CASE WHEN m.mail_type IN (1, '1') THEN 'sent' ELSE 'inbox' END";
         $labelCase = "CASE WHEN m.mail_type IN (1, '1') THEN 'Sent (CRM)' ELSE 'Inbox (CRM)' END";
+        if (Schema::hasColumn('emails', 'cc')) {
+            $ccCol = 'm.cc';
+        } else {
+            $ccCol = $this->isPostgres() ? 'CAST(NULL AS TEXT)' : 'NULL';
+        }
 
         $q = DB::table('emails as m')
             ->selectRaw("
@@ -321,6 +332,7 @@ class EducationEliteInboxService
                 m.id as ref_id,
                 m.from_mail as from_addr,
                 m.to_mail as to_addr,
+                {$ccCol} as cc_addr,
                 m.subject as subj,
                 {$bodyCol} as body,
                 COALESCE(m.received_date, m.created_at) as sort_at,
@@ -332,23 +344,29 @@ class EducationEliteInboxService
         if ($this->isPostgres()) {
             $q->where(function (Builder $w) use ($needle) {
                 $w->where('m.from_mail', 'ilike', $needle)
-                    ->orWhere('m.to_mail', 'ilike', $needle)
-                    ->orWhere('m.cc', 'ilike', $needle);
+                    ->orWhere('m.to_mail', 'ilike', $needle);
+                if (Schema::hasColumn('emails', 'cc')) {
+                    $w->orWhere('m.cc', 'ilike', $needle);
+                }
             });
         } else {
             $n = $needle;
             $q->where(function (Builder $w) use ($n) {
                 $w->whereRaw('LOWER(COALESCE(m.from_mail, ?)) LIKE LOWER(?)', ['', $n])
-                    ->orWhereRaw('LOWER(COALESCE(m.to_mail, ?)) LIKE LOWER(?)', ['', $n])
-                    ->orWhereRaw('LOWER(COALESCE(m.cc, ?)) LIKE LOWER(?)', ['', $n]);
+                    ->orWhereRaw('LOWER(COALESCE(m.to_mail, ?)) LIKE LOWER(?)', ['', $n]);
+                if (Schema::hasColumn('emails', 'cc')) {
+                    $w->orWhereRaw('LOWER(COALESCE(m.cc, ?)) LIKE LOWER(?)', ['', $n]);
+                }
             });
         }
 
         $q->whereIn('m.mail_type', [0, 1, '0', '1']);
 
-        $this->whereSearchOr($q, $search, [
-            'm.from_mail', 'm.to_mail', 'm.cc', 'm.subject', 'm.message',
-        ]);
+        $searchCols = ['m.from_mail', 'm.to_mail', 'm.subject', 'm.message'];
+        if (Schema::hasColumn('emails', 'cc')) {
+            array_splice($searchCols, 2, 0, ['m.cc']);
+        }
+        $this->whereSearchOr($q, $search, $searchCols);
 
         $this->whereDateOnColumn(
             $q,

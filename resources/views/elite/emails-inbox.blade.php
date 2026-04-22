@@ -449,14 +449,15 @@
                     @endphp
                     <script type="application/json" id="elite-emails-initial">@json($eliteEmailMap)</script>
                     <div class="email-list-wrap" id="eliteListWrap" style="{{ count($inboxList) ? '' : 'display:none;' }}">
-                        <ul class="elite-message-list" id="eliteEmailList">
+                        <ul class="elite-message-list" id="eliteEmailList" role="listbox" aria-label="Message list" aria-multiselectable="false">
                             @forelse($inboxList as $e)
                                 @php
                                     $dir = (string) ($e['direction'] ?? '');
                                     $incoming = in_array($dir, ['inbound', 'inbox'], true);
                                     $rowClass = $incoming ? 'email-row--incoming' : 'email-row--outgoing';
                                     $iconClass = $incoming ? 'fa-arrow-down' : 'fa-arrow-up';
-                                    $lineAddr = $e['from'] ?? '—';
+                                    $initialF = $eliteInitialFolder ?? 'inbox';
+                                    $lineAddr = $initialF === 'sent' ? ($e['to'] ?? '—') : ($e['from'] ?? '—');
                                     $subj = ($e['subject'] ?? '') !== '' ? $e['subject'] : '(No subject)';
                                     $dlabel = $e['direction_label'] ?? '';
                                 @endphp
@@ -506,7 +507,7 @@
                             <div><span class="email-meta-label">Date:</span> <span id="eliteReadDate"></span></div>
                         </div>
                         <div class="outlook-read-body elite-read-plain" id="eliteReadBody"></div>
-                        <iframe id="eliteReadFrame" class="outlook-read-frame" title="HTML message" sandbox="" style="display:none;"></iframe>
+                        <iframe id="eliteReadFrame" class="outlook-read-frame" title="HTML message" sandbox="allow-same-origin" style="display:none;"></iframe>
                     </div>
                 </div>
             </aside>
@@ -521,6 +522,7 @@
     var activeFolder = @json($eliteInitialFolder ?? 'inbox');
     var activeAccount = @json($eliteInitialAccount ?? 'all');
     var view = document.getElementById('folderInbox');
+    if (!view) { return; }
     var listEl = document.getElementById('eliteEmailList');
     var listWrap = document.getElementById('eliteListWrap');
     var emptyEl = document.getElementById('eliteEmpty');
@@ -617,6 +619,7 @@
     function showEmptyState(folder, message) {
         clearReading();
         if (listWrap) listWrap.style.display = 'none';
+        if (!emptyEl) return;
         emptyEl.style.display = 'flex';
         if (emptyIcon) {
             emptyIcon.className = 'fas ' + (folder === 'sent' ? 'fa-paper-plane' : 'fa-inbox');
@@ -627,7 +630,7 @@
 
     function hideEmptyState() {
         if (listWrap) listWrap.style.display = '';
-        emptyEl.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'none';
     }
 
     function buildEmailRow(e, folder) {
@@ -678,7 +681,7 @@
     }
 
     function onRowActivate(row) {
-        if (!row || !listEl.contains(row)) return;
+        if (!row || !listEl || !listEl.contains(row)) return;
         var id = row.dataset.id;
         var payload = (id && initialMap[id]) ? initialMap[id] : null;
         if (!payload) return;
@@ -760,9 +763,11 @@
     });
 
     function fetchEmails() {
+        if (!view || !listEl) return;
         clearFetchError();
         clearReading();
         var btn = view.querySelector('.btn-fetch');
+        if (!btn) return;
         var searchInput = view.querySelector('.folder-search');
         var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
         var dr = getDateRangeParams();
@@ -793,7 +798,9 @@
             .then(function(data) {
                 clearFetchError();
                 if (data.folder) activeFolder = data.folder;
-                if (data.account) activeAccount = data.account;
+                if (data && Object.prototype.hasOwnProperty.call(data, 'account')) {
+                    activeAccount = data.account;
+                }
                 updateListContextTitle();
                 listEl.innerHTML = '';
                 initialMap = {};
