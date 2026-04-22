@@ -230,7 +230,7 @@
             <div class="elite-sidebar-foot">
                 <div>Inbound POST URL (SendGrid Inbound Parse):</div>
                 <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
-                <div class="mt-2">Only senders at <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> are stored.</div>
+                <div class="mt-2">This list includes <strong>inbound</strong> (webhook) and <strong>sent/received in CRM</strong> where <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> appears in From, To, or CC. Webhook posts still require the sender to be <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong>.</div>
                 @if(config('crm.education_elite_inbound_secret'))
                     <div class="mt-2 text-success"><i class="fas fa-lock"></i> Webhook secret is enabled (URL includes <code>?secret=</code>).</div>
                 @endif
@@ -289,31 +289,25 @@
                     </button>
                 </div>
                 @php
-                    $eliteEmailMap = $emails->keyBy('id')->map(function ($row) {
-                        return [
-                            'from' => $row->from_address,
-                            'to' => $row->to_address,
-                            'subject' => $row->subject ?: '(No subject)',
-                            'date' => $row->created_at->format('d/m/Y g:i A'),
-                            'body' => $row->body_html ?: $row->body_text,
-                        ];
-                    });
+                    $inboxList = $eliteInboxItems ?? [];
+                    $eliteEmailMap = collect($inboxList)->keyBy('id');
                 @endphp
                 <script type="application/json" id="elite-emails-initial">@json($eliteEmailMap)</script>
                 <ul class="email-list folder-list" id="eliteEmailList">
-                    @forelse($emails as $e)
-                        <li class="email-row" role="button" tabindex="0" data-id="{{ $e->id }}">
-                            <span class="email-sender">{{ $e->from_address }}</span>
-                            <span class="email-subject">{{ $e->subject ?: '(No subject)' }}</span>
-                            <span class="email-date">{{ $e->created_at->format('d/m/Y g:i A') }}</span>
+                    @forelse($inboxList as $e)
+                        <li class="email-row" role="button" tabindex="0" data-id="{{ $e['id'] }}"
+                            data-direction-label="{{ e($e['direction_label'] ?? '') }}">
+                            <span class="email-sender">{{ $e['from'] ?? '—' }}</span>
+                            <span class="email-subject">@if(!empty($e['direction_label']))<span class="me-1 text-muted small">[{{ $e['direction_label'] }}]</span>@endif{{ ($e['subject'] ?? '') ?: '(No subject)' }}</span>
+                            <span class="email-date">{{ $e['date'] ?? '' }}</span>
                         </li>
                     @empty
                     @endforelse
                 </ul>
-                <div class="empty-state folder-empty" id="eliteEmpty" style="{{ $emails->isEmpty() ? '' : 'display:none;' }}">
+                <div class="empty-state folder-empty" id="eliteEmpty" style="{{ count($inboxList) ? 'display:none;' : '' }}">
                     <i class="fas fa-inbox"></i>
                     <p>Your inbox is empty</p>
-                    <span>POST inbound mail to the webhook URL, or use “Simulate inbound”. Only senders at <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> are accepted.</span>
+                    <span>Send or receive mail for <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> in the CRM, post inbound to the webhook, or use “Simulate inbound”.</span>
                 </div>
             </div>
         </main>
@@ -326,6 +320,7 @@
                 <button type="button" class="modal-close" id="eliteEmailModalClose" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="email-meta-row" id="eliteEmailTypeRow"><span class="email-meta-label">Type:</span> <span id="eliteEmailType"></span></div>
                 <div class="email-meta-row"><span class="email-meta-label">From:</span> <span id="eliteEmailFrom"></span></div>
                 <div class="email-meta-row"><span class="email-meta-label">To:</span> <span id="eliteEmailTo"></span></div>
                 <div class="email-meta-row"><span class="email-meta-label">Subject:</span> <span id="eliteEmailSubject"></span></div>
@@ -355,6 +350,13 @@
     } catch (err) { initialMap = {}; }
 
     function openModal(payload) {
+        var typeRow = document.getElementById('eliteEmailTypeRow');
+        var typeEl = document.getElementById('eliteEmailType');
+        var t = payload.direction_label || '';
+        if (typeRow && typeEl) {
+            typeEl.textContent = t;
+            typeRow.style.display = t ? '' : 'none';
+        }
         document.getElementById('eliteEmailFrom').textContent = payload.from || '';
         document.getElementById('eliteEmailTo').textContent = payload.to || '';
         document.getElementById('eliteEmailSubject').textContent = payload.subject || '';
@@ -395,7 +397,8 @@
                         to: row.dataset.to || '',
                         subject: row.dataset.subject || '',
                         date: row.dataset.date || '',
-                        body: row.dataset.body || ''
+                        body: row.dataset.body || '',
+                        direction_label: row.dataset.directionLabel || ''
                     };
                 }
                 openModal({
@@ -403,7 +406,8 @@
                     to: payload.to || '',
                     subject: payload.subject || '',
                     date: payload.date || '',
-                    body: payload.body || ''
+                    body: payload.body || '',
+                    direction_label: payload.direction_label || ''
                 });
             });
         });
@@ -478,21 +482,41 @@
                     li.setAttribute('role', 'button');
                     li.setAttribute('tabindex', '0');
                     var body = e.body || '';
+                    var dlabel = e.direction_label || '';
+                    li.dataset.id = e.id || '';
                     li.dataset.from = e.from || '';
                     li.dataset.to = e.to || '';
-                    li.dataset.subject = e.subject || '(No subject)';
+                    li.dataset.subject = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
                     li.dataset.date = e.date || '';
                     li.dataset.body = body;
-                    li.innerHTML = '<span class="email-sender">' + (e.from || '') + '</span>' +
-                        '<span class="email-subject">' + (e.subject || '(No subject)') + '</span>' +
-                        '<span class="email-date">' + (e.date || '') + '</span>';
+                    li.dataset.directionLabel = dlabel;
+                    var fromSpan = document.createElement('span');
+                    fromSpan.className = 'email-sender';
+                    fromSpan.textContent = e.from || '';
+                    var subjSpan = document.createElement('span');
+                    subjSpan.className = 'email-subject';
+                    if (dlabel) {
+                        var typeSpan = document.createElement('span');
+                        typeSpan.className = 'me-1 text-muted small';
+                        typeSpan.textContent = '[' + dlabel + '] ';
+                        subjSpan.appendChild(typeSpan);
+                    }
+                    var subjText = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
+                    subjSpan.appendChild(document.createTextNode(subjText));
+                    var dateSpan = document.createElement('span');
+                    dateSpan.className = 'email-date';
+                    dateSpan.textContent = e.date || '';
+                    li.appendChild(fromSpan);
+                    li.appendChild(subjSpan);
+                    li.appendChild(dateSpan);
                     li.addEventListener('click', function() {
                         openModal({
                             from: li.dataset.from,
                             to: li.dataset.to,
                             subject: li.dataset.subject,
                             date: li.dataset.date,
-                            body: li.dataset.body
+                            body: li.dataset.body,
+                            direction_label: dlabel
                         });
                     });
                     listEl.appendChild(li);

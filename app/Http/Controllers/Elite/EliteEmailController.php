@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Elite;
 
 use App\Http\Controllers\Controller;
 use App\Models\EliteEmail;
+use App\Services\EducationEliteInboxService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,14 +19,15 @@ class EliteEmailController extends Controller
 
     public function index()
     {
-        $emails = EliteEmail::query()
-            ->orderByDesc('created_at')
-            ->limit(200)
-            ->get();
+        $service = EducationEliteInboxService::make();
+        $items = $service->getMergedInbox('', '', '', 'newest', 200);
 
         $webhookUrl = $this->inboundWebhookUrl();
 
-        return view('elite.emails-inbox', compact('emails', 'webhookUrl'));
+        return view('elite.emails-inbox', [
+            'eliteInboxItems' => $items,
+            'webhookUrl' => $webhookUrl,
+        ]);
     }
 
     /**
@@ -38,46 +40,14 @@ class EliteEmailController extends Controller
         $dateTo = $request->get('date_to', '');
         $sort = $request->get('sort', 'newest');
 
-        $query = EliteEmail::query();
-
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('from_address', 'like', '%' . $search . '%')
-                    ->orWhere('to_address', 'like', '%' . $search . '%')
-                    ->orWhere('subject', 'like', '%' . $search . '%')
-                    ->orWhere('body_text', 'like', '%' . $search . '%');
-            });
-        }
-        if ($dateFrom !== '') {
-            $query->whereDate('created_at', '>=', $dateFrom);
-        }
-        if ($dateTo !== '') {
-            $query->whereDate('created_at', '<=', $dateTo);
-        }
-
-        $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
-        $query->orderBy('created_at', $sortDir);
-
-        $list = $query->limit(500)->get();
-        $emails = [];
-        foreach ($list as $item) {
-            $emails[] = [
-                'id' => $item->id,
-                'from' => $item->from_address,
-                'to' => $item->to_address,
-                'subject' => $item->subject,
-                'body' => $item->body_html ?: $item->body_text,
-                'date' => $item->created_at->format('d/m/Y g:i A'),
-            ];
-        }
-
-        $domain = config('crm.education_elite_sender_domain', 'educationelite.com.au');
+        $service = EducationEliteInboxService::make();
+        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500);
 
         return response()->json([
             'emails' => $emails,
             'sent_groups' => [],
             'filter_options' => ['from_list' => [], 'to_list' => []],
-            'message' => 'No messages from @' . $domain . ' yet. POST inbound mail to the webhook URL or use “Simulate inbound”.',
+            'message' => $service->emptyListMessage(),
         ]);
     }
 
