@@ -51,21 +51,6 @@ class EducationEliteInboxService
             }
         }
 
-        if (Schema::hasTable('emails')) {
-            foreach (['from_mail', 'to_mail', 'cc'] as $col) {
-                if (! Schema::hasColumn('emails', $col)) {
-                    continue;
-                }
-                $q = DB::table('emails as m')->whereNotNull('m.'.$col)->where('m.'.$col, '!=', '');
-                if ($this->isPostgres()) {
-                    $q->where('m.'.$col, 'ilike', $like);
-                } else {
-                    $q->whereRaw('LOWER(m.'.$col.') LIKE ?', [strtolower($like)]);
-                }
-                $chunks = array_merge($chunks, $q->distinct()->pluck('m.'.$col)->all());
-            }
-        }
-
         return $this->dedupeMailboxes($chunks);
     }
 
@@ -151,10 +136,9 @@ class EducationEliteInboxService
     }
 
     /**
-     * Inbound (SendGrid) + CRM (Option A), merged in SQL so ORDER BY and LIMIT
-     * apply to the combined result.
+     * SendGrid Inbound Parse only (`elite_emails`). No CRM `emails` merge.
      *
-     * @param  string|null  $folder  'inbox' (inbound + CRM inbox), 'sent' (CRM sent only), or null for all
+     * @param  string|null  $folder  'inbox' = inbound only; 'sent' = none (inbound store has no sent rows)
      * @param  string|null  $account  Lowercase *@{$domain} address to filter, or null for all mailboxes
      * @return array<int, array<string, mixed>>
      */
@@ -171,12 +155,7 @@ class EducationEliteInboxService
         $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
         $limit = max(1, min(1000, $limit));
 
-        $eliteQ = $this->eliteSubquery($search, $dateFrom, $dateTo);
-        if ($this->domain === '') {
-            $merged = $eliteQ;
-        } else {
-            $merged = $eliteQ->unionAll($this->crmSubquery($search, $dateFrom, $dateTo));
-        }
+        $merged = $this->eliteSubquery($search, $dateFrom, $dateTo);
 
         $outer = DB::query()->fromSub($merged, 'merged')
             ->orderBy('sort_at', $orderDir)
@@ -185,7 +164,7 @@ class EducationEliteInboxService
 
         $folderNorm = $folder === 'sent' ? 'sent' : ($folder === 'inbox' ? 'inbox' : null);
         if ($folderNorm === 'inbox') {
-            $outer->whereIn('direction', ['inbound', 'inbox']);
+            $outer->where('direction', 'inbound');
         } elseif ($folderNorm === 'sent') {
             $outer->where('direction', 'sent');
         }
@@ -194,10 +173,7 @@ class EducationEliteInboxService
         if ($acc !== null) {
             $accLike = '%'.$acc;
             if ($folderNorm === 'inbox') {
-                $outer->where(function ($w) use ($accLike) {
-                    $w->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", [$accLike])
-                        ->orWhereRaw("LOWER(COALESCE(merged.cc_addr, '')) LIKE ?", [$accLike]);
-                });
+                $outer->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", [$accLike]);
             } elseif ($folderNorm === 'sent') {
                 $outer->whereRaw("LOWER(COALESCE(merged.from_addr, '')) LIKE ?", [$accLike]);
             }
@@ -286,13 +262,11 @@ class EducationEliteInboxService
 
     private function eliteSubquery(string $search, string $dateFrom, string $dateTo): Builder
     {
-        $ccNull = $this->isPostgres() ? 'CAST(NULL AS TEXT)' : 'NULL';
         $q = DB::table('elite_emails as e')->selectRaw("
             'elite' as src,
             e.id as ref_id,
             e.from_address as from_addr,
             e.to_address as to_addr,
-            {$ccNull} as cc_addr,
             e.subject as subj,
             COALESCE(e.body_html, e.body_text) as body,
             e.created_at as sort_at,
@@ -310,82 +284,13 @@ class EducationEliteInboxService
         return $q;
     }
 
-    private function crmSubquery(string $search, string $dateFrom, string $dateTo): Builder
-    {
-        $needle = $this->domainNeedleForLike();
-        // `text_preview` may exist on the model but not in all DBs; use `message` only.
-        $bodyCol = $this->isPostgres()
-            ? 'TRIM(m.message::text)'
-            : 'TRIM(m.message)';
-
-        $mailCase = "CASE WHEN m.mail_type IN (1, '1') THEN 'sent' ELSE 'inbox' END";
-        $labelCase = "CASE WHEN m.mail_type IN (1, '1') THEN 'Sent (CRM)' ELSE 'Inbox (CRM)' END";
-        if (Schema::hasColumn('emails', 'cc')) {
-            $ccCol = 'm.cc';
-        } else {
-            $ccCol = $this->isPostgres() ? 'CAST(NULL AS TEXT)' : 'NULL';
-        }
-
-        $q = DB::table('emails as m')
-            ->selectRaw("
-                'crm' as src,
-                m.id as ref_id,
-                m.from_mail as from_addr,
-                m.to_mail as to_addr,
-                {$ccCol} as cc_addr,
-                m.subject as subj,
-                {$bodyCol} as body,
-                COALESCE(m.received_date, m.created_at) as sort_at,
-                COALESCE(m.received_date, m.created_at) as display_at,
-                {$mailCase} as direction,
-                {$labelCase} as direction_label
-            ");
-
-        if ($this->isPostgres()) {
-            $q->where(function (Builder $w) use ($needle) {
-                $w->where('m.from_mail', 'ilike', $needle)
-                    ->orWhere('m.to_mail', 'ilike', $needle);
-                if (Schema::hasColumn('emails', 'cc')) {
-                    $w->orWhere('m.cc', 'ilike', $needle);
-                }
-            });
-        } else {
-            $n = $needle;
-            $q->where(function (Builder $w) use ($n) {
-                $w->whereRaw('LOWER(COALESCE(m.from_mail, ?)) LIKE LOWER(?)', ['', $n])
-                    ->orWhereRaw('LOWER(COALESCE(m.to_mail, ?)) LIKE LOWER(?)', ['', $n]);
-                if (Schema::hasColumn('emails', 'cc')) {
-                    $w->orWhereRaw('LOWER(COALESCE(m.cc, ?)) LIKE LOWER(?)', ['', $n]);
-                }
-            });
-        }
-
-        $q->whereIn('m.mail_type', [0, 1, '0', '1']);
-
-        $searchCols = ['m.from_mail', 'm.to_mail', 'm.subject', 'm.message'];
-        if (Schema::hasColumn('emails', 'cc')) {
-            array_splice($searchCols, 2, 0, ['m.cc']);
-        }
-        $this->whereSearchOr($q, $search, $searchCols);
-
-        $this->whereDateOnColumn(
-            $q,
-            'COALESCE(m.received_date, m.created_at)',
-            $dateFrom,
-            $dateTo
-        );
-
-        return $q;
-    }
-
     public function emptyListMessage(?string $folder = null): string
     {
         $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
         if ($folder === 'sent') {
-            return 'No sent items for '.$mention.' yet. Outbound mail logged in the CRM appears when '.$mention.' is in From, To, or CC.';
+            return 'This view only shows messages received through SendGrid Inbound Parse. Sent/outbound mail is not listed here. Use the CRM or SendGrid for outbound history.';
         }
 
-        return 'No incoming mail for '.$mention.' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
-            .' CRM inbox rows appear when '.$mention.' is in From, To, or CC.';
+        return 'No incoming mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook below, or use “Simulate inbound” to test.';
     }
 }

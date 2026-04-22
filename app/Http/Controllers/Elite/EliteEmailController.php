@@ -34,7 +34,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * JSON list for the inbox UI (same shape as admin Outlook inbox folder).
+     * JSON list for the Elite inbox (SendGrid Inbound Parse / elite_emails only).
      */
     public function inbox(Request $request)
     {

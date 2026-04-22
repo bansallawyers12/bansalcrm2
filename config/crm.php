@@ -31,6 +31,8 @@ return [
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |
+    | The Elite inbox UI lists only SendGrid Inbound Parse rows (elite_emails), not CRM mail.
+    |
     | education_elite_sender_domain — only this domain may appear in From
     | (e.g. educationelite.com.au → accepts *@educationelite.com.au).
     |

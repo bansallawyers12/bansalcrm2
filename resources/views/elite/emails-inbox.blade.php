@@ -379,7 +379,7 @@
             <div class="elite-sidebar-foot">
                 <div>Inbound POST URL (SendGrid Inbound Parse):</div>
                 <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
-                <div class="mt-2">This list includes <strong>inbound</strong> (webhook) and <strong>sent/received in CRM</strong> where <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> appears in From, To, or CC. Webhook posts still require the sender to be <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong>.</div>
+                <div class="mt-2">This list shows only <strong>SendGrid Inbound Parse</strong> messages stored via the webhook. Outbound/CRM email is not included. Inbound <strong>From</strong> must be <strong>@<span>{{ config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</span></strong> (see controller rules).</div>
                 @if(config('crm.education_elite_inbound_secret'))
                     <div class="mt-2 text-success"><i class="fas fa-lock"></i> Webhook secret is enabled (URL includes <code>?secret=</code>).</div>
                 @endif
@@ -486,7 +486,7 @@
                     <div class="empty-state folder-empty" id="eliteEmpty" style="{{ count($inboxList) ? 'display:none;' : '' }}">
                         <i class="fas fa-inbox" id="eliteEmptyIcon"></i>
                         <p id="eliteEmptyTitle">No incoming messages</p>
-                        <span id="eliteEmptyHint">Send or receive mail for <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> in the CRM, post inbound to the webhook, or use “Simulate inbound”.</span>
+                        <span id="eliteEmptyHint">Point SendGrid Inbound Parse at the webhook, send from <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> per the rules, or use “Simulate inbound”.</span>
                     </div>
                 </div>
             </main>
