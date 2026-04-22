@@ -20,13 +20,15 @@ class EliteEmailController extends Controller
     public function index()
     {
         $service = EducationEliteInboxService::make();
-        $items = $service->getMergedInbox('', '', '', 'newest', 200, 'inbox');
+        $items = $service->getMergedInbox('', '', '', 'newest', 200, 'inbox', null);
 
         $webhookUrl = $this->inboundWebhookUrl();
 
         return view('elite.emails-inbox', [
             'eliteInboxItems' => $items,
             'eliteInitialFolder' => 'inbox',
+            'eliteInitialAccount' => 'all',
+            'eliteMailboxes' => $service->listMailboxes(),
             'webhookUrl' => $webhookUrl,
         ]);
     }
@@ -47,13 +49,19 @@ class EliteEmailController extends Controller
         if (! in_array($folder, ['inbox', 'sent'], true)) {
             $folder = 'inbox';
         }
+        $accountRaw = (string) $request->get('account', 'all');
+        $account = ($accountRaw === 'all' || $accountRaw === '') ? null : $accountRaw;
 
         $service = EducationEliteInboxService::make();
-        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500, $folder);
+        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500, $folder, $account);
+        $mailboxes = $service->listMailboxes();
+        $normalized = $service->normalizeAccountFilter($account);
 
         return response()->json([
             'emails' => $emails,
             'folder' => $folder,
+            'account' => $normalized ? $normalized : 'all',
+            'accounts' => $mailboxes,
             'sent_groups' => [],
             'filter_options' => ['from_list' => [], 'to_list' => []],
             'message' => $service->emptyListMessage($folder),
@@ -103,7 +111,7 @@ class EliteEmailController extends Controller
         if (! $fromAddress || ! $this->isEliteSender($fromAddress)) {
             Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'ip' => $request->ip()]);
 
-            $msg = 'Sender must be an @' . config('crm.education_elite_sender_domain', 'educationelite.com.au') . ' address.';
+            $msg = 'Sender must be an @'.config('crm.education_elite_sender_domain', 'educationelite.com.au').' address.';
 
             if ($asWebhook || $request->expectsJson()) {
                 return response()->json(['ok' => false, 'error' => $msg], 422);
@@ -200,7 +208,7 @@ class EliteEmailController extends Controller
         $url = url('/elite/emails');
         $secret = (string) config('crm.education_elite_inbound_secret', '');
         if ($secret !== '') {
-            $url .= '?secret=' . urlencode($secret);
+            $url .= '?secret='.urlencode($secret);
         }
 
         return $url;
@@ -228,6 +236,6 @@ class EliteEmailController extends Controller
         $domain = strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'));
         $domain = ltrim($domain, '@');
 
-        return str_ends_with(strtolower($email), '@' . $domain);
+        return str_ends_with(strtolower($email), '@'.$domain);
     }
 }

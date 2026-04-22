@@ -5,13 +5,13 @@ namespace App\Services;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class EducationEliteInboxService
 {
     public function __construct(
         private readonly string $domain = ''
-    ) {
-    }
+    ) {}
 
     public static function make(): self
     {
@@ -23,7 +23,101 @@ class EducationEliteInboxService
 
     public function domainNeedleForLike(): string
     {
-        return '%@' . $this->domain;
+        return '%@'.$this->domain;
+    }
+
+    /**
+     * @return list<string> Lowercase mailboxes at the Elite domain, sorted, deduplicated.
+     */
+    public function listMailboxes(): array
+    {
+        if ($this->domain === '') {
+            return [];
+        }
+
+        $like = $this->domainNeedleForLike();
+        $chunks = [];
+        $driver = DB::getDriverName();
+
+        if (Schema::hasTable('elite_emails')) {
+            foreach (['from_address', 'to_address'] as $col) {
+                $q = DB::table('elite_emails')->whereNotNull($col)->where($col, '!=', '');
+                if ($driver === 'pgsql') {
+                    $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
+                } else {
+                    $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
+                }
+                $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
+            }
+        }
+
+        if (Schema::hasTable('emails')) {
+            foreach (['from_mail', 'to_mail', 'cc'] as $col) {
+                if (! Schema::hasColumn('emails', $col)) {
+                    continue;
+                }
+                $q = DB::table('emails as m')->whereNotNull('m.'.$col)->where('m.'.$col, '!=', '');
+                if ($this->isPostgres()) {
+                    $q->where('m.'.$col, 'ilike', $like);
+                } else {
+                    $q->whereRaw('LOWER(m.'.$col.') LIKE ?', [strtolower($like)]);
+                }
+                $chunks = array_merge($chunks, $q->distinct()->pluck('m.'.$col)->all());
+            }
+        }
+
+        return $this->dedupeMailboxes($chunks);
+    }
+
+    /**
+     * @param  list<string|null>  $raw
+     * @return list<string>
+     */
+    private function dedupeMailboxes(array $raw): array
+    {
+        if ($this->domain === '') {
+            return [];
+        }
+        $domainQ = preg_quote($this->domain, '/');
+        $re = '/[a-z0-9._%+\-]+@'.$domainQ.'/i';
+        $out = [];
+        foreach ($raw as $r) {
+            if ($r === null || $r === '') {
+                continue;
+            }
+            if (preg_match_all($re, (string) $r, $m)) {
+                foreach ($m[0] as $addr) {
+                    $a = strtolower((string) $addr);
+                    $out[$a] = $a;
+                }
+            }
+        }
+        $list = array_values($out);
+        sort($list);
+
+        return $list;
+    }
+
+    /**
+     * Returns null to mean “all mailboxes” (no per-account filter).
+     */
+    public function normalizeAccountFilter(?string $account): ?string
+    {
+        if ($this->domain === '' || $account === null) {
+            return null;
+        }
+        $a = strtolower(trim($account));
+        if ($a === '' || $a === 'all' || $a === '*') {
+            return null;
+        }
+        if (! str_ends_with($a, '@'.$this->domain)) {
+            return null;
+        }
+        if (! filter_var($a, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        return $a;
     }
 
     /**
@@ -38,7 +132,7 @@ class EducationEliteInboxService
             return false;
         }
 
-        return str_contains(strtolower($value), '@' . $this->domain);
+        return str_contains(strtolower($value), '@'.$this->domain);
     }
 
     /**
@@ -61,6 +155,7 @@ class EducationEliteInboxService
      * apply to the combined result.
      *
      * @param  string|null  $folder  'inbox' (inbound + CRM inbox), 'sent' (CRM sent only), or null for all
+     * @param  string|null  $account  Lowercase *@{$domain} address to filter, or null for all mailboxes
      * @return array<int, array<string, mixed>>
      */
     public function getMergedInbox(
@@ -69,7 +164,8 @@ class EducationEliteInboxService
         string $dateTo,
         string $sort,
         int $limit,
-        ?string $folder = null
+        ?string $folder = null,
+        ?string $account = null
     ): array {
         $search = trim($search);
         $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
@@ -92,6 +188,15 @@ class EducationEliteInboxService
             $outer->whereIn('direction', ['inbound', 'inbox']);
         } elseif ($folderNorm === 'sent') {
             $outer->where('direction', 'sent');
+        }
+
+        $acc = $this->normalizeAccountFilter($account);
+        if ($acc !== null) {
+            if ($folderNorm === 'inbox') {
+                $outer->whereRaw("LOWER(COALESCE(merged.to_addr, '')) LIKE ?", ['%'.$acc]);
+            } elseif ($folderNorm === 'sent') {
+                $outer->whereRaw("LOWER(COALESCE(merged.from_addr, '')) LIKE ?", ['%'.$acc]);
+            }
         }
 
         $rows = $outer->limit($limit)->get();
@@ -122,7 +227,7 @@ class EducationEliteInboxService
         $dlabel = (string) ($row->direction_label ?? '');
 
         return [
-            'id' => $src . '-' . $refId,
+            'id' => $src.'-'.$refId,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
@@ -143,7 +248,7 @@ class EducationEliteInboxService
         }
 
         $e = $this->escapeCharMetaForLikeExclamation($search);
-        $p = '%' . $e . '%';
+        $p = '%'.$e.'%';
         $likeOp = $this->isPostgres() ? 'ilike' : 'like';
 
         $q->where(function (Builder $w) use ($orColumns, $p, $likeOp) {
@@ -257,12 +362,12 @@ class EducationEliteInboxService
 
     public function emptyListMessage(?string $folder = null): string
     {
-        $mention = $this->domain !== '' ? '@' . $this->domain : 'the configured Elite domain';
+        $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
         if ($folder === 'sent') {
-            return 'No sent items for ' . $mention . ' yet. Outbound mail logged in the CRM appears when ' . $mention . ' is in From, To, or CC.';
+            return 'No sent items for '.$mention.' yet. Outbound mail logged in the CRM appears when '.$mention.' is in From, To, or CC.';
         }
 
-        return 'No incoming mail for ' . $mention . ' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
-            . ' CRM inbox rows appear when ' . $mention . ' is in From, To, or CC.';
+        return 'No incoming mail for '.$mention.' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
+            .' CRM inbox rows appear when '.$mention.' is in From, To, or CC.';
     }
 }
