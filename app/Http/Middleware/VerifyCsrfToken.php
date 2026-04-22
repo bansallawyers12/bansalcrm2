@@ -20,6 +20,7 @@ class VerifyCsrfToken extends Middleware
      */ 
     protected $except = [
         //
+        'elite/emails',   // SendGrid Inbound Parse webhook — external POST, no CSRF token
 		'api/*',
 		'admin/update_visit_purpose',
 		'admin/update_visit_comment',

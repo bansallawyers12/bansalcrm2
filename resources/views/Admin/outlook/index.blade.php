@@ -14,6 +14,11 @@
     border-bottom: 1px solid #d4d4d4;
 }
 .outlook-topbar .outlook-title { font-size: 16px; font-weight: 600; color: #333; margin: 0; }
+.outlook-topbar .outlook-title .outlook-title-name {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
 .outlook-topbar .btn-back {
     display: inline-flex;
     align-items: center;
@@ -58,13 +63,20 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 18px;
+    padding: 10px 18px 10px 15px;
     color: #444;
     text-decoration: none;
     font-size: 13px;
+    border-left: 3px solid transparent;
+    box-sizing: border-box;
 }
 .outlook-folders .folder-item:hover { background: #f3f3f3; }
-.outlook-folders .folder-item.active { background: #e5f3ff; color: #0078d4; font-weight: 600; }
+.outlook-folders .folder-item.active {
+    background: #e5f3ff;
+    color: #0078d4;
+    font-weight: 600;
+    border-left-color: #0078d4;
+}
 .outlook-folders .folder-item i { font-size: 14px; width: 18px; text-align: center; }
 
 /* Main content area */
@@ -255,28 +267,65 @@
 .email-list .email-row .email-subject { flex: 1; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .email-list .email-row .email-date { color: #94a3b8; font-size: 13px; }
 
-/* Sent view: sections per From email (Outlook-style) */
-.sent-content { flex: 1; display: flex; flex-direction: column; overflow: auto; }
-.sent-sections { flex: 1; padding: 0; }
-.sent-section {
-    margin-bottom: 24px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+/* Sent view: 3-col split (list + reading pane) identical to inbox */
+.sent-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
+.sent-list-col {
+    width: 360px;
+    min-width: 260px;
+    max-width: 48%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #d4d4d4;
     overflow: hidden;
     background: #fff;
 }
-.sent-section-header {
-    padding: 10px 20px;
-    background: #f1f5f9;
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 14px;
-    border-bottom: 1px solid #e2e8f0;
+.sent-reading-col {
+    flex: 1;
+    min-width: 260px;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
 }
-.sent-section-header i.fa-envelope { color: #0078d4; }
+.sent-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+.sent-msg-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+.sent-msg-item:hover { background: #f8fafc; }
+.sent-msg-item.is-selected { background: #eef6fc; border-left-color: #0078d4; }
+.sent-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; background: #e0f2fe; color: #0078d4; }
+.sent-msg-main { flex: 1; min-width: 0; }
+.sent-msg-line1 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+.sent-msg-to { font-weight: 600; font-size: 13.5px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sent-msg-date { font-size: 12px; color: #94a3b8; flex-shrink: 0; }
+.sent-msg-from { font-size: 12px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.sent-msg-subj { font-size: 13px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Reading pane for sent */
+.sent-reading-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; text-align: center; padding: 32px; }
+.sent-reading-empty i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.sent-reading-content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.sent-reading-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.sent-read-actions { display: flex; gap: 8px; margin-bottom: 16px; flex-shrink: 0; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; }
+.sent-read-actions .btn-read-action {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border: 1px solid #d4d4d4; background: #fff;
+    border-radius: 4px; font-size: 13px; cursor: pointer; color: #333;
+}
+.sent-read-actions .btn-read-action:hover { background: #f3f3f3; }
+.sent-read-subject { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 12px; line-height: 1.3; }
+.sent-read-meta { font-size: 13px; color: #475569; margin-bottom: 16px; }
+.sent-read-meta > div { margin-bottom: 5px; }
+.sent-read-meta .meta-label { font-weight: 600; color: #64748b; min-width: 52px; display: inline-block; }
+.sent-read-body { font-size: 14px; line-height: 1.6; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
+.sent-read-frame { width: 100%; flex: 1; min-height: 300px; border: none; margin-top: 8px; }
+
+/* Legacy kept for .sent-section-header .sent-toggle (may still exist in DOM) */
 .sent-section-header .sent-toggle {
     width: 28px;
     height: 28px;
@@ -430,6 +479,8 @@
     font-size: 11px;
     font-weight: 500;
     margin-left: 8px;
+    font-family: Nunito, "Segoe UI", system-ui, sans-serif;
+    vertical-align: middle;
 }
 </style>
 @endpush
@@ -437,7 +488,7 @@
 @section('content')
 <div class="outlook-page">
     <header class="outlook-topbar">
-        <h1 class="outlook-title">Outlook <span class="sendgrid-badge">SendGrid</span></h1>
+        <h1 class="outlook-title"><span class="outlook-title-name">Outlook</span> <span class="sendgrid-badge">SendGrid</span></h1>
         <a href="{{ route('dashboard') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to CRM</a>
     </header>
 
@@ -446,7 +497,7 @@
     <div class="outlook-container">
         <aside class="outlook-sidebar">
             <button type="button" class="btn btn-compose" id="btnNewMessage">
-                <i class="fas fa-pen"></i> New Message
+                <i class="fas fa-plus" aria-hidden="true"></i> New Message
             </button>
             <nav class="outlook-folders">
                 <a href="#" class="folder-item active" data-view="inbox"><i class="fas fa-inbox"></i> Inbox</a>
@@ -494,18 +545,19 @@
                 </div>
             </div>
 
-            {{-- Sent view (Outlook-style: sections per From email) --}}
+            {{-- Sent view: list + reading pane (like inbox) --}}
             <div class="folder-view view-sent" id="folderSent">
+                {{-- Toolbar --}}
                 <div class="inbox-toolbar">
                     <div class="search-wrap">
                         <i class="fas fa-search"></i>
                         <input type="text" class="form-control folder-search" placeholder="Search sent...">
                     </div>
                     <select class="filter-select filter-date-range" data-folder="sent">
-                        <option value="">All time</option>
+                        <option value="" selected>All time</option>
                         <option value="today">Today</option>
                         <option value="7">Last 7 days</option>
-                        <option value="30" selected>Last 30 days</option>
+                        <option value="30">Last 30 days</option>
                         <option value="custom">Custom range</option>
                     </select>
                     <span class="filter-custom-dates filter-custom-sent" style="display:none;">
@@ -516,31 +568,56 @@
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>
                     </select>
-                    <div class="sent-filter-wrap">
-                        <label for="sentFilterSender">Filter:</label>
-                        <select class="sent-filter-select form-control" id="sentFilterSender">
-                            <option value="">All senders</option>
-                        </select>
-                    </div>
-                    <select class="filter-select filter-from filter-from-to" data-folder="sent">
+                    <select class="filter-select filter-from filter-from-to" data-folder="sent" style="max-width:180px;">
                         <option value="">All senders</option>
                     </select>
-                    <select class="filter-select filter-to filter-from-to" data-folder="sent">
+                    <select class="filter-select filter-to filter-from-to" data-folder="sent" style="max-width:180px;">
                         <option value="">All recipients</option>
                     </select>
-                    <label class="filter-attach">
-                        <input type="checkbox" class="filter-has-attachments" data-folder="sent"> With attachments
-                    </label>
                     <button type="button" class="btn btn-primary btn-sm ms-2 btn-fetch" data-folder="sent">
                         <i class="fas fa-sync-alt"></i> Get Emails
                     </button>
                 </div>
-                <div class="sent-content">
-                    <div class="sent-sections folder-list"></div>
-                    <div class="empty-state folder-empty">
-                        <i class="fas fa-paper-plane"></i>
-                        <p>No sent messages</p>
-                        <span>Emails you send from this page are recorded here. Click "Get Emails" to refresh.</span>
+
+                {{-- 3-col: list + reading pane --}}
+                <div class="sent-triple">
+                    {{-- List --}}
+                    <div class="sent-list-col">
+                        <ul class="sent-list folder-list" id="sentEmailList" role="listbox" aria-label="Sent messages"></ul>
+                        <div class="empty-state folder-empty" id="sentEmpty">
+                            <i class="fas fa-paper-plane"></i>
+                            <p>No sent messages</p>
+                            <span>All emails you send via this page appear here. Click "Get Emails" to load.</span>
+                        </div>
+                    </div>
+
+                    {{-- Reading pane --}}
+                    <div class="sent-reading-col" id="sentReadingCol">
+                        <div class="sent-reading-empty" id="sentReadingEmpty">
+                            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                            <p>Select a sent email to preview it.</p>
+                        </div>
+                        <div class="sent-reading-content" id="sentReadingContent" style="display:none;">
+                            <div class="sent-read-actions">
+                                <button type="button" class="btn-read-action" id="sentBtnReply">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                                <button type="button" class="btn-read-action" id="sentBtnForward">
+                                    <i class="fas fa-share"></i> Forward
+                                </button>
+                            </div>
+                            <div class="sent-reading-scroll" id="sentReadingScroll">
+                                <h2 class="sent-read-subject" id="sentReadSubject"></h2>
+                                <div class="sent-read-meta">
+                                    <div><span class="meta-label">From:</span> <span id="sentReadFrom"></span></div>
+                                    <div><span class="meta-label">To:</span>   <span id="sentReadTo"></span></div>
+                                    <div><span class="meta-label">Cc:</span>   <span id="sentReadCc"></span></div>
+                                    <div><span class="meta-label">Date:</span> <span id="sentReadDate"></span></div>
+                                </div>
+                                <div class="sent-read-body" id="sentReadBody"></div>
+                                <iframe id="sentReadFrame" class="sent-read-frame" title="Email body" sandbox="allow-same-origin" style="display:none;"></iframe>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -861,56 +938,68 @@
         });
     });
 
-    function applySentFilter(senderValue) {
-        var container = document.querySelector('#folderSent .sent-sections');
-        if (!container) return;
-        container.querySelectorAll('.sent-section').forEach(function(section) {
-            var fromEmail = section.dataset.fromEmail || '';
-            var show = !senderValue || fromEmail === senderValue;
-            section.style.display = show ? '' : 'none';
-        });
-    }
-    var sentFilterEl = document.getElementById('sentFilterSender');
-    if (sentFilterEl) {
-        sentFilterEl.addEventListener('change', function() {
-            applySentFilter(this.value);
-        });
+    // HTML-escape helper for building list items
+    function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Open/close modal for viewing a sent email
-    var sentModalOverlay = document.getElementById('sentEmailModalOverlay');
-    var sentModalCloseBtn = document.getElementById('sentEmailModalClose');
-    function openSentEmailModal(data) {
-        if (!sentModalOverlay) return;
-        document.getElementById('sentEmailFrom').textContent = data.from || '';
-        document.getElementById('sentEmailTo').textContent = data.to || '';
-        document.getElementById('sentEmailCc').textContent = data.cc || '—';
-        document.getElementById('sentEmailSubject').textContent = data.subject || '(No subject)';
-        document.getElementById('sentEmailDate').textContent = data.date || '';
-        var bodyEl = document.getElementById('sentEmailBody');
-        if (bodyEl) {
-            bodyEl.innerHTML = data.body || '<em>No content</em>';
+    // Sent reading pane
+    function openSentReadingPane(e) {
+        var empty   = document.getElementById('sentReadingEmpty');
+        var content = document.getElementById('sentReadingContent');
+        var scroll  = document.getElementById('sentReadingScroll');
+        if (!content) return;
+        document.getElementById('sentReadSubject').textContent = e.subject || '(No subject)';
+        document.getElementById('sentReadFrom').textContent    = e.from   || '—';
+        document.getElementById('sentReadTo').textContent      = e.to     || '—';
+        document.getElementById('sentReadCc').textContent      = e.cc     || '—';
+        document.getElementById('sentReadDate').textContent    = e.date   || '—';
+        var bodyEl  = document.getElementById('sentReadBody');
+        var frameEl = document.getElementById('sentReadFrame');
+        var raw = e.body || '';
+        var isHtml = /<[a-z][\s\S]*>/i.test(raw);
+        if (isHtml && frameEl) {
+            bodyEl.style.display  = 'none';
+            frameEl.style.display = 'block';
+            frameEl.srcdoc = raw;
+            frameEl.onload = function() {
+                try { frameEl.style.height = (frameEl.contentWindow.document.body.scrollHeight + 24) + 'px'; } catch(ex) {}
+            };
+        } else {
+            if (frameEl) { frameEl.style.display = 'none'; frameEl.srcdoc = ''; }
+            bodyEl.style.display = '';
+            bodyEl.textContent = raw || '(No content)';
         }
-        sentModalOverlay.classList.add('show');
-        sentModalOverlay.setAttribute('aria-hidden', 'false');
+        if (empty) empty.style.display = 'none';
+        content.style.display = 'flex';
+        // Reply / Forward hooks
+        var btnReply = document.getElementById('sentBtnReply');
+        var btnFwd   = document.getElementById('sentBtnForward');
+        if (btnReply) btnReply.onclick = function() {
+            main.classList.remove('mode-inbox','mode-sent','mode-drafts','mode-trash');
+            main.classList.add('mode-compose','landing-compose');
+            var toEl = document.getElementById('to_email');
+            var subEl = document.getElementById('subject_email');
+            if (toEl)  toEl.value  = e.from || '';
+            if (subEl) subEl.value = 'Re: ' + (e.subject || '');
+        };
+        if (btnFwd) btnFwd.onclick = function() {
+            main.classList.remove('mode-inbox','mode-sent','mode-drafts','mode-trash');
+            main.classList.add('mode-compose','landing-compose');
+            var subEl = document.getElementById('subject_email');
+            var bodyEdEl = document.getElementById('outlook-body');
+            if (subEl)    subEl.value = 'Fwd: ' + (e.subject || '');
+            if (bodyEdEl) bodyEdEl.innerHTML = '<br><br>---------- Forwarded message ----------<br>From: ' + esc(e.from) + '<br>To: ' + esc(e.to) + '<br>Date: ' + esc(e.date) + '<br>Subject: ' + esc(e.subject) + '<br><br>' + (isHtml ? raw : esc(raw).replace(/\n/g,'<br>'));
+        };
     }
-    function closeSentEmailModal() {
-        if (sentModalOverlay) {
-            sentModalOverlay.classList.remove('show');
-            sentModalOverlay.setAttribute('aria-hidden', 'true');
-        }
+    function closeSentReadingPane() {
+        var empty   = document.getElementById('sentReadingEmpty');
+        var content = document.getElementById('sentReadingContent');
+        if (empty)   empty.style.display   = 'flex';
+        if (content) content.style.display = 'none';
     }
-    if (sentModalCloseBtn) sentModalCloseBtn.addEventListener('click', closeSentEmailModal);
-    if (sentModalOverlay) {
-        sentModalOverlay.addEventListener('click', function(e) {
-            if (e.target === sentModalOverlay) closeSentEmailModal();
-        });
-    }
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && sentModalOverlay && sentModalOverlay.classList.contains('show')) {
-            closeSentEmailModal();
-        }
-    });
+    closeSentReadingPane();
 
     function updateAttachmentList() {
         attachmentList.innerHTML = '';
@@ -1086,69 +1175,41 @@
                         });
                     }
                 }
-                var hasSentGroups = folder === 'sent' && data.sent_groups && data.sent_groups.length > 0;
                 var hasEmails = data.emails && data.emails.length > 0;
-                if (hasSentGroups) {
-                    empty.style.display = 'none';
-                    var filterSelect = document.getElementById('sentFilterSender');
-                    if (filterSelect) {
-                        filterSelect.innerHTML = '<option value="">All senders</option>';
-                        data.sent_groups.forEach(function(grp) {
-                            var fromEmail = grp.from_email || '';
-                            if (fromEmail) {
-                                var opt = document.createElement('option');
-                                opt.value = fromEmail;
-                                opt.textContent = fromEmail;
-                                filterSelect.appendChild(opt);
-                            }
-                        });
-                    }
-                    data.sent_groups.forEach(function(grp) {
-                        var fromEmail = grp.from_email || '';
-                        var section = document.createElement('div');
-                        section.className = 'sent-section';
-                        section.dataset.fromEmail = fromEmail;
-                        var header = document.createElement('div');
-                        header.className = 'sent-section-header';
-                        header.innerHTML = '<button type="button" class="sent-toggle" title="Expand/Collapse" aria-label="Expand or collapse"><i class="fas fa-chevron-down"></i></button><i class="fas fa-envelope"></i> <span class="sent-section-email">' + fromEmail + '</span>';
-                        var bodyWrap = document.createElement('div');
-                        bodyWrap.className = 'sent-section-body';
-                        var table = document.createElement('table');
-                        table.className = 'sent-table';
-                        table.innerHTML = '<thead><tr><th class="sent-th-to">To</th><th class="sent-th-subject">Subject</th><th class="sent-th-date">Date</th></tr></thead><tbody></tbody>';
-                        var tbody = table.querySelector('tbody');
-                        (grp.emails || []).forEach(function(e) {
-                            var tr = document.createElement('tr');
-                            tr.className = 'sent-row';
-                            tr.title = 'Click to view email';
-                            tr.innerHTML = '<td class="sent-cell-to">' + (e.to || '') + '</td><td class="sent-cell-subject" title="' + (e.subject || '').replace(/"/g, '&quot;') + '">' + (e.subject || '(No subject)') + '</td><td class="sent-cell-date">' + (e.date || '') + '</td>';
-                            tr.addEventListener('click', function() {
-                                openSentEmailModal({
-                                    from: fromEmail,
-                                    to: e.to || '',
-                                    cc: e.cc || '',
-                                    subject: e.subject || '(No subject)',
-                                    body: e.body || '',
-                                    date: e.date || ''
-                                });
+                if (folder === 'sent') {
+                    // Sent: render inbox-style list into #sentEmailList + reading pane
+                    var sentList = document.getElementById('sentEmailList');
+                    var sentEmptyEl = document.getElementById('sentEmpty');
+                    if (!sentList) { list = null; } else { list = sentList; list.innerHTML = ''; }
+                    if (hasEmails) {
+                        if (sentEmptyEl) sentEmptyEl.style.display = 'none';
+                        if (empty) empty.style.display = 'none';
+                        data.emails.forEach(function(e, idx) {
+                            var initials = (e.from || 'S').split('@')[0].charAt(0).toUpperCase();
+                            var li = document.createElement('li');
+                            li.className = 'sent-msg-item';
+                            li.setAttribute('role', 'option');
+                            li.dataset.idx = idx;
+                            li.innerHTML =
+                                '<div class="sent-icon" aria-hidden="true">' + initials + '</div>' +
+                                '<div class="sent-msg-main">' +
+                                    '<div class="sent-msg-line1">' +
+                                        '<span class="sent-msg-to" title="To: ' + esc(e.to) + '">' + esc(e.to || '(no recipient)') + '</span>' +
+                                        '<span class="sent-msg-date">' + esc(e.date_short || e.date) + '</span>' +
+                                    '</div>' +
+                                    '<div class="sent-msg-from">From: ' + esc(e.from || '—') + '</div>' +
+                                    '<div class="sent-msg-subj">' + esc(e.subject || '(No subject)') + '</div>' +
+                                '</div>';
+                            li.addEventListener('click', function() {
+                                document.querySelectorAll('#sentEmailList .sent-msg-item').forEach(function(i) { i.classList.remove('is-selected'); });
+                                li.classList.add('is-selected');
+                                openSentReadingPane(e);
                             });
-                            tbody.appendChild(tr);
+                            if (sentList) sentList.appendChild(li);
                         });
-                        bodyWrap.appendChild(table);
-                        section.appendChild(header);
-                        section.appendChild(bodyWrap);
-                        list.appendChild(section);
-                        header.querySelector('.sent-toggle').addEventListener('click', function() {
-                            section.classList.toggle('collapsed');
-                            var icon = this.querySelector('i');
-                            if (icon) {
-                                icon.className = section.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
-                            }
-                        });
-                    });
-                    var filterSel = document.getElementById('sentFilterSender');
-                    if (filterSel) {
-                        applySentFilter(filterSel.value);
+                    } else {
+                        if (sentEmptyEl) { sentEmptyEl.style.display = 'flex'; sentEmptyEl.querySelector('span').textContent = data.message || 'No sent messages found.'; }
+                        closeSentReadingPane();
                     }
                 } else if (hasEmails) {
                     empty.style.display = 'none';

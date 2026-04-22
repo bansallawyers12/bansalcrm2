@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -31,7 +32,14 @@ class EducationEliteInboxService
      */
     public function listMailboxes(): array
     {
-        if ($this->domain === '' || ! Schema::hasTable('elite_emails')) {
+        if ($this->domain === '') {
+            return [];
+        }
+        if (! Schema::hasTable('elite_emails')) {
+            if ($this->shouldMergeCrm() && Schema::hasTable('emails')) {
+                return $this->dedupeMailboxes($this->rawMailboxValuesFromCrm());
+            }
+
             return [];
         }
 
@@ -46,6 +54,9 @@ class EducationEliteInboxService
                 $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
             }
             $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
+        }
+        if ($this->shouldMergeCrm() && Schema::hasTable('emails')) {
+            $chunks = array_merge($chunks, $this->rawMailboxValuesFromCrm());
         }
 
         return $this->dedupeMailboxes($chunks);
@@ -140,29 +151,38 @@ class EducationEliteInboxService
         }
 
         $search = trim($search);
-        $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
         $limit = max(1, min(1000, $limit));
-
-        $q = $this->buildQuery($search, $dateFrom, $dateTo);
-
         $acc = $this->normalizeAccountFilter($account);
-        if ($acc !== null) {
-            // Use contains match (%acc%) so it handles display name format: "Name <email>"
-            $accLike = '%'.$acc.'%';
-            $q->whereRaw($this->isPostgres()
-                ? "LOWER(COALESCE(e.to_address, '')) LIKE ?"
-                : "LOWER(COALESCE(e.to_address, '')) LIKE ?",
-                [$accLike]
-            );
-        }
-
-        $q->orderBy('e.created_at', $orderDir)->orderBy('e.id', 'desc');
-        $rows = $q->limit($limit)->get();
 
         $out = [];
-        foreach ($rows as $row) {
-            $out[] = $this->rowToItem($row);
+        if (Schema::hasTable('elite_emails')) {
+            $q = $this->buildEliteQuery($search, $dateFrom, $dateTo);
+            if ($acc !== null) {
+                $accLike = '%'.$acc.'%';
+                $q->whereRaw('LOWER(COALESCE(e.to_address, \'\')) LIKE ?', [strtolower($accLike)]);
+            }
+            $q->orderBy('e.created_at', 'desc')->orderBy('e.id', 'desc');
+            foreach ($q->get() as $row) {
+                $out[] = $this->eliteRowToItem($row);
+            }
         }
+
+        if ($this->shouldMergeCrm() && Schema::hasTable('emails')) {
+            $crm = $this->fetchCrmInboxAsItems($search, $dateFrom, $dateTo, $acc);
+            $out = array_merge($out, $crm);
+        }
+
+        usort($out, function (array $a, array $b) use ($sort) {
+            $ta = (float) ($a['sort_ts'] ?? 0);
+            $tb = (float) ($b['sort_ts'] ?? 0);
+
+            return $sort === 'oldest' ? $ta <=> $tb : $tb <=> $ta;
+        });
+        $out = array_slice($out, 0, $limit);
+        foreach ($out as &$it) {
+            unset($it['sort_ts']);
+        }
+        unset($it);
 
         return $out;
     }
@@ -182,7 +202,37 @@ class EducationEliteInboxService
         return $this->getInbox($search, $dateFrom, $dateTo, $sort, $limit, $folder, $account);
     }
 
-    private function buildQuery(string $search, string $dateFrom, string $dateTo): Builder
+    private function shouldMergeCrm(): bool
+    {
+        if ($this->domain === '') {
+            return false;
+        }
+
+        return (bool) Config::get('crm.education_elite_inbox_merge_crm', true);
+    }
+
+    /**
+     * @return list<string|float|int|bool|array|null>
+     */
+    private function rawMailboxValuesFromCrm(): array
+    {
+        $like = $this->domainNeedleForLike();
+        $chunks = [];
+        foreach (['from_mail', 'to_mail'] as $col) {
+            $q = DB::table('emails')->where('mail_type', 0)
+                ->whereNotNull($col)->where($col, '!=', '');
+            if ($this->isPostgres()) {
+                $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
+            } else {
+                $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
+            }
+            $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
+        }
+
+        return $chunks;
+    }
+
+    private function buildEliteQuery(string $search, string $dateFrom, string $dateTo): Builder
     {
         $q = DB::table('elite_emails as e')->select([
             'e.id',
@@ -202,16 +252,94 @@ class EducationEliteInboxService
         return $q;
     }
 
-    private function rowToItem(object $row): array
+    private function crmBodySelectExpr(string $tableAlias = 'c'): string
+    {
+        $c = $tableAlias;
+        $cols = ["{$c}.message"];
+        if (Schema::hasColumn('emails', 'rendered_html')) {
+            array_unshift($cols, "{$c}.rendered_html");
+        }
+        if (Schema::hasColumn('emails', 'enhanced_html')) {
+            array_unshift($cols, "{$c}.enhanced_html");
+        }
+        $nullIf = array_map(
+            static fn (string $col) => "NULLIF({$col}, '')",
+            $cols
+        );
+
+        return 'COALESCE('.implode(', ', $nullIf).')';
+    }
+
+    /**
+     * CRM inbound (mail_type 0) involving @education_elite domain.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function fetchCrmInboxAsItems(
+        string $search,
+        string $dateFrom,
+        string $dateTo,
+        ?string $accNormalized
+    ): array {
+        $bodyExpr = $this->crmBodySelectExpr('c');
+        $q = DB::table('emails as c')->select([
+            'c.id',
+            'c.from_mail as from_addr',
+            'c.to_mail as to_addr',
+            'c.subject as subj',
+            DB::raw("{$bodyExpr} as body"),
+            'c.created_at as received_at',
+        ])->where('c.mail_type', 0);
+
+        $like = $this->domainNeedleForLike();
+        if ($this->isPostgres()) {
+            $q->where(function (Builder $w) use ($like) {
+                $w->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) LIKE LOWER(?)', [$like])
+                    ->orWhereRaw('LOWER(COALESCE(c.to_mail, \'\')) LIKE LOWER(?)', [$like]);
+            });
+        } else {
+            $q->where(function (Builder $w) use ($like) {
+                $w->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) LIKE ?', [strtolower($like)])
+                    ->orWhereRaw('LOWER(COALESCE(c.to_mail, \'\')) LIKE ?', [strtolower($like)]);
+            });
+        }
+
+        if ($accNormalized !== null) {
+            $accLike = '%'.$accNormalized.'%';
+            $q->whereRaw('LOWER(COALESCE(c.to_mail, \'\')) LIKE ?', [strtolower($accLike)]);
+        }
+
+        $searchCols = ['c.from_mail', 'c.to_mail', 'c.subject', 'c.message'];
+        if (Schema::hasColumn('emails', 'rendered_html')) {
+            $searchCols[] = 'c.rendered_html';
+        }
+        if (Schema::hasColumn('emails', 'enhanced_html')) {
+            $searchCols[] = 'c.enhanced_html';
+        }
+        $this->whereSearchOr($q, $search, $searchCols);
+
+        $this->whereDateOnColumn($q, 'c.created_at', $dateFrom, $dateTo);
+
+        $out = [];
+        foreach ($q->get() as $row) {
+            $out[] = $this->crmRowToItem($row);
+        }
+
+        return $out;
+    }
+
+    private function eliteRowToItem(object $row): array
     {
         $received = $row->received_at ?? null;
         if ($received === null) {
             $dateStr = '';
+            $ts = 0.0;
         } else {
             $c = $received instanceof Carbon
                 ? $received
                 : Carbon::parse((string) $received);
             $dateStr = $c->format('d/m/Y g:i A');
+            $ts = (float) $c->getTimestamp();
         }
 
         return [
@@ -223,6 +351,34 @@ class EducationEliteInboxService
             'date' => $dateStr,
             'direction' => 'inbound',
             'direction_label' => 'Inbound (SendGrid)',
+            'sort_ts' => $ts,
+        ];
+    }
+
+    private function crmRowToItem(object $row): array
+    {
+        $received = $row->received_at ?? null;
+        if ($received === null) {
+            $dateStr = '';
+            $ts = 0.0;
+        } else {
+            $c = $received instanceof Carbon
+                ? $received
+                : Carbon::parse((string) $received);
+            $dateStr = $c->format('d/m/Y g:i A');
+            $ts = (float) $c->getTimestamp();
+        }
+
+        return [
+            'id' => 'crm-'.(int) $row->id,
+            'from' => $row->from_addr ?? null,
+            'to' => $row->to_addr ?? null,
+            'subject' => $row->subj ?? null,
+            'body' => (string) ($row->body ?? ''),
+            'date' => $dateStr,
+            'direction' => 'inbound',
+            'direction_label' => 'Inbound (CRM)',
+            'sort_ts' => $ts,
         ];
     }
 
@@ -271,6 +427,9 @@ class EducationEliteInboxService
     public function emptyListMessage(?string $folder = null): string
     {
         $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
+        if ($this->shouldMergeCrm()) {
+            return 'No inbound mail for '.$mention.' yet. SendGrid Inbound Parse must POST to the webhook URL below; CRM-imported inbox (mail_type 0) appears here too. Use "Simulate inbound" to test the webhook.';
+        }
 
         return 'No inbound mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook URL shown below, or use "Simulate inbound" to test.';
     }

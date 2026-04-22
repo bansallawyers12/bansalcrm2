@@ -31,10 +31,15 @@ return [
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |
-    | The Elite inbox UI lists only SendGrid Inbound Parse rows (elite_emails), not CRM mail.
+    | The Elite inbox shows SendGrid Inbound Parse rows (elite_emails). Optionally
+    | also CRM inbound email (emails.mail_type = 0) for the same domain.
+    | SendGrid’s REST API does not list received mail; inbound is webhook-only.
     |
     | education_elite_sender_domain — only this domain may appear in From
     | (e.g. educationelite.com.au → accepts *@educationelite.com.au).
+    |
+    | education_elite_inbox_merge_crm — when true, merge CRM inbound (mail_type 0
+    | where from or to is @sender_domain) with elite_emails in /elite/emails.
     |
     | education_elite_inbound_secret — if non-empty, POST /elite/emails must
     | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
@@ -42,6 +47,11 @@ return [
     |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
+
+    'education_elite_inbox_merge_crm' => filter_var(
+        env('EDUCATION_ELITE_INBOX_MERGE_CRM', true),
+        FILTER_VALIDATE_BOOL
+    ),
 
     'education_elite_inbound_secret' => env('EDUCATION_ELITE_INBOUND_SECRET', ''),
 ];

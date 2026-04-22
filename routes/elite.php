@@ -20,4 +20,6 @@ Route::prefix('elite')->name('elite.')->group(function () {
 
     Route::get('/emails', [EliteEmailController::class, 'index'])->name('emails.index');
     Route::get('/emails/inbox', [EliteEmailController::class, 'inbox'])->name('emails.inbox');
+    Route::get('/emails/sent', [EliteEmailController::class, 'sent'])->name('emails.sent');
+    Route::get('/emails/drafts', [EliteEmailController::class, 'drafts'])->name('emails.drafts');
 });

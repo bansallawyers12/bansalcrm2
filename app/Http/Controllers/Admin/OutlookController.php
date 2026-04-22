@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +30,7 @@ class OutlookController extends Controller
             ?: optional(auth('admin')->user())->email
             ?: config('mail.from.address', 'noreply@example.com');
 
-        if (count($senderEmails) > 0 && ! in_array($fromEmail, $senderEmails)) {
+        if (count($senderEmails) > 0 && ! $this->emailInList($fromEmail, $senderEmails)) {
             $fromEmail = $senderEmails[0];
         }
 
@@ -48,7 +49,7 @@ class OutlookController extends Controller
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
         }
         $emails = array_column($list, 'email');
-        if (! empty($emails) && ! in_array($fromEmail, $emails)) {
+        if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
             $fromEmail = $emails[0];
         }
         return response()->json([
@@ -260,7 +261,7 @@ class OutlookController extends Controller
 
         $messages = [
             'inbox' => 'No emails yet. Configure SendGrid API and Inbound Parse to receive emails.',
-            'sent' => 'No sent messages.',
+            'sent' => 'No sent messages found. Emails you send via this page are stored here automatically.',
             'drafts' => 'No drafts saved.',
             'trash' => 'Trash is empty.',
         ];
@@ -288,17 +289,18 @@ class OutlookController extends Controller
                 ];
             }
         } elseif ($folder === 'sent') {
-            // Only show emails sent from SendGrid-verified sender addresses (filter dropdown and list)
-            $verifiedSenders = $this->getVerifiedSenders();
-            $verifiedEmails = array_column($verifiedSenders, 'email');
+            // Sent: all mail_type=1 rows; prefer verified-sender rows but fall back to all if API is unavailable.
+            $verifiedSenders    = $this->getVerifiedSenders();
+            $verifiedForDropdown = $this->uniqueSenderEmailsForUi($verifiedSenders);
+            $verifiedLower      = $this->normalizedVerifiedSenderEmails($verifiedSenders);
 
-            // Use emails table (same as CRM) - mail_type 1 = sent/composed emails
             $query = Email::where('mail_type', 1);
-            if (empty($verifiedEmails)) {
-                // No SendGrid senders configured: return empty so we don't show non-SendGrid emails
-                $query->whereRaw('1 = 0');
-            } else {
-                $query->whereIn('from_mail', $verifiedEmails);
+
+            // Only apply verified-sender filter when the API actually returned addresses.
+            // When the API is down / unconfigured, fall back to showing all sent mail so
+            // users can always see what was sent.
+            if (! empty($verifiedLower)) {
+                $this->scopeSentFromVerifiedSenders($query, $verifiedLower);
             }
 
             if ($search !== '') {
@@ -315,7 +317,7 @@ class OutlookController extends Controller
                 $query->whereDate('created_at', '<=', $dateTo);
             }
             if ($filterFrom !== '') {
-                $query->where('from_mail', $filterFrom);
+                $query->whereRaw('LOWER(TRIM(COALESCE(from_mail, \'\'))) = ?', [strtolower(trim($filterFrom))]);
             }
             if ($filterTo !== '') {
                 $query->where('to_mail', $filterTo);
@@ -324,56 +326,49 @@ class OutlookController extends Controller
                 $query->whereHas('attachments');
             }
 
-            $sortColumn = 'created_at';
             $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
-            $query->orderBy($sortColumn, $sortDir);
+            $query->orderBy('created_at', $sortDir);
 
             $list = $query->get();
 
-            // Sent tab sender filter: show all SendGrid-verified senders (same list as compose "From" dropdown)
-            $filterOptions['from_list'] = $verifiedEmails;
-            $toListQuery = Email::where('mail_type', 1);
-            if (! empty($verifiedEmails)) {
-                $toListQuery->whereIn('from_mail', $verifiedEmails);
+            // Build per-sender unique list for the "From" filter dropdown.
+            // If API returned verified senders, use those; otherwise derive from the DB rows.
+            if (! empty($verifiedForDropdown)) {
+                $filterOptions['from_list'] = $verifiedForDropdown;
             } else {
-                $toListQuery->whereRaw('1 = 0');
+                $filterOptions['from_list'] = $list->pluck('from_mail')
+                    ->filter()->unique()->values()->toArray();
             }
-            if ($dateFrom !== '') {
-                $toListQuery->whereDate('created_at', '>=', $dateFrom);
-            }
-            if ($dateTo !== '') {
-                $toListQuery->whereDate('created_at', '<=', $dateTo);
-            }
-            $filterOptions['to_list'] = $toListQuery->distinct()->pluck('to_mail')->filter()->values()->toArray();
+            $filterOptions['to_list'] = $list->pluck('to_mail')
+                ->filter()->unique()->values()->toArray();
+
             foreach ($list as $sent) {
                 $emails[] = [
-                    'id' => $sent->id,
-                    'from' => $sent->from_mail,
-                    'to' => $sent->to_mail,
-                    'cc' => $sent->cc,
-                    'subject' => $sent->subject,
-                    'body' => $sent->message,
-                    'date' => $sent->created_at->format('d/m/Y g:i A'),
+                    'id'         => $sent->id,
+                    'from'       => $sent->from_mail,
+                    'to'         => $sent->to_mail,
+                    'cc'         => $sent->cc,
+                    'subject'    => $sent->subject ?: '(No subject)',
+                    'body'       => $sent->message,
+                    'date'       => $sent->created_at->format('d/m/Y g:i A'),
                     'date_short' => $sent->created_at->format('g:i A'),
                 ];
             }
-            // Group by from_mail (different section per sender, like Outlook accounts)
+
+            // Group by from_mail (kept for compatibility – frontend may still use it).
             $byFrom = [];
             foreach ($list as $sent) {
-                $from = $sent->from_mail;
+                $from = $sent->from_mail ?? '(unknown)';
                 if (! isset($byFrom[$from])) {
-                    $byFrom[$from] = [
-                        'from_email' => $from,
-                        'emails' => [],
-                    ];
+                    $byFrom[$from] = ['from_email' => $from, 'emails' => []];
                 }
                 $byFrom[$from]['emails'][] = [
-                    'id' => $sent->id,
-                    'to' => $sent->to_mail,
-                    'cc' => $sent->cc,
-                    'subject' => $sent->subject,
-                    'body' => $sent->message,
-                    'date' => $sent->created_at->format('d/m/Y g:i A'),
+                    'id'         => $sent->id,
+                    'to'         => $sent->to_mail,
+                    'cc'         => $sent->cc,
+                    'subject'    => $sent->subject ?: '(No subject)',
+                    'body'       => $sent->message,
+                    'date'       => $sent->created_at->format('d/m/Y g:i A'),
                     'date_short' => $sent->created_at->format('g:i A'),
                 ];
             }
@@ -515,5 +510,90 @@ class OutlookController extends Controller
 
         return redirect()->route('admin.outlook.index')
             ->with('success', 'Draft saved.');
+    }
+
+    /**
+     * Case-insensitive match of $email against a list of address strings.
+     */
+    private function emailInList(string $email, array $list): bool
+    {
+        $want = strtolower(trim($email));
+        if ($want === '' || $list === []) {
+            return false;
+        }
+        foreach ($list as $e) {
+            if (strtolower(trim((string) $e)) === $want) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * SendGrid API + env fallback — normalized unique emails (lowercase) for SQL filters.
+     *
+     * @param  array<int, array<string, mixed>>  $verifiedSenders
+     * @return list<string>
+     */
+    private function normalizedVerifiedSenderEmails(array $verifiedSenders): array
+    {
+        $out = [];
+        foreach ($verifiedSenders as $s) {
+            $e = isset($s['email']) ? strtolower(trim((string) $s['email'])) : '';
+            if ($e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL)) {
+                $out[$e] = $e;
+            }
+        }
+
+        return array_values($out);
+    }
+
+    /**
+     * One entry per logical sender, sorted, for filter dropdowns (preserve readable casing when possible).
+     *
+     * @param  array<int, array<string, mixed>>  $verifiedSenders
+     * @return list<string>
+     */
+    private function uniqueSenderEmailsForUi(array $verifiedSenders): array
+    {
+        $byKey = [];
+        foreach ($verifiedSenders as $s) {
+            if (empty($s['email'])) {
+                continue;
+            }
+            $raw = trim((string) $s['email']);
+            $key = strtolower($raw);
+            if ($key === '' || ! filter_var($key, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            if (! array_key_exists($key, $byKey)) {
+                $byKey[$key] = $raw;
+            }
+        }
+        $list = array_values($byKey);
+        sort($list);
+
+        return $list;
+    }
+
+    /**
+     * Sent folder: from_mail must match a SendGrid-verified address (lowercase compare).
+     *
+     * @param  Builder  $query
+     * @param  list<string>  $verifiedLower
+     */
+    private function scopeSentFromVerifiedSenders(Builder $query, array $verifiedLower): void
+    {
+        if ($verifiedLower === []) {
+            $query->whereRaw('1 = 0');
+
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($verifiedLower), '?'));
+        $query->whereRaw(
+            'LOWER(TRIM(COALESCE(from_mail, \'\'))) IN ('.$placeholders.')',
+            $verifiedLower
+        );
     }
 }
