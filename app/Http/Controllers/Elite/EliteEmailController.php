@@ -20,12 +20,13 @@ class EliteEmailController extends Controller
     public function index()
     {
         $service = EducationEliteInboxService::make();
-        $items = $service->getMergedInbox('', '', '', 'newest', 200);
+        $items = $service->getMergedInbox('', '', '', 'newest', 200, 'inbox');
 
         $webhookUrl = $this->inboundWebhookUrl();
 
         return view('elite.emails-inbox', [
             'eliteInboxItems' => $items,
+            'eliteInitialFolder' => 'inbox',
             'webhookUrl' => $webhookUrl,
         ]);
     }
@@ -39,15 +40,20 @@ class EliteEmailController extends Controller
         $dateFrom = $request->get('date_from', '');
         $dateTo = $request->get('date_to', '');
         $sort = $request->get('sort', 'newest');
+        $folder = $request->get('folder', 'inbox');
+        if (! in_array($folder, ['inbox', 'sent'], true)) {
+            $folder = 'inbox';
+        }
 
         $service = EducationEliteInboxService::make();
-        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500);
+        $emails = $service->getMergedInbox($search, $dateFrom, $dateTo, $sort, 500, $folder);
 
         return response()->json([
             'emails' => $emails,
+            'folder' => $folder,
             'sent_groups' => [],
             'filter_options' => ['from_list' => [], 'to_list' => []],
-            'message' => $service->emptyListMessage(),
+            'message' => $service->emptyListMessage($folder),
         ]);
     }
 

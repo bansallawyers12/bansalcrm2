@@ -42,8 +42,15 @@
     color: #444;
     text-decoration: none;
     font-size: 13px;
-    cursor: default;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    box-sizing: border-box;
 }
+.outlook-folders .folder-item:hover { background: #f3f9ff; }
 .outlook-folders .folder-item.active { background: #e5f3ff; color: #0078d4; font-weight: 600; }
 .outlook-folders .folder-item i { font-size: 14px; width: 18px; text-align: center; }
 .elite-sidebar-foot {
@@ -127,18 +134,100 @@
 .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
 .empty-state p { font-size: 15px; margin: 0 0 8px; }
 .empty-state span { font-size: 13px; max-width: 420px; }
+.email-list-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.email-list-header {
+    display: grid;
+    grid-template-columns: 36px minmax(200px, 1.1fr) minmax(120px, 2fr) 130px;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 20px;
+    background: #fafafa;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #64748b;
+}
+.email-list-header .col-source { text-align: center; }
+.email-list-header .col-date { text-align: right; }
 .email-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
 .email-list .email-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 36px minmax(200px, 1.1fr) minmax(120px, 2fr) 130px;
+    gap: 12px;
     align-items: center;
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
 }
 .email-list .email-row:hover { background: #f8fafc; }
-.email-list .email-row .email-sender { min-width: 180px; font-weight: 600; color: #1e293b; }
-.email-list .email-row .email-subject { flex: 1; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.email-list .email-row .email-date { color: #94a3b8; font-size: 13px; white-space: nowrap; margin-left: 8px; }
+.email-list .email-row:focus { outline: 2px solid #0078d4; outline-offset: -2px; }
+.email-row .email-dir-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.email-row--incoming .email-dir-icon {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+.email-row--outgoing .email-dir-icon {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+.email-row .email-address-block { min-width: 0; }
+.email-row .email-address-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+.email-row .email-address-value {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.email-row .email-subject-block { min-width: 0; }
+.email-row .email-source-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    background: #f1f5f9;
+    color: #475569;
+}
+.email-row .email-subject-line {
+    color: #475569;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.email-row .email-date { color: #94a3b8; font-size: 13px; white-space: nowrap; text-align: right; }
+@media (max-width: 900px) {
+    .email-list-header,
+    .email-list .email-row {
+        grid-template-columns: 28px minmax(140px, 1fr) minmax(80px, 1.2fr) 96px;
+        gap: 8px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
 .outlook-module-badge {
     display: inline-flex;
     align-items: center;
@@ -225,7 +314,12 @@
     <div class="outlook-container">
         <aside class="outlook-sidebar">
             <nav class="outlook-folders">
-                <div class="folder-item active"><i class="fas fa-inbox"></i> Inbox</div>
+                <button type="button" class="folder-item active" data-folder="inbox" id="eliteFolderInbox">
+                    <i class="fas fa-inbox"></i> Inbox
+                </button>
+                <button type="button" class="folder-item" data-folder="sent" id="eliteFolderSent">
+                    <i class="fas fa-paper-plane"></i> Sent Items
+                </button>
             </nav>
             <div class="elite-sidebar-foot">
                 <div>Inbound POST URL (SendGrid Inbound Parse):</div>
@@ -293,21 +387,49 @@
                     $eliteEmailMap = collect($inboxList)->keyBy('id');
                 @endphp
                 <script type="application/json" id="elite-emails-initial">@json($eliteEmailMap)</script>
-                <ul class="email-list folder-list" id="eliteEmailList">
-                    @forelse($inboxList as $e)
-                        <li class="email-row" role="button" tabindex="0" data-id="{{ $e['id'] }}"
-                            data-direction-label="{{ e($e['direction_label'] ?? '') }}">
-                            <span class="email-sender">{{ $e['from'] ?? '—' }}</span>
-                            <span class="email-subject">@if(!empty($e['direction_label']))<span class="me-1 text-muted small">[{{ $e['direction_label'] }}]</span>@endif{{ ($e['subject'] ?? '') ?: '(No subject)' }}</span>
-                            <span class="email-date">{{ $e['date'] ?? '' }}</span>
-                        </li>
-                    @empty
-                    @endforelse
-                </ul>
+                <div class="email-list-wrap" id="eliteListWrap" style="{{ count($inboxList) ? '' : 'display:none;' }}">
+                    <div class="email-list-header" id="eliteListHeader" aria-hidden="false">
+                        <span class="col-icon"></span>
+                        <span class="col-address" id="eliteHeaderAddress">From</span>
+                        <span class="col-subject">Subject</span>
+                        <span class="col-date" id="eliteHeaderDate">Received</span>
+                    </div>
+                    <ul class="email-list folder-list" id="eliteEmailList">
+                        @forelse($inboxList as $e)
+                            @php
+                                $dir = (string) ($e['direction'] ?? '');
+                                $incoming = in_array($dir, ['inbound', 'inbox'], true);
+                                $rowClass = $incoming ? 'email-row--incoming' : 'email-row--outgoing';
+                                $iconClass = $incoming ? 'fa-arrow-down' : 'fa-arrow-up';
+                                $primaryLabel = 'From';
+                                $primaryAddr = $e['from'] ?? '—';
+                                $subj = ($e['subject'] ?? '') !== '' ? $e['subject'] : '(No subject)';
+                                $dlabel = $e['direction_label'] ?? '';
+                            @endphp
+                            <li class="email-row {{ $rowClass }}" role="button" tabindex="0" data-id="{{ $e['id'] }}"
+                                data-direction="{{ e($dir) }}"
+                                data-direction-label="{{ e($dlabel) }}">
+                                <span class="email-dir-icon" title="{{ $incoming ? 'Incoming' : 'Outgoing' }}"><i class="fas {{ $iconClass }}"></i></span>
+                                <div class="email-address-block">
+                                    <span class="email-address-label">{{ $primaryLabel }}</span>
+                                    <span class="email-address-value">{{ $primaryAddr }}</span>
+                                </div>
+                                <div class="email-subject-block">
+                                    @if($dlabel !== '')
+                                        <span class="email-source-badge">{{ $dlabel }}</span>
+                                    @endif
+                                    <div class="email-subject-line">{{ $subj }}</div>
+                                </div>
+                                <span class="email-date">{{ $e['date'] ?? '' }}</span>
+                            </li>
+                        @empty
+                        @endforelse
+                    </ul>
+                </div>
                 <div class="empty-state folder-empty" id="eliteEmpty" style="{{ count($inboxList) ? 'display:none;' : '' }}">
-                    <i class="fas fa-inbox"></i>
-                    <p>Your inbox is empty</p>
-                    <span>Send or receive mail for <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> in the CRM, post inbound to the webhook, or use “Simulate inbound”.</span>
+                    <i class="fas fa-inbox" id="eliteEmptyIcon"></i>
+                    <p id="eliteEmptyTitle">No incoming messages</p>
+                    <span id="eliteEmptyHint">Send or receive mail for <strong>{{ '@' . config('crm.education_elite_sender_domain', 'educationelite.com.au') }}</strong> in the CRM, post inbound to the webhook, or use “Simulate inbound”.</span>
                 </div>
             </div>
         </main>
@@ -338,9 +460,14 @@
 <script>
 (function() {
     var listUrl = @json(route('elite.emails.inbox'));
+    var activeFolder = @json($eliteInitialFolder ?? 'inbox');
     var view = document.getElementById('folderInbox');
     var listEl = document.getElementById('eliteEmailList');
+    var listWrap = document.getElementById('eliteListWrap');
     var emptyEl = document.getElementById('eliteEmpty');
+    var emptyIcon = document.getElementById('eliteEmptyIcon');
+    var emptyTitle = document.getElementById('eliteEmptyTitle');
+    var emptyHint = document.getElementById('eliteEmptyHint');
     var overlay = document.getElementById('eliteEmailModalOverlay');
     var tokenMeta = document.querySelector('meta[name="csrf-token"]');
     var initialJson = document.getElementById('elite-emails-initial');
@@ -384,35 +511,109 @@
         if (e.key === 'Escape' && overlay.classList.contains('show')) closeModal();
     });
 
-    function bindRowClicks() {
-        listEl.querySelectorAll('.email-row').forEach(function(row) {
-            row.addEventListener('click', function() {
-                var id = row.dataset.id;
-                var payload;
-                if (id && initialMap[id]) {
-                    payload = initialMap[id];
-                } else {
-                    payload = {
-                        from: row.dataset.from || '',
-                        to: row.dataset.to || '',
-                        subject: row.dataset.subject || '',
-                        date: row.dataset.date || '',
-                        body: row.dataset.body || '',
-                        direction_label: row.dataset.directionLabel || ''
-                    };
-                }
-                openModal({
-                    from: payload.from || '',
-                    to: payload.to || '',
-                    subject: payload.subject || '',
-                    date: payload.date || '',
-                    body: payload.body || '',
-                    direction_label: payload.direction_label || ''
-                });
-            });
-        });
+    function updateListHeader(folder) {
+        var addr = document.getElementById('eliteHeaderAddress');
+        var dat = document.getElementById('eliteHeaderDate');
+        if (!addr || !dat) return;
+        if (folder === 'sent') {
+            addr.textContent = 'To';
+            dat.textContent = 'Sent';
+        } else {
+            addr.textContent = 'From';
+            dat.textContent = 'Received';
+        }
     }
-    bindRowClicks();
+
+    function showEmptyState(folder, message) {
+        if (listWrap) listWrap.style.display = 'none';
+        emptyEl.style.display = 'flex';
+        if (emptyIcon) {
+            emptyIcon.className = 'fas ' + (folder === 'sent' ? 'fa-paper-plane' : 'fa-inbox');
+        }
+        if (emptyTitle) emptyTitle.textContent = folder === 'sent' ? 'No sent messages' : 'No incoming messages';
+        if (emptyHint) emptyHint.textContent = message || '';
+    }
+
+    function hideEmptyState() {
+        if (listWrap) listWrap.style.display = '';
+        emptyEl.style.display = 'none';
+    }
+
+    function buildEmailRow(e, folder) {
+        var li = document.createElement('li');
+        var direction = e.direction || '';
+        var incoming = folder !== 'sent' && (direction === 'inbound' || direction === 'inbox');
+        li.className = 'email-row ' + (incoming ? 'email-row--incoming' : 'email-row--outgoing');
+        li.setAttribute('role', 'button');
+        li.setAttribute('tabindex', '0');
+        li.dataset.id = e.id || '';
+        li.dataset.direction = direction;
+        li.dataset.directionLabel = e.direction_label || '';
+
+        var iconWrap = document.createElement('span');
+        iconWrap.className = 'email-dir-icon';
+        iconWrap.title = incoming ? 'Incoming' : 'Outgoing';
+        var ic = document.createElement('i');
+        ic.className = 'fas ' + (incoming ? 'fa-arrow-down' : 'fa-arrow-up');
+        iconWrap.appendChild(ic);
+
+        var addrBlock = document.createElement('div');
+        addrBlock.className = 'email-address-block';
+        var addrLabel = document.createElement('span');
+        addrLabel.className = 'email-address-label';
+        var addrVal = document.createElement('span');
+        addrVal.className = 'email-address-value';
+        if (folder === 'sent') {
+            addrLabel.textContent = 'To';
+            addrVal.textContent = e.to || '—';
+        } else {
+            addrLabel.textContent = 'From';
+            addrVal.textContent = e.from || '—';
+        }
+        addrBlock.appendChild(addrLabel);
+        addrBlock.appendChild(addrVal);
+
+        var subjBlock = document.createElement('div');
+        subjBlock.className = 'email-subject-block';
+        var dlabel = e.direction_label || '';
+        if (dlabel) {
+            var badge = document.createElement('span');
+            badge.className = 'email-source-badge';
+            badge.textContent = dlabel;
+            subjBlock.appendChild(badge);
+        }
+        var subjLine = document.createElement('div');
+        subjLine.className = 'email-subject-line';
+        subjLine.textContent = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
+        subjBlock.appendChild(subjLine);
+
+        var dateSpan = document.createElement('span');
+        dateSpan.className = 'email-date';
+        dateSpan.textContent = e.date || '';
+
+        li.appendChild(iconWrap);
+        li.appendChild(addrBlock);
+        li.appendChild(subjBlock);
+        li.appendChild(dateSpan);
+        return li;
+    }
+
+    listEl.addEventListener('click', function(ev) {
+        var row = ev.target.closest('.email-row');
+        if (!row) return;
+        var id = row.dataset.id;
+        var payload = (id && initialMap[id]) ? initialMap[id] : null;
+        if (payload) {
+            openModal({
+                from: payload.from || '',
+                to: payload.to || '',
+                subject: (payload.subject && String(payload.subject).length) ? payload.subject : '(No subject)',
+                date: payload.date || '',
+                body: payload.body || '',
+                direction_label: payload.direction_label || ''
+            });
+        }
+    });
 
     function getDateRangeParams() {
         var rangeSel = view.querySelector('.filter-date-range');
@@ -444,14 +645,14 @@
         if (customSpan) customSpan.style.display = this.value === 'custom' ? 'inline-flex' : 'none';
     });
 
-    view.querySelector('.btn-fetch').addEventListener('click', function() {
-        var btn = this;
+    function fetchEmails() {
+        var btn = view.querySelector('.btn-fetch');
         var searchInput = view.querySelector('.folder-search');
         var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
         var dr = getDateRangeParams();
         var sortSel = view.querySelector('.filter-sort');
         var sort = (sortSel && sortSel.value) ? sortSel.value : 'newest';
-        var params = ['folder=inbox'];
+        var params = ['folder=' + encodeURIComponent(activeFolder)];
         if (search) params.push('search=' + search);
         if (dr.date_from) params.push('date_from=' + encodeURIComponent(dr.date_from));
         if (dr.date_to) params.push('date_to=' + encodeURIComponent(dr.date_to));
@@ -467,71 +668,46 @@
         })
             .then(function(r) { return r.json(); })
             .then(function(data) {
+                if (data.folder) activeFolder = data.folder;
+                updateListHeader(activeFolder);
                 listEl.innerHTML = '';
+                initialMap = {};
                 var rows = data.emails || [];
+                rows.forEach(function(e) {
+                    if (e.id) initialMap[e.id] = e;
+                });
                 if (rows.length === 0) {
-                    emptyEl.style.display = 'flex';
-                    var span = emptyEl.querySelector('span');
-                    if (span) span.textContent = data.message || 'No emails found.';
+                    showEmptyState(activeFolder, data.message || '');
                     return;
                 }
-                emptyEl.style.display = 'none';
+                hideEmptyState();
                 rows.forEach(function(e) {
-                    var li = document.createElement('li');
-                    li.className = 'email-row';
-                    li.setAttribute('role', 'button');
-                    li.setAttribute('tabindex', '0');
-                    var body = e.body || '';
-                    var dlabel = e.direction_label || '';
-                    li.dataset.id = e.id || '';
-                    li.dataset.from = e.from || '';
-                    li.dataset.to = e.to || '';
-                    li.dataset.subject = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
-                    li.dataset.date = e.date || '';
-                    li.dataset.body = body;
-                    li.dataset.directionLabel = dlabel;
-                    var fromSpan = document.createElement('span');
-                    fromSpan.className = 'email-sender';
-                    fromSpan.textContent = e.from || '';
-                    var subjSpan = document.createElement('span');
-                    subjSpan.className = 'email-subject';
-                    if (dlabel) {
-                        var typeSpan = document.createElement('span');
-                        typeSpan.className = 'me-1 text-muted small';
-                        typeSpan.textContent = '[' + dlabel + '] ';
-                        subjSpan.appendChild(typeSpan);
-                    }
-                    var subjText = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
-                    subjSpan.appendChild(document.createTextNode(subjText));
-                    var dateSpan = document.createElement('span');
-                    dateSpan.className = 'email-date';
-                    dateSpan.textContent = e.date || '';
-                    li.appendChild(fromSpan);
-                    li.appendChild(subjSpan);
-                    li.appendChild(dateSpan);
-                    li.addEventListener('click', function() {
-                        openModal({
-                            from: li.dataset.from,
-                            to: li.dataset.to,
-                            subject: li.dataset.subject,
-                            date: li.dataset.date,
-                            body: li.dataset.body,
-                            direction_label: dlabel
-                        });
-                    });
-                    listEl.appendChild(li);
+                    listEl.appendChild(buildEmailRow(e, activeFolder));
                 });
             })
             .catch(function() {
-                emptyEl.style.display = 'flex';
-                var span = emptyEl.querySelector('span');
-                if (span) span.textContent = 'Could not fetch emails.';
+                showEmptyState(activeFolder, 'Could not fetch emails.');
             })
             .finally(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails';
             });
+    }
+
+    document.querySelectorAll('.outlook-folders .folder-item[data-folder]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            activeFolder = btn.getAttribute('data-folder') || 'inbox';
+            document.querySelectorAll('.outlook-folders .folder-item[data-folder]').forEach(function(b) {
+                b.classList.toggle('active', b === btn);
+            });
+            updateListHeader(activeFolder);
+            fetchEmails();
+        });
     });
+
+    view.querySelector('.btn-fetch').addEventListener('click', fetchEmails);
+
+    updateListHeader(activeFolder);
 })();
 </script>
 @endpush

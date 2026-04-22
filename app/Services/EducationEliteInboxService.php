@@ -60,6 +60,7 @@ class EducationEliteInboxService
      * Inbound (SendGrid) + CRM (Option A), merged in SQL so ORDER BY and LIMIT
      * apply to the combined result.
      *
+     * @param  string|null  $folder  'inbox' (inbound + CRM inbox), 'sent' (CRM sent only), or null for all
      * @return array<int, array<string, mixed>>
      */
     public function getMergedInbox(
@@ -67,7 +68,8 @@ class EducationEliteInboxService
         string $dateFrom,
         string $dateTo,
         string $sort,
-        int $limit
+        int $limit,
+        ?string $folder = null
     ): array {
         $search = trim($search);
         $orderDir = $sort === 'oldest' ? 'asc' : 'desc';
@@ -80,12 +82,19 @@ class EducationEliteInboxService
             $merged = $eliteQ->unionAll($this->crmSubquery($search, $dateFrom, $dateTo));
         }
 
-        $rows = DB::query()->fromSub($merged, 'merged')
+        $outer = DB::query()->fromSub($merged, 'merged')
             ->orderBy('sort_at', $orderDir)
             ->orderBy('src', 'desc')
-            ->orderBy('ref_id', 'desc')
-            ->limit($limit)
-            ->get();
+            ->orderBy('ref_id', 'desc');
+
+        $folderNorm = $folder === 'sent' ? 'sent' : ($folder === 'inbox' ? 'inbox' : null);
+        if ($folderNorm === 'inbox') {
+            $outer->whereIn('direction', ['inbound', 'inbox']);
+        } elseif ($folderNorm === 'sent') {
+            $outer->where('direction', 'sent');
+        }
+
+        $rows = $outer->limit($limit)->get();
 
         $out = [];
         foreach ($rows as $row) {
@@ -246,11 +255,14 @@ class EducationEliteInboxService
         return $q;
     }
 
-    public function emptyListMessage(): string
+    public function emptyListMessage(?string $folder = null): string
     {
         $d = $this->domain;
+        if ($folder === 'sent') {
+            return 'No sent items for @' . $d . ' yet. Outbound mail logged in the CRM appears here when @' . $d . ' is in From, To, or CC.';
+        }
 
-        return 'No @' . $d . ' activity yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
-            . ' Outbound and CRM inbox rows appear when @' . $d . ' appears in From, To, or CC.';
+        return 'No incoming mail for @' . $d . ' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
+            . ' CRM inbox rows appear when @' . $d . ' appears in From, To, or CC.';
     }
 }
