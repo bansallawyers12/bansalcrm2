@@ -40,6 +40,9 @@ class EliteEmailController extends Controller
         $dateFrom = $request->get('date_from', '');
         $dateTo = $request->get('date_to', '');
         $sort = $request->get('sort', 'newest');
+        if (! in_array($sort, ['newest', 'oldest'], true)) {
+            $sort = 'newest';
+        }
         $folder = $request->get('folder', 'inbox');
         if (! in_array($folder, ['inbox', 'sent'], true)) {
             $folder = 'inbox';

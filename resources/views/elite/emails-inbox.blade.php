@@ -199,6 +199,51 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.email-row .email-address-secondary {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.email-row .email-address-secondary .sec-label {
+    font-weight: 600;
+    color: #94a3b8;
+    margin-right: 4px;
+}
+.inbox-fetch-error {
+    display: none;
+    margin: 0 20px 10px;
+    padding: 10px 14px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #991b1b;
+    font-size: 13px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.inbox-fetch-error.show { display: flex; }
+.inbox-fetch-error button {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #991b1b;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: underline;
+    padding: 0;
+}
+.sent-email-modal .email-body-frame {
+    width: 100%;
+    min-height: 220px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #fff;
+}
 .email-row .email-subject-block { min-width: 0; }
 .email-row .email-source-badge {
     display: inline-flex;
@@ -299,6 +344,12 @@
     line-height: 1.5;
     word-break: break-word;
 }
+.elite-email-plain {
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 50vh;
+    overflow-y: auto;
+}
 </style>
 @endpush
 
@@ -313,12 +364,12 @@
 
     <div class="outlook-container">
         <aside class="outlook-sidebar">
-            <nav class="outlook-folders">
-                <button type="button" class="folder-item active" data-folder="inbox" id="eliteFolderInbox">
-                    <i class="fas fa-inbox"></i> Inbox
+            <nav class="outlook-folders" aria-label="Mail folders">
+                <button type="button" class="folder-item active" data-folder="inbox" id="eliteFolderInbox" aria-current="page">
+                    <i class="fas fa-inbox" aria-hidden="true"></i> Inbox
                 </button>
                 <button type="button" class="folder-item" data-folder="sent" id="eliteFolderSent">
-                    <i class="fas fa-paper-plane"></i> Sent Items
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i> Sent Items
                 </button>
             </nav>
             <div class="elite-sidebar-foot">
@@ -379,8 +430,12 @@
                         <option value="oldest">Oldest first</option>
                     </select>
                     <button type="button" class="btn btn-primary btn-sm ms-2 btn-fetch" data-folder="inbox">
-                        <i class="fas fa-sync-alt"></i> Get Emails
+                        <i class="fas fa-sync-alt" aria-hidden="true"></i> Get Emails
                     </button>
+                </div>
+                <div class="inbox-fetch-error" id="eliteFetchError" role="alert">
+                    <span id="eliteFetchErrorText"></span>
+                    <button type="button" id="eliteFetchErrorDismiss">Dismiss</button>
                 </div>
                 @php
                     $inboxList = $eliteInboxItems ?? [];
@@ -413,6 +468,11 @@
                                 <div class="email-address-block">
                                     <span class="email-address-label">{{ $primaryLabel }}</span>
                                     <span class="email-address-value">{{ $primaryAddr }}</span>
+                                    @if($incoming && ($e['to'] ?? '') !== '')
+                                        <span class="email-address-secondary"><span class="sec-label">To</span>{{ $e['to'] }}</span>
+                                    @elseif(! $incoming && ($e['from'] ?? '') !== '')
+                                        <span class="email-address-secondary"><span class="sec-label">From</span>{{ $e['from'] }}</span>
+                                    @endif
                                 </div>
                                 <div class="email-subject-block">
                                     @if($dlabel !== '')
@@ -449,7 +509,8 @@
                 <div class="email-meta-row"><span class="email-meta-label">Date:</span> <span id="eliteEmailDate"></span></div>
                 <div class="email-body-wrap">
                     <div class="email-meta-label">Message</div>
-                    <div id="eliteEmailBody"></div>
+                    <div id="eliteEmailBody" class="elite-email-plain"></div>
+                    <iframe id="eliteEmailBodyFrame" class="email-body-frame" title="HTML message" sandbox="" style="display:none;"></iframe>
                 </div>
             </div>
         </div>
@@ -476,6 +537,27 @@
         initialMap = initialJson ? JSON.parse(initialJson.textContent || '{}') : {};
     } catch (err) { initialMap = {}; }
 
+    var fetchErrEl = document.getElementById('eliteFetchError');
+    var fetchErrText = document.getElementById('eliteFetchErrorText');
+    function showFetchError(msg) {
+        if (fetchErrText) fetchErrText.textContent = msg;
+        if (fetchErrEl) fetchErrEl.classList.add('show');
+    }
+    function clearFetchError() {
+        if (fetchErrEl) fetchErrEl.classList.remove('show');
+    }
+    var fetchErrDismiss = document.getElementById('eliteFetchErrorDismiss');
+    if (fetchErrDismiss) fetchErrDismiss.addEventListener('click', clearFetchError);
+
+    function safeSrcdoc(html) {
+        return String(html).replace(/<\/iframe/gi, '<\\/iframe');
+    }
+    function looksLikeHtml(body) {
+        if (!body || typeof body !== 'string') return false;
+        var t = body.trim();
+        return t.indexOf('<') !== -1 && t.indexOf('>') !== -1;
+    }
+
     function openModal(payload) {
         var typeRow = document.getElementById('eliteEmailTypeRow');
         var typeEl = document.getElementById('eliteEmailType');
@@ -489,11 +571,20 @@
         document.getElementById('eliteEmailSubject').textContent = payload.subject || '';
         document.getElementById('eliteEmailDate').textContent = payload.date || '';
         var body = payload.body || '';
-        var wrap = document.getElementById('eliteEmailBody');
-        if (body.indexOf('<') !== -1 && body.indexOf('>') !== -1) {
-            wrap.innerHTML = body;
-        } else {
-            wrap.textContent = body;
+        var plainEl = document.getElementById('eliteEmailBody');
+        var frame = document.getElementById('eliteEmailBodyFrame');
+        if (plainEl && frame) {
+            if (looksLikeHtml(body)) {
+                plainEl.textContent = '';
+                plainEl.style.display = 'none';
+                frame.style.display = 'block';
+                frame.srcdoc = safeSrcdoc(body);
+            } else {
+                frame.srcdoc = '';
+                frame.style.display = 'none';
+                plainEl.style.display = '';
+                plainEl.textContent = body;
+            }
         }
         overlay.classList.add('show');
         overlay.setAttribute('aria-hidden', 'false');
@@ -501,7 +592,16 @@
     function closeModal() {
         overlay.classList.remove('show');
         overlay.setAttribute('aria-hidden', 'true');
-        document.getElementById('eliteEmailBody').innerHTML = '';
+        var frame = document.getElementById('eliteEmailBodyFrame');
+        if (frame) {
+            frame.srcdoc = '';
+            frame.style.display = 'none';
+        }
+        var plainEl = document.getElementById('eliteEmailBody');
+        if (plainEl) {
+            plainEl.textContent = '';
+            plainEl.style.display = '';
+        }
     }
     document.getElementById('eliteEmailModalClose').addEventListener('click', closeModal);
     overlay.addEventListener('click', function(e) {
@@ -572,6 +672,25 @@
         }
         addrBlock.appendChild(addrLabel);
         addrBlock.appendChild(addrVal);
+        if (folder === 'sent' && e.from) {
+            var secF = document.createElement('span');
+            secF.className = 'email-address-secondary';
+            var secFL = document.createElement('span');
+            secFL.className = 'sec-label';
+            secFL.textContent = 'From';
+            secF.appendChild(secFL);
+            secF.appendChild(document.createTextNode(e.from));
+            addrBlock.appendChild(secF);
+        } else if (folder !== 'sent' && e.to) {
+            var secT = document.createElement('span');
+            secT.className = 'email-address-secondary';
+            var secTL = document.createElement('span');
+            secTL.className = 'sec-label';
+            secTL.textContent = 'To';
+            secT.appendChild(secTL);
+            secT.appendChild(document.createTextNode(e.to));
+            addrBlock.appendChild(secT);
+        }
 
         var subjBlock = document.createElement('div');
         subjBlock.className = 'email-subject-block';
@@ -614,6 +733,25 @@
             });
         }
     });
+    listEl.addEventListener('keydown', function(ev) {
+        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+        var row = ev.target.closest('.email-row');
+        if (!row || !listEl.contains(row)) return;
+        ev.preventDefault();
+        row.click();
+    });
+
+    function syncFolderAria(activeBtn) {
+        document.querySelectorAll('.outlook-folders .folder-item[data-folder]').forEach(function(b) {
+            if (b === activeBtn) {
+                b.setAttribute('aria-current', 'page');
+            } else {
+                b.removeAttribute('aria-current');
+            }
+        });
+    }
+    var initialFolderBtn = document.querySelector('.outlook-folders .folder-item.active[data-folder]');
+    if (initialFolderBtn) syncFolderAria(initialFolderBtn);
 
     function getDateRangeParams() {
         var rangeSel = view.querySelector('.filter-date-range');
@@ -646,6 +784,7 @@
     });
 
     function fetchEmails() {
+        clearFetchError();
         var btn = view.querySelector('.btn-fetch');
         var searchInput = view.querySelector('.folder-search');
         var search = (searchInput && searchInput.value) ? encodeURIComponent(searchInput.value.trim()) : '';
@@ -658,16 +797,23 @@
         if (dr.date_to) params.push('date_to=' + encodeURIComponent(dr.date_to));
         params.push('sort=' + sort);
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Loading...';
         fetch(listUrl + '?' + params.join('&'), {
+            credentials: 'same-origin',
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': tokenMeta ? tokenMeta.getAttribute('content') : ''
             }
         })
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                if (!r.ok) {
+                    throw new Error('Server returned ' + r.status);
+                }
+                return r.json();
+            })
             .then(function(data) {
+                clearFetchError();
                 if (data.folder) activeFolder = data.folder;
                 updateListHeader(activeFolder);
                 listEl.innerHTML = '';
@@ -686,11 +832,11 @@
                 });
             })
             .catch(function() {
-                showEmptyState(activeFolder, 'Could not fetch emails.');
+                showFetchError('Could not refresh the list. Check your connection or try again.');
             })
             .finally(function() {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails';
+                btn.innerHTML = '<i class="fas fa-sync-alt" aria-hidden="true"></i> Get Emails';
             });
     }
 
@@ -700,6 +846,7 @@
             document.querySelectorAll('.outlook-folders .folder-item[data-folder]').forEach(function(b) {
                 b.classList.toggle('active', b === btn);
             });
+            syncFolderAria(btn);
             updateListHeader(activeFolder);
             fetchEmails();
         });

@@ -257,12 +257,12 @@ class EducationEliteInboxService
 
     public function emptyListMessage(?string $folder = null): string
     {
-        $d = $this->domain;
+        $mention = $this->domain !== '' ? '@' . $this->domain : 'the configured Elite domain';
         if ($folder === 'sent') {
-            return 'No sent items for @' . $d . ' yet. Outbound mail logged in the CRM appears here when @' . $d . ' is in From, To, or CC.';
+            return 'No sent items for ' . $mention . ' yet. Outbound mail logged in the CRM appears when ' . $mention . ' is in From, To, or CC.';
         }
 
-        return 'No incoming mail for @' . $d . ' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
-            . ' CRM inbox rows appear when @' . $d . ' appears in From, To, or CC.';
+        return 'No incoming mail for ' . $mention . ' yet. Inbound: SendGrid Inbound Parse to the webhook, or use “Simulate inbound”.'
+            . ' CRM inbox rows appear when ' . $mention . ' is in From, To, or CC.';
     }
 }
