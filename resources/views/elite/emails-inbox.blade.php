@@ -588,11 +588,41 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <i class="fas fa-sync-alt" aria-hidden="true"></i> Get Drafts
                     </button>
                 </div>
-                <ul class="email-list" id="eliteDraftList"></ul>
-                <div class="empty-state" id="eliteDraftEmpty">
-                    <i class="fas fa-file-alt" aria-hidden="true"></i>
-                    <p>No drafts</p>
-                    <span>Drafts saved on the <a href="{{ route('admin.outlook.index') }}">Outlook page</a> using an Education Elite address will appear here.</span>
+                {{-- Two-column split: list + reading pane --}}
+                <div class="sent-triple">
+                    <div class="sent-list-col">
+                        <ul class="email-list" id="eliteDraftList"></ul>
+                        <div class="empty-state" id="eliteDraftEmpty">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                            <p>No drafts</p>
+                            <span>Drafts saved on the <a href="{{ route('admin.outlook.index') }}">Outlook page</a> using an Education Elite address will appear here.</span>
+                        </div>
+                    </div>
+                    {{-- Reading pane --}}
+                    <div class="sent-reading-col">
+                        <div class="sent-reading-empty" id="eliteDraftReadEmpty">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                            <p>Select a draft to preview it.</p>
+                        </div>
+                        <div class="sent-reading-content" id="eliteDraftReadContent" style="display:none;">
+                            <div class="sent-read-actions">
+                                <button type="button" class="btn-read-act" id="eliteDraftBtnEdit">
+                                    <i class="fas fa-edit"></i> Edit &amp; Send
+                                </button>
+                            </div>
+                            <div class="sent-reading-scroll">
+                                <h2 class="sent-read-subject" id="eliteDraftReadSubj"></h2>
+                                <div class="sent-read-meta">
+                                    <div><span class="ml">From:</span> <span id="eliteDraftReadFrom"></span></div>
+                                    <div><span class="ml">To:</span>   <span id="eliteDraftReadTo"></span></div>
+                                    <div><span class="ml">Cc:</span>   <span id="eliteDraftReadCc"></span></div>
+                                    <div><span class="ml">Date:</span> <span id="eliteDraftReadDate"></span></div>
+                                </div>
+                                <div class="sent-read-body" id="eliteDraftReadBody"></div>
+                                <iframe id="eliteDraftReadFrame" class="sent-read-frame" title="Draft email body" sandbox="allow-same-origin" style="display:none;"></iframe>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -659,6 +689,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 <button type="submit" id="eliteComposeSend"
                         style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:#0078d4;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;">
                     <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <button type="button" id="eliteComposeSaveDraft"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
+                    <i class="fas fa-save"></i> Save Draft
                 </button>
                 <button type="button" id="eliteAttachBtn" title="Attach files"
                         style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
@@ -1089,8 +1123,66 @@ html, body { margin: 0; padding: 0; height: 100%; }
     /* ═══════════════════════════════════════════════════════════════════════ */
     /* DRAFTS                                                                   */
     /* ═══════════════════════════════════════════════════════════════════════ */
-    var draftList  = document.getElementById('eliteDraftList');
-    var draftEmpty = document.getElementById('eliteDraftEmpty');
+    var draftList        = document.getElementById('eliteDraftList');
+    var draftEmpty       = document.getElementById('eliteDraftEmpty');
+    var draftReadEmpty   = document.getElementById('eliteDraftReadEmpty');
+    var draftReadContent = document.getElementById('eliteDraftReadContent');
+    var draftStore       = {}; // id → draft object
+
+    var HTML_TAG_RE_D = /<([a-z][a-z0-9]*)\b[^>]*>/i;
+    function looksLikeHtmlD(s) { return typeof s === 'string' && HTML_TAG_RE_D.test(s.trim()); }
+
+    function openDraftReading(d) {
+        if (draftReadEmpty)   draftReadEmpty.style.display   = 'none';
+        if (draftReadContent) draftReadContent.style.display = 'flex';
+
+        document.getElementById('eliteDraftReadSubj').textContent = d.subject || '(No subject)';
+        document.getElementById('eliteDraftReadFrom').textContent = d.from    || '—';
+        document.getElementById('eliteDraftReadTo').textContent   = d.to      || '—';
+        document.getElementById('eliteDraftReadCc').textContent   = d.cc      || '—';
+        document.getElementById('eliteDraftReadDate').textContent = d.date    || '—';
+
+        var bodyEl  = document.getElementById('eliteDraftReadBody');
+        var frameEl = document.getElementById('eliteDraftReadFrame');
+        var body    = d.body || '';
+
+        if (looksLikeHtmlD(body)) {
+            bodyEl.style.display  = 'none';
+            frameEl.style.display = 'block';
+            frameEl.srcdoc = body;
+        } else {
+            frameEl.style.display = 'none';
+            bodyEl.style.display  = 'block';
+            bodyEl.textContent    = body;
+        }
+
+        /* Wire "Edit & Send" button */
+        var editBtn = document.getElementById('eliteDraftBtnEdit');
+        if (editBtn) {
+            editBtn.onclick = function () {
+                /* Pre-fill compose modal with draft data */
+                var composeOverlay = document.getElementById('eliteComposeOverlay');
+                var composeForm    = document.getElementById('eliteComposeForm');
+                if (!composeOverlay || !composeForm) return;
+                composeForm.reset();
+                var toEl      = composeForm.querySelector('[name="to"]');
+                var ccEl      = composeForm.querySelector('[name="cc"]');
+                var subjEl    = composeForm.querySelector('[name="subject"]');
+                var bodyTa    = composeForm.querySelector('[name="body"]');
+                if (toEl   && d.to)      toEl.value   = d.to;
+                if (ccEl   && d.cc)      ccEl.value   = d.cc;
+                if (subjEl && d.subject) subjEl.value = (d.subject === '(No subject)') ? '' : d.subject;
+                if (bodyTa && d.body)    bodyTa.value  = d.body;
+                composeOverlay.style.display = 'flex';
+                /* Load senders if not already done */
+                document.getElementById('eliteBtnCompose') && document.getElementById('eliteBtnCompose').dispatchEvent(new CustomEvent('_loadSenders'));
+            };
+        }
+
+        /* Highlight active row */
+        draftList.querySelectorAll('.email-row').forEach(function (r) { r.classList.remove('active'); });
+        if (d._el) d._el.classList.add('active');
+    }
 
     document.querySelector('.btn-fetch-drafts') && document.querySelector('.btn-fetch-drafts').addEventListener('click', function () {
         var btn = this;
@@ -1100,6 +1192,11 @@ html, body { margin: 0; padding: 0; height: 100%; }
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
         apiFetch(DRAFTS_URL, params).then(function (data) {
             draftList.innerHTML = '';
+            draftStore = {};
+            /* Reset reading pane */
+            if (draftReadEmpty)   draftReadEmpty.style.display   = 'flex';
+            if (draftReadContent) draftReadContent.style.display = 'none';
+
             var rows = data.emails || [];
             if (rows.length === 0) {
                 draftList.style.display = 'none'; draftEmpty.style.display = 'flex';
@@ -1107,8 +1204,19 @@ html, body { margin: 0; padding: 0; height: 100%; }
             }
             draftList.style.display = ''; draftEmpty.style.display = 'none';
             rows.forEach(function (d) {
-                var li = document.createElement('li'); li.className = 'email-row';
-                li.innerHTML = '<span class="email-sender">' + (d.from||'—') + '</span><span class="email-subject">' + (d.subject||'(No subject)') + '</span><span class="email-date">' + (d.date||'') + '</span>';
+                var li = document.createElement('li');
+                li.className = 'email-row';
+                li.setAttribute('role', 'option');
+                li.setAttribute('tabindex', '0');
+                li.innerHTML = '<span class="email-sender">' + escHtml(d.from||'—') + '</span>'
+                             + '<span class="email-subject">' + escHtml(d.subject||'(No subject)') + '</span>'
+                             + '<span class="email-date">'   + escHtml(d.date||'') + '</span>';
+                d._el = li;
+                draftStore[d.id] = d;
+                li.addEventListener('click', function () { openDraftReading(d); });
+                li.addEventListener('keydown', function (ev) {
+                    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDraftReading(d); }
+                });
                 draftList.appendChild(li);
             });
         }).catch(function () { draftEmpty.style.display = 'flex'; })
@@ -1124,11 +1232,13 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var alertBar       = document.getElementById('eliteComposeAlert');
         var sendBtn        = document.getElementById('eliteComposeSend');
         var fromSel        = document.getElementById('eliteComposeFrom');
+        var saveDraftBtn   = document.getElementById('eliteComposeSaveDraft');
         var attachBtn      = document.getElementById('eliteAttachBtn');
         var attachInput    = document.getElementById('eliteAttachmentInput');
         var attachList     = document.getElementById('eliteAttachmentList');
         var attachItems    = document.getElementById('eliteAttachmentItems');
         var SENDERS_URL    = @json(route('admin.outlook.senders'));
+        var SAVE_DRAFT_URL = @json(route('admin.outlook.saveDraft'));
 
         var sendersLoaded = false;
         var selectedFiles = []; // track File objects for manual FormData append
@@ -1228,6 +1338,68 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (btnOpen)   btnOpen.addEventListener('click',   openModal);
         if (btnClose)  btnClose.addEventListener('click',  closeModal);
         if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+        /* ── Save Draft ──────────────────────────────────────────────────────── */
+        if (saveDraftBtn) {
+            saveDraftBtn.addEventListener('click', function () {
+                var from    = fromSel    ? fromSel.value    : '';
+                var toEl    = form.querySelector('[name="to"]');
+                var ccEl    = form.querySelector('[name="cc"]');
+                var subjEl  = form.querySelector('[name="subject"]');
+                var bodyEl  = form.querySelector('[name="body"]');
+
+                if (!from) {
+                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                    alertBar.textContent   = 'Please select a From address before saving.';
+                    return;
+                }
+
+                saveDraftBtn.disabled   = true;
+                saveDraftBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+                alertBar.style.display  = 'none';
+
+                var payload = new URLSearchParams();
+                payload.append('_token', tokenMeta ? tokenMeta.getAttribute('content') : '');
+                payload.append('from',    from);
+                payload.append('to',      toEl   ? toEl.value   : '');
+                payload.append('cc',      ccEl   ? ccEl.value   : '');
+                payload.append('subject', subjEl ? subjEl.value : '');
+                payload.append('body',    bodyEl ? bodyEl.value : '');
+
+                fetch(SAVE_DRAFT_URL, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': tokenMeta ? tokenMeta.getAttribute('content') : '',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: payload.toString()
+                }).then(function (res) {
+                    return res.json().catch(function () { return { success: res.ok }; });
+                }).then(function (data) {
+                    if (data.success) {
+                        alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;';
+                        alertBar.textContent   = data.message || 'Draft saved successfully.';
+                        var prevFrom = fromSel ? fromSel.value : '';
+                        form.reset();
+                        clearAttachments();
+                        if (fromSel && prevFrom) fromSel.value = prevFrom;
+                        setTimeout(closeModal, 1600);
+                    } else {
+                        alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                        alertBar.textContent   = (data.message) || 'Could not save draft. Please try again.';
+                    }
+                }).catch(function () {
+                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                    alertBar.textContent   = 'Network error. Please check your connection.';
+                }).finally(function () {
+                    saveDraftBtn.disabled  = false;
+                    saveDraftBtn.innerHTML = '<i class="fas fa-save"></i> Save Draft';
+                });
+            });
+        }
 
         if (overlay) {
             overlay.addEventListener('click', function (ev) {

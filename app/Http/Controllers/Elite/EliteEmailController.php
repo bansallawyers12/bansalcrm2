@@ -157,7 +157,9 @@ class EliteEmailController extends Controller
                 'id'      => $d->id,
                 'from'    => $d->from_email,
                 'to'      => $d->to_email,
+                'cc'      => $d->cc,
                 'subject' => $d->subject ?: '(No subject)',
+                'body'    => $d->body ?? '',
                 'date'    => $d->updated_at->format('d/m/Y g:i A'),
             ];
         }
