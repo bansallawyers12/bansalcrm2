@@ -7,6 +7,7 @@ use App\Models\EliteEmail;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
+use App\Support\EducationEliteMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -208,19 +209,19 @@ class EliteEmailController extends Controller
         // SendGrid / some clients (e.g. Outlook-thread replies) may send `to` as an array, only
         // in envelope JSON, or only in raw headers — collect all recipients before rejecting.
         $toAddresses = $this->collectInboundRecipientAddresses($request, $toRaw);
-        $eliteToAddr = null;
+        $eliteTo = false;
         foreach ($toAddresses as $addr) {
-            if ($this->isEliteDomainAddress($addr)) {
-                $eliteToAddr = $addr;
+            if (EducationEliteMail::isEliteOwnedAddress($addr)) {
+                $eliteTo = true;
                 break;
             }
         }
-        $eliteTo = $eliteToAddr !== null;
-        $eliteFrom = $fromAddress && $this->isEliteDomainAddress($fromAddress);
+        $eliteToAddr = EducationEliteMail::preferApexMailbox($toAddresses);
+        $eliteFrom = $fromAddress && EducationEliteMail::isEliteOwnedAddress($fromAddress);
 
         if (! $eliteTo && ! $eliteFrom) {
             Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'to' => $toRaw, 'ip' => $request->ip()]);
-            $msg = 'Neither From nor To is an @'.config('crm.education_elite_sender_domain', 'educationelite.com.au').' address.';
+            $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
             return response()->json(['ok' => false, 'error' => $msg], 422);
         }
         $text = $request->input('text') ?? $request->input('body_text') ?? $request->input('plain');
@@ -457,13 +458,5 @@ class EliteEmailController extends Controller
         }
 
         return $raw;
-    }
-
-    private function isEliteDomainAddress(string $email): bool
-    {
-        $domain = strtolower((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'));
-        $domain = ltrim($domain, '@');
-
-        return str_ends_with(strtolower($email), '@'.$domain);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\EducationEliteMail;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Config;
@@ -43,16 +44,11 @@ class EducationEliteInboxService
             return [];
         }
 
-        $like = $this->domainNeedleForLike();
         $chunks = [];
 
         foreach (['from_address', 'to_address'] as $col) {
             $q = DB::table('elite_emails')->whereNotNull($col)->where($col, '!=', '');
-            if ($this->isPostgres()) {
-                $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
-            } else {
-                $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
-            }
+            $this->whereEmailColumnMatchesEliteDomain($q, $col);
             $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
         }
         if ($this->shouldMergeCrm() && Schema::hasTable('emails')) {
@@ -72,7 +68,7 @@ class EducationEliteInboxService
             return [];
         }
         $domainQ = preg_quote($this->domain, '/');
-        $re = '/[a-z0-9._%+\-]+@'.$domainQ.'/i';
+        $re = '/[a-z0-9._%+\-]+@(?:[a-z0-9.-]+\.)?'.$domainQ.'/i';
         $out = [];
         foreach ($raw as $r) {
             if ($r === null || $r === '') {
@@ -105,7 +101,7 @@ class EducationEliteInboxService
         if ($a === '' || $a === 'all' || $a === '*') {
             return null;
         }
-        if (! str_ends_with($a, '@'.$this->domain)) {
+        if (! EducationEliteMail::isEliteOwnedAddress($a)) {
             return null;
         }
         if (! filter_var($a, FILTER_VALIDATE_EMAIL)) {
@@ -128,6 +124,31 @@ class EducationEliteInboxService
     private function isPostgres(): bool
     {
         return DB::getDriverName() === 'pgsql';
+    }
+
+    /**
+     * Match @apex or @*.apex (SendGrid Inbound Parse subdomain). $columnSqlExpr is a SQL fragment e.g. "to_address" or "COALESCE(c.from_mail, '')".
+     */
+    private function whereEmailColumnMatchesEliteDomain(Builder $q, string $columnSqlExpr): void
+    {
+        if ($this->domain === '') {
+            $q->whereRaw('1 = 0');
+
+            return;
+        }
+        $apexPat = '%@'.$this->domain;
+        $subPat = '%@%.'.$this->domain;
+        if ($this->isPostgres()) {
+            $q->where(function (Builder $w) use ($columnSqlExpr, $apexPat, $subPat) {
+                $w->whereRaw("LOWER({$columnSqlExpr}) LIKE LOWER(?)", [$apexPat])
+                    ->orWhereRaw("LOWER({$columnSqlExpr}) LIKE LOWER(?)", [$subPat]);
+            });
+        } else {
+            $q->where(function (Builder $w) use ($columnSqlExpr, $apexPat, $subPat) {
+                $w->whereRaw('LOWER('.$columnSqlExpr.') LIKE ?', [strtolower($apexPat)])
+                    ->orWhereRaw('LOWER('.$columnSqlExpr.') LIKE ?', [strtolower($subPat)]);
+            });
+        }
     }
 
     /**
@@ -218,16 +239,11 @@ class EducationEliteInboxService
      */
     private function rawMailboxValuesFromCrm(): array
     {
-        $like = $this->domainNeedleForLike();
         $chunks = [];
         foreach (['from_mail', 'to_mail'] as $col) {
             $q = DB::table('emails')->where('mail_type', 0)
                 ->whereNotNull($col)->where($col, '!=', '');
-            if ($this->isPostgres()) {
-                $q->whereRaw("LOWER({$col}) LIKE LOWER(?)", [$like]);
-            } else {
-                $q->whereRaw('LOWER('.$col.') LIKE ?', [strtolower($like)]);
-            }
+            $this->whereEmailColumnMatchesEliteDomain($q, $col);
             $chunks = array_merge($chunks, $q->distinct()->pluck($col)->all());
         }
 
@@ -299,18 +315,13 @@ class EducationEliteInboxService
           ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['noreply@%'])
           ->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) NOT LIKE ?', ['no-reply@%']);
 
-        $like = $this->domainNeedleForLike();
-        if ($this->isPostgres()) {
-            $q->where(function (Builder $w) use ($like) {
-                $w->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) LIKE LOWER(?)', [$like])
-                    ->orWhereRaw('LOWER(COALESCE(c.to_mail, \'\')) LIKE LOWER(?)', [$like]);
+        $q->where(function (Builder $outer) {
+            $outer->where(function (Builder $w) {
+                $this->whereEmailColumnMatchesEliteDomain($w, 'COALESCE(c.from_mail, \'\')');
+            })->orWhere(function (Builder $w) {
+                $this->whereEmailColumnMatchesEliteDomain($w, 'COALESCE(c.to_mail, \'\')');
             });
-        } else {
-            $q->where(function (Builder $w) use ($like) {
-                $w->whereRaw('LOWER(COALESCE(c.from_mail, \'\')) LIKE ?', [strtolower($like)])
-                    ->orWhereRaw('LOWER(COALESCE(c.to_mail, \'\')) LIKE ?', [strtolower($like)]);
-            });
-        }
+        });
 
         if ($accNormalized !== null) {
             $accLike = '%'.$accNormalized.'%';
