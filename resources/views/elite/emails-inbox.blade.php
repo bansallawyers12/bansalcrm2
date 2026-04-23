@@ -390,15 +390,31 @@ html, body { margin: 0; padding: 0; height: 100%; }
             </div>
             @endif
 
-            {{-- Webhook URL footer --}}
+            {{-- Webhook URL footer + Option A (real mailbox + Inbound Parse) --}}
+            @php
+                $eliteApex = ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@');
+                $inboundParseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
+            @endphp
             <div class="elite-sidebar-foot">
                 <span class="foot-label">Inbound webhook</span>
                 <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
                 <div style="margin-top:5px;">
-                    To: <strong>{{ '@' . config('crm.education_elite_sender_domain','educationelite.com.au') }}</strong>
+                    Apex domain: <strong>{{ '@'.$eliteApex }}</strong>
                     @if(config('crm.education_elite_inbound_secret'))
                         &nbsp;<span style="color:#16a34a;"><i class="fas fa-lock"></i></span>
                     @endif
+                </div>
+                <div style="margin-top:8px;font-size:11px;line-height:1.45;color:#444;">
+                    <strong>Real mailbox + CRM (Option&nbsp;A):</strong>
+                    (1) In SendGrid → Inbound Parse, use a host such as <code>{{ $inboundParseHost !== '' ? $inboundParseHost : 'parse.'.$eliteApex }}</code>
+                    with MX to SendGrid and this POST URL.
+                    (2) In Microsoft 365 / Outlook admin, on each real mailbox (e.g. <code>apply@{{ $eliteApex }}</code>), add a rule or forwarding to deliver a copy to
+                    @if($inboundParseHost !== '')
+                        <code>inbound@{{ $inboundParseHost }}</code> (or any local-part you create on that host).
+                    @else
+                        <code>anything@&lt;your-parse-host&gt;</code>. Set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> in <code>.env</code> to that host for a reminder here.
+                    @endif
+                    The CRM only lists mail SendGrid POSTs to the webhook; it does not read Outlook directly.
                 </div>
             </div>
         </aside>
@@ -465,8 +481,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <i class="fas fa-inbox" aria-hidden="true"></i>
                         <p>No incoming messages</p>
                         <span id="eliteEmptyHint">
-                            Point SendGrid Inbound Parse at the webhook and send to
-                            <strong>{{ '@' . config('crm.education_elite_sender_domain','educationelite.com.au') }}</strong>.
+                            Point SendGrid Inbound Parse at the webhook. For a real mailbox on Microsoft, forward a copy to your Inbound Parse host (see sidebar). Apex:
+                            <strong>{{ '@' . ltrim((string) config('crm.education_elite_sender_domain','educationelite.com.au'), '@') }}</strong>.
                         </span>
                     </div>
                 </div>

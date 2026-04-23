@@ -45,6 +45,11 @@ return [
     | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
     | Use this in your SendGrid Inbound Parse URL. Rotate if leaked.
     |
+    | education_elite_inbound_parse_host — optional display hint only (e.g. parse.educationelite.com.au).
+    | Set this to the hostname SendGrid Inbound Parse uses (MX → SendGrid). Mailboxes like apply@apex
+    | can stay on Microsoft: add a forward/rule to forward@parse.apex so the CRM webhook still receives
+    | a copy (see Elite inbox sidebar “Mailbox + Inbound Parse” steps).
+    |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
 
@@ -54,4 +59,6 @@ return [
     ),
 
     'education_elite_inbound_secret' => env('EDUCATION_ELITE_INBOUND_SECRET', ''),
+
+    'education_elite_inbound_parse_host' => env('EDUCATION_ELITE_INBOUND_PARSE_HOST', ''),
 ];
