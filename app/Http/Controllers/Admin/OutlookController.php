@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailer as LaravelMailer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -76,6 +78,7 @@ class OutlookController extends Controller
 
         try {
             // Method 1: Try verified_senders endpoint
+            /** @var Response $response */
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
             ])->timeout(10)->get($baseUrl . '/v3/verified_senders');
@@ -101,6 +104,7 @@ class OutlookController extends Controller
 
             // Method 2: If no results, try senders endpoint
             if (empty($senders)) {
+                /** @var Response $response2 */
                 $response2 = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $apiKey,
                 ])->timeout(10)->get($baseUrl . '/v3/senders');
@@ -124,6 +128,7 @@ class OutlookController extends Controller
 
             // Method 3: Try EU endpoint if still empty
             if (empty($senders) && strpos($baseUrl, 'api.sendgrid.com') !== false) {
+                /** @var Response $responseEu */
                 $responseEu = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $apiKey,
                 ])->timeout(10)->get('https://api.eu.sendgrid.com/v3/verified_senders');
@@ -207,6 +212,7 @@ class OutlookController extends Controller
         $client = Http::withToken($apiKey)->timeout(10);
         $emails = [];
 
+        /** @var Response $res1 */
         $res1 = $client->get("{$baseUrl}/v3/verified_senders");
         $debug['verified_senders']['status'] = $res1->status();
         if ($res1->successful()) {
@@ -221,6 +227,7 @@ class OutlookController extends Controller
             $debug['errors'][] = "verified_senders: HTTP {$res1->status()} - " . ($res1->json('errors.0.message') ?? $res1->body());
         }
 
+        /** @var Response $res2 */
         $res2 = $client->get("{$baseUrl}/v3/senders");
         $debug['senders']['status'] = $res2->status();
         if ($res2->successful()) {
@@ -436,7 +443,9 @@ class OutlookController extends Controller
         $body = $validated['body'] ?? '';
 
         try {
-            Mail::mailer('sendgrid_outlook')->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject) {
+            /** @var LaravelMailer $mailer */
+            $mailer = Mail::mailer('sendgrid_outlook');
+            $mailer->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject) {
                 $message->to($to)->from($from)->subject($subject);
                 if (count($cc) > 0) {
                     $message->cc($cc);
