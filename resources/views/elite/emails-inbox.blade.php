@@ -595,7 +595,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         {{-- Alert bar (success / error) --}}
         <div id="eliteComposeAlert" style="display:none;padding:10px 20px;font-size:13px;flex-shrink:0;"></div>
         {{-- Compose form --}}
-        <form id="eliteComposeForm" action="{{ route('admin.outlook.send') }}" method="POST" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+        <form id="eliteComposeForm" action="{{ route('admin.outlook.send') }}" method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
             @csrf
             <input type="hidden" name="_elite_compose" value="1">
             <div style="padding:16px 20px 0;flex-shrink:0;">
@@ -627,15 +627,26 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 </div>
             </div>
             {{-- Body --}}
-            <div style="flex:1;min-height:0;padding:0 20px 20px;display:flex;flex-direction:column;">
+            <div style="flex:1;min-height:0;padding:0 20px 12px;display:flex;flex-direction:column;">
                 <textarea name="body" placeholder="Write your message here…"
                           style="flex:1;min-height:160px;padding:12px;border:1px solid #d4d4d4;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
             </div>
+            {{-- Attachment preview list --}}
+            <div id="eliteAttachmentList" style="display:none;padding:0 20px 10px;flex-shrink:0;">
+                <div style="font-size:12px;color:#64748b;margin-bottom:6px;">Attachments:</div>
+                <div id="eliteAttachmentItems" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+            </div>
+            {{-- Hidden file input --}}
+            <input type="file" id="eliteAttachmentInput" name="attachments[]" multiple style="display:none;">
             {{-- Footer buttons --}}
             <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid #e2e8f0;flex-shrink:0;background:#fafafa;">
                 <button type="submit" id="eliteComposeSend"
                         style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:#0078d4;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;">
                     <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <button type="button" id="eliteAttachBtn" title="Attach files"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
+                    <i class="fas fa-paperclip"></i> Attach
                 </button>
                 <button type="button" id="eliteComposeCancel"
                         style="padding:9px 16px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
@@ -985,15 +996,69 @@ html, body { margin: 0; padding: 0; height: 100%; }
     /* COMPOSE MODAL                                                             */
     /* ═══════════════════════════════════════════════════════════════════════ */
     (function () {
-        var overlay   = document.getElementById('eliteComposeOverlay');
-        var form      = document.getElementById('eliteComposeForm');
-        var alertBar  = document.getElementById('eliteComposeAlert');
-        var sendBtn   = document.getElementById('eliteComposeSend');
-        var fromSel   = document.getElementById('eliteComposeFrom');
-        var SENDERS_URL = @json(route('admin.outlook.senders'));
+        var overlay        = document.getElementById('eliteComposeOverlay');
+        var form           = document.getElementById('eliteComposeForm');
+        var alertBar       = document.getElementById('eliteComposeAlert');
+        var sendBtn        = document.getElementById('eliteComposeSend');
+        var fromSel        = document.getElementById('eliteComposeFrom');
+        var attachBtn      = document.getElementById('eliteAttachBtn');
+        var attachInput    = document.getElementById('eliteAttachmentInput');
+        var attachList     = document.getElementById('eliteAttachmentList');
+        var attachItems    = document.getElementById('eliteAttachmentItems');
+        var SENDERS_URL    = @json(route('admin.outlook.senders'));
 
         var sendersLoaded = false;
+        var selectedFiles = []; // track File objects for manual FormData append
 
+        /* ── Attachment helpers ──────────────────────────────────────────────── */
+        function renderAttachments() {
+            if (!attachItems || !attachList) return;
+            attachItems.innerHTML = '';
+            if (selectedFiles.length === 0) {
+                attachList.style.display = 'none';
+                return;
+            }
+            attachList.style.display = 'block';
+            selectedFiles.forEach(function (file, idx) {
+                var tag = document.createElement('div');
+                tag.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:20px;font-size:12px;color:#334155;max-width:200px;';
+                var name = document.createElement('span');
+                name.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;';
+                name.textContent = file.name;
+                var rm = document.createElement('button');
+                rm.type = 'button';
+                rm.innerHTML = '&times;';
+                rm.title = 'Remove';
+                rm.style.cssText = 'border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;line-height:1;padding:0;flex-shrink:0;';
+                rm.setAttribute('data-idx', idx);
+                rm.addEventListener('click', function () {
+                    selectedFiles.splice(parseInt(this.getAttribute('data-idx')), 1);
+                    renderAttachments();
+                });
+                tag.appendChild(name);
+                tag.appendChild(rm);
+                attachItems.appendChild(tag);
+            });
+        }
+
+        function clearAttachments() {
+            selectedFiles = [];
+            if (attachInput) attachInput.value = '';
+            renderAttachments();
+        }
+
+        if (attachBtn && attachInput) {
+            attachBtn.addEventListener('click', function () { attachInput.click(); });
+            attachInput.addEventListener('change', function () {
+                Array.prototype.forEach.call(attachInput.files, function (f) {
+                    selectedFiles.push(f);
+                });
+                attachInput.value = ''; // reset so same file can be re-added
+                renderAttachments();
+            });
+        }
+
+        /* ── Senders ─────────────────────────────────────────────────────────── */
         function loadSenders() {
             if (sendersLoaded) return;
             fetch(SENDERS_URL, {
@@ -1023,6 +1088,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
 
         function openModal() {
             if (form) form.reset();
+            clearAttachments();
             if (alertBar) { alertBar.style.display = 'none'; alertBar.textContent = ''; }
             if (overlay) { overlay.style.display = 'flex'; }
             loadSenders();
@@ -1052,6 +1118,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 if (alertBar) { alertBar.style.display = 'none'; }
                 if (sendBtn)  { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
                 var fd = new FormData(form);
+                // Append manually tracked files (file input is cleared after each selection)
+                selectedFiles.forEach(function (file) {
+                    fd.append('attachments[]', file, file.name);
+                });
                 var csrfToken = (tokenMeta ? tokenMeta.getAttribute('content') : '') || '';
                 fetch(form.action, {
                     method: 'POST',
@@ -1065,6 +1135,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                             alertBar.textContent = body.message || 'Email sent successfully.';
                             var prevFrom = fromSel ? fromSel.value : '';
                             form.reset();
+                            clearAttachments();
                             if (fromSel && prevFrom) fromSel.value = prevFrom;
                             setTimeout(closeModal, 1800);
                         } else {
