@@ -849,10 +849,16 @@ html, body { margin: 0; padding: 0; height: 100%; }
         });
     });
 
-    document.querySelector('.btn-fetch-inbox') && document.querySelector('.btn-fetch-inbox').addEventListener('click', function () {
-        var btn = this;
+    /* ── Inbox fetch (shared by button + auto-poll) ───────────────────────── */
+    var autoPolling = false;
+    var autoPollTimer = null;
+    var AUTO_POLL_MS = 30000; // 30 seconds
+
+    function doFetchInbox(silent) {
+        var btn     = document.querySelector('.btn-fetch-inbox');
         var toolbar = document.querySelector('#folderInbox .inbox-toolbar');
-        clearFetchError(); clearReading();
+        if (!toolbar) return;
+        if (!silent) { clearFetchError(); clearReading(); }
         var search = (toolbar.querySelector('.folder-search').value||'').trim();
         var dr     = getDateParams(toolbar);
         var sort   = toolbar.querySelector('.filter-sort').value || 'newest';
@@ -861,23 +867,109 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (dr.date_from) params.push('date_from=' + encodeURIComponent(dr.date_from));
         if (dr.date_to)   params.push('date_to='   + encodeURIComponent(dr.date_to));
         params.push('sort=' + sort, 'account=' + encodeURIComponent(activeAccount||'all'));
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+        if (!silent && btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...'; }
+
         apiFetch(INBOX_URL, params).then(function (data) {
-            clearFetchError();
+            if (!silent) clearFetchError();
             if (data.account) activeAccount = data.account;
-            listEl.innerHTML = ''; initialMap = {};
             var rows = data.emails || [];
-            rows.forEach(function (e) { if (e.id) initialMap[e.id] = e; });
-            if (rows.length === 0) {
-                if (listWrap) listWrap.style.display = 'none';
-                if (emptyEl)  { emptyEl.style.display = 'flex'; if (emptyHint) emptyHint.textContent = data.message||''; }
+
+            if (silent) {
+                /* Silent poll: only prepend genuinely new emails */
+                var newRows = rows.filter(function (e) { return e.id && !initialMap[e.id]; });
+                if (newRows.length > 0) {
+                    newRows.forEach(function (e) { initialMap[e.id] = e; });
+                    /* Show new-email banner */
+                    showNewMailBanner(newRows.length);
+                    /* Prepend rows at top of list */
+                    if (listEl) {
+                        var frag = document.createDocumentFragment();
+                        newRows.slice().reverse().forEach(function (e) { frag.appendChild(buildEmailRow(e)); });
+                        listEl.insertBefore(frag, listEl.firstChild);
+                        if (listWrap) listWrap.style.display = '';
+                        if (emptyEl)  emptyEl.style.display = 'none';
+                    }
+                }
             } else {
-                if (listWrap) listWrap.style.display = '';
-                if (emptyEl)  emptyEl.style.display = 'none';
-                rows.forEach(function (e) { listEl.appendChild(buildEmailRow(e)); });
+                /* Manual fetch: full reload */
+                listEl.innerHTML = ''; initialMap = {};
+                rows.forEach(function (e) { if (e.id) initialMap[e.id] = e; });
+                if (rows.length === 0) {
+                    if (listWrap) listWrap.style.display = 'none';
+                    if (emptyEl)  { emptyEl.style.display = 'flex'; if (emptyHint) emptyHint.textContent = data.message||''; }
+                } else {
+                    if (listWrap) listWrap.style.display = '';
+                    if (emptyEl)  emptyEl.style.display = 'none';
+                    rows.forEach(function (e) { listEl.appendChild(buildEmailRow(e)); });
+                }
             }
-        }).catch(function () { showFetchError('Could not refresh. Check your connection and try again.'); })
-          .finally(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails'; });
+        }).catch(function () {
+            if (!silent) showFetchError('Could not refresh. Check your connection and try again.');
+        }).finally(function () {
+            if (!silent && btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails'; }
+        });
+    }
+
+    /* ── New-mail toast banner ────────────────────────────────────────────── */
+    var newMailBanner = null;
+    var newMailBannerTimer = null;
+    function showNewMailBanner(count) {
+        if (!newMailBanner) {
+            newMailBanner = document.createElement('div');
+            newMailBanner.style.cssText = [
+                'position:fixed;top:16px;right:20px;z-index:9999',
+                'display:flex;align-items:center;gap:10px',
+                'padding:11px 18px;border-radius:6px',
+                'background:#0078d4;color:#fff;font-size:13px;font-weight:600',
+                'box-shadow:0 4px 18px rgba(0,0,0,.22)',
+                'cursor:pointer;transition:opacity .3s'
+            ].join(';');
+            newMailBanner.addEventListener('click', function () {
+                hideNewMailBanner();
+                /* scroll list to top */
+                if (listWrap) listWrap.scrollTop = 0;
+            });
+            document.body.appendChild(newMailBanner);
+        }
+        newMailBanner.innerHTML = '<i class="fas fa-envelope"></i> ' + count + ' new email' + (count > 1 ? 's' : '') + ' received — click to view';
+        newMailBanner.style.opacity = '1';
+        newMailBanner.style.display = 'flex';
+        if (newMailBannerTimer) clearTimeout(newMailBannerTimer);
+        newMailBannerTimer = setTimeout(hideNewMailBanner, 6000);
+    }
+    function hideNewMailBanner() {
+        if (!newMailBanner) return;
+        newMailBanner.style.opacity = '0';
+        setTimeout(function () { if (newMailBanner) newMailBanner.style.display = 'none'; }, 320);
+    }
+
+    /* ── Auto-poll scheduler ──────────────────────────────────────────────── */
+    function startAutoPoll() {
+        if (autoPollTimer) return;
+        autoPollTimer = setInterval(function () {
+            if (document.hidden) return; // pause when tab is not visible
+            /* Only poll if inbox panel is currently active */
+            if (main && main.classList.contains('mode-inbox')) {
+                doFetchInbox(true);
+            }
+        }, AUTO_POLL_MS);
+    }
+    function stopAutoPoll() {
+        if (autoPollTimer) { clearInterval(autoPollTimer); autoPollTimer = null; }
+    }
+
+    /* Initial load: fetch inbox as soon as the page is ready */
+    doFetchInbox(false);
+
+    startAutoPoll();
+    /* Resume / pause with tab visibility */
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stopAutoPoll(); else startAutoPoll();
+    });
+
+    document.querySelector('.btn-fetch-inbox') && document.querySelector('.btn-fetch-inbox').addEventListener('click', function () {
+        doFetchInbox(false);
     });
 
     /* ═══════════════════════════════════════════════════════════════════════ */
