@@ -750,7 +750,22 @@ html, body { margin: 0; padding: 0; height: 100%; }
 
     var HTML_TAG_RE = /<([a-z][a-z0-9]*)\b[^>]*>/i;
     function looksLikeHtml(s) { return typeof s === 'string' && HTML_TAG_RE.test(s.trim()); }
-    function safeSrcdoc(h) { return String(h).replace(/<\/iframe/gi, '<\\/iframe'); }
+    /**
+     * Prepare untrusted email HTML for iframe[srcdoc] with sandbox (no allow-scripts).
+     * Strips scripts and inline handlers so the browser does not log sandbox violations
+     * and so active content cannot run in the preview frame.
+     */
+    function safeSrcdoc(h) {
+        var s = String(h);
+        s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+        s = s.replace(/<script\b[^>]*\/>/gi, '');
+        s = s.replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+        s = s.replace(/\b(src|href|poster|data)\s*=\s*(["'])\s*javascript:/gi, '$1=$2blocked:');
+        s = s.replace(/\b(src|href|poster|data)\s*=\s*javascript:/gi, '$1=blocked:');
+        s = s.replace(/<meta\b[^>]*http-equiv\s*=\s*["']?\s*refresh[^>]*>/gi, '');
+        s = s.replace(/<\/iframe/gi, '<\\/iframe');
+        return s;
+    }
 
     function clearReading() {
         if (readingContent) readingContent.style.display = 'none';

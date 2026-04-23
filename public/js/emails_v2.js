@@ -294,10 +294,17 @@
     }
 
     /**
-     * Whether /email-v2/attachments/{id}/preview can show this file (aligns with MailReportAttachment::canPreview — MIME + extension fallbacks).
+     * Whether /email-v2/attachments/{id}/preview can show this file.
+     * Prefer API `previewable` (MailReportAttachment::canPreview) when present; else client heuristics.
      */
     function attachmentSupportsBrowserPreview(att) {
         if (!att || typeof att !== 'object') return false;
+        if (att.previewable === true) {
+            return true;
+        }
+        if (att.previewable === false) {
+            return false;
+        }
         if (canPreviewAttachment(att.content_type)) {
             return true;
         }

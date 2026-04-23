@@ -159,6 +159,7 @@ class EmailQueryV2Controller extends Controller
                             'is_inline' => (bool) $attachment->is_inline,
                             'description' => $attachment->description,
                             'extension' => $attachment->extension,
+                            'previewable' => $attachment->canPreview(),
                         ];
                     })->values()->toArray();
                 } else {
@@ -344,6 +345,7 @@ class EmailQueryV2Controller extends Controller
                             'is_inline' => (bool) $attachment->is_inline,
                             'description' => $attachment->description,
                             'extension' => $attachment->extension,
+                            'previewable' => $attachment->canPreview(),
                         ];
                     })->values()->toArray();
                 } else {

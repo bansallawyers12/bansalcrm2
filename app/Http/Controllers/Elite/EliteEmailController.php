@@ -200,17 +200,26 @@ class EliteEmailController extends Controller
             ?? $request->input('envelope');
 
         $subject = $request->input('subject') ?? $request->input('Subject');
-        $to      = $request->input('to') ?? $request->input('recipient') ?? $request->input('To');
+        $toRaw = $request->input('to') ?? $request->input('recipient') ?? $request->input('To');
 
         // Validate that at least one participant (To or From) is an Elite-domain address.
         // Inbound mail arrives FROM external senders TO @educationelite.com.au — we check
         // the To field. Some CRM-originated rows have the Elite address in From; we check both.
-        $toAddress = is_string($to) ? $this->parseEmailAddress($to) : null;
-        $eliteTo   = $toAddress   && $this->isEliteDomainAddress($toAddress);
+        // SendGrid / some clients (e.g. Outlook-thread replies) may send `to` as an array, only
+        // in envelope JSON, or only in raw headers — collect all recipients before rejecting.
+        $toAddresses = $this->collectInboundRecipientAddresses($request, $toRaw);
+        $eliteToAddr = null;
+        foreach ($toAddresses as $addr) {
+            if ($this->isEliteDomainAddress($addr)) {
+                $eliteToAddr = $addr;
+                break;
+            }
+        }
+        $eliteTo = $eliteToAddr !== null;
         $eliteFrom = $fromAddress && $this->isEliteDomainAddress($fromAddress);
 
         if (! $eliteTo && ! $eliteFrom) {
-            Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'to' => $to, 'ip' => $request->ip()]);
+            Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'to' => $toRaw, 'ip' => $request->ip()]);
             $msg = 'Neither From nor To is an @'.config('crm.education_elite_sender_domain', 'educationelite.com.au').' address.';
             return response()->json(['ok' => false, 'error' => $msg], 422);
         }
@@ -227,9 +236,11 @@ class EliteEmailController extends Controller
         // Fall back to the raw From string if the strict parser couldn't extract an address
         $storedFrom = $fromAddress ?? (is_string($fromRaw) ? substr(trim($fromRaw), 0, 255) : null);
 
+        $storedTo = $this->formatStoredToAddress($eliteToAddr, $toAddresses, $toRaw);
+
         $record = EliteEmail::create([
             'from_address' => $storedFrom,
-            'to_address' => is_string($to) ? substr($to, 0, 255) : null,
+            'to_address' => $storedTo,
             'subject' => is_string($subject) ? substr($subject, 0, 998) : null,
             'body_text' => is_string($text) ? $text : null,
             'body_html' => is_string($html) ? $html : null,
@@ -237,6 +248,132 @@ class EliteEmailController extends Controller
         ]);
 
         return response()->json(['ok' => true, 'id' => $record->id]);
+    }
+
+    /**
+     * Normalised list of recipient addresses (lowercase) for inbound validation and storage.
+     * Covers SendGrid Inbound Parse plus clients that omit top-level `to` or use envelope/headers only.
+     *
+     * @return list<string>
+     */
+    private function collectInboundRecipientAddresses(Request $request, mixed $toPrimary): array
+    {
+        $seen = [];
+        $add = function (?string $parsed) use (&$seen): void {
+            if ($parsed !== null && $parsed !== '' && ! isset($seen[$parsed])) {
+                $seen[$parsed] = true;
+            }
+        };
+
+        foreach ($this->flattenInboundAddressInputs($toPrimary) as $chunk) {
+            $p = $this->parseEmailAddress($chunk);
+            if ($p) {
+                $add($p);
+            }
+        }
+
+        foreach (['recipient', 'To', 'Recipients', 'recipients'] as $key) {
+            foreach ($this->flattenInboundAddressInputs($request->input($key)) as $chunk) {
+                $p = $this->parseEmailAddress($chunk);
+                if ($p) {
+                    $add($p);
+                }
+            }
+        }
+
+        $envelope = $request->input('envelope');
+        if (is_string($envelope)) {
+            $decoded = json_decode($envelope, true);
+            $envelope = is_array($decoded) ? $decoded : null;
+        }
+        if (is_array($envelope) && isset($envelope['to'])) {
+            foreach ($this->flattenInboundAddressInputs($envelope['to']) as $chunk) {
+                $p = $this->parseEmailAddress($chunk);
+                if ($p) {
+                    $add($p);
+                }
+            }
+        }
+
+        $headers = $request->input('headers');
+        if (is_string($headers) && $headers !== '') {
+            foreach ($this->parseRecipientEmailsFromRawHeaders($headers) as $p) {
+                $add($p);
+            }
+        }
+
+        return array_keys($seen);
+    }
+
+    /**
+     * @param  list<string>  $parsedRecipients
+     */
+    private function formatStoredToAddress(?string $eliteToAddr, array $parsedRecipients, mixed $toRaw): ?string
+    {
+        if ($eliteToAddr !== null) {
+            return substr($eliteToAddr, 0, 255);
+        }
+        if ($parsedRecipients !== []) {
+            return substr(implode(', ', $parsedRecipients), 0, 255);
+        }
+        if (is_string($toRaw) && trim($toRaw) !== '') {
+            return substr(trim($toRaw), 0, 255);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function flattenInboundAddressInputs(mixed $value): array
+    {
+        if ($value === null || $value === '') {
+            return [];
+        }
+        if (is_array($value)) {
+            $out = [];
+            foreach ($value as $item) {
+                foreach ($this->flattenInboundAddressInputs($item) as $s) {
+                    $out[] = $s;
+                }
+            }
+
+            return $out;
+        }
+        $s = trim((string) $value);
+        if ($s === '') {
+            return [];
+        }
+        $parts = preg_split('/\s*,\s*/', $s) ?: [];
+
+        return array_values(array_filter(array_map('trim', $parts), static fn (string $p): bool => $p !== ''));
+    }
+
+    /**
+     * Extract mailbox addresses from raw RFC822 headers (SendGrid `headers` field).
+     *
+     * @return list<string> Normalised lowercase emails
+     */
+    private function parseRecipientEmailsFromRawHeaders(string $headers): array
+    {
+        $out = [];
+        foreach (['delivered-to', 'envelope-to', 'x-original-to', 'to'] as $name) {
+            $qn = preg_quote($name, '/');
+            if (preg_match_all('/^'.$qn.':\s*(.+?)(?=\r?\n[^\t ]|\r?\n*$)/msi', $headers, $blocks)) {
+                foreach ($blocks[1] as $block) {
+                    $block = trim(preg_replace("/\r?\n[\t ]+/", ' ', $block) ?? '');
+                    foreach ($this->flattenInboundAddressInputs($block) as $chunk) {
+                        $p = $this->parseEmailAddress($chunk);
+                        if ($p) {
+                            $out[$p] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_keys($out);
     }
 
     /**
