@@ -3,6 +3,33 @@
  */
 'use strict';
 
+/**
+ * Matches ClientDocumentController::buildClientDocumentDownloadFilename — display name + local timestamp + extension.
+ * @param {string} fileName
+ * @param {string} fileType
+ * @returns {string}
+ */
+function buildClientDocumentDownloadName(fileName, fileType) {
+    var ext = (fileType || 'bin').replace(/[^a-zA-Z0-9]/g, '');
+    if (!ext) {
+        ext = 'bin';
+    }
+    var d = new Date();
+    var ts = d.getFullYear() +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        String(d.getDate()).padStart(2, '0') + '_' +
+        String(d.getHours()).padStart(2, '0') +
+        String(d.getMinutes()).padStart(2, '0') +
+        String(d.getSeconds()).padStart(2, '0');
+    var base = (fileName || 'document').replace(/[<>:"|?*\/\\]/g, '_').replace(/"/g, '').trim();
+    if (!base) {
+        base = 'document';
+    }
+    return base + '_' + ts + '.' + ext;
+}
+
+window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
+
 (function() {
     // Download document handler
     document.addEventListener('DOMContentLoaded', function () {
@@ -13,15 +40,29 @@
             // If it's not a .download-file anchor, do nothing
             if (!target) return;
 
-            // If the link already points to a download URL with params, let the browser handle it
+            const filelink = target.getAttribute('data-filelink') || '';
+            const dlBase = target.getAttribute('data-dl-base');
+            const dlExt = target.getAttribute('data-dl-ext');
             const href = target.getAttribute('href') || '';
+
+            // Prefer fresh timestamp when we have structured display name + extension (Documents tab)
+            if (filelink && dlBase !== null && dlExt !== null && typeof window.buildClientDocumentDownloadName === 'function') {
+                e.preventDefault();
+                const filename = window.buildClientDocumentDownloadName(dlBase, dlExt);
+                const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument')) || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/download-document' : window.location.origin + '/download-document');
+                const sep = baseUrl.indexOf('?') !== -1 ? '&' : '?';
+                const downloadUrl = baseUrl + sep + 'filelink=' + encodeURIComponent(filelink) + '&filename=' + encodeURIComponent(filename);
+                window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+
+            // If the link already points to a download URL with params, let the browser handle it
             if (href && href !== '#' && href.includes('/download-document') && href.includes('filelink=')) {
                 return;
             }
 
             e.preventDefault();
 
-            const filelink = target.dataset.filelink;
             const filename = target.dataset.filename;
 
             if (!filelink || !filename) {

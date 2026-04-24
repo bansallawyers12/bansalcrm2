@@ -4,16 +4,20 @@ namespace App\Http\Controllers\Admin\Client;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Filesystem\AwsS3V3Adapter;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Auth;
+use Illuminate\Support\Facades\URL;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
 use App\Models\Document;
 use App\Models\DocumentChecklist;
+use App\Support\ClientDocumentStaffResolver;
 
 use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
@@ -436,8 +440,9 @@ class ClientDocumentController extends Controller
                     $name = time() . $file->getClientOriginalName();
                     $filePath = $client_unique_id . '/' . $doctype . '/' . $name;
                     
-                    Storage::disk('s3')->put($filePath, file_get_contents($file));
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $disk = $this->s3Disk();
+                    $disk->put($filePath, file_get_contents($file));
+                    $fileUrl = $disk->url($filePath);
                     
                     // Update document with file info
                     $document->file_name = $nameWithoutExtension;
@@ -494,12 +499,67 @@ class ClientDocumentController extends Controller
     }
 
     /**
+     * Human-friendly download name (not the S3 object key). Format: {file_name}_{Ymd_His}.{ext}
+     */
+    public static function buildClientDocumentDownloadFilename(string $fileName, string $fileType, ?string $timestamp = null): string
+    {
+        $timestamp = $timestamp ?? date('Ymd_His');
+        $fileName = trim($fileName);
+        if ($fileName === '') {
+            $fileName = 'document';
+        }
+        $fileName = str_replace(["\0", '"'], '', $fileName);
+        $fileName = preg_replace('/[<>:"|?*\/\\\\]/u', '_', $fileName);
+        $fileName = trim($fileName);
+        if ($fileName === '') {
+            $fileName = 'document';
+        }
+        $ext = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string) $fileType));
+        if ($ext === '') {
+            $ext = 'bin';
+        }
+
+        return $fileName . '_' . $timestamp . '.' . $ext;
+    }
+
+    /**
+     * Sanitize filename from the request (path traversal, length).
+     */
+    private function sanitizeDownloadFilename(string $filename): string
+    {
+        $filename = str_replace(["\0", '../', '..\\'], '', $filename);
+        $filename = preg_replace('/[\/\\\\]/', '', $filename);
+        $filename = trim($filename, " \t\n\r\0\x0B\"");
+        if ($filename === '') {
+            $filename = 'document.bin';
+        }
+        if (strlen($filename) > 200) {
+            $filename = substr($filename, 0, 200);
+        }
+
+        return $filename;
+    }
+
+    /**
+     * The default "s3" disk is backed by {@see AwsS3V3Adapter}, which provides url() and temporaryUrl().
+     */
+    private function s3Disk(): AwsS3V3Adapter
+    {
+        $disk = Storage::disk('s3');
+        if (! $disk instanceof AwsS3V3Adapter) {
+            throw new \RuntimeException('The configured "s3" disk must use the S3 driver (AwsS3V3Adapter).');
+        }
+
+        return $disk;
+    }
+
+    /**
      * Download Document from S3
      */
     public function download_document(Request $request)
     {
         $fileUrl = $request->input('filelink');
-        $filename = $request->input('filename', 'downloaded.pdf');
+        $filename = $this->sanitizeDownloadFilename((string) $request->input('filename', 'downloaded.pdf'));
 
         if (!$fileUrl) {
             return abort(400, 'Missing file URL');
@@ -514,18 +574,18 @@ class ClientDocumentController extends Controller
             
             $s3Key = ltrim(urldecode($parsed['path']), '/');
             
+            $disk = $this->s3Disk();
             // Check if file exists in S3
-            if (!Storage::disk('s3')->exists($s3Key)) {
+            if (! $disk->exists($s3Key)) {
                 return abort(404, 'File not found in S3');
             }
             
             // Generate temporary URL with proper headers
-            $tempUrl = Storage::disk('s3')->temporaryUrl(
+            $tempUrl = $disk->temporaryUrl(
                 $s3Key,
                 now()->addMinutes(5), // 5 minutes expiration
                 [
                     'ResponseContentDisposition' => 'attachment; filename="' . $filename . '"',
-                    'ResponseContentType' => 'application/pdf'
                 ]
             );
             
@@ -557,7 +617,7 @@ class ClientDocumentController extends Controller
 
                 if($docInfo){
                     if( isset($docInfo->user_id) && $docInfo->user_id!= "" ){
-                        $adminInfo = \App\Models\Staff::select('first_name')->find($docInfo->user_id);
+                        $adminInfo = ClientDocumentStaffResolver::firstNameRowByStaffId($docInfo->user_id);
                         $response['Added_By'] = $adminInfo->first_name;
                         $response['Added_date'] = date('d/m/Y',strtotime($docInfo->created_at));
                     } else {
@@ -567,7 +627,7 @@ class ClientDocumentController extends Controller
 
 
                     if( isset($docInfo->checklist_verified_by) && $docInfo->checklist_verified_by!= "" ){
-                        $verifyInfo = \App\Models\Staff::select('first_name')->find($docInfo->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($docInfo->checklist_verified_by);
+                        $verifyInfo = ClientDocumentStaffResolver::firstNameRowStaffThenAdmin($docInfo->checklist_verified_by);
                         $response['Verified_By'] = $verifyInfo->first_name;
                         $response['Verified_At'] = date('d/m/Y',strtotime($docInfo->checklist_verified_at));
                     } else {
@@ -629,9 +689,10 @@ class ClientDocumentController extends Controller
                     $filePathArr = explode('/',$filePath);//dd($filePathArr);
                     if(!empty($filePathArr)){
                         $fileExistPath = $filePathArr[0]."/".$filePathArr[1]."/".$data->myfile_key;
-                        if (Storage::disk('s3')->exists($fileExistPath)) {
+                        $disk = $this->s3Disk();
+                        if ($disk->exists($fileExistPath)) {
                             // To delete the uploaded file, use the delete method
-                            Storage::disk('s3')->delete($fileExistPath);
+                            $disk->delete($fileExistPath);
                         }
                     }
                 }
@@ -705,7 +766,7 @@ class ClientDocumentController extends Controller
 
                 if($docInfo){
                     if( isset($docInfo->user_id) && $docInfo->user_id!= "" ){
-                        $adminInfo = \App\Models\Staff::select('first_name')->find($docInfo->user_id);
+                        $adminInfo = ClientDocumentStaffResolver::firstNameRowByStaffId($docInfo->user_id);
                         $response['Added_By'] = $adminInfo->first_name;
                         $response['Added_date'] = date('d/m/Y',strtotime($docInfo->created_at));
                     } else {
@@ -715,7 +776,7 @@ class ClientDocumentController extends Controller
 
 
                     if( isset($docInfo->checklist_verified_by) && $docInfo->checklist_verified_by!= "" ){
-                        $verifyInfo = \App\Models\Staff::select('first_name')->find($docInfo->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($docInfo->checklist_verified_by);
+                        $verifyInfo = ClientDocumentStaffResolver::firstNameRowStaffThenAdmin($docInfo->checklist_verified_by);
                         $response['Verified_By'] = $verifyInfo->first_name;
                         $response['Verified_At'] = date('d/m/Y',strtotime($docInfo->checklist_verified_at));
                     } else {
@@ -792,7 +853,7 @@ class ClientDocumentController extends Controller
                 return;
             }
             
-            $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
+            $admin_info1 = Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
             if(!empty($admin_info1)){
                 $client_unique_id = $admin_info1->client_id;
             } else {
@@ -856,11 +917,11 @@ class ClientDocumentController extends Controller
                     ob_start();
                     foreach($fetchd as $docKey=>$fetch)
                     {
-                        $admin = \App\Models\Staff::find($fetch->user_id);
+                        $admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
                         $addedByInfo = ($admin ? $admin->first_name : 'N/A') . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
                         //Checklist verified by
                         /*if( isset($fetch->checklist_verified_by) && $fetch->checklist_verified_by != "") {
-                            $checklist_verified_Info = \App\Models\Staff::select('first_name')->find($fetch->checklist_verified_by) ?? \App\Models\Admin::select('first_name')->find($fetch->checklist_verified_by);
+                            $checklist_verified_Info = ClientDocumentStaffResolver::firstNameRowStaffThenAdmin($fetch->checklist_verified_by);
                             $checklist_verified_by = $checklist_verified_Info->first_name;
                         } else {
                             $checklist_verified_by = 'N/A';
@@ -937,7 +998,7 @@ class ClientDocumentController extends Controller
                     ob_start();
                     foreach($fetchd as $fetch)
                     {
-                        $admin = \App\Models\Staff::find($fetch->user_id);
+                        $admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
                         ?>
                         <div class="grid_list">
                             <div class="grid_col">
@@ -960,7 +1021,13 @@ class ClientDocumentController extends Controller
                                             <a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
                                           
                                             <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-                                            <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($fetch->myfile_key); ?>" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>" target="_blank" rel="noopener">Download</a>
+                                            <?php
+                                                $suggestedDlName = self::buildClientDocumentDownloadFilename(
+                                                    (string) ($fetch->file_name ?? 'document'),
+                                                    (string) ($fetch->filetype ?? '')
+                                                );
+                                            ?>
+                                            <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($suggestedDlName); ?>" class="dropdown-item download-file" data-filelink="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>" data-filename="<?php echo htmlspecialchars($suggestedDlName, ENT_QUOTES, 'UTF-8'); ?>" data-dl-base="<?php echo htmlspecialchars((string) ($fetch->file_name ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-dl-ext="<?php echo htmlspecialchars((string) ($fetch->filetype ?? ''), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">Download</a>
 
 
                                             <?php if( Auth::user()->role == 1 ){ //echo Auth::user()->role;//super admin ?>
@@ -999,7 +1066,7 @@ class ClientDocumentController extends Controller
         } //end else
         echo json_encode($response);
         } catch (\Exception $e) {
-            \Log::error('Error in addalldocchecklist: ' . $e->getMessage() . ' at line ' . $e->getLine());
+            Log::error('Error in addalldocchecklist: ' . $e->getMessage() . ' at line ' . $e->getLine());
             $response = ['status' => false, 'message' => 'An error occurred: ' . $e->getMessage()];
             echo json_encode($response);
         }
@@ -1010,7 +1077,7 @@ class ClientDocumentController extends Controller
         if ($request->hasfile('document_upload'))
         {
             $clientid = $request->clientid;
-            $admin_info1 = \App\Models\Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
+            $admin_info1 = Admin::select('client_id')->where('id', $clientid)->first(); //dd($admin);
             if(!empty($admin_info1)){
                 $client_unique_id = $admin_info1->client_id;
             } else {
@@ -1028,7 +1095,8 @@ class ClientDocumentController extends Controller
             //echo $nameWithoutExtension."===".$fileExtension;
             $name = time() . $files->getClientOriginalName();
             $filePath = $client_unique_id.'/'.$doctype.'/'. $name;
-            Storage::disk('s3')->put($filePath, file_get_contents($files));
+            $disk = $this->s3Disk();
+            $disk->put($filePath, file_get_contents($files));
             $exploadename = explode('.', $name);
 
             $req_file_id = $request->fileid;
@@ -1038,7 +1106,7 @@ class ClientDocumentController extends Controller
             $obj->user_id = Auth::user()->id;
             //$obj->myfile = $name;
             // Get the full URL of the uploaded file
-            $fileUrl = Storage::disk('s3')->url($filePath);
+            $fileUrl = $disk->url($filePath);
             $obj->myfile = $fileUrl;
             $obj->myfile_key = $name;
 
@@ -1075,7 +1143,7 @@ class ClientDocumentController extends Controller
 			$fetchd = \App\Models\Document::where('client_id',$clientid)->whereNull('not_used_doc')->where('doc_type',$doctype)->where('type',$request->type)->orderByRaw('updated_at DESC NULLS LAST')->get();
 			ob_start();
 			foreach($fetchd as  $docKey=>$fetch){
-				$admin = \App\Models\Staff::find($fetch->user_id);
+				$admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
 					$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 					?>
 					<tr class="drow document-row" id="id_<?php echo $fetch->id; ?>" 
@@ -1135,7 +1203,7 @@ class ClientDocumentController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Staff::find($fetch->user_id);
+					$admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">
@@ -1157,8 +1225,13 @@ class ClientDocumentController extends Controller
 										<a download class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">Download</a>-->
                                       
                                         <a class="dropdown-item" href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">Preview</a>
-
-                                        <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($fetch->myfile_key); ?>" class="dropdown-item download-file" data-filelink="<?= $fetch->myfile ?>" data-filename="<?= $fetch->myfile_key ?>" target="_blank" rel="noopener">Download</a>
+                                        <?php
+                                            $suggestedDlNameUpload = self::buildClientDocumentDownloadFilename(
+                                                (string) ($fetch->file_name ?? 'document'),
+                                                (string) ($fetch->filetype ?? '')
+                                            );
+                                        ?>
+                                        <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($suggestedDlNameUpload); ?>" class="dropdown-item download-file" data-filelink="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>" data-filename="<?php echo htmlspecialchars($suggestedDlNameUpload, ENT_QUOTES, 'UTF-8'); ?>" data-dl-base="<?php echo htmlspecialchars((string) ($fetch->file_name ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-dl-ext="<?php echo htmlspecialchars((string) ($fetch->filetype ?? ''), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">Download</a>
 
 
 
@@ -1210,7 +1283,7 @@ class ClientDocumentController extends Controller
 				$objs->pin = 0; // Required NOT NULL field (0 = not pinned, 1 = pinned)
 				$objs->save();
                 //Get verified at and verified by
-                $admin_info = \App\Models\Staff::select('first_name')->find(Auth::user()->id);
+                $admin_info = ClientDocumentStaffResolver::firstNameRowByStaffId(Auth::user()->id);
                 if($admin_info){
                     $response['verified_by'] = 	$admin_info->first_name;
                     $response['verified_at'] = 	date('d/m/Y');
@@ -1259,7 +1332,7 @@ class ClientDocumentController extends Controller
 				$nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
 				$fileExtension = $file->getClientOriginalExtension();
 				$explodeFileName = explode('.', $fileName);
-				$document_upload = $this->uploadrenameFile($file, \Config::get('constants.documents'));
+				$document_upload = $this->uploadrenameFile($file, Config::get('constants.documents'));
 				$exploadename = explode('.', $document_upload);
 				$obj = new Document;
 				$obj->file_name = $nameWithoutExtension;
@@ -1306,7 +1379,7 @@ class ClientDocumentController extends Controller
 				$fetchd = Document::where('client_id',$id)->where('doc_type',$doctype)->where('type',$request->type)->orderby('created_at', 'DESC')->get();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Staff::find($fetch->user_id);
+					$admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
                   
                     if( isset($doctype) && $doctype == 'migration'){
                         $preview_container_type = 'preview-container-migrationdocumentlist';
@@ -1335,7 +1408,7 @@ class ClientDocumentController extends Controller
 														$explodeimg = explode('.',$fetch->myfile);
 										if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){
 														?>
-															<a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+															<a target="_blank" class="dropdown-item" href="<?php echo URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
 															<?php } ?>
 									<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
 
@@ -1349,7 +1422,7 @@ class ClientDocumentController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Staff::find($fetch->user_id);
+					$admin = ClientDocumentStaffResolver::staffRowById($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">

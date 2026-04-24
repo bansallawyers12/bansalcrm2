@@ -8,6 +8,17 @@
     let contextMenu = null;
     let currentDocumentRow = null;
 
+    /** Display file name + timestamp + ext; falls back to storage key when no display name (see buildClientDocumentDownloadName in download-and-chatgpt.js). */
+    function resolveContextMenuDownloadFilename(fileName, fileType, storageKeyFallback) {
+        if (fileName) {
+            if (typeof window.buildClientDocumentDownloadName === 'function') {
+                return window.buildClientDocumentDownloadName(fileName, fileType || '');
+            }
+            return fileName + (fileType ? '.' + fileType : '');
+        }
+        return storageKeyFallback || 'download';
+    }
+
     function createContextMenu() {
         if (contextMenu) return contextMenu;
 
@@ -132,7 +143,7 @@
                 // Cross-origin (e.g. S3): browser ignores <a download>; use app route so server sends Content-Disposition: attachment
                 const isS3OrCrossOrigin = (myfile.indexOf('s3.') !== -1 || myfile.indexOf('amazonaws.com') !== -1) ||
                     (myfile.indexOf(window.location.origin) !== 0);
-                const downloadFilename = myfileKey || (fileName + (fileType ? '.' + fileType : '')) || 'download';
+                const downloadFilename = resolveContextMenuDownloadFilename(fileName, fileType, myfileKey);
                 if (isS3OrCrossOrigin) {
                     const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument')) || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/download-document' : window.location.origin + '/download-document');
                     const downloadUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'filelink=' + encodeURIComponent(myfile) + '&filename=' + encodeURIComponent(downloadFilename);
@@ -149,8 +160,11 @@
                     setTimeout(function() { if (a.parentNode) document.body.removeChild(a); }, 100);
                 }
             } else if (myfileKey) {
-                // New file upload - try to find download element first
-                const downloadEl = document.querySelector(`.download-file[data-filelink][data-filename="${myfileKey}"]`);
+                // New file upload - try to find download control on the row (matches on .download-file, not storage key)
+                const downloadFilename = resolveContextMenuDownloadFilename(fileName, fileType, myfileKey);
+                const downloadEl = currentDocumentRow && currentDocumentRow.querySelector
+                    ? currentDocumentRow.querySelector('a.download-file')
+                    : null;
                 if (downloadEl) {
                     downloadEl.click();
                 } else {
@@ -162,7 +176,7 @@
                     form.innerHTML = `
                         <input type="hidden" name="_token" value="${App.getCsrf()}">
                         <input type="hidden" name="filelink" value="${myfile}">
-                        <input type="hidden" name="filename" value="${myfileKey}">
+                        <input type="hidden" name="filename" value="${downloadFilename}">
                     `;
                     document.body.appendChild(form);
                     form.submit();
@@ -179,7 +193,9 @@
                 } else {
                     // S3 is cross-origin; use app route so server sends Content-Disposition: attachment
                     const baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('downloadDocument')) || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/download-document' : window.location.origin + '/download-document');
-                    const downloadUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'filelink=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent((fileName && fileType) ? fileName + '.' + fileType : myfile || 'download');
+                    const fallbackName = myfile || 'download';
+                    const downloadFilename = resolveContextMenuDownloadFilename(fileName, fileType, fallbackName);
+                    const downloadUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'filelink=' + encodeURIComponent(fileUrl) + '&filename=' + encodeURIComponent(downloadFilename);
                     window.open(downloadUrl, '_blank', 'noopener,noreferrer');
                 }
             }

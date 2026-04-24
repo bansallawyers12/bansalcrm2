@@ -1421,12 +1421,20 @@ use App\Http\Controllers\Controller;
                                                                 <div class="dropdown-menu">
                                                                     <?php $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';?>
 
+                                                                    <?php
+                                                                        $suggestedGridDl = \App\Http\Controllers\Admin\Client\ClientDocumentController::buildClientDocumentDownloadFilename(
+                                                                            (string) ($fetch->file_name ?? 'document'),
+                                                                            (string) ($fetch->filetype ?? '')
+                                                                        );
+                                                                    ?>
                                                                     <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
                                                                         <a target="_blank" class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Preview</a>
-                                                                        <a download class="dropdown-item" href="<?php echo $fetch->myfile; ?>">Download</a>
-                                                                    <?php } else {  //For old file upload?>
-                                                                        <a target="_blank" class="dropdown-item" href="<?php echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">Preview</a>
-                                                                        <a download class="dropdown-item" href="<?php echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">Download</a>
+                                                                        <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($fetch->myfile) . '&filename=' . urlencode($suggestedGridDl); ?>" class="dropdown-item download-file" data-filelink="<?php echo htmlspecialchars($fetch->myfile, ENT_QUOTES, 'UTF-8'); ?>" data-filename="<?php echo htmlspecialchars($suggestedGridDl, ENT_QUOTES, 'UTF-8'); ?>" data-dl-base="<?php echo htmlspecialchars((string) ($fetch->file_name ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-dl-ext="<?php echo htmlspecialchars((string) ($fetch->filetype ?? ''), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">Download</a>
+                                                                    <?php } else {  //For old file upload
+                                                                        $myawsfile = $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
+                                                                    ?>
+                                                                        <a target="_blank" class="dropdown-item" href="<?php echo $myawsfile; ?>">Preview</a>
+                                                                        <a href="<?php echo url('/download-document') . '?filelink=' . urlencode($myawsfile) . '&filename=' . urlencode($suggestedGridDl); ?>" class="dropdown-item download-file" data-filelink="<?php echo htmlspecialchars($myawsfile, ENT_QUOTES, 'UTF-8'); ?>" data-filename="<?php echo htmlspecialchars($suggestedGridDl, ENT_QUOTES, 'UTF-8'); ?>" data-dl-base="<?php echo htmlspecialchars((string) ($fetch->file_name ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-dl-ext="<?php echo htmlspecialchars((string) ($fetch->filetype ?? ''), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">Download</a>
                                                                     <?php } ?>
 
                                                                     <?php if( Auth::user()->role == 1 ){ //super admin ?>
