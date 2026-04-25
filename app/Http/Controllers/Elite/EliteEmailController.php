@@ -250,6 +250,12 @@ class EliteEmailController extends Controller
             'payload' => $payload,
         ]);
 
+        Log::info('elite.emails.stored', [
+            'id' => $record->id,
+            'from' => $storedFrom,
+            'to' => $storedTo,
+        ]);
+
         return response()->json(['ok' => true, 'id' => $record->id]);
     }
 
@@ -361,12 +367,22 @@ class EliteEmailController extends Controller
     private function parseRecipientEmailsFromRawHeaders(string $headers): array
     {
         $out = [];
-        foreach (['delivered-to', 'envelope-to', 'x-original-to', 'to'] as $name) {
+        // Standard + Microsoft 365 / Outlook forwards (OriginalRecipients, Resent-To, etc.)
+        $headerNames = [
+            'delivered-to',
+            'envelope-to',
+            'x-original-to',
+            'to',
+            'x-forwarded-to',
+            'resent-to',
+            'x-ms-exchange-organization-originalrecipients',
+        ];
+        foreach ($headerNames as $name) {
             $qn = preg_quote($name, '/');
             if (preg_match_all('/^'.$qn.':\s*(.+?)(?=\r?\n[^\t ]|\r?\n*$)/msi', $headers, $blocks)) {
                 foreach ($blocks[1] as $block) {
                     $block = trim(preg_replace("/\r?\n[\t ]+/", ' ', $block) ?? '');
-                    foreach ($this->flattenInboundAddressInputs($block) as $chunk) {
+                    foreach ($this->expandHeaderAddressBlock($block) as $chunk) {
                         $p = $this->parseEmailAddress($chunk);
                         if ($p) {
                             $out[$p] = true;
@@ -377,6 +393,33 @@ class EliteEmailController extends Controller
         }
 
         return array_keys($out);
+    }
+
+    /**
+     * Split M365-style recipient lists (semicolons, SMTP:user@host tokens) before normal parsing.
+     *
+     * @return list<string>
+     */
+    private function expandHeaderAddressBlock(string $block): array
+    {
+        if ($block === '') {
+            return [];
+        }
+        $segments = preg_split('/\s*;\s*/', $block) ?: [$block];
+        $chunks = [];
+        foreach ($segments as $segment) {
+            $segment = trim($segment);
+            if ($segment === '') {
+                continue;
+            }
+            $segment = preg_replace('/^smtp:\\s*/i', '', $segment);
+            $segment = trim($segment);
+            foreach ($this->flattenInboundAddressInputs($segment) as $c) {
+                $chunks[] = $c;
+            }
+        }
+
+        return $chunks;
     }
 
     /**
