@@ -442,11 +442,19 @@ class OutlookController extends Controller
         $subject = $validated['subject'];
         $body = $validated['body'] ?? '';
 
+        $eliteReplyTo = '';
+        if ($request->boolean('_elite_compose')) {
+            $eliteReplyTo = trim((string) config('crm.education_elite_inbound_reply_to', ''));
+        }
+
         try {
             /** @var LaravelMailer $mailer */
             $mailer = Mail::mailer('sendgrid_outlook');
-            $mailer->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject) {
+            $mailer->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject, $eliteReplyTo) {
                 $message->to($to)->from($from)->subject($subject);
+                if ($eliteReplyTo !== '' && filter_var($eliteReplyTo, FILTER_VALIDATE_EMAIL)) {
+                    $message->replyTo($eliteReplyTo);
+                }
                 if (count($cc) > 0) {
                     $message->cc($cc);
                 }
