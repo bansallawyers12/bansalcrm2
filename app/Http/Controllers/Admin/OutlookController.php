@@ -188,6 +188,52 @@ class OutlookController extends Controller
     }
 
     /**
+     * Mailer for Outlook send: Education Elite UI uses a dedicated subuser when configured.
+     */
+    private function mailerNameForOutlookSend(Request $request): string
+    {
+        if ($request->boolean('_elite_compose') && ! empty(config('services.sendgrid_elite.api_key'))) {
+            return 'sendgrid_elite';
+        }
+
+        return 'sendgrid_outlook';
+    }
+
+    /**
+     * Display name for From, matching SendGrid verified sender (better DMARC alignment / reputation).
+     */
+    private function displayNameForFrom(string $fromEmail, array $verifiedSenders): string
+    {
+        $fromLower = strtolower($fromEmail);
+        foreach ($verifiedSenders as $sender) {
+            if (! empty($sender['email']) && strtolower((string) $sender['email']) === $fromLower) {
+                $name = $sender['name'] ?? $sender['nickname'] ?? $fromEmail;
+
+                return (string) $name !== '' ? (string) $name : $fromEmail;
+            }
+        }
+
+        return $fromEmail;
+    }
+
+    /**
+     * Plain-text part for multipart/alternative (many receivers score HTML-only as bulk).
+     */
+    private function htmlToPlainTextForMail(?string $html): string
+    {
+        if ($html === null || trim($html) === '') {
+            return ' ';
+        }
+        $t = strip_tags($html);
+        $t = html_entity_decode($t, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $t = preg_replace('/[ \t]+/u', ' ', $t) ?? $t;
+        $t = preg_replace('/\r\n|\r|\n/u', "\n", $t) ?? $t;
+        $t = trim($t);
+
+        return $t !== '' ? $t : ' ';
+    }
+
+    /**
      * Debug SendGrid API - visit /admin/outlook/debug to see what SendGrid returns.
      */
     public function debug(Request $request)
@@ -447,11 +493,18 @@ class OutlookController extends Controller
             $eliteReplyTo = trim((string) config('crm.education_elite_inbound_reply_to', ''));
         }
 
+        $verifiedSenders = $this->getVerifiedSenders();
+        $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
+        $htmlBody = $body !== '' ? $body : '<p> </p>';
+        $plainBody = $this->htmlToPlainTextForMail($htmlBody);
+        $mailerName = $this->mailerNameForOutlookSend($request);
+
         try {
             /** @var LaravelMailer $mailer */
-            $mailer = Mail::mailer('sendgrid_outlook');
-            $mailer->html($body ?: '<p> </p>', function ($message) use ($from, $to, $cc, $subject, $eliteReplyTo) {
-                $message->to($to)->from($from)->subject($subject);
+            $mailer = Mail::mailer($mailerName);
+            $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $eliteReplyTo, $plainBody) {
+                $message->to($to)->from($from, $fromDisplayName)->subject($subject);
+                $message->text($plainBody);
                 if ($eliteReplyTo !== '' && filter_var($eliteReplyTo, FILTER_VALIDATE_EMAIL)) {
                     $message->replyTo($eliteReplyTo);
                 }
@@ -470,6 +523,15 @@ class OutlookController extends Controller
                     }
                 }
             });
+
+            if ($sent === null) {
+                Log::error('Outlook: mail transport returned no sent confirmation', [
+                    'from' => $from,
+                    'to' => $to,
+                    'mailer' => $mailerName,
+                ]);
+                throw new \RuntimeException('Email could not be sent (message was blocked or not transmitted).');
+            }
 
             // Record sent email in emails table (same as CRM) so Sent folder shows all emails
             try {
