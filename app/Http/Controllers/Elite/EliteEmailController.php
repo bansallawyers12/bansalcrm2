@@ -175,9 +175,79 @@ class EliteEmailController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->assertInboundSecret($request);
+        if ($this->inboundDebugLogging()) {
+            $this->logInboundWebhookRequest($request, 'webhook_post');
+        }
 
-        return $this->persistInbound($request);
+        try {
+            $this->assertInboundSecret($request);
+
+            return $this->persistInbound($request);
+        } catch (\Throwable $e) {
+            if (! $e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+                Log::error('elite.inbound.unhandled_exception', [
+                    'message' => $e->getMessage(),
+                    'exception' => $e::class,
+                    'file' => $e->getFile().':'.$e->getLine(),
+                ]);
+            }
+            throw $e;
+        }
+    }
+
+    private function inboundDebugLogging(): bool
+    {
+        return (bool) config('crm.education_elite_inbound_webhook_log', true);
+    }
+
+    /**
+     * Safe diagnostics for /elite/emails POST (no full MIME bodies; lengths + short previews).
+     * Enable/disable via config crm.education_elite_inbound_webhook_log.
+     */
+    private function logInboundWebhookRequest(Request $request, string $stage): void
+    {
+        $keys = array_keys($request->all());
+        sort($keys);
+        $lengths = [];
+        foreach (['text', 'html', 'email', 'headers', 'dkim', 'from', 'to', 'subject', 'envelope', 'raw'] as $k) {
+            $v = $request->input($k);
+            if (is_string($v)) {
+                $lengths[$k.'_bytes'] = strlen($v);
+            } elseif (is_array($v)) {
+                $lengths[$k.'_count'] = count($v);
+            }
+        }
+        $previews = [
+            'from' => $this->stringPreview($request->input('from'), 220),
+            'to' => $this->stringPreview($request->input('to') ?? $request->input('recipient'), 220),
+            'subject' => $this->stringPreview($request->input('subject') ?? $request->input('Subject'), 300),
+            'envelope' => $this->stringPreview(
+                is_string($request->input('envelope')) ? $request->input('envelope') : null,
+                500
+            ),
+        ];
+        Log::info('elite.inbound', [
+            'stage' => $stage,
+            'ip' => $request->ip(),
+            'content_type' => (string) $request->header('Content-Type'),
+            'user_agent' => $request->userAgent() !== null ? substr($request->userAgent(), 0, 200) : null,
+            'form_keys' => $keys,
+            'field_sizes' => $lengths,
+            'previews' => array_filter($previews, static fn ($v) => $v !== null && $v !== ''),
+        ]);
+    }
+
+    private function stringPreview(mixed $value, int $max = 200): ?string
+    {
+        if (! is_string($value) || $value === '') {
+            return null;
+        }
+        $s = str_replace(["\r\n", "\r", "\n"], ' ', $value);
+        if (strlen($s) > $max) {
+            return substr($s, 0, $max).'…';
+        }
+
+        return $s;
     }
 
     private function assertInboundSecret(Request $request): void
@@ -190,7 +260,12 @@ class EliteEmailController extends Controller
         $given = (string) ($request->query('secret', $request->header('X-Elite-Webhook-Secret', '')));
 
         if (! hash_equals($secret, $given)) {
-            Log::warning('elite.emails.forbidden', ['ip' => $request->ip()]);
+            Log::warning('elite.inbound.secret_mismatch', [
+                'ip' => $request->ip(),
+                'query_has_secret' => $request->query->has('secret'),
+                'header_x_elite_present' => $request->header('X-Elite-Webhook-Secret') !== null,
+                'path' => $request->path(),
+            ]);
             abort(403, 'Invalid inbound secret');
         }
     }
@@ -221,8 +296,26 @@ class EliteEmailController extends Controller
         $eliteToAddr = EducationEliteMail::preferApexMailbox($toAddresses);
         $eliteFrom = $fromAddress && EducationEliteMail::isEliteOwnedAddress($fromAddress);
 
+        if ($this->inboundDebugLogging()) {
+            Log::info('elite.inbound.parsed', [
+                'ip' => $request->ip(),
+                'apex' => EducationEliteMail::apexDomain(),
+                'from_parsed' => $fromAddress,
+                'to_addresses' => $toAddresses,
+                'elite_to' => $eliteTo,
+                'elite_from' => $eliteFrom,
+            ]);
+        }
+
         if (! $eliteTo && ! $eliteFrom) {
-            Log::warning('elite.emails.rejected', ['from' => $fromRaw, 'to' => $toRaw, 'ip' => $request->ip()]);
+            Log::warning('elite.inbound.rejected', [
+                'reason' => 'neither_to_nor_from_elite_domain',
+                'from_raw' => is_string($fromRaw) ? $this->stringPreview($fromRaw, 200) : null,
+                'to_raw' => is_string($toRaw) ? $this->stringPreview((string) $toRaw, 200) : null,
+                'from_parsed' => $fromAddress,
+                'to_addresses' => $toAddresses,
+                'ip' => $request->ip(),
+            ]);
             $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
             return response()->json(['ok' => false, 'error' => $msg], 422);
         }
@@ -241,16 +334,26 @@ class EliteEmailController extends Controller
 
         $storedTo = $this->formatStoredToAddress($eliteToAddr, $toAddresses, $toRaw);
 
-        $record = EliteEmail::create([
-            'from_address' => $storedFrom,
-            'to_address' => $storedTo,
-            'subject' => is_string($subject) ? substr($subject, 0, 998) : null,
-            'body_text' => is_string($text) ? $text : null,
-            'body_html' => is_string($html) ? $html : null,
-            'payload' => $payload,
-        ]);
+        try {
+            $record = EliteEmail::create([
+                'from_address' => $storedFrom,
+                'to_address' => $storedTo,
+                'subject' => is_string($subject) ? substr($subject, 0, 998) : null,
+                'body_text' => is_string($text) ? $text : null,
+                'body_html' => is_string($html) ? $html : null,
+                'payload' => $payload,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('elite.inbound.db_failed', [
+                'message' => $e->getMessage(),
+                'exception' => $e::class,
+                'from' => $storedFrom,
+                'to' => $storedTo,
+            ]);
+            throw $e;
+        }
 
-        Log::info('elite.emails.stored', [
+        Log::info('elite.inbound.stored', [
             'id' => $record->id,
             'from' => $storedFrom,
             'to' => $storedTo,

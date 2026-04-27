@@ -415,6 +415,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <code>anything@&lt;your-parse-host&gt;</code>. Set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> in <code>.env</code> to that host for a reminder here.
                     @endif
                     The CRM only lists mail SendGrid POSTs to the webhook; it does not read Outlook directly.
+                    <br><span style="color:#666;">Logs (troubleshoot): <code>storage/logs/laravel.log</code> — look for <code>elite.inbound</code> (POST received), <code>elite.inbound.parsed</code> (domain check), <code>elite.inbound.rejected</code> (422), <code>elite.inbound.secret_mismatch</code> (403), <code>elite.inbound.stored</code> (saved). Set <code>EDUCATION_ELITE_INBOUND_WEBHOOK_LOG=false</code> to reduce noise.</span>
                     <br><strong>Replies in this inbox:</strong> set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> (e.g. <code>parse.{{ $eliteApex }}</code>) or <code>EDUCATION_ELITE_INBOUND_REPLY_TO</code> in <code>.env</code>. <strong>New Message</strong> then sets <strong>Reply-To</strong> to <code>inbound@&lt;parse-host&gt;</code> (or your explicit address) so when the contact replies in Outlook, SendGrid receives the reply and it appears here. Set <code>EDUCATION_ELITE_INBOUND_SET_REPLY_TO=false</code> to turn that off. Alternatively use an M365 forward of <code>info@…</code> to the parse address (Option&nbsp;A above).
                 </div>
             </div>

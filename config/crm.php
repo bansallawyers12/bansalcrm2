@@ -57,6 +57,9 @@ return [
     | education_elite_inbound_set_reply_to — set to false to disable Reply-To on Elite sends (replies only
     | to From; use M365 forwarding if you still need CRM copies).
     |
+    | education_elite_inbound_webhook_log — when true, POST /elite/emails logs diagnostic lines
+    | (elite.inbound, elite.inbound.parsed, elite.inbound.rejected, elite.inbound.stored, etc.) to the default log channel.
+    |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
 
@@ -75,6 +78,11 @@ return [
 
     'education_elite_inbound_set_reply_to' => filter_var(
         env('EDUCATION_ELITE_INBOUND_SET_REPLY_TO', true),
+        FILTER_VALIDATE_BOOL
+    ),
+
+    'education_elite_inbound_webhook_log' => filter_var(
+        env('EDUCATION_ELITE_INBOUND_WEBHOOK_LOG', true),
         FILTER_VALIDATE_BOOL
     ),
 ];
