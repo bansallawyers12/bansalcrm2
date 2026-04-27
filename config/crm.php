@@ -45,14 +45,17 @@ return [
     | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
     | Use this in your SendGrid Inbound Parse URL. Rotate if leaked.
     |
-    | education_elite_inbound_parse_host — optional display hint only (e.g. parse.educationelite.com.au).
-    | Set this to the hostname SendGrid Inbound Parse uses (MX → SendGrid). Mailboxes like apply@apex
-    | can stay on Microsoft: add a forward/rule to forward@parse.apex so the CRM webhook still receives
-    | a copy (see Elite inbox sidebar “Mailbox + Inbound Parse” steps).
+    | education_elite_inbound_parse_host — SendGrid Inbound Parse hostname (e.g. parse.educationelite.com.au).
+    | Used in the UI and to build default Reply-To (see below). MX for this host must point to SendGrid.
     |
-    | education_elite_inbound_reply_to — legacy env key; outbound no longer sets Reply-To. Recipients
-    | reply to the same address as From (verified sender). Inbound Parse still receives mail via
-    | rules/forwards to your parse host as documented in the Elite inbox sidebar.
+    | education_elite_inbound_reply_to — optional full address (e.g. inbound@parse.educationelite.com.au).
+    | When set, Elite “New Message” uses this as Reply-To so customer replies hit Inbound Parse → CRM inbox.
+    |
+    | If empty but education_elite_inbound_parse_host is set, Reply-To defaults to
+    | {education_elite_inbound_reply_local}@{parse_host} (default local part: inbound).
+    |
+    | education_elite_inbound_set_reply_to — set to false to disable Reply-To on Elite sends (replies only
+    | to From; use M365 forwarding if you still need CRM copies).
     |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
@@ -67,4 +70,11 @@ return [
     'education_elite_inbound_parse_host' => env('EDUCATION_ELITE_INBOUND_PARSE_HOST', ''),
 
     'education_elite_inbound_reply_to' => env('EDUCATION_ELITE_INBOUND_REPLY_TO', ''),
+
+    'education_elite_inbound_reply_local' => env('EDUCATION_ELITE_INBOUND_REPLY_LOCAL', 'inbound'),
+
+    'education_elite_inbound_set_reply_to' => filter_var(
+        env('EDUCATION_ELITE_INBOUND_SET_REPLY_TO', true),
+        FILTER_VALIDATE_BOOL
+    ),
 ];

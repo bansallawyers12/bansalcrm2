@@ -234,6 +234,37 @@ class OutlookController extends Controller
     }
 
     /**
+     * Reply-To for Elite "New Message" so customer replies go to SendGrid Inbound Parse → POST /elite/emails.
+     * Uses EDUCATION_ELITE_INBOUND_REPLY_TO, or {EDUCATION_ELITE_INBOUND_REPLY_LOCAL}@{EDUCATION_ELITE_INBOUND_PARSE_HOST}.
+     */
+    private function resolveEliteComposeReplyTo(): ?string
+    {
+        if (! config('crm.education_elite_inbound_set_reply_to', true)) {
+            return null;
+        }
+        $explicit = trim((string) config('crm.education_elite_inbound_reply_to', ''));
+        if ($explicit !== '' && filter_var($explicit, FILTER_VALIDATE_EMAIL)) {
+            return strtolower($explicit);
+        }
+        $parseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
+        if ($parseHost === '') {
+            return null;
+        }
+        $local = trim((string) config('crm.education_elite_inbound_reply_local', 'inbound'));
+        if ($local === '' || ! preg_match('/^[a-z0-9._%+\-]+$/i', $local)) {
+            $local = 'inbound';
+        }
+        $parseHost = strtolower(ltrim($parseHost, '@'));
+        $addr = $local.'@'.$parseHost;
+
+        if (! filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        return $addr;
+    }
+
+    /**
      * Debug SendGrid API - visit /admin/outlook/debug to see what SendGrid returns.
      */
     public function debug(Request $request)
@@ -488,6 +519,11 @@ class OutlookController extends Controller
         $subject = $validated['subject'];
         $body = $validated['body'] ?? '';
 
+        $eliteReplyTo = null;
+        if ($request->boolean('_elite_compose')) {
+            $eliteReplyTo = $this->resolveEliteComposeReplyTo();
+        }
+
         $verifiedSenders = $this->getVerifiedSenders();
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
@@ -497,9 +533,12 @@ class OutlookController extends Controller
         try {
             /** @var LaravelMailer $mailer */
             $mailer = Mail::mailer($mailerName);
-            $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $plainBody) {
+            $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $plainBody, $eliteReplyTo) {
                 $message->to($to)->from($from, $fromDisplayName)->subject($subject);
                 $message->text($plainBody);
+                if ($eliteReplyTo !== null) {
+                    $message->replyTo($eliteReplyTo);
+                }
                 if (count($cc) > 0) {
                     $message->cc($cc);
                 }
