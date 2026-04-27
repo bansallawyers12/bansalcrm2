@@ -415,7 +415,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <code>anything@&lt;your-parse-host&gt;</code>. Set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> in <code>.env</code> to that host for a reminder here.
                     @endif
                     The CRM only lists mail SendGrid POSTs to the webhook; it does not read Outlook directly.
-                    <br><strong>Reply-To (optional):</strong> set <code>EDUCATION_ELITE_INBOUND_REPLY_TO</code> in <code>.env</code> (e.g. <code>inbound@{{ $inboundParseHost !== '' ? $inboundParseHost : 'parse.'.$eliteApex }}</code>) so <strong>New Message</strong> replies go to Inbound Parse.
+                    <br><strong>Replies:</strong> <strong>New Message</strong> does not set a custom Reply-To; recipients reply to the <strong>From</strong> address you selected. Use mailbox rules or forwards to Inbound Parse if you also need those replies in the CRM.
                 </div>
             </div>
         </aside>

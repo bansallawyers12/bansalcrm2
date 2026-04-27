@@ -50,10 +50,9 @@ return [
     | can stay on Microsoft: add a forward/rule to forward@parse.apex so the CRM webhook still receives
     | a copy (see Elite inbox sidebar “Mailbox + Inbound Parse” steps).
     |
-    | education_elite_inbound_reply_to — optional. When set (valid email on your Inbound Parse host),
-    | Elite “New Message” sends (_elite_compose) add Reply-To to this address so recipient replies
-    | go to SendGrid Inbound Parse (e.g. inbound@parse.educationelite.com.au). Leave empty to keep
-    | default reply behaviour (reply to From).
+    | education_elite_inbound_reply_to — legacy env key; outbound no longer sets Reply-To. Recipients
+    | reply to the same address as From (verified sender). Inbound Parse still receives mail via
+    | rules/forwards to your parse host as documented in the Elite inbox sidebar.
     |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
