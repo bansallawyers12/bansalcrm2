@@ -109,17 +109,6 @@ html, body { margin: 0; padding: 0; height: 100%; }
     border-left-color: #0078d4;
 }
 .outlook-folders .folder-item i { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
-.elite-sidebar-foot {
-    margin-top: auto;
-    border-top: 1px solid #e2e8f0;
-    padding: 11px 14px;
-    background: #fafafa;
-    font-size: 11px;
-    color: #64748b;
-    line-height: 1.45;
-}
-.elite-sidebar-foot .foot-label { font-weight: 600; color: #475569; margin-bottom: 3px; display: block; }
-.elite-sidebar-foot code { font-size: 10.5px; word-break: break-all; color: #0078d4; }
 
 /* ── Main area ──────────────────────────────────────────────────────────── */
 .outlook-main {
@@ -389,36 +378,6 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 </nav>
             </div>
             @endif
-
-            {{-- Webhook URL footer + Option A (real mailbox + Inbound Parse) --}}
-            @php
-                $eliteApex = ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@');
-                $inboundParseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
-            @endphp
-            <div class="elite-sidebar-foot">
-                <span class="foot-label">Inbound webhook</span>
-                <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
-                <div style="margin-top:5px;">
-                    Apex domain: <strong>{{ '@'.$eliteApex }}</strong>
-                    @if(config('crm.education_elite_inbound_secret'))
-                        &nbsp;<span style="color:#16a34a;"><i class="fas fa-lock"></i></span>
-                    @endif
-                </div>
-                <div style="margin-top:8px;font-size:11px;line-height:1.45;color:#444;">
-                    <strong>Real mailbox + CRM (Option&nbsp;A):</strong>
-                    (1) In SendGrid → Inbound Parse, use a host such as <code>{{ $inboundParseHost !== '' ? $inboundParseHost : 'parse.'.$eliteApex }}</code>
-                    with MX to SendGrid and this POST URL.
-                    (2) In Microsoft 365 / Outlook admin, on each real mailbox (e.g. <code>apply@{{ $eliteApex }}</code>), add a rule or forwarding to deliver a copy to
-                    @if($inboundParseHost !== '')
-                        <code>inbound@{{ $inboundParseHost }}</code> (or any local-part you create on that host).
-                    @else
-                        <code>anything@&lt;your-parse-host&gt;</code>. Set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> in <code>.env</code> to that host for a reminder here.
-                    @endif
-                    The CRM only lists mail SendGrid POSTs to the webhook; it does not read Outlook directly.
-                    <br><span style="color:#666;">Logs (troubleshoot): <code>storage/logs/laravel.log</code> — look for <code>elite.inbound</code> (POST received), <code>elite.inbound.parsed</code> (domain check), <code>elite.inbound.rejected</code> (422), <code>elite.inbound.secret_mismatch</code> (403), <code>elite.inbound.stored</code> (saved). Set <code>EDUCATION_ELITE_INBOUND_WEBHOOK_LOG=false</code> to reduce noise.</span>
-                    <br><strong>Replies in this inbox:</strong> set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> (e.g. <code>parse.{{ $eliteApex }}</code>) or <code>EDUCATION_ELITE_INBOUND_REPLY_TO</code> in <code>.env</code>. <strong>New Message</strong> then sets <strong>Reply-To</strong> to <code>inbound@&lt;parse-host&gt;</code> (or your explicit address) so when the contact replies in Outlook, SendGrid receives the reply and it appears here. Set <code>EDUCATION_ELITE_INBOUND_SET_REPLY_TO=false</code> to turn that off. Alternatively use an M365 forward of <code>info@…</code> to the parse address (Option&nbsp;A above).
-                </div>
-            </div>
         </aside>
 
         {{-- ── Main area ───────────────────────────────────────────────────── --}}
