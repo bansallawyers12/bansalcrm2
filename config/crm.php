@@ -77,7 +77,7 @@ return [
     'education_elite_inbound_reply_local' => env('EDUCATION_ELITE_INBOUND_REPLY_LOCAL', 'inbound'),
 
     'education_elite_inbound_set_reply_to' => filter_var(
-        env('EDUCATION_ELITE_INBOUND_SET_REPLY_TO', true),
+        env('EDUCATION_ELITE_INBOUND_SET_REPLY_TO', false),
         FILTER_VALIDATE_BOOL
     ),
 
