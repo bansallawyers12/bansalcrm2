@@ -865,27 +865,34 @@ html, body { margin: 0; padding: 0; height: 100%; }
     var autoPollTimer = null;
     var AUTO_POLL_MS = 10000; // 10 seconds
 
-    /* ── Burst-poll after send: 5-second intervals for 3 minutes ─────────── */
-    var burstPollTimer = null;
-    var burstPollRemaining = 0;
-    var BURST_POLL_MS = 5000;
-    var BURST_POLL_MAX = 36; // 36 × 5s = 3 minutes
+    /* ── Burst-poll after send: polls every 5 s for 5 minutes ───────────────
+       Uses a deadline timestamp so hidden-tab skips don't consume the budget.
+       On tab-focus, checks immediately if deadline hasn't passed.            */
+    var burstPollTimer    = null;
+    var burstDeadlineMs   = 0;          // epoch ms when burst mode expires
+    var BURST_POLL_MS     = 5000;       // check every 5 s while burst active
+    var BURST_DURATION_MS = 5 * 60000; // 5 minutes
+
+    function isBurstActive() { return Date.now() < burstDeadlineMs; }
 
     function startBurstPoll() {
-        burstPollRemaining = BURST_POLL_MAX;
+        burstDeadlineMs = Date.now() + BURST_DURATION_MS;
         if (burstPollTimer) clearInterval(burstPollTimer);
         burstPollTimer = setInterval(function () {
-            if (burstPollRemaining <= 0) {
+            if (!isBurstActive()) {
                 clearInterval(burstPollTimer);
                 burstPollTimer = null;
                 return;
             }
-            burstPollRemaining--;
-            if (!document.hidden) doFetchInbox(true);
+            doFetchInbox(true); // always fetch — even while tab is hidden (no DOM ops in silent mode)
         }, BURST_POLL_MS);
     }
 
+    var inboxFetchInFlight = false;
+
     function doFetchInbox(silent) {
+        /* Prevent overlapping concurrent fetches for silent (poll) calls */
+        if (silent && inboxFetchInFlight) return;
         var btn     = document.querySelector('.btn-fetch-inbox');
         var toolbar = document.querySelector('#folderInbox .inbox-toolbar');
         if (!toolbar) return;
@@ -900,6 +907,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         params.push('sort=' + sort, 'account=' + encodeURIComponent(activeAccount||'all'));
 
         if (!silent && btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...'; }
+        if (silent) inboxFetchInFlight = true;
 
         apiFetch(INBOX_URL, params).then(function (data) {
             if (!silent) clearFetchError();
@@ -938,6 +946,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         }).catch(function () {
             if (!silent) showFetchError('Could not refresh. Check your connection and try again.');
         }).finally(function () {
+            if (silent) inboxFetchInFlight = false;
             if (!silent && btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails'; }
         });
     }
@@ -994,9 +1003,15 @@ html, body { margin: 0; padding: 0; height: 100%; }
     doFetchInbox(false);
 
     startAutoPoll();
-    /* Resume / pause with tab visibility */
+    /* On tab focus: immediately fetch + resume burst if still in window */
     document.addEventListener('visibilitychange', function () {
-        if (document.hidden) stopAutoPoll(); else startAutoPoll();
+        if (document.hidden) {
+            stopAutoPoll();
+        } else {
+            doFetchInbox(true); // check right away when user returns to tab
+            startAutoPoll();
+            if (isBurstActive() && !burstPollTimer) startBurstPoll(); // resume burst
+        }
     });
 
     document.querySelector('.btn-fetch-inbox') && document.querySelector('.btn-fetch-inbox').addEventListener('click', function () {
