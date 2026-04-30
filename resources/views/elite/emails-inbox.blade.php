@@ -863,7 +863,27 @@ html, body { margin: 0; padding: 0; height: 100%; }
     /* ── Inbox fetch (shared by button + auto-poll) ───────────────────────── */
     var autoPolling = false;
     var autoPollTimer = null;
-    var AUTO_POLL_MS = 30000; // 30 seconds
+    var AUTO_POLL_MS = 10000; // 10 seconds
+
+    /* ── Burst-poll after send: 5-second intervals for 3 minutes ─────────── */
+    var burstPollTimer = null;
+    var burstPollRemaining = 0;
+    var BURST_POLL_MS = 5000;
+    var BURST_POLL_MAX = 36; // 36 × 5s = 3 minutes
+
+    function startBurstPoll() {
+        burstPollRemaining = BURST_POLL_MAX;
+        if (burstPollTimer) clearInterval(burstPollTimer);
+        burstPollTimer = setInterval(function () {
+            if (burstPollRemaining <= 0) {
+                clearInterval(burstPollTimer);
+                burstPollTimer = null;
+                return;
+            }
+            burstPollRemaining--;
+            if (!document.hidden) doFetchInbox(true);
+        }, BURST_POLL_MS);
+    }
 
     function doFetchInbox(silent) {
         var btn     = document.querySelector('.btn-fetch-inbox');
@@ -1393,6 +1413,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                             form.reset();
                             clearAttachments();
                             if (fromSel && prevFrom) fromSel.value = prevFrom;
+                            startBurstPoll(); // poll every 5s for 3 min to catch reply quickly
                             setTimeout(closeModal, 1800);
                         } else {
                             var msg = (body && body.message) ? body.message : 'Failed to send. Please try again.';
