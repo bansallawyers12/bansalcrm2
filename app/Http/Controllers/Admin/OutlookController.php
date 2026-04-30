@@ -234,34 +234,41 @@ class OutlookController extends Controller
     }
 
     /**
-     * Reply-To for Elite "New Message" so customer replies go to SendGrid Inbound Parse → POST /elite/emails.
-     * Uses EDUCATION_ELITE_INBOUND_REPLY_TO, or {EDUCATION_ELITE_INBOUND_REPLY_LOCAL}@{EDUCATION_ELITE_INBOUND_PARSE_HOST}.
+     * Reply-To for Elite "New Message".
+     *
+     * Since the full educationelite.com.au domain MX points to SendGrid Inbound Parse,
+     * replies to the From address (info@educationelite.com.au) are captured directly.
+     * No Reply-To subdomain is needed. Returns null unless EDUCATION_ELITE_INBOUND_PARSE_HOST
+     * is explicitly set AND is NOT a subdomain of the apex domain (future-proof for
+     * multi-domain setups). Ignores EDUCATION_ELITE_INBOUND_REPLY_TO to prevent
+     * broken subdomain addresses from being injected via env.
      */
     private function resolveEliteComposeReplyTo(): ?string
     {
-        if (! config('crm.education_elite_inbound_set_reply_to', true)) {
+        if (! config('crm.education_elite_inbound_set_reply_to', false)) {
             return null;
         }
-        $explicit = trim((string) config('crm.education_elite_inbound_reply_to', ''));
-        if ($explicit !== '' && filter_var($explicit, FILTER_VALIDATE_EMAIL)) {
-            return strtolower($explicit);
-        }
-        $parseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
+
+        $parseHost = strtolower(trim(ltrim((string) config('crm.education_elite_inbound_parse_host', ''), '@')));
         if ($parseHost === '') {
             return null;
         }
+
+        $apexDomain = strtolower(trim(ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@')));
+
+        // If parse host is the apex or a subdomain of it, MX already covers it — no Reply-To needed.
+        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.' . $apexDomain)) {
+            return null;
+        }
+
         $local = trim((string) config('crm.education_elite_inbound_reply_local', 'inbound'));
         if ($local === '' || ! preg_match('/^[a-z0-9._%+\-]+$/i', $local)) {
             $local = 'inbound';
         }
-        $parseHost = strtolower(ltrim($parseHost, '@'));
-        $addr = $local.'@'.$parseHost;
 
-        if (! filter_var($addr, FILTER_VALIDATE_EMAIL)) {
-            return null;
-        }
+        $addr = $local . '@' . $parseHost;
 
-        return $addr;
+        return filter_var($addr, FILTER_VALIDATE_EMAIL) ? $addr : null;
     }
 
     /**
