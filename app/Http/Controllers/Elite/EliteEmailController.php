@@ -176,20 +176,38 @@ class EliteEmailController extends Controller
     public function store(Request $request): JsonResponse
     {
         if ($this->inboundDebugLogging()) {
+            $request->attributes->set('elite_inbound_cid', bin2hex(random_bytes(8)));
+            Log::info('elite.inbound.hit', array_merge($this->inboundCorrelationContext($request), [
+                'method' => $request->method(),
+                'path' => $request->path(),
+                'content_length' => $request->header('Content-Length'),
+                'user_agent' => $request->userAgent() !== null ? substr((string) $request->userAgent(), 0, 200) : null,
+            ]));
             $this->logInboundWebhookRequest($request, 'webhook_post');
         }
 
         try {
             $this->assertInboundSecret($request);
 
-            return $this->persistInbound($request);
+            if ($this->inboundDebugLogging()) {
+                Log::info('elite.inbound.auth_ok', array_merge($this->inboundCorrelationContext($request), [
+                    'secret_configured' => (string) config('crm.education_elite_inbound_secret', '') !== '',
+                ]));
+            }
+
+            $response = $this->persistInbound($request);
+            if ($this->inboundDebugLogging()) {
+                $this->logInboundResponse($request, $response);
+            }
+
+            return $response;
         } catch (\Throwable $e) {
             if (! $e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
-                Log::error('elite.inbound.unhandled_exception', [
+                Log::error('elite.inbound.unhandled_exception', array_merge($this->inboundCorrelationContext($request), [
                     'message' => $e->getMessage(),
                     'exception' => $e::class,
                     'file' => $e->getFile().':'.$e->getLine(),
-                ]);
+                ]));
             }
             throw $e;
         }
@@ -198,6 +216,32 @@ class EliteEmailController extends Controller
     private function inboundDebugLogging(): bool
     {
         return (bool) config('crm.education_elite_inbound_webhook_log', true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function inboundCorrelationContext(Request $request): array
+    {
+        $cid = $request->attributes->get('elite_inbound_cid');
+
+        return $cid !== null ? ['cid' => $cid, 'ip' => $request->ip()] : ['ip' => $request->ip()];
+    }
+
+    private function logInboundResponse(Request $request, JsonResponse $response): void
+    {
+        $data = $response->getData(true);
+        $bodyKeys = is_array($data) ? array_keys($data) : [];
+        $log = array_merge($this->inboundCorrelationContext($request), [
+            'http_status' => $response->getStatusCode(),
+            'body_keys' => $bodyKeys,
+            'ok' => is_array($data) && array_key_exists('ok', $data) ? $data['ok'] : null,
+            'id' => is_array($data) && array_key_exists('id', $data) ? $data['id'] : null,
+            'error' => is_array($data) && isset($data['error'])
+                ? $this->stringPreview((string) $data['error'], 200)
+                : null,
+        ]);
+        Log::info('elite.inbound.response', $log);
     }
 
     /**
@@ -226,15 +270,14 @@ class EliteEmailController extends Controller
                 500
             ),
         ];
-        Log::info('elite.inbound', [
+        Log::info('elite.inbound', array_merge($this->inboundCorrelationContext($request), [
             'stage' => $stage,
-            'ip' => $request->ip(),
             'content_type' => (string) $request->header('Content-Type'),
             'user_agent' => $request->userAgent() !== null ? substr($request->userAgent(), 0, 200) : null,
             'form_keys' => $keys,
             'field_sizes' => $lengths,
             'previews' => array_filter($previews, static fn ($v) => $v !== null && $v !== ''),
-        ]);
+        ]));
     }
 
     private function stringPreview(mixed $value, int $max = 200): ?string
@@ -260,12 +303,11 @@ class EliteEmailController extends Controller
         $given = (string) ($request->query('secret', $request->header('X-Elite-Webhook-Secret', '')));
 
         if (! hash_equals($secret, $given)) {
-            Log::warning('elite.inbound.secret_mismatch', [
-                'ip' => $request->ip(),
+            Log::warning('elite.inbound.secret_mismatch', array_merge($this->inboundCorrelationContext($request), [
                 'query_has_secret' => $request->query->has('secret'),
                 'header_x_elite_present' => $request->header('X-Elite-Webhook-Secret') !== null,
                 'path' => $request->path(),
-            ]);
+            ]));
             abort(403, 'Invalid inbound secret');
         }
     }
@@ -297,25 +339,24 @@ class EliteEmailController extends Controller
         $eliteFrom = $fromAddress && EducationEliteMail::isEliteOwnedAddress($fromAddress);
 
         if ($this->inboundDebugLogging()) {
-            Log::info('elite.inbound.parsed', [
-                'ip' => $request->ip(),
+            Log::info('elite.inbound.parsed', array_merge($this->inboundCorrelationContext($request), [
                 'apex' => EducationEliteMail::apexDomain(),
                 'from_parsed' => $fromAddress,
                 'to_addresses' => $toAddresses,
                 'elite_to' => $eliteTo,
                 'elite_from' => $eliteFrom,
-            ]);
+            ]));
         }
 
         if (! $eliteTo && ! $eliteFrom) {
-            Log::warning('elite.inbound.rejected', [
+            Log::warning('elite.inbound.rejected', array_merge($this->inboundCorrelationContext($request), [
                 'reason' => 'neither_to_nor_from_elite_domain',
+                'reject_code' => 'neither_to_nor_from_elite_domain',
                 'from_raw' => is_string($fromRaw) ? $this->stringPreview($fromRaw, 200) : null,
                 'to_raw' => is_string($toRaw) ? $this->stringPreview((string) $toRaw, 200) : null,
                 'from_parsed' => $fromAddress,
                 'to_addresses' => $toAddresses,
-                'ip' => $request->ip(),
-            ]);
+            ]));
             $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
             return response()->json(['ok' => false, 'error' => $msg], 200);
         }
@@ -344,20 +385,20 @@ class EliteEmailController extends Controller
                 'payload' => $payload,
             ]);
         } catch (\Throwable $e) {
-            Log::error('elite.inbound.db_failed', [
+            Log::error('elite.inbound.db_failed', array_merge($this->inboundCorrelationContext($request), [
                 'message' => $e->getMessage(),
                 'exception' => $e::class,
                 'from' => $storedFrom,
                 'to' => $storedTo,
-            ]);
+            ]));
             throw $e;
         }
 
-        Log::info('elite.inbound.stored', [
+        Log::info('elite.inbound.stored', array_merge($this->inboundCorrelationContext($request), [
             'id' => $record->id,
             'from' => $storedFrom,
             'to' => $storedTo,
-        ]);
+        ]));
 
         return response()->json(['ok' => true, 'id' => $record->id]);
     }
