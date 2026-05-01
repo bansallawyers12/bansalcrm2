@@ -317,7 +317,7 @@ class EliteEmailController extends Controller
                 'ip' => $request->ip(),
             ]);
             $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
-            return response()->json(['ok' => false, 'error' => $msg], 422);
+            return response()->json(['ok' => false, 'error' => $msg], 200);
         }
         $text = $request->input('text') ?? $request->input('body_text') ?? $request->input('plain');
         $html = $request->input('html') ?? $request->input('body_html') ?? $request->input('body');
