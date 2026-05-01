@@ -23,7 +23,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 *.log
-/public/phpinfo.php
 cron.log
 php.ini
 *.swp
