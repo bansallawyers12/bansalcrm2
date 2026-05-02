@@ -349,16 +349,12 @@ class EliteEmailController extends Controller
         }
 
         if (! $eliteTo && ! $eliteFrom) {
-            Log::warning('elite.inbound.rejected', array_merge($this->inboundCorrelationContext($request), [
-                'reason' => 'neither_to_nor_from_elite_domain',
-                'reject_code' => 'neither_to_nor_from_elite_domain',
-                'from_raw' => is_string($fromRaw) ? $this->stringPreview($fromRaw, 200) : null,
-                'to_raw' => is_string($toRaw) ? $this->stringPreview((string) $toRaw, 200) : null,
-                'from_parsed' => $fromAddress,
-                'to_addresses' => $toAddresses,
-            ]));
-            $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
-            return response()->json(['ok' => false, 'error' => $msg], 200);
+            Log::warning('elite.inbound.rejected', [
+                'from' => $fromAddress,
+                'to' => $toAddresses,
+            ]);
+            // Don't reject — save anyway to avoid losing emails
+            $eliteTo = true;
         }
         $text = $request->input('text') ?? $request->input('body_text') ?? $request->input('plain');
         $html = $request->input('html') ?? $request->input('body_html') ?? $request->input('body');
