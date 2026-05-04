@@ -10,6 +10,7 @@ use App\Services\EducationEliteInboxService;
 use App\Support\EducationEliteMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class EliteEmailController extends Controller
@@ -77,7 +78,8 @@ class EliteEmailController extends Controller
         $dateTo   = (string) $request->get('date_to', '');
         $sort     = in_array($request->get('sort', 'newest'), ['oldest'], true) ? 'asc' : 'desc';
 
-        $query = Email::where('mail_type', 1)
+        $query = Email::query()
+            ->where('mail_type', '=', 1, 'and')
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_mail,\'\'))) LIKE ?', [strtolower($like)])
                   ->orWhereRaw('LOWER(TRIM(COALESCE(to_mail,\'\'))) LIKE ?', [strtolower($like)]);
@@ -136,7 +138,8 @@ class EliteEmailController extends Controller
         $like   = '%@'.$domain;
         $search = trim((string) $request->get('search', ''));
 
-        $query = OutlookDraftEmail::where('admin_id', auth('admin')->id())
+        $query = OutlookDraftEmail::query()
+            ->where('admin_id', '=', Auth::guard('admin')->id(), 'and')
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_email,\'\'))) LIKE ?', [strtolower($like)])
                   ->orWhereRaw('LOWER(TRIM(COALESCE(to_email,\'\'))) LIKE ?', [strtolower($like)]);
@@ -303,11 +306,7 @@ class EliteEmailController extends Controller
         $given = (string) ($request->query('secret', $request->header('X-Elite-Webhook-Secret', '')));
 
         if (! hash_equals($secret, $given)) {
-            Log::warning('elite.inbound.secret_mismatch', array_merge($this->inboundCorrelationContext($request), [
-                'query_has_secret' => $request->query->has('secret'),
-                'header_x_elite_present' => $request->header('X-Elite-Webhook-Secret') !== null,
-                'path' => $request->path(),
-            ]));
+            // 403 is logged by LogEliteInboundWebhookRejections (incl. query/header presence; no secrets logged).
             abort(403, 'Invalid inbound secret');
         }
     }
