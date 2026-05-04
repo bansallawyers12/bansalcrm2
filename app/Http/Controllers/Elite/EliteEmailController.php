@@ -15,11 +15,6 @@ use Illuminate\Support\Facades\Log;
 
 class EliteEmailController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:admin')->only(['index', 'inbox', 'sent', 'drafts']);
-    }
-
     public function index()
     {
         $service = EducationEliteInboxService::make();
@@ -138,8 +133,16 @@ class EliteEmailController extends Controller
         $like   = '%@'.$domain;
         $search = trim((string) $request->get('search', ''));
 
+        $adminId = Auth::guard('admin')->id();
+        if ($adminId === null) {
+            return response()->json([
+                'emails' => [],
+                'message' => 'Sign in as an admin to view drafts.',
+            ]);
+        }
+
         $query = OutlookDraftEmail::query()
-            ->where('admin_id', '=', Auth::guard('admin')->id(), 'and')
+            ->where('admin_id', '=', $adminId, 'and')
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_email,\'\'))) LIKE ?', [strtolower($like)])
                   ->orWhereRaw('LOWER(TRIM(COALESCE(to_email,\'\'))) LIKE ?', [strtolower($like)]);

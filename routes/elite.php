@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | POST /elite/emails — SendGrid Inbound Parse (public, CSRF exempt, optional ?secret=)
-| GET /elite/emails — Inbox UI (auth:admin)
+| GET /elite/emails — Inbox UI (public; drafts require admin session)
 |
 */
 
