@@ -39,8 +39,8 @@ class EmailQueryV2Controller extends Controller
 
             // Build base query
             $query = Email::where('client_id', $entityId)
-                ->where('type', $entityType)
                 ->where('mail_type', 1);
+            $this->applyEmailEntityTypeScope($query, $entityType);
 
             // Set conversion_type based on entity type
             if ($entityType === 'partner') {
@@ -215,8 +215,8 @@ class EmailQueryV2Controller extends Controller
 
             // Build base query
             $query = Email::where('client_id', $entityId)
-                ->where('type', $entityType)
                 ->where('mail_type', 1);
+            $this->applyEmailEntityTypeScope($query, $entityType);
 
             // Set conversion_type based on entity type
             if ($entityType === 'partner') {
@@ -695,5 +695,19 @@ class EmailQueryV2Controller extends Controller
             }
         }
         return implode(', ', $resolved);
+    }
+
+    /**
+     * Restrict emails.type: partners only; client/lead views include both to tolerate mis-tagged rows.
+     */
+    protected function applyEmailEntityTypeScope($query, string $entityType): void
+    {
+        if ($entityType === 'partner') {
+            $query->where('type', 'partner');
+
+            return;
+        }
+
+        $query->whereIn('type', ['client', 'lead']);
     }
 }
