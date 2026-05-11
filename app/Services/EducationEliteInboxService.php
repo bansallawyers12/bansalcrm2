@@ -259,6 +259,7 @@ class EducationEliteInboxService
             'e.subject as subj',
             DB::raw('COALESCE(e.body_html, e.body_text) as body'),
             'e.created_at as received_at',
+            'e.payload as payload_json',
         ]);
 
         // Exclude automated no-reply addresses — they are system notifications, not real mail
@@ -361,15 +362,37 @@ class EducationEliteInboxService
             $ts = (float) $c->getTimestamp();
         }
 
+        $hasAttachments = false;
+        $payloadJson = $row->payload_json ?? null;
+        if (is_string($payloadJson) && $payloadJson !== '') {
+            $p = json_decode($payloadJson, true);
+            if (is_array($p)) {
+                $cnt = $p['attachments'] ?? 0;
+                $hasAttachments = (is_numeric($cnt) && (int) $cnt > 0)
+                    || isset($p['attachment-info']);
+            }
+        }
+
+        $bodyRaw = (string) ($row->body ?? '');
+        $snippet = '';
+        if ($bodyRaw !== '') {
+            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($bodyRaw)));
+            if ($stripped !== null && $stripped !== '') {
+                $snippet = mb_substr($stripped, 0, 120);
+            }
+        }
+
         return [
             'id' => 'elite-'.(int) $row->id,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
-            'body' => (string) ($row->body ?? ''),
+            'body' => $bodyRaw,
+            'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
-            'direction_label' => 'Inbound (SendGrid)',
+            'direction_label' => 'Inbound',
+            'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
         ];
     }
@@ -388,15 +411,26 @@ class EducationEliteInboxService
             $ts = (float) $c->getTimestamp();
         }
 
+        $bodyRaw = (string) ($row->body ?? '');
+        $snippet = '';
+        if ($bodyRaw !== '') {
+            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($bodyRaw)));
+            if ($stripped !== null && $stripped !== '') {
+                $snippet = mb_substr($stripped, 0, 120);
+            }
+        }
+
         return [
             'id' => 'crm-'.(int) $row->id,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
-            'body' => (string) ($row->body ?? ''),
+            'body' => $bodyRaw,
+            'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
             'direction_label' => 'Inbound (CRM)',
+            'has_attachments' => false,
             'sort_ts' => $ts,
         ];
     }
