@@ -507,8 +507,11 @@
     color: #6c757d;
 }
 
+/* Blade uses .email-v2-content-view; keep .email-content-view for backwards compatibility */
+.email-v2-content-view,
 .email-content-view {
     flex: 1;
+    min-height: 0;
     padding: 24px;
     overflow-y: auto;
 }
@@ -658,22 +661,26 @@
 
 /* Scrollbar Styling */
 .email-v2-list::-webkit-scrollbar,
+.email-v2-content-view::-webkit-scrollbar,
 .email-content-view::-webkit-scrollbar {
     width: 8px;
 }
 
 .email-v2-list::-webkit-scrollbar-track,
+.email-v2-content-view::-webkit-scrollbar-track,
 .email-content-view::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
 
 .email-v2-list::-webkit-scrollbar-thumb,
+.email-v2-content-view::-webkit-scrollbar-thumb,
 .email-content-view::-webkit-scrollbar-thumb {
     background: #cbd5e0;
     border-radius: 4px;
 }
 
 .email-v2-list::-webkit-scrollbar-thumb:hover,
+.email-v2-content-view::-webkit-scrollbar-thumb:hover,
 .email-content-view::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
 }
