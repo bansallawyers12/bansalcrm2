@@ -391,7 +391,7 @@ class EducationEliteInboxService
             'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
-            'direction_label' => 'Inbound',
+            'direction_label' => 'Inbound (SendGrid)',
             'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
         ];

@@ -803,6 +803,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; }
         if (body)  { body.textContent = ''; body.style.display = ''; }
         if (acts)  acts.style.display = 'none';
+        if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
         if (listEl) listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
     }
 
@@ -854,18 +855,16 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var btnReply = document.getElementById('eliteInboxBtnReply');
         var btnFwd   = document.getElementById('eliteInboxBtnFwd');
         function openComposePrefilled(to, subject, quotedBody) {
-            var overlay     = document.getElementById('eliteComposeOverlay');
             var composeForm = document.getElementById('eliteComposeForm');
-            if (!overlay || !composeForm) return;
-            composeForm.reset();
+            if (!composeForm) return;
+            /* openModal() resets form, clears attachments, loads senders, shows overlay */
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
             var toEl   = composeForm.querySelector('[name="to"]');
             var subjEl = composeForm.querySelector('[name="subject"]');
             var bodyTa = composeForm.querySelector('[name="body"]');
             if (toEl)   toEl.value   = to;
             if (subjEl) subjEl.value = subject;
             if (bodyTa) bodyTa.value = quotedBody;
-            overlay.style.display = 'flex';
-            document.dispatchEvent(new CustomEvent('elite:loadSenders'));
             if (toEl) setTimeout(function () { toEl.focus(); }, 50);
         }
         var plainSnippet = looksLikeHtml(body)
@@ -1137,8 +1136,33 @@ html, body { margin: 0; padding: 0; height: 100%; }
         }
         var btnReply = document.getElementById('eliteSentBtnReply');
         var btnFwd   = document.getElementById('eliteSentBtnFwd');
-        if (btnReply) btnReply.onclick = function() { window.location.href = '{{ route("admin.outlook.index") }}?reply_to=' + encodeURIComponent(e.from||''); };
-        if (btnFwd)   btnFwd.onclick   = function() { window.location.href = '{{ route("admin.outlook.index") }}'; };
+        var sentPlain = looksLikeHtml(raw) ? raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : raw.trim();
+        if (btnReply) btnReply.onclick = function () {
+            var subj = (e.subject && !/^re:/i.test(e.subject)) ? 'Re: ' + e.subject : (e.subject || '');
+            var body = '\n\n--- Original message ---\nFrom: ' + (e.from||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var toEl   = composeForm.querySelector('[name="to"]');
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (toEl)   toEl.value   = e.to || '';
+            if (subjEl) subjEl.value = subj;
+            if (bodyTa) bodyTa.value = body;
+            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+        };
+        if (btnFwd) btnFwd.onclick = function () {
+            var subj = (e.subject && !/^fwd:/i.test(e.subject)) ? 'Fwd: ' + e.subject : (e.subject || '');
+            var body = '\n\n--- Forwarded message ---\nFrom: ' + (e.from||'') + '\nTo: ' + (e.to||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (subjEl) subjEl.value = subj;
+            if (bodyTa) bodyTa.value = body;
+            setTimeout(function () { var t = composeForm.querySelector('[name="to"]'); if (t) t.focus(); }, 50);
+        };
     }
 
     document.querySelector('.btn-fetch-sent') && document.querySelector('.btn-fetch-sent').addEventListener('click', function () {
@@ -1415,6 +1439,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (btnClose)  btnClose.addEventListener('click',  closeModal);
         if (btnCancel) btnCancel.addEventListener('click', closeModal);
         document.addEventListener('elite:loadSenders', loadSenders);
+        document.addEventListener('elite:openModal',   openModal);
 
         /* ── Save Draft ──────────────────────────────────────────────────────── */
         if (saveDraftBtn) {
