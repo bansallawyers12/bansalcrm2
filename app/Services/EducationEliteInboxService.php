@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\EliteEmailAttachment;
+use App\Support\EliteEmailCidRewriter;
 use App\Support\EducationEliteMail;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
@@ -207,7 +209,69 @@ class EducationEliteInboxService
         }
         unset($it);
 
-        return $out;
+        return $this->applyEliteInboundAttachments($out);
+    }
+
+    /**
+     * Attach stored inbound files + rewrite cid: in HTML for SendGrid-derived rows.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyEliteInboundAttachments(array $items): array
+    {
+        if (! Schema::hasTable('elite_email_attachments')) {
+            return $items;
+        }
+
+        $eliteIds = [];
+        foreach ($items as $it) {
+            if (! isset($it['id']) || ! is_string($it['id']) || ! str_starts_with($it['id'], 'elite-')) {
+                continue;
+            }
+            $nid = (int) substr($it['id'], strlen('elite-'));
+            if ($nid > 0) {
+                $eliteIds[$nid] = $nid;
+            }
+        }
+
+        if ($eliteIds === []) {
+            return $items;
+        }
+
+        $byEmail = EliteEmailAttachment::query()
+            ->whereIn('elite_email_id', array_values($eliteIds))
+            ->orderBy('id')
+            ->get()
+            ->groupBy(static fn (EliteEmailAttachment $a) => (int) $a->elite_email_id);
+
+        foreach ($items as &$it) {
+            if (! isset($it['id']) || ! is_string($it['id']) || ! str_starts_with($it['id'], 'elite-')) {
+                continue;
+            }
+            $eid = (int) substr($it['id'], strlen('elite-'));
+            $atts = $byEmail->get($eid, collect());
+            if ($atts->isEmpty()) {
+                continue;
+            }
+            $it['has_attachments'] = true;
+            $it['attachments'] = $atts->map(static function (EliteEmailAttachment $a): array {
+                return [
+                    'id' => $a->id,
+                    'filename' => $a->original_filename,
+                    'content_type' => $a->mime_type,
+                    'url' => route('elite.emails.attachment', ['attachment' => $a->id]),
+                ];
+            })->values()->all();
+
+            $body = (string) ($it['body'] ?? '');
+            if ($body !== '' && preg_match('/<[a-z][\s\S]*>/i', $body) && str_contains(strtolower($body), 'cid:')) {
+                $it['body'] = EliteEmailCidRewriter::rewrite($body, $atts);
+            }
+        }
+        unset($it);
+
+        return $items;
     }
 
     /**

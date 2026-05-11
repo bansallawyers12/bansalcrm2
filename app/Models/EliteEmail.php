@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EliteEmail extends Model
 {
@@ -20,4 +21,9 @@ class EliteEmail extends Model
     protected $casts = [
         'payload' => 'array',
     ];
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(EliteEmailAttachment::class, 'elite_email_id');
+    }
 }

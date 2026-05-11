@@ -4,17 +4,53 @@ namespace App\Http\Controllers\Elite;
 
 use App\Http\Controllers\Controller;
 use App\Models\EliteEmail;
+use App\Models\EliteEmailAttachment;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
+use App\Services\EliteInboundAttachmentService;
 use App\Support\EducationEliteMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EliteEmailController extends Controller
 {
+    /**
+     * Serve a stored inbound attachment (SendGrid multipart).
+     */
+    public function attachment(EliteEmailAttachment $attachment): BinaryFileResponse
+    {
+        $disk = Storage::disk('local');
+        if (! $disk->exists($attachment->storage_path)) {
+            abort(404);
+        }
+
+        $path = $disk->path($attachment->storage_path);
+        if (! is_readable($path)) {
+            abort(404);
+        }
+
+        $filename = $attachment->original_filename ?: 'attachment';
+        $filename = str_replace(["\0", "\r", "\n", '"'], '', basename($filename));
+        if ($filename === '') {
+            $filename = 'attachment';
+        }
+
+        $mime = is_string($attachment->mime_type) && $attachment->mime_type !== ''
+            ? $attachment->mime_type
+            : 'application/octet-stream';
+        $disposition = str_starts_with(strtolower($mime), 'image/') ? 'inline' : 'attachment';
+
+        return response()->file($path, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => $disposition.'; filename="'.$filename.'"',
+        ]);
+    }
+
     public function index()
     {
         $service = EducationEliteInboxService::make();
@@ -398,6 +434,15 @@ class EliteEmailController extends Controller
             'to' => $storedTo,
         ]));
 
+        try {
+            app(EliteInboundAttachmentService::class)->storeFromInboundRequest($record, $request);
+        } catch (\Throwable $e) {
+            Log::warning('elite.inbound.attachments_store_failed', array_merge($this->inboundCorrelationContext($request), [
+                'elite_email_id' => $record->id,
+                'message' => $e->getMessage(),
+            ]));
+        }
+
         return response()->json(['ok' => true, 'id' => $record->id]);
     }
 
@@ -605,6 +650,19 @@ class EliteEmailController extends Controller
         $payload = $request->except(['_token']);
         foreach (['email', 'html', 'text', 'content-id_map'] as $key) {
             unset($payload[$key]);
+        }
+
+        foreach (array_keys($payload) as $key) {
+            if (! is_string($key)) {
+                continue;
+            }
+            if ($payload[$key] instanceof \Illuminate\Http\UploadedFile) {
+                unset($payload[$key]);
+                continue;
+            }
+            if ($key === 'attachment' || preg_match('/^attachment\d+$/i', $key)) {
+                unset($payload[$key]);
+            }
         }
 
         if (count($payload) > 60) {

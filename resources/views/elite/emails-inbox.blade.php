@@ -262,6 +262,10 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 .outlook-read-type-label { display: inline-block; margin-bottom: 8px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #475569; }
 .outlook-read-meta .email-meta-label { font-weight: 600; color: #64748b; min-width: 48px; display: inline-block; }
 .outlook-read-body { margin-top: 16px; font-size: 14px; line-height: 1.5; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
+.elite-read-attachments { margin-top: 14px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; }
+.elite-read-attachments .elite-att-head { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 8px; }
+.elite-read-attachments ul { margin: 0; padding-left: 1.1rem; font-size: 13px; color: #1e293b; }
+.elite-read-attachments a { color: #2563eb; text-decoration: underline; word-break: break-all; }
 .outlook-read-frame {
     display: block;
     width: 100%;
@@ -540,6 +544,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                                 <div><span class="email-meta-label">To:</span>   <span id="eliteReadTo"></span></div>
                                 <div><span class="email-meta-label">Date:</span> <span id="eliteReadDate"></span></div>
                             </div>
+                            <div id="eliteReadAttachments" class="elite-read-attachments" style="display:none;" aria-label="Attachments"></div>
                             <div class="outlook-read-body" id="eliteReadBody"></div>
                             <iframe id="eliteReadFrame" class="outlook-read-frame" title="HTML message" sandbox="allow-same-origin" style="display:none;"></iframe>
                         </div>
@@ -903,6 +908,8 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         if (body)  { body.textContent = ''; body.style.display = ''; }
         if (acts)  acts.style.display = 'none';
         if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+        var attBox = document.getElementById('eliteReadAttachments');
+        if (attBox) { attBox.style.display = 'none'; attBox.innerHTML = ''; }
         if (listEl) listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
     }
 
@@ -925,6 +932,34 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var body    = p.body || '';
         var plainEl = document.getElementById('eliteReadBody');
         var frame   = document.getElementById('eliteReadFrame');
+        var attBox  = document.getElementById('eliteReadAttachments');
+
+        if (attBox) {
+            var alist = p.attachments && p.attachments.length ? p.attachments : [];
+            if (alist.length) {
+                attBox.style.display = 'block';
+                attBox.innerHTML = '';
+                var h = document.createElement('div');
+                h.className = 'elite-att-head';
+                h.textContent = alist.length === 1 ? 'Attachment' : 'Attachments';
+                attBox.appendChild(h);
+                var ul = document.createElement('ul');
+                alist.forEach(function (a) {
+                    var li = document.createElement('li');
+                    var link = document.createElement('a');
+                    link.href = a.url || '#';
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = a.filename || ('File #' + (a.id || ''));
+                    li.appendChild(link);
+                    ul.appendChild(li);
+                });
+                attBox.appendChild(ul);
+            } else {
+                attBox.style.display = 'none';
+                attBox.innerHTML = '';
+            }
+        }
 
         /* Remove any previous empty-body notice */
         if (readingScroll) {
@@ -1018,7 +1053,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         if (!p) return;
         listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
         row.classList.add('is-selected');
-        showReading({ from: p.from||'', to: p.to||'', subject: p.subject||'', date: p.date||'', body: p.body||'', direction_label: p.direction_label||'', has_attachments: p.has_attachments||false });
+        showReading({ from: p.from||'', to: p.to||'', subject: p.subject||'', date: p.date||'', body: p.body||'', direction_label: p.direction_label||'', has_attachments: p.has_attachments||false, attachments: p.attachments || [] });
     }
 
     if (listEl) {

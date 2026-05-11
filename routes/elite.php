@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | POST /elite/emails — SendGrid Inbound Parse (public, CSRF exempt, optional ?secret=)
+| GET  /elite/emails/attachments/{id} — Stored inbound attachment bytes (for img src / download)
 | GET /elite/emails — Inbox UI (public; drafts require admin session)
 |
 */
@@ -21,6 +22,9 @@ Route::prefix('elite')->name('elite.')->group(function () {
             'throttle:600,1',
         ])
         ->name('emails.store');
+
+    Route::get('/emails/attachments/{attachment}', [EliteEmailController::class, 'attachment'])
+        ->name('emails.attachment');
 
     Route::get('/emails', [EliteEmailController::class, 'index'])->name('emails.index');
     Route::get('/emails/inbox', [EliteEmailController::class, 'inbox'])->name('emails.inbox');
