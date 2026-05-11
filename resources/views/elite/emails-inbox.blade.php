@@ -4,12 +4,11 @@
 @push('styles')
 <style>
 /* Reset browser defaults that create gaps */
-html, body { margin: 0; padding: 0; height: 100%; }
-#app { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+#app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 .loader { display: none !important; }
 
 /* ── Identical base to Admin Outlook page ───────────────────────────────── */
-.outlook-page { min-height: 100vh; background: #f0f0f0; }
 .outlook-topbar {
     display: flex;
     align-items: center;
@@ -17,6 +16,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
     padding: 10px 20px;
     background: #fff;
     border-bottom: 1px solid #d4d4d4;
+    flex-shrink: 0;
 }
 .outlook-topbar .outlook-title {
     font-size: 16px;
@@ -53,7 +53,9 @@ html, body { margin: 0; padding: 0; height: 100%; }
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
-.outlook-container { display: flex; height: calc(100vh - 50px); min-height: 500px; }
+.outlook-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f0f0f0; }
+.server-error { flex-shrink: 0; }
+.outlook-container { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
 /* ── Left sidebar — identical to Admin Outlook ──────────────────────────── */
 .outlook-sidebar {
@@ -127,9 +129,9 @@ html, body { margin: 0; padding: 0; height: 100%; }
 /* ── 3-col split (inbox only) ───────────────────────────────────────────── */
 .outlook-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .outlook-list-col {
-    width: 440px;
-    min-width: 300px;
-    max-width: 50%;
+    width: 320px;
+    min-width: 260px;
+    max-width: 38%;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -137,8 +139,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
     overflow: hidden;
 }
 .outlook-reading {
-    flex: 1;
-    min-width: 300px;
+    flex: 1 1 65%;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -246,7 +248,14 @@ html, body { margin: 0; padding: 0; height: 100%; }
 }
 .outlook-reading-empty i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
 .outlook-reading-content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-.outlook-reading-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.outlook-reading-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
 .outlook-read-subject { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 12px; line-height: 1.3; }
 .outlook-read-meta { font-size: 13px; color: #475569; }
 .outlook-read-meta > div { margin-bottom: 6px; }
@@ -254,18 +263,36 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .outlook-read-meta .email-meta-label { font-weight: 600; color: #64748b; min-width: 48px; display: inline-block; }
 .outlook-read-body { margin-top: 16px; font-size: 14px; line-height: 1.5; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
 .outlook-read-frame {
-    width: 100%; flex: 1; min-height: 200px;
-    border: 1px solid #e2e8f0; border-radius: 4px; background: #fff; margin-top: 12px;
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #fff;
+    margin-top: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* ── Sent view — list + reading pane (same as Outlook page) ─────────────── */
 .sent-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .sent-list-col {
-    width: 440px; min-width: 280px; max-width: 50%;
+    width: 320px;
+    min-width: 260px;
+    max-width: 38%;
     display: flex; flex-direction: column;
     border-right: 1px solid #d4d4d4; overflow: hidden; background: #fff;
 }
-.sent-reading-col { flex: 1; min-width: 260px; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+.sent-reading-col {
+    flex: 1 1 65%;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
+    min-height: 0;
+}
 .sent-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
 .sent-msg-item {
     display: flex; align-items: flex-start; gap: 12px;
@@ -288,13 +315,29 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .sent-read-actions { display: flex; gap: 8px; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
 .sent-read-actions .btn-read-act { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #d4d4d4; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; color: #333; }
 .sent-read-actions .btn-read-act:hover { background: #f3f3f3; }
-.sent-reading-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.sent-reading-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
 .sent-read-subject { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 12px; line-height: 1.3; }
 .sent-read-meta { font-size: 13px; color: #475569; margin-bottom: 16px; }
 .sent-read-meta > div { margin-bottom: 5px; }
 .sent-read-meta .ml { font-weight: 600; color: #64748b; min-width: 52px; display: inline-block; }
 .sent-read-body { font-size: 14px; line-height: 1.6; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
-.sent-read-frame { width: 100%; flex: 1; min-height: 300px; border: none; margin-top: 8px; }
+.sent-read-frame {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+    border: none;
+    margin-top: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
 
 /* (sent modal removed — reading pane replaces it) */
 .sent-email-modal .modal-header h3 { margin: 0; font-size: 16px; color: #1e293b; }
@@ -318,11 +361,27 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .email-list .email-row .email-date { color: #94a3b8; font-size: 13px; flex-shrink: 0; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 1200px) { .outlook-list-col { max-width: 100%; } .outlook-reading { min-width: 0; } }
+@media (max-width: 1200px) {
+    .outlook-list-col  { max-width: 100%; }
+    .outlook-reading   { min-width: 0; }
+    .sent-list-col     { max-width: 100%; }
+    .sent-reading-col  { min-width: 0; }
+}
 @media (max-width: 900px) {
-    .outlook-triple { flex-direction: column; }
-    .outlook-list-col { width: 100% !important; max-width: none; border-right: none; border-bottom: 1px solid #e2e8f0; min-height: 40vh; }
-    .outlook-reading { min-height: 30vh; }
+    .outlook-triple,
+    .sent-triple { flex-direction: column; }
+
+    .outlook-list-col,
+    .sent-list-col {
+        width: 100% !important;
+        max-width: none !important;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        min-height: 36vh;
+        max-height: 36vh;
+    }
+    .outlook-reading,
+    .sent-reading-col { min-width: 0; min-height: 30vh; }
 }
 </style>
 @endpush
@@ -791,7 +850,47 @@ html, body { margin: 0; padding: 0; height: 100%; }
         s = s.replace(/\b(src|href|poster|data)\s*=\s*javascript:/gi, '$1=blocked:');
         s = s.replace(/<meta\b[^>]*http-equiv\s*=\s*["']?\s*refresh[^>]*>/gi, '');
         s = s.replace(/<\/iframe/gi, '<\\/iframe');
+        /* Let HTML mail use the full iframe width (many templates fix body/table to ~600px). */
+        var previewCss = '<style id="elite-email-preview-base">html,body{margin:0!important;padding:0!important;width:100%!important;max-width:none!important;box-sizing:border-box;}body{padding:12px!important;}table{max-width:100%!important;}img{max-width:100%!important;height:auto!important;}</style>';
+        if (/^\s*<!DOCTYPE/i.test(s) || /^\s*<html\b/i.test(s)) {
+            if (/<head[^>]*>/i.test(s)) {
+                s = s.replace(/<head[^>]*>/i, function (m) { return m + previewCss; });
+            } else {
+                s = s.replace(/<html\b[^>]*>/i, function (m) { return m + '<head>' + previewCss + '</head>'; });
+            }
+        } else {
+            s = previewCss + s;
+        }
         return s;
+    }
+
+    /**
+     * Auto-size a sandboxed iframe to its content after srcdoc loads.
+     * Called before setting srcdoc so the onload fires for the new content.
+     * Uses iframe.contentDocument from the same origin (sandboxed with allow-same-origin).
+     */
+    function autoResizeFrame(frame) {
+        frame.style.height = frame.style.minHeight || '240px';
+        function onLoaded() {
+            try {
+                var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+                if (!doc) return;
+                /* Force scrollHeight recalc by reading it after a tick */
+                setTimeout(function () {
+                    try {
+                        var h = Math.max(
+                            doc.documentElement ? doc.documentElement.scrollHeight : 0,
+                            doc.body            ? doc.body.scrollHeight            : 0
+                        );
+                        if (h > 0) frame.style.height = (h + 24) + 'px';
+                    } catch (_) {}
+                }, 0);
+            } catch (_) {}
+        }
+        /* Remove any prior listener to avoid stacking handlers */
+        frame._eliteResizeHandler && frame.removeEventListener('load', frame._eliteResizeHandler);
+        frame._eliteResizeHandler = onLoaded;
+        frame.addEventListener('load', onLoaded, { once: true });
     }
 
     function clearReading() {
@@ -800,7 +899,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var frame = document.getElementById('eliteReadFrame');
         var body  = document.getElementById('eliteReadBody');
         var acts  = document.getElementById('eliteReadActions');
-        if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; }
+        if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; frame.style.height = ''; }
         if (body)  { body.textContent = ''; body.style.display = ''; }
         if (acts)  acts.style.display = 'none';
         if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
@@ -835,12 +934,13 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (plainEl && frame) {
             if (looksLikeHtml(body)) {
                 plainEl.textContent = ''; plainEl.style.display = 'none';
+                autoResizeFrame(frame);
                 frame.style.display = 'block'; frame.srcdoc = safeSrcdoc(body);
             } else if (body.trim()) {
-                frame.srcdoc = ''; frame.style.display = 'none';
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
                 plainEl.style.display = ''; plainEl.textContent = body;
             } else {
-                frame.srcdoc = ''; frame.style.display = 'none';
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
                 plainEl.style.display = 'none';
                 var notice = document.createElement('p');
                 notice.className = 'elite-empty-body-msg';
@@ -1127,10 +1227,11 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var isHtml = looksLikeHtml(raw);
         if (isHtml && frameEl) {
             bodyEl.style.display = 'none';
+            autoResizeFrame(frameEl);
             frameEl.style.display = 'block';
             frameEl.srcdoc = safeSrcdoc(raw);
         } else {
-            if (frameEl) { frameEl.style.display = 'none'; frameEl.srcdoc = ''; }
+            if (frameEl) { frameEl.style.display = 'none'; frameEl.style.height = ''; frameEl.srcdoc = ''; }
             bodyEl.style.display = '';
             bodyEl.textContent = raw || '(No content)';
         }
@@ -1249,10 +1350,11 @@ html, body { margin: 0; padding: 0; height: 100%; }
 
         if (looksLikeHtml(body)) {
             bodyEl.style.display  = 'none';
+            autoResizeFrame(frameEl);
             frameEl.style.display = 'block';
             frameEl.srcdoc = safeSrcdoc(body);
         } else {
-            frameEl.style.display = 'none';
+            frameEl.style.display = 'none'; frameEl.style.height = ''; frameEl.srcdoc = '';
             bodyEl.style.display  = 'block';
             bodyEl.textContent    = body;
         }
