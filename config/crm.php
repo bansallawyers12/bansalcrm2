@@ -60,6 +60,10 @@ return [
     | education_elite_inbound_webhook_log — when true, POST /elite/emails logs diagnostic lines
     | (elite.inbound, elite.inbound.parsed, elite.inbound.rejected, elite.inbound.stored, etc.) to the default log channel.
     |
+    | education_elite_inbound_attachments_disk — filesystem disk name for inbound multipart attachments
+    | (elite_email_attachments.storage_path is the object key). Default s3 uses AWS_* from .env.
+    | Use local for legacy/on-prem only; serving tries this disk first, then local for old rows.
+    |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
 
@@ -85,4 +89,6 @@ return [
         env('EDUCATION_ELITE_INBOUND_WEBHOOK_LOG', true),
         FILTER_VALIDATE_BOOL
     ),
+
+    'education_elite_inbound_attachments_disk' => env('EDUCATION_ELITE_INBOUND_ATTACHMENTS_DISK', 's3'),
 ];

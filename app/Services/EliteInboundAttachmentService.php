@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\EliteEmail;
 use App\Models\EliteEmailAttachment;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +15,38 @@ use Throwable;
 
 class EliteInboundAttachmentService
 {
+    /**
+     * Disk name used for new inbound Elite attachments (see config/crm.php).
+     */
+    public static function writeDisk(): string
+    {
+        $d = (string) config('crm.education_elite_inbound_attachments_disk', 's3');
+
+        return array_key_exists($d, config('filesystems.disks', [])) ? $d : 'local';
+    }
+
+    /**
+     * Resolve a filesystem where this storage_path already exists (new S3 vs legacy local).
+     */
+    public static function findDiskForPath(string $storagePath): ?Filesystem
+    {
+        if ($storagePath === '') {
+            return null;
+        }
+
+        foreach (array_unique([self::writeDisk(), 'local']) as $name) {
+            if (! is_string($name) || ! array_key_exists($name, config('filesystems.disks', []))) {
+                continue;
+            }
+            $disk = Storage::disk($name);
+            if ($disk->exists($storagePath)) {
+                return $disk;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Persist multipart files from SendGrid Inbound Parse (attachment1, attachment2, …).
      */
@@ -92,7 +125,9 @@ class EliteInboundAttachmentService
         $uniquePrefix = bin2hex(random_bytes(6));
 
         $relativeDir = 'elite-inbound/'.$email->id;
-        $storedPath = $file->storeAs($relativeDir, $uniquePrefix.'_'.$diskName, 'local');
+        $objectBasename = $uniquePrefix.'_'.$diskName;
+        $writeDisk = self::writeDisk();
+        $storedPath = $file->storeAs($relativeDir, $objectBasename, $writeDisk);
         if ($storedPath === false) {
             throw new \RuntimeException('Failed to store attachment');
         }
@@ -109,12 +144,21 @@ class EliteInboundAttachmentService
             $contentId = null;
         }
 
+        $size = (int) ($file->getSize() ?: 0);
+        if ($size === 0) {
+            try {
+                $size = (int) Storage::disk($writeDisk)->size($storedPath);
+            } catch (\Throwable $e) {
+                $size = 0;
+            }
+        }
+
         EliteEmailAttachment::create([
             'elite_email_id' => $email->id,
             'form_field' => $field,
             'original_filename' => substr($basename, 0, 500),
             'mime_type' => substr($mime, 0, 250),
-            'size_bytes' => (int) ($file->getSize() ?: Storage::disk('local')->size($storedPath)),
+            'size_bytes' => $size,
             'content_id' => $contentId !== null && $contentId !== '' ? substr($contentId, 0, 500) : null,
             'storage_path' => $storedPath,
         ]);

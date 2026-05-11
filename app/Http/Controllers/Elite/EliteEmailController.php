@@ -14,23 +14,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EliteEmailController extends Controller
 {
     /**
      * Serve a stored inbound attachment (SendGrid multipart).
      */
-    public function attachment(EliteEmailAttachment $attachment): BinaryFileResponse
+    public function attachment(EliteEmailAttachment $attachment): StreamedResponse
     {
-        $disk = Storage::disk('local');
-        if (! $disk->exists($attachment->storage_path)) {
-            abort(404);
-        }
-
-        $path = $disk->path($attachment->storage_path);
-        if (! is_readable($path)) {
+        $disk = EliteInboundAttachmentService::findDiskForPath($attachment->storage_path);
+        if ($disk === null) {
             abort(404);
         }
 
@@ -45,10 +39,14 @@ class EliteEmailController extends Controller
             : 'application/octet-stream';
         $disposition = str_starts_with(strtolower($mime), 'image/') ? 'inline' : 'attachment';
 
-        return response()->file($path, [
-            'Content-Type' => $mime,
-            'Content-Disposition' => $disposition.'; filename="'.$filename.'"',
-        ]);
+        return $disk->response(
+            $attachment->storage_path,
+            $filename,
+            [
+                'Content-Type' => $mime,
+            ],
+            $disposition
+        );
     }
 
     public function index()
