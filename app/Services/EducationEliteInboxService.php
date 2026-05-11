@@ -314,17 +314,39 @@ class EducationEliteInboxService
         return $chunks;
     }
 
+    /**
+     * Virtual `body` column for list/API: omit HTML when stored only on object storage.
+     */
+    private function eliteEmailBodySelectExpr(string $alias = 'e'): string
+    {
+        if (! Schema::hasTable('elite_emails') || ! Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            return "COALESCE({$alias}.body_html, {$alias}.body_text)";
+        }
+
+        if ($this->isPostgres()) {
+            return "CASE WHEN {$alias}.body_html_s3_key IS NOT NULL AND length(trim(COALESCE({$alias}.body_html_s3_key, ''))) > 0 THEN NULL ELSE COALESCE({$alias}.body_html, {$alias}.body_text) END";
+        }
+
+        return "CASE WHEN {$alias}.body_html_s3_key IS NOT NULL AND TRIM(COALESCE({$alias}.body_html_s3_key, '')) != '' THEN NULL ELSE COALESCE({$alias}.body_html, {$alias}.body_text) END";
+    }
+
     private function buildEliteQuery(string $search, string $dateFrom, string $dateTo): Builder
     {
-        $q = DB::table('elite_emails as e')->select([
+        $select = [
             'e.id',
             'e.from_address as from_addr',
             'e.to_address as to_addr',
             'e.subject as subj',
-            DB::raw('COALESCE(e.body_html, e.body_text) as body'),
             'e.created_at as received_at',
             'e.payload as payload_json',
-        ]);
+        ];
+        if (Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            $select[] = 'e.body_text as body_text_plain';
+            $select[] = 'e.body_html_s3_key';
+        }
+        $select[] = DB::raw('('.$this->eliteEmailBodySelectExpr('e').') as body');
+
+        $q = DB::table('elite_emails as e')->select($select);
 
         // Exclude automated no-reply addresses — they are system notifications, not real mail
         $q->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['noreply@%'])
@@ -437,10 +459,23 @@ class EducationEliteInboxService
             }
         }
 
-        $bodyRaw = (string) ($row->body ?? '');
+        $s3Key = '';
+        if (Schema::hasColumn('elite_emails', 'body_html_s3_key') && isset($row->body_html_s3_key)) {
+            $s3Key = trim((string) $row->body_html_s3_key);
+        }
+        $bodyTextPlain = isset($row->body_text_plain) ? (string) $row->body_text_plain : '';
+
+        if ($s3Key !== '') {
+            $bodyRaw = '';
+            $snippetSrc = $bodyTextPlain;
+        } else {
+            $bodyRaw = (string) ($row->body ?? '');
+            $snippetSrc = $bodyRaw;
+        }
+
         $snippet = '';
-        if ($bodyRaw !== '') {
-            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($bodyRaw)));
+        if ($snippetSrc !== '') {
+            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($snippetSrc)));
             if ($stripped !== null && $stripped !== '') {
                 $snippet = mb_substr($stripped, 0, 120);
             }
@@ -458,6 +493,9 @@ class EducationEliteInboxService
             'direction_label' => 'Inbound (SendGrid)',
             'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
+            'body_fetch_url' => ($s3Key !== '' && Schema::hasColumn('elite_emails', 'body_html_s3_key'))
+                ? route('elite.emails.message-body', ['eliteEmail' => (int) $row->id])
+                : null,
         ];
     }
 

@@ -26,6 +26,9 @@ Route::prefix('elite')->name('elite.')->group(function () {
         Route::get('/emails/attachments/{attachment}', [EliteEmailController::class, 'attachment'])
             ->name('emails.attachment');
 
+        Route::get('/emails/{eliteEmail}/message-body', [EliteEmailController::class, 'messageBody'])
+            ->name('emails.message-body');
+
         Route::get('/emails', [EliteEmailController::class, 'index'])->name('emails.index');
         Route::get('/emails/inbox', [EliteEmailController::class, 'inbox'])->name('emails.inbox');
         Route::get('/emails/sent', [EliteEmailController::class, 'sent'])->name('emails.sent');

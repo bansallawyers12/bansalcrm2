@@ -933,6 +933,22 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var plainEl = document.getElementById('eliteReadBody');
         var frame   = document.getElementById('eliteReadFrame');
         var attBox  = document.getElementById('eliteReadAttachments');
+        var btnReply = document.getElementById('eliteInboxBtnReply');
+        var btnFwd   = document.getElementById('eliteInboxBtnFwd');
+
+        function openComposePrefilled(to, subject, quotedBody) {
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            /* openModal() resets form, clears attachments, loads senders, shows overlay */
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var toEl   = composeForm.querySelector('[name="to"]');
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (toEl)   toEl.value   = to;
+            if (subjEl) subjEl.value = subject;
+            if (bodyTa) bodyTa.value = quotedBody;
+            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+        }
 
         if (attBox) {
             var alist = p.attachments && p.attachments.length ? p.attachments : [];
@@ -961,6 +977,46 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             }
         }
 
+        if (p.bodyLoadError) {
+            if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+            if (plainEl && frame) {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
+                plainEl.style.display = '';
+                plainEl.textContent = 'Could not load the message body. Please refresh and try again.';
+            }
+            var plainSnippetErr = (p.snippet || '').trim();
+            var quotedErr = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500);
+            if (btnReply) btnReply.onclick = function () {
+                var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
+                openComposePrefilled(p.from || '', subj, quotedErr);
+            };
+            if (btnFwd) btnFwd.onclick = function () {
+                var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500));
+            };
+            return;
+        }
+
+        if (p.bodyLoading) {
+            if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+            if (plainEl && frame) {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
+                plainEl.style.display = '';
+                plainEl.textContent = 'Loading message…';
+            }
+            var plainSnippetL = (p.snippet || '').trim();
+            var quotedL = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500);
+            if (btnReply) btnReply.onclick = function () {
+                var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
+                openComposePrefilled(p.from || '', subj, quotedL);
+            };
+            if (btnFwd) btnFwd.onclick = function () {
+                var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500));
+            };
+            return;
+        }
+
         /* Remove any previous empty-body notice */
         if (readingScroll) {
             readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
@@ -986,26 +1042,12 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             }
         }
 
-        /* Wire Reply / Forward to compose modal */
-        var btnReply = document.getElementById('eliteInboxBtnReply');
-        var btnFwd   = document.getElementById('eliteInboxBtnFwd');
-        function openComposePrefilled(to, subject, quotedBody) {
-            var composeForm = document.getElementById('eliteComposeForm');
-            if (!composeForm) return;
-            /* openModal() resets form, clears attachments, loads senders, shows overlay */
-            document.dispatchEvent(new CustomEvent('elite:openModal'));
-            var toEl   = composeForm.querySelector('[name="to"]');
-            var subjEl = composeForm.querySelector('[name="subject"]');
-            var bodyTa = composeForm.querySelector('[name="body"]');
-            if (toEl)   toEl.value   = to;
-            if (subjEl) subjEl.value = subject;
-            if (bodyTa) bodyTa.value = quotedBody;
-            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
-        }
         var plainSnippet = looksLikeHtml(body)
             ? body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
             : body.trim();
         var quoted = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, 500);
+
+        /* Wire Reply / Forward to compose modal */
         if (btnReply) btnReply.onclick = function () {
             var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
             openComposePrefilled(p.from || '', subj, quoted);
@@ -1053,6 +1095,31 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         if (!p) return;
         listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
         row.classList.add('is-selected');
+        if (p.body_fetch_url) {
+            showReading({
+                from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '',
+                body: '', bodyLoading: true, snippet: p.snippet || '',
+                direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+            });
+            fetch(p.body_fetch_url, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (res) { if (!res.ok) throw new Error('bad'); return res.json(); })
+                .then(function (data) {
+                    p.body = data.body != null ? data.body : '';
+                    initialMap[p.id] = p;
+                    showReading({
+                        from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '', body: p.body || '',
+                        direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+                    });
+                })
+                .catch(function () {
+                    showReading({
+                        from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '',
+                        body: '', bodyLoadError: true, snippet: p.snippet || '',
+                        direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+                    });
+                });
+            return;
+        }
         showReading({ from: p.from||'', to: p.to||'', subject: p.subject||'', date: p.date||'', body: p.body||'', direction_label: p.direction_label||'', has_attachments: p.has_attachments||false, attachments: p.attachments || [] });
     }
 

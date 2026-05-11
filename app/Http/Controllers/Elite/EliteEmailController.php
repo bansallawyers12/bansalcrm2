@@ -10,10 +10,13 @@ use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
 use App\Services\EliteInboundAttachmentService;
 use App\Support\EducationEliteMail;
+use App\Support\EliteEmailCidRewriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EliteEmailController extends Controller
@@ -47,6 +50,45 @@ class EliteEmailController extends Controller
             ],
             $disposition
         );
+    }
+
+    /**
+     * Lazy-load HTML body for rows stored in object storage (admin JSON).
+     */
+    public function messageBody(EliteEmail $eliteEmail): JsonResponse
+    {
+        $html = '';
+
+        if (Schema::hasTable('elite_emails') && Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            $key = is_string($eliteEmail->body_html_s3_key) ? trim($eliteEmail->body_html_s3_key) : '';
+            if ($key !== '') {
+                $disk = EliteInboundAttachmentService::findDiskForPath($key);
+                if ($disk !== null) {
+                    try {
+                        $html = (string) $disk->get($key);
+                    } catch (\Throwable $e) {
+                        Log::warning('elite.inbound.body_s3_read_failed', [
+                            'elite_email_id' => $eliteEmail->id,
+                            'key' => $key,
+                            'message' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if ($html === '' && is_string($eliteEmail->body_html) && $eliteEmail->body_html !== '') {
+            $html = $eliteEmail->body_html;
+        }
+
+        if ($html === '' && is_string($eliteEmail->body_text) && $eliteEmail->body_text !== '') {
+            $html = '<pre style="white-space:pre-wrap;margin:0">'.e($eliteEmail->body_text).'</pre>';
+        }
+
+        $atts = $eliteEmail->attachments()->get();
+        $html = EliteEmailCidRewriter::rewrite($html, $atts);
+
+        return response()->json(['body' => $html]);
     }
 
     public function index()
@@ -426,6 +468,15 @@ class EliteEmailController extends Controller
             throw $e;
         }
 
+        try {
+            $this->offloadInboundBodyHtmlToObjectStorage($record);
+        } catch (\Throwable $e) {
+            Log::warning('elite.inbound.body_s3_offload_failed', array_merge($this->inboundCorrelationContext($request), [
+                'elite_email_id' => $record->id,
+                'message' => $e->getMessage(),
+            ]));
+        }
+
         Log::info('elite.inbound.stored', array_merge($this->inboundCorrelationContext($request), [
             'id' => $record->id,
             'from' => $storedFrom,
@@ -638,6 +689,42 @@ class EliteEmailController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Store HTML body on the configured disk and clear DB column; on failure leaves body_html in DB.
+     */
+    private function offloadInboundBodyHtmlToObjectStorage(EliteEmail $record): void
+    {
+        if (! Schema::hasTable('elite_emails') || ! Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            return;
+        }
+
+        $html = $record->body_html;
+        if (! is_string($html) || $html === '') {
+            return;
+        }
+
+        $diskName = EliteInboundAttachmentService::writeDisk();
+        $key = 'elite-inbound/'.$record->id.'/body.html';
+
+        Storage::disk($diskName)->put($key, $html, ['visibility' => 'private']);
+
+        $updates = [
+            'body_html_s3_key' => $key,
+            'body_html' => null,
+        ];
+
+        $existingText = $record->body_text;
+        if (! is_string($existingText) || trim($existingText) === '') {
+            $plain = trim(strip_tags($html));
+            if (strlen($plain) > 60000) {
+                $plain = substr($plain, 0, 60000);
+            }
+            $updates['body_text'] = $plain !== '' ? $plain : null;
+        }
+
+        $record->update($updates);
     }
 
     /**
