@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivitiesLog;
 use App\Models\FollowupConsultant;
 use App\Models\Note;
 use App\Support\FollowupAvailability;
@@ -11,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -191,6 +193,21 @@ class FollowupController extends Controller
         }
 
         return $raw;
+    }
+
+    /**
+     * Service text for activity logs (drop redundant "(15 min — Free)" style suffix).
+     */
+    protected static function serviceLabelForActivityLog(?string $serviceRaw): string
+    {
+        $s = trim((string) $serviceRaw);
+        if ($s === '') {
+            return '—';
+        }
+        $stripped = preg_replace('/\s*\(\s*15\s*min\s*[—–\-]\s*Free\s*\)\s*$/iu', '', $s);
+        $s = is_string($stripped) ? $stripped : $s;
+
+        return trim($s) !== '' ? trim($s) : '—';
     }
 
     protected function baseFollowupQuery()
@@ -445,6 +462,8 @@ class FollowupController extends Controller
             ], 422);
         }
 
+        $oldConsultantDisp = self::consultantDisplayForSlug($currentSlug);
+
         $newSlug = $data['consultant'];
         if ($newSlug === $currentSlug) {
             return response()->json([
@@ -483,6 +502,10 @@ class FollowupController extends Controller
             $note->save();
             $this->syncActivitiesLogAfterConsultantChange($note, $oldTitle);
         });
+
+        $note->refresh();
+        $newConsultantDisp = self::consultantDisplayForSlug($newSlug);
+        $this->logFollowupConsultantChangedActivity($note, $oldConsultantDisp, $newConsultantDisp);
 
         return response()->json([
             'success' => true,
@@ -591,10 +614,13 @@ class FollowupController extends Controller
         }
 
         $needle = $note->title;
+        $previousAssign = (string) $note->action_assign_date;
         $note->action_assign_date = $parsed->format('Y-m-d H:i:s');
         $note->save();
 
-        $this->syncActivitiesLogFollowupDate($note->fresh(), $needle);
+        $noteFresh = $note->fresh();
+        $this->syncActivitiesLogFollowupDate($noteFresh, $needle);
+        $this->logFollowupRescheduledActivity($noteFresh, $previousAssign);
 
         $calendarSlug = $data['calendar_consultant'] ?? $slug;
 
@@ -657,6 +683,9 @@ class FollowupController extends Controller
 
         $note->save();
 
+        $note->refresh();
+        $this->logFollowupStatusChangedActivity($note, (string) $data['outcome']);
+
         $calendarSlug = $data['calendar_consultant'] ?? self::consultantSlugFromFollowupNoteTitle($note->title) ?? 'ankit';
 
         return response()->json([
@@ -664,5 +693,134 @@ class FollowupController extends Controller
             'message' => 'Follow-up status updated.',
             'redirect' => route('followups.calendar', ['consultant' => $calendarSlug]),
         ]);
+    }
+
+    /**
+     * Standard list rows matching schedule-follow-up activity HTML (see ClientActionController::scheduleFollowupStore).
+     */
+    protected function followupActivityStandardListItems(Note $note, bool $includeConsultant = true): string
+    {
+        $parsed = self::parseScheduledFollowupNoteHtml((string) $note->description);
+        $slug = self::consultantSlugFromFollowupNoteTitle($note->title);
+        $consultant = $slug ? self::consultantDisplayForSlug($slug) : ($parsed['consultant_display'] ?: '—');
+
+        $html = '<li><strong>Follow-up type:</strong> '.e($parsed['followup_type'] ?: '—').'</li>'
+            .'<li><strong>Service:</strong> '.e(self::serviceLabelForActivityLog($parsed['service'] ?: '')).'</li>';
+        if ($includeConsultant) {
+            $html .= '<li><strong>Consultant:</strong> '.e($consultant).'</li>';
+        }
+        $html .= '<li><strong>Follow-up details:</strong> '.e($parsed['followup_detail'] ?: '—').'</li>'
+            .'<li><strong>Preferred language:</strong> '.e($parsed['preferred_language'] ?: '—').'</li>';
+
+        return $html;
+    }
+
+    protected function followupActivityDetailsParagraph(Note $note): string
+    {
+        $parsed = self::parseScheduledFollowupNoteHtml((string) $note->description);
+        $detailsSafe = ($parsed['details_plain'] ?? '') !== '' ? nl2br(e($parsed['details_plain'])) : '—';
+
+        return '<p><strong>Details:</strong></p><p>'.$detailsSafe.'</p>';
+    }
+
+    /**
+     * Persist a client activity row in the same shape as “Scheduled follow-up”.
+     */
+    protected function logFollowupClientActivity(Note $note, string $subjectLine, string $innerBodyHtml): void
+    {
+        if (! Schema::hasTable('activities_logs')) {
+            return;
+        }
+
+        try {
+            $log = new ActivitiesLog;
+            $log->client_id = $note->client_id;
+            $log->created_by = Auth::id();
+            $log->subject = $subjectLine;
+            $log->description = '<span class="text-semi-bold">'.e($note->title).'</span><p>'.$innerBodyHtml.'</p>';
+            $log->use_for = null;
+            if (Schema::hasColumn('activities_logs', 'followup_date')) {
+                $log->followup_date = $note->action_assign_date;
+            }
+            if (Schema::hasColumn('activities_logs', 'task_group')) {
+                $log->task_group = 'Followup';
+            }
+            $log->task_status = 0;
+            $log->pin = 0;
+            $log->save();
+        } catch (\Throwable $e) {
+            Log::warning('FollowupController: activity log failed: '.$e->getMessage());
+        }
+    }
+
+    protected function logFollowupRescheduledActivity(Note $note, string $previousActionAssignDate): void
+    {
+        $slug = self::consultantSlugFromFollowupNoteTitle($note->title);
+        $consultantDisplay = $slug ? self::consultantDisplayForSlug($slug) : '—';
+
+        try {
+            $newDt = Carbon::parse($note->action_assign_date)->timezone(config('app.timezone'));
+            $oldDt = Carbon::parse($previousActionAssignDate)->timezone(config('app.timezone'));
+        } catch (\Throwable $e) {
+            $newDt = Carbon::parse((string) $note->action_assign_date);
+            $oldDt = Carbon::parse($previousActionAssignDate);
+        }
+
+        $newPretty = $newDt->format('j M Y, g:i a');
+        $oldPretty = $oldDt->format('j M Y, g:i a');
+
+        $inner = '<p><strong>Rescheduled follow-up</strong></p>'
+            .'<ul>'
+            .$this->followupActivityStandardListItems($note)
+            .'<li><strong>New date &amp; time:</strong> '.e($newPretty).'</li>'
+            .'<li><strong>Previous date &amp; time:</strong> '.e($oldPretty).'</li>'
+            .'</ul>'
+            .$this->followupActivityDetailsParagraph($note);
+
+        $this->logFollowupClientActivity($note, 'Rescheduled follow-up ('.$consultantDisplay.')', $inner);
+    }
+
+    protected function logFollowupConsultantChangedActivity(Note $note, string $previousConsultantDisplay, string $newConsultantDisplay): void
+    {
+        $inner = '<p><strong>Follow-up consultant changed</strong></p>'
+            .'<ul>'
+            .'<li><strong>Previous consultant:</strong> '.e($previousConsultantDisplay ?: '—').'</li>'
+            .'<li><strong>New consultant:</strong> '.e($newConsultantDisplay ?: '—').'</li>'
+            .$this->followupActivityStandardListItems($note, false)
+            .'</ul>'
+            .$this->followupActivityDetailsParagraph($note);
+
+        $this->logFollowupClientActivity($note, 'Follow-up consultant changed ('.$newConsultantDisplay.')', $inner);
+    }
+
+    protected function logFollowupStatusChangedActivity(Note $note, string $outcome): void
+    {
+        $slug = self::consultantSlugFromFollowupNoteTitle($note->title);
+        $consultantDisplay = $slug ? self::consultantDisplayForSlug($slug) : '—';
+
+        $statusLabel = match ($outcome) {
+            'confirmed' => 'Confirmed',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+            'no_show' => 'No show',
+            default => ucfirst(str_replace('_', ' ', $outcome)),
+        };
+
+        try {
+            $assignDt = Carbon::parse($note->action_assign_date)->timezone(config('app.timezone'));
+            $assignPretty = $assignDt->format('j M Y, g:i a');
+        } catch (\Throwable $e) {
+            $assignPretty = (string) $note->action_assign_date;
+        }
+
+        $inner = '<p><strong>Follow-up status updated</strong></p>'
+            .'<ul>'
+            .'<li><strong>Status:</strong> '.e($statusLabel).'</li>'
+            .$this->followupActivityStandardListItems($note)
+            .'<li><strong>Follow-up date &amp; time:</strong> '.e($assignPretty).'</li>'
+            .'</ul>'
+            .$this->followupActivityDetailsParagraph($note);
+
+        $this->logFollowupClientActivity($note, 'Follow-up status: '.$statusLabel.' ('.$consultantDisplay.')', $inner);
     }
 }

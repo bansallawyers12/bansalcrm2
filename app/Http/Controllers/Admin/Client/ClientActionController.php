@@ -579,7 +579,7 @@ class ClientActionController extends Controller
                 ? preg_replace('/\s+Calendar$/u', ' Followups', (string) $consultantDbName)
                 : $data['consultant']);
         $serviceLabels = [
-            'free' => 'Free Consultation (15 min — Free)',
+            'free' => 'Free Consultation',
         ];
         $serviceLabel = $serviceLabels[$data['service']] ?? $data['service'];
 
