@@ -499,7 +499,7 @@
 									<input type="radio" name="service" value="free" checked>
 									<span class="schedule-service-option-face">
 										<span class="schedule-service-option-title">Free Consultation</span>
-										<span class="schedule-service-option-sub">15 min · Free</span>
+										<span class="schedule-service-option-sub" id="schedule_service_duration_label">Select a consultant for duration</span>
 									</span>
 								</label>
 							</div>

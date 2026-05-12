@@ -14,9 +14,9 @@ use Carbon\Carbon;
 final class FollowupAvailability
 {
     /**
-     * @return list<string> Start times as H:i (24h)
+     * Active calendar row for this consultant + service, or null.
      */
-    public static function slotStartsFor(string $consultantSlug, string $dateYmd, string $serviceType = 'free'): array
+    protected static function resolveActiveSetting(string $consultantSlug, string $serviceType = 'free'): ?FollowupCalendarSetting
     {
         $consultant = FollowupConsultant::query()
             ->where('slug', $consultantSlug)
@@ -24,14 +24,63 @@ final class FollowupAvailability
             ->first();
 
         if (! $consultant) {
-            return [];
+            return null;
         }
 
-        $setting = FollowupCalendarSetting::query()
+        return FollowupCalendarSetting::query()
             ->where('followup_consultant_id', $consultant->id)
             ->where('service_type', $serviceType)
             ->where('is_active', true)
             ->first();
+    }
+
+    /**
+     * Flatpickr uses JavaScript getDay(): 0 = Sunday … 6 = Saturday.
+     * Settings use PHP format('N'): 1 = Monday … 7 = Sunday.
+     *
+     * @return list<int> Weekday indexes to disable in Flatpickr (empty = allow all days).
+     */
+    public static function disabledJsWeekdays(string $consultantSlug, string $serviceType = 'free'): array
+    {
+        $setting = self::resolveActiveSetting($consultantSlug, $serviceType);
+        if (! $setting) {
+            return [];
+        }
+
+        $days = $setting->available_days;
+        if (! is_array($days) || count($days) === 0) {
+            return [];
+        }
+
+        $allowedPhp = array_map('intval', $days);
+        $allowedJs = [];
+        foreach ($allowedPhp as $n) {
+            $allowedJs[] = $n === 7 ? 0 : $n;
+        }
+
+        $disabled = [];
+        for ($js = 0; $js <= 6; $js++) {
+            if (! in_array($js, $allowedJs, true)) {
+                $disabled[] = $js;
+            }
+        }
+
+        return $disabled;
+    }
+
+    public static function slotDurationMinutes(string $consultantSlug, string $serviceType = 'free'): ?int
+    {
+        $setting = self::resolveActiveSetting($consultantSlug, $serviceType);
+
+        return $setting ? max(5, (int) $setting->slot_duration_minutes) : null;
+    }
+
+    /**
+     * @return list<string> Start times as H:i (24h)
+     */
+    public static function slotStartsFor(string $consultantSlug, string $dateYmd, string $serviceType = 'free'): array
+    {
+        $setting = self::resolveActiveSetting($consultantSlug, $serviceType);
 
         if (! $setting) {
             return [];
@@ -46,7 +95,7 @@ final class FollowupAvailability
             }
         }
 
-        $slotMinutes = max(5, (int) $setting->slot_duration_minutes);
+        $slotMinutes = max(5, (int) $setting->slot_duration_minutes); // same floor as slotDurationMinutes()
         $start = Carbon::parse($dateYmd.' '.$setting->start_time);
         $end = Carbon::parse($dateYmd.' '.$setting->end_time);
 

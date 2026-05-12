@@ -508,9 +508,13 @@ class ClientActionController extends Controller
 		])->validate();
 
 		$service = $validated['service'] ?? 'free';
-		$slots = FollowupAvailability::slotStartsFor($validated['consultant'], $validated['date'], $service);
+		$consultantSlug = $validated['consultant'];
 
-		return response()->json(['slots' => $slots]);
+		return response()->json([
+			'slots' => FollowupAvailability::slotStartsFor($consultantSlug, $validated['date'], $service),
+			'disable_weekdays' => FollowupAvailability::disabledJsWeekdays($consultantSlug, $service),
+			'slot_duration_minutes' => FollowupAvailability::slotDurationMinutes($consultantSlug, $service),
+		]);
 	}
 
 	/**

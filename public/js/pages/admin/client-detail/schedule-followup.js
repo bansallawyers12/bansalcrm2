@@ -10,6 +10,84 @@
 
     var slotsRequestSeq = 0;
 
+    /** JS Date#getDay(): 0 Sun … 6 Sat — synced from API via followup_calendar_settings.available_days */
+    var disabledWeekdaySet = new Set();
+
+    function weekdayDisablePredicate(date) {
+        return disabledWeekdaySet.has(date.getDay());
+    }
+
+    function applyDisabledWeekdays(arr) {
+        disabledWeekdaySet.clear();
+        if (Array.isArray(arr)) {
+            arr.forEach(function (d) {
+                disabledWeekdaySet.add(parseInt(d, 10));
+            });
+        }
+        if (scheduleFp) {
+            scheduleFp.redraw();
+        }
+    }
+
+    /**
+     * If the current selection falls on a disabled weekday, jump to the next allowed date (no onChange).
+     * @returns {boolean} true when the selection changed — caller should refetch slots for currentScheduleDateStr.
+     */
+    function fixSelectedDateIfDisabled() {
+        if (!scheduleFp || !scheduleFp.selectedDates.length) {
+            return false;
+        }
+        var sel = scheduleFp.selectedDates[0];
+        var selMid = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate());
+
+        if (!disabledWeekdaySet.has(selMid.getDay())) {
+            return false;
+        }
+
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        var floor = today.getTime();
+        var minD = scheduleFp.config.minDate;
+        if (minD) {
+            var md = minD instanceof Date ? new Date(minD.getTime()) : new Date(minD);
+            md.setHours(0, 0, 0, 0);
+            if (md.getTime() > floor) {
+                floor = md.getTime();
+            }
+        }
+
+        var candidate = new Date(Math.max(selMid.getTime(), floor));
+        candidate.setHours(0, 0, 0, 0);
+
+        var i;
+        for (i = 0; i < 370; i++) {
+            if (!disabledWeekdaySet.has(candidate.getDay())) {
+                scheduleFp.setDate(candidate, false);
+                currentScheduleDateStr = scheduleFp.formatDate(candidate, 'Y-m-d');
+                $('#schedule_followup_date_hidden').val(currentScheduleDateStr);
+                scheduleFp.redraw();
+                return true;
+            }
+            candidate.setDate(candidate.getDate() + 1);
+        }
+        return false;
+    }
+
+    function resetServiceDurationLabel() {
+        $('#schedule_service_duration_label').text('Select a consultant for duration');
+    }
+
+    function applySlotDurationLabel(minutes) {
+        var $el = $('#schedule_service_duration_label');
+        var n = Number(minutes);
+        if (minutes == null || minutes === '' || isNaN(n)) {
+            $el.text('Select a consultant for duration');
+        } else {
+            $el.text(parseInt(minutes, 10) + ' min · Free');
+        }
+    }
+
     function hasConsultantSelected() {
         return $('input[name="consultant"]:checked').length > 0;
     }
@@ -33,12 +111,16 @@
         $wrap.empty().addClass('d-none');
 
         if (!dateStr) {
+            applyDisabledWeekdays([]);
+            resetServiceDurationLabel();
             setSlotsEmptyState('Pick a date', 'Choose a date on the calendar.');
             $empty.removeClass('d-none');
             return;
         }
 
         if (!hasConsultantSelected()) {
+            applyDisabledWeekdays([]);
+            resetServiceDurationLabel();
             setSlotsEmptyState('Select a consultant', 'Pick a consultant above, then choose a time for the selected date.');
             $empty.removeClass('d-none');
             return;
@@ -46,6 +128,8 @@
 
         var endpoint = slotsEndpointUrl();
         if (!endpoint) {
+            applyDisabledWeekdays([]);
+            resetServiceDurationLabel();
             setSlotsEmptyState('Configuration error', 'Slot availability URL is missing.');
             $empty.removeClass('d-none');
             return;
@@ -72,12 +156,21 @@
             if (seq !== slotsRequestSeq) {
                 return;
             }
+            applyDisabledWeekdays(res && Array.isArray(res.disable_weekdays) ? res.disable_weekdays : []);
+            applySlotDurationLabel(res ? res.slot_duration_minutes : null);
+
+            if (scheduleFp && fixSelectedDateIfDisabled()) {
+                renderSlots(currentScheduleDateStr);
+                return;
+            }
+
             var slots = res && Array.isArray(res.slots) ? res.slots : [];
             if (!slots.length) {
                 setSlotsEmptyState(
                     'No available slots',
                     'This date may be outside working hours or blocked — choose another day.'
                 );
+                $empty.removeClass('d-none');
                 return;
             }
             $empty.addClass('d-none');
@@ -97,7 +190,10 @@
             if (seq !== slotsRequestSeq) {
                 return;
             }
+            applyDisabledWeekdays([]);
+            resetServiceDurationLabel();
             setSlotsEmptyState('Could not load slots', 'Check your connection and try again.');
+            $empty.removeClass('d-none');
         });
     }
 
@@ -138,6 +234,7 @@
             dateFormat: 'Y-m-d',
             defaultDate: new Date(),
             locale: { firstDayOfWeek: 0 },
+            disable: [weekdayDisablePredicate],
             onChange: function (selectedDates, dateStr) {
                 currentScheduleDateStr = dateStr;
                 $('#schedule_followup_date_hidden').val(dateStr);
@@ -156,6 +253,8 @@
         $('#schedule_followup_type').val('Education');
         $('input[name="service"][value="free"]').prop('checked', true);
         $('input[name="consultant"]').prop('checked', false);
+        applyDisabledWeekdays([]);
+        resetServiceDurationLabel();
         $('#schedule_followup_detail').val('');
         $('#schedule_preferred_language').val('');
         $('#schedule_details_of_enquiry').val('');
