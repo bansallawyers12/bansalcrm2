@@ -210,6 +210,16 @@ class FollowupController extends Controller
         return trim($s) !== '' ? trim($s) : '—';
     }
 
+    /**
+     * Strip redundant "(15 min — Free)" from stored follow-up note HTML for display (detail page).
+     */
+    protected static function stripFreeConsultationDurationSuffixFromFollowupHtml(string $html): string
+    {
+        $out = preg_replace('/Free\s+Consultation\s*\(\s*15\s*min\s*[—–\-]\s*Free\s*\)/iu', 'Free Consultation', $html);
+
+        return is_string($out) ? $out : $html;
+    }
+
     protected function baseFollowupQuery()
     {
         $q = Note::query()
@@ -301,9 +311,53 @@ class FollowupController extends Controller
             ])
             ->whereNotNull('action_assign_date')
             ->orderByDesc('action_assign_date')
-            ->paginate(40);
+            ->paginate(20);
 
         return view('Admin.followups.index', compact('followups'));
+    }
+
+    /**
+     * Read-only follow-up note detail (from listing “View”).
+     */
+    public function viewNote(Note $note)
+    {
+        $this->assertCanAccessFollowupNoteOrAbort($note);
+
+        $note->loadMissing([
+            'noteClient:id,first_name,last_name,client_id,email',
+            'assigned_user:id,first_name,last_name',
+        ]);
+
+        $client = $note->noteClient;
+        $clientDetailUrl = $client ? url('/clients/detail/'.base64_encode(convert_uuencode($client->id))) : null;
+
+        $slug = self::consultantSlugFromFollowupNoteTitle($note->title);
+        if ($slug !== null) {
+            $consultantDisplay = self::consultantDisplayForSlug($slug);
+        } else {
+            $consultantDisplay = $note->title
+                ? preg_replace('/^Followup\s+[—\-]\s*/u', '', (string) $note->title)
+                : '—';
+            if ($consultantDisplay === '') {
+                $consultantDisplay = '—';
+            }
+        }
+
+        $assignPretty = $note->action_assign_date
+            ? Carbon::parse($note->action_assign_date)->timezone(config('app.timezone'))->format('d/m/Y H:i')
+            : '—';
+
+        $descriptionHtml = self::stripFreeConsultationDurationSuffixFromFollowupHtml((string) $note->description);
+
+        return view('Admin.followups.show', [
+            'note' => $note,
+            'client' => $client,
+            'clientDetailUrl' => $clientDetailUrl,
+            'consultantDisplay' => $consultantDisplay,
+            'assignPretty' => $assignPretty,
+            'followupOutcome' => Schema::hasColumn('notes', 'followup_outcome') ? $note->followup_outcome : null,
+            'descriptionHtml' => $descriptionHtml,
+        ]);
     }
 
     public function calendar(string $consultant)
@@ -533,6 +587,17 @@ class FollowupController extends Controller
         return null;
     }
 
+    protected function assertCanAccessFollowupNoteOrAbort(Note $note): void
+    {
+        if ($note->type !== 'client' || (int) $note->is_action !== 1 || $note->task_group !== 'Followup') {
+            abort(404);
+        }
+
+        if ((int) Auth::user()->role !== 1 && (int) $note->assigned_to !== (int) Auth::user()->id) {
+            abort(403);
+        }
+    }
+
     protected function syncActivitiesLogFollowupDate(Note $note, string $needleInDescription): void
     {
         if (! Schema::hasTable('activities_logs') || ! Schema::hasColumn('activities_logs', 'followup_date')) {
@@ -606,7 +671,7 @@ class FollowupController extends Controller
         $slotHm = $parsed->format('H:i');
         $dateOnly = $parsed->format('Y-m-d');
 
-        if (! FollowupAvailability::isValidSlotSelection($slug, $dateOnly, $slotHm, 'free')) {
+        if (! FollowupAvailability::isValidSlotSelection($slug, $dateOnly, $slotHm, 'free', (int) $note->id)) {
             return response()->json([
                 'success' => false,
                 'message' => 'That date and time is not available for this consultant.',
@@ -698,13 +763,23 @@ class FollowupController extends Controller
     /**
      * Standard list rows matching schedule-follow-up activity HTML (see ClientActionController::scheduleFollowupStore).
      */
-    protected function followupActivityStandardListItems(Note $note, bool $includeConsultant = true): string
+    protected function followupActivityStandardListItems(Note $note, bool $includeConsultant = true, bool $includeFollowTiming = true): string
     {
         $parsed = self::parseScheduledFollowupNoteHtml((string) $note->description);
         $slug = self::consultantSlugFromFollowupNoteTitle($note->title);
         $consultant = $slug ? self::consultantDisplayForSlug($slug) : ($parsed['consultant_display'] ?: '—');
 
-        $html = '<li><strong>Follow-up type:</strong> '.e($parsed['followup_type'] ?: '—').'</li>'
+        $html = '';
+        if ($includeFollowTiming) {
+            try {
+                $timingPretty = Carbon::parse($note->action_assign_date)->timezone(config('app.timezone'))->format('j M Y, g:i a');
+            } catch (\Throwable $e) {
+                $timingPretty = $note->action_assign_date ? (string) $note->action_assign_date : '—';
+            }
+            $html .= '<li><strong>Follow timing:</strong> '.e($timingPretty).'</li>';
+        }
+
+        $html .= '<li><strong>Follow-up type:</strong> '.e($parsed['followup_type'] ?: '—').'</li>'
             .'<li><strong>Service:</strong> '.e(self::serviceLabelForActivityLog($parsed['service'] ?: '')).'</li>';
         if ($includeConsultant) {
             $html .= '<li><strong>Consultant:</strong> '.e($consultant).'</li>';
@@ -771,7 +846,7 @@ class FollowupController extends Controller
 
         $inner = '<p><strong>Rescheduled follow-up</strong></p>'
             .'<ul>'
-            .$this->followupActivityStandardListItems($note)
+            .$this->followupActivityStandardListItems($note, true, false)
             .'<li><strong>New date &amp; time:</strong> '.e($newPretty).'</li>'
             .'<li><strong>Previous date &amp; time:</strong> '.e($oldPretty).'</li>'
             .'</ul>'
@@ -806,18 +881,10 @@ class FollowupController extends Controller
             default => ucfirst(str_replace('_', ' ', $outcome)),
         };
 
-        try {
-            $assignDt = Carbon::parse($note->action_assign_date)->timezone(config('app.timezone'));
-            $assignPretty = $assignDt->format('j M Y, g:i a');
-        } catch (\Throwable $e) {
-            $assignPretty = (string) $note->action_assign_date;
-        }
-
         $inner = '<p><strong>Follow-up status updated</strong></p>'
             .'<ul>'
             .'<li><strong>Status:</strong> '.e($statusLabel).'</li>'
             .$this->followupActivityStandardListItems($note)
-            .'<li><strong>Follow-up date &amp; time:</strong> '.e($assignPretty).'</li>'
             .'</ul>'
             .$this->followupActivityDetailsParagraph($note);
 

@@ -585,8 +585,15 @@ class ClientActionController extends Controller
 
         $detailsSafe = nl2br(htmlspecialchars($data['details_of_enquiry'], ENT_QUOTES, 'UTF-8'));
 
+        try {
+            $followTimingDisplay = $parsedFollowup->copy()->timezone(config('app.timezone'))->format('j M Y, g:i a');
+        } catch (\Throwable $e) {
+            $followTimingDisplay = $followupAt;
+        }
+
         $description = '<p><strong>Scheduled follow-up</strong></p>'
             .'<ul>'
+            .'<li><strong>Follow timing:</strong> '.htmlspecialchars($followTimingDisplay, ENT_QUOTES, 'UTF-8').'</li>'
             .'<li><strong>Follow-up type:</strong> '.htmlspecialchars($data['followup_type'], ENT_QUOTES, 'UTF-8').'</li>'
             .'<li><strong>Service:</strong> '.htmlspecialchars($serviceLabel, ENT_QUOTES, 'UTF-8').'</li>'
             .'<li><strong>Consultant:</strong> '.htmlspecialchars($consultantDisplay, ENT_QUOTES, 'UTF-8').'</li>'

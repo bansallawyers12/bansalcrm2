@@ -148,6 +148,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 Route::redirect('/appointments', '/followups', 301);
 Route::get('/followups', [FollowupController::class, 'index'])->name('followups.index');
+Route::get('/followups/view/{note}', [FollowupController::class, 'viewNote'])->name('followups.view');
 Route::get('/followups/blocked-times', [FollowupCalendarBlockTimingController::class, 'index'])->name('followups.blocked-times.index');
 Route::get('/followups/blocked-times/create', [FollowupCalendarBlockTimingController::class, 'create'])->name('followups.blocked-times.create');
 Route::post('/followups/blocked-times', [FollowupCalendarBlockTimingController::class, 'store'])->name('followups.blocked-times.store');

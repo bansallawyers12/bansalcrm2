@@ -2,14 +2,17 @@
 
 namespace App\Support;
 
+use App\Http\Controllers\Admin\FollowupController;
 use App\Models\FollowupCalendarBlockTiming;
 use App\Models\FollowupCalendarSetting;
 use App\Models\FollowupConsultant;
+use App\Models\Note;
 use Carbon\Carbon;
 
 /**
- * Computes bookable slot starts per consultant using followup_calendar_settings
- * and active followup_calendar_block_timings (consultant_slugs must include the slug).
+ * Computes bookable slot starts per consultant using followup_calendar_settings,
+ * active followup_calendar_block_timings (consultant_slugs must include the slug),
+ * and existing open Followup notes for that consultant on the requested date.
  */
 final class FollowupAvailability
 {
@@ -78,7 +81,7 @@ final class FollowupAvailability
     /**
      * @return list<string> Start times as H:i (24h)
      */
-    public static function slotStartsFor(string $consultantSlug, string $dateYmd, string $serviceType = 'free'): array
+    public static function slotStartsFor(string $consultantSlug, string $dateYmd, string $serviceType = 'free', ?int $excludeNoteId = null): array
     {
         $setting = self::resolveActiveSetting($consultantSlug, $serviceType);
 
@@ -110,13 +113,16 @@ final class FollowupAvailability
             $cursor->addMinutes($slotMinutes);
         }
 
-        $blocked = self::blockedIntervalsForConsultantDate($consultantSlug, Carbon::parse($dateYmd)->startOfDay());
+        $dateCarbon = Carbon::parse($dateYmd)->startOfDay();
+        $blocked = self::blockedIntervalsForConsultantDate($consultantSlug, $dateCarbon);
+        $booked = self::bookedIntervalsForConsultantDate($consultantSlug, $dateYmd, $serviceType, $excludeNoteId);
+        $busy = array_merge($blocked, $booked);
 
-        return array_values(array_filter($slots, function ($hm) use ($dateYmd, $slotMinutes, $blocked) {
+        return array_values(array_filter($slots, function ($hm) use ($dateYmd, $slotMinutes, $busy) {
             $slotStart = Carbon::parse($dateYmd.' '.$hm.':00');
             $slotEnd = $slotStart->copy()->addMinutes($slotMinutes);
 
-            foreach ($blocked as [$bStart, $bEnd]) {
+            foreach ($busy as [$bStart, $bEnd]) {
                 if ($slotStart->lt($bEnd) && $slotEnd->gt($bStart)) {
                     return false;
                 }
@@ -126,17 +132,49 @@ final class FollowupAvailability
         }));
     }
 
-    /**
-     * @param  list<string>  $slotStarts
-     */
-    public static function isValidSlotSelection(string $consultantSlug, string $dateYmd, string $slotHm, string $serviceType = 'free'): bool
+    public static function isValidSlotSelection(string $consultantSlug, string $dateYmd, string $slotHm, string $serviceType = 'free', ?int $excludeNoteId = null): bool
     {
-        return in_array($slotHm, self::slotStartsFor($consultantSlug, $dateYmd, $serviceType), true);
+        return in_array($slotHm, self::slotStartsFor($consultantSlug, $dateYmd, $serviceType, $excludeNoteId), true);
     }
 
     /**
+     * Open follow-up notes already scheduled for this consultant on this calendar date (same overlap rules as blocks).
+     *
      * @return array<int, array{0: Carbon, 1: Carbon}>
      */
+    protected static function bookedIntervalsForConsultantDate(string $consultantSlug, string $dateYmd, string $serviceType, ?int $excludeNoteId): array
+    {
+        $slotMinutes = self::slotDurationMinutes($consultantSlug, $serviceType);
+        if ($slotMinutes === null) {
+            return [];
+        }
+
+        $titles = FollowupController::followupNoteTitlesForCalendar($consultantSlug);
+        if (count($titles) === 0) {
+            return [];
+        }
+
+        $q = Note::query()
+            ->where('type', 'client')
+            ->where('task_group', 'Followup')
+            ->where('is_action', 1)
+            ->where('status', 0)
+            ->whereIn('title', $titles)
+            ->whereDate('action_assign_date', $dateYmd);
+
+        if ($excludeNoteId !== null) {
+            $q->where('id', '!=', $excludeNoteId);
+        }
+
+        $intervals = [];
+        foreach ($q->get(['id', 'action_assign_date']) as $note) {
+            $slotStart = Carbon::parse($note->action_assign_date);
+            $intervals[] = [$slotStart, $slotStart->copy()->addMinutes($slotMinutes)];
+        }
+
+        return $intervals;
+    }
+
     protected static function blockedIntervalsForConsultantDate(string $consultantSlug, Carbon $date): array
     {
         $blocks = FollowupCalendarBlockTiming::query()
