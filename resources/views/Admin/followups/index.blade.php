@@ -36,6 +36,8 @@
 												$consultant = $row->title
 													? preg_replace(['/^Followup\s+[—\-]\s*/u', '/\s+Followups$/u'], ['', ''], $row->title)
 													: '—';
+												$statusLabel = \App\Http\Controllers\Admin\FollowupController::followupListingStatusLabel($row);
+												$statusBadgeClass = \App\Http\Controllers\Admin\FollowupController::followupListingStatusBadgeClass($statusLabel);
 											@endphp
 											<tr>
 												<td class="text-center text-muted">{{ $followups->firstItem() + $loop->index }}</td>
@@ -49,7 +51,7 @@
 												</td>
 												<td>{{ $client ? trim($client->first_name.' '.$client->last_name) : '—' }}</td>
 												<td>{{ $consultant }}</td>
-												<td>{{ \App\Http\Controllers\Admin\FollowupController::followupListingStatusLabel($row) }}</td>
+												<td><span class="badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
 												<td class="text-end">
 													@if($client)
 														<a href="{{ route('followups.view', $row) }}" class="btn btn-sm btn-outline-primary">View</a>

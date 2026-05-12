@@ -237,6 +237,20 @@ class FollowupController extends Controller
     }
 
     /**
+     * Bootstrap 5 colour utility classes for the follow-up listing status pill.
+     */
+    public static function followupListingStatusBadgeClass(string $statusLabel): string
+    {
+        return match ($statusLabel) {
+            'Confirmed' => 'bg-success',
+            'Cancelled' => 'bg-danger',
+            'Completed' => 'bg-primary',
+            'No show' => 'bg-warning text-dark',
+            default => 'bg-secondary',
+        };
+    }
+
+    /**
      * Strip redundant "(15 min — Free)" from stored follow-up note HTML for display (detail page).
      */
     protected static function stripFreeConsultationDurationSuffixFromFollowupHtml(string $html): string
