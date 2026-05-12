@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\ActivitiesLog;
+use App\Http\Controllers\Admin\FollowupController;
+use App\Models\FollowupConsultant;
+use App\Support\FollowupAvailability;
 use App\Traits\ClientHelpers;
 use Auth;
+use Illuminate\Validation\Rule;
 
 /**
  * Client action/task management
@@ -485,5 +489,155 @@ class ClientActionController extends Controller
 			echo json_encode(array('success' => true, 'message' => 'Applcation successfully assigned', 'clientID' => $client_decode_id,'application_id' => $requestData['application_id']));
 			exit;
 		}
+	}
+
+	/**
+	 * JSON slot list for the schedule-follow-up modal (per consultant calendar settings + blocks).
+	 */
+	public function scheduleFollowupSlots(Request $request)
+	{
+		$validated = \Illuminate\Support\Facades\Validator::make($request->all(), [
+			'consultant' => [
+				'required',
+				'string',
+				'max:120',
+				Rule::exists('followup_consultants', 'slug')->where('status', 1),
+			],
+			'date' => ['required', 'date_format:Y-m-d'],
+			'service' => ['nullable', 'string', 'in:free'],
+		])->validate();
+
+		$service = $validated['service'] ?? 'free';
+		$slots = FollowupAvailability::slotStartsFor($validated['consultant'], $validated['date'], $service);
+
+		return response()->json(['slots' => $slots]);
+	}
+
+	/**
+	 * Store a scheduled follow-up from the client detail “Add follow-up” modal.
+	 * Persists as a client Note + ActivitiesLog (same pattern as other actions).
+	 */
+	public function scheduleFollowupStore(Request $request)
+	{
+		$validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+			'client_id' => 'required|string',
+			'client_reference' => 'nullable|string|max:120',
+			'followup_type' => 'required|string|max:500',
+			'service' => 'required|in:free',
+			'consultant' => [
+				'required',
+				'string',
+				'max:120',
+				Rule::exists('followup_consultants', 'slug')->where('status', 1),
+			],
+			'followup_detail' => ['required', 'string', 'max:200', Rule::in(['In-Person', 'Phone call'])],
+			'preferred_language' => 'required|string|in:English,Hindi,Punjabi',
+			'details_of_enquiry' => 'required|string|max:15000',
+			'followup_datetime' => 'required|string|max:40',
+		]);
+
+		if ($validator->fails()) {
+			echo json_encode(['success' => false, 'message' => $validator->errors()->first()]);
+			exit;
+		}
+
+		$data = $validator->validated();
+
+		$decodedId = $this->decodeString($data['client_id']);
+		if ($decodedId === false || !$decodedId) {
+			echo json_encode(['success' => false, 'message' => 'Invalid client.']);
+			exit;
+		}
+
+		$admin = Admin::find($decodedId);
+		if (!$admin) {
+			echo json_encode(['success' => false, 'message' => 'Client not found.']);
+			exit;
+		}
+
+		if (!empty($data['client_reference']) && trim((string) $data['client_reference']) !== trim((string) ($admin->client_id ?? ''))) {
+			echo json_encode(['success' => false, 'message' => 'Client reference does not match this record.']);
+			exit;
+		}
+
+		try {
+			$parsedFollowup = \Carbon\Carbon::parse($data['followup_datetime']);
+			$followupAt = $parsedFollowup->format('Y-m-d H:i:s');
+		} catch (\Throwable $e) {
+			echo json_encode(['success' => false, 'message' => 'Invalid follow-up date or time.']);
+			exit;
+		}
+
+		$slotHm = $parsedFollowup->format('H:i');
+		$dateOnly = $parsedFollowup->format('Y-m-d');
+		if (! FollowupAvailability::isValidSlotSelection($data['consultant'], $dateOnly, $slotHm, $data['service'])) {
+			echo json_encode(['success' => false, 'message' => 'This time is not available for the selected consultant. Choose another slot.']);
+			exit;
+		}
+
+		$consultantLabel = FollowupConsultant::query()
+			->where('slug', $data['consultant'])
+			->where('status', 1)
+			->value('name') ?? $data['consultant'];
+		$serviceLabels = [
+			'free' => 'Free Consultation (15 min — Free)',
+		];
+		$serviceLabel = $serviceLabels[$data['service']] ?? $data['service'];
+
+		$detailsSafe = nl2br(htmlspecialchars($data['details_of_enquiry'], ENT_QUOTES, 'UTF-8'));
+
+		$description = '<p><strong>Scheduled follow-up</strong></p>'
+			.'<ul>'
+			.'<li><strong>Follow-up type:</strong> '.htmlspecialchars($data['followup_type'], ENT_QUOTES, 'UTF-8').'</li>'
+			.'<li><strong>Service:</strong> '.htmlspecialchars($serviceLabel, ENT_QUOTES, 'UTF-8').'</li>'
+			.'<li><strong>Consultant:</strong> '.htmlspecialchars($consultantLabel, ENT_QUOTES, 'UTF-8').'</li>'
+			.'<li><strong>Follow-up details:</strong> '.htmlspecialchars($data['followup_detail'], ENT_QUOTES, 'UTF-8').'</li>'
+			.'<li><strong>Preferred language:</strong> '.htmlspecialchars($data['preferred_language'], ENT_QUOTES, 'UTF-8').'</li>'
+			.'</ul>'
+			.'<p><strong>Details:</strong></p><p>'.$detailsSafe.'</p>';
+
+		$canonicalTitle = FollowupController::followupNoteTitle($data['consultant']);
+		$noteTitle = $canonicalTitle ?? ('Followup — '.$consultantLabel);
+
+		$note = new \App\Models\Note;
+		$note->client_id = $decodedId;
+		$note->user_id = Auth::user()->id;
+		$note->description = $description;
+		$note->title = $noteTitle;
+		$note->is_action = 1;
+		$note->task_group = 'Followup';
+		$note->assigned_to = Auth::user()->id;
+		$note->pin = 0;
+		$note->status = 0;
+		$note->type = 'client';
+		$note->action_assign_date = $followupAt;
+
+		if (!$note->save()) {
+			echo json_encode(['success' => false, 'message' => 'Please try again']);
+			exit;
+		}
+
+		try {
+			$log = new ActivitiesLog;
+			$log->client_id = $decodedId;
+			$log->created_by = Auth::user()->id;
+			$log->subject = 'Scheduled follow-up ('.$consultantLabel.')';
+			$log->description = '<span class="text-semi-bold">'.e($note->title).'</span><p>'.$description.'</p>';
+			$log->use_for = null;
+			$log->followup_date = $followupAt;
+			$log->task_group = 'Followup';
+			$log->task_status = 0;
+			$log->pin = 0;
+			$log->save();
+		} catch (\Throwable $e) {
+			\Log::warning('scheduleFollowupStore: activity log save failed: '.$e->getMessage());
+		}
+
+		echo json_encode([
+			'success' => true,
+			'message' => 'Follow-up scheduled successfully.',
+			'clientID' => $data['client_id'],
+		]);
+		exit;
 	}
 }

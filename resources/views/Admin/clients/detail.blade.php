@@ -129,6 +129,7 @@ use App\Http\Controllers\Controller;
 								@else
 									<a class="arcivedval" style="background-color:rgba(239, 68, 68, 0.8);" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="UnArchive"><i class="fas fa-archive"></i></a>
 								@endif
+								<a href="javascript:;" class="client-detail-add-followup-btn" title="Add follow-up" aria-label="Add follow-up"><i class="fas fa-calendar-plus"></i></a>
 							</div>
 							
 							<div style="display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap;">
@@ -2171,6 +2172,7 @@ use App\Http\Controllers\Controller;
 </div>
 
 
+@include('Admin.clients.partials.schedule-followup-modal')
 
 <!-- Send SMS Modal -->
 <div id="sendSmsModal" data-backdrop="static" data-keyboard="false" data-page-client-id="{{ $fetchedData->id ?? '' }}" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
@@ -2833,6 +2835,8 @@ use App\Http\Controllers\Controller;
         clientUpdateEmailVerified: '{{ url("/clients/update-email-verified") }}',
         clientChangeAssignee: '{{ url("/clients/change_assignee") }}',
         clientAction: '{{ url("/clients/action/store") }}',
+        scheduleFollowup: '{{ route("clients.schedule-followup.store") }}',
+        scheduleFollowupSlots: '{{ route("clients.schedule-followup.slots") }}',
         pinNote: '{{ url("/pinnote") }}',
         pinActivityLog: '{{ url("/pinactivitylog") }}',
         getNoteDetail: '{{ url("/getnotedetail") }}',
@@ -3051,6 +3055,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/schedule-followup.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/schedule-followup.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/notes.js') }}"></script>

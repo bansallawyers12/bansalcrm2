@@ -23,6 +23,9 @@ use App\Http\Controllers\Admin\UploadChecklistController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\ActionController;
+use App\Http\Controllers\Admin\FollowupController;
+use App\Http\Controllers\Admin\FollowupCalendarSettingController;
+use App\Http\Controllers\Admin\FollowupCalendarBlockTimingController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
 use App\Http\Controllers\Admin\OutlookController;
@@ -144,6 +147,24 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 	
 	//General
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::redirect('/appointments', '/followups', 301);
+        Route::get('/followups', [FollowupController::class, 'index'])->name('followups.index');
+        Route::get('/followups/blocked-times', [FollowupCalendarBlockTimingController::class, 'index'])->name('followups.blocked-times.index');
+        Route::get('/followups/blocked-times/create', [FollowupCalendarBlockTimingController::class, 'create'])->name('followups.blocked-times.create');
+        Route::post('/followups/blocked-times', [FollowupCalendarBlockTimingController::class, 'store'])->name('followups.blocked-times.store');
+        Route::get('/followups/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'show'])->name('followups.blocked-times.show');
+        Route::get('/followups/blocked-times/{followupCalendarBlockTiming}/edit', [FollowupCalendarBlockTimingController::class, 'edit'])->name('followups.blocked-times.edit');
+        Route::put('/followups/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'update'])->name('followups.blocked-times.update');
+        Route::delete('/followups/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'destroy'])->name('followups.blocked-times.destroy');
+        Route::get('/followups/calendar-settings', [FollowupCalendarSettingController::class, 'index'])->name('followups.calendar-settings.index');
+        Route::get('/followups/calendar-settings/{followupCalendarSetting}/edit', [FollowupCalendarSettingController::class, 'edit'])->name('followups.calendar-settings.edit');
+        Route::put('/followups/calendar-settings/{followupCalendarSetting}', [FollowupCalendarSettingController::class, 'update'])->name('followups.calendar-settings.update');
+        Route::get('/followups/calendar/{consultant}', [FollowupController::class, 'calendar'])
+            ->where('consultant', 'ankit|rakshita|jaspreet|syed')
+            ->name('followups.calendar');
+        Route::get('/appointments/calendar/{consultant}', function (string $consultant) {
+            return redirect()->route('followups.calendar', ['consultant' => $consultant], 301);
+        })->where('consultant', 'ankit|rakshita|jaspreet|syed');
         Route::post('/admin/complete-action', [AdminController::class, 'completeAction'])->name('admin.complete-action');
 		Route::get('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile');
 		Route::post('/my_profile', [AdminController::class, 'myProfile'])->name('my_profile.update');

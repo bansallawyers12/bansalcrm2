@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\SmsTemplate;
 use App\Models\ActivitiesLog;
 use App\Models\Application;
+use App\Models\FollowupConsultant;
 use App\Traits\ClientHelpers;
 use App\Traits\ClientQueries;
 use App\Traits\ClientAuthorization;
@@ -651,6 +652,22 @@ class ClientController extends Controller
 	}
 
     /**
+     * Active consultants for the schedule-followup modal (empty collection if table is not migrated).
+     */
+    protected function followupConsultantsForSchedule(): \Illuminate\Support\Collection
+    {
+        if (! Schema::hasTable('followup_consultants')) {
+            return collect();
+        }
+
+        return FollowupConsultant::query()
+            ->where('status', 1)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
      * Staff with the clients module but no allocation/grant for this admins row: offer cross-access request.
      * Otherwise send them to the listing with an error (e.g. no module access).
      */
@@ -730,9 +747,10 @@ class ClientController extends Controller
 
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
 
+                $followupConsultants = $this->followupConsultantsForSchedule();
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
                 );
             }
             else
@@ -787,9 +805,10 @@ class ClientController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
                 $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
+                $followupConsultants = $this->followupConsultantsForSchedule();
                 return view(
                     $this->getClientViewPath('clients.detail'),
-                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
+                    compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
                 );
             }
             // Fallback: legacy lead in leads table (unmigrated) - use DB, not Lead model
@@ -864,9 +883,10 @@ class ClientController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->get();
                     $showGoogleReviewReminderModal = $this->shouldShowGoogleReviewReminderModal($fetchedData);
+                    $followupConsultants = $this->followupConsultantsForSchedule();
                     return view(
                         $this->getClientViewPath('clients.detail'),
-                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal'])
+                        compact(['fetchedData','encodeId','showAlert','applicationId','forcedTab','clientApplications','showGoogleReviewReminderModal','followupConsultants'])
                     );
                 }
             }

@@ -23,6 +23,31 @@
 			<li class="dropdown {{@$dashclasstype}}">
 				<a href="{{route('dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
 			</li>
+
+			<?php
+			$followupMenuActive = Route::currentRouteName() === 'followups.index'
+				|| Route::currentRouteName() === 'followups.calendar';
+			?>
+			<li class="dropdown {{ $followupMenuActive ? 'active' : '' }}">
+				<a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-calendar-check"></i><span>Followup</span></a>
+				<ul class="dropdown-menu">
+					<li class="{{ Route::currentRouteName() === 'followups.index' ? 'active' : '' }}">
+						<a href="{{ route('followups.index') }}" class="nav-link"><i class="fas fa-list-ul"></i><span>Listing</span></a>
+					</li>
+					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'ankit' ? 'active' : '' }}">
+						<a href="{{ route('followups.calendar', ['consultant' => 'ankit']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Ankit</span></a>
+					</li>
+					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'rakshita' ? 'active' : '' }}">
+						<a href="{{ route('followups.calendar', ['consultant' => 'rakshita']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Rakshita</span></a>
+					</li>
+					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'jaspreet' ? 'active' : '' }}">
+						<a href="{{ route('followups.calendar', ['consultant' => 'jaspreet']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Jaspreet</span></a>
+					</li>
+					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'syed' ? 'active' : '' }}">
+						<a href="{{ route('followups.calendar', ['consultant' => 'syed']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Syed</span></a>
+					</li>
+				</ul>
+			</li>
             
 				<?php
 			if(Route::currentRouteName() == 'leads.index' || Route::currentRouteName() == 'leads.create' || Route::currentRouteName() == 'leads.detail' || Route::currentRouteName() == 'leads.history'){

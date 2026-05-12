@@ -65,6 +65,10 @@ Route::middleware(['auth:admin'])->group(function() {
     
     // Action routes
     Route::post('/clients/action/store', [ClientActionController::class, 'actionstore'])->name('clients.action.store');
+    Route::get('/clients/schedule-followup/slots', [ClientActionController::class, 'scheduleFollowupSlots'])
+        ->name('clients.schedule-followup.slots')
+        ->middleware('throttle:120,1');
+    Route::post('/clients/schedule-followup', [ClientActionController::class, 'scheduleFollowupStore'])->name('clients.schedule-followup.store');
     Route::post('/clients/action_application/store_application', [ClientActionController::class, 'actionstore_application'])->name('clients.action.store_application');
     Route::post('/clients/action/retag', [ClientActionController::class, 'retagaction'])->name('clients.action.retag');
     Route::post('/clients/personalaction/store', [ClientActionController::class, 'personalaction'])->name('clients.personalaction.store');
