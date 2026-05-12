@@ -24,7 +24,7 @@
 											<th>Client ref</th>
 											<th>Client</th>
 											<th>Consultant</th>
-											<th>Assigned to</th>
+											<th>Status</th>
 											<th class="text-end">Action</th>
 										</tr>
 									</thead>
@@ -49,7 +49,7 @@
 												</td>
 												<td>{{ $client ? trim($client->first_name.' '.$client->last_name) : '—' }}</td>
 												<td>{{ $consultant }}</td>
-												<td>{{ $row->assigned_user ? trim($row->assigned_user->first_name.' '.$row->assigned_user->last_name) : '—' }}</td>
+												<td>{{ \App\Http\Controllers\Admin\FollowupController::followupListingStatusLabel($row) }}</td>
 												<td class="text-end">
 													@if($client)
 														<a href="{{ route('followups.view', $row) }}" class="btn btn-sm btn-outline-primary">View</a>

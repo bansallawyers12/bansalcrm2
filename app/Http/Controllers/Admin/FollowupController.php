@@ -211,6 +211,32 @@ class FollowupController extends Controller
     }
 
     /**
+     * Human-readable status for the follow-up listing (aligned with calendar outcome logic).
+     */
+    public static function followupListingStatusLabel(Note $note): string
+    {
+        if (! Schema::hasColumn('notes', 'followup_outcome')) {
+            return (int) $note->status === 0 ? 'Confirmed' : 'Completed';
+        }
+
+        $outcome = $note->followup_outcome;
+        if ($outcome === 'completed') {
+            return 'Completed';
+        }
+        if ($outcome === 'cancelled') {
+            return 'Cancelled';
+        }
+        if ($outcome === 'no_show') {
+            return 'No show';
+        }
+        if ((int) $note->status === 1 && ($outcome === null || $outcome === '')) {
+            return 'Completed';
+        }
+
+        return 'Confirmed';
+    }
+
+    /**
      * Strip redundant "(15 min — Free)" from stored follow-up note HTML for display (detail page).
      */
     protected static function stripFreeConsultationDurationSuffixFromFollowupHtml(string $html): string
@@ -220,12 +246,14 @@ class FollowupController extends Controller
         return is_string($out) ? $out : $html;
     }
 
-    protected function baseFollowupQuery()
+    /**
+     * All client follow-up notes for the admin listing (any outcome / status).
+     */
+    protected function followupListingQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $q = Note::query()
             ->where('type', 'client')
             ->where('is_action', 1)
-            ->where('status', 0)
             ->where('task_group', 'Followup');
 
         if ((int) Auth::user()->role !== 1) {
@@ -304,10 +332,9 @@ class FollowupController extends Controller
 
     public function index()
     {
-        $followups = $this->baseFollowupQuery()
+        $followups = $this->followupListingQuery()
             ->with([
                 'noteClient:id,first_name,last_name,client_id,email',
-                'assigned_user:id,first_name,last_name',
             ])
             ->whereNotNull('action_assign_date')
             ->orderByDesc('action_assign_date')
