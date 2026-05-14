@@ -274,29 +274,15 @@ class FollowupController extends Controller
     }
 
     /**
-     * Notes eligible for the consultant calendar: open follow-ups plus those closed via outcome (completed/cancelled/no show).
-     *
-     * Same global scope as the listing; consultant filter is applied via note title in {@see calendar()}.
+     * Notes shown on consultant calendars — same note set as follow-up listing (no status/outcome filter).
+     * Consultant routing uses note title in {@see calendar()}; pill colours still use outcome/status in the view payload.
      */
     protected function calendarFollowupNotesQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        $q = Note::query()
+        return Note::query()
             ->where('type', 'client')
             ->where('is_action', 1)
             ->where('task_group', 'Followup');
-
-        if (Schema::hasColumn('notes', 'followup_outcome')) {
-            $q->where(function ($w): void {
-                $w->where('status', 0)
-                    ->orWhere(function ($w2): void {
-                        $w2->where('status', 1)->whereNotNull('followup_outcome');
-                    });
-            });
-        } else {
-            $q->where('status', 0);
-        }
-
-        return $q;
     }
 
     /**
