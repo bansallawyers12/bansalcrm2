@@ -522,13 +522,6 @@ class FollowupController extends Controller
             ], 422);
         }
 
-        if (! $this->staffCanModifyFollowupNote($note)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not allowed to change this follow-up.',
-            ], 403);
-        }
-
         $currentSlug = self::consultantSlugFromFollowupNoteTitle($note->title);
         if ($currentSlug === null) {
             return response()->json([
@@ -589,6 +582,7 @@ class FollowupController extends Controller
         ]);
     }
 
+    /** Any authenticated CRM user may reschedule/set outcome; still validates note shape. */
     protected function authorizeFollowupNoteForEditor(Note $note): ?JsonResponse
     {
         if ($note->type !== 'client' || (int) $note->is_action !== 1 || $note->task_group !== 'Followup') {
@@ -598,24 +592,7 @@ class FollowupController extends Controller
             ], 422);
         }
 
-        if (! $this->staffCanModifyFollowupNote($note)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not allowed to modify this follow-up.',
-            ], 403);
-        }
-
         return null;
-    }
-
-    /**
-     * Who may change follow-up data via API (reschedule, outcome, reassign).
-     * Matches previous behaviour: role 1 (super admin) or note assignee only.
-     */
-    protected function staffCanModifyFollowupNote(Note $note): bool
-    {
-        return (int) Auth::user()->role === 1
-            || (int) $note->assigned_to === (int) Auth::user()->id;
     }
 
     protected function assertCanAccessFollowupNoteOrAbort(Note $note): void
