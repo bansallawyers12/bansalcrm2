@@ -262,23 +262,21 @@ class FollowupController extends Controller
 
     /**
      * All client follow-up notes for the admin listing (any outcome / status).
+     *
+     * Listing is not scoped by role or assignee — any authenticated CRM user sees the same rows.
      */
     protected function followupListingQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        $q = Note::query()
+        return Note::query()
             ->where('type', 'client')
             ->where('is_action', 1)
             ->where('task_group', 'Followup');
-
-        if ((int) Auth::user()->role !== 1) {
-            $q->where('assigned_to', Auth::user()->id);
-        }
-
-        return $q;
     }
 
     /**
      * Notes eligible for the consultant calendar: open follow-ups plus those closed via outcome (completed/cancelled/no show).
+     *
+     * Same global scope as the listing; consultant filter is applied via note title in {@see calendar()}.
      */
     protected function calendarFollowupNotesQuery(): \Illuminate\Database\Eloquent\Builder
     {
@@ -286,10 +284,6 @@ class FollowupController extends Controller
             ->where('type', 'client')
             ->where('is_action', 1)
             ->where('task_group', 'Followup');
-
-        if ((int) Auth::user()->role !== 1) {
-            $q->where('assigned_to', Auth::user()->id);
-        }
 
         if (Schema::hasColumn('notes', 'followup_outcome')) {
             $q->where(function ($w): void {
@@ -542,7 +536,7 @@ class FollowupController extends Controller
             ], 422);
         }
 
-        if ((int) Auth::user()->role !== 1 && (int) $note->assigned_to !== (int) Auth::user()->id) {
+        if (! $this->staffCanModifyFollowupNote($note)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not allowed to change this follow-up.',
@@ -618,7 +612,7 @@ class FollowupController extends Controller
             ], 422);
         }
 
-        if ((int) Auth::user()->role !== 1 && (int) $note->assigned_to !== (int) Auth::user()->id) {
+        if (! $this->staffCanModifyFollowupNote($note)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not allowed to modify this follow-up.',
@@ -628,14 +622,20 @@ class FollowupController extends Controller
         return null;
     }
 
+    /**
+     * Who may change follow-up data via API (reschedule, outcome, reassign).
+     * Matches previous behaviour: role 1 (super admin) or note assignee only.
+     */
+    protected function staffCanModifyFollowupNote(Note $note): bool
+    {
+        return (int) Auth::user()->role === 1
+            || (int) $note->assigned_to === (int) Auth::user()->id;
+    }
+
     protected function assertCanAccessFollowupNoteOrAbort(Note $note): void
     {
         if ($note->type !== 'client' || (int) $note->is_action !== 1 || $note->task_group !== 'Followup') {
             abort(404);
-        }
-
-        if ((int) Auth::user()->role !== 1 && (int) $note->assigned_to !== (int) Auth::user()->id) {
-            abort(403);
         }
     }
 
