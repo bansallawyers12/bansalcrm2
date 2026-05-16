@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
-class VerifyCsrfToken extends Middleware
+class VerifyCsrfToken extends PreventRequestForgery
 {
     /**
      * Indicates whether the XSRF-TOKEN cookie should be set on the response.
@@ -14,23 +14,11 @@ class VerifyCsrfToken extends Middleware
     protected $addHttpCookie = true;
 
     /**
-     * The URIs that should be excluded from CSRF verification.
+     * Extra URIs excluded only when this class is used directly (e.g. Sanctum SPA stack).
+     * Primary exclusions live in {@see bootstrap/app.php} via preventRequestForgery(), which
+     * registers paths on PreventRequestForgery statically and they apply here too.
      *
-     * @var array
-     */ 
-    protected $except = [
-        //
-        'elite/emails',   // SendGrid Inbound Parse webhook — external POST, no CSRF token
-		'api/*',
-		'admin/update_visit_purpose',
-		'admin/update_visit_comment',
-		'admin/attend_session',
-		'admin/complete_session',
-		'admin/update_task_comment',
-		'admin/update_task_description',
-		'admin/update_task_status',
-		'admin/update_task_priority',
-		'admin/updateduedate',
-		'admin/application/checklistupload',
-    ];
+     * @var array<int, string>
+     */
+    protected $except = [];
 }

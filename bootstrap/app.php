@@ -47,8 +47,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkDobSession' => \App\Http\Middleware\CheckDobSession::class,
         ]);
         
-        // CSRF Token Exceptions for AJAX routes and webhooks
-        $middleware->validateCsrfTokens(except: [
+        // CSRF exclusions (web stack + shared static list for Sanctum / PreventRequestForgery)
+        $middleware->preventRequestForgery(except: [
             'api/*',
             'webhooks/sms/*',
             'elite/emails',
@@ -62,6 +62,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'update_task_priority',
             'updateduedate',
             'application/checklistupload',
+            // Legacy admin-prefixed paths (kept so old clients or mis-matched URLs still bypass CSRF)
+            'admin/update_visit_purpose',
+            'admin/update_visit_comment',
+            'admin/attend_session',
+            'admin/complete_session',
+            'admin/update_task_comment',
+            'admin/update_task_description',
+            'admin/update_task_status',
+            'admin/update_task_priority',
+            'admin/updateduedate',
+            'admin/application/checklistupload',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
