@@ -156,7 +156,7 @@
 													</td>
 													<td style="white-space: initial;">{{ @$list->first_name == "" ? config('constants.empty') : str_limit(@$list->first_name, '50', '...') }} {{ @$list->last_name == "" ? config('constants.empty') : str_limit(@$list->last_name, '50', '...') }}</td>
 													<?php
-													$assignee = \App\Models\Staff::firstFromAdminsAssigneeField(@$list->assignee);
+													$assignee = \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue(@$list->assignee);
 													$archivedBy = null;
 													if(!empty(@$list->archived_by) && @$list->archived_by !== '') {
 														$archivedBy = \App\Models\Staff::find(@$list->archived_by);

@@ -220,7 +220,7 @@
 													?>
 													<td style="white-space: initial;" title="{{ @$list->city }} {{ @$list->zip }} {{ @$list->state }}">{{ $locationDisplay }}</td>
 													<?php
-													$assignee = \App\Models\Staff::firstFromAdminsAssigneeField(@$list->assignee);
+													$assignee = \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue(@$list->assignee);
 													?>
 													<td style="white-space: initial;">{{ $assignee ? (@$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...')) : '-' }}</td> 
 													<td ><span class="ag-label--circular" style="color: #6777ef" >

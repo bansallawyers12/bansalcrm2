@@ -1967,7 +1967,7 @@ use App\Http\Controllers\Controller;
 							<div class="form-group form-group-compact">
 								<label for="template">Templates</label>
                                  <?php
-                                $assignee = \App\Models\Staff::firstFromAdminsAssigneeField($fetchedData->assignee ?? null);
+                                $assignee = \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue($fetchedData->assignee ?? null);
                                 $clientAssigneeName = $assignee ? $assignee->first_name : 'NA';
 								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
 								?>
