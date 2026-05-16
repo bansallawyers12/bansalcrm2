@@ -122,7 +122,7 @@ bottom: 100%;left: 50%;pointer-events: none;-webkit-transform: translateX(-50%);
 										
 											{{@$list->created_at}}
 											<?php
-											$assigneduser = $assigneeId ? \App\Models\Staff::find($assigneeId) : null;
+											$assigneduser = \App\Models\Staff::firstFromAdminsAssigneeField($assigneeId);
 											if($assigneduser){
 											    ?>
 											    <br>
