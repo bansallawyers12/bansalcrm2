@@ -78,4 +78,37 @@ class Staff extends Authenticatable
     {
         return $query->where('status', 1);
     }
+
+    /**
+     * Resolve a Staff row from admins.assignee, which may be a single id or comma-separated ids.
+     * Matches clients/detail display logic: use the first numeric segment when comma-separated,
+     * so PostgreSQL never receives an invalid bigint string (e.g. "1,1215").
+     */
+    public static function firstFromAdminsAssigneeField(mixed $value): ?self
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (str_contains($value, ',')) {
+            $parts = explode(',', $value);
+            $firstId = trim((string) ($parts[0] ?? ''));
+            if ($firstId !== '' && is_numeric($firstId)) {
+                return static::query()->find((int) $firstId);
+            }
+
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return static::query()->find((int) $value);
+        }
+
+        return null;
+    }
 }

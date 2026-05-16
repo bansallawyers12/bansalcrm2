@@ -1967,21 +1967,7 @@ use App\Http\Controllers\Controller;
 							<div class="form-group form-group-compact">
 								<label for="template">Templates</label>
                                  <?php
-                                $assignee = null;
-                                if(!empty(@$fetchedData->assignee) && @$fetchedData->assignee !== '') {
-                                    if(Str::contains($fetchedData->assignee, ',')){
-                                        $assigneeUArr = explode(",", $fetchedData->assignee);
-                                        $firstAssigneeId = trim($assigneeUArr[0]);
-                                        if(!empty($firstAssigneeId) && is_numeric($firstAssigneeId)) {
-                                            $assignee = \App\Models\Staff::select('first_name')->find($firstAssigneeId);
-                                        }
-                                    } else {
-                                        $assigneeId = trim($fetchedData->assignee);
-                                        if(!empty($assigneeId) && is_numeric($assigneeId)) {
-                                            $assignee = \App\Models\Staff::select('first_name')->find($assigneeId);
-                                        }
-                                    }
-                                }
+                                $assignee = \App\Models\Staff::firstFromAdminsAssigneeField($fetchedData->assignee ?? null);
                                 $clientAssigneeName = $assignee ? $assignee->first_name : 'NA';
 								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
 								?>
