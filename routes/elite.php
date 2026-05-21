@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/*Route::prefix('elite')->name('elite.')->group(function () {
+Route::prefix('elite')->name('elite.')->group(function () {
     Route::post('/emails', [EliteEmailController::class, 'store'])
         ->middleware([
             LogEliteInboundWebhookRejections::class,
@@ -34,4 +34,4 @@ use Illuminate\Support\Facades\Route;
         Route::get('/emails/sent', [EliteEmailController::class, 'sent'])->name('emails.sent');
         Route::get('/emails/drafts', [EliteEmailController::class, 'drafts'])->name('emails.drafts');
     });
-});*/
+});
