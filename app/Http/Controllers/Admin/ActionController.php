@@ -16,6 +16,7 @@ use App\Models\ActivitiesLog;
 use Auth;
 use Illuminate\Support\Facades\DB;
 use DataTables;
+use App\Support\Utf8Helper;
 
 class ActionController extends Controller
 {
@@ -617,31 +618,30 @@ class ActionController extends Controller
                 } else {
                     $full_name = 'N/P';
                 }
-                return $full_name;
+                return Utf8Helper::sanitize($full_name);
             })
             ->addColumn('client_reference', function($data) {
+                $user_name = 'N/P';
+
                 if($data->type == 'client'){
                     if($data->noteClient){
-                        $user_name = $data->noteClient->first_name.' '.$data->noteClient->last_name;
+                        $user_name = Utf8Helper::sanitize($data->noteClient->first_name.' '.$data->noteClient->last_name);
                         $user_name .= "<br>";
                         $user_name .= "\n";
 
                         $client_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                        $user_name .= '<a href="'.route('clients.detail', $client_encoded_id).'" target="_blank" >'.$data->noteClient->client_id.'</a>';
-                    } else {
-                        $user_name = 'N/P';
+                        $user_name .= '<a href="'.route('clients.detail', $client_encoded_id).'" target="_blank" >'.Utf8Helper::sanitize($data->noteClient->client_id).'</a>';
                     }
                 } else if($data->type == 'partner'){
                     $partnerInfo = \App\Models\Partner::select('partner_name')->where('id',$data->client_id)->first();
                     if($partnerInfo){
-                        $user_name = $partnerInfo->partner_name;
+                        $partnerName = Utf8Helper::sanitize($partnerInfo->partner_name);
+                        $user_name = $partnerName;
                         $user_name .= "<br>";
                         $user_name .= "\n";
 
                         $partner_encoded_id = base64_encode(convert_uuencode(@$data->client_id)) ;
-                        $user_name .= '<a href="'.route('partners.detail', $partner_encoded_id).'" target="_blank" >'.$partnerInfo->partner_name.'</a>';
-                    } else {
-                        $user_name = 'N/P';
+                        $user_name .= '<a href="'.route('partners.detail', $partner_encoded_id).'" target="_blank" >'.$partnerName.'</a>';
                     }
                 }
                 return $user_name;
@@ -657,7 +657,7 @@ class ActionController extends Controller
             })
             ->addColumn('task_group', function($data) {
                 if($data->task_group){
-                    $task_group =   $data->task_group ;
+                    $task_group = Utf8Helper::sanitize($data->task_group);
                 } else {
                     $task_group = 'N/P';
                 }
@@ -665,37 +665,27 @@ class ActionController extends Controller
             })
               
             ->addColumn('note_description', function($data) {
-                // Check if description exists and is not empty (trim whitespace)
-                if( isset($data->description) && trim($data->description) != "" ){
-                    // Strip HTML tags to get clean text
-                    $cleanDescription = strip_tags($data->description);
-                    $cleanDescription = trim($cleanDescription);
-                    
-                    // If after stripping tags it's empty, show N/P
-                    if($cleanDescription == ''){
-                        return "N/P";
-                    }
-                    
-                    if (strlen($cleanDescription) > 190) {
-                        $description = mb_convert_encoding($cleanDescription, 'UTF-8', 'UTF-8'); // Ensure UTF-8
-                        // Escape HTML safely for display
-                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+                $cleanDescription = Utf8Helper::sanitize(trim(strip_tags($data->description ?? '')));
 
-                        $full_description = $description;
-                        $final_desc = substr($description, 0, 190);
-                        $final_desc .= '<button type="button" class="btn btn-link btn_readmore" data-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
-                    } else {
-                        $description = mb_convert_encoding($cleanDescription, 'UTF-8', 'UTF-8'); // Ensure UTF-8
-                        // Escape HTML safely for display
-                        $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-                        $final_desc =   $description;
-                    }
+                if ($cleanDescription === '') {
+                    return 'N/P';
+                }
+
+                $description = Utf8Helper::sanitizeForHtml($cleanDescription);
+
+                if (mb_strlen($description) > 190) {
+                    $full_description = $description;
+                    $final_desc = mb_substr($description, 0, 190);
+                    $final_desc .= '<button type="button" class="btn btn-link btn_readmore" data-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
                 } else {
-                    $final_desc =  "N/P";
-                }  //echo "\n";
+                    $final_desc = $description;
+                }
+
                 return $final_desc;
             })
             ->addColumn('action', function($list){
+                $safeDescription = Utf8Helper::sanitizeForHtmlAttribute($list->description ?? '');
+                $safeTaskGroup = Utf8Helper::sanitizeForHtmlAttribute($list->task_group ?? '');
 
                 if($list->task_group != 'Personal Task')
                 {
@@ -775,7 +765,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>';
+                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>';
                 } else {
                     $actionBtn = '';
                 }
@@ -854,7 +844,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$list->description.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$list->task_group.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>';
+                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>';
                 }
                 return $actionBtn;
             })
