@@ -885,12 +885,16 @@ class InvoiceController extends Controller
 			
 			$clientdata = \App\Models\Admin::where('id', $invoicedetail->client_id)->first();
 			$admindata = \App\Models\Staff::find($invoicedetail->user_id);
+
+			$logoBase64 = \App\Helpers\Helper::profileLogoBase64(
+				\App\Helpers\Helper::invoiceProfileLogoFilename($invoicedetail)
+			);
 			
 			$pdf = PDF::setOptions([
-			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+			'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => false,
 			'logOutputFile' => storage_path('logs/log.htm'),
 			'tempDir' => storage_path('logs/')
-			])->loadView('emails.invoice',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata'])); 
+			])->loadView('emails.invoice',compact(['applicationdata','partnerdata','workflowdaa','clientdata','productdata','branchdata','invoicedetail','admindata','logoBase64'])); 
 			//
 			return $pdf->stream('Inv '.$invoicedetail->id.'.pdf');
 		}else{

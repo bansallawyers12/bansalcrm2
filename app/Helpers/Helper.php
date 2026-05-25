@@ -41,6 +41,49 @@ class Helper
     }
 
     /**
+     * Resolve logo filename for an invoice (stored profile snapshot, then default CRM profile).
+     */
+    public static function invoiceProfileLogoFilename($invoicedetail): ?string
+    {
+        if (!empty($invoicedetail->profile)) {
+            $profile = json_decode($invoicedetail->profile);
+            if ($profile && !empty($profile->logo)) {
+                return $profile->logo;
+            }
+        }
+
+        $crmProfile = self::defaultCrmProfile();
+        return ($crmProfile && !empty($crmProfile->logo)) ? $crmProfile->logo : null;
+    }
+
+    /**
+     * Embed profile logo as base64 data URI for DomPDF (same approach as client receipt print preview).
+     */
+    public static function profileLogoBase64(?string $logoFilename = null): ?string
+    {
+        $paths = [];
+        if (!empty($logoFilename)) {
+            $paths[] = config('constants.profile_imgs') . DIRECTORY_SEPARATOR . $logoFilename;
+        } else {
+            $profile = self::defaultCrmProfile();
+            if ($profile && !empty($profile->logo)) {
+                $paths[] = config('constants.profile_imgs') . DIRECTORY_SEPARATOR . $profile->logo;
+            }
+        }
+        $paths[] = public_path('img/logo.png');
+
+        foreach ($paths as $logoPath) {
+            if (is_string($logoPath) && file_exists($logoPath)) {
+                $logoData = file_get_contents($logoPath);
+                $mime = mime_content_type($logoPath) ?: 'image/png';
+                return 'data:' . $mime . ';base64,' . base64_encode($logoData);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Strip cid: (Content-ID) references from email HTML to prevent ERR_UNKNOWN_URL_SCHEME.
      * Browsers cannot load cid: URLs; replace with transparent 1x1 pixel.
      * Use for server-rendered email content (Conversations tab, etc.).

@@ -58,7 +58,11 @@
 				<tbody>
 					<tr>
 						<td>
-							<img style="width:150px;" src="{{asset('img/profile_imgs')}}/{{$logo}}" alt="Company Logo"/>
+							@if(!empty($logoBase64))
+								<img style="width:150px;" src="{{ $logoBase64 }}" alt="Company Logo"/>
+							@elseif(!empty($logo))
+								<img style="width:150px;" src="{{ asset('img/profile_imgs') }}/{{ $logo }}" alt="Company Logo"/>
+							@endif
 						</td>
 						<td style="text-align: right;">
 							<span style="font-size:21px;line-height:24px;color:#000;"><b>{{$name}}</b></span>
