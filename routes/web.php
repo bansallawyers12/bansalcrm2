@@ -286,12 +286,9 @@ Route::get('/invoice/attachfileemail', [InvoiceController::class, 'attachfileema
 // Route::get('/api-key', 'Admin\ApiController@index')->name('apikey.index');
 // Manage Api key
 
-// Outlook (SendGrid Email)
+// SendGrid email API (used by Elite inbox + CRM compose modals)
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/outlook', [OutlookController::class, 'index'])->name('outlook.index');
     Route::get('/outlook/senders', [OutlookController::class, 'senders'])->name('outlook.senders');
-    Route::get('/outlook/debug', [OutlookController::class, 'debug'])->name('outlook.debug');
-    Route::get('/outlook/inbox', [OutlookController::class, 'inbox'])->name('outlook.inbox');
     Route::post('/outlook/send', [OutlookController::class, 'send'])->name('outlook.send');
     Route::post('/outlook/draft', [OutlookController::class, 'saveDraft'])->name('outlook.saveDraft');
 });

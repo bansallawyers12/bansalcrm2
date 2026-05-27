@@ -636,7 +636,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                         <div class="empty-state" id="eliteDraftEmpty">
                             <i class="fas fa-file-alt" aria-hidden="true"></i>
                             <p>No drafts</p>
-                            <span>Drafts saved on the <a href="{{ route('admin.outlook.index') }}">Outlook page</a> using an Education Elite address will appear here.</span>
+                            <span>Use <strong>New Message</strong> to compose and save drafts with an Education Elite address.</span>
                         </div>
                     </div>
                     {{-- Reading pane --}}
