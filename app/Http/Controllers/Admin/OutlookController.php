@@ -21,11 +21,12 @@ class OutlookController extends Controller
 
     /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
+     * Compose From dropdown: @bansaleducation.com.au + admission@bansalimmigration.com.au only.
      * GET /admin/outlook/senders
      */
     public function senders(Request $request)
     {
-        $list = $this->getVerifiedSenders();
+        $list = $this->filterComposeSenders($this->getVerifiedSenders());
         $fromEmail = config('services.sendgrid.from_email', '');
         if (empty($fromEmail)) {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
@@ -142,6 +143,38 @@ class OutlookController extends Controller
         }
 
         return $senders;
+    }
+
+    /**
+     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
+     */
+    private function filterComposeSenders(array $senders): array
+    {
+        $filtered = array_values(array_filter($senders, function (array $sender) {
+            $email = strtolower(trim((string) ($sender['email'] ?? '')));
+            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return false;
+            }
+
+            return str_ends_with($email, '@bansaleducation.com.au')
+                || $email === 'admission@bansalimmigration.com.au';
+        }));
+
+        usort($filtered, function (array $a, array $b) {
+            $emailA = strtolower((string) ($a['email'] ?? ''));
+            $emailB = strtolower((string) ($b['email'] ?? ''));
+
+            if ($emailA === 'admission@bansalimmigration.com.au') {
+                return -1;
+            }
+            if ($emailB === 'admission@bansalimmigration.com.au') {
+                return 1;
+            }
+
+            return strcmp($emailA, $emailB);
+        });
+
+        return $filtered;
     }
 
     /**
