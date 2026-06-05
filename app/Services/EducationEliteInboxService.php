@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\EliteEmailAttachment;
+use App\Support\EliteEmailCidRewriter;
 use App\Support\EducationEliteMail;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
@@ -207,7 +209,69 @@ class EducationEliteInboxService
         }
         unset($it);
 
-        return $out;
+        return $this->applyEliteInboundAttachments($out);
+    }
+
+    /**
+     * Attach stored inbound files + rewrite cid: in HTML for SendGrid-derived rows.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyEliteInboundAttachments(array $items): array
+    {
+        if (! Schema::hasTable('elite_email_attachments')) {
+            return $items;
+        }
+
+        $eliteIds = [];
+        foreach ($items as $it) {
+            if (! isset($it['id']) || ! is_string($it['id']) || ! str_starts_with($it['id'], 'elite-')) {
+                continue;
+            }
+            $nid = (int) substr($it['id'], strlen('elite-'));
+            if ($nid > 0) {
+                $eliteIds[$nid] = $nid;
+            }
+        }
+
+        if ($eliteIds === []) {
+            return $items;
+        }
+
+        $byEmail = EliteEmailAttachment::query()
+            ->whereIn('elite_email_id', array_values($eliteIds))
+            ->orderBy('id')
+            ->get()
+            ->groupBy(static fn (EliteEmailAttachment $a) => (int) $a->elite_email_id);
+
+        foreach ($items as &$it) {
+            if (! isset($it['id']) || ! is_string($it['id']) || ! str_starts_with($it['id'], 'elite-')) {
+                continue;
+            }
+            $eid = (int) substr($it['id'], strlen('elite-'));
+            $atts = $byEmail->get($eid, collect());
+            if ($atts->isEmpty()) {
+                continue;
+            }
+            $it['has_attachments'] = true;
+            $it['attachments'] = $atts->map(static function (EliteEmailAttachment $a): array {
+                return [
+                    'id' => $a->id,
+                    'filename' => $a->original_filename,
+                    'content_type' => $a->mime_type,
+                    'url' => route('elite.emails.attachment', ['attachment' => $a->id]),
+                ];
+            })->values()->all();
+
+            $body = (string) ($it['body'] ?? '');
+            if ($body !== '' && preg_match('/<[a-z][\s\S]*>/i', $body) && str_contains(strtolower($body), 'cid:')) {
+                $it['body'] = EliteEmailCidRewriter::rewrite($body, $atts);
+            }
+        }
+        unset($it);
+
+        return $items;
     }
 
     /**
@@ -250,16 +314,39 @@ class EducationEliteInboxService
         return $chunks;
     }
 
+    /**
+     * Virtual `body` column for list/API: omit HTML when stored only on object storage.
+     */
+    private function eliteEmailBodySelectExpr(string $alias = 'e'): string
+    {
+        if (! Schema::hasTable('elite_emails') || ! Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            return "COALESCE({$alias}.body_html, {$alias}.body_text)";
+        }
+
+        if ($this->isPostgres()) {
+            return "CASE WHEN {$alias}.body_html_s3_key IS NOT NULL AND length(trim(COALESCE({$alias}.body_html_s3_key, ''))) > 0 THEN NULL ELSE COALESCE({$alias}.body_html, {$alias}.body_text) END";
+        }
+
+        return "CASE WHEN {$alias}.body_html_s3_key IS NOT NULL AND TRIM(COALESCE({$alias}.body_html_s3_key, '')) != '' THEN NULL ELSE COALESCE({$alias}.body_html, {$alias}.body_text) END";
+    }
+
     private function buildEliteQuery(string $search, string $dateFrom, string $dateTo): Builder
     {
-        $q = DB::table('elite_emails as e')->select([
+        $select = [
             'e.id',
             'e.from_address as from_addr',
             'e.to_address as to_addr',
             'e.subject as subj',
-            DB::raw('COALESCE(e.body_html, e.body_text) as body'),
             'e.created_at as received_at',
-        ]);
+            'e.payload as payload_json',
+        ];
+        if (Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            $select[] = 'e.body_text as body_text_plain';
+            $select[] = 'e.body_html_s3_key';
+        }
+        $select[] = DB::raw('('.$this->eliteEmailBodySelectExpr('e').') as body');
+
+        $q = DB::table('elite_emails as e')->select($select);
 
         // Exclude automated no-reply addresses — they are system notifications, not real mail
         $q->whereRaw('LOWER(COALESCE(e.from_address, \'\')) NOT LIKE ?', ['noreply@%'])
@@ -361,16 +448,54 @@ class EducationEliteInboxService
             $ts = (float) $c->getTimestamp();
         }
 
+        $hasAttachments = false;
+        $payloadJson = $row->payload_json ?? null;
+        if (is_string($payloadJson) && $payloadJson !== '') {
+            $p = json_decode($payloadJson, true);
+            if (is_array($p)) {
+                $cnt = $p['attachments'] ?? 0;
+                $hasAttachments = (is_numeric($cnt) && (int) $cnt > 0)
+                    || isset($p['attachment-info']);
+            }
+        }
+
+        $s3Key = '';
+        if (Schema::hasColumn('elite_emails', 'body_html_s3_key') && isset($row->body_html_s3_key)) {
+            $s3Key = trim((string) $row->body_html_s3_key);
+        }
+        $bodyTextPlain = isset($row->body_text_plain) ? (string) $row->body_text_plain : '';
+
+        if ($s3Key !== '') {
+            $bodyRaw = '';
+            $snippetSrc = $bodyTextPlain;
+        } else {
+            $bodyRaw = (string) ($row->body ?? '');
+            $snippetSrc = $bodyRaw;
+        }
+
+        $snippet = '';
+        if ($snippetSrc !== '') {
+            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($snippetSrc)));
+            if ($stripped !== null && $stripped !== '') {
+                $snippet = mb_substr($stripped, 0, 120);
+            }
+        }
+
         return [
             'id' => 'elite-'.(int) $row->id,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
-            'body' => (string) ($row->body ?? ''),
+            'body' => $bodyRaw,
+            'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
             'direction_label' => 'Inbound (SendGrid)',
+            'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
+            'body_fetch_url' => ($s3Key !== '' && Schema::hasColumn('elite_emails', 'body_html_s3_key'))
+                ? route('elite.emails.message-body', ['eliteEmail' => (int) $row->id])
+                : null,
         ];
     }
 
@@ -388,15 +513,26 @@ class EducationEliteInboxService
             $ts = (float) $c->getTimestamp();
         }
 
+        $bodyRaw = (string) ($row->body ?? '');
+        $snippet = '';
+        if ($bodyRaw !== '') {
+            $stripped = preg_replace('/\s+/', ' ', trim(strip_tags($bodyRaw)));
+            if ($stripped !== null && $stripped !== '') {
+                $snippet = mb_substr($stripped, 0, 120);
+            }
+        }
+
         return [
             'id' => 'crm-'.(int) $row->id,
             'from' => $row->from_addr ?? null,
             'to' => $row->to_addr ?? null,
             'subject' => $row->subj ?? null,
-            'body' => (string) ($row->body ?? ''),
+            'body' => $bodyRaw,
+            'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
             'direction_label' => 'Inbound (CRM)',
+            'has_attachments' => false,
             'sort_ts' => $ts,
         ];
     }

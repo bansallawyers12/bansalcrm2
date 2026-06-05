@@ -679,22 +679,7 @@ class ClientReceiptController extends Controller
         ] : (object)['company_name'=>'Bansal Education Group','address'=>'','state'=>'','city'=>'','zip'=>'','email'=>'','phone'=>'','dob'=>null];
 
         // Resolve logo to base64 for DomPDF (avoids slow HTTP fetches with isRemoteEnabled)
-        $logoBase64 = null;
-        if ($profile && $profile->logo) {
-            $logoPath = config('constants.profile_imgs') . DIRECTORY_SEPARATOR . $profile->logo;
-            if (file_exists($logoPath)) {
-                $logoData = file_get_contents($logoPath);
-                $mime = mime_content_type($logoPath) ?: 'image/png';
-                $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode($logoData);
-            }
-        }
-        if (!$logoBase64) {
-            $defaultLogoPath = public_path('img/logo.png');
-            if (file_exists($defaultLogoPath)) {
-                $logoData = file_get_contents($defaultLogoPath);
-                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
-            }
-        }
+        $logoBase64 = \App\Helpers\Helper::profileLogoBase64($profile->logo ?? null);
 
         $tempDir = storage_path('app/dompdf_temp');
         if (!is_dir($tempDir)) {

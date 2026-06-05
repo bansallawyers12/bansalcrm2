@@ -35,6 +35,8 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\StaffroleController;
 use App\Http\Controllers\Admin\UploadChecklistController;
+use App\Http\Controllers\Admin\FollowupCalendarBlockTimingController;
+use App\Http\Controllers\Admin\FollowupCalendarSettingController;
 
 Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
     
@@ -219,6 +221,20 @@ Route::prefix('adminconsole')->middleware('auth:admin')->group(function() {
             Route::get('/templates/{id}', [AdminConsoleSmsTemplateController::class, 'show'])->name('templates.show');
             Route::get('/templates-active', [AdminConsoleSmsTemplateController::class, 'active'])->name('templates.active');
         });
+    });
+
+    Route::prefix('followups')->name('adminconsole.followups.')->group(function () {
+        Route::get('/calendar-settings', [FollowupCalendarSettingController::class, 'index'])->name('calendar-settings.index');
+        Route::get('/calendar-settings/{followupCalendarSetting}/edit', [FollowupCalendarSettingController::class, 'edit'])->name('calendar-settings.edit');
+        Route::put('/calendar-settings/{followupCalendarSetting}', [FollowupCalendarSettingController::class, 'update'])->name('calendar-settings.update');
+
+        Route::get('/blocked-times', [FollowupCalendarBlockTimingController::class, 'index'])->name('blocked-times.index');
+        Route::get('/blocked-times/create', [FollowupCalendarBlockTimingController::class, 'create'])->name('blocked-times.create');
+        Route::post('/blocked-times', [FollowupCalendarBlockTimingController::class, 'store'])->name('blocked-times.store');
+        Route::get('/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'show'])->name('blocked-times.show');
+        Route::get('/blocked-times/{followupCalendarBlockTiming}/edit', [FollowupCalendarBlockTimingController::class, 'edit'])->name('blocked-times.edit');
+        Route::put('/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'update'])->name('blocked-times.update');
+        Route::delete('/blocked-times/{followupCalendarBlockTiming}', [FollowupCalendarBlockTimingController::class, 'destroy'])->name('blocked-times.destroy');
     });
 
 });

@@ -4,19 +4,91 @@ namespace App\Http\Controllers\Elite;
 
 use App\Http\Controllers\Controller;
 use App\Models\EliteEmail;
+use App\Models\EliteEmailAttachment;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
+use App\Services\EliteInboundAttachmentService;
 use App\Support\EducationEliteMail;
+use App\Support\EliteEmailCidRewriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EliteEmailController extends Controller
 {
-    public function __construct()
+    /**
+     * Serve a stored inbound attachment (SendGrid multipart).
+     */
+    public function attachment(EliteEmailAttachment $attachment): StreamedResponse
     {
-        $this->middleware('auth:admin')->only(['index', 'inbox', 'sent', 'drafts']);
+        $disk = EliteInboundAttachmentService::findDiskForPath($attachment->storage_path);
+        if ($disk === null) {
+            abort(404);
+        }
+
+        $filename = $attachment->original_filename ?: 'attachment';
+        $filename = str_replace(["\0", "\r", "\n", '"'], '', basename($filename));
+        if ($filename === '') {
+            $filename = 'attachment';
+        }
+
+        $mime = is_string($attachment->mime_type) && $attachment->mime_type !== ''
+            ? $attachment->mime_type
+            : 'application/octet-stream';
+        $disposition = str_starts_with(strtolower($mime), 'image/') ? 'inline' : 'attachment';
+
+        return $disk->response(
+            $attachment->storage_path,
+            $filename,
+            [
+                'Content-Type' => $mime,
+            ],
+            $disposition
+        );
+    }
+
+    /**
+     * Lazy-load HTML body for rows stored in object storage (admin JSON).
+     */
+    public function messageBody(EliteEmail $eliteEmail): JsonResponse
+    {
+        $html = '';
+
+        if (Schema::hasTable('elite_emails') && Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            $key = is_string($eliteEmail->body_html_s3_key) ? trim($eliteEmail->body_html_s3_key) : '';
+            if ($key !== '') {
+                $disk = EliteInboundAttachmentService::findDiskForPath($key);
+                if ($disk !== null) {
+                    try {
+                        $html = (string) $disk->get($key);
+                    } catch (\Throwable $e) {
+                        Log::warning('elite.inbound.body_s3_read_failed', [
+                            'elite_email_id' => $eliteEmail->id,
+                            'key' => $key,
+                            'message' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if ($html === '' && is_string($eliteEmail->body_html) && $eliteEmail->body_html !== '') {
+            $html = $eliteEmail->body_html;
+        }
+
+        if ($html === '' && is_string($eliteEmail->body_text) && $eliteEmail->body_text !== '') {
+            $html = '<pre style="white-space:pre-wrap;margin:0">'.e($eliteEmail->body_text).'</pre>';
+        }
+
+        $atts = $eliteEmail->attachments()->get();
+        $html = EliteEmailCidRewriter::rewrite($html, $atts);
+
+        return response()->json(['body' => $html]);
     }
 
     public function index()
@@ -77,7 +149,8 @@ class EliteEmailController extends Controller
         $dateTo   = (string) $request->get('date_to', '');
         $sort     = in_array($request->get('sort', 'newest'), ['oldest'], true) ? 'asc' : 'desc';
 
-        $query = Email::where('mail_type', 1)
+        $query = Email::query()
+            ->where('mail_type', '=', 1, 'and')
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_mail,\'\'))) LIKE ?', [strtolower($like)])
                   ->orWhereRaw('LOWER(TRIM(COALESCE(to_mail,\'\'))) LIKE ?', [strtolower($like)]);
@@ -136,7 +209,16 @@ class EliteEmailController extends Controller
         $like   = '%@'.$domain;
         $search = trim((string) $request->get('search', ''));
 
-        $query = OutlookDraftEmail::where('admin_id', auth('admin')->id())
+        $adminId = Auth::guard('admin')->id();
+        if ($adminId === null) {
+            return response()->json([
+                'emails' => [],
+                'message' => 'Sign in as an admin to view drafts.',
+            ]);
+        }
+
+        $query = OutlookDraftEmail::query()
+            ->where('admin_id', '=', $adminId, 'and')
             ->where(function ($q) use ($like) {
                 $q->whereRaw('LOWER(TRIM(COALESCE(from_email,\'\'))) LIKE ?', [strtolower($like)])
                   ->orWhereRaw('LOWER(TRIM(COALESCE(to_email,\'\'))) LIKE ?', [strtolower($like)]);
@@ -176,20 +258,38 @@ class EliteEmailController extends Controller
     public function store(Request $request): JsonResponse
     {
         if ($this->inboundDebugLogging()) {
+            $request->attributes->set('elite_inbound_cid', bin2hex(random_bytes(8)));
+            Log::info('elite.inbound.hit', array_merge($this->inboundCorrelationContext($request), [
+                'method' => $request->method(),
+                'path' => $request->path(),
+                'content_length' => $request->header('Content-Length'),
+                'user_agent' => $request->userAgent() !== null ? substr((string) $request->userAgent(), 0, 200) : null,
+            ]));
             $this->logInboundWebhookRequest($request, 'webhook_post');
         }
 
         try {
             $this->assertInboundSecret($request);
 
-            return $this->persistInbound($request);
+            if ($this->inboundDebugLogging()) {
+                Log::info('elite.inbound.auth_ok', array_merge($this->inboundCorrelationContext($request), [
+                    'secret_configured' => (string) config('crm.education_elite_inbound_secret', '') !== '',
+                ]));
+            }
+
+            $response = $this->persistInbound($request);
+            if ($this->inboundDebugLogging()) {
+                $this->logInboundResponse($request, $response);
+            }
+
+            return $response;
         } catch (\Throwable $e) {
             if (! $e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
-                Log::error('elite.inbound.unhandled_exception', [
+                Log::error('elite.inbound.unhandled_exception', array_merge($this->inboundCorrelationContext($request), [
                     'message' => $e->getMessage(),
                     'exception' => $e::class,
                     'file' => $e->getFile().':'.$e->getLine(),
-                ]);
+                ]));
             }
             throw $e;
         }
@@ -198,6 +298,32 @@ class EliteEmailController extends Controller
     private function inboundDebugLogging(): bool
     {
         return (bool) config('crm.education_elite_inbound_webhook_log', true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function inboundCorrelationContext(Request $request): array
+    {
+        $cid = $request->attributes->get('elite_inbound_cid');
+
+        return $cid !== null ? ['cid' => $cid, 'ip' => $request->ip()] : ['ip' => $request->ip()];
+    }
+
+    private function logInboundResponse(Request $request, JsonResponse $response): void
+    {
+        $data = $response->getData(true);
+        $bodyKeys = is_array($data) ? array_keys($data) : [];
+        $log = array_merge($this->inboundCorrelationContext($request), [
+            'http_status' => $response->getStatusCode(),
+            'body_keys' => $bodyKeys,
+            'ok' => is_array($data) && array_key_exists('ok', $data) ? $data['ok'] : null,
+            'id' => is_array($data) && array_key_exists('id', $data) ? $data['id'] : null,
+            'error' => is_array($data) && isset($data['error'])
+                ? $this->stringPreview((string) $data['error'], 200)
+                : null,
+        ]);
+        Log::info('elite.inbound.response', $log);
     }
 
     /**
@@ -226,15 +352,14 @@ class EliteEmailController extends Controller
                 500
             ),
         ];
-        Log::info('elite.inbound', [
+        Log::info('elite.inbound', array_merge($this->inboundCorrelationContext($request), [
             'stage' => $stage,
-            'ip' => $request->ip(),
             'content_type' => (string) $request->header('Content-Type'),
             'user_agent' => $request->userAgent() !== null ? substr($request->userAgent(), 0, 200) : null,
             'form_keys' => $keys,
             'field_sizes' => $lengths,
             'previews' => array_filter($previews, static fn ($v) => $v !== null && $v !== ''),
-        ]);
+        ]));
     }
 
     private function stringPreview(mixed $value, int $max = 200): ?string
@@ -260,12 +385,7 @@ class EliteEmailController extends Controller
         $given = (string) ($request->query('secret', $request->header('X-Elite-Webhook-Secret', '')));
 
         if (! hash_equals($secret, $given)) {
-            Log::warning('elite.inbound.secret_mismatch', [
-                'ip' => $request->ip(),
-                'query_has_secret' => $request->query->has('secret'),
-                'header_x_elite_present' => $request->header('X-Elite-Webhook-Secret') !== null,
-                'path' => $request->path(),
-            ]);
+            // 403 is logged by LogEliteInboundWebhookRejections (incl. query/header presence; no secrets logged).
             abort(403, 'Invalid inbound secret');
         }
     }
@@ -297,27 +417,22 @@ class EliteEmailController extends Controller
         $eliteFrom = $fromAddress && EducationEliteMail::isEliteOwnedAddress($fromAddress);
 
         if ($this->inboundDebugLogging()) {
-            Log::info('elite.inbound.parsed', [
-                'ip' => $request->ip(),
+            Log::info('elite.inbound.parsed', array_merge($this->inboundCorrelationContext($request), [
                 'apex' => EducationEliteMail::apexDomain(),
                 'from_parsed' => $fromAddress,
                 'to_addresses' => $toAddresses,
                 'elite_to' => $eliteTo,
                 'elite_from' => $eliteFrom,
-            ]);
+            ]));
         }
 
         if (! $eliteTo && ! $eliteFrom) {
             Log::warning('elite.inbound.rejected', [
-                'reason' => 'neither_to_nor_from_elite_domain',
-                'from_raw' => is_string($fromRaw) ? $this->stringPreview($fromRaw, 200) : null,
-                'to_raw' => is_string($toRaw) ? $this->stringPreview((string) $toRaw, 200) : null,
-                'from_parsed' => $fromAddress,
-                'to_addresses' => $toAddresses,
-                'ip' => $request->ip(),
+                'from' => $fromAddress,
+                'to' => $toAddresses,
             ]);
-            $msg = 'Neither From nor To is an @'.EducationEliteMail::apexDomain().' address (apex or inbound subdomain).';
-            return response()->json(['ok' => false, 'error' => $msg], 422);
+            // Don't reject — save anyway to avoid losing emails
+            $eliteTo = true;
         }
         $text = $request->input('text') ?? $request->input('body_text') ?? $request->input('plain');
         $html = $request->input('html') ?? $request->input('body_html') ?? $request->input('body');
@@ -344,20 +459,38 @@ class EliteEmailController extends Controller
                 'payload' => $payload,
             ]);
         } catch (\Throwable $e) {
-            Log::error('elite.inbound.db_failed', [
+            Log::error('elite.inbound.db_failed', array_merge($this->inboundCorrelationContext($request), [
                 'message' => $e->getMessage(),
                 'exception' => $e::class,
                 'from' => $storedFrom,
                 'to' => $storedTo,
-            ]);
+            ]));
             throw $e;
         }
 
-        Log::info('elite.inbound.stored', [
+        try {
+            $this->offloadInboundBodyHtmlToObjectStorage($record);
+        } catch (\Throwable $e) {
+            Log::warning('elite.inbound.body_s3_offload_failed', array_merge($this->inboundCorrelationContext($request), [
+                'elite_email_id' => $record->id,
+                'message' => $e->getMessage(),
+            ]));
+        }
+
+        Log::info('elite.inbound.stored', array_merge($this->inboundCorrelationContext($request), [
             'id' => $record->id,
             'from' => $storedFrom,
             'to' => $storedTo,
-        ]);
+        ]));
+
+        try {
+            app(EliteInboundAttachmentService::class)->storeFromInboundRequest($record, $request);
+        } catch (\Throwable $e) {
+            Log::warning('elite.inbound.attachments_store_failed', array_merge($this->inboundCorrelationContext($request), [
+                'elite_email_id' => $record->id,
+                'message' => $e->getMessage(),
+            ]));
+        }
 
         return response()->json(['ok' => true, 'id' => $record->id]);
     }
@@ -559,6 +692,42 @@ class EliteEmailController extends Controller
     }
 
     /**
+     * Store HTML body on the configured disk and clear DB column; on failure leaves body_html in DB.
+     */
+    private function offloadInboundBodyHtmlToObjectStorage(EliteEmail $record): void
+    {
+        if (! Schema::hasTable('elite_emails') || ! Schema::hasColumn('elite_emails', 'body_html_s3_key')) {
+            return;
+        }
+
+        $html = $record->body_html;
+        if (! is_string($html) || $html === '') {
+            return;
+        }
+
+        $diskName = EliteInboundAttachmentService::writeDisk();
+        $key = 'elite-inbound/'.$record->id.'/body.html';
+
+        Storage::disk($diskName)->put($key, $html, ['visibility' => 'private']);
+
+        $updates = [
+            'body_html_s3_key' => $key,
+            'body_html' => null,
+        ];
+
+        $existingText = $record->body_text;
+        if (! is_string($existingText) || trim($existingText) === '') {
+            $plain = trim(strip_tags($html));
+            if (strlen($plain) > 60000) {
+                $plain = substr($plain, 0, 60000);
+            }
+            $updates['body_text'] = $plain !== '' ? $plain : null;
+        }
+
+        $record->update($updates);
+    }
+
+    /**
      * Drop huge SendGrid fields (raw MIME) from stored JSON; keep metadata only.
      */
     private function compactPayload(Request $request): ?array
@@ -566,6 +735,19 @@ class EliteEmailController extends Controller
         $payload = $request->except(['_token']);
         foreach (['email', 'html', 'text', 'content-id_map'] as $key) {
             unset($payload[$key]);
+        }
+
+        foreach (array_keys($payload) as $key) {
+            if (! is_string($key)) {
+                continue;
+            }
+            if ($payload[$key] instanceof \Illuminate\Http\UploadedFile) {
+                unset($payload[$key]);
+                continue;
+            }
+            if ($key === 'attachment' || preg_match('/^attachment\d+$/i', $key)) {
+                unset($payload[$key]);
+            }
         }
 
         if (count($payload) > 60) {

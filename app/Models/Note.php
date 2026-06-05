@@ -12,7 +12,7 @@ class Note extends Model
 	use Sortable;
 
     protected $fillable = [
-        'id','user_id','client_id','title','mail_id','type','assigned_to','pin','action_assign_date','is_action','status','description','created_at', 'updated_at','task_group','mobile_number'
+        'id', 'user_id', 'client_id', 'title', 'mail_id', 'type', 'assigned_to', 'pin', 'action_assign_date', 'is_action', 'status', 'followup_outcome', 'description', 'created_at', 'updated_at', 'task_group', 'mobile_number',
     ];
    
 	public $sortable = ['id', 'created_at', 'updated_at','task_group','action_assign_date'];

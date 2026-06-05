@@ -161,7 +161,7 @@ use App\Http\Controllers\Controller;
 				$workflow = \App\Models\Workflow::where('id', $alist->workflow)->first();
 												?>
 												<tr id="id_{{$alist->id}}">
-													<td><a class="" data-id="{{$alist->id}}" href="{{URL::to('/clients/detail')}}/{{base64_encode(convert_uuencode(@$alist->id))}}" style="display:block;">{{$clientdetail->first_name}} {{$clientdetail->last_name}}</a> </td> 
+													<td><a class="" data-id="{{$alist->id}}" href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$clientdetail->id))}}?tab=application&appid={{@$alist->id}}" style="display:block;">{{@$clientdetail->first_name}} {{@$clientdetail->last_name}}</a> </td> 
 													<td>{{$admindetail->first_name}} {{$admindetail->last_name}}</td>
 													<td>{{$PartnerBranch->name}}</td>
 													<td>
@@ -170,7 +170,7 @@ use App\Http\Controllers\Controller;
 													<td>{{$alist->stage}}</td>
 													<td>@if($alist->status == 0)
 													<span class="ag-label--circular" style="color: #6777ef" >In Progress</span>
-													@else if($alist->status == 1)
+													@elseif($alist->status == 1)
 														<span class="ag-label--circular" style="color: #6777ef" >Completed</span>
 													@endif</td> 
 													<td>{{date('Y-m-d', strtotime($alist->created_at))}}</td> 

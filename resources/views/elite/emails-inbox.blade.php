@@ -4,12 +4,11 @@
 @push('styles')
 <style>
 /* Reset browser defaults that create gaps */
-html, body { margin: 0; padding: 0; height: 100%; }
-#app { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+#app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 .loader { display: none !important; }
 
 /* ── Identical base to Admin Outlook page ───────────────────────────────── */
-.outlook-page { min-height: 100vh; background: #f0f0f0; }
 .outlook-topbar {
     display: flex;
     align-items: center;
@@ -17,6 +16,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
     padding: 10px 20px;
     background: #fff;
     border-bottom: 1px solid #d4d4d4;
+    flex-shrink: 0;
 }
 .outlook-topbar .outlook-title {
     font-size: 16px;
@@ -53,7 +53,9 @@ html, body { margin: 0; padding: 0; height: 100%; }
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
-.outlook-container { display: flex; height: calc(100vh - 50px); min-height: 500px; }
+.outlook-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f0f0f0; }
+.server-error { flex-shrink: 0; }
+.outlook-container { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
 /* ── Left sidebar — identical to Admin Outlook ──────────────────────────── */
 .outlook-sidebar {
@@ -109,17 +111,6 @@ html, body { margin: 0; padding: 0; height: 100%; }
     border-left-color: #0078d4;
 }
 .outlook-folders .folder-item i { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
-.elite-sidebar-foot {
-    margin-top: auto;
-    border-top: 1px solid #e2e8f0;
-    padding: 11px 14px;
-    background: #fafafa;
-    font-size: 11px;
-    color: #64748b;
-    line-height: 1.45;
-}
-.elite-sidebar-foot .foot-label { font-weight: 600; color: #475569; margin-bottom: 3px; display: block; }
-.elite-sidebar-foot code { font-size: 10.5px; word-break: break-all; color: #0078d4; }
 
 /* ── Main area ──────────────────────────────────────────────────────────── */
 .outlook-main {
@@ -138,9 +129,9 @@ html, body { margin: 0; padding: 0; height: 100%; }
 /* ── 3-col split (inbox only) ───────────────────────────────────────────── */
 .outlook-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .outlook-list-col {
-    width: 440px;
-    min-width: 300px;
-    max-width: 50%;
+    width: 320px;
+    min-width: 260px;
+    max-width: 38%;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -148,8 +139,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
     overflow: hidden;
 }
 .outlook-reading {
-    flex: 1;
-    min-width: 300px;
+    flex: 1 1 65%;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -230,6 +221,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .elite-msg-addr { font-weight: 600; font-size: 13.5px; color: #0f172a; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .elite-msg-when { font-size: 12px; color: #94a3b8; flex-shrink: 0; }
 .elite-msg-subj { font-size: 13px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.elite-msg-snippet { font-size: 12px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+.elite-msg-attach { font-size: 11px; color: #64748b; margin-left: 5px; flex-shrink: 0; }
 
 /* ── Error bar ───────────────────────────────────────────────────────────── */
 .inbox-fetch-error {
@@ -244,6 +237,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .inbox-fetch-error button { flex-shrink: 0; border: none; background: transparent; color: #991b1b; cursor: pointer; font-size: 12px; text-decoration: underline; padding: 0; }
 
 /* ── Reading pane ────────────────────────────────────────────────────────── */
+.outlook-read-actions { display: flex; gap: 8px; padding: 10px 24px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
+.outlook-read-actions .btn-read-act { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #d4d4d4; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; color: #333; }
+.outlook-read-actions .btn-read-act:hover { background: #f3f3f3; }
+.elite-empty-body-msg { color: #94a3b8; font-size: 13px; font-style: italic; margin-top: 20px; }
 .outlook-reading-empty {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -251,26 +248,55 @@ html, body { margin: 0; padding: 0; height: 100%; }
 }
 .outlook-reading-empty i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
 .outlook-reading-content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-.outlook-reading-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.outlook-reading-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
 .outlook-read-subject { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 12px; line-height: 1.3; }
 .outlook-read-meta { font-size: 13px; color: #475569; }
 .outlook-read-meta > div { margin-bottom: 6px; }
 .outlook-read-type-label { display: inline-block; margin-bottom: 8px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: #f1f5f9; color: #475569; }
 .outlook-read-meta .email-meta-label { font-weight: 600; color: #64748b; min-width: 48px; display: inline-block; }
 .outlook-read-body { margin-top: 16px; font-size: 14px; line-height: 1.5; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
+.elite-read-attachments { margin-top: 14px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; }
+.elite-read-attachments .elite-att-head { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 8px; }
+.elite-read-attachments ul { margin: 0; padding-left: 1.1rem; font-size: 13px; color: #1e293b; }
+.elite-read-attachments a { color: #2563eb; text-decoration: underline; word-break: break-all; }
 .outlook-read-frame {
-    width: 100%; flex: 1; min-height: 200px;
-    border: 1px solid #e2e8f0; border-radius: 4px; background: #fff; margin-top: 12px;
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #fff;
+    margin-top: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* ── Sent view — list + reading pane (same as Outlook page) ─────────────── */
 .sent-triple { flex: 1; display: flex; min-width: 0; min-height: 0; }
 .sent-list-col {
-    width: 440px; min-width: 280px; max-width: 50%;
+    width: 320px;
+    min-width: 260px;
+    max-width: 38%;
     display: flex; flex-direction: column;
     border-right: 1px solid #d4d4d4; overflow: hidden; background: #fff;
 }
-.sent-reading-col { flex: 1; min-width: 260px; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+.sent-reading-col {
+    flex: 1 1 65%;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
+    min-height: 0;
+}
 .sent-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
 .sent-msg-item {
     display: flex; align-items: flex-start; gap: 12px;
@@ -293,13 +319,29 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .sent-read-actions { display: flex; gap: 8px; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
 .sent-read-actions .btn-read-act { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #d4d4d4; background: #fff; border-radius: 4px; font-size: 13px; cursor: pointer; color: #333; }
 .sent-read-actions .btn-read-act:hover { background: #f3f3f3; }
-.sent-reading-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.sent-reading-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
 .sent-read-subject { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0 0 12px; line-height: 1.3; }
 .sent-read-meta { font-size: 13px; color: #475569; margin-bottom: 16px; }
 .sent-read-meta > div { margin-bottom: 5px; }
 .sent-read-meta .ml { font-weight: 600; color: #64748b; min-width: 52px; display: inline-block; }
 .sent-read-body { font-size: 14px; line-height: 1.6; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
-.sent-read-frame { width: 100%; flex: 1; min-height: 300px; border: none; margin-top: 8px; }
+.sent-read-frame {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+    border: none;
+    margin-top: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
 
 /* (sent modal removed — reading pane replaces it) */
 .sent-email-modal .modal-header h3 { margin: 0; font-size: 16px; color: #1e293b; }
@@ -323,11 +365,27 @@ html, body { margin: 0; padding: 0; height: 100%; }
 .email-list .email-row .email-date { color: #94a3b8; font-size: 13px; flex-shrink: 0; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 1200px) { .outlook-list-col { max-width: 100%; } .outlook-reading { min-width: 0; } }
+@media (max-width: 1200px) {
+    .outlook-list-col  { max-width: 100%; }
+    .outlook-reading   { min-width: 0; }
+    .sent-list-col     { max-width: 100%; }
+    .sent-reading-col  { min-width: 0; }
+}
 @media (max-width: 900px) {
-    .outlook-triple { flex-direction: column; }
-    .outlook-list-col { width: 100% !important; max-width: none; border-right: none; border-bottom: 1px solid #e2e8f0; min-height: 40vh; }
-    .outlook-reading { min-height: 30vh; }
+    .outlook-triple,
+    .sent-triple { flex-direction: column; }
+
+    .outlook-list-col,
+    .sent-list-col {
+        width: 100% !important;
+        max-width: none !important;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        min-height: 36vh;
+        max-height: 36vh;
+    }
+    .outlook-reading,
+    .sent-reading-col { min-width: 0; min-height: 30vh; }
 }
 </style>
 @endpush
@@ -389,36 +447,6 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 </nav>
             </div>
             @endif
-
-            {{-- Webhook URL footer + Option A (real mailbox + Inbound Parse) --}}
-            @php
-                $eliteApex = ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@');
-                $inboundParseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
-            @endphp
-            <div class="elite-sidebar-foot">
-                <span class="foot-label">Inbound webhook</span>
-                <code>{{ $webhookUrl ?? url('/elite/emails') }}</code>
-                <div style="margin-top:5px;">
-                    Apex domain: <strong>{{ '@'.$eliteApex }}</strong>
-                    @if(config('crm.education_elite_inbound_secret'))
-                        &nbsp;<span style="color:#16a34a;"><i class="fas fa-lock"></i></span>
-                    @endif
-                </div>
-                <div style="margin-top:8px;font-size:11px;line-height:1.45;color:#444;">
-                    <strong>Real mailbox + CRM (Option&nbsp;A):</strong>
-                    (1) In SendGrid → Inbound Parse, use a host such as <code>{{ $inboundParseHost !== '' ? $inboundParseHost : 'parse.'.$eliteApex }}</code>
-                    with MX to SendGrid and this POST URL.
-                    (2) In Microsoft 365 / Outlook admin, on each real mailbox (e.g. <code>apply@{{ $eliteApex }}</code>), add a rule or forwarding to deliver a copy to
-                    @if($inboundParseHost !== '')
-                        <code>inbound@{{ $inboundParseHost }}</code> (or any local-part you create on that host).
-                    @else
-                        <code>anything@&lt;your-parse-host&gt;</code>. Set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> in <code>.env</code> to that host for a reminder here.
-                    @endif
-                    The CRM only lists mail SendGrid POSTs to the webhook; it does not read Outlook directly.
-                    <br><span style="color:#666;">Logs (troubleshoot): <code>storage/logs/laravel.log</code> — look for <code>elite.inbound</code> (POST received), <code>elite.inbound.parsed</code> (domain check), <code>elite.inbound.rejected</code> (422), <code>elite.inbound.secret_mismatch</code> (403), <code>elite.inbound.stored</code> (saved). Set <code>EDUCATION_ELITE_INBOUND_WEBHOOK_LOG=false</code> to reduce noise.</span>
-                    <br><strong>Replies in this inbox:</strong> set <code>EDUCATION_ELITE_INBOUND_PARSE_HOST</code> (e.g. <code>parse.{{ $eliteApex }}</code>) or <code>EDUCATION_ELITE_INBOUND_REPLY_TO</code> in <code>.env</code>. <strong>New Message</strong> then sets <strong>Reply-To</strong> to <code>inbound@&lt;parse-host&gt;</code> (or your explicit address) so when the contact replies in Outlook, SendGrid receives the reply and it appears here. Set <code>EDUCATION_ELITE_INBOUND_SET_REPLY_TO=false</code> to turn that off. Alternatively use an M365 forward of <code>info@…</code> to the parse address (Option&nbsp;A above).
-                </div>
-            </div>
         </aside>
 
         {{-- ── Main area ───────────────────────────────────────────────────── --}}
@@ -470,9 +498,15 @@ html, body { margin: 0; padding: 0; height: 100%; }
                                     <div class="elite-msg-main">
                                         <div class="elite-msg-line1">
                                             <span class="elite-msg-addr">{{ $e['from'] ?? '—' }}</span>
+                                            @if(!empty($e['has_attachments']))
+                                                <span class="elite-msg-attach" title="Has attachments"><i class="fas fa-paperclip" aria-hidden="true"></i></span>
+                                            @endif
                                             <span class="elite-msg-when">{{ $e['date'] ?? '' }}</span>
                                         </div>
                                         <div class="elite-msg-subj">{{ ($e['subject'] ?? '') !== '' ? $e['subject'] : '(No subject)' }}</div>
+                                        @if(!empty($e['snippet']))
+                                            <div class="elite-msg-snippet">{{ $e['snippet'] }}</div>
+                                        @endif
                                     </div>
                                 </li>
                             @empty
@@ -496,6 +530,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <p>Select a message to read it here.</p>
                     </div>
                     <div class="outlook-reading-content" id="eliteReadingContent" style="display:none" aria-live="polite">
+                        <div class="outlook-read-actions" id="eliteReadActions" style="display:none;">
+                            <button type="button" class="btn-read-act" id="eliteInboxBtnReply"><i class="fas fa-reply" aria-hidden="true"></i> Reply</button>
+                            <button type="button" class="btn-read-act" id="eliteInboxBtnFwd"><i class="fas fa-share" aria-hidden="true"></i> Forward</button>
+                        </div>
                         <div class="outlook-reading-scroll" id="eliteReadingScroll">
                             <div id="eliteReadTypeRow" style="display:none">
                                 <span class="outlook-read-type-label" id="eliteReadType"></span>
@@ -506,6 +544,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                                 <div><span class="email-meta-label">To:</span>   <span id="eliteReadTo"></span></div>
                                 <div><span class="email-meta-label">Date:</span> <span id="eliteReadDate"></span></div>
                             </div>
+                            <div id="eliteReadAttachments" class="elite-read-attachments" style="display:none;" aria-label="Attachments"></div>
                             <div class="outlook-read-body" id="eliteReadBody"></div>
                             <iframe id="eliteReadFrame" class="outlook-read-frame" title="HTML message" sandbox="allow-same-origin" style="display:none;"></iframe>
                         </div>
@@ -597,7 +636,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                         <div class="empty-state" id="eliteDraftEmpty">
                             <i class="fas fa-file-alt" aria-hidden="true"></i>
                             <p>No drafts</p>
-                            <span>Drafts saved on the <a href="{{ route('admin.outlook.index') }}">Outlook page</a> using an Education Elite address will appear here.</span>
+                            <span>Use <strong>New Message</strong> to compose and save drafts with an Education Elite address.</span>
                         </div>
                     </div>
                     {{-- Reading pane --}}
@@ -816,7 +855,47 @@ html, body { margin: 0; padding: 0; height: 100%; }
         s = s.replace(/\b(src|href|poster|data)\s*=\s*javascript:/gi, '$1=blocked:');
         s = s.replace(/<meta\b[^>]*http-equiv\s*=\s*["']?\s*refresh[^>]*>/gi, '');
         s = s.replace(/<\/iframe/gi, '<\\/iframe');
+        /* Let HTML mail use the full iframe width (many templates fix body/table to ~600px). */
+        var previewCss = '<style id="elite-email-preview-base">html,body{margin:0!important;padding:0!important;width:100%!important;max-width:none!important;box-sizing:border-box;}body{padding:12px!important;}table{max-width:100%!important;}img{max-width:100%!important;height:auto!important;}</style>';
+        if (/^\s*<!DOCTYPE/i.test(s) || /^\s*<html\b/i.test(s)) {
+            if (/<head[^>]*>/i.test(s)) {
+                s = s.replace(/<head[^>]*>/i, function (m) { return m + previewCss; });
+            } else {
+                s = s.replace(/<html\b[^>]*>/i, function (m) { return m + '<head>' + previewCss + '</head>'; });
+            }
+        } else {
+            s = previewCss + s;
+        }
         return s;
+    }
+
+    /**
+     * Auto-size a sandboxed iframe to its content after srcdoc loads.
+     * Called before setting srcdoc so the onload fires for the new content.
+     * Uses iframe.contentDocument from the same origin (sandboxed with allow-same-origin).
+     */
+    function autoResizeFrame(frame) {
+        frame.style.height = frame.style.minHeight || '240px';
+        function onLoaded() {
+            try {
+                var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+                if (!doc) return;
+                /* Force scrollHeight recalc by reading it after a tick */
+                setTimeout(function () {
+                    try {
+                        var h = Math.max(
+                            doc.documentElement ? doc.documentElement.scrollHeight : 0,
+                            doc.body            ? doc.body.scrollHeight            : 0
+                        );
+                        if (h > 0) frame.style.height = (h + 24) + 'px';
+                    } catch (_) {}
+                }, 0);
+            } catch (_) {}
+        }
+        /* Remove any prior listener to avoid stacking handlers */
+        frame._eliteResizeHandler && frame.removeEventListener('load', frame._eliteResizeHandler);
+        frame._eliteResizeHandler = onLoaded;
+        frame.addEventListener('load', onLoaded, { once: true });
     }
 
     function clearReading() {
@@ -824,8 +903,13 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (readingEmpty)   readingEmpty.style.display   = 'flex';
         var frame = document.getElementById('eliteReadFrame');
         var body  = document.getElementById('eliteReadBody');
-        if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; }
+        var acts  = document.getElementById('eliteReadActions');
+        if (frame) { frame.srcdoc = ''; frame.style.display = 'none'; frame.style.height = ''; }
         if (body)  { body.textContent = ''; body.style.display = ''; }
+        if (acts)  acts.style.display = 'none';
+        if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+        var attBox = document.getElementById('eliteReadAttachments');
+        if (attBox) { attBox.style.display = 'none'; attBox.innerHTML = ''; }
         if (listEl) listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
     }
 
@@ -833,6 +917,10 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (readingEmpty)   readingEmpty.style.display   = 'none';
         if (readingContent) readingContent.style.display = 'flex';
         if (readingScroll)  readingScroll.scrollTop = 0;
+
+        var acts = document.getElementById('eliteReadActions');
+        if (acts) acts.style.display = 'flex';
+
         var typeRow = document.getElementById('eliteReadTypeRow');
         var typeEl  = document.getElementById('eliteReadType');
         if (typeRow && typeEl) { typeEl.textContent = p.direction_label||''; typeRow.style.display = p.direction_label ? 'block' : 'none'; }
@@ -840,18 +928,134 @@ html, body { margin: 0; padding: 0; height: 100%; }
         document.getElementById('eliteReadFrom').textContent = p.from || '';
         document.getElementById('eliteReadTo').textContent   = p.to   || '';
         document.getElementById('eliteReadDate').textContent = p.date  || '';
-        var body  = p.body || '';
+
+        var body    = p.body || '';
         var plainEl = document.getElementById('eliteReadBody');
         var frame   = document.getElementById('eliteReadFrame');
+        var attBox  = document.getElementById('eliteReadAttachments');
+        var btnReply = document.getElementById('eliteInboxBtnReply');
+        var btnFwd   = document.getElementById('eliteInboxBtnFwd');
+
+        function openComposePrefilled(to, subject, quotedBody) {
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            /* openModal() resets form, clears attachments, loads senders, shows overlay */
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var toEl   = composeForm.querySelector('[name="to"]');
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (toEl)   toEl.value   = to;
+            if (subjEl) subjEl.value = subject;
+            if (bodyTa) bodyTa.value = quotedBody;
+            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+        }
+
+        if (attBox) {
+            var alist = p.attachments && p.attachments.length ? p.attachments : [];
+            if (alist.length) {
+                attBox.style.display = 'block';
+                attBox.innerHTML = '';
+                var h = document.createElement('div');
+                h.className = 'elite-att-head';
+                h.textContent = alist.length === 1 ? 'Attachment' : 'Attachments';
+                attBox.appendChild(h);
+                var ul = document.createElement('ul');
+                alist.forEach(function (a) {
+                    var li = document.createElement('li');
+                    var link = document.createElement('a');
+                    link.href = a.url || '#';
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = a.filename || ('File #' + (a.id || ''));
+                    li.appendChild(link);
+                    ul.appendChild(li);
+                });
+                attBox.appendChild(ul);
+            } else {
+                attBox.style.display = 'none';
+                attBox.innerHTML = '';
+            }
+        }
+
+        if (p.bodyLoadError) {
+            if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+            if (plainEl && frame) {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
+                plainEl.style.display = '';
+                plainEl.textContent = 'Could not load the message body. Please refresh and try again.';
+            }
+            var plainSnippetErr = (p.snippet || '').trim();
+            var quotedErr = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500);
+            if (btnReply) btnReply.onclick = function () {
+                var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
+                openComposePrefilled(p.from || '', subj, quotedErr);
+            };
+            if (btnFwd) btnFwd.onclick = function () {
+                var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500));
+            };
+            return;
+        }
+
+        if (p.bodyLoading) {
+            if (readingScroll) readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+            if (plainEl && frame) {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
+                plainEl.style.display = '';
+                plainEl.textContent = 'Loading message…';
+            }
+            var plainSnippetL = (p.snippet || '').trim();
+            var quotedL = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500);
+            if (btnReply) btnReply.onclick = function () {
+                var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
+                openComposePrefilled(p.from || '', subj, quotedL);
+            };
+            if (btnFwd) btnFwd.onclick = function () {
+                var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500));
+            };
+            return;
+        }
+
+        /* Remove any previous empty-body notice */
+        if (readingScroll) {
+            readingScroll.querySelectorAll('.elite-empty-body-msg').forEach(function (n) { n.parentNode.removeChild(n); });
+        }
+
         if (plainEl && frame) {
             if (looksLikeHtml(body)) {
                 plainEl.textContent = ''; plainEl.style.display = 'none';
+                autoResizeFrame(frame);
                 frame.style.display = 'block'; frame.srcdoc = safeSrcdoc(body);
-            } else {
-                frame.srcdoc = ''; frame.style.display = 'none';
+            } else if (body.trim()) {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
                 plainEl.style.display = ''; plainEl.textContent = body;
+            } else {
+                frame.srcdoc = ''; frame.style.height = ''; frame.style.display = 'none';
+                plainEl.style.display = 'none';
+                var notice = document.createElement('p');
+                notice.className = 'elite-empty-body-msg';
+                notice.textContent = p.has_attachments
+                    ? 'This email has no text body — it may contain attachments only.'
+                    : 'No text content in this message.';
+                if (readingScroll) readingScroll.appendChild(notice);
             }
         }
+
+        var plainSnippet = looksLikeHtml(body)
+            ? body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+            : body.trim();
+        var quoted = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, 500);
+
+        /* Wire Reply / Forward to compose modal */
+        if (btnReply) btnReply.onclick = function () {
+            var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
+            openComposePrefilled(p.from || '', subj, quoted);
+        };
+        if (btnFwd) btnFwd.onclick = function () {
+            var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
+            openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, 500));
+        };
     }
 
     function buildEmailRow(e) {
@@ -863,10 +1067,25 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var m = document.createElement('div'); m.className = 'elite-msg-main';
         var l1 = document.createElement('div'); l1.className = 'elite-msg-line1';
         var addr = document.createElement('span'); addr.className = 'elite-msg-addr'; addr.textContent = e.from||'—';
+        l1.appendChild(addr);
+        if (e.has_attachments) {
+            var aiBadge = document.createElement('span'); aiBadge.className = 'elite-msg-attach'; aiBadge.title = 'Has attachments';
+            var aiIc = document.createElement('i'); aiIc.className = 'fas fa-paperclip'; aiIc.setAttribute('aria-hidden','true');
+            aiBadge.appendChild(aiIc); l1.appendChild(aiBadge);
+        }
         var when = document.createElement('span'); when.className = 'elite-msg-when'; when.textContent = e.date||'';
-        l1.appendChild(addr); l1.appendChild(when); m.appendChild(l1);
+        l1.appendChild(when); m.appendChild(l1);
         var subj = document.createElement('div'); subj.className = 'elite-msg-subj'; subj.textContent = (e.subject && String(e.subject).length) ? e.subject : '(No subject)';
-        m.appendChild(subj); li.appendChild(icon); li.appendChild(m);
+        m.appendChild(subj);
+        var snippetText = e.snippet || '';
+        if (!snippetText && e.body) {
+            snippetText = (looksLikeHtml(e.body) ? e.body.replace(/<[^>]+>/g, ' ') : e.body).replace(/\s+/g, ' ').trim().slice(0, 100);
+        }
+        if (snippetText) {
+            var snEl = document.createElement('div'); snEl.className = 'elite-msg-snippet'; snEl.textContent = snippetText;
+            m.appendChild(snEl);
+        }
+        li.appendChild(icon); li.appendChild(m);
         return li;
     }
 
@@ -876,7 +1095,32 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (!p) return;
         listEl.querySelectorAll('.elite-msg-item.is-selected').forEach(function (n) { n.classList.remove('is-selected'); });
         row.classList.add('is-selected');
-        showReading({ from: p.from||'', to: p.to||'', subject: p.subject||'', date: p.date||'', body: p.body||'', direction_label: p.direction_label||'' });
+        if (p.body_fetch_url) {
+            showReading({
+                from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '',
+                body: '', bodyLoading: true, snippet: p.snippet || '',
+                direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+            });
+            fetch(p.body_fetch_url, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (res) { if (!res.ok) throw new Error('bad'); return res.json(); })
+                .then(function (data) {
+                    p.body = data.body != null ? data.body : '';
+                    initialMap[p.id] = p;
+                    showReading({
+                        from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '', body: p.body || '',
+                        direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+                    });
+                })
+                .catch(function () {
+                    showReading({
+                        from: p.from || '', to: p.to || '', subject: p.subject || '', date: p.date || '',
+                        body: '', bodyLoadError: true, snippet: p.snippet || '',
+                        direction_label: p.direction_label || '', has_attachments: p.has_attachments || false, attachments: p.attachments || []
+                    });
+                });
+            return;
+        }
+        showReading({ from: p.from||'', to: p.to||'', subject: p.subject||'', date: p.date||'', body: p.body||'', direction_label: p.direction_label||'', has_attachments: p.has_attachments||false, attachments: p.attachments || [] });
     }
 
     if (listEl) {
@@ -904,9 +1148,36 @@ html, body { margin: 0; padding: 0; height: 100%; }
     /* ── Inbox fetch (shared by button + auto-poll) ───────────────────────── */
     var autoPolling = false;
     var autoPollTimer = null;
-    var AUTO_POLL_MS = 30000; // 30 seconds
+    var AUTO_POLL_MS = 10000; // 10 seconds
+
+    /* ── Burst-poll after send: polls every 5 s for 5 minutes ───────────────
+       Uses a deadline timestamp so hidden-tab skips don't consume the budget.
+       On tab-focus, checks immediately if deadline hasn't passed.            */
+    var burstPollTimer    = null;
+    var burstDeadlineMs   = 0;          // epoch ms when burst mode expires
+    var BURST_POLL_MS     = 5000;       // check every 5 s while burst active
+    var BURST_DURATION_MS = 5 * 60000; // 5 minutes
+
+    function isBurstActive() { return Date.now() < burstDeadlineMs; }
+
+    function startBurstPoll() {
+        burstDeadlineMs = Date.now() + BURST_DURATION_MS;
+        if (burstPollTimer) clearInterval(burstPollTimer);
+        burstPollTimer = setInterval(function () {
+            if (!isBurstActive()) {
+                clearInterval(burstPollTimer);
+                burstPollTimer = null;
+                return;
+            }
+            doFetchInbox(true); // always fetch — even while tab is hidden (no DOM ops in silent mode)
+        }, BURST_POLL_MS);
+    }
+
+    var inboxFetchInFlight = false;
 
     function doFetchInbox(silent) {
+        /* Prevent overlapping concurrent fetches for silent (poll) calls */
+        if (silent && inboxFetchInFlight) return;
         var btn     = document.querySelector('.btn-fetch-inbox');
         var toolbar = document.querySelector('#folderInbox .inbox-toolbar');
         if (!toolbar) return;
@@ -921,6 +1192,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         params.push('sort=' + sort, 'account=' + encodeURIComponent(activeAccount||'all'));
 
         if (!silent && btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...'; }
+        if (silent) inboxFetchInFlight = true;
 
         apiFetch(INBOX_URL, params).then(function (data) {
             if (!silent) clearFetchError();
@@ -959,6 +1231,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
         }).catch(function () {
             if (!silent) showFetchError('Could not refresh. Check your connection and try again.');
         }).finally(function () {
+            if (silent) inboxFetchInFlight = false;
             if (!silent && btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Get Emails'; }
         });
     }
@@ -1015,9 +1288,15 @@ html, body { margin: 0; padding: 0; height: 100%; }
     doFetchInbox(false);
 
     startAutoPoll();
-    /* Resume / pause with tab visibility */
+    /* On tab focus: immediately fetch + resume burst if still in window */
     document.addEventListener('visibilitychange', function () {
-        if (document.hidden) stopAutoPoll(); else startAutoPoll();
+        if (document.hidden) {
+            stopAutoPoll();
+        } else {
+            doFetchInbox(true); // check right away when user returns to tab
+            startAutoPoll();
+            if (isBurstActive() && !burstPollTimer) startBurstPoll(); // resume burst
+        }
     });
 
     document.querySelector('.btn-fetch-inbox') && document.querySelector('.btn-fetch-inbox').addEventListener('click', function () {
@@ -1050,17 +1329,43 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var isHtml = looksLikeHtml(raw);
         if (isHtml && frameEl) {
             bodyEl.style.display = 'none';
+            autoResizeFrame(frameEl);
             frameEl.style.display = 'block';
             frameEl.srcdoc = safeSrcdoc(raw);
         } else {
-            if (frameEl) { frameEl.style.display = 'none'; frameEl.srcdoc = ''; }
+            if (frameEl) { frameEl.style.display = 'none'; frameEl.style.height = ''; frameEl.srcdoc = ''; }
             bodyEl.style.display = '';
             bodyEl.textContent = raw || '(No content)';
         }
         var btnReply = document.getElementById('eliteSentBtnReply');
         var btnFwd   = document.getElementById('eliteSentBtnFwd');
-        if (btnReply) btnReply.onclick = function() { window.location.href = '{{ route("admin.outlook.index") }}?reply_to=' + encodeURIComponent(e.from||''); };
-        if (btnFwd)   btnFwd.onclick   = function() { window.location.href = '{{ route("admin.outlook.index") }}'; };
+        var sentPlain = looksLikeHtml(raw) ? raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : raw.trim();
+        if (btnReply) btnReply.onclick = function () {
+            var subj = (e.subject && !/^re:/i.test(e.subject)) ? 'Re: ' + e.subject : (e.subject || '');
+            var body = '\n\n--- Original message ---\nFrom: ' + (e.from||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var toEl   = composeForm.querySelector('[name="to"]');
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (toEl)   toEl.value   = e.to || '';
+            if (subjEl) subjEl.value = subj;
+            if (bodyTa) bodyTa.value = body;
+            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+        };
+        if (btnFwd) btnFwd.onclick = function () {
+            var subj = (e.subject && !/^fwd:/i.test(e.subject)) ? 'Fwd: ' + e.subject : (e.subject || '');
+            var body = '\n\n--- Forwarded message ---\nFrom: ' + (e.from||'') + '\nTo: ' + (e.to||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
+            var composeForm = document.getElementById('eliteComposeForm');
+            if (!composeForm) return;
+            document.dispatchEvent(new CustomEvent('elite:openModal'));
+            var subjEl = composeForm.querySelector('[name="subject"]');
+            var bodyTa = composeForm.querySelector('[name="body"]');
+            if (subjEl) subjEl.value = subj;
+            if (bodyTa) bodyTa.value = body;
+            setTimeout(function () { var t = composeForm.querySelector('[name="to"]'); if (t) t.focus(); }, 50);
+        };
     }
 
     document.querySelector('.btn-fetch-sent') && document.querySelector('.btn-fetch-sent').addEventListener('click', function () {
@@ -1131,9 +1436,6 @@ html, body { margin: 0; padding: 0; height: 100%; }
     var draftReadContent = document.getElementById('eliteDraftReadContent');
     var draftStore       = {}; // id → draft object
 
-    var HTML_TAG_RE_D = /<([a-z][a-z0-9]*)\b[^>]*>/i;
-    function looksLikeHtmlD(s) { return typeof s === 'string' && HTML_TAG_RE_D.test(s.trim()); }
-
     function openDraftReading(d) {
         if (draftReadEmpty)   draftReadEmpty.style.display   = 'none';
         if (draftReadContent) draftReadContent.style.display = 'flex';
@@ -1148,12 +1450,13 @@ html, body { margin: 0; padding: 0; height: 100%; }
         var frameEl = document.getElementById('eliteDraftReadFrame');
         var body    = d.body || '';
 
-        if (looksLikeHtmlD(body)) {
+        if (looksLikeHtml(body)) {
             bodyEl.style.display  = 'none';
+            autoResizeFrame(frameEl);
             frameEl.style.display = 'block';
-            frameEl.srcdoc = body;
+            frameEl.srcdoc = safeSrcdoc(body);
         } else {
-            frameEl.style.display = 'none';
+            frameEl.style.display = 'none'; frameEl.style.height = ''; frameEl.srcdoc = '';
             bodyEl.style.display  = 'block';
             bodyEl.textContent    = body;
         }
@@ -1176,8 +1479,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                 if (subjEl && d.subject) subjEl.value = (d.subject === '(No subject)') ? '' : d.subject;
                 if (bodyTa && d.body)    bodyTa.value  = d.body;
                 composeOverlay.style.display = 'flex';
-                /* Load senders if not already done */
-                document.getElementById('eliteBtnCompose') && document.getElementById('eliteBtnCompose').dispatchEvent(new CustomEvent('_loadSenders'));
+                document.dispatchEvent(new CustomEvent('elite:loadSenders'));
             };
         }
 
@@ -1340,6 +1642,8 @@ html, body { margin: 0; padding: 0; height: 100%; }
         if (btnOpen)   btnOpen.addEventListener('click',   openModal);
         if (btnClose)  btnClose.addEventListener('click',  closeModal);
         if (btnCancel) btnCancel.addEventListener('click', closeModal);
+        document.addEventListener('elite:loadSenders', loadSenders);
+        document.addEventListener('elite:openModal',   openModal);
 
         /* ── Save Draft ──────────────────────────────────────────────────────── */
         if (saveDraftBtn) {
@@ -1434,6 +1738,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
                             form.reset();
                             clearAttachments();
                             if (fromSel && prevFrom) fromSel.value = prevFrom;
+                            startBurstPoll(); // poll every 5s for 3 min to catch reply quickly
                             setTimeout(closeModal, 1800);
                         } else {
                             var msg = (body && body.message) ? body.message : 'Failed to send. Please try again.';

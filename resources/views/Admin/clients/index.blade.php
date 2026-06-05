@@ -220,13 +220,9 @@
 													?>
 													<td style="white-space: initial;" title="{{ @$list->city }} {{ @$list->zip }} {{ @$list->state }}">{{ $locationDisplay }}</td>
 													<?php
-													// PostgreSQL doesn't accept empty strings for integer columns - check before querying
-													$assignee = null;
-													if(!empty(@$list->assignee) && @$list->assignee !== '') {
-														$assignee = \App\Models\Staff::find(@$list->assignee);
-													}
+													$assignee = \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue(@$list->assignee);
 													?>
-													<td style="white-space: initial;">{{ @$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...') }}</td> 
+													<td style="white-space: initial;">{{ $assignee ? (@$assignee->first_name == "" ? config('constants.empty') : str_limit(@$assignee->first_name, '50', '...')) : '-' }}</td> 
 													<td ><span class="ag-label--circular" style="color: #6777ef" >
 														In Progress
 													</span></td>

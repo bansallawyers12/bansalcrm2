@@ -79,6 +79,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | When false (Laravel 13 default), the cache store will not unserialize arbitrary
+    | PHP objects. If you intentionally cache specific objects, list their class names.
+    |
+    */
+
+    'serializable_classes' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Key Prefix
     |--------------------------------------------------------------------------
     |

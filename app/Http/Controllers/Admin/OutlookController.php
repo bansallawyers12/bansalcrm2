@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer as LaravelMailer;
@@ -21,31 +20,13 @@ class OutlookController extends Controller
     }
 
     /**
-     * Show the Outlook compose page.
-     * Fetches verified senders from SendGrid API so the From dropdown updates automatically.
-     */
-    public function index()
-    {
-        $verifiedSenders = $this->getVerifiedSenders();
-        $senderEmails = array_column($verifiedSenders, 'email');
-        $fromEmail = config('services.sendgrid.from_email')
-            ?: optional(auth('admin')->user())->email
-            ?: config('mail.from.address', 'noreply@example.com');
-
-        if (count($senderEmails) > 0 && ! $this->emailInList($fromEmail, $senderEmails)) {
-            $fromEmail = $senderEmails[0];
-        }
-
-        return view('Admin.outlook.index', compact('fromEmail', 'senderEmails', 'verifiedSenders'));
-    }
-
-    /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
+     * Compose From dropdown: @bansaleducation.com.au + admission@bansalimmigration.com.au only.
      * GET /admin/outlook/senders
      */
     public function senders(Request $request)
     {
-        $list = $this->getVerifiedSenders();
+        $list = $this->filterComposeSenders($this->getVerifiedSenders());
         $fromEmail = config('services.sendgrid.from_email', '');
         if (empty($fromEmail)) {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
@@ -165,6 +146,38 @@ class OutlookController extends Controller
     }
 
     /**
+     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
+     */
+    private function filterComposeSenders(array $senders): array
+    {
+        $filtered = array_values(array_filter($senders, function (array $sender) {
+            $email = strtolower(trim((string) ($sender['email'] ?? '')));
+            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return false;
+            }
+
+            return str_ends_with($email, '@bansaleducation.com.au')
+                || $email === 'admission@bansalimmigration.com.au';
+        }));
+
+        usort($filtered, function (array $a, array $b) {
+            $emailA = strtolower((string) ($a['email'] ?? ''));
+            $emailB = strtolower((string) ($b['email'] ?? ''));
+
+            if ($emailA === 'admission@bansalimmigration.com.au') {
+                return -1;
+            }
+            if ($emailB === 'admission@bansalimmigration.com.au') {
+                return 1;
+            }
+
+            return strcmp($emailA, $emailB);
+        });
+
+        return $filtered;
+    }
+
+    /**
      * Fallback: use SENDGRID_SENDERS from .env (comma-separated emails).
      */
     private function getFallbackSendersFromEnv(): array
@@ -234,269 +247,41 @@ class OutlookController extends Controller
     }
 
     /**
-     * Reply-To for Elite "New Message" so customer replies go to SendGrid Inbound Parse → POST /elite/emails.
-     * Uses EDUCATION_ELITE_INBOUND_REPLY_TO, or {EDUCATION_ELITE_INBOUND_REPLY_LOCAL}@{EDUCATION_ELITE_INBOUND_PARSE_HOST}.
+     * Reply-To for Elite "New Message".
+     *
+     * Since the full educationelite.com.au domain MX points to SendGrid Inbound Parse,
+     * replies to the From address (info@educationelite.com.au) are captured directly.
+     * No Reply-To subdomain is needed. Returns null unless EDUCATION_ELITE_INBOUND_PARSE_HOST
+     * is explicitly set AND is NOT a subdomain of the apex domain (future-proof for
+     * multi-domain setups). Ignores EDUCATION_ELITE_INBOUND_REPLY_TO to prevent
+     * broken subdomain addresses from being injected via env.
      */
     private function resolveEliteComposeReplyTo(): ?string
     {
-        if (! config('crm.education_elite_inbound_set_reply_to', true)) {
+        if (! config('crm.education_elite_inbound_set_reply_to', false)) {
             return null;
         }
-        $explicit = trim((string) config('crm.education_elite_inbound_reply_to', ''));
-        if ($explicit !== '' && filter_var($explicit, FILTER_VALIDATE_EMAIL)) {
-            return strtolower($explicit);
-        }
-        $parseHost = trim((string) config('crm.education_elite_inbound_parse_host', ''));
+
+        $parseHost = strtolower(trim(ltrim((string) config('crm.education_elite_inbound_parse_host', ''), '@')));
         if ($parseHost === '') {
             return null;
         }
+
+        $apexDomain = strtolower(trim(ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@')));
+
+        // If parse host is the apex or a subdomain of it, MX already covers it — no Reply-To needed.
+        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.' . $apexDomain)) {
+            return null;
+        }
+
         $local = trim((string) config('crm.education_elite_inbound_reply_local', 'inbound'));
         if ($local === '' || ! preg_match('/^[a-z0-9._%+\-]+$/i', $local)) {
             $local = 'inbound';
         }
-        $parseHost = strtolower(ltrim($parseHost, '@'));
-        $addr = $local.'@'.$parseHost;
 
-        if (! filter_var($addr, FILTER_VALIDATE_EMAIL)) {
-            return null;
-        }
+        $addr = $local . '@' . $parseHost;
 
-        return $addr;
-    }
-
-    /**
-     * Debug SendGrid API - visit /admin/outlook/debug to see what SendGrid returns.
-     */
-    public function debug(Request $request)
-    {
-        $apiKey = config('services.sendgrid.api_key');
-        $baseUrl = rtrim(config('services.sendgrid.base_url', 'https://api.sendgrid.com'), '/');
-        $debug = [
-            'api_key_set' => ! empty($apiKey),
-            'api_key_prefix' => $apiKey ? substr($apiKey, 0, 10) . '...' : null,
-            'base_url' => $baseUrl,
-            'verified_senders' => ['status' => null, 'count' => 0],
-            'senders' => ['status' => null, 'count' => 0],
-            'emails' => [],
-            'errors' => [],
-        ];
-
-        if (! $apiKey) {
-            $debug['errors'][] = 'SENDGRID_API_KEY not found in .env. Add it and run: php artisan config:clear';
-            return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
-        }
-
-        $client = Http::withToken($apiKey)->timeout(10);
-        $emails = [];
-
-        /** @var Response $res1 */
-        $res1 = $client->get("{$baseUrl}/v3/verified_senders");
-        $debug['verified_senders']['status'] = $res1->status();
-        if ($res1->successful()) {
-            $results = $res1->json('results', []);
-            $debug['verified_senders']['count'] = count($results);
-            foreach ($results as $s) {
-                if (! empty($s['from_email'])) {
-                    $emails[$s['from_email']] = true;
-                }
-            }
-        } else {
-            $debug['errors'][] = "verified_senders: HTTP {$res1->status()} - " . ($res1->json('errors.0.message') ?? $res1->body());
-        }
-
-        /** @var Response $res2 */
-        $res2 = $client->get("{$baseUrl}/v3/senders");
-        $debug['senders']['status'] = $res2->status();
-        if ($res2->successful()) {
-            $result = $res2->json('result', []);
-            $debug['senders']['count'] = count($result);
-            foreach (is_array($result) ? $result : [] as $s) {
-                $email = $s['from']['email'] ?? null;
-                if ($email) {
-                    $emails[$email] = true;
-                }
-            }
-        } else {
-            $debug['errors'][] = "senders: HTTP {$res2->status()} - " . ($res2->json('errors.0.message') ?? $res2->body());
-        }
-
-        $debug['emails'] = array_keys($emails);
-        return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * Fetch emails by folder (inbox, sent, drafts, trash).
-     * Sent folder returns all sent emails from emails table (CRM + Outlook).
-     * Supports filters: search, date_from, date_to, sort, filter_from, filter_to, has_attachments.
-     */
-    public function inbox(Request $request)
-    {
-        if (! $request->expectsJson()) {
-            return redirect()->route('admin.outlook.index');
-        }
-        $folder = $request->get('folder', 'inbox');
-        $search = trim($request->get('search', ''));
-        $dateFrom = $request->get('date_from', '');
-        $dateTo = $request->get('date_to', '');
-        $sort = $request->get('sort', 'newest');
-        $filterFrom = trim($request->get('filter_from', ''));
-        $filterTo = trim($request->get('filter_to', ''));
-        $hasAttachments = $request->boolean('has_attachments');
-
-        $messages = [
-            'inbox' => 'No emails yet. Configure SendGrid API and Inbound Parse to receive emails.',
-            'sent' => 'No sent messages found. Emails you send via this page are stored here automatically.',
-            'drafts' => 'No drafts saved.',
-            'trash' => 'Trash is empty.',
-        ];
-
-        $emails = [];
-        $sent_groups = [];
-        $filterOptions = ['from_list' => [], 'to_list' => []];
-
-        if ($folder === 'drafts') {
-            $query = OutlookDraftEmail::orderBy('updated_at', 'desc')->where('admin_id', auth('admin')->id());
-            if ($search !== '') {
-                $query->where(function ($q) use ($search) {
-                    $q->where('from_email', 'like', '%' . $search . '%')
-                        ->orWhere('to_email', 'like', '%' . $search . '%')
-                        ->orWhere('subject', 'like', '%' . $search . '%');
-                });
-            }
-            foreach ($query->get() as $draft) {
-                $emails[] = [
-                    'id' => $draft->id,
-                    'from' => $draft->from_email,
-                    'to' => $draft->to_email,
-                    'subject' => $draft->subject ?: '(No subject)',
-                    'date' => $draft->updated_at->format('d/m/Y g:i A'),
-                ];
-            }
-        } elseif ($folder === 'sent') {
-            // Sent: all mail_type=1 rows; prefer verified-sender rows but fall back to all if API is unavailable.
-            $verifiedSenders    = $this->getVerifiedSenders();
-            $verifiedForDropdown = $this->uniqueSenderEmailsForUi($verifiedSenders);
-            $verifiedLower      = $this->normalizedVerifiedSenderEmails($verifiedSenders);
-
-            $query = Email::where('mail_type', 1);
-
-            // Only apply verified-sender filter when the API actually returned addresses.
-            // When the API is down / unconfigured, fall back to showing all sent mail so
-            // users can always see what was sent.
-            if (! empty($verifiedLower)) {
-                $this->scopeSentFromVerifiedSenders($query, $verifiedLower);
-            }
-
-            if ($search !== '') {
-                $query->where(function ($q) use ($search) {
-                    $q->where('from_mail', 'like', '%' . $search . '%')
-                        ->orWhere('to_mail', 'like', '%' . $search . '%')
-                        ->orWhere('subject', 'like', '%' . $search . '%');
-                });
-            }
-            if ($dateFrom !== '') {
-                $query->whereDate('created_at', '>=', $dateFrom);
-            }
-            if ($dateTo !== '') {
-                $query->whereDate('created_at', '<=', $dateTo);
-            }
-            if ($filterFrom !== '') {
-                $query->whereRaw('LOWER(TRIM(COALESCE(from_mail, \'\'))) = ?', [strtolower(trim($filterFrom))]);
-            }
-            if ($filterTo !== '') {
-                $query->where('to_mail', $filterTo);
-            }
-            if ($hasAttachments) {
-                $query->whereHas('attachments');
-            }
-
-            $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
-            $query->orderBy('created_at', $sortDir);
-
-            $list = $query->get();
-
-            // Build per-sender unique list for the "From" filter dropdown.
-            // If API returned verified senders, use those; otherwise derive from the DB rows.
-            if (! empty($verifiedForDropdown)) {
-                $filterOptions['from_list'] = $verifiedForDropdown;
-            } else {
-                $filterOptions['from_list'] = $list->pluck('from_mail')
-                    ->filter()->unique()->values()->toArray();
-            }
-            $filterOptions['to_list'] = $list->pluck('to_mail')
-                ->filter()->unique()->values()->toArray();
-
-            foreach ($list as $sent) {
-                $emails[] = [
-                    'id'         => $sent->id,
-                    'from'       => $sent->from_mail,
-                    'to'         => $sent->to_mail,
-                    'cc'         => $sent->cc,
-                    'subject'    => $sent->subject ?: '(No subject)',
-                    'body'       => $sent->message,
-                    'date'       => $sent->created_at->format('d/m/Y g:i A'),
-                    'date_short' => $sent->created_at->format('g:i A'),
-                ];
-            }
-
-            // Group by from_mail (kept for compatibility – frontend may still use it).
-            $byFrom = [];
-            foreach ($list as $sent) {
-                $from = $sent->from_mail ?? '(unknown)';
-                if (! isset($byFrom[$from])) {
-                    $byFrom[$from] = ['from_email' => $from, 'emails' => []];
-                }
-                $byFrom[$from]['emails'][] = [
-                    'id'         => $sent->id,
-                    'to'         => $sent->to_mail,
-                    'cc'         => $sent->cc,
-                    'subject'    => $sent->subject ?: '(No subject)',
-                    'body'       => $sent->message,
-                    'date'       => $sent->created_at->format('d/m/Y g:i A'),
-                    'date_short' => $sent->created_at->format('g:i A'),
-                ];
-            }
-            $sent_groups = array_values($byFrom);
-        } elseif ($folder === 'inbox') {
-            // Inbox: same filter logic when data source exists (e.g. mail_type 0)
-            $query = Email::where('mail_type', 0);
-            if ($search !== '') {
-                $query->where(function ($q) use ($search) {
-                    $q->where('from_mail', 'like', '%' . $search . '%')
-                        ->orWhere('to_mail', 'like', '%' . $search . '%')
-                        ->orWhere('subject', 'like', '%' . $search . '%');
-                });
-            }
-            if ($dateFrom !== '') {
-                $query->whereDate('created_at', '>=', $dateFrom);
-            }
-            if ($dateTo !== '') {
-                $query->whereDate('created_at', '<=', $dateTo);
-            }
-            if ($hasAttachments) {
-                $query->whereHas('attachments');
-            }
-            $sortDir = ($sort === 'oldest') ? 'asc' : 'desc';
-            $query->orderBy('created_at', $sortDir);
-            $list = $query->get();
-            foreach ($list as $item) {
-                $emails[] = [
-                    'id' => $item->id,
-                    'from' => $item->from_mail,
-                    'to' => $item->to_mail,
-                    'subject' => $item->subject,
-                    'body' => $item->message,
-                    'date' => $item->created_at->format('d/m/Y g:i A'),
-                ];
-            }
-        }
-
-        return response()->json([
-            'emails' => $emails,
-            'sent_groups' => $sent_groups,
-            'filter_options' => $filterOptions,
-            'message' => $messages[$folder] ?? $messages['inbox'],
-        ]);
+        return filter_var($addr, FILTER_VALIDATE_EMAIL) ? $addr : null;
     }
 
     /**
@@ -585,9 +370,8 @@ class OutlookController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Email sent successfully.']);
             }
 
-            return redirect()->route('admin.outlook.index')
-                ->with('success', 'Email sent successfully.')
-                ->with('refresh_sent', true);
+            return redirect()->route('dashboard')
+                ->with('success', 'Email sent successfully.');
         } catch (\Throwable $e) {
             Log::error('Email sending error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
@@ -595,7 +379,7 @@ class OutlookController extends Controller
                 return response()->json(['ok' => false, 'message' => 'Failed to send email: ' . $e->getMessage()], 500);
             }
 
-            return redirect()->route('admin.outlook.index')
+            return redirect()->route('dashboard')
                 ->with('error', 'Failed to send email: ' . $e->getMessage())
                 ->withInput($request->only('from', 'to', 'cc', 'subject', 'body'));
         }
@@ -627,7 +411,7 @@ class OutlookController extends Controller
             return response()->json(['success' => true, 'message' => 'Draft saved.']);
         }
 
-        return redirect()->route('admin.outlook.index')
+        return redirect()->route('dashboard')
             ->with('success', 'Draft saved.');
     }
 
@@ -647,72 +431,5 @@ class OutlookController extends Controller
         }
 
         return false;
-    }
-
-    /**
-     * SendGrid API + env fallback — normalized unique emails (lowercase) for SQL filters.
-     *
-     * @param  array<int, array<string, mixed>>  $verifiedSenders
-     * @return list<string>
-     */
-    private function normalizedVerifiedSenderEmails(array $verifiedSenders): array
-    {
-        $out = [];
-        foreach ($verifiedSenders as $s) {
-            $e = isset($s['email']) ? strtolower(trim((string) $s['email'])) : '';
-            if ($e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL)) {
-                $out[$e] = $e;
-            }
-        }
-
-        return array_values($out);
-    }
-
-    /**
-     * One entry per logical sender, sorted, for filter dropdowns (preserve readable casing when possible).
-     *
-     * @param  array<int, array<string, mixed>>  $verifiedSenders
-     * @return list<string>
-     */
-    private function uniqueSenderEmailsForUi(array $verifiedSenders): array
-    {
-        $byKey = [];
-        foreach ($verifiedSenders as $s) {
-            if (empty($s['email'])) {
-                continue;
-            }
-            $raw = trim((string) $s['email']);
-            $key = strtolower($raw);
-            if ($key === '' || ! filter_var($key, FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-            if (! array_key_exists($key, $byKey)) {
-                $byKey[$key] = $raw;
-            }
-        }
-        $list = array_values($byKey);
-        sort($list);
-
-        return $list;
-    }
-
-    /**
-     * Sent folder: from_mail must match a SendGrid-verified address (lowercase compare).
-     *
-     * @param  Builder  $query
-     * @param  list<string>  $verifiedLower
-     */
-    private function scopeSentFromVerifiedSenders(Builder $query, array $verifiedLower): void
-    {
-        if ($verifiedLower === []) {
-            $query->whereRaw('1 = 0');
-
-            return;
-        }
-        $placeholders = implode(',', array_fill(0, count($verifiedLower), '?'));
-        $query->whereRaw(
-            'LOWER(TRIM(COALESCE(from_mail, \'\'))) IN ('.$placeholders.')',
-            $verifiedLower
-        );
     }
 }

@@ -9,15 +9,27 @@ class Country extends Model
 	protected $fillable = [
         'id', 'sortname', 'name', 'phonecode', 'created_at', 'updated_at'
     ];
-    
+
+    /** Attributes stored in cache (arrays only — avoids incomplete serialized Collections/Models). */
+    private static function cacheableCountryAttributes(): array
+    {
+        return ['id', 'sortname', 'name', 'phonecode'];
+    }
+
     /**
      * Get all countries with phone codes (cached for 24 hours)
      */
     public static function getAllWithPhoneCodes()
     {
-        return Cache::remember('countries_with_phonecodes', 86400, function() {
-            return self::orderBy('name')->get();
+        $rows = Cache::remember('countries_with_phonecodes_v2', 86400, function () {
+            return self::orderBy('name')
+                ->get(self::cacheableCountryAttributes())
+                ->map->only(self::cacheableCountryAttributes())
+                ->values()
+                ->all();
         });
+
+        return self::hydrate($rows);
     }
     
     /**
@@ -34,9 +46,13 @@ class Country extends Model
             return null;
         }
         
-        return Cache::remember('country_by_phonecode_' . $cleanCode, 86400, function() use ($cleanCode) {
-            return self::where('phonecode', $cleanCode)->first();
+        $row = Cache::remember('country_by_phonecode_v2_' . $cleanCode, 86400, function () use ($cleanCode) {
+            $model = self::where('phonecode', $cleanCode)->first(self::cacheableCountryAttributes());
+
+            return $model ? $model->only(self::cacheableCountryAttributes()) : null;
         });
+
+        return $row !== null ? self::hydrate([$row])->first() : null;
     }
     
     /**
@@ -92,15 +108,18 @@ class Country extends Model
     {
         $preferredCodes = config('phone.popular_countries', ['AU', 'IN', 'PK', 'NP', 'GB', 'CA']);
         
-        return Cache::remember('preferred_countries', 86400, function() use ($preferredCodes) {
-            // Get countries and maintain the order from config
-            $countries = self::whereIn('sortname', $preferredCodes)->get();
-            
-            // Sort by the order in config array
-            return $countries->sortBy(function($country) use ($preferredCodes) {
+        $rows = Cache::remember('preferred_countries_v2', 86400, function () use ($preferredCodes) {
+            $countries = self::whereIn('sortname', $preferredCodes)->get(self::cacheableCountryAttributes());
+
+            return $countries->sortBy(function ($country) use ($preferredCodes) {
                 return array_search($country->sortname, $preferredCodes);
-            })->values();
+            })
+                ->values()
+                ->map->only(self::cacheableCountryAttributes())
+                ->all();
         });
+
+        return self::hydrate($rows);
     }
     
     /**
@@ -109,12 +128,15 @@ class Country extends Model
     public static function clearCache()
     {
         Cache::forget('countries_with_phonecodes');
+        Cache::forget('countries_with_phonecodes_v2');
         Cache::forget('phonecodes_array');
         Cache::forget('preferred_countries');
-        
+        Cache::forget('preferred_countries_v2');
+
         // Clear individual country caches (you might need to clear all if many exist)
         foreach (self::pluck('phonecode') as $code) {
             Cache::forget('country_by_phonecode_' . $code);
+            Cache::forget('country_by_phonecode_v2_' . $code);
             Cache::forget('valid_phonecode_' . $code);
         }
     }

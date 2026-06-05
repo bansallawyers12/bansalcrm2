@@ -1,11 +1,12 @@
 <!-- Emails V2 Interface - Generic for Clients and Partners -->
 
 @php
-    // Cache-busting version for emails_v2 assets (bump when deploying CSS/JS changes to production)
-    $emailsV2AssetVer = 9;
+    // Cache-busting: bump when emails_v2.js changes; emails_v2.css uses mtime so it updates automatically
+    $emailsV2AssetVer = 11;
+    $emailsV2CssVer = @filemtime(public_path('css/emails_v2.css')) ?: $emailsV2AssetVer;
 @endphp
 <!-- Email V2 Styles -->
-<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2AssetVer }}">
+<link rel="stylesheet" href="{{ asset('css/emails_v2.css') }}?v={{ $emailsV2CssVer }}">
 
 @php
     // Support both $client and $fetchedData variable names

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\StaffAssigneeResolver;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -77,5 +78,13 @@ class Staff extends Authenticatable
     public function scopeActive($query)
     {
         return $query->where('status', 1);
+    }
+
+    /**
+     * @see \App\Support\StaffAssigneeResolver::firstStaffFromAssigneeValue()
+     */
+    public static function firstFromAdminsAssigneeField(mixed $value): ?self
+    {
+        return StaffAssigneeResolver::firstStaffFromAssigneeValue($value);
     }
 }

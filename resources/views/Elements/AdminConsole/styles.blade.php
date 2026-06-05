@@ -188,4 +188,23 @@
 .main-content .section-body .server-error:empty + .custom-error-msg:empty + .row {
 	margin-top: 0 !important;
 }
+
+/* Admin Console: nested items under Appointment (same sidebar as Product Type, etc.) */
+.adminconsole-sidebar .custom_nav_setting ul li.adminconsole-nav-section-title {
+	list-style: none;
+	margin: 10px 0 0;
+	padding: 10px 15px 4px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #94a3b8;
+	font-weight: 700;
+}
+.adminconsole-sidebar .custom_nav_setting ul li.adminconsole-nav-section-title span {
+	display: block;
+}
+.adminconsole-sidebar .custom_nav_setting ul li .nav-link.adminconsole-sub-link {
+	padding-left: 28px;
+	font-size: 13px;
+}
 </style>
