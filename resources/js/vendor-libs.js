@@ -16,9 +16,9 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-// Note: DataTables is loaded from CDN (see admin.blade.php) to avoid ES module issues
-// import 'datatables.net';
-// import 'datatables.net-bs5';
+// DataTables is loaded from CDN (see admin.blade.php / adminconsole.blade.php).
+// The npm packages datatables.net + datatables.net-bs5 were removed from package.json
+// because they are never imported — CDN-only is the intentional loading strategy.
 
 // Import iziToast
 import iziToast from 'izitoast';

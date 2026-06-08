@@ -20,9 +20,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 	
 	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
-	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-	<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css">
+	<script src="https://cdn.datatables.net/1.13.11/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.11/js/dataTables.bootstrap5.min.js"></script>
 	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
  	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr -->
