@@ -8,7 +8,6 @@
  * - flatpickr (date picker)
  * - DataTables (tables)
  * - iziToast (notifications)
- * - intl-tel-input (international phone input)
  * 
  * Note: select2 is loaded from CDN (see admin.blade.php) to avoid ES module issues
  */
@@ -24,8 +23,6 @@ import 'flatpickr/dist/flatpickr.min.css';
 // Import iziToast
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-
-// Note: intlTelInput plugin removed - replaced with country code select dropdowns from Country model
 
 // Expose libraries globally for legacy scripts
 window.flatpickr = flatpickr;
@@ -60,7 +57,6 @@ const waitForPlugins = () => {
                     jQuery: jQueryAvailable,
                     select2: select2Ready,
                     dataTable: dataTableReady,
-                    intlTel: intlTelReady,
                     flatpickr: flatpickrReady,
                     iziToast: iziToastReady,
                     attempts: attempts

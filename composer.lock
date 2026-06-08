@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.381.1",
+            "version": "3.384.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "405affc23ea14950c378d5ae79420302fcb467dc"
+                "reference": "8e232a5703896541a7a34691a41ece5bd6170269"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/405affc23ea14950c378d5ae79420302fcb467dc",
-                "reference": "405affc23ea14950c378d5ae79420302fcb467dc",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8e232a5703896541a7a34691a41ece5bd6170269",
+                "reference": "8e232a5703896541a7a34691a41ece5bd6170269",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.381.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.4"
             },
-            "time": "2026-05-14T18:08:28+00:00"
+            "time": "2026-06-05T18:05:57+00:00"
         },
         {
             "name": "barryvdh/laravel-dompdf",
@@ -2922,27 +2922,33 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SpartnerNL/Laravel-Excel.git",
-                "reference": "8e355315967afc9d97cb55a5a32e278a1330ee5f"
+                "reference": "a31cc13f5ef07fda91893ad3820d1e54d09cb99d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SpartnerNL/Laravel-Excel/zipball/8e355315967afc9d97cb55a5a32e278a1330ee5f",
-                "reference": "8e355315967afc9d97cb55a5a32e278a1330ee5f",
+                "url": "https://api.github.com/repos/SpartnerNL/Laravel-Excel/zipball/a31cc13f5ef07fda91893ad3820d1e54d09cb99d",
+                "reference": "a31cc13f5ef07fda91893ad3820d1e54d09cb99d",
                 "shasum": ""
             },
             "require": {
                 "composer/semver": "^3.3",
-                "ext-json": "*",
-                "illuminate/support": "^12.0||^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "php": "^8.3",
                 "phpoffice/phpspreadsheet": "^5.3",
-                "psr/simple-cache": "^1.0||^2.0||^3.0"
+                "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
             },
             "require-dev": {
+                "brianium/paratest": "^7.19 || ^8.0",
                 "driftingly/rector-laravel": "^2.3",
+                "ext-sqlite3": "*",
+                "larastan/larastan": "^3.9",
                 "laravel/pint": "^1.0",
-                "laravel/scout": "^10.0||^11.0",
-                "orchestra/testbench": "^10.0||^11.0",
+                "laravel/scout": "^10.0 || ^11.0",
+                "orchestra/testbench": "^10.0 || ^11.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1.55",
+                "phpstan/phpstan-mockery": "^2.0",
+                "phpunit/phpunit": "^12.5.3 || ^13.0.0",
                 "predis/predis": "^1.1",
                 "rector/rector": "^2.4.2"
             },
@@ -2998,7 +3004,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-07T22:21:32+00:00"
+            "time": "2026-06-01T17:23:34+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -4047,16 +4053,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "5.7.0",
+            "version": "5.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8"
+                "reference": "01964d92536edf1a3a874b9580a52824bebf6fbb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8",
-                "reference": "9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/01964d92536edf1a3a874b9580a52824bebf6fbb",
+                "reference": "01964d92536edf1a3a874b9580a52824bebf6fbb",
                 "shasum": ""
             },
             "require": {
@@ -4150,9 +4156,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.7.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.8.0"
             },
-            "time": "2026-04-20T02:42:17+00:00"
+            "time": "2026-06-07T03:51:10+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -8141,16 +8147,16 @@
         },
         {
             "name": "yajra/laravel-datatables-oracle",
-            "version": "v13.1.0",
+            "version": "v13.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/laravel-datatables.git",
-                "reference": "5f736ea398296cf3de98cc74991cbfeb98b64231"
+                "reference": "ded9345b7c00c85ce0fe0cea40e24e61c8489e10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/laravel-datatables/zipball/5f736ea398296cf3de98cc74991cbfeb98b64231",
-                "reference": "5f736ea398296cf3de98cc74991cbfeb98b64231",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables/zipball/ded9345b7c00c85ce0fe0cea40e24e61c8489e10",
+                "reference": "ded9345b7c00c85ce0fe0cea40e24e61c8489e10",
                 "shasum": ""
             },
             "require": {
@@ -8218,7 +8224,7 @@
             ],
             "support": {
                 "issues": "https://github.com/yajra/laravel-datatables/issues",
-                "source": "https://github.com/yajra/laravel-datatables/tree/v13.1.0"
+                "source": "https://github.com/yajra/laravel-datatables/tree/v13.1.2"
             },
             "funding": [
                 {
@@ -8226,7 +8232,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-15T05:46:52+00:00"
+            "time": "2026-05-19T03:34:29+00:00"
         }
     ],
     "packages-dev": [

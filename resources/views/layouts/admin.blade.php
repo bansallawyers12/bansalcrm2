@@ -305,7 +305,7 @@ i[style*="color:rgba"] {
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])
 	
- 	<!-- Load vendor libraries (flatpickr, izitoast, intl-tel-input) -->
+ 	<!-- Load vendor libraries (flatpickr, izitoast) -->
  	<!-- Note: select2 and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
 	

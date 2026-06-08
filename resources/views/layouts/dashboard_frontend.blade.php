@@ -28,7 +28,7 @@
 	<!-- Load jQuery FIRST as separate entry (synchronous) -->
 	@vite(['resources/js/jquery-init.js'])
 	
-	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast, intl-tel-input) -->
+	<!-- Load vendor libraries (flatpickr, select2, datatables, izitoast) -->
 	@vite(['resources/js/vendor-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc (async) -->

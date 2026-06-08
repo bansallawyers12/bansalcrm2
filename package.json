@@ -30,7 +30,6 @@
         "datatables.net-bs5": "^1.13.7",
         "feather-icons": "^4.29.0",
         "flatpickr": "^4.6.13",
-        "intl-tel-input": "^24.1.0",
         "izitoast": "^1.4.0",
         "jquery.nicescroll": "^3.7.6",
         "select2": "^4.0.13"

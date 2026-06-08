@@ -19,7 +19,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The ISO 2-letter country code for default country (lowercase)
-    | Used for intlTelInput initialization
+    |
     |
     */
     'default_country' => env('DEFAULT_COUNTRY', 'au'),
