@@ -16,6 +16,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                // Bootstrap 5 SCSS still uses legacy @import and global builtins.
+                // Silence until Bootstrap migrates; keeps custom _variables.scss overrides working.
+                silenceDeprecations: ['import', 'if-function', 'global-builtin', 'color-functions'],
+            },
+        },
+    },
     resolve: {
         alias: {
             '@': '/resources/js',
