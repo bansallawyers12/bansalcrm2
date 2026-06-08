@@ -9,7 +9,6 @@
         "aws/aws-sdk-php": "^3.319",
         "barryvdh/laravel-dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.9",
-        "hfig/mapi": "^1.4",
         "kyslik/column-sortable": "^8.0",
         "laravel/framework": "^13.0",
         "laravel/helpers": "*",

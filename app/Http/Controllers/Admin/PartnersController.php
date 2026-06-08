@@ -20,14 +20,7 @@ use Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
-
-use Hfig\MAPI;
-use Hfig\MAPI\OLE\Pear;
-use Hfig\MAPI\Message\Msg;
-use Hfig\MAPI\MapiMessageFactory;
-
-use DateTime;
-use DateTimeZone;
+use App\Services\PythonEmailParserService;
 use App\Models\ActivitiesLog;
 use App\Models\PartnerEmail;
 use App\Models\PartnerPhone;
@@ -40,8 +33,9 @@ class PartnersController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct(
+        protected PythonEmailParserService $emailParser
+    ) {
         $this->middleware('auth:admin');
     }
 	/**
@@ -2389,278 +2383,143 @@ class PartnersController extends Controller
 
 
     //Partner upload inbox email
-    public function uploadpartnerfetchmail(Request $request){ //dd($request->all());
-        $request->validate([
-            'email_file' => 'required|array', // Ensure the field is an array
-            'email_file.*' => 'required|mimes:msg|max:20480', // Validate each file (20MB max per file)
-        ]);
-        $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
-        if(!empty($partner_info)){
-            $partner_unique_id = $partner_info->email;
-        } else {
-            $partner_unique_id = "";
-        }
-        $doc_type = 'partner_email_fetch';
-        if ($request->hasfile('email_file')) {
-            if(!is_array($request->file('email_file'))){
-                $files[] = $request->file('email_file');
-            }else{
-                $files = $request->file('email_file');
-            } //dd(print_r($files));
-            foreach ($files as $file) {
-                $size = $file->getSize();
-              
-                $fileName = $file->getClientOriginalName();
-                //$fileName = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
-                //$explodeFileName = explode('.', $fileName);
-              
-                $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-                $fileExtension = $file->getClientOriginalExtension();
-              
-                $name = time() . $file->getClientOriginalName();
-                //$name = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
-              
-                $filePath = $partner_unique_id.'/'.$doc_type.'/inbox/'.$name;
-                Storage::disk('s3')->put($filePath, file_get_contents($file));
-                //$exploadename = explode('.', $name);
-
-                //save uploaded image at aws server
-                $obj = new \App\Models\Document;
-                $obj->file_name = $fileName;
-                $obj->filetype = $fileExtension;
-                $obj->user_id = Auth::user()->id;
-                //$obj->myfile = $name;
-
-                // Get the full URL of the uploaded file
-                $fileUrl = Storage::disk('s3')->url($filePath);
-                $obj->myfile = $fileUrl;
-                $obj->myfile_key = $name;
-
-                $obj->client_id = $request->partner_id;
-                $obj->type = $request->type;
-                $obj->mail_type = "inbox";
-                $obj->file_size = $size;
-                $obj->doc_type = $doc_type;
-                $saved = $obj->save();
-                if($saved) {
-                    $lastInsertedDocId = $obj->id;
-                    //Fetch Email content and save it to mail report
-                    $fileUploadedPath = $file->getPathname();
-                    $messageFactory = new MAPI\MapiMessageFactory();
-                    $documentFactory = new Pear\DocumentFactory();
-                    $ole = $documentFactory->createFromFile($fileUploadedPath);
-                    $message = $messageFactory->parseMessage($ole);  //dd($message);
-
-                    $mail_subject = $message->properties['subject'];
-                    $mail_sender = $message->getSender();
-                    $mail_body = $message->getBody();
-                    $mail_to = array();
-                    foreach ($message->getRecipients() as $recipient) {
-                        $mail_to[] = (string)$recipient;
-                    }
-                    $mail_to_arr = implode(",",$mail_to);
-
-                    //Get mail Sent time
-                    /*$sentTime = $message->getSendTime(); //dd($sentTime);
-                    if ($sentTime instanceof DateTime) {
-                        //$sentTime->modify('+5 hours 30 minutes');
-                        $sentTime->modify('+11 hours');
-                        $formattedSentTime = $sentTime->format('d/m/Y h:i a');
-                        if($formattedSentTime){
-                            $sentTimeFinal = $formattedSentTime;
-                        } else {
-                            $sentTimeFinal = "";
-                        }
-                    } else {
-                        $sentTimeFinal = "";
-                    }*/
-                  
-                    // Get mail Sent time
-                    $sentTime = $message->getSendTime();
-                    if ($sentTime instanceof DateTime) {
-                        // Set the source timezone (assuming the email's sent time is in UTC)
-                        $sentTime->setTimezone(new DateTimeZone('UTC'));
-                        
-                        // Convert to Australian Eastern Time (AEST/AEDT)
-                        $australiaTimezone = new DateTimeZone('Australia/Sydney');
-                        $sentTime->setTimezone($australiaTimezone);
-                        
-                        // Format the time
-                        $formattedSentTime = $sentTime->format('d/m/Y h:i a');
-                        $sentTimeFinal = $formattedSentTime;
-                    } else {
-                        $sentTimeFinal = "";
-                    }
-
-                    $obj1				=  new \App\Models\Email;
-                    $obj1->user_id		=  Auth::user()->id;
-                    $obj1->from_mail 	=  $mail_sender;
-                    $obj1->to_mail 		=  $mail_to_arr;
-                    $obj1->subject		=  $mail_subject;
-                    $obj1->message		=  $mail_body;
-                    $obj1->mail_type	=  1;
-                    $obj1->client_id	=  $request->partner_id;
-                    $obj1->conversion_type = $doc_type;
-                    $obj1->mail_body_type	=  "inbox";
-                    $obj1->uploaded_doc_id =  $lastInsertedDocId;
-                    $obj1->fetch_mail_sent_time = $sentTimeFinal;
-                    $obj1->type = $request->type;
-                    $saved1 = $obj1->save();
-                    if ($saved1) {
-                        $response['status'] 	= 	true;
-                        $response['message']	=	'Partner inbox email uploaded successfully.';
-                    } else {
-                        $response['status'] 	= 	false;
-                        $response['message']	=	'No inbox email uploaded.Please try again';
-                    }
-                } else {
-                    $response['status'] 	= 	false;
-                    $response['message']	=	'No inbox email uploaded.Please try again';
-                }
-            } //end foreach
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'No inbox email uploaded.Please try again';
-        }
-        echo json_encode($response);
+    public function uploadpartnerfetchmail(Request $request)
+    {
+        $this->processPartnerMsgUpload(
+            $request,
+            'inbox',
+            'Partner inbox email uploaded successfully.',
+            'No inbox email uploaded.Please try again'
+        );
     }
 
     //Partner upload sent email
-    public function uploadpartnersentfetchmail(Request $request){ //dd($request->all());
+    public function uploadpartnersentfetchmail(Request $request)
+    {
+        $this->processPartnerMsgUpload(
+            $request,
+            'sent',
+            'Partner sent email uploaded successfully.',
+            'No sent email uploaded.Please try again'
+        );
+    }
+
+    /**
+     * Parse, store, and record partner inbox/sent .msg uploads.
+     */
+    private function processPartnerMsgUpload(Request $request, string $mailType, string $successMessage, string $failureMessage): void
+    {
         $request->validate([
-            'email_file' => 'required|array', // Ensure the field is an array
-            'email_file.*' => 'required|mimes:msg|max:20480', // Validate each file (20MB max per file)
+            'email_file' => 'required|array',
+            'email_file.*' => 'required|mimes:msg|max:20480',
         ]);
-        $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first(); //dd($partner_info);
-        if(!empty($partner_info)){
-            $partner_unique_id = $partner_info->email;
-        } else {
-            $partner_unique_id = "";
+
+        $response = [
+            'status' => false,
+            'message' => $failureMessage,
+        ];
+
+        $partnerInfo = Partner::select('id', 'partner_name', 'email')->where('id', $request->partner_id)->first();
+        $partnerUniqueId = !empty($partnerInfo) ? $partnerInfo->email : '';
+        $docType = 'partner_email_fetch';
+
+        if (!$request->hasfile('email_file')) {
+            echo json_encode($response);
+            return;
         }
-        $doc_type = 'partner_email_fetch';
-        if ($request->hasfile('email_file')) {
-            if(!is_array($request->file('email_file'))){
-                $files[] = $request->file('email_file');
-            }else{
-                $files = $request->file('email_file');
-            } //dd(print_r($files));
-            foreach ($files as $file) {
-                //$file = $request->file('email_file');
-                $size = $file->getSize();
-              
-                $fileName = $file->getClientOriginalName();
-                //$fileName = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
-              
-                $nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-                $fileExtension = $file->getClientOriginalExtension();
-              
-                //$fileName = $file->getClientOriginalName();
-                //$explodeFileName = explode('.', $fileName);
-                $name = time() . $file->getClientOriginalName();
-                $filePath = $partner_unique_id.'/'.$doc_type.'/sent/'.$name;
-                Storage::disk('s3')->put($filePath, file_get_contents($file));
-                //$exploadename = explode('.', $name);
 
-                //save uploaded image at aws server
-                $obj = new \App\Models\Document;
-                $obj->file_name = $fileName;
-                $obj->filetype = $fileExtension;
-                $obj->user_id = Auth::user()->id;
-                //$obj->myfile = $name;
-                // Get the full URL of the uploaded file
-                $fileUrl = Storage::disk('s3')->url($filePath);
-                $obj->myfile = $fileUrl;
-                $obj->myfile_key = $name;
-
-                $obj->client_id = $request->partner_id;
-                $obj->type = $request->type;
-                $obj->mail_type = "sent";
-                $obj->file_size = $size;
-                $obj->doc_type = $doc_type;
-                $saved = $obj->save();
-                if($saved){
-                    $lastInsertedDocId = $obj->id;
-                    //Fetch Email content and save it to mail report
-                    $fileUploadedPath = $file->getPathname();
-                    $messageFactory = new MAPI\MapiMessageFactory();
-                    $documentFactory = new Pear\DocumentFactory();
-                    $ole = $documentFactory->createFromFile($fileUploadedPath);
-                    $message = $messageFactory->parseMessage($ole);
-
-                    $mail_subject = $message->properties['subject'];
-                    $mail_sender = $message->getSender();
-                    $mail_body = $message->getBody();
-                    $mail_to = array();
-                    foreach ($message->getRecipients() as $recipient) {
-                        $mail_to[] = (string)$recipient;
-                    }
-                    $mail_to_arr = implode(",",$mail_to);
-
-                    //Get mail Sent time
-                    /*$sentTime = $message->getSendTime();
-                    if ($sentTime instanceof DateTime) {
-                        //$sentTime->modify('+5 hours 30 minutes');
-                        $sentTime->modify('+11 hours');
-                        $formattedSentTime = $sentTime->format('d/m/Y h:i a');
-                        if($formattedSentTime){
-                            $sentTimeFinal = $formattedSentTime;
-                        } else {
-                            $sentTimeFinal = "";
-                        }
-                    } else {
-                        $sentTimeFinal = "";
-                    }*/
-                  
-                    // Get mail Sent time
-                    $sentTime = $message->getSendTime();
-                    if ($sentTime instanceof DateTime) {
-                        // Set the source timezone (assuming the email's sent time is in UTC)
-                        $sentTime->setTimezone(new DateTimeZone('UTC'));
-                        
-                        // Convert to Australian Eastern Time (AEST/AEDT)
-                        $australiaTimezone = new DateTimeZone('Australia/Sydney');
-                        $sentTime->setTimezone($australiaTimezone);
-                        
-                        // Format the time
-                        $formattedSentTime = $sentTime->format('d/m/Y h:i a');
-                        $sentTimeFinal = $formattedSentTime;
-                    } else {
-                        $sentTimeFinal = "";
-                    }
-
-                    $obj1				=  new \App\Models\Email;
-                    $obj1->user_id		=  Auth::user()->id;
-                    $obj1->from_mail 	=  $mail_sender;
-                    $obj1->to_mail 		=  $mail_to_arr;
-                    $obj1->subject		=  $mail_subject;
-                    $obj1->message		=  $mail_body;
-                    $obj1->mail_type	=  1;
-                    $obj1->client_id	=  $request->partner_id;
-                    $obj1->conversion_type = $doc_type;
-                    $obj1->mail_body_type	=  "sent";
-                    $obj1->uploaded_doc_id =  $lastInsertedDocId;
-                    $obj1->fetch_mail_sent_time = $sentTimeFinal;
-                    $obj1->type = $request->type;
-                    $saved1	=	$obj1->save();
-                    if ($saved1) {
-                        $response['status'] 	= 	true;
-                        $response['message']	=	'Partner sent email uploaded successfully.';
-                    } else {
-                        $response['status'] 	= 	false;
-                        $response['message']	=	'No sent email uploaded.Please try again';
-                    }
-                    //return redirect()->back()->with('success', 'Sent email uploaded successfully');
-                } else {
-                    $response['status'] 	= 	false;
-                    $response['message']	=	'No sent email uploaded.Please try again';
-                    //return redirect()->back()->with('error', Config::get('constants.server_error'));
-                }
-            } //end foreach
-        } else {
-            $response['status'] 	= 	false;
-            $response['message']	=	'No sent email uploaded.Please try again';
+        $files = $request->file('email_file');
+        if (!is_array($files)) {
+            $files = [$files];
         }
+
+        foreach ($files as $file) {
+            $parsedData = $this->emailParser->parseUploadedMsgFile($file);
+            if ($this->partnerMsgParseFailed($parsedData)) {
+                $response['status'] = false;
+                $response['message'] = $parsedData['error'] ?? 'Failed to parse email file.';
+                continue;
+            }
+
+            $emailFields = $this->partnerEmailFieldsFromParsedData($parsedData);
+            $fileName = $file->getClientOriginalName();
+            $fileExtension = $file->getClientOriginalExtension();
+            $name = time() . $fileName;
+            $filePath = $partnerUniqueId . '/' . $docType . '/' . $mailType . '/' . $name;
+
+            $fileContents = file_get_contents($file->getPathname());
+            if ($fileContents === false) {
+                $response['status'] = false;
+                $response['message'] = 'Failed to read email file.';
+                continue;
+            }
+
+            Storage::disk('s3')->put($filePath, $fileContents);
+            $fileUrl = Storage::disk('s3')->url($filePath);
+
+            $document = new \App\Models\Document;
+            $document->file_name = $fileName;
+            $document->filetype = $fileExtension;
+            $document->user_id = Auth::user()->id;
+            $document->myfile = $fileUrl;
+            $document->myfile_key = $name;
+            $document->client_id = $request->partner_id;
+            $document->type = $request->type;
+            $document->mail_type = $mailType;
+            $document->file_size = $file->getSize();
+            $document->doc_type = $docType;
+
+            if (!$document->save()) {
+                $response['status'] = false;
+                $response['message'] = $failureMessage;
+                continue;
+            }
+
+            $email = new \App\Models\Email;
+            $email->user_id = Auth::user()->id;
+            $email->from_mail = $emailFields['from_mail'];
+            $email->to_mail = $emailFields['to_mail'];
+            $email->subject = $emailFields['subject'];
+            $email->message = $emailFields['message'];
+            $email->mail_type = 1;
+            $email->client_id = $request->partner_id;
+            $email->conversion_type = $docType;
+            $email->mail_body_type = $mailType;
+            $email->uploaded_doc_id = $document->id;
+            $email->fetch_mail_sent_time = $emailFields['fetch_mail_sent_time'];
+            $email->type = $request->type;
+
+            if ($email->save()) {
+                $response['status'] = true;
+                $response['message'] = $successMessage;
+            } else {
+                $response['status'] = false;
+                $response['message'] = $failureMessage;
+            }
+        }
+
         echo json_encode($response);
+    }
+
+    private function partnerMsgParseFailed(array $parsedData): bool
+    {
+        return isset($parsedData['error']) || (isset($parsedData['success']) && $parsedData['success'] === false);
+    }
+
+    /**
+     * Map Python parser output to partner email record fields.
+     */
+    private function partnerEmailFieldsFromParsedData(array $parsedData): array
+    {
+        return [
+            'subject' => $parsedData['subject'] ?? '',
+            'from_mail' => $parsedData['sender_email'] ?? '',
+            'message' => $parsedData['html_content'] ?? $parsedData['text_content'] ?? '',
+            'to_mail' => isset($parsedData['recipients']) && is_array($parsedData['recipients'])
+                ? implode(',', $parsedData['recipients'])
+                : '',
+            'fetch_mail_sent_time' => $this->emailParser->formatFetchMailSentTime($parsedData),
+        ];
     }
    
     
