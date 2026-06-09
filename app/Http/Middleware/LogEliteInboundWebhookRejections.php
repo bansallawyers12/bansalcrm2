@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
- * Logs 403 / 413 (and diagnostic context) for POST /elite/emails.
+ * Logs 403 / 413 (and diagnostic context) for POST /emails/elite (and legacy /elite/emails).
  *
  * abort(403) throws before a normal response is returned; wrapping $next in try/catch
  * ensures rejections still reach storage/logs.
@@ -24,7 +24,7 @@ class LogEliteInboundWebhookRejections
         try {
             $response = $next($request);
         } catch (HttpExceptionInterface $e) {
-            if ($request->isMethod('POST') && $request->is('elite/emails')) {
+            if ($this->isEliteInboundWebhook($request)) {
                 $code = $e->getStatusCode();
                 if ($code === 403) {
                     $this->logForbidden($request, $e->getMessage() ?: 'Forbidden', 'http_exception');
@@ -35,7 +35,7 @@ class LogEliteInboundWebhookRejections
             throw $e;
         }
 
-        if ($request->isMethod('POST') && $request->is('elite/emails')) {
+        if ($this->isEliteInboundWebhook($request)) {
             $status = $response->getStatusCode();
             if ($status === 403) {
                 $this->logForbidden($request, $this->reasonFromResponse($response), 'response');
@@ -45,6 +45,11 @@ class LogEliteInboundWebhookRejections
         }
 
         return $response;
+    }
+
+    private function isEliteInboundWebhook(Request $request): bool
+    {
+        return $request->isMethod('POST') && ($request->is('emails/elite') || $request->is('elite/emails'));
     }
 
     /**

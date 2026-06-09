@@ -51,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->preventRequestForgery(except: [
             'api/*',
             'webhooks/sms/*',
+            'emails/elite',
             'elite/emails',
             'update_visit_purpose',
             'update_visit_comment',
@@ -84,7 +85,7 @@ return Application::configure(basePath: dirname(__DIR__))
             } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
                 $is413 = $e->getStatusCode() === 413;
             }
-            if (! $is413 || ! $request->is('elite/emails') || ! $request->isMethod('POST')) {
+            if (! $is413 || ! $request->isMethod('POST') || ! ($request->is('emails/elite') || $request->is('elite/emails'))) {
                 return null;
             }
 

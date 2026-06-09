@@ -764,7 +764,7 @@ class EliteEmailController extends Controller
 
     private function inboundWebhookUrl(): string
     {
-        $url = url('/elite/emails');
+        $url = route('elite.emails.store', [], true);
         $secret = (string) config('crm.education_elite_inbound_secret', '');
         if ($secret !== '') {
             $url .= '?secret='.urlencode($secret);
