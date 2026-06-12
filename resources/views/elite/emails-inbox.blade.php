@@ -1731,6 +1731,12 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                     body: fd
                 }).then(function (res) {
                     return res.json().catch(function () { return { ok: res.ok }; }).then(function (body) {
+                        if (res.status === 401 || res.status === 419) {
+                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
+                            alertBar.textContent = 'Your session expired. Reloading so you can sign in again…';
+                            setTimeout(function () { window.location.reload(); }, 1500);
+                            return;
+                        }
                         if (res.ok && body.ok !== false) {
                             alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;';
                             alertBar.textContent = body.message || 'Email sent successfully.';
@@ -1741,7 +1747,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                             startBurstPoll(); // poll every 5s for 3 min to catch reply quickly
                             setTimeout(closeModal, 1800);
                         } else {
-                            var msg = (body && body.message) ? body.message : 'Failed to send. Please try again.';
+                            var msg = (body && (body.message || body.error)) ? (body.message || body.error) : 'Failed to send. Please try again.';
                             alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
                             alertBar.textContent = msg;
                         }
