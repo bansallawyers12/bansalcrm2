@@ -5,24 +5,26 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
+use App\Services\SesEmailDeliveryService;
+use App\Services\SesSenderService;
 use App\Support\EducationEliteMail;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer as LaravelMailer;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OutlookController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private SesSenderService $sesSenderService,
+        private SesEmailDeliveryService $deliveryService
+    ) {
         $this->middleware('auth:admin');
     }
 
     /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
-     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (SendGrid).
+     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (AWS SES).
      * Elite compose (?elite=1): @educationelite.com.au addresses (AWS SES).
      * GET /admin/outlook/senders
      */
@@ -48,9 +50,9 @@ class OutlookController extends Controller
             ]);
         }
 
-        $list = $this->filterComposeSenders($this->getVerifiedSenders());
-        $fromEmail = config('services.sendgrid.from_email', '');
-        if (empty($fromEmail)) {
+        $list = $this->sesSenderService->getCrmSenders();
+        $fromEmail = (string) config('services.ses_crm.from_email', '');
+        if ($fromEmail === '') {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
         }
         $emails = array_column($list, 'email');
@@ -62,165 +64,6 @@ class OutlookController extends Controller
             'senders' => $list,
             'default_from' => $fromEmail,
         ]);
-    }
-
-    /**
-     * Fetch verified senders from SendGrid API.
-     * Automatically shows new emails added in SendGrid when you refresh the page.
-     */
-    private function getVerifiedSenders(): array
-    {
-        $apiKey = config('services.sendgrid.api_key');
-        $baseUrl = rtrim(config('services.sendgrid.base_url', 'https://api.sendgrid.com'), '/');
-
-        $senders = [];
-
-        if (empty($apiKey)) {
-            Log::warning('Outlook: SENDGRID_API_KEY not set in .env');
-            return $this->getFallbackSendersFromEnv();
-        }
-
-        try {
-            // Method 1: Try verified_senders endpoint
-            /** @var Response $response */
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-            ])->timeout(10)->get($baseUrl . '/v3/verified_senders');
-
-            Log::info('SendGrid API Response Status: ' . $response->status());
-            Log::info('SendGrid API Response Body: ' . $response->body());
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                if (isset($data['results'])) {
-                    foreach ($data['results'] as $sender) {
-                        if (! empty($sender['from_email']) && (isset($sender['verified']) ? $sender['verified'] : true)) {
-                            $senders[] = [
-                                'email' => $sender['from_email'],
-                                'name' => $sender['from_name'] ?? $sender['nickname'] ?? $sender['from_email'],
-                                'nickname' => $sender['nickname'] ?? '',
-                            ];
-                        }
-                    }
-                }
-            }
-
-            // Method 2: If no results, try senders endpoint
-            if (empty($senders)) {
-                /** @var Response $response2 */
-                $response2 = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                ])->timeout(10)->get($baseUrl . '/v3/senders');
-
-                if ($response2->successful()) {
-                    $data2 = $response2->json();
-                    $result = $data2['result'] ?? (is_array($data2) ? $data2 : []);
-
-                    foreach (is_array($result) ? $result : [] as $sender) {
-                        $email = $sender['from']['email'] ?? $sender['email'] ?? null;
-                        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $senders[] = [
-                                'email' => $email,
-                                'name' => $sender['from']['name'] ?? $sender['nickname'] ?? $email,
-                                'nickname' => $sender['nickname'] ?? '',
-                            ];
-                        }
-                    }
-                }
-            }
-
-            // Method 3: Try EU endpoint if still empty
-            if (empty($senders) && strpos($baseUrl, 'api.sendgrid.com') !== false) {
-                /** @var Response $responseEu */
-                $responseEu = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                ])->timeout(10)->get('https://api.eu.sendgrid.com/v3/verified_senders');
-
-                if ($responseEu->successful()) {
-                    $data = $responseEu->json();
-                    if (isset($data['results'])) {
-                        foreach ($data['results'] as $sender) {
-                            if (! empty($sender['from_email']) && (isset($sender['verified']) ? $sender['verified'] : true)) {
-                                $senders[] = [
-                                    'email' => $sender['from_email'],
-                                    'name' => $sender['from_name'] ?? $sender['nickname'] ?? $sender['from_email'],
-                                    'nickname' => $sender['nickname'] ?? '',
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('SendGrid API Error: ' . $e->getMessage());
-        }
-
-        // Remove duplicates by email
-        $senders = collect($senders)->unique('email')->values()->toArray();
-
-        // If still empty, use fallback from .env
-        if (empty($senders)) {
-            Log::warning('No verified senders found from API, using fallback');
-            return $this->getFallbackSendersFromEnv();
-        }
-
-        return $senders;
-    }
-
-    /**
-     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
-     */
-    private function filterComposeSenders(array $senders): array
-    {
-        $filtered = array_values(array_filter($senders, function (array $sender) {
-            $email = strtolower(trim((string) ($sender['email'] ?? '')));
-            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return false;
-            }
-
-            return str_ends_with($email, '@bansaleducation.com.au')
-                || $email === 'admission@bansalimmigration.com.au';
-        }));
-
-        usort($filtered, function (array $a, array $b) {
-            $emailA = strtolower((string) ($a['email'] ?? ''));
-            $emailB = strtolower((string) ($b['email'] ?? ''));
-
-            if ($emailA === 'admission@bansalimmigration.com.au') {
-                return -1;
-            }
-            if ($emailB === 'admission@bansalimmigration.com.au') {
-                return 1;
-            }
-
-            return strcmp($emailA, $emailB);
-        });
-
-        return $filtered;
-    }
-
-    /**
-     * Fallback: use SENDGRID_SENDERS from .env (comma-separated emails).
-     */
-    private function getFallbackSendersFromEnv(): array
-    {
-        $fallbackSenders = config('services.sendgrid.senders');
-        if (empty($fallbackSenders) || ! is_string($fallbackSenders)) {
-            return [];
-        }
-        $emails = array_filter(array_map('trim', explode(',', $fallbackSenders)));
-        $list = [];
-        foreach ($emails as $email) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $list[] = [
-                    'email' => $email,
-                    'name' => $email,
-                    'nickname' => '',
-                ];
-            }
-        }
-        return $list;
     }
 
     /**
@@ -241,7 +84,6 @@ class OutlookController extends Controller
         $displayName = (string) config('crm.education_elite_from_name', 'Education Elite');
         $emails = array_filter(array_map('trim', explode(',', $raw)));
 
-        // Always include the configured default From address in the dropdown.
         if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
             array_unshift($emails, $defaultFrom);
         }
@@ -265,42 +107,28 @@ class OutlookController extends Controller
         return array_values($list);
     }
 
-    private function isSesEliteConfigured(): bool
-    {
-        $key = config('services.ses.key');
-        $secret = config('services.ses.secret');
-
-        return ! empty($key) && ! empty($secret);
-    }
-
     /**
-     * Mailer for Outlook send: Elite compose uses AWS SES when configured.
+     * Mailer for Outlook send: Elite compose uses ses_elite, CRM uses ses.
      */
     private function mailerNameForOutlookSend(Request $request): string
     {
-        if (! $request->boolean('_elite_compose')) {
-            return 'sendgrid_outlook';
-        }
+        if ($request->boolean('_elite_compose')) {
+            if (! $this->sesSenderService->isConfigured()) {
+                Log::error('Outlook: SES credentials missing for Elite compose');
 
-        $preferred = (string) config('crm.education_elite_mailer', 'ses_elite');
+                throw new \RuntimeException('AWS SES is not configured.');
+            }
 
-        if ($preferred === 'sendgrid_elite' && ! empty(config('services.sendgrid_elite.api_key'))) {
-            return 'sendgrid_elite';
-        }
-
-        if ($this->isSesEliteConfigured()) {
             return 'ses_elite';
         }
 
-        if (! empty(config('services.sendgrid_elite.api_key'))) {
-            Log::warning('Outlook: SES credentials missing for Elite compose; falling back to sendgrid_elite');
+        if (! $this->sesSenderService->isConfigured()) {
+            Log::error('Outlook: SES credentials missing for CRM compose');
 
-            return 'sendgrid_elite';
+            throw new \RuntimeException('AWS SES is not configured.');
         }
 
-        Log::warning('Outlook: neither SES nor sendgrid_elite configured for Elite compose; using sendgrid_outlook');
-
-        return 'sendgrid_outlook';
+        return 'ses';
     }
 
     /**
@@ -312,7 +140,7 @@ class OutlookController extends Controller
     }
 
     /**
-     * Display name for From, matching SendGrid verified sender (better DMARC alignment / reputation).
+     * Display name for From, matching verified sender list.
      */
     private function displayNameForFrom(string $fromEmail, array $verifiedSenders): string
     {
@@ -347,13 +175,6 @@ class OutlookController extends Controller
 
     /**
      * Reply-To for Elite "New Message".
-     *
-     * Since the full educationelite.com.au domain MX points to SendGrid Inbound Parse,
-     * replies to the From address (info@educationelite.com.au) are captured directly.
-     * No Reply-To subdomain is needed. Returns null unless EDUCATION_ELITE_INBOUND_PARSE_HOST
-     * is explicitly set AND is NOT a subdomain of the apex domain (future-proof for
-     * multi-domain setups). Ignores EDUCATION_ELITE_INBOUND_REPLY_TO to prevent
-     * broken subdomain addresses from being injected via env.
      */
     private function resolveEliteComposeReplyTo(): ?string
     {
@@ -368,8 +189,7 @@ class OutlookController extends Controller
 
         $apexDomain = strtolower(trim(ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@')));
 
-        // If parse host is the apex or a subdomain of it, MX already covers it — no Reply-To needed.
-        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.' . $apexDomain)) {
+        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.'.$apexDomain)) {
             return null;
         }
 
@@ -378,13 +198,13 @@ class OutlookController extends Controller
             $local = 'inbound';
         }
 
-        $addr = $local . '@' . $parseHost;
+        $addr = $local.'@'.$parseHost;
 
         return filter_var($addr, FILTER_VALIDATE_EMAIL) ? $addr : null;
     }
 
     /**
-     * Send email via SendGrid (CRM/Outlook) or AWS SES (Education Elite compose).
+     * Send email via AWS SES (CRM and Education Elite compose).
      * Form fields: from, to, cc, subject, body; supports attachments.
      */
     public function send(Request $request)
@@ -430,7 +250,7 @@ class OutlookController extends Controller
 
         $verifiedSenders = $request->boolean('_elite_compose')
             ? $this->getEliteSenders()
-            : $this->getVerifiedSenders();
+            : $this->sesSenderService->getCrmSenders();
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
         $plainBody = $this->htmlToPlainTextForMail($htmlBody);
@@ -442,6 +262,7 @@ class OutlookController extends Controller
             $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $plainBody, $eliteReplyTo) {
                 $message->to($to)->from($from, $fromDisplayName)->subject($subject);
                 $message->text($plainBody);
+                $this->deliveryService->applyOutboundHeaders($message);
                 if ($eliteReplyTo !== null) {
                     $message->replyTo($eliteReplyTo);
                 }
@@ -470,7 +291,8 @@ class OutlookController extends Controller
                 throw new \RuntimeException('Email could not be sent (message was blocked or not transmitted).');
             }
 
-            // Record sent email in emails table (same as CRM) so Sent folder shows all emails
+            $sesMessageId = $this->deliveryService->extractMessageId($sent);
+
             try {
                 Email::create([
                     'user_id' => auth('admin')->id(),
@@ -482,6 +304,9 @@ class OutlookController extends Controller
                     'type' => 'outlook',
                     'client_id' => null,
                     'mail_type' => 1,
+                    'message_id' => $sesMessageId,
+                    'delivery_status' => SesEmailDeliveryService::STATUS_SENT,
+                    'delivery_status_at' => now(),
                 ]);
             } catch (\Throwable $createEx) {
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
@@ -494,14 +319,14 @@ class OutlookController extends Controller
             return redirect()->route('dashboard')
                 ->with('success', 'Email sent successfully.');
         } catch (\Throwable $e) {
-            Log::error('Email sending error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::error('Email sending error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
             if ($request->boolean('_elite_compose') || $request->wantsJson()) {
-                return response()->json(['ok' => false, 'message' => 'Failed to send email: ' . $e->getMessage()], 500);
+                return response()->json(['ok' => false, 'message' => 'Failed to send email: '.$e->getMessage()], 500);
             }
 
             return redirect()->route('dashboard')
-                ->with('error', 'Failed to send email: ' . $e->getMessage())
+                ->with('error', 'Failed to send email: '.$e->getMessage())
                 ->withInput($request->only('from', 'to', 'cc', 'subject', 'body'));
         }
     }

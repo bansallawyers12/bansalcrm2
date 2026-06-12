@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\SesSenderService;
 use App\Support\EducationEliteMail;
 use Aws\SesV2\SesV2Client;
 use Illuminate\Console\Command;
@@ -10,9 +11,9 @@ class SesTestCommand extends Command
 {
     protected $signature = 'ses:test';
 
-    protected $description = 'Test AWS SES credentials and list verified identities for Education Elite';
+    protected $description = 'Test AWS SES credentials and list verified identities';
 
-    public function handle(): int
+    public function handle(SesSenderService $sesSenderService): int
     {
         $key = config('services.ses.key');
         $secret = config('services.ses.secret');
@@ -46,7 +47,7 @@ class SesTestCommand extends Command
             $identities = $result->get('EmailIdentities') ?? [];
 
             if ($identities === []) {
-                $this->warn('No email identities found in SES. Verify educationelite.com.au in the SES console.');
+                $this->warn('No email identities found in SES. Verify domains/addresses in the SES console.');
             } else {
                 $this->info('SES identities:');
                 foreach ($identities as $identity) {
@@ -65,6 +66,12 @@ class SesTestCommand extends Command
 
                 return 1;
             }
+        }
+
+        $this->newLine();
+        $this->info('CRM From dropdown (SES_SENDERS / SES_FROM_EMAIL / DB):');
+        foreach ($sesSenderService->getCrmSenders() as $sender) {
+            $this->line('  • '.($sender['email'] ?? ''));
         }
 
         $this->newLine();

@@ -24,6 +24,18 @@ return [
         'key' => env('SES_KEY', env('AWS_ACCESS_KEY_ID')),
         'secret' => env('SES_SECRET', env('AWS_SECRET_ACCESS_KEY')),
         'region' => env('SES_REGION', env('AWS_DEFAULT_REGION', 'ap-southeast-2')),
+        // Optional SES configuration set (enables delivery/bounce SNS events)
+        'configuration_set' => env('SES_CONFIGURATION_SET', ''),
+        // SNS webhook URL path: POST {APP_URL}/webhooks/ses/sns
+    ],
+
+    /*
+    | CRM outbound (AWS SES). Credentials use services.ses above.
+    | SES_SENDERS: comma-separated verified @bansaleducation.com.au addresses (+ admission@bansalimmigration.com.au).
+    */
+    'ses_crm' => [
+        'senders' => env('SES_SENDERS', env('MAIL_FROM_ADDRESS', '')),
+        'from_email' => env('SES_FROM_EMAIL', env('MAIL_FROM_ADDRESS', '')),
     ],
 
     /*
@@ -79,26 +91,6 @@ return [
   
      'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
-    ],
-
-    'sendgrid' => [
-        'api_key' => env('SENDGRID_API_KEY'),
-        'base_url' => env('SENDGRID_BASE_URL', 'https://api.sendgrid.com'),
-        'from_email' => env('SENDGRID_FROM_EMAIL', ''),
-        'senders' => env('SENDGRID_SENDERS', ''),
-    ],
-
-    /*
-    | Second SendGrid account (e.g. Education Elite subuser).
-    | API: config('services.sendgrid_elite.api_key')
-    | SMTP: Mail::mailer('sendgrid_elite')->...
-    | Falls back to SENDGRID_API_KEY only if SENDGRID_ELITE_API_KEY is empty.
-    */
-    'sendgrid_elite' => [
-        'api_key' => env('SENDGRID_ELITE_API_KEY'),
-        'base_url' => env('SENDGRID_ELITE_BASE_URL', env('SENDGRID_BASE_URL', 'https://api.sendgrid.com')),
-        'from_email' => env('SENDGRID_ELITE_FROM_EMAIL', ''),
-        'senders' => env('SENDGRID_ELITE_SENDERS', ''),
     ],
 
 ];

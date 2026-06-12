@@ -31,9 +31,9 @@ return [
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |
-    | The Elite inbox shows SendGrid Inbound Parse rows (elite_emails). Optionally
-    | also CRM inbound email (emails.mail_type = 0) for the same domain.
-    | SendGrid’s REST API does not list received mail; inbound is webhook-only.
+    | The Elite inbox shows AWS SES inbound rows (elite_emails), imported from S3
+    | via `php artisan ses:sync-inbound` (scheduled every minute). Optionally also
+    | CRM inbound email (emails.mail_type = 0) for the same domain.
     |
     | education_elite_sender_domain — only this domain may appear in From
     | (e.g. educationelite.com.au → accepts *@educationelite.com.au).
@@ -41,12 +41,11 @@ return [
     | education_elite_inbox_merge_crm — when true, merge CRM inbound (mail_type 0
     | where from or to is @sender_domain) with elite_emails in /elite/emails.
     |
-    | education_elite_inbound_secret — if non-empty, POST /elite/emails must
-    | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
-    | Use this in your SendGrid Inbound Parse URL. Rotate if leaked.
+    | education_elite_inbound_secret — if non-empty, legacy POST /emails/elite must
+    | include query ?secret=... or header X-Elite-Webhook-Secret. Rotate if leaked.
     |
-    | education_elite_inbound_parse_host — SendGrid Inbound Parse hostname (e.g. parse.educationelite.com.au).
-    | Used in the UI and to build default Reply-To (see below). MX for this host must point to SendGrid.
+    | education_elite_inbound_parse_host — optional inbound hostname for Reply-To
+    | (legacy). Primary inbound path is SES receipt rule → S3 → ses:sync-inbound.
     |
     | education_elite_inbound_reply_to — optional full address (e.g. inbound@parse.educationelite.com.au).
     | When set, Elite “New Message” uses this as Reply-To so customer replies hit Inbound Parse → CRM inbox.
@@ -69,7 +68,6 @@ return [
 
     /*
     | Outbound mailer for Elite compose (_elite_compose). Default ses_elite (AWS SES).
-    | Set EDUCATION_ELITE_MAILER=sendgrid_elite to fall back to SendGrid SMTP.
     */
     'education_elite_mailer' => env('EDUCATION_ELITE_MAILER', 'ses_elite'),
 

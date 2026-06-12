@@ -3,19 +3,21 @@
 namespace App\Services;
 
 use App\Models\FromEmail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EmailService
 {
-    /** Default mailer for all CRM emails - SendGrid */
-    protected const DEFAULT_MAILER = 'sendgrid';
+    /** Default mailer for all CRM emails - AWS SES */
+    protected const DEFAULT_MAILER = 'ses';
+
+    public function __construct(
+        private SesEmailDeliveryService $deliveryService
+    ) {}
 
     /**
      * Get the first active email (default for system emails).
-     *
-     * @return \App\Models\FromEmail|null
      */
     public function getDefaultEmail(): ?FromEmail
     {
@@ -24,17 +26,11 @@ class EmailService
 
     /**
      * Resolve email config for From address (email + display_name).
-     * Uses emails table when address provided, else .env or first active email.
-     * SendGrid uses a single API key - no per-email SMTP credentials.
-     *
-     * @param string|null $emailAddress Email address to use (must exist in from_emails table when provided)
-     * @return \App\Models\FromEmail|object|null The email config (email, display_name), or null
      */
     public function configureMailerForEmail(?string $emailAddress = null): ?object
     {
         $emailConfig = null;
 
-        // Explicit From email provided: use from_emails table
         if ($emailAddress && trim($emailAddress) !== '') {
             $trimmed = trim($emailAddress);
             $emailConfig = FromEmail::where('status', true)
@@ -42,27 +38,21 @@ class EmailService
                 ->first();
         }
 
-        // No explicit From: use .env or first active email from DB
-        if (!$emailConfig) {
+        if (! $emailConfig) {
             $envFrom = env('MAIL_FROM_ADDRESS');
             if ($envFrom) {
-                $emailConfig = (object) [
+                return (object) [
                     'email' => $envFrom,
                     'display_name' => env('MAIL_FROM_NAME', $envFrom),
                 ];
-                return $emailConfig;
             }
-            $emailConfig = $this->getDefaultEmail();
+
+            return $this->getDefaultEmail();
         }
 
         return $emailConfig;
     }
 
-    /**
-     * Get all active email configurations.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
     public function getAllActiveEmails()
     {
         return FromEmail::where('status', true)
@@ -71,20 +61,23 @@ class EmailService
     }
 
     /**
-     * Send an email via SendGrid.
+     * Send an email via AWS SES.
      *
-     * @param string $view
-     * @param array $data
-     * @param string $to
-     * @param string $subject
-     * @param string $fromEmailAddress From email (must exist in from_emails table)
-     * @param array $attachments
-     * @param array $cc
-     * @return bool
+     * @param  int|null  $emailLogId  CRM emails.id for delivery tracking (X-CRM-Email-Id header)
+     * @return string|null SES message ID when available
+     *
      * @throws \Exception
      */
-    public function sendEmail($view, $data, $to, $subject, $fromEmailAddress, $attachments = [], $cc = [])
-    {
+    public function sendEmail(
+        $view,
+        $data,
+        $to,
+        $subject,
+        $fromEmailAddress,
+        $attachments = [],
+        $cc = [],
+        ?int $emailLogId = null
+    ): ?string {
         try {
             $trimmed = trim((string) $fromEmailAddress);
             if ($trimmed === '') {
@@ -93,8 +86,7 @@ class EmailService
             $emailConfig = FromEmail::where('status', true)
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
-            if (!$emailConfig) {
-                // Allow SendGrid verified senders (From dropdown is populated from SendGrid API)
+            if (! $emailConfig) {
                 if (! filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
                     throw new \Exception("Invalid From email address: {$trimmed}");
                 }
@@ -104,22 +96,29 @@ class EmailService
                 ];
             }
 
-            Log::info('EmailService - Sending Email via SendGrid', [
+            Log::info('EmailService - Sending Email via SES', [
                 'from_email' => $emailConfig->email,
                 'to' => $to,
                 'subject' => $subject,
+                'email_log_id' => $emailLogId,
             ]);
 
-            Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
+            $sent = Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc, $emailLogId) {
                 $message->to($to)
                     ->subject($subject)
                     ->from($emailConfig->email, $emailConfig->display_name ?? $emailConfig->email);
 
-                if (!empty($cc)) {
+                if ($emailLogId !== null) {
+                    $message->getHeaders()->addTextHeader('X-CRM-Email-Id', (string) $emailLogId);
+                }
+
+                $this->deliveryService->applyOutboundHeaders($message);
+
+                if (! empty($cc)) {
                     $message->cc($cc);
                 }
 
-                if (!empty($attachments)) {
+                if (! empty($attachments)) {
                     foreach ($attachments as $attachment) {
                         if (is_string($attachment) && file_exists($attachment)) {
                             $message->attach($attachment);
@@ -128,19 +127,22 @@ class EmailService
                 }
             });
 
+            $messageId = $this->deliveryService->extractMessageId($sent);
+
             Log::info('EmailService - Email Sent Successfully', [
                 'from' => $emailConfig->email,
                 'to' => $to,
+                'ses_message_id' => $messageId,
             ]);
 
-            return true;
+            return $messageId;
         } catch (\Exception $e) {
             Log::error('EmailService - Send Failed', [
                 'error' => $e->getMessage(),
                 'from_email' => $fromEmailAddress ?? 'unknown',
                 'to' => $to ?? 'unknown',
             ]);
-            throw new \Exception('Email could not be sent: ' . $e->getMessage());
+            throw new \Exception('Email could not be sent: '.$e->getMessage());
         }
     }
 }

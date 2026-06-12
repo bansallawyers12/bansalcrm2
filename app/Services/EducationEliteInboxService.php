@@ -344,6 +344,9 @@ class EducationEliteInboxService
             $select[] = 'e.body_text as body_text_plain';
             $select[] = 'e.body_html_s3_key';
         }
+        if (Schema::hasColumn('elite_emails', 's3_inbound_key')) {
+            $select[] = 'e.s3_inbound_key';
+        }
         $select[] = DB::raw('('.$this->eliteEmailBodySelectExpr('e').') as body');
 
         $q = DB::table('elite_emails as e')->select($select);
@@ -490,7 +493,7 @@ class EducationEliteInboxService
             'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
-            'direction_label' => 'Inbound (SendGrid)',
+            'direction_label' => $this->inboundDirectionLabel($row),
             'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
             'body_fetch_url' => ($s3Key !== '' && Schema::hasColumn('elite_emails', 'body_html_s3_key'))
@@ -583,9 +586,26 @@ class EducationEliteInboxService
     {
         $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
         if ($this->shouldMergeCrm()) {
-            return 'No inbound mail for '.$mention.' yet. SendGrid Inbound Parse must POST to the webhook URL below; CRM-imported inbox (mail_type 0) appears here too. Use "Simulate inbound" to test the webhook.';
+            return 'No inbound mail for '.$mention.' yet. Configure AWS SES inbound (MX → SES receipt rule → S3) and click Get Emails to import .eml files. CRM-imported inbox (mail_type 0) appears here too.';
         }
 
-        return 'No inbound mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook URL shown below, or use "Simulate inbound" to test.';
+        return 'No inbound mail for '.$mention.' yet. Configure AWS SES inbound (MX → receipt rule → S3) and click Get Emails to sync new messages.';
+    }
+
+    private function inboundDirectionLabel(object $row): string
+    {
+        if (isset($row->s3_inbound_key) && is_string($row->s3_inbound_key) && trim($row->s3_inbound_key) !== '') {
+            return 'Inbound (SES)';
+        }
+
+        $payloadJson = $row->payload_json ?? null;
+        if (is_string($payloadJson) && $payloadJson !== '') {
+            $payload = json_decode($payloadJson, true);
+            if (is_array($payload) && ($payload['source'] ?? '') === 'ses_s3') {
+                return 'Inbound (SES)';
+            }
+        }
+
+        return 'Inbound (legacy webhook)';
     }
 }

@@ -1419,6 +1419,10 @@ class AdminController extends Controller
 		$obj->message		 =  isset($requestData['message']) ? $requestData['message'] : '';
 		// Set mail_type - Required NOT NULL field for PostgreSQL (1 = manually composed/sent email)
 		$obj->mail_type		=  1;
+		if (app(\App\Services\SesEmailDeliveryService::class)->supportsTracking()) {
+			$obj->delivery_status = \App\Services\SesEmailDeliveryService::STATUS_PENDING;
+			$obj->delivery_status_at = now();
+		}
 		// client_id for Email tab / S3 archival (required for sent emails to appear)
 		$obj->client_id		=  $requestData['client_id'] ?? ($requestData['email_to'][0] ?? null);
       
@@ -1790,15 +1794,17 @@ class AdminController extends Controller
                 // Flat paths for EmailService (expects plain strings)
                 $attachmentPaths = array_column($recipientTuples, 'path');
 
-                $this->emailService->sendEmail(
+                $sesMessageId = $this->emailService->sendEmail(
                     'emails.template',
                     ['content' => $message],
                     $client->email,
                     $subject,
                     $requestData['email_from'],
                     $attachmentPaths,
-                    $ccEmails
+                    $ccEmails,
+                    $obj->id
                 );
+                app(\App\Services\SesEmailDeliveryService::class)->markAccepted($obj, $sesMessageId);
 
                 // Archive email to S3 (HTML snapshot + attachments) — once per email, not per recipient
                 if (!$s3Stored) {
@@ -1825,6 +1831,7 @@ class AdminController extends Controller
                 }
                 return redirect()->back()->with('success', 'Email sent successfully!');
             } catch (\Exception $e) {
+                app(\App\Services\SesEmailDeliveryService::class)->markFailed($obj, $e->getMessage());
                 // Return JSON response for AJAX requests
                 if($request->ajax() || $request->wantsJson()) {
                     return response()->json(['status' => false, 'message' => 'Failed to send email: ' . $e->getMessage()]);

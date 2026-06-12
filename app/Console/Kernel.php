@@ -21,7 +21,6 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ExpireCrmAccessGrants::class,
         \App\Console\Commands\SesInboundSyncCommand::class,
         \App\Console\Commands\SesTestCommand::class,
-        \App\Console\Commands\SendGridTestCommand::class,
     ];
 
     /**

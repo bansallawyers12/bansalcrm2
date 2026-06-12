@@ -931,7 +931,7 @@ class PublicDocumentController extends Controller
                 return redirect()->back()->with('error', 'Maximum reminders already sent.');
             }
 
-            // Send reminder email via SendGrid
+            // Send reminder email via AWS SES
             $emailService = app(\App\Services\EmailService::class);
             $emailConfig = $emailService->configureMailerForEmail(null);
             if (!$emailConfig) {
@@ -941,7 +941,7 @@ class PublicDocumentController extends Controller
             $signingUrl = url("/sign/{$document->id}/{$signer->token}");
             $mailFrom = $emailConfig->email;
             $mailFromName = $emailConfig->display_name ?? $emailConfig->email;
-            Mail::mailer('sendgrid')->raw("This is a reminder to sign your document: " . $signingUrl, function ($message) use ($signer, $mailFrom, $mailFromName) {
+            Mail::mailer('ses')->raw("This is a reminder to sign your document: " . $signingUrl, function ($message) use ($signer, $mailFrom, $mailFromName) {
                 $message->to($signer->email, $signer->name)
                         ->from($mailFrom, $mailFromName)
                         ->subject('Reminder: Please Sign Your Document');

@@ -1096,6 +1096,22 @@
         });
     }
 
+    function formatDeliveryBadge(email) {
+        if (!email || !email.delivery_status_label) return '';
+        var cls = (email.delivery_status_class || 'delivery-unknown').replace(/^delivery-/, '');
+        return '<span class="delivery-badge delivery-' + escapeHtml(cls) + '" title="' + escapeHtml(email.delivery_status_label) + '">' + escapeHtml(email.delivery_status_label) + '</span>';
+    }
+
+    function formatDeliveryDetailLine(email) {
+        if (!email || !email.delivery_status_label) return '';
+        var line = email.delivery_status_label;
+        var detail = email.delivery_detail;
+        if (detail && detail.diagnostic) line += ' — ' + detail.diagnostic;
+        else if (detail && detail.error) line += ' — ' + detail.error;
+        else if (detail && detail.reason) line += ' — ' + detail.reason;
+        return '<div><strong>Delivery:</strong> ' + escapeHtml(line) + '</div>';
+    }
+
     /**
      * Create email list item element
      */
@@ -1130,6 +1146,7 @@
                 <div class="email-subject" style="${!isRead ? 'font-weight: 700;' : ''}">
                     ${escapeHtml(subject)}
                     ${attachmentIcon}
+                    ${formatDeliveryBadge(email)}
                 </div>
                 <div class="email-date">${date}</div>
             </div>
@@ -1353,6 +1370,7 @@
                     <div><strong>From:</strong> ${escapeHtml(from)}</div>
                     <div><strong>To:</strong> ${escapeHtml(to)}</div>
                     <div><strong>Date:</strong> ${date}</div>
+                    ${formatDeliveryDetailLine(email)}
                 </div>
             </div>
             <div class="email-content-body">
