@@ -172,11 +172,22 @@ class SesEmailDeliveryService
 
         if ($type === 'SubscriptionConfirmation') {
             $subscribeUrl = (string) ($sns['SubscribeURL'] ?? '');
+            $token = (string) ($sns['Token'] ?? '');
+
+            Log::info('ses.sns.subscription_confirmation_received', [
+                'topic' => $sns['TopicArn'] ?? null,
+                'token' => $token !== '' ? $token : null,
+                'has_subscribe_url' => $subscribeUrl !== '',
+            ]);
+
             if ($subscribeUrl !== '') {
                 try {
                     $response = Http::timeout(15)->get($subscribeUrl);
                     if ($response->successful()) {
-                        Log::info('ses.sns.subscription_confirmed', ['topic' => $sns['TopicArn'] ?? null]);
+                        Log::info('ses.sns.subscription_confirmed', [
+                            'topic' => $sns['TopicArn'] ?? null,
+                            'token' => $token !== '' ? $token : null,
+                        ]);
                     } else {
                         Log::error('ses.sns.subscription_failed', [
                             'status' => $response->status(),

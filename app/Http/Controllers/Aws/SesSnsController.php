@@ -23,6 +23,11 @@ class SesSnsController extends Controller
             return response('invalid json', 400);
         }
 
+        Log::info('ses.sns.received', [
+            'type' => $payload['Type'] ?? null,
+            'topic' => $payload['TopicArn'] ?? null,
+        ]);
+
         try {
             $deliveryService->handleSnsPayload($payload);
         } catch (\Throwable $e) {
