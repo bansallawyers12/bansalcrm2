@@ -7,8 +7,8 @@ use App\Support\EducationEliteMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use ZBateson\MailMimeParser\IMessage;
 use ZBateson\MailMimeParser\MailMimeParser;
-use ZBateson\MailMimeParser\Message;
 
 class SesInboundSyncCommand extends Command
 {
@@ -157,7 +157,7 @@ class SesInboundSyncCommand extends Command
             'payload'        => [
                 'source'     => 'ses_s3',
                 's3_key'     => $s3Key,
-                'message_id' => (string) $message->getHeaderValue('Message-ID', ''),
+                'message_id' => $message->getMessageId() ?? '',
             ],
         ]);
 
@@ -171,16 +171,17 @@ class SesInboundSyncCommand extends Command
         return $record;
     }
 
-    private function extractFrom(Message $message): string
+    private function extractFrom(IMessage $message): string
     {
         $header = $message->getHeader('From');
         if ($header === null) {
             return 'unknown@unknown';
         }
 
-        $value = (string) $header->getValue();
+        // getDecodedValue() returns the full decoded string e.g. "John Doe <john@example.com>"
+        $value = $header->getDecodedValue();
 
-        // Strip display name — keep bare address
+        // Extract bare address from angle brackets
         if (preg_match('/<([^>]+)>/', $value, $m)) {
             return strtolower(trim($m[1]));
         }
@@ -188,21 +189,27 @@ class SesInboundSyncCommand extends Command
         return strtolower(trim($value));
     }
 
-    private function extractTo(Message $message): ?string
+    private function extractTo(IMessage $message): ?string
     {
         $header = $message->getHeader('To');
         if ($header === null) {
             return null;
         }
 
-        $value = (string) $header->getValue();
+        // getDecodedValue() returns the full decoded value e.g. "Name <email>, Name2 <email2>"
+        $value = $header->getDecodedValue();
 
         // Prefer the Elite-domain address if multiple recipients
         $addresses = preg_split('/\s*,\s*/', $value);
         $apex = EducationEliteMail::apexDomain();
 
         foreach ($addresses as $addr) {
-            $clean = strtolower(trim(preg_replace('/.+<(.+)>/', '$1', $addr)));
+            // Extract bare address from "Name <email>" or plain "email"
+            if (preg_match('/<([^>]+)>/', $addr, $m)) {
+                $clean = strtolower(trim($m[1]));
+            } else {
+                $clean = strtolower(trim($addr));
+            }
             if (str_ends_with($clean, '@' . $apex)) {
                 return $clean;
             }
@@ -212,19 +219,15 @@ class SesInboundSyncCommand extends Command
         return substr(trim($value), 0, 255) ?: null;
     }
 
-    private function extractSubject(Message $message): ?string
+    private function extractSubject(IMessage $message): ?string
     {
-        $header = $message->getHeader('Subject');
-        if ($header === null) {
-            return null;
-        }
-
-        $v = trim((string) $header->getValue());
+        // IMessage::getSubject() is the dedicated API for this header
+        $v = trim((string) $message->getSubject());
 
         return $v !== '' ? substr($v, 0, 998) : null;
     }
 
-    private function extractHtml(Message $message): ?string
+    private function extractHtml(IMessage $message): ?string
     {
         $part = $message->getHtmlContent();
         if ($part === null || trim($part) === '') {
@@ -234,7 +237,7 @@ class SesInboundSyncCommand extends Command
         return $part;
     }
 
-    private function extractText(Message $message, ?string $html): ?string
+    private function extractText(IMessage $message, ?string $html): ?string
     {
         $text = $message->getTextContent();
         if (is_string($text) && trim($text) !== '') {
@@ -250,7 +253,7 @@ class SesInboundSyncCommand extends Command
         return null;
     }
 
-    private function extractDate(Message $message): ?\DateTimeImmutable
+    private function extractDate(IMessage $message): ?\DateTimeImmutable
     {
         $header = $message->getHeader('Date');
         if ($header === null) {
@@ -258,7 +261,7 @@ class SesInboundSyncCommand extends Command
         }
 
         try {
-            $value = trim((string) $header->getValue());
+            $value = trim($header->getDecodedValue());
 
             return $value !== '' ? new \DateTimeImmutable($value) : null;
         } catch (\Throwable) {
