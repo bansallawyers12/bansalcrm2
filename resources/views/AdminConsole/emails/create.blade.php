@@ -60,14 +60,14 @@
                                               
                                                 <div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group">
-														<label for="password">Password <span class="span_req">*</span></label>
-														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'new-password', 'placeholder'=>'Zoho / SMTP password (or App Password if 2FA enabled)' ))  !!}
+														<label for="password">Password</label>
+														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'new-password', 'placeholder'=>'Optional (SES uses AWS credentials from .env)' ))  !!}
 														@if ($errors->has('password'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('password') }}</strong>
 															</span>
 														@endif
-														<small class="form-text text-muted">Use your Zoho mailbox password, or an App Password if 2FA is enabled.</small>
+														<small class="form-text text-muted">Not used for sending — CRM uses AWS SES. Leave blank or enter any placeholder (e.g. ses).</small>
 													</div>
 												</div>
                                               

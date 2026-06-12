@@ -68,7 +68,7 @@ class EmailController extends Controller
 		{
 			$this->validate($request, [
 										'email' => 'required|max:255|unique:from_emails',
-										'password' => 'required|string|min:1',
+										'password' => 'nullable|string|min:1',
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
@@ -81,7 +81,7 @@ class EmailController extends Controller
 			$obj				= 	new FromEmail; 
 			$obj->email	=	@$requestData['email'];
 			$obj->display_name	=	@$requestData['display_name'];
-            $obj->password	=	@$requestData['password'];
+            $obj->password	=	trim((string) ($requestData['password'] ?? '')) !== '' ? $requestData['password'] : 'ses';
 			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
 			$obj->user_id	=	json_encode(@$requestData['users']);
 			
