@@ -464,7 +464,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 
             <div style="padding:10px 14px 14px;font-size:11px;color:#64748b;line-height:1.45;border-top:1px solid #e8e8e8;margin-top:8px;">
                 <strong style="display:block;color:#334155;font-size:11px;margin-bottom:4px;">Inbound (AWS SES)</strong>
-                MX for <strong>@{{ ltrim((string) config('crm.education_elite_sender_domain','educationelite.com.au'), '@') }}</strong> → SES receipt rule → S3
+                MX for <strong>{{ '@' . ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@') }}</strong> → SES receipt rule → S3
                 <code style="display:block;margin-top:6px;font-size:10px;background:#f1f5f9;padding:4px 6px;border-radius:3px;">{{ $sesInboundBucket ?? 'bucket' }}/{{ $sesInboundPrefix ?? 'prefix' }}</code>
                 <span style="display:block;margin-top:6px;">Get Emails imports new .eml files (also runs every minute).</span>
             </div>

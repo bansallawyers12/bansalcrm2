@@ -6,6 +6,7 @@ use App\Models\Email;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Mail\Message;
 use Illuminate\Mail\SentMessage as LaravelSentMessage;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Mailer\SentMessage as SymfonySentMessage;
@@ -65,6 +66,12 @@ class SesEmailDeliveryService
             return;
         }
 
+        if ($email->delivery_status !== null
+            && $email->delivery_status !== self::STATUS_PENDING
+            && $email->delivery_status !== self::STATUS_FAILED) {
+            return;
+        }
+
         $email->delivery_status = self::STATUS_FAILED;
         $email->delivery_status_at = now();
         $email->delivery_detail = ['error' => $reason];
@@ -77,8 +84,9 @@ class SesEmailDeliveryService
             return;
         }
 
-        if ($sesMessageId !== null && trim($sesMessageId) !== '') {
-            $email->message_id = trim($sesMessageId);
+        $normalizedId = $this->normalizeMessageId($sesMessageId);
+        if ($normalizedId !== null) {
+            $email->message_id = $normalizedId;
         }
 
         $email->delivery_status = self::STATUS_SENT;
@@ -101,20 +109,38 @@ class SesEmailDeliveryService
         }
 
         if ($symfony !== null) {
-            $id = $symfony->getMessageId();
-            if ($id !== null && trim($id) !== '') {
-                return trim($id);
+            $id = $this->normalizeMessageId($symfony->getMessageId());
+            if ($id !== null) {
+                return $id;
             }
         }
 
         if ($sent instanceof LaravelSentMessage) {
-            $id = $sent->getMessageId();
-            if ($id !== null && trim($id) !== '') {
-                return trim($id);
+            $id = $this->normalizeMessageId($sent->getMessageId());
+            if ($id !== null) {
+                return $id;
             }
         }
 
         return null;
+    }
+
+    public function normalizeMessageId(?string $messageId): ?string
+    {
+        if ($messageId === null) {
+            return null;
+        }
+
+        $id = trim($messageId);
+        if ($id === '') {
+            return null;
+        }
+
+        if (str_starts_with($id, '<') && str_ends_with($id, '>')) {
+            $id = trim($id, '<>');
+        }
+
+        return $id !== '' ? $id : null;
     }
 
     public function handleMessageSent(MessageSent $event): void
@@ -148,8 +174,15 @@ class SesEmailDeliveryService
             $subscribeUrl = (string) ($sns['SubscribeURL'] ?? '');
             if ($subscribeUrl !== '') {
                 try {
-                    file_get_contents($subscribeUrl);
-                    Log::info('ses.sns.subscription_confirmed', ['topic' => $sns['TopicArn'] ?? null]);
+                    $response = Http::timeout(15)->get($subscribeUrl);
+                    if ($response->successful()) {
+                        Log::info('ses.sns.subscription_confirmed', ['topic' => $sns['TopicArn'] ?? null]);
+                    } else {
+                        Log::error('ses.sns.subscription_failed', [
+                            'status' => $response->status(),
+                            'topic' => $sns['TopicArn'] ?? null,
+                        ]);
+                    }
                 } catch (\Throwable $e) {
                     Log::error('ses.sns.subscription_failed', ['error' => $e->getMessage()]);
                 }
@@ -185,13 +218,18 @@ class SesEmailDeliveryService
 
         $eventType = strtolower((string) ($payload['eventType'] ?? $payload['notificationType'] ?? ''));
         $mail = is_array($payload['mail'] ?? null) ? $payload['mail'] : [];
-        $messageId = trim((string) ($mail['messageId'] ?? ''));
+        $messageId = $this->normalizeMessageId((string) ($mail['messageId'] ?? ''));
 
-        if ($messageId === '') {
+        if ($messageId === null) {
             return;
         }
 
-        $email = Email::where('message_id', $messageId)->first();
+        $email = Email::query()
+            ->where(function ($query) use ($messageId) {
+                $query->where('message_id', $messageId)
+                    ->orWhere('message_id', '<'.$messageId.'>');
+            })
+            ->first();
         if ($email === null) {
             Log::info('ses.event.no_matching_email', ['message_id' => $messageId, 'event' => $eventType]);
 
@@ -211,8 +249,15 @@ class SesEmailDeliveryService
             return;
         }
 
-        // Do not downgrade delivered → sent if events arrive out of order.
-        if ($email->delivery_status === self::STATUS_DELIVERED && $status === self::STATUS_SENT) {
+        // Do not downgrade to "sent" once a later SES event was already recorded.
+        $current = (string) ($email->delivery_status ?? '');
+        if ($status === self::STATUS_SENT && in_array($current, [
+            self::STATUS_DELIVERED,
+            self::STATUS_BOUNCED,
+            self::STATUS_COMPLAINED,
+            self::STATUS_REJECTED,
+            self::STATUS_FAILED,
+        ], true)) {
             return;
         }
 

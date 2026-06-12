@@ -294,7 +294,7 @@ class OutlookController extends Controller
             $sesMessageId = $this->deliveryService->extractMessageId($sent);
 
             try {
-                Email::create([
+                $emailRow = [
                     'user_id' => auth('admin')->id(),
                     'from_mail' => $from,
                     'to_mail' => $to,
@@ -304,10 +304,13 @@ class OutlookController extends Controller
                     'type' => 'outlook',
                     'client_id' => null,
                     'mail_type' => 1,
-                    'message_id' => $sesMessageId,
-                    'delivery_status' => SesEmailDeliveryService::STATUS_SENT,
-                    'delivery_status_at' => now(),
-                ]);
+                ];
+                if ($this->deliveryService->supportsTracking()) {
+                    $emailRow['message_id'] = $sesMessageId;
+                    $emailRow['delivery_status'] = SesEmailDeliveryService::STATUS_SENT;
+                    $emailRow['delivery_status_at'] = now();
+                }
+                Email::create($emailRow);
             } catch (\Throwable $createEx) {
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
             }
