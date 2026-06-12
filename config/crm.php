@@ -67,6 +67,14 @@ return [
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),
 
+    /*
+    | Outbound mailer for Elite compose (_elite_compose). Default ses_elite (AWS SES).
+    | Set EDUCATION_ELITE_MAILER=sendgrid_elite to fall back to SendGrid SMTP.
+    */
+    'education_elite_mailer' => env('EDUCATION_ELITE_MAILER', 'ses_elite'),
+
+    'education_elite_from_name' => env('EDUCATION_ELITE_FROM_NAME', env('MAIL_FROM_NAME', 'Education Elite')),
+
     'education_elite_inbox_merge_crm' => filter_var(
         env('EDUCATION_ELITE_INBOX_MERGE_CRM', true),
         FILTER_VALIDATE_BOOL

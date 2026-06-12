@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
+use App\Support\EducationEliteMail;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer as LaravelMailer;
@@ -21,11 +22,32 @@ class OutlookController extends Controller
 
     /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
-     * Compose From dropdown: @bansaleducation.com.au + admission@bansalimmigration.com.au only.
+     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (SendGrid).
+     * Elite compose (?elite=1): @educationelite.com.au addresses (AWS SES).
      * GET /admin/outlook/senders
      */
     public function senders(Request $request)
     {
+        if ($request->boolean('elite')) {
+            $list = $this->getEliteSenders();
+            $fromEmail = (string) config('services.ses_elite.from_email', '');
+            if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
+                $fromEmail = (string) config('mail.from.address', '');
+            }
+            if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
+                $fromEmail = $list[0]['email'] ?? '';
+            }
+            $emails = array_column($list, 'email');
+            if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
+                $fromEmail = $emails[0];
+            }
+
+            return response()->json([
+                'senders' => $list,
+                'default_from' => $fromEmail,
+            ]);
+        }
+
         $list = $this->filterComposeSenders($this->getVerifiedSenders());
         $fromEmail = config('services.sendgrid.from_email', '');
         if (empty($fromEmail)) {
@@ -35,6 +57,7 @@ class OutlookController extends Controller
         if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
             $fromEmail = $emails[0];
         }
+
         return response()->json([
             'senders' => $list,
             'default_from' => $fromEmail,
@@ -201,15 +224,81 @@ class OutlookController extends Controller
     }
 
     /**
-     * Mailer for Outlook send: Education Elite UI uses a dedicated subuser when configured.
+     * Verified @educationelite.com.au From addresses for Elite compose (AWS SES).
+     *
+     * @return list<array{email: string, name: string, nickname: string}>
+     */
+    private function getEliteSenders(): array
+    {
+        $raw = (string) config('services.ses_elite.senders', '');
+        if (trim($raw) === '') {
+            $raw = (string) config('services.ses_elite.from_email', 'info@'.EducationEliteMail::apexDomain());
+        }
+        $displayName = (string) config('crm.education_elite_from_name', config('mail.from.name', 'Education Elite'));
+        $emails = array_filter(array_map('trim', explode(',', $raw)));
+        $list = [];
+
+        foreach ($emails as $email) {
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            if (! EducationEliteMail::isEliteOwnedAddress($email)) {
+                continue;
+            }
+            $list[] = [
+                'email' => strtolower($email),
+                'name' => $displayName !== '' ? $displayName : $email,
+                'nickname' => '',
+            ];
+        }
+
+        return collect($list)->unique('email')->values()->toArray();
+    }
+
+    private function isSesEliteConfigured(): bool
+    {
+        $key = config('services.ses.key');
+        $secret = config('services.ses.secret');
+
+        return ! empty($key) && ! empty($secret);
+    }
+
+    /**
+     * Mailer for Outlook send: Elite compose uses AWS SES when configured.
      */
     private function mailerNameForOutlookSend(Request $request): string
     {
-        if ($request->boolean('_elite_compose') && ! empty(config('services.sendgrid_elite.api_key'))) {
+        if (! $request->boolean('_elite_compose')) {
+            return 'sendgrid_outlook';
+        }
+
+        $preferred = (string) config('crm.education_elite_mailer', 'ses_elite');
+
+        if ($preferred === 'sendgrid_elite' && ! empty(config('services.sendgrid_elite.api_key'))) {
             return 'sendgrid_elite';
         }
 
+        if ($this->isSesEliteConfigured()) {
+            return 'ses_elite';
+        }
+
+        if (! empty(config('services.sendgrid_elite.api_key'))) {
+            Log::warning('Outlook: SES credentials missing for Elite compose; falling back to sendgrid_elite');
+
+            return 'sendgrid_elite';
+        }
+
+        Log::warning('Outlook: neither SES nor sendgrid_elite configured for Elite compose; using sendgrid_outlook');
+
         return 'sendgrid_outlook';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function allowedEliteFromEmails(): array
+    {
+        return array_column($this->getEliteSenders(), 'email');
     }
 
     /**
@@ -285,7 +374,7 @@ class OutlookController extends Controller
     }
 
     /**
-     * Send email via SendGrid (uses selected From address from dropdown).
+     * Send email via SendGrid (CRM/Outlook) or AWS SES (Education Elite compose).
      * Form fields: from, to, cc, subject, body; supports attachments.
      */
     public function send(Request $request)
@@ -304,12 +393,34 @@ class OutlookController extends Controller
         $subject = $validated['subject'];
         $body = $validated['body'] ?? '';
 
+        if ($request->boolean('_elite_compose')) {
+            if (! EducationEliteMail::isEliteOwnedAddress($from)) {
+                $message = 'From address must be an @'.EducationEliteMail::apexDomain().' mailbox.';
+                if ($request->wantsJson()) {
+                    return response()->json(['ok' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message)->withInput();
+            }
+            $allowedFrom = $this->allowedEliteFromEmails();
+            if ($allowedFrom !== [] && ! $this->emailInList($from, $allowedFrom)) {
+                $message = 'From address is not an allowed Education Elite sender.';
+                if ($request->wantsJson()) {
+                    return response()->json(['ok' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message)->withInput();
+            }
+        }
+
         $eliteReplyTo = null;
         if ($request->boolean('_elite_compose')) {
             $eliteReplyTo = $this->resolveEliteComposeReplyTo();
         }
 
-        $verifiedSenders = $this->getVerifiedSenders();
+        $verifiedSenders = $request->boolean('_elite_compose')
+            ? $this->getEliteSenders()
+            : $this->getVerifiedSenders();
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
         $plainBody = $this->htmlToPlainTextForMail($htmlBody);

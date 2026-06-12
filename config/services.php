@@ -21,9 +21,18 @@ return [
     ],
 
     'ses' => [
-        'key' => env('SES_KEY'),
-        'secret' => env('SES_SECRET'),
-        'region' => env('SES_REGION', 'us-east-1'),
+        'key' => env('SES_KEY', env('AWS_ACCESS_KEY_ID')),
+        'secret' => env('SES_SECRET', env('AWS_SECRET_ACCESS_KEY')),
+        'region' => env('SES_REGION', env('AWS_DEFAULT_REGION', 'ap-southeast-2')),
+    ],
+
+    /*
+    | Education Elite outbound (AWS SES). Credentials use services.ses above.
+    | SES_ELITE_SENDERS: comma-separated verified @educationelite.com.au addresses.
+    */
+    'ses_elite' => [
+        'senders' => env('SES_ELITE_SENDERS', env('SES_ELITE_FROM_EMAIL', 'info@educationelite.com.au')),
+        'from_email' => env('SES_ELITE_FROM_EMAIL', 'info@educationelite.com.au'),
     ],
 
     'sparkpost' => [

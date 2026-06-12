@@ -1541,7 +1541,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var attachInput    = document.getElementById('eliteAttachmentInput');
         var attachList     = document.getElementById('eliteAttachmentList');
         var attachItems    = document.getElementById('eliteAttachmentItems');
-        var SENDERS_URL    = @json(route('admin.outlook.senders'));
+        var SENDERS_URL    = @json(route('admin.outlook.senders', ['elite' => 1]));
         var SAVE_DRAFT_URL = @json(route('admin.outlook.saveDraft'));
 
         var sendersLoaded = false;
