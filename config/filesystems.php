@@ -67,6 +67,22 @@ return [
             'url' => env('AWS_URL'),
         ],
 
+        /*
+         * Dedicated disk for SES inbound emails (raw .eml objects stored by SES rule).
+         * Bucket: SES_INBOUND_BUCKET (defaults to AWS_BUCKET, e.g. bansalcrm)
+         * Prefix: SES_INBOUND_PREFIX (e.g. emails/incoming/)
+         */
+        's3_inbound' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'ap-southeast-2'),
+            'bucket' => env('SES_INBOUND_BUCKET', env('AWS_BUCKET', 'bansalcrm')),
+            'root' => env('SES_INBOUND_PREFIX', 'emails/incoming'),
+            'url' => env('AWS_URL'),
+            'throw' => false,
+        ],
+
     ],
 
 ];

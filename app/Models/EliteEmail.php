@@ -16,6 +16,7 @@ class EliteEmail extends Model
         'body_text',
         'body_html',
         'body_html_s3_key',
+        's3_inbound_key',
         'payload',
     ];
 

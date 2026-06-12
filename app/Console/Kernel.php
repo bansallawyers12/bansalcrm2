@@ -19,6 +19,9 @@ class Kernel extends ConsoleKernel
        // '\App\Console\Commands\VisaExpireReminderEmail',
        '\App\Console\Commands\MonthlyPartnerRecurringNotes',
         \App\Console\Commands\ExpireCrmAccessGrants::class,
+        \App\Console\Commands\SesInboundSyncCommand::class,
+        \App\Console\Commands\SesTestCommand::class,
+        \App\Console\Commands\SendGridTestCommand::class,
     ];
 
     /**
@@ -43,6 +46,9 @@ class Kernel extends ConsoleKernel
        $schedule->command('MonthlyPartnerRecurringNotes:monthly')->monthly();
 
         $schedule->command('access:expire-grants')->hourly();
+
+        // Poll SES inbound S3 bucket every minute and import new .eml files
+        $schedule->command('ses:sync-inbound')->everyMinute()->withoutOverlapping();
     }
 
     /**
