@@ -32,7 +32,7 @@ class OutlookController extends Controller
             $list = $this->getEliteSenders();
             $fromEmail = (string) config('services.ses_elite.from_email', '');
             if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
-                $fromEmail = (string) config('mail.from.address', '');
+                $fromEmail = 'info@'.EducationEliteMail::apexDomain();
             }
             if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
                 $fromEmail = $list[0]['email'] ?? '';
@@ -230,14 +230,23 @@ class OutlookController extends Controller
      */
     private function getEliteSenders(): array
     {
+        $defaultFrom = strtolower(trim((string) config(
+            'services.ses_elite.from_email',
+            'info@'.EducationEliteMail::apexDomain()
+        )));
         $raw = (string) config('services.ses_elite.senders', '');
         if (trim($raw) === '') {
-            $raw = (string) config('services.ses_elite.from_email', 'info@'.EducationEliteMail::apexDomain());
+            $raw = $defaultFrom;
         }
-        $displayName = (string) config('crm.education_elite_from_name', config('mail.from.name', 'Education Elite'));
+        $displayName = (string) config('crm.education_elite_from_name', 'Education Elite');
         $emails = array_filter(array_map('trim', explode(',', $raw)));
-        $list = [];
 
+        // Always include the configured default From address in the dropdown.
+        if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
+            array_unshift($emails, $defaultFrom);
+        }
+
+        $list = [];
         foreach ($emails as $email) {
             if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 continue;
@@ -245,14 +254,15 @@ class OutlookController extends Controller
             if (! EducationEliteMail::isEliteOwnedAddress($email)) {
                 continue;
             }
-            $list[] = [
-                'email' => strtolower($email),
-                'name' => $displayName !== '' ? $displayName : $email,
+            $normalized = strtolower($email);
+            $list[$normalized] = [
+                'email' => $normalized,
+                'name' => $displayName !== '' ? $displayName : $normalized,
                 'nickname' => '',
             ];
         }
 
-        return collect($list)->unique('email')->values()->toArray();
+        return array_values($list);
     }
 
     private function isSesEliteConfigured(): bool
