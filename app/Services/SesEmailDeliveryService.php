@@ -177,7 +177,7 @@ class SesEmailDeliveryService
             Log::info('ses.sns.subscription_confirmation_received', [
                 'topic' => $sns['TopicArn'] ?? null,
                 'token' => $token !== '' ? $token : null,
-                'has_subscribe_url' => $subscribeUrl !== '',
+                'subscribe_url' => $subscribeUrl !== '' ? $subscribeUrl : null,
             ]);
 
             if ($subscribeUrl !== '') {
