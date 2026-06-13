@@ -129,7 +129,7 @@ class EducationEliteInboxService
     }
 
     /**
-     * Match @apex or @*.apex (SendGrid Inbound Parse subdomain). $columnSqlExpr is a SQL fragment e.g. "to_address" or "COALESCE(c.from_mail, '')".
+     * Match @apex or @*.apex (Education Elite domain). $columnSqlExpr is a SQL fragment e.g. "to_address" or "COALESCE(c.from_mail, '')".
      */
     private function whereEmailColumnMatchesEliteDomain(Builder $q, string $columnSqlExpr): void
     {
@@ -154,7 +154,7 @@ class EducationEliteInboxService
     }
 
     /**
-     * SendGrid Inbound Parse only (`elite_emails`). Folder is always 'inbox';
+     * SES-synced inbound only (`elite_emails`). Folder is always 'inbox';
      * 'sent' has no records and returns [] immediately.
      *
      * @param  string|null  $folder  'inbox' or null → all inbound; 'sent' → always empty
@@ -213,7 +213,7 @@ class EducationEliteInboxService
     }
 
     /**
-     * Attach stored inbound files + rewrite cid: in HTML for SendGrid-derived rows.
+     * Attach stored inbound files + rewrite cid: in HTML for inbound webhook rows.
      *
      * @param  array<int, array<string, mixed>>  $items
      * @return array<int, array<string, mixed>>

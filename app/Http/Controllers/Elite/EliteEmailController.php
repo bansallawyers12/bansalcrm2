@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class EliteEmailController extends Controller
 {
     /**
-     * Serve a stored inbound attachment (SendGrid multipart).
+     * Serve a stored inbound attachment (SES-imported or legacy webhook multipart).
      */
     public function attachment(EliteEmailAttachment $attachment): StreamedResponse
     {
@@ -112,7 +112,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * JSON list for the Elite inbox: SendGrid Inbound Parse (elite_emails) plus
+     * JSON list for the Elite inbox: SES inbound sync (`elite_emails`) plus
      * optional CRM inbound (emails, mail_type 0) for the same domain.
      * Folder is always treated as 'inbox'; 'sent' returns [] in the service.
      */
@@ -266,7 +266,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * SendGrid Inbound Parse (and other providers): POST multipart, no CSRF.
+     * Legacy inbound webhook (multipart, no CSRF). Primary inbound is SES → S3 via ses:sync-inbound.
      */
     public function store(Request $request): JsonResponse
     {
@@ -416,7 +416,7 @@ class EliteEmailController extends Controller
         // Validate that at least one participant (To or From) is an Elite-domain address.
         // Inbound mail arrives FROM external senders TO @educationelite.com.au — we check
         // the To field. Some CRM-originated rows have the Elite address in From; we check both.
-        // SendGrid / some clients (e.g. Outlook-thread replies) may send `to` as an array, only
+        // Some inbound providers / clients (e.g. Outlook-thread replies) may send `to` as an array, only
         // in envelope JSON, or only in raw headers — collect all recipients before rejecting.
         $toAddresses = $this->collectInboundRecipientAddresses($request, $toRaw);
         $eliteTo = false;
@@ -510,7 +510,7 @@ class EliteEmailController extends Controller
 
     /**
      * Normalised list of recipient addresses (lowercase) for inbound validation and storage.
-     * Covers SendGrid Inbound Parse plus clients that omit top-level `to` or use envelope/headers only.
+     * Covers legacy inbound webhook payloads plus clients that omit top-level `to` or use envelope/headers only.
      *
      * @return list<string>
      */
@@ -609,7 +609,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * Extract mailbox addresses from raw RFC822 headers (SendGrid `headers` field).
+     * Extract mailbox addresses from raw RFC822 headers (inbound webhook `headers` field).
      *
      * @return list<string> Normalised lowercase emails
      */
@@ -672,7 +672,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * SendGrid sends `envelope` as a JSON string: {"to":["…"],"from":"…"}.
+     * Legacy webhook providers send `envelope` as a JSON string: {"to":["…"],"from":"…"}.
      */
     private function resolveFromAddress(Request $request): ?string
     {
@@ -741,7 +741,7 @@ class EliteEmailController extends Controller
     }
 
     /**
-     * Drop huge SendGrid fields (raw MIME) from stored JSON; keep metadata only.
+     * Drop huge inbound webhook fields (raw MIME) from stored JSON; keep metadata only.
      */
     private function compactPayload(Request $request): ?array
     {

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Stores every email sent from Admin Outlook (SendGrid) so Sent folder shows
+     * Stores every email sent from Admin Outlook (AWS SES) so Sent folder shows
      * which message was sent from which email, like Outlook.
      */
     public function up(): void

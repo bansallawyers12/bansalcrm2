@@ -48,7 +48,7 @@ class EliteInboundAttachmentService
     }
 
     /**
-     * Persist multipart files from SendGrid Inbound Parse (attachment1, attachment2, …).
+     * Persist multipart files from inbound webhook posts (attachment1, attachment2, …).
      */
     public function storeFromInboundRequest(EliteEmail $email, Request $request): void
     {

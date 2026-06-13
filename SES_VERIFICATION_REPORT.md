@@ -1,6 +1,8 @@
-# AWS SES Migration – Verification Report
+# AWS SES Integration – Verification Report
 
-**Scope:** Replace SendGrid with AWS SES for all CRM outbound emails
+**Scope:** AWS SES for all CRM outbound emails and Elite inbound
+
+> **Related docs:** `SES_EMAIL_MIGRATION.md` · `SES_USAGE_FRONTEND_BACKEND.md`
 
 ---
 
@@ -36,31 +38,35 @@
 
 ## 3. Configuration Summary
 
-| Before (SendGrid) | After (AWS SES) |
-|-------------------|-----------------|
-| `MAIL_MAILER=sendgrid` | `MAIL_MAILER=ses` |
-| `SENDGRID_API_KEY` | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
-| SendGrid verified senders API | `SesSenderService` + SES `listEmailIdentities` |
-| `sendgrid_outlook` mailer | `ses` mailer |
-| `sendgrid_elite` mailer | `ses_elite` mailer |
+| Setting | Value |
+|---------|-------|
+| Default mailer | `MAIL_MAILER=ses` |
+| Credentials | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
+| Sender list | `SesSenderService` + SES `listEmailIdentities` |
+| CRM Outlook mailer | `ses` |
+| Elite compose mailer | `ses_elite` |
+| Elite inbound | S3 bucket + `ses:sync-inbound` |
 
 ---
 
 ## 4. Frontend
 
-| Before | After |
-|--------|-------|
-| `partials/email-from-sendgrid*.blade.php` | `partials/email-from-ses*.blade.php` |
-| Class `email-from-sendgrid` | Class `email-from-ses` |
+| Component | Path / class |
+|-----------|--------------|
+| From dropdown partial | `partials/email-from-ses.blade.php` |
+| Sender fetch script | `partials/email-from-ses-script.blade.php` |
+| CSS class | `email-from-ses` |
+| Senders API | `GET /admin/outlook/senders` |
 
 ---
 
 ## 5. Commands
 
-| Before | After |
-|--------|-------|
-| `php artisan sendgrid:test` | `php artisan ses:test` |
-| — | `php artisan ses:sync-inbound` (Elite inbound) |
+```bash
+php artisan ses:test          # Verify SES credentials and list senders
+php artisan ses:sync-inbound  # Import Elite inbound .eml from S3
+php artisan email:debug       # Check from_emails table
+```
 
 ---
 
@@ -72,4 +78,5 @@ php artisan ses:test
 php artisan email:debug
 # Send test email from client compose modal
 # Send test from Outlook module
+# Run php artisan ses:sync-inbound to verify Elite inbound
 ```

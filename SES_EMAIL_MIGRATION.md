@@ -1,6 +1,8 @@
-# AWS SES Email Migration (SendGrid Replaced)
+# AWS SES Email Configuration
 
-All CRM outbound emails now send through **AWS SES** instead of SendGrid SMTP. The `from_emails` table is still used for **From address** options (Admin Console → Emails), but authentication uses AWS IAM credentials.
+All CRM outbound emails send through **AWS SES**. The `from_emails` table is used for **From address** options (Admin Console → Emails), but authentication uses AWS IAM credentials — not per-mailbox passwords.
+
+> **See also:** `SES_USAGE_FRONTEND_BACKEND.md` · `SES_VERIFICATION_REPORT.md`
 
 ---
 
@@ -28,6 +30,10 @@ SES_FROM_EMAIL=admin@bansaleducation.com.au
 SES_ELITE_FROM_EMAIL=info@educationelite.com.au
 SES_ELITE_SENDERS=info@educationelite.com.au
 EDUCATION_ELITE_MAILER=ses_elite
+
+# Elite inbound (SES receipt rule → S3)
+SES_INBOUND_BUCKET=bansalcrm
+SES_INBOUND_PREFIX=emails/incoming/
 ```
 
 ---
@@ -44,18 +50,18 @@ If an address is not verified, SES will reject the send.
 
 ---
 
-## What Changed
+## Email Areas Using AWS SES
 
-| Area | Before | After |
-|------|--------|-------|
-| Client/Partner compose | SendGrid SMTP | AWS SES (`ses` mailer) |
-| Email templates | SendGrid | AWS SES |
-| Invoices | SendGrid | AWS SES |
-| Document signatures | SendGrid | AWS SES |
-| Login alerts | SendGrid | AWS SES |
-| Outlook (Admin) | SendGrid | AWS SES |
-| Education Elite compose | SendGrid / SES | AWS SES (`ses_elite`) |
-| Elite inbound | SendGrid Inbound Parse | AWS SES → S3 + `ses:sync-inbound` |
+| Area | Mailer |
+|------|--------|
+| Client/Partner compose | `ses` |
+| Email templates | `ses` |
+| Invoices | `ses` |
+| Document signatures | `ses` |
+| Login alerts | `ses` |
+| Outlook (Admin) | `ses` |
+| Education Elite compose | `ses_elite` |
+| Elite inbound | SES → S3 + `ses:sync-inbound` |
 
 ---
 
@@ -92,3 +98,10 @@ php artisan ses:sync-inbound
 | AccessDenied on send | IAM user needs `ses:SendEmail` and `ses:SendRawEmail` |
 | Sandbox mode | Request production access in SES or verify recipient addresses |
 | Queued emails not sending | Run `php artisan queue:work` |
+| Elite inbox empty | Check `SES_INBOUND_BUCKET` / `SES_INBOUND_PREFIX`; run `php artisan ses:sync-inbound` |
+
+---
+
+## Legacy Inbound Webhook
+
+Legacy inbound webhook `POST /emails/elite` remains for older integrations. Primary Elite inbound is AWS SES receipt rules → S3 → `ses:sync-inbound`.
