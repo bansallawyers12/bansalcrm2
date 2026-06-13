@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 use App\Models\Admin;
 use App\Models\FromEmail;
+use App\Models\Staff;
 use App\Services\SesSenderService;
 use App\Support\FromEmailAddress;
 
@@ -75,14 +76,20 @@ class EmailController extends Controller
 				return redirect()->back()->withErrors($e->errors())->withInput();
 			}
 
+			try {
+				$this->assertStaffSharingForCreate((array) $request->input('users', []));
+			} catch (ValidationException $e) {
+				return redirect()->back()->withErrors($e->errors())->withInput();
+			}
+
 			$this->validate($request, [
 										'password' => 'required|string|min:1',
-										'users' => 'required|array|min:1',
+										'users' => 'required|array|min:4',
 										'users.*' => 'required'
 									  ], [
 										'password.required' => 'Password is required.',
-										'users.required' => 'Please select at least one user for User Sharing.',
-										'users.min' => 'Please select at least one user for User Sharing.'
+										'users.required' => 'Please select staff for Staff Sharing.',
+										'users.min' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
 									  ]);
 			
 			$requestData 		= 	$request->all();
@@ -236,6 +243,39 @@ class EmailController extends Controller
 			throw ValidationException::withMessages([
 				'email_name' => 'This email address already exists.',
 				'email' => 'This email address already exists.',
+			]);
+		}
+	}
+
+	/**
+	 * On create: Staff Sharing must include at least 2 Super Admin and 2 Admin staff.
+	 *
+	 * @throws ValidationException
+	 */
+	private function assertStaffSharingForCreate(array $userIds): void
+	{
+		$ids = array_values(array_unique(array_filter(array_map('intval', $userIds))));
+		if ($ids === []) {
+			throw ValidationException::withMessages([
+				'users' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
+			]);
+		}
+
+		$roleIds = config('crm_access.exempt_role_ids', [1, 12]);
+		$superAdminRoleId = (int) ($roleIds[0] ?? 1);
+		$adminRoleId = (int) ($roleIds[1] ?? 12);
+
+		$staff = Staff::query()
+			->whereIn('id', $ids)
+			->where('status', 1)
+			->get(['id', 'role']);
+
+		$superAdminCount = $staff->filter(fn (Staff $member) => (int) $member->role === $superAdminRoleId)->count();
+		$adminCount = $staff->filter(fn (Staff $member) => (int) $member->role === $adminRoleId)->count();
+
+		if ($superAdminCount < 2 || $adminCount < 2) {
+			throw ValidationException::withMessages([
+				'users' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
 			]);
 		}
 	}
