@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Route;
 | Education Elite email
 |--------------------------------------------------------------------------
 |
-| POST /emails/elite — Legacy inbound webhook (optional): public, CSRF exempt, optional ?secret=
-| Primary inbound: AWS SES → S3 (.eml), imported by `php artisan ses:sync-inbound`.
+| POST /emails/elite — legacy inbound webhook (optional). Primary inbound: SES → S3 → ses:sync-inbound.
+| All GET routes — admin login required (UI, JSON inbox/sent/drafts, attachment downloads for img src)
 |
-| Legacy POST /elite/emails is kept for older inbound webhook URLs until removed.
+| Legacy POST /elite/emails kept for old webhook URLs.
 |
 */
 

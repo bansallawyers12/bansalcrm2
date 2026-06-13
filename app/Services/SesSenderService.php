@@ -6,57 +6,72 @@ use App\Models\FromEmail;
 use Aws\SesV2\SesV2Client;
 use Illuminate\Support\Facades\Log;
 
-/**
- * Resolve verified From addresses for CRM compose (AWS SES).
- */
 class SesSenderService
 {
     /**
+     * Verified CRM From addresses for compose dropdowns (@bansaleducation.com.au + admission@bansalimmigration.com.au).
+     *
      * @return list<array{email: string, name: string, nickname: string}>
      */
-    public function listVerifiedSenders(): array
+    public function getCrmSenders(): array
     {
-        $senders = $this->fetchFromSesApi();
-
-        if ($senders === []) {
-            $senders = $this->sendersFromEnv();
-        }
-
-        $senders = $this->mergeFromDatabase($senders);
-
-        return collect($senders)
-            ->filter(fn (array $sender) => ! empty($sender['email']) && filter_var($sender['email'], FILTER_VALIDATE_EMAIL))
-            ->unique('email')
+        $fromEnv = $this->parseSenderEmails((string) config('services.ses_crm.senders', ''));
+        $fromApi = $this->listVerifiedEmailIdentitiesFromApi();
+        $fromDb = FromEmail::where('status', true)
+            ->orderBy('id')
+            ->pluck('email')
+            ->map(fn ($email) => strtolower(trim((string) $email)))
+            ->filter()
             ->values()
             ->all();
+
+        $defaultFrom = strtolower(trim((string) config('services.ses_crm.from_email', '')));
+        if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
+            array_unshift($fromEnv, $defaultFrom);
+        }
+
+        $emails = array_values(array_unique(array_merge($fromEnv, $fromApi, $fromDb)));
+        $list = [];
+
+        foreach ($emails as $email) {
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            $normalized = strtolower($email);
+            $list[$normalized] = [
+                'email' => $normalized,
+                'name' => $normalized,
+                'nickname' => '',
+            ];
+        }
+
+        $filtered = $this->filterComposeSenders(array_values($list));
+
+        foreach ($filtered as &$sender) {
+            $db = FromEmail::where('status', true)
+                ->whereRaw('LOWER(TRIM(email)) = ?', [$sender['email']])
+                ->first();
+            if ($db && $db->display_name) {
+                $sender['name'] = $db->display_name;
+            }
+        }
+        unset($sender);
+
+        return $filtered;
     }
 
     /**
-     * @return list<array{email: string, name: string, nickname: string}>
+     * @return list<string>
      */
-    private function fetchFromSesApi(): array
+    public function listVerifiedEmailIdentitiesFromApi(): array
     {
-        $key = config('services.ses.key');
-        $secret = config('services.ses.secret');
-        $region = config('services.ses.region', 'ap-southeast-2');
-
-        if (empty($key) || empty($secret)) {
-            Log::warning('SES: AWS credentials not set in .env');
-
+        if (! $this->isConfigured()) {
             return [];
         }
 
         try {
-            $client = new SesV2Client([
-                'version' => 'latest',
-                'region' => $region,
-                'credentials' => [
-                    'key' => $key,
-                    'secret' => $secret,
-                ],
-            ]);
-
-            $senders = [];
+            $client = $this->client();
+            $emails = [];
             $nextToken = null;
 
             do {
@@ -64,103 +79,96 @@ class SesSenderService
                 if ($nextToken !== null) {
                     $params['NextToken'] = $nextToken;
                 }
-
                 $result = $client->listEmailIdentities($params);
+                $identities = $result->get('EmailIdentities') ?? [];
 
-                foreach ($result->get('EmailIdentities') ?? [] as $identity) {
-                    $identityName = (string) ($identity['IdentityName'] ?? '');
-                    $identityType = (string) ($identity['IdentityType'] ?? '');
+                foreach ($identities as $identity) {
+                    $name = strtolower(trim((string) ($identity['IdentityName'] ?? '')));
+                    $type = (string) ($identity['IdentityType'] ?? '');
 
-                    if ($identityType !== 'EMAIL_ADDRESS') {
-                        continue;
+                    if ($type === 'EMAIL_ADDRESS' && filter_var($name, FILTER_VALIDATE_EMAIL)) {
+                        $emails[] = $name;
                     }
-
-                    if (! filter_var($identityName, FILTER_VALIDATE_EMAIL)) {
-                        continue;
-                    }
-
-                    $normalized = strtolower(trim($identityName));
-                    $senders[$normalized] = [
-                        'email' => $normalized,
-                        'name' => $identityName,
-                        'nickname' => '',
-                    ];
                 }
 
                 $nextToken = $result->get('NextToken');
             } while ($nextToken !== null);
 
-            return array_values($senders);
+            return array_values(array_unique($emails));
         } catch (\Throwable $e) {
-            Log::error('SES listEmailIdentities failed: '.$e->getMessage());
+            Log::warning('SES listEmailIdentities failed: '.$e->getMessage());
 
             return [];
         }
     }
 
-    /**
-     * @return list<array{email: string, name: string, nickname: string}>
-     */
-    private function sendersFromEnv(): array
+    public function isConfigured(): bool
     {
-        $fallbackSenders = config('services.ses.senders');
-        if (empty($fallbackSenders) || ! is_string($fallbackSenders)) {
-            return [];
-        }
+        $key = config('services.ses.key');
+        $secret = config('services.ses.secret');
 
-        $list = [];
-        foreach (array_filter(array_map('trim', explode(',', $fallbackSenders))) as $email) {
-            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-            $normalized = strtolower($email);
-            $list[] = [
-                'email' => $normalized,
-                'name' => $email,
-                'nickname' => '',
-            ];
-        }
-
-        return $list;
+        return ! empty($key) && ! empty($secret);
     }
 
     /**
+     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
+     *
      * @param  list<array{email: string, name: string, nickname: string}>  $senders
      * @return list<array{email: string, name: string, nickname: string}>
      */
-    private function mergeFromDatabase(array $senders): array
+    public function filterComposeSenders(array $senders): array
     {
-        $byEmail = [];
-        foreach ($senders as $sender) {
-            $byEmail[strtolower($sender['email'])] = $sender;
-        }
-
-        try {
-            $rows = FromEmail::where('status', true)->get(['email', 'display_name']);
-            foreach ($rows as $row) {
-                $email = strtolower(trim((string) $row->email));
-                if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    continue;
-                }
-
-                $displayName = trim((string) ($row->display_name ?? ''));
-                if (isset($byEmail[$email])) {
-                    if ($displayName !== '') {
-                        $byEmail[$email]['name'] = $displayName;
-                    }
-                    continue;
-                }
-
-                $byEmail[$email] = [
-                    'email' => $email,
-                    'name' => $displayName !== '' ? $displayName : $email,
-                    'nickname' => '',
-                ];
+        $filtered = array_values(array_filter($senders, function (array $sender) {
+            $email = strtolower(trim((string) ($sender['email'] ?? '')));
+            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return false;
             }
-        } catch (\Throwable $e) {
-            Log::warning('SES: could not merge from_emails table: '.$e->getMessage());
+
+            return str_ends_with($email, '@bansaleducation.com.au')
+                || $email === 'admission@bansalimmigration.com.au';
+        }));
+
+        usort($filtered, function (array $a, array $b) {
+            $emailA = strtolower((string) ($a['email'] ?? ''));
+            $emailB = strtolower((string) ($b['email'] ?? ''));
+
+            if ($emailA === 'admission@bansalimmigration.com.au') {
+                return -1;
+            }
+            if ($emailB === 'admission@bansalimmigration.com.au') {
+                return 1;
+            }
+
+            return strcmp($emailA, $emailB);
+        });
+
+        return $filtered;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseSenderEmails(string $raw): array
+    {
+        $emails = [];
+        foreach (array_filter(array_map('trim', explode(',', $raw))) as $email) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $emails[] = strtolower($email);
+            }
         }
 
-        return array_values($byEmail);
+        return $emails;
+    }
+
+    private function client(): SesV2Client
+    {
+        return new SesV2Client([
+            'version' => 'latest',
+            'region' => config('services.ses.region', 'ap-southeast-2'),
+            'credentials' => [
+                'key' => config('services.ses.key'),
+                'secret' => config('services.ses.secret'),
+            ],
+        ]);
     }
 }

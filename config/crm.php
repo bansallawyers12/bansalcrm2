@@ -31,9 +31,9 @@ return [
     | Education Elite inbound email (/elite/emails)
     |--------------------------------------------------------------------------
     |
-    | The Elite inbox shows inbound rows from AWS SES (S3 .eml import via ses:sync-inbound)
-    | and legacy webhook POSTs stored in elite_emails. Optionally also CRM inbound email
-    | (emails.mail_type = 0) for the same domain when education_elite_inbox_merge_crm is true.
+    | The Elite inbox shows AWS SES inbound rows (elite_emails), imported from S3
+    | via `php artisan ses:sync-inbound` (scheduled every minute). Optionally also
+    | CRM inbound email (emails.mail_type = 0) for the same domain.
     |
     | education_elite_sender_domain — only this domain may appear in From
     | (e.g. educationelite.com.au → accepts *@educationelite.com.au).
@@ -42,22 +42,26 @@ return [
     | where from or to is @sender_domain) with elite_emails in /elite/emails.
     |
     | education_elite_inbound_secret — if non-empty, legacy POST /emails/elite must
-    | include the same value as query ?secret=... or header X-Elite-Webhook-Secret.
+    | include query ?secret=... or header X-Elite-Webhook-Secret. Rotate if leaked.
     |
-    | education_elite_inbound_parse_host — optional inbound hostname for Reply-To UI hints.
+    | education_elite_inbound_parse_host — optional inbound hostname for Reply-To
+    | (legacy). Primary inbound path is SES receipt rule → S3 → ses:sync-inbound.
     |
-    | education_elite_inbound_reply_to — optional full address for Elite compose Reply-To.
+    | education_elite_inbound_reply_to — optional full address (e.g. inbound@parse.educationelite.com.au).
+    | When set, Elite “New Message” uses this as Reply-To so customer replies hit Inbound Parse → CRM inbox.
     |
     | If empty but education_elite_inbound_parse_host is set, Reply-To defaults to
     | {education_elite_inbound_reply_local}@{parse_host} (default local part: inbound).
     |
-    | education_elite_inbound_set_reply_to — set to false to disable Reply-To on Elite sends.
+    | education_elite_inbound_set_reply_to — set to false to disable Reply-To on Elite sends (replies only
+    | to From; use M365 forwarding if you still need CRM copies).
     |
-    | education_elite_inbound_webhook_log — when true, legacy POST /emails/elite logs
-    | diagnostic lines to the default log channel.
+    | education_elite_inbound_webhook_log — when true, POST /elite/emails logs diagnostic lines
+    | (elite.inbound, elite.inbound.parsed, elite.inbound.rejected, elite.inbound.stored, etc.) to the default log channel.
     |
-    | education_elite_inbound_attachments_disk — filesystem disk for inbound attachments
+    | education_elite_inbound_attachments_disk — filesystem disk name for inbound multipart attachments
     | (elite_email_attachments.storage_path is the object key). Default s3 uses AWS_* from .env.
+    | Use local for legacy/on-prem only; serving tries this disk first, then local for old rows.
     |
     */
     'education_elite_sender_domain' => env('EDUCATION_ELITE_SENDER_DOMAIN', 'educationelite.com.au'),

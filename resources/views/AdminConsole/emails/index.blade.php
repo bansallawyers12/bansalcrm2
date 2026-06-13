@@ -42,7 +42,9 @@
 										$username = '';
 										foreach($userids as $userid){
 											$users = \App\Models\Staff::find($userid) ?? \App\Models\Admin::find($userid);
-											$username .= $users->first_name.', ';
+											if ($users) {
+												$username .= $users->first_name.', ';
+											}
 										}
                                     } ?>
 									<tr id="id_{{@$list->id}}">

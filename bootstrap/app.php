@@ -51,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->preventRequestForgery(except: [
             'api/*',
             'webhooks/sms/*',
+            'webhooks/ses/*',
             'emails/elite',
             'elite/emails',
             'update_visit_purpose',

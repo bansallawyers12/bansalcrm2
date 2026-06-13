@@ -11,7 +11,7 @@ class SesTestCommand extends Command
 {
     protected $signature = 'ses:test';
 
-    protected $description = 'Test AWS SES credentials and list verified sender identities';
+    protected $description = 'Test AWS SES credentials and list verified identities';
 
     public function handle(SesSenderService $sesSenderService): int
     {
@@ -29,6 +29,7 @@ class SesTestCommand extends Command
         $this->info("Testing AWS SES (region: {$region})...");
         $this->newLine();
 
+        $apex = EducationEliteMail::apexDomain();
         $credentialsOk = false;
 
         try {
@@ -46,9 +47,9 @@ class SesTestCommand extends Command
             $identities = $result->get('EmailIdentities') ?? [];
 
             if ($identities === []) {
-                $this->warn('No email identities found in SES. Verify your domains/addresses in the SES console.');
+                $this->warn('No email identities found in SES. Verify domains/addresses in the SES console.');
             } else {
-                $this->info('SES identities (API):');
+                $this->info('SES identities:');
                 foreach ($identities as $identity) {
                     $name = $identity['IdentityName'] ?? '(unknown)';
                     $type = $identity['IdentityType'] ?? '';
@@ -68,14 +69,9 @@ class SesTestCommand extends Command
         }
 
         $this->newLine();
-        $this->info('CRM From dropdown (SES_SENDERS / from_emails / SES API):');
-        $crmSenders = $sesSenderService->listVerifiedSenders();
-        if ($crmSenders === []) {
-            $this->warn('  No CRM senders resolved. Set SES_SENDERS or verify addresses in SES.');
-        } else {
-            foreach ($crmSenders as $sender) {
-                $this->line('  • '.($sender['email'] ?? ''));
-            }
+        $this->info('CRM From dropdown (SES_SENDERS / SES_FROM_EMAIL / DB):');
+        foreach ($sesSenderService->getCrmSenders() as $sender) {
+            $this->line('  • '.($sender['email'] ?? ''));
         }
 
         $this->newLine();
@@ -86,10 +82,8 @@ class SesTestCommand extends Command
             $this->line("  {$ok} {$email}");
         }
 
-        $apex = EducationEliteMail::apexDomain();
         $this->newLine();
-        $this->info('Default mailer: '.config('mail.default', 'ses'));
-        $this->line("Elite mailer: ".config('crm.education_elite_mailer', 'ses_elite'));
+        $this->info('Elite mailer: '.config('crm.education_elite_mailer', 'ses_elite'));
         $this->line("Elite domain: @{$apex}");
         if ($credentialsOk) {
             $this->info('SES credentials: OK');

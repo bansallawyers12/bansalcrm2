@@ -69,7 +69,7 @@
 																<strong>{{ @$errors->first('password') }}</strong>
 															</span>
 														@endif
-														<small class="form-text text-muted">Enter a new password only if you want to change it. Leave blank to keep the existing one.</small>
+														<small class="form-text text-muted">Not used for sending — CRM uses AWS SES. Leave blank to keep the existing value.</small>
 													</div>
 												</div>
                                               

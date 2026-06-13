@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
+use App\Services\SesEmailDeliveryService;
 use App\Services\SesSenderService;
 use App\Support\EducationEliteMail;
 use Illuminate\Http\Request;
@@ -15,7 +16,8 @@ use Illuminate\Support\Facades\Mail;
 class OutlookController extends Controller
 {
     public function __construct(
-        private SesSenderService $sesSenderService
+        private SesSenderService $sesSenderService,
+        private SesEmailDeliveryService $deliveryService
     ) {
         $this->middleware('auth:admin');
     }
@@ -48,9 +50,9 @@ class OutlookController extends Controller
             ]);
         }
 
-        $list = $this->filterComposeSenders($this->getVerifiedSenders());
-        $fromEmail = config('services.ses.from_email', '');
-        if (empty($fromEmail)) {
+        $list = $this->sesSenderService->getCrmSenders();
+        $fromEmail = (string) config('services.ses_crm.from_email', '');
+        if ($fromEmail === '') {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
         }
         $emails = array_column($list, 'email');
@@ -62,58 +64,6 @@ class OutlookController extends Controller
             'senders' => $list,
             'default_from' => $fromEmail,
         ]);
-    }
-
-    /**
-     * Fetch verified senders from AWS SES (plus from_emails DB and SES_SENDERS fallback).
-     */
-    private function getVerifiedSenders(): array
-    {
-        return $this->sesSenderService->listVerifiedSenders();
-    }
-
-    /**
-     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
-     */
-    private function filterComposeSenders(array $senders): array
-    {
-        $filtered = array_values(array_filter($senders, function (array $sender) {
-            $email = strtolower(trim((string) ($sender['email'] ?? '')));
-            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return false;
-            }
-
-            return str_ends_with($email, '@bansaleducation.com.au')
-                || $email === 'admission@bansalimmigration.com.au';
-        }));
-
-        usort($filtered, function (array $a, array $b) {
-            $emailA = strtolower((string) ($a['email'] ?? ''));
-            $emailB = strtolower((string) ($b['email'] ?? ''));
-
-            if ($emailA === 'admission@bansalimmigration.com.au') {
-                return -1;
-            }
-            if ($emailB === 'admission@bansalimmigration.com.au') {
-                return 1;
-            }
-
-            return strcmp($emailA, $emailB);
-        });
-
-        return $filtered;
-    }
-
-    /**
-     * Mailer for Outlook send: CRM uses ses; Elite compose uses ses_elite.
-     */
-    private function mailerNameForOutlookSend(Request $request): string
-    {
-        if ($request->boolean('_elite_compose')) {
-            return 'ses_elite';
-        }
-
-        return 'ses';
     }
 
     /**
@@ -134,7 +84,6 @@ class OutlookController extends Controller
         $displayName = (string) config('crm.education_elite_from_name', 'Education Elite');
         $emails = array_filter(array_map('trim', explode(',', $raw)));
 
-        // Always include the configured default From address in the dropdown.
         if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
             array_unshift($emails, $defaultFrom);
         }
@@ -158,12 +107,28 @@ class OutlookController extends Controller
         return array_values($list);
     }
 
-    private function isSesEliteConfigured(): bool
+    /**
+     * Mailer for Outlook send: Elite compose uses ses_elite, CRM uses ses.
+     */
+    private function mailerNameForOutlookSend(Request $request): string
     {
-        $key = config('services.ses.key');
-        $secret = config('services.ses.secret');
+        if ($request->boolean('_elite_compose')) {
+            if (! $this->sesSenderService->isConfigured()) {
+                Log::error('Outlook: SES credentials missing for Elite compose');
 
-        return ! empty($key) && ! empty($secret);
+                throw new \RuntimeException('AWS SES is not configured.');
+            }
+
+            return 'ses_elite';
+        }
+
+        if (! $this->sesSenderService->isConfigured()) {
+            Log::error('Outlook: SES credentials missing for CRM compose');
+
+            throw new \RuntimeException('AWS SES is not configured.');
+        }
+
+        return 'ses';
     }
 
     /**
@@ -175,7 +140,7 @@ class OutlookController extends Controller
     }
 
     /**
-     * Display name for From, matching SES verified sender.
+     * Display name for From, matching verified sender list.
      */
     private function displayNameForFrom(string $fromEmail, array $verifiedSenders): string
     {
@@ -210,13 +175,6 @@ class OutlookController extends Controller
 
     /**
      * Reply-To for Elite "New Message".
-     *
-     * Since the full educationelite.com.au domain receives inbound mail via AWS SES → S3,
-     * replies to the From address (info@educationelite.com.au) are captured directly.
-     * No Reply-To subdomain is needed. Returns null unless EDUCATION_ELITE_INBOUND_PARSE_HOST
-     * is explicitly set AND is NOT a subdomain of the apex domain (future-proof for
-     * multi-domain setups). Ignores EDUCATION_ELITE_INBOUND_REPLY_TO to prevent
-     * broken subdomain addresses from being injected via env.
      */
     private function resolveEliteComposeReplyTo(): ?string
     {
@@ -231,8 +189,7 @@ class OutlookController extends Controller
 
         $apexDomain = strtolower(trim(ltrim((string) config('crm.education_elite_sender_domain', 'educationelite.com.au'), '@')));
 
-        // If parse host is the apex or a subdomain of it, MX already covers it — no Reply-To needed.
-        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.' . $apexDomain)) {
+        if ($parseHost === $apexDomain || str_ends_with($parseHost, '.'.$apexDomain)) {
             return null;
         }
 
@@ -241,13 +198,13 @@ class OutlookController extends Controller
             $local = 'inbound';
         }
 
-        $addr = $local . '@' . $parseHost;
+        $addr = $local.'@'.$parseHost;
 
         return filter_var($addr, FILTER_VALIDATE_EMAIL) ? $addr : null;
     }
 
     /**
-     * Send email via AWS SES (CRM/Outlook and Education Elite compose).
+     * Send email via AWS SES (CRM and Education Elite compose).
      * Form fields: from, to, cc, subject, body; supports attachments.
      */
     public function send(Request $request)
@@ -293,7 +250,7 @@ class OutlookController extends Controller
 
         $verifiedSenders = $request->boolean('_elite_compose')
             ? $this->getEliteSenders()
-            : $this->getVerifiedSenders();
+            : $this->sesSenderService->getCrmSenders();
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
         $plainBody = $this->htmlToPlainTextForMail($htmlBody);
@@ -305,6 +262,7 @@ class OutlookController extends Controller
             $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $plainBody, $eliteReplyTo) {
                 $message->to($to)->from($from, $fromDisplayName)->subject($subject);
                 $message->text($plainBody);
+                $this->deliveryService->applyOutboundHeaders($message);
                 if ($eliteReplyTo !== null) {
                     $message->replyTo($eliteReplyTo);
                 }
@@ -333,9 +291,10 @@ class OutlookController extends Controller
                 throw new \RuntimeException('Email could not be sent (message was blocked or not transmitted).');
             }
 
-            // Record sent email in emails table (same as CRM) so Sent folder shows all emails
+            $sesMessageId = $this->deliveryService->extractMessageId($sent);
+
             try {
-                Email::create([
+                $emailRow = [
                     'user_id' => auth('admin')->id(),
                     'from_mail' => $from,
                     'to_mail' => $to,
@@ -345,7 +304,13 @@ class OutlookController extends Controller
                     'type' => 'outlook',
                     'client_id' => null,
                     'mail_type' => 1,
-                ]);
+                ];
+                if ($this->deliveryService->supportsTracking()) {
+                    $emailRow['message_id'] = $sesMessageId;
+                    $emailRow['delivery_status'] = SesEmailDeliveryService::STATUS_SENT;
+                    $emailRow['delivery_status_at'] = now();
+                }
+                Email::create($emailRow);
             } catch (\Throwable $createEx) {
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
             }
@@ -357,14 +322,14 @@ class OutlookController extends Controller
             return redirect()->route('dashboard')
                 ->with('success', 'Email sent successfully.');
         } catch (\Throwable $e) {
-            Log::error('Email sending error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::error('Email sending error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
             if ($request->boolean('_elite_compose') || $request->wantsJson()) {
-                return response()->json(['ok' => false, 'message' => 'Failed to send email: ' . $e->getMessage()], 500);
+                return response()->json(['ok' => false, 'message' => 'Failed to send email: '.$e->getMessage()], 500);
             }
 
             return redirect()->route('dashboard')
-                ->with('error', 'Failed to send email: ' . $e->getMessage())
+                ->with('error', 'Failed to send email: '.$e->getMessage())
                 ->withInput($request->only('from', 'to', 'cc', 'subject', 'body'));
         }
     }
