@@ -13,7 +13,9 @@ class RecordSesEmailDelivery
 
     public function handle(MessageSent $event): void
     {
-        if (! in_array($event->mailer ?? '', $this->deliveryService->trackedMailers(), true)) {
+        // Laravel 11+ stores the mailer name in $event->data['mailer'], not $event->mailer.
+        $mailer = (string) ($event->data['mailer'] ?? '');
+        if (! in_array($mailer, $this->deliveryService->trackedMailers(), true)) {
             return;
         }
 
