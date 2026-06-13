@@ -51,7 +51,7 @@ class OutlookController extends Controller
             ]);
         }
 
-        $list = $this->sesSenderService->getCrmSenders();
+        $list = $this->sesSenderService->getCrmSenders(auth('admin')->id());
         $fromEmail = (string) config('services.ses_crm.from_email', '');
         if ($fromEmail === '') {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');

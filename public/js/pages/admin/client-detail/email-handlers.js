@@ -156,6 +156,9 @@ jQuery(document).ready(function($){
         }
 
         $('#emailmodal').on('shown.bs.modal', function() {
+            if (typeof window.refreshEmailFromSenders === 'function') {
+                window.refreshEmailFromSenders();
+            }
             clearComposeLabelChips();
             fetch('/email-v2/labels', {
                 method: 'GET',

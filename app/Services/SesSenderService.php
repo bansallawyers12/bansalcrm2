@@ -13,12 +13,14 @@ class SesSenderService
      *
      * @return list<array{email: string, name: string, nickname: string}>
      */
-    public function getCrmSenders(): array
+    public function getCrmSenders(?int $adminId = null): array
     {
         $fromEnv = $this->parseSenderEmails((string) config('services.ses_crm.senders', ''));
         $fromApi = $this->listVerifiedEmailIdentitiesFromApi();
         $fromDb = FromEmail::where('status', true)
             ->orderBy('id')
+            ->get()
+            ->filter(fn (FromEmail $row) => $this->fromEmailVisibleToAdmin($row, $adminId))
             ->pluck('email')
             ->map(fn ($email) => strtolower(trim((string) $email)))
             ->filter()
@@ -143,6 +145,30 @@ class SesSenderService
         });
 
         return $filtered;
+    }
+
+    /**
+     * Admin Console stores allowed staff on from_emails.user_id (JSON array of staff ids).
+     */
+    private function fromEmailVisibleToAdmin(FromEmail $row, ?int $adminId): bool
+    {
+        if ($adminId === null) {
+            return true;
+        }
+
+        $raw = $row->user_id;
+        if ($raw === null || $raw === '' || $raw === '[]' || $raw === 'null') {
+            return true;
+        }
+
+        $ids = is_array($raw) ? $raw : json_decode((string) $raw, true);
+        if (! is_array($ids) || $ids === []) {
+            return true;
+        }
+
+        $allowed = array_map(static fn ($id) => (string) $id, $ids);
+
+        return in_array((string) $adminId, $allowed, true);
     }
 
     /**
