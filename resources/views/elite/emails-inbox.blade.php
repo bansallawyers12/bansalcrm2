@@ -695,8 +695,8 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             <div style="padding:16px 20px 0;flex-shrink:0;">
                 {{-- From --}}
                 <div style="display:flex;align-items:center;margin-bottom:12px;">
-                    <label style="min-width:56px;font-size:13px;color:#555;">From</label>
-                    <select name="from" id="eliteComposeFrom"
+                    <label style="min-width:56px;font-size:13px;color:#555;">From <span style="color:#dc3545;">*</span></label>
+                    <select name="from" id="eliteComposeFrom" required
                             style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
                         <option value="">Loading senders…</option>
                     </select>
@@ -1532,6 +1532,11 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var alertBar       = document.getElementById('eliteComposeAlert');
         var sendBtn        = document.getElementById('eliteComposeSend');
         var fromSel        = document.getElementById('eliteComposeFrom');
+        if (fromSel) {
+            fromSel.addEventListener('change', function () {
+                fromSel.setCustomValidity('');
+            });
+        }
         var titleEl        = document.getElementById('eliteComposeTitle');
         var saveDraftBtn   = document.getElementById('eliteComposeSaveDraft');
         var attachBtn      = document.getElementById('eliteAttachBtn');
@@ -1687,6 +1692,20 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             });
         }
 
+        function validateComposeFrom() {
+            if (!fromSel || !fromSel.value) {
+                if (fromSel) {
+                    fromSel.setCustomValidity('Please select a From address.');
+                    fromSel.reportValidity();
+                } else {
+                    showComposeAlert('error', 'Please select a From address.');
+                }
+                return false;
+            }
+            fromSel.setCustomValidity('');
+            return true;
+        }
+
         /* ── Senders ─────────────────────────────────────────────────────────── */
         function loadSenders(done) {
             function flushWaiters() {
@@ -1831,8 +1850,13 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 
                 if (!from) {
                     showComposeAlert('error', 'Please select a From address before saving.');
+                    if (fromSel) {
+                        fromSel.setCustomValidity('Please select a From address.');
+                        fromSel.reportValidity();
+                    }
                     return;
                 }
+                if (fromSel) fromSel.setCustomValidity('');
 
                 var toErr = validateRecipientField(toEl ? toEl.value : '', 'To', false);
                 if (toErr) {
@@ -1905,6 +1929,10 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 ev.preventDefault();
                 if (alertBar) { alertBar.style.display = 'none'; }
 
+                if (!validateComposeFrom()) {
+                    return;
+                }
+
                 var toEl  = form.querySelector('[name="to"]');
                 var ccEl  = form.querySelector('[name="cc"]');
                 var toErr = validateRecipientField(toEl ? toEl.value : '', 'To', true);
@@ -1915,10 +1943,6 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 var ccErr = validateRecipientField(ccEl ? ccEl.value : '', 'Cc', false);
                 if (ccErr) {
                     showComposeAlert('error', ccErr);
-                    return;
-                }
-                if (!fromSel || !fromSel.value) {
-                    showComposeAlert('error', 'Please select a From address.');
                     return;
                 }
 
