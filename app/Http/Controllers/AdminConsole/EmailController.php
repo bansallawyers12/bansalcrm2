@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 use App\Models\Admin;
 use App\Models\FromEmail;
 use App\Services\SesSenderService;
+use App\Support\FromEmailAddress;
 
-use Auth; 
 use Config;
 
 class EmailController extends Controller
@@ -67,28 +69,28 @@ class EmailController extends Controller
 		//check authorization end
 		if ($request->isMethod('post')) 
 		{
+			try {
+				$email = $this->resolveFromEmailInput($request);
+			} catch (ValidationException $e) {
+				return redirect()->back()->withErrors($e->errors())->withInput();
+			}
+
 			$this->validate($request, [
-										'email' => 'required|email|max:255|unique:from_emails',
-										'password' => 'nullable|string|min:1',
+										'password' => 'required|string|min:1',
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
+										'password.required' => 'Password is required.',
 										'users.required' => 'Please select at least one user for User Sharing.',
 										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
-
-			if (! app(SesSenderService::class)->isAllowedSenderDomain((string) $request->input('email'))) {
-				return redirect()->back()
-					->withErrors(['email' => 'Use @bansaleducation.com.au, @educationelite.com.au, or admission@bansalimmigration.com.au.'])
-					->withInput();
-			}
 			
 			$requestData 		= 	$request->all();
 			
 			$obj				= 	new FromEmail; 
-			$obj->email	=	@$requestData['email'];
+			$obj->email	=	$email;
 			$obj->display_name	=	@$requestData['display_name'];
-            $obj->password	=	trim((string) ($requestData['password'] ?? '')) !== '' ? $requestData['password'] : 'ses';
+            $obj->password	=	$requestData['password'];
 			$obj->status	=	($request->has('status') && $request->input('status')) ? 1 : 0;
 			$obj->user_id	=	json_encode(@$requestData['users']);
 			
@@ -115,24 +117,23 @@ class EmailController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$requestData 		= 	$request->all();
+
+			try {
+				$email = $this->resolveFromEmailInput($request, (int) ($requestData['id'] ?? 0));
+			} catch (ValidationException $e) {
+				return redirect()->back()->withErrors($e->errors())->withInput();
+			}
 			
 			$this->validate($request, [										
-										'email' => 'required|email|max:255|unique:from_emails,email,'.$requestData['id'],
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
 										'users.required' => 'Please select at least one user for User Sharing.',
 										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
-
-			if (! app(SesSenderService::class)->isAllowedSenderDomain((string) $request->input('email'))) {
-				return redirect()->back()
-					->withErrors(['email' => 'Use @bansaleducation.com.au, @educationelite.com.au, or admission@bansalimmigration.com.au.'])
-					->withInput();
-			}
 								  					  
 			$obj			= 	FromEmail::find(@$requestData['id']);
-			$obj->email	=	@$requestData['email'];
+			$obj->email	=	$email;
 			$obj->display_name	=	@$requestData['display_name'];
 			// Only update password when a new value is provided (avoids overwriting with empty on edit)
 			if (!empty(trim($requestData['password'] ?? ''))) {
@@ -176,5 +177,66 @@ class EmailController extends Controller
 			}		
 		} 	
 		
+	}
+
+	/**
+	 * Build full from_emails address from email_name + email_domain radio.
+	 *
+	 * @throws ValidationException
+	 */
+	private function resolveFromEmailInput(Request $request, ?int $ignoreId = null): string
+	{
+		$this->validate($request, [
+			'email_name' => ['required', 'string', 'max:64', 'not_regex:/@/', 'regex:/^[a-zA-Z0-9._%+-]+$/'],
+			'email_domain' => ['required', Rule::in(FromEmailAddress::domains())],
+		], [
+			'email_name.required' => 'Email name is required.',
+			'email_name.not_regex' => 'Email name cannot contain @. Enter only the part before @.',
+			'email_name.regex' => 'Email name may only contain letters, numbers, and . _ % + - (no @).',
+			'email_domain.required' => 'Please select an email domain.',
+			'email_domain.in' => 'Please select a valid email domain.',
+		]);
+
+		$email = FromEmailAddress::compose(
+			FromEmailAddress::normalizeLocal((string) $request->input('email_name')),
+			(string) $request->input('email_domain')
+		);
+
+		if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			throw ValidationException::withMessages([
+				'email_name' => 'Could not build a valid email address from the name and domain.',
+			]);
+		}
+
+		if (! app(SesSenderService::class)->isAllowedSenderDomain($email)) {
+			throw ValidationException::withMessages([
+				'email_domain' => 'Use @bansaleducation.com.au, @educationelite.com.au, or @bansalimmigration.com.au.',
+			]);
+		}
+
+		$this->assertFromEmailUnique($email, $ignoreId);
+
+		return $email;
+	}
+
+	/**
+	 * Case-insensitive duplicate check (create + edit).
+	 *
+	 * @throws ValidationException
+	 */
+	private function assertFromEmailUnique(string $email, ?int $ignoreId = null): void
+	{
+		$normalized = strtolower(trim($email));
+		$query = FromEmail::whereRaw('LOWER(TRIM(email)) = ?', [$normalized]);
+		if ($ignoreId) {
+			$query->where('id', '!=', $ignoreId);
+		}
+
+		if ($query->exists()) {
+			throw ValidationException::withMessages([
+				'email_name' => 'This email address already exists.',
+				'email' => 'This email address already exists.',
+			]);
+		}
 	}
 }

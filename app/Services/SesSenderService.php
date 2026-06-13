@@ -55,7 +55,7 @@ class SesSenderService
 
         return str_ends_with($email, '@bansaleducation.com.au')
             || EducationEliteMail::isEliteOwnedAddress($email)
-            || $email === 'admission@bansalimmigration.com.au';
+            || str_ends_with($email, '@bansalimmigration.com.au');
     }
 
     /**

@@ -29,18 +29,7 @@
 										</div>
 										<div class="accordion-body collapse show" id="primary_info" data-parent="#accordion">
 											<div class="row"> 						
-												<div class="col-12 col-md-12 col-lg-12">
-													<div class="form-group"> 
-														<label for="email">Email address <span class="span_req">*</span></label>
-														{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'e.g. apply@bansaleducation.com.au or info@educationelite.com.au' ))  !!}
-														<small class="form-text text-muted">@bansaleducation.com.au and @educationelite.com.au addresses appear in all compose From dropdowns once active. Domains must be verified in AWS SES.</small>
-														@if ($errors->has('email'))
-															<span class="custom-error" role="alert">
-																<strong>{{ @$errors->first('email') }}</strong>
-															</span> 
-														@endif
-													</div>
-												</div>
+												@include('AdminConsole.emails.partials.email-name-domain-fields', ['storedEmail' => ''])
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
 														<label for="status">Status</label><br>
@@ -61,14 +50,14 @@
                                               
                                                 <div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group">
-														<label for="password">Password</label>
-														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'', 'autocomplete'=>'new-password', 'placeholder'=>'Optional (SES uses AWS credentials from .env)' ))  !!}
+														<label for="password">Password <span class="span_req">*</span></label>
+														{!! Form::password('password', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'new-password', 'placeholder'=>'Enter password (e.g. ses)' ))  !!}
 														@if ($errors->has('password'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('password') }}</strong>
 															</span>
 														@endif
-														<small class="form-text text-muted">Not used for sending — CRM uses AWS SES. Leave blank or enter any placeholder (e.g. ses).</small>
+														<small class="form-text text-muted">Required on create. Not used for sending — CRM uses AWS SES. You may use a placeholder value (e.g. ses).</small>
 													</div>
 												</div>
                                               

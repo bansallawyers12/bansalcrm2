@@ -156,7 +156,7 @@ class OutlookController extends Controller
         $body = $validated['body'] ?? '';
 
         if (! $this->sesSenderService->isAllowedSenderDomain($from)) {
-            $message = 'From address must be @bansaleducation.com.au, @'.EducationEliteMail::apexDomain().', or admission@bansalimmigration.com.au.';
+            $message = 'From address must be @bansaleducation.com.au, @'.EducationEliteMail::apexDomain().', or @bansalimmigration.com.au.';
             if ($request->wantsJson()) {
                 return response()->json(['ok' => false, 'message' => $message], 422);
             }
