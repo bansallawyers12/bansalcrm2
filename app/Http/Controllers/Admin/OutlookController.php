@@ -162,7 +162,9 @@ class OutlookController extends Controller
             return redirect()->back()->with('error', $message)->withInput();
         }
 
-        $allowedFrom = array_column($this->sesSenderService->getComposeSenders(auth('admin')->id()), 'email');
+        // Fetch once — reused for both the allowed-sender check and display-name lookup below.
+        $verifiedSenders = $this->sesSenderService->getComposeSenders(auth('admin')->id());
+        $allowedFrom = array_column($verifiedSenders, 'email');
         if ($allowedFrom !== [] && ! $this->emailInList($from, $allowedFrom)) {
             $message = 'From address is not in the allowed sender list. Add it in Admin Console → Emails.';
             if ($request->wantsJson()) {
@@ -176,8 +178,6 @@ class OutlookController extends Controller
         if ($request->boolean('_elite_compose') && EducationEliteMail::isEliteOwnedAddress($from)) {
             $eliteReplyTo = $this->resolveEliteComposeReplyTo();
         }
-
-        $verifiedSenders = $this->sesSenderService->getComposeSenders(auth('admin')->id());
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
         $plainBody = $this->htmlToPlainTextForMail($htmlBody);

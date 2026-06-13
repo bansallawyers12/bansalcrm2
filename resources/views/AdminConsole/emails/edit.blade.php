@@ -82,7 +82,7 @@
 														<select data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
 															<option value="">Select Staff</option>
 															<?php
-															$userids = json_decode($fetchedData->user_id);
+															$userids = json_decode($fetchedData->user_id ?? '[]') ?? [];
 																$users = \App\Models\Staff::Where('status', '=', 1)->get();
 																foreach($users as $user){
 																	?>

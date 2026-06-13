@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailService
 {
-    /** Default mailer for all CRM emails - AWS SES */
-    protected const DEFAULT_MAILER = 'ses';
 
     /**
      * Get the first active email (default for system emails).

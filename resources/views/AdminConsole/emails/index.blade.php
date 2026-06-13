@@ -38,9 +38,9 @@
 								<tbody class="tdata">	
 								@foreach (($lists ?? []) as $list)
 									<?php
+                                    $username = '';
                                     if( isset($list->user_id) && $list->user_id != ''){
-                                        $userids = json_decode($list->user_id);
-										$username = '';
+                                        $userids = json_decode($list->user_id) ?? [];
 										foreach($userids as $userid){
 											$users = \App\Models\Staff::find($userid) ?? \App\Models\Admin::find($userid);
 											if ($users) {
