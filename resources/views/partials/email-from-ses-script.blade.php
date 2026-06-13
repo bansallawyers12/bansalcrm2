@@ -3,13 +3,13 @@
 (function() {
 	var sendersUrl = '{{ route("admin.outlook.senders") }}';
 
-	function populateEmailFromSelects(senders, defaultFrom) {
+	function populateEmailFromSelects(senders) {
 		var selects = document.querySelectorAll('.email-from-ses');
 		if (selects.length === 0) return;
 
 		selects.forEach(function(select) {
 			var prev = select.value;
-			select.innerHTML = '<option value="">Select From</option>';
+			select.innerHTML = '<option value="">Select From Email address</option>';
 
 			if (senders.length > 0) {
 				senders.forEach(function(s) {
@@ -18,9 +18,6 @@
 					opt.textContent = (s.name && s.name !== s.email)
 						? (s.name + ' <' + s.email + '>')
 						: (s.email || '');
-					if (s.email && s.email === defaultFrom) {
-						opt.selected = true;
-					}
 					select.appendChild(opt);
 				});
 				if (prev) {
@@ -31,12 +28,6 @@
 						}
 					}
 				}
-			} else if (defaultFrom) {
-				var fallback = document.createElement('option');
-				fallback.value = defaultFrom;
-				fallback.textContent = defaultFrom;
-				fallback.selected = true;
-				select.appendChild(fallback);
 			} else {
 				select.innerHTML = '<option value="">No verified senders — add active addresses in Admin Console → Emails</option>';
 			}
@@ -65,7 +56,7 @@
 				return r.json();
 			})
 			.then(function(data) {
-				populateEmailFromSelects(data.senders || [], (data.default_from || '').trim());
+				populateEmailFromSelects(data.senders || []);
 			})
 			.catch(function() {
 				selects.forEach(function(select) {

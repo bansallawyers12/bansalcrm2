@@ -1715,11 +1715,15 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                     fromSel.innerHTML = '<option value="">No verified senders found</option>';
                     return;
                 }
+                var placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Select From Email address';
+                placeholder.selected = true;
+                fromSel.appendChild(placeholder);
                 senders.forEach(function (s) {
                     var opt = document.createElement('option');
                     opt.value = s.email;
                     opt.textContent = s.name && s.name !== s.email ? s.name + ' <' + s.email + '>' : s.email;
-                    if (s.email === data.default_from) opt.selected = true;
                     fromSel.appendChild(opt);
                 });
                 sendersLoaded = true;
@@ -1911,6 +1915,10 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 var ccErr = validateRecipientField(ccEl ? ccEl.value : '', 'Cc', false);
                 if (ccErr) {
                     showComposeAlert('error', ccErr);
+                    return;
+                }
+                if (!fromSel || !fromSel.value) {
+                    showComposeAlert('error', 'Please select a From address.');
                     return;
                 }
 
