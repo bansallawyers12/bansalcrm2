@@ -46,9 +46,6 @@ class Email extends Model
         'processed_at',
         // Additional metadata
         'message_id',
-        'delivery_status',
-        'delivery_status_at',
-        'delivery_detail',
         'thread_id',
         'received_date',
         'last_accessed_at',
@@ -67,8 +64,6 @@ class Email extends Model
         'security_issues' => 'array',
         'thread_info' => 'array',
         'processed_at' => 'datetime',
-        'delivery_status_at' => 'datetime',
-        'delivery_detail' => 'array',
         'received_date' => 'datetime',
         'last_accessed_at' => 'datetime',
         'mail_is_read' => 'boolean',

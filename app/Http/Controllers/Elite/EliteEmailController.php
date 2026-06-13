@@ -9,7 +9,6 @@ use App\Models\Email;
 use App\Models\OutlookDraftEmail;
 use App\Services\EducationEliteInboxService;
 use App\Services\EliteInboundAttachmentService;
-use App\Services\SesEmailDeliveryService;
 use Illuminate\Support\Facades\Artisan;
 use App\Support\EducationEliteMail;
 use App\Support\EliteEmailCidRewriter;
@@ -175,10 +174,9 @@ class EliteEmailController extends Controller
         if ($dateTo   !== '') $query->whereDate('created_at', '<=', $dateTo);
         $query->orderBy('created_at', $sort);
 
-        $deliveryService = app(SesEmailDeliveryService::class);
         $emails = [];
         foreach ($query->get() as $row) {
-            $item = [
+            $emails[] = [
                 'id'         => $row->id,
                 'from'       => $row->from_mail,
                 'to'         => $row->to_mail,
@@ -188,10 +186,6 @@ class EliteEmailController extends Controller
                 'date'       => $row->created_at->format('d/m/Y g:i A'),
                 'date_short' => $row->created_at->format('g:i A'),
             ];
-            if ($deliveryService->supportsTracking()) {
-                $item = array_merge($item, $deliveryService->publicStatusPayload($row));
-            }
-            $emails[] = $item;
         }
 
         // Group by from_mail (like Outlook sent view)

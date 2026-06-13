@@ -51,20 +51,6 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     vertical-align: middle;
     letter-spacing: 0;
 }
-.delivery-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
-    margin-left: 4px;
-    vertical-align: middle;
-}
-.delivery-delivered { background: #dcfce7; color: #166534; }
-.delivery-sent, .delivery-pending { background: #e0f2fe; color: #0369a1; }
-.delivery-failed { background: #fee2e2; color: #b91c1c; }
-.delivery-complaint { background: #fef3c7; color: #92400e; }
-.delivery-unknown { background: #f1f5f9; color: #475569; }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
 .outlook-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f0f0f0; }
@@ -630,7 +616,6 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                                     <div><span class="ml">To:</span>   <span id="eliteSentReadTo"></span></div>
                                     <div><span class="ml">Cc:</span>   <span id="eliteSentReadCc"></span></div>
                                     <div><span class="ml">Date:</span> <span id="eliteSentReadDate"></span></div>
-                                    <div id="eliteSentReadDeliveryRow" style="display:none;"><span class="ml">Delivery:</span> <span id="eliteSentReadDelivery"></span></div>
                                 </div>
                                 <div class="sent-read-body" id="eliteSentReadBody"></div>
                                 <iframe id="eliteSentReadFrame" class="sent-read-frame" title="Sent email body" sandbox="allow-same-origin" style="display:none;"></iframe>
@@ -1357,22 +1342,6 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         document.getElementById('eliteSentReadTo').textContent   = e.to      || '—';
         document.getElementById('eliteSentReadCc').textContent   = e.cc      || '—';
         document.getElementById('eliteSentReadDate').textContent = e.date    || '—';
-        var delRow = document.getElementById('eliteSentReadDeliveryRow');
-        var delEl  = document.getElementById('eliteSentReadDelivery');
-        if (delRow && delEl) {
-            if (e.delivery_status_label) {
-                delRow.style.display = '';
-                delEl.textContent = e.delivery_status_label;
-                if (e.delivery_detail && e.delivery_detail.diagnostic) {
-                    delEl.textContent += ' — ' + e.delivery_detail.diagnostic;
-                } else if (e.delivery_detail && e.delivery_detail.error) {
-                    delEl.textContent += ' — ' + e.delivery_detail.error;
-                }
-            } else {
-                delRow.style.display = 'none';
-                delEl.textContent = '';
-            }
-        }
         var bodyEl  = document.getElementById('eliteSentReadBody');
         var frameEl = document.getElementById('eliteSentReadFrame');
         var raw = e.body || '';
@@ -1442,9 +1411,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                             '<span class="sent-msg-date">' + escHtml(e.date_short||e.date) + '</span>' +
                         '</div>' +
                         '<div class="sent-msg-from">From: ' + escHtml(e.from||'—') + '</div>' +
-                        '<div class="sent-msg-subj">' + escHtml(e.subject||'(No subject)') +
-                            (e.delivery_status_label ? ' <span class="delivery-badge delivery-' + escHtml((e.delivery_status_class||'unknown').replace('delivery-','')) + '">' + escHtml(e.delivery_status_label) + '</span>' : '') +
-                        '</div>' +
+                        '<div class="sent-msg-subj">' + escHtml(e.subject||'(No subject)') + '</div>' +
                     '</div>';
                 li.addEventListener('click', function () {
                     sentListEl.querySelectorAll('.sent-msg-item').forEach(function(i){ i.classList.remove('is-selected'); });

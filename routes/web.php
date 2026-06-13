@@ -31,7 +31,6 @@ use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Admin\TinyMCEImageUploadController;
 use App\Http\Controllers\Admin\UploadChecklistController;
 use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\Aws\SesSnsController;
 use App\Http\Controllers\ExceptionController;
 
 /*
@@ -286,9 +285,6 @@ Route::get('/invoice/attachfileemail', [InvoiceController::class, 'attachfileema
 // Manage Api key
 // Route::get('/api-key', 'Admin\ApiController@index')->name('apikey.index');
 // Manage Api key
-
-// AWS SES SNS notifications (delivery, bounce, complaint) — no CSRF
-Route::post('/webhooks/ses/sns', [SesSnsController::class, 'handle'])->name('webhooks.ses.sns');
 
 // SES verified senders + Outlook compose (Elite inbox + CRM compose modals)
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {

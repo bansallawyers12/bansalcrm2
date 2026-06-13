@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
-use App\Services\SesEmailDeliveryService;
 use App\Services\SesSenderService;
 use App\Support\EducationEliteMail;
 use Illuminate\Http\Request;
@@ -17,8 +16,7 @@ use Illuminate\Validation\ValidationException;
 class OutlookController extends Controller
 {
     public function __construct(
-        private SesSenderService $sesSenderService,
-        private SesEmailDeliveryService $deliveryService
+        private SesSenderService $sesSenderService
     ) {
         $this->middleware('auth:admin');
     }
@@ -264,7 +262,6 @@ class OutlookController extends Controller
             $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $toList, $ccList, $subject, $plainBody, $eliteReplyTo) {
                 $message->to($toList)->from($from, $fromDisplayName)->subject($subject);
                 $message->text($plainBody);
-                $this->deliveryService->applyOutboundHeaders($message);
                 if ($eliteReplyTo !== null) {
                     $message->replyTo($eliteReplyTo);
                 }
@@ -293,10 +290,8 @@ class OutlookController extends Controller
                 throw new \RuntimeException('Email could not be sent (message was blocked or not transmitted).');
             }
 
-            $sesMessageId = $this->deliveryService->extractMessageId($sent);
-
             try {
-                $emailRow = [
+                Email::create([
                     'user_id' => auth('admin')->id(),
                     'from_mail' => $from,
                     'to_mail' => $toDisplay,
@@ -306,13 +301,7 @@ class OutlookController extends Controller
                     'type' => 'outlook',
                     'client_id' => null,
                     'mail_type' => 1,
-                ];
-                if ($this->deliveryService->supportsTracking()) {
-                    $emailRow['message_id'] = $sesMessageId;
-                    $emailRow['delivery_status'] = SesEmailDeliveryService::STATUS_SENT;
-                    $emailRow['delivery_status_at'] = now();
-                }
-                Email::create($emailRow);
+                ]);
             } catch (\Throwable $createEx) {
                 Log::error('Outlook: failed to record sent email', ['error' => $createEx->getMessage(), 'trace' => $createEx->getTraceAsString()]);
             }

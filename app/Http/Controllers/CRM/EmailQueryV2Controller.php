@@ -12,7 +12,6 @@ use App\Models\Document;
 use App\Models\Admin;
 use App\Models\Partner;
 use App\Models\Agent;
-use App\Services\SesEmailDeliveryService;
 
 /**
  * Email Query V2 Controller
@@ -292,9 +291,7 @@ class EmailQueryV2Controller extends Controller
                 $uniqueId = !empty($adminInfo) ? $adminInfo->client_id : '';
             }
 
-            $deliveryService = app(SesEmailDeliveryService::class);
-
-            $emails = $emails->map(function ($email) use ($url, $uniqueId, $entityType, $entityId, $deliveryService) {
+            $emails = $emails->map(function ($email) use ($url, $uniqueId, $entityType, $entityId) {
                 $previewUrl = '';
 
                 if (!empty($email->uploaded_doc_id)) {
@@ -379,10 +376,6 @@ class EmailQueryV2Controller extends Controller
                 $emailArray['subject'] = $emailArray['subject'] ?? '';
                 $emailArray['message'] = $emailArray['message'] ?? '';
 
-                if ($deliveryService->supportsTracking()) {
-                    $emailArray = array_merge($emailArray, $deliveryService->publicStatusPayload($email));
-                }
-                
                 return $emailArray;
             });
 

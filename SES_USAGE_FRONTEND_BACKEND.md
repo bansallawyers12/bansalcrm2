@@ -50,7 +50,6 @@ Both mailers use credentials from `config/services.php` → `services.ses`.
     'key'        => env('SES_KEY', env('AWS_ACCESS_KEY_ID')),
     'secret'     => env('SES_SECRET', env('AWS_SECRET_ACCESS_KEY')),
     'region'     => env('SES_REGION', env('AWS_DEFAULT_REGION', 'ap-southeast-2')),
-    'configuration_set' => env('SES_CONFIGURATION_SET', ''),
 ],
 
 'ses_crm' => [

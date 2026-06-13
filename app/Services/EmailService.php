@@ -12,10 +12,6 @@ class EmailService
     /** Default mailer for all CRM emails - AWS SES */
     protected const DEFAULT_MAILER = 'ses';
 
-    public function __construct(
-        private SesEmailDeliveryService $deliveryService
-    ) {}
-
     /**
      * Get the first active email (default for system emails).
      */
@@ -63,9 +59,6 @@ class EmailService
     /**
      * Send an email via AWS SES.
      *
-     * @param  int|null  $emailLogId  CRM emails.id for delivery tracking (X-CRM-Email-Id header)
-     * @return string|null SES message ID when available
-     *
      * @throws \Exception
      */
     public function sendEmail(
@@ -75,9 +68,8 @@ class EmailService
         $subject,
         $fromEmailAddress,
         $attachments = [],
-        $cc = [],
-        ?int $emailLogId = null
-    ): ?string {
+        $cc = []
+    ): void {
         try {
             $trimmed = trim((string) $fromEmailAddress);
             if ($trimmed === '') {
@@ -100,19 +92,12 @@ class EmailService
                 'from_email' => $emailConfig->email,
                 'to' => $to,
                 'subject' => $subject,
-                'email_log_id' => $emailLogId,
             ]);
 
-            $sent = Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc, $emailLogId) {
+            Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
                 $message->to($to)
                     ->subject($subject)
                     ->from($emailConfig->email, $emailConfig->display_name ?? $emailConfig->email);
-
-                if ($emailLogId !== null) {
-                    $message->getHeaders()->addTextHeader('X-CRM-Email-Id', (string) $emailLogId);
-                }
-
-                $this->deliveryService->applyOutboundHeaders($message);
 
                 if (! empty($cc)) {
                     $message->cc($cc);
@@ -127,15 +112,10 @@ class EmailService
                 }
             });
 
-            $messageId = $this->deliveryService->extractMessageId($sent);
-
             Log::info('EmailService - Email Sent Successfully', [
                 'from' => $emailConfig->email,
                 'to' => $to,
-                'ses_message_id' => $messageId,
             ]);
-
-            return $messageId;
         } catch (\Exception $e) {
             Log::error('EmailService - Send Failed', [
                 'error' => $e->getMessage(),
