@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer as LaravelMailer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class OutlookController extends Controller
 {
@@ -211,15 +212,16 @@ class OutlookController extends Controller
     {
         $validated = $request->validate([
             'from' => 'required|email',
-            'to' => 'required|email',
-            'cc' => 'nullable|email',
+            'to' => 'required|string|max:2000',
+            'cc' => 'nullable|string|max:2000',
             'subject' => 'required|string|max:500',
             'body' => 'nullable|string',
         ]);
 
         $from = $validated['from'];
-        $to = $validated['to'];
-        $cc = $request->filled('cc') ? [$validated['cc']] : [];
+        $toList = $this->parseEmailList($validated['to'], 'to', true);
+        $ccList = $this->parseEmailList($request->input('cc'), 'cc', false);
+        $toDisplay = implode(', ', $toList);
         $subject = $validated['subject'];
         $body = $validated['body'] ?? '';
 
@@ -259,15 +261,15 @@ class OutlookController extends Controller
         try {
             /** @var LaravelMailer $mailer */
             $mailer = Mail::mailer($mailerName);
-            $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $to, $cc, $subject, $plainBody, $eliteReplyTo) {
-                $message->to($to)->from($from, $fromDisplayName)->subject($subject);
+            $sent = $mailer->html($htmlBody, function ($message) use ($from, $fromDisplayName, $toList, $ccList, $subject, $plainBody, $eliteReplyTo) {
+                $message->to($toList)->from($from, $fromDisplayName)->subject($subject);
                 $message->text($plainBody);
                 $this->deliveryService->applyOutboundHeaders($message);
                 if ($eliteReplyTo !== null) {
                     $message->replyTo($eliteReplyTo);
                 }
-                if (count($cc) > 0) {
-                    $message->cc($cc);
+                if (count($ccList) > 0) {
+                    $message->cc($ccList);
                 }
                 $files = request()->file('attachments', []);
                 if (is_array($files)) {
@@ -285,7 +287,7 @@ class OutlookController extends Controller
             if ($sent === null) {
                 Log::error('Outlook: mail transport returned no sent confirmation', [
                     'from' => $from,
-                    'to' => $to,
+                    'to' => $toDisplay,
                     'mailer' => $mailerName,
                 ]);
                 throw new \RuntimeException('Email could not be sent (message was blocked or not transmitted).');
@@ -297,8 +299,8 @@ class OutlookController extends Controller
                 $emailRow = [
                     'user_id' => auth('admin')->id(),
                     'from_mail' => $from,
-                    'to_mail' => $to,
-                    'cc' => count($cc) > 0 ? implode(', ', $cc) : null,
+                    'to_mail' => $toDisplay,
+                    'cc' => count($ccList) > 0 ? implode(', ', $ccList) : null,
                     'subject' => $subject,
                     'message' => $body,
                     'type' => 'outlook',
@@ -341,16 +343,23 @@ class OutlookController extends Controller
     {
         $validated = $request->validate([
             'from' => 'required|email',
-            'to' => 'nullable|email',
-            'cc' => 'nullable|email',
+            'to' => 'nullable|string|max:2000',
+            'cc' => 'nullable|string|max:2000',
             'subject' => 'nullable|string|max:500',
             'body' => 'nullable|string',
         ]);
 
+        if ($request->filled('to')) {
+            $this->parseEmailList($validated['to'], 'to', false);
+        }
+        if ($request->filled('cc')) {
+            $this->parseEmailList($validated['cc'], 'cc', false);
+        }
+
         OutlookDraftEmail::create([
             'from_email' => $validated['from'],
-            'to_email' => $request->filled('to') ? $validated['to'] : null,
-            'cc' => $request->filled('cc') ? $validated['cc'] : null,
+            'to_email' => $request->filled('to') ? trim($validated['to']) : null,
+            'cc' => $request->filled('cc') ? trim($validated['cc']) : null,
             'subject' => $request->filled('subject') ? $validated['subject'] : null,
             'body' => $validated['body'] ?? null,
             'admin_id' => auth('admin')->id(),
@@ -380,5 +389,59 @@ class OutlookController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Parse comma/semicolon-separated recipient lists.
+     *
+     * @return list<string>
+     */
+    private function parseEmailList(?string $value, string $field, bool $required = false): array
+    {
+        if ($value === null || trim($value) === '') {
+            if ($required) {
+                throw ValidationException::withMessages([
+                    $field => ['At least one recipient is required.'],
+                ]);
+            }
+
+            return [];
+        }
+
+        $parts = preg_split('/[,;]+/', $value) ?: [];
+        $emails = [];
+        foreach ($parts as $part) {
+            $email = $this->normalizeRecipientAddress($part);
+            if ($email === '') {
+                continue;
+            }
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw ValidationException::withMessages([
+                    $field => ['Invalid email address: '.$email],
+                ]);
+            }
+            $emails[] = $email;
+        }
+
+        if ($required && $emails === []) {
+            throw ValidationException::withMessages([
+                $field => ['At least one recipient is required.'],
+            ]);
+        }
+
+        return $emails;
+    }
+
+    private function normalizeRecipientAddress(string $part): string
+    {
+        $part = trim($part);
+        if ($part === '') {
+            return '';
+        }
+        if (preg_match('/<([^>]+)>/', $part, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return $part;
     }
 }

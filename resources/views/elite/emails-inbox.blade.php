@@ -698,7 +698,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     <div style="background:#fff;border-radius:6px;width:680px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.25);overflow:hidden;">
         {{-- Modal header --}}
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
-            <span style="font-size:15px;font-weight:600;color:#0f172a;">New Message</span>
+            <span id="eliteComposeTitle" style="font-size:15px;font-weight:600;color:#0f172a;">New Message</span>
             <button type="button" id="eliteComposeClose" style="border:none;background:transparent;font-size:20px;color:#64748b;cursor:pointer;line-height:1;padding:0 4px;" title="Close">&times;</button>
         </div>
         {{-- Alert bar (success / error) --}}
@@ -719,13 +719,15 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 {{-- To --}}
                 <div style="display:flex;align-items:center;margin-bottom:12px;">
                     <label style="min-width:56px;font-size:13px;color:#555;">To</label>
-                    <input type="email" name="to" id="eliteComposeTo" required placeholder="recipient@example.com"
+                    <input type="text" name="to" id="eliteComposeTo" required placeholder="recipient@example.com"
+                           autocomplete="off"
                            style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
                 </div>
                 {{-- Cc --}}
                 <div style="display:flex;align-items:center;margin-bottom:12px;">
                     <label style="min-width:56px;font-size:13px;color:#555;">Cc</label>
-                    <input type="email" name="cc" placeholder="Optional"
+                    <input type="text" name="cc" placeholder="Optional (comma-separated)"
+                           autocomplete="off"
                            style="flex:1;padding:8px 12px;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;">
                 </div>
                 {{-- Subject --}}
@@ -738,7 +740,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             {{-- Body --}}
             <div style="flex:1;min-height:0;padding:0 20px 12px;display:flex;flex-direction:column;">
                 <textarea name="body" placeholder="Write your message here…"
-                          style="flex:1;min-height:160px;padding:12px;border:1px solid #d4d4d4;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
+                          style="flex:1;min-height:240px;padding:12px;border:1px solid #d4d4d4;border-radius:4px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
             </div>
             {{-- Attachment preview list --}}
             <div id="eliteAttachmentList" style="display:none;padding:0 20px 10px;flex-shrink:0;">
@@ -762,7 +764,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                     <i class="fas fa-paperclip"></i> Attach
                 </button>
                 <button type="button" id="eliteComposeCancel"
-                        style="padding:9px 16px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
+                        style="margin-left:auto;padding:9px 16px;background:#fff;color:#475569;border:1px solid #d4d4d4;border-radius:4px;font-size:13px;cursor:pointer;">
                     Cancel
                 </button>
             </div>
@@ -783,6 +785,20 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     var main         = document.getElementById('eliteMain');
     var tokenMeta    = document.querySelector('meta[name="csrf-token"]');
     var activeAccount = @json($eliteInitialAccount ?? 'all');
+    var ELITE_QUOTE_MAX = 8000;
+
+    function extractEmailAddress(emailString) {
+        if (!emailString) return '';
+        var s = String(emailString);
+        var match = s.match(/<([^>]+)>/);
+        if (match) return match[1].trim();
+        if (s.indexOf('@') !== -1) return s.trim();
+        return s.trim();
+    }
+
+    function dispatchComposePrefill(detail) {
+        document.dispatchEvent(new CustomEvent('elite:composePrefill', { detail: detail || {} }));
+    }
 
     /* ── Fetch helper ─────────────────────────────────────────────────────── */
     function apiFetch(url, params) {
@@ -958,18 +974,13 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var btnReply = document.getElementById('eliteInboxBtnReply');
         var btnFwd   = document.getElementById('eliteInboxBtnFwd');
 
-        function openComposePrefilled(to, subject, quotedBody) {
-            var composeForm = document.getElementById('eliteComposeForm');
-            if (!composeForm) return;
-            /* openModal() resets form, clears attachments, loads senders, shows overlay */
-            document.dispatchEvent(new CustomEvent('elite:openModal'));
-            var toEl   = composeForm.querySelector('[name="to"]');
-            var subjEl = composeForm.querySelector('[name="subject"]');
-            var bodyTa = composeForm.querySelector('[name="body"]');
-            if (toEl)   toEl.value   = to;
-            if (subjEl) subjEl.value = subject;
-            if (bodyTa) bodyTa.value = quotedBody;
-            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+        function openComposePrefilled(to, subject, quotedBody, title) {
+            dispatchComposePrefill({
+                title: title || 'Reply',
+                to: to,
+                subject: subject,
+                body: quotedBody
+            });
         }
 
         if (attBox) {
@@ -1007,14 +1018,14 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 plainEl.textContent = 'Could not load the message body. Please refresh and try again.';
             }
             var plainSnippetErr = (p.snippet || '').trim();
-            var quotedErr = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500);
+            var quotedErr = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, ELITE_QUOTE_MAX);
             if (btnReply) btnReply.onclick = function () {
                 var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
-                openComposePrefilled(p.from || '', subj, quotedErr);
+                openComposePrefilled(p.from || '', subj, quotedErr, 'Reply');
             };
             if (btnFwd) btnFwd.onclick = function () {
                 var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
-                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, 500));
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetErr.slice(0, ELITE_QUOTE_MAX), 'Forward');
             };
             return;
         }
@@ -1027,14 +1038,14 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 plainEl.textContent = 'Loading message…';
             }
             var plainSnippetL = (p.snippet || '').trim();
-            var quotedL = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500);
+            var quotedL = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, ELITE_QUOTE_MAX);
             if (btnReply) btnReply.onclick = function () {
                 var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
-                openComposePrefilled(p.from || '', subj, quotedL);
+                openComposePrefilled(p.from || '', subj, quotedL, 'Reply');
             };
             if (btnFwd) btnFwd.onclick = function () {
                 var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
-                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, 500));
+                openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippetL.slice(0, ELITE_QUOTE_MAX), 'Forward');
             };
             return;
         }
@@ -1067,16 +1078,16 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var plainSnippet = looksLikeHtml(body)
             ? body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
             : body.trim();
-        var quoted = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, 500);
+        var quoted = '\n\n--- Original message ---\nFrom: ' + (p.from||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, ELITE_QUOTE_MAX);
 
         /* Wire Reply / Forward to compose modal */
         if (btnReply) btnReply.onclick = function () {
             var subj = (p.subject && !/^re:/i.test(p.subject)) ? 'Re: ' + p.subject : (p.subject || '');
-            openComposePrefilled(p.from || '', subj, quoted);
+            openComposePrefilled(p.from || '', subj, quoted, 'Reply');
         };
         if (btnFwd) btnFwd.onclick = function () {
             var subj = (p.subject && !/^fwd:/i.test(p.subject)) ? 'Fwd: ' + p.subject : (p.subject || '');
-            openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, 500));
+            openComposePrefilled('', subj, '\n\n--- Forwarded message ---\nFrom: ' + (p.from||'') + '\nTo: ' + (p.to||'') + '\nDate: ' + (p.date||'') + '\n\n' + plainSnippet.slice(0, ELITE_QUOTE_MAX), 'Forward');
         };
     }
 
@@ -1381,29 +1392,13 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var sentPlain = looksLikeHtml(raw) ? raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : raw.trim();
         if (btnReply) btnReply.onclick = function () {
             var subj = (e.subject && !/^re:/i.test(e.subject)) ? 'Re: ' + e.subject : (e.subject || '');
-            var body = '\n\n--- Original message ---\nFrom: ' + (e.from||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
-            var composeForm = document.getElementById('eliteComposeForm');
-            if (!composeForm) return;
-            document.dispatchEvent(new CustomEvent('elite:openModal'));
-            var toEl   = composeForm.querySelector('[name="to"]');
-            var subjEl = composeForm.querySelector('[name="subject"]');
-            var bodyTa = composeForm.querySelector('[name="body"]');
-            if (toEl)   toEl.value   = e.to || '';
-            if (subjEl) subjEl.value = subj;
-            if (bodyTa) bodyTa.value = body;
-            if (toEl) setTimeout(function () { toEl.focus(); }, 50);
+            var body = '\n\n--- Original message ---\nFrom: ' + (e.from||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, ELITE_QUOTE_MAX);
+            dispatchComposePrefill({ title: 'Reply', to: e.to || '', subject: subj, body: body });
         };
         if (btnFwd) btnFwd.onclick = function () {
             var subj = (e.subject && !/^fwd:/i.test(e.subject)) ? 'Fwd: ' + e.subject : (e.subject || '');
-            var body = '\n\n--- Forwarded message ---\nFrom: ' + (e.from||'') + '\nTo: ' + (e.to||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, 500);
-            var composeForm = document.getElementById('eliteComposeForm');
-            if (!composeForm) return;
-            document.dispatchEvent(new CustomEvent('elite:openModal'));
-            var subjEl = composeForm.querySelector('[name="subject"]');
-            var bodyTa = composeForm.querySelector('[name="body"]');
-            if (subjEl) subjEl.value = subj;
-            if (bodyTa) bodyTa.value = body;
-            setTimeout(function () { var t = composeForm.querySelector('[name="to"]'); if (t) t.focus(); }, 50);
+            var body = '\n\n--- Forwarded message ---\nFrom: ' + (e.from||'') + '\nTo: ' + (e.to||'') + '\nDate: ' + (e.date||'') + '\n\n' + sentPlain.slice(0, ELITE_QUOTE_MAX);
+            dispatchComposePrefill({ title: 'Forward', subject: subj, body: body });
         };
     }
 
@@ -1506,21 +1501,14 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var editBtn = document.getElementById('eliteDraftBtnEdit');
         if (editBtn) {
             editBtn.onclick = function () {
-                /* Pre-fill compose modal with draft data */
-                var composeOverlay = document.getElementById('eliteComposeOverlay');
-                var composeForm    = document.getElementById('eliteComposeForm');
-                if (!composeOverlay || !composeForm) return;
-                composeForm.reset();
-                var toEl      = composeForm.querySelector('[name="to"]');
-                var ccEl      = composeForm.querySelector('[name="cc"]');
-                var subjEl    = composeForm.querySelector('[name="subject"]');
-                var bodyTa    = composeForm.querySelector('[name="body"]');
-                if (toEl   && d.to)      toEl.value   = d.to;
-                if (ccEl   && d.cc)      ccEl.value   = d.cc;
-                if (subjEl && d.subject) subjEl.value = (d.subject === '(No subject)') ? '' : d.subject;
-                if (bodyTa && d.body)    bodyTa.value  = d.body;
-                composeOverlay.style.display = 'flex';
-                document.dispatchEvent(new CustomEvent('elite:loadSenders'));
+                dispatchComposePrefill({
+                    title: 'Edit Draft',
+                    from: d.from || '',
+                    to: d.to || '',
+                    cc: d.cc || '',
+                    subject: (d.subject && d.subject !== '(No subject)') ? d.subject : '',
+                    body: d.body || ''
+                });
             };
         }
 
@@ -1577,6 +1565,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var alertBar       = document.getElementById('eliteComposeAlert');
         var sendBtn        = document.getElementById('eliteComposeSend');
         var fromSel        = document.getElementById('eliteComposeFrom');
+        var titleEl        = document.getElementById('eliteComposeTitle');
         var saveDraftBtn   = document.getElementById('eliteComposeSaveDraft');
         var attachBtn      = document.getElementById('eliteAttachBtn');
         var attachInput    = document.getElementById('eliteAttachmentInput');
@@ -1586,7 +1575,102 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         var SAVE_DRAFT_URL = @json(route('admin.outlook.saveDraft'));
 
         var sendersLoaded = false;
-        var selectedFiles = []; // track File objects for manual FormData append
+        var sendersLoading = false;
+        var sendersWaiters = [];
+        var selectedFiles = [];
+        var composeBaseline = '';
+        var composeReady = false;
+
+        function setComposeTitle(title) {
+            if (titleEl) titleEl.textContent = title || 'New Message';
+        }
+
+        function snapshotComposeState() {
+            if (!form) return '';
+            var toEl   = form.querySelector('[name="to"]');
+            var ccEl   = form.querySelector('[name="cc"]');
+            var subjEl = form.querySelector('[name="subject"]');
+            var bodyEl = form.querySelector('[name="body"]');
+            return [
+                fromSel ? fromSel.value : '',
+                toEl ? toEl.value : '',
+                ccEl ? ccEl.value : '',
+                subjEl ? subjEl.value : '',
+                bodyEl ? bodyEl.value : '',
+                String(selectedFiles.length)
+            ].join('\x00');
+        }
+
+        function markComposeClean() {
+            composeBaseline = snapshotComposeState();
+        }
+
+        function isComposeDirty() {
+            return composeReady && composeBaseline !== '' && snapshotComposeState() !== composeBaseline;
+        }
+
+        function setComposeFrom(email) {
+            if (!fromSel || !email) return;
+            var want = extractEmailAddress(email).toLowerCase();
+            if (!want) return;
+            for (var i = 0; i < fromSel.options.length; i++) {
+                if (fromSel.options[i].value.toLowerCase() === want) {
+                    fromSel.selectedIndex = i;
+                    return;
+                }
+            }
+        }
+
+        function validateRecipientField(value, label, required) {
+            if (required === undefined) required = true;
+            var trimmed = (value || '').trim();
+            if (!trimmed) {
+                return required ? (label + ' is required.') : '';
+            }
+            var parts = trimmed.split(/[,;]+/);
+            var found = 0;
+            for (var i = 0; i < parts.length; i++) {
+                var raw = parts[i].trim();
+                if (!raw) continue;
+                var addr = extractEmailAddress(raw);
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) {
+                    return 'Invalid email in ' + label.toLowerCase() + ': ' + raw;
+                }
+                found++;
+            }
+            if (found === 0) {
+                return required
+                    ? (label + ' is required.')
+                    : ('Enter at least one valid email in ' + label + ', or leave it blank.');
+            }
+            return '';
+        }
+
+        function extractApiError(body) {
+            if (!body) return '';
+            if (body.errors && typeof body.errors === 'object') {
+                var keys = Object.keys(body.errors);
+                for (var i = 0; i < keys.length; i++) {
+                    var msgs = body.errors[keys[i]];
+                    if (msgs && msgs.length) return msgs[0];
+                }
+            }
+            if (body.message && body.message !== 'The given data was invalid.') {
+                return body.message;
+            }
+            return body.error || '';
+        }
+
+        function showComposeAlert(type, message) {
+            if (!alertBar) return;
+            var styles = {
+                error: 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;',
+                success: 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;',
+                info: 'display:block;padding:10px 20px;font-size:13px;background:#eff6ff;color:#1e40af;border-bottom:1px solid #bfdbfe;'
+            };
+            alertBar.style.cssText = styles[type] || styles.error;
+            alertBar.textContent = message;
+        }
 
         /* ── Attachment helpers ──────────────────────────────────────────────── */
         function renderAttachments() {
@@ -1610,7 +1694,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 rm.style.cssText = 'border:none;background:transparent;color:#94a3b8;cursor:pointer;font-size:14px;line-height:1;padding:0;flex-shrink:0;';
                 rm.setAttribute('data-idx', idx);
                 rm.addEventListener('click', function () {
-                    selectedFiles.splice(parseInt(this.getAttribute('data-idx')), 1);
+                    selectedFiles.splice(parseInt(this.getAttribute('data-idx'), 10), 1);
                     renderAttachments();
                 });
                 tag.appendChild(name);
@@ -1637,8 +1721,21 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         }
 
         /* ── Senders ─────────────────────────────────────────────────────────── */
-        function loadSenders() {
-            if (sendersLoaded) return;
+        function loadSenders(done) {
+            function flushWaiters() {
+                var waiters = sendersWaiters.slice();
+                sendersWaiters = [];
+                waiters.forEach(function (fn) {
+                    if (typeof fn === 'function') fn();
+                });
+            }
+            if (sendersLoaded) {
+                if (typeof done === 'function') done();
+                return;
+            }
+            if (typeof done === 'function') sendersWaiters.push(done);
+            if (sendersLoading) return;
+            sendersLoading = true;
             fetch(SENDERS_URL, {
                 credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json',
@@ -1661,30 +1758,96 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 sendersLoaded = true;
             }).catch(function () {
                 if (fromSel) fromSel.innerHTML = '<option value="">Could not load senders</option>';
+            }).finally(function () {
+                sendersLoading = false;
+                flushWaiters();
+            });
+        }
+
+        function prefillCompose(opts) {
+            opts = opts || {};
+            if (!form || !overlay) return;
+
+            form.reset();
+            clearAttachments();
+            if (alertBar) { alertBar.style.display = 'none'; alertBar.textContent = ''; }
+            setComposeTitle(opts.title || 'New Message');
+
+            var toEl   = form.querySelector('[name="to"]');
+            var ccEl   = form.querySelector('[name="cc"]');
+            var subjEl = form.querySelector('[name="subject"]');
+            var bodyEl = form.querySelector('[name="body"]');
+
+            if (toEl && opts.to) {
+                var toRaw = String(opts.to).trim();
+                if (toRaw.indexOf(',') === -1 && toRaw.indexOf(';') === -1) {
+                    toEl.value = extractEmailAddress(toRaw) || toRaw;
+                } else {
+                    toEl.value = toRaw;
+                }
+            }
+            if (ccEl && opts.cc) ccEl.value = opts.cc;
+            if (subjEl && opts.subject) subjEl.value = opts.subject;
+            if (bodyEl && opts.body) bodyEl.value = opts.body;
+
+            overlay.style.display = 'flex';
+            composeReady = false;
+            loadSenders(function () {
+                if (opts.from) setComposeFrom(opts.from);
+                markComposeClean();
+                composeReady = true;
+                if (toEl) setTimeout(function () { toEl.focus(); }, 50);
             });
         }
 
         function openModal() {
-            if (form) form.reset();
-            clearAttachments();
-            if (alertBar) { alertBar.style.display = 'none'; alertBar.textContent = ''; }
-            if (overlay) { overlay.style.display = 'flex'; }
-            loadSenders();
-            var toInput = document.getElementById('eliteComposeTo');
-            if (toInput) setTimeout(function () { toInput.focus(); }, 50);
+            prefillCompose({ title: 'New Message' });
         }
-        function closeModal() {
+
+        function closeModal(force) {
+            if (!force && isComposeDirty() && !window.confirm('Discard this message?')) {
+                return false;
+            }
             if (overlay) overlay.style.display = 'none';
+            composeBaseline = '';
+            composeReady = false;
+            return true;
+        }
+
+        function requestCloseModal() {
+            closeModal(false);
         }
 
         var btnOpen   = document.getElementById('eliteBtnCompose');
         var btnClose  = document.getElementById('eliteComposeClose');
         var btnCancel = document.getElementById('eliteComposeCancel');
-        if (btnOpen)   btnOpen.addEventListener('click',   openModal);
-        if (btnClose)  btnClose.addEventListener('click',  closeModal);
-        if (btnCancel) btnCancel.addEventListener('click', closeModal);
-        document.addEventListener('elite:loadSenders', loadSenders);
-        document.addEventListener('elite:openModal',   openModal);
+        if (btnOpen)   btnOpen.addEventListener('click', openModal);
+        if (btnClose)  btnClose.addEventListener('click', requestCloseModal);
+        if (btnCancel) btnCancel.addEventListener('click', requestCloseModal);
+        document.addEventListener('elite:loadSenders', function () { loadSenders(); });
+        document.addEventListener('elite:openModal', openModal);
+        document.addEventListener('elite:composePrefill', function (ev) {
+            prefillCompose(ev.detail || {});
+        });
+
+        if (form) {
+            form.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape') {
+                    ev.preventDefault();
+                    requestCloseModal();
+                }
+                if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+                    ev.preventDefault();
+                    if (sendBtn && !sendBtn.disabled) {
+                        if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else {
+                            form.dispatchEvent(new Event('submit', { cancelable: true }));
+                        }
+                    }
+                }
+            });
+        }
 
         /* ── Save Draft ──────────────────────────────────────────────────────── */
         if (saveDraftBtn) {
@@ -1696,14 +1859,24 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 var bodyEl  = form.querySelector('[name="body"]');
 
                 if (!from) {
-                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                    alertBar.textContent   = 'Please select a From address before saving.';
+                    showComposeAlert('error', 'Please select a From address before saving.');
+                    return;
+                }
+
+                var toErr = validateRecipientField(toEl ? toEl.value : '', 'To', false);
+                if (toErr) {
+                    showComposeAlert('error', toErr);
+                    return;
+                }
+                var ccErr = validateRecipientField(ccEl ? ccEl.value : '', 'Cc', false);
+                if (ccErr) {
+                    showComposeAlert('error', ccErr);
                     return;
                 }
 
                 saveDraftBtn.disabled   = true;
                 saveDraftBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Saving…';
-                alertBar.style.display  = 'none';
+                if (alertBar) alertBar.style.display = 'none';
 
                 var payload = new URLSearchParams();
                 payload.append('_token', tokenMeta ? tokenMeta.getAttribute('content') : '');
@@ -1727,20 +1900,22 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                     return res.json().catch(function () { return { success: res.ok }; });
                 }).then(function (data) {
                     if (data.success) {
-                        alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;';
-                        alertBar.textContent   = data.message || 'Draft saved successfully.';
+                        var msg = data.message || 'Draft saved successfully.';
+                        if (selectedFiles.length > 0) {
+                            msg += ' Attachments are not saved with drafts.';
+                        }
+                        showComposeAlert('success', msg);
                         var prevFrom = fromSel ? fromSel.value : '';
                         form.reset();
                         clearAttachments();
                         if (fromSel && prevFrom) fromSel.value = prevFrom;
-                        setTimeout(closeModal, 1600);
+                        markComposeClean();
+                        setTimeout(function () { closeModal(true); }, 1600);
                     } else {
-                        alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                        alertBar.textContent   = (data.message) || 'Could not save draft. Please try again.';
+                        showComposeAlert('error', extractApiError(data) || 'Could not save draft. Please try again.');
                     }
                 }).catch(function () {
-                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                    alertBar.textContent   = 'Network error. Please check your connection.';
+                    showComposeAlert('error', 'Network error. Please check your connection.');
                 }).finally(function () {
                     saveDraftBtn.disabled  = false;
                     saveDraftBtn.innerHTML = '<i class="fas fa-save"></i> Save Draft';
@@ -1750,7 +1925,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 
         if (overlay) {
             overlay.addEventListener('click', function (ev) {
-                if (ev.target === overlay) closeModal();
+                if (ev.target === overlay) requestCloseModal();
             });
         }
 
@@ -1758,6 +1933,20 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
             form.addEventListener('submit', function (ev) {
                 ev.preventDefault();
                 if (alertBar) { alertBar.style.display = 'none'; }
+
+                var toEl  = form.querySelector('[name="to"]');
+                var ccEl  = form.querySelector('[name="cc"]');
+                var toErr = validateRecipientField(toEl ? toEl.value : '', 'To', true);
+                if (toErr) {
+                    showComposeAlert('error', toErr);
+                    return;
+                }
+                var ccErr = validateRecipientField(ccEl ? ccEl.value : '', 'Cc', false);
+                if (ccErr) {
+                    showComposeAlert('error', ccErr);
+                    return;
+                }
+
                 if (sendBtn)  { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
                 var fd = new FormData(form);
                 // Append manually tracked files (file input is cleared after each selection)
@@ -1773,29 +1962,26 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                 }).then(function (res) {
                     return res.json().catch(function () { return { ok: res.ok }; }).then(function (body) {
                         if (res.status === 401 || res.status === 419) {
-                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                            alertBar.textContent = 'Your session expired. Reloading so you can sign in again…';
+                            showComposeAlert('error', 'Your session expired. Reloading so you can sign in again…');
                             setTimeout(function () { window.location.reload(); }, 1500);
                             return;
                         }
                         if (res.ok && body.ok !== false) {
-                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#dcfce7;color:#166534;border-bottom:1px solid #bbf7d0;';
-                            alertBar.textContent = body.message || 'Email sent successfully.';
+                            showComposeAlert('success', body.message || 'Email sent successfully.');
                             var prevFrom = fromSel ? fromSel.value : '';
                             form.reset();
                             clearAttachments();
                             if (fromSel && prevFrom) fromSel.value = prevFrom;
-                            startBurstPoll(); // poll every 5s for 3 min to catch reply quickly
-                            setTimeout(closeModal, 1800);
+                            markComposeClean();
+                            startBurstPoll();
+                            setTimeout(function () { closeModal(true); }, 1800);
                         } else {
-                            var msg = (body && (body.message || body.error)) ? (body.message || body.error) : 'Failed to send. Please try again.';
-                            alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                            alertBar.textContent = msg;
+                            var msg = extractApiError(body) || 'Failed to send. Please try again.';
+                            showComposeAlert('error', msg);
                         }
                     });
                 }).catch(function () {
-                    alertBar.style.cssText = 'display:block;padding:10px 20px;font-size:13px;background:#fef2f2;color:#991b1b;border-bottom:1px solid #fecaca;';
-                    alertBar.textContent = 'Network error. Please check your connection and try again.';
+                    showComposeAlert('error', 'Network error. Please check your connection and try again.');
                 }).finally(function () {
                     if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send'; }
                 });
