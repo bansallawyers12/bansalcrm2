@@ -103,7 +103,7 @@ class AdminLoginController extends Controller
                 \Cookie::queue(\Cookie::forget('password'));
             }
           
-            // Temporarily commented out to avoid SMTP errors during development
+            // Optional login IP alert email (uses AWS SES via send_compose_template)
             /* if(! \App\Models\StaffLoginLog::where('ip_address', '=', $request->getClientIp() )->exists())
             {
                 $message  = '<html><body>';

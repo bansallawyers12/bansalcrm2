@@ -13,6 +13,10 @@ class RecordSesEmailDelivery
 
     public function handle(MessageSent $event): void
     {
+        if (! in_array($event->mailer ?? '', $this->deliveryService->trackedMailers(), true)) {
+            return;
+        }
+
         $this->deliveryService->handleMessageSent($event);
     }
 }

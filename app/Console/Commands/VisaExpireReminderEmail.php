@@ -15,9 +15,6 @@ use App\Mail\CommonMail;
 
 use Illuminate\Support\Facades\Mail;
 
-use Swift_SmtpTransport;
-use Swift_Mailer;
-
 class VisaExpireReminderEmail extends Command
 {
     /**
@@ -74,7 +71,7 @@ class VisaExpireReminderEmail extends Command
         $totalLogs = $query->count(); //dd($totalLogs);
 		$logs = $query->get(); //dd($logs);
         if($totalLogs >0){
-            // Use first active email from emails table (not .env)
+            // Use first active From address from from_emails table (AWS SES)
             $defaultEmail = app(\App\Services\EmailService::class)->getDefaultEmail();
             $fromCompanyName = $defaultEmail ? $defaultEmail->display_name : 'Bansal Immigration';
 			foreach($logs as $key=>$val){ //dd($val->id);

@@ -417,13 +417,32 @@ class ApplicationsController extends Controller
 	
 	public function applicationsendmail(Request $request){
 		$requestData = $request->all();
-		//echo '<pre>'; print_r($requestData); die;
+
+		if (empty($requestData['email_from'])) {
+			echo json_encode(['status' => false, 'message' => 'Please select a From email address']);
+			return;
+		}
+
 		$user_id = @Auth::user()->id;
 		$subject = $requestData['subject'];
 		$message = $requestData['message'];
 		$to = $requestData['to'];
-		
-	$client = \App\Models\Admin::Where('email', $requestData['to'])->first();
+
+		$client = \App\Models\Admin::Where('email', $requestData['to'])->first();
+		if (!$client) {
+			echo json_encode(['status' => false, 'message' => 'Recipient not found']);
+			return;
+		}
+
+		$emailService = app(\App\Services\EmailService::class);
+		$emailConfig = $emailService->configureMailerForEmail($requestData['email_from']);
+		if (!$emailConfig) {
+			echo json_encode(['status' => false, 'message' => 'Invalid From email address']);
+			return;
+		}
+		$sender = $emailConfig->email;
+		$senderName = $emailConfig->display_name ?? $sender;
+
 			$subject = str_replace('{Client First Name}',$client->first_name, $subject);
 			$message = str_replace('{Client First Name}',$client->first_name, $message);
 			$message = str_replace('{Client Assignee Name}',$client->first_name, $message);
@@ -436,10 +455,12 @@ class ApplicationsController extends Controller
 			if(isset($requestData['email_cc']) && !empty($requestData['email_cc'])){
 				foreach($requestData['email_cc'] as $cc){
 					$clientcc = \App\Models\Admin::Where('id', $cc)->first();
-					$ccarray[] = $clientcc;
+					if ($clientcc && !empty($clientcc->email)) {
+						$ccarray[] = $clientcc->email;
+					}
 				}
 			}
-				$sent = $this->send_compose_template($message, 'digitrex', $to, $subject, 'support@digitrex.live', $array,@$ccarray);
+				$sent = $this->send_compose_template($message, $senderName, $to, $subject, $sender, $array, $ccarray);
 			if($sent){
 				$objs = new \App\Models\ApplicationActivitiesLog;
 				$objs->stage = $request->type;
@@ -453,7 +474,7 @@ class ApplicationsController extends Controller
 				$response['status'] 	= 	true;
 				$response['message']	=	'Email Sent Successfully';
 			}else{
-				$response['status'] 	= 	true;
+				$response['status'] 	= 	false;
 				$response['message']	=	'Please try again';
 			}
 		

@@ -20,8 +20,6 @@ use App\Models\WebsiteSetting;
 
 use Auth;
 use Mail;
-use Swift_SmtpTransport;
-use Swift_Mailer;
 
 //use Illuminate\Support\Facades\Config;
 //use Illuminate\Support\Facades\App;
@@ -144,7 +142,7 @@ class Controller extends BaseController
 		}	
 		$explodeTo = explode(';', $to);//for multiple and single to
 
-		// Configure mailer from emails table (not .env)
+		// Resolve From address + display name (AWS SES; from_emails table or .env fallback)
 		$emailService = app(EmailService::class);
 		$emailConfig = $emailService->configureMailerForEmail($sender);
 		if (!$emailConfig) {
@@ -167,13 +165,12 @@ class Controller extends BaseController
 	
 	protected function send_compose_template($content, $sendername, $to = null, $subject = null, $sender = null, $array = array(), $cc = array()) 
 	{
-		// Configure mailer from emails table (not .env) - use sender if in DB, else first active
+		// Resolve From address + display name (AWS SES; from_emails table or .env fallback)
 		$emailService = app(EmailService::class);
 		$emailConfig = $emailService->configureMailerForEmail($sender);
 		if (!$emailConfig) {
 			return false;
 		}
-		// Use credentials from DB - sender and display_name must match authenticated account
 		$sender = $emailConfig->email;
 		$sendername = $sendername ?: $emailConfig->display_name;
 
