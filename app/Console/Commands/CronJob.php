@@ -204,14 +204,9 @@ class CronJob extends Command
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::mailer('ses')->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
-	
-		// check for failures
-		if (Mail::failures()) {
-			return false;
-		}
+		$mailerCron = app(\App\Services\SesSenderService::class)->mailerForAddress((string) ($sender ?? ''));
+		Mail::mailer($mailerCron)->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
 
-		// otherwise everything is okay ...
 		return true;
 		
 	}

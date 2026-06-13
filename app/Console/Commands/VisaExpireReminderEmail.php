@@ -43,17 +43,13 @@ class VisaExpireReminderEmail extends Command
 		$sendername = $sendername ?: ($emailConfig->display_name ?? $emailConfig->email);
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::mailer('ses')->to($explodeTo);
+		$mailer = app(\App\Services\SesSenderService::class)->mailerForAddress($sender);
+		$q = Mail::mailer($mailer)->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}
 		$q->send(new CommonMail($content, $subject, $sender, $sendername, $array));
-        // check for failures
-		if ( Mail::flushMacros() ) { //Mail::failures()
-            return false;
-		}
 
-		// otherwise everything is okay ...
 		return true;
 
 	}

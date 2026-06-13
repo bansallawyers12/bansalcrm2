@@ -154,12 +154,6 @@ class Controller extends BaseController
 		$mailer = app(\App\Services\SesSenderService::class)->mailerForAddress($sender);
 		Mail::mailer($mailer)->to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
 
-		// check for failures
-		if (Mail::failures()) {
-			return false;
-		}
-
-		// otherwise everything is okay ...
 		return true;
 		
 	}
@@ -183,18 +177,7 @@ class Controller extends BaseController
 			}
 
 		$q->send(new CommonMail($content, $subject, $sender, $sendername, $array));
-	
-		// check for failures
-		/*if (Mail::failures()) {
-		    
-			return false;
-		}*/
-		
-		if ( Mail::flushMacros() ) { 
-            return false;
-		}
 
-		// otherwise everything is okay ...
 		return true;
 		
 	}
@@ -212,14 +195,9 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::mailer('ses')->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
-	
-		// check for failures
-		if (Mail::failures()) {
-			return false;
-		}
+		$mailerInv = app(\App\Services\SesSenderService::class)->mailerForAddress((string) ($sender ?? ''));
+		Mail::mailer($mailerInv)->to($explodeTo)->queue(new InvoiceEmailManager($invoicearray));
 
-		// otherwise everything is okay ...
 		return true;
 		
 	}
@@ -237,14 +215,9 @@ class Controller extends BaseController
             $invoicearray['subject'] = $subject;
             $invoicearray['from'] = $sender;
             $invoicearray['content'] = $emailContent;
-		Mail::mailer('ses')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
-	
-		// check for failures
-		if (Mail::failures()) {
-			return false;
-		}
+		$mailerMulti = app(\App\Services\SesSenderService::class)->mailerForAddress((string) ($sender ?? ''));
+		Mail::mailer($mailerMulti)->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 
-		// otherwise everything is okay ...
 		return true;
 		
 	}
@@ -253,14 +226,9 @@ class Controller extends BaseController
 	{	
 		$explodeTo = explode(';', $to);//for multiple and single to
             $invoicearray['from'] = $sender;
-		Mail::mailer('ses')->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
-	
-		// check for failures
-		if (Mail::failures()) {
-			return false;
-		}
+		$mailerCompose = app(\App\Services\SesSenderService::class)->mailerForAddress((string) ($sender ?? ''));
+		Mail::mailer($mailerCompose)->to($explodeTo)->queue(new MultipleattachmentEmailManager($invoicearray));
 
-		// otherwise everything is okay ...
 		return true;
 		
 	}
