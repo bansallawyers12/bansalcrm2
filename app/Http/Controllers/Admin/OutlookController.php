@@ -5,24 +5,24 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Email;
 use App\Models\OutlookDraftEmail;
+use App\Services\SesSenderService;
 use App\Support\EducationEliteMail;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer as LaravelMailer;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OutlookController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private SesSenderService $sesSenderService
+    ) {
         $this->middleware('auth:admin');
     }
 
     /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
-     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (SendGrid).
+     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (AWS SES).
      * Elite compose (?elite=1): @educationelite.com.au addresses (AWS SES).
      * GET /admin/outlook/senders
      */
@@ -49,7 +49,7 @@ class OutlookController extends Controller
         }
 
         $list = $this->filterComposeSenders($this->getVerifiedSenders());
-        $fromEmail = config('services.sendgrid.from_email', '');
+        $fromEmail = config('services.ses.from_email', '');
         if (empty($fromEmail)) {
             $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
         }
@@ -65,107 +65,11 @@ class OutlookController extends Controller
     }
 
     /**
-     * Fetch verified senders from SendGrid API.
-     * Automatically shows new emails added in SendGrid when you refresh the page.
+     * Fetch verified senders from AWS SES (plus from_emails DB and SES_SENDERS fallback).
      */
     private function getVerifiedSenders(): array
     {
-        $apiKey = config('services.sendgrid.api_key');
-        $baseUrl = rtrim(config('services.sendgrid.base_url', 'https://api.sendgrid.com'), '/');
-
-        $senders = [];
-
-        if (empty($apiKey)) {
-            Log::warning('Outlook: SENDGRID_API_KEY not set in .env');
-            return $this->getFallbackSendersFromEnv();
-        }
-
-        try {
-            // Method 1: Try verified_senders endpoint
-            /** @var Response $response */
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-            ])->timeout(10)->get($baseUrl . '/v3/verified_senders');
-
-            Log::info('SendGrid API Response Status: ' . $response->status());
-            Log::info('SendGrid API Response Body: ' . $response->body());
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                if (isset($data['results'])) {
-                    foreach ($data['results'] as $sender) {
-                        if (! empty($sender['from_email']) && (isset($sender['verified']) ? $sender['verified'] : true)) {
-                            $senders[] = [
-                                'email' => $sender['from_email'],
-                                'name' => $sender['from_name'] ?? $sender['nickname'] ?? $sender['from_email'],
-                                'nickname' => $sender['nickname'] ?? '',
-                            ];
-                        }
-                    }
-                }
-            }
-
-            // Method 2: If no results, try senders endpoint
-            if (empty($senders)) {
-                /** @var Response $response2 */
-                $response2 = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                ])->timeout(10)->get($baseUrl . '/v3/senders');
-
-                if ($response2->successful()) {
-                    $data2 = $response2->json();
-                    $result = $data2['result'] ?? (is_array($data2) ? $data2 : []);
-
-                    foreach (is_array($result) ? $result : [] as $sender) {
-                        $email = $sender['from']['email'] ?? $sender['email'] ?? null;
-                        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $senders[] = [
-                                'email' => $email,
-                                'name' => $sender['from']['name'] ?? $sender['nickname'] ?? $email,
-                                'nickname' => $sender['nickname'] ?? '',
-                            ];
-                        }
-                    }
-                }
-            }
-
-            // Method 3: Try EU endpoint if still empty
-            if (empty($senders) && strpos($baseUrl, 'api.sendgrid.com') !== false) {
-                /** @var Response $responseEu */
-                $responseEu = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                ])->timeout(10)->get('https://api.eu.sendgrid.com/v3/verified_senders');
-
-                if ($responseEu->successful()) {
-                    $data = $responseEu->json();
-                    if (isset($data['results'])) {
-                        foreach ($data['results'] as $sender) {
-                            if (! empty($sender['from_email']) && (isset($sender['verified']) ? $sender['verified'] : true)) {
-                                $senders[] = [
-                                    'email' => $sender['from_email'],
-                                    'name' => $sender['from_name'] ?? $sender['nickname'] ?? $sender['from_email'],
-                                    'nickname' => $sender['nickname'] ?? '',
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('SendGrid API Error: ' . $e->getMessage());
-        }
-
-        // Remove duplicates by email
-        $senders = collect($senders)->unique('email')->values()->toArray();
-
-        // If still empty, use fallback from .env
-        if (empty($senders)) {
-            Log::warning('No verified senders found from API, using fallback');
-            return $this->getFallbackSendersFromEnv();
-        }
-
-        return $senders;
+        return $this->sesSenderService->listVerifiedSenders();
     }
 
     /**
@@ -201,26 +105,15 @@ class OutlookController extends Controller
     }
 
     /**
-     * Fallback: use SENDGRID_SENDERS from .env (comma-separated emails).
+     * Mailer for Outlook send: CRM uses ses; Elite compose uses ses_elite.
      */
-    private function getFallbackSendersFromEnv(): array
+    private function mailerNameForOutlookSend(Request $request): string
     {
-        $fallbackSenders = config('services.sendgrid.senders');
-        if (empty($fallbackSenders) || ! is_string($fallbackSenders)) {
-            return [];
+        if ($request->boolean('_elite_compose')) {
+            return 'ses_elite';
         }
-        $emails = array_filter(array_map('trim', explode(',', $fallbackSenders)));
-        $list = [];
-        foreach ($emails as $email) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $list[] = [
-                    'email' => $email,
-                    'name' => $email,
-                    'nickname' => '',
-                ];
-            }
-        }
-        return $list;
+
+        return 'ses';
     }
 
     /**
@@ -274,36 +167,6 @@ class OutlookController extends Controller
     }
 
     /**
-     * Mailer for Outlook send: Elite compose uses AWS SES when configured.
-     */
-    private function mailerNameForOutlookSend(Request $request): string
-    {
-        if (! $request->boolean('_elite_compose')) {
-            return 'sendgrid_outlook';
-        }
-
-        $preferred = (string) config('crm.education_elite_mailer', 'ses_elite');
-
-        if ($preferred === 'sendgrid_elite' && ! empty(config('services.sendgrid_elite.api_key'))) {
-            return 'sendgrid_elite';
-        }
-
-        if ($this->isSesEliteConfigured()) {
-            return 'ses_elite';
-        }
-
-        if (! empty(config('services.sendgrid_elite.api_key'))) {
-            Log::warning('Outlook: SES credentials missing for Elite compose; falling back to sendgrid_elite');
-
-            return 'sendgrid_elite';
-        }
-
-        Log::warning('Outlook: neither SES nor sendgrid_elite configured for Elite compose; using sendgrid_outlook');
-
-        return 'sendgrid_outlook';
-    }
-
-    /**
      * @return list<string>
      */
     private function allowedEliteFromEmails(): array
@@ -312,7 +175,7 @@ class OutlookController extends Controller
     }
 
     /**
-     * Display name for From, matching SendGrid verified sender (better DMARC alignment / reputation).
+     * Display name for From, matching SES verified sender.
      */
     private function displayNameForFrom(string $fromEmail, array $verifiedSenders): string
     {
@@ -348,7 +211,7 @@ class OutlookController extends Controller
     /**
      * Reply-To for Elite "New Message".
      *
-     * Since the full educationelite.com.au domain MX points to SendGrid Inbound Parse,
+     * Since the full educationelite.com.au domain receives inbound mail via AWS SES → S3,
      * replies to the From address (info@educationelite.com.au) are captured directly.
      * No Reply-To subdomain is needed. Returns null unless EDUCATION_ELITE_INBOUND_PARSE_HOST
      * is explicitly set AND is NOT a subdomain of the apex domain (future-proof for
@@ -384,7 +247,7 @@ class OutlookController extends Controller
     }
 
     /**
-     * Send email via SendGrid (CRM/Outlook) or AWS SES (Education Elite compose).
+     * Send email via AWS SES (CRM/Outlook and Education Elite compose).
      * Form fields: from, to, cc, subject, body; supports attachments.
      */
     public function send(Request $request)

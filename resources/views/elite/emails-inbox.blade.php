@@ -37,7 +37,8 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     font-size: 13px;
 }
 .outlook-topbar .btn-back:hover { background: #f3f3f3; color: #222; }
-.sendgrid-badge {
+.sendgrid-badge,
+.ses-badge {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
@@ -395,7 +396,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 
     {{-- Top bar --}}
     <header class="outlook-topbar">
-        <h1 class="outlook-title">Inbox <span class="sendgrid-badge">Education Elite</span></h1>
+        <h1 class="outlook-title">Inbox <span class="ses-badge">Education Elite</span></h1>
         <a href="{{ route('dashboard') }}" class="btn-back">
             <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to CRM
         </a>
@@ -517,7 +518,7 @@ html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
                         <i class="fas fa-inbox" aria-hidden="true"></i>
                         <p>No incoming messages</p>
                         <span id="eliteEmptyHint">
-                            Point SendGrid Inbound Parse at the webhook. For a real mailbox on Microsoft, forward a copy to your Inbound Parse host (see sidebar). Apex:
+                            Configure AWS SES inbound mail to S3 and run ses:sync-inbound. For a real mailbox on Microsoft, forward a copy to your SES receipt rule. Apex:
                             <strong>{{ '@' . ltrim((string) config('crm.education_elite_sender_domain','educationelite.com.au'), '@') }}</strong>.
                         </span>
                     </div>

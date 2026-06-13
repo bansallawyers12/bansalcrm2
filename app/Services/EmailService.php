@@ -9,8 +9,8 @@ use Illuminate\Mail\Message;
 
 class EmailService
 {
-    /** Default mailer for all CRM emails - SendGrid */
-    protected const DEFAULT_MAILER = 'sendgrid';
+    /** Default mailer for all CRM emails - AWS SES */
+    protected const DEFAULT_MAILER = 'ses';
 
     /**
      * Get the first active email (default for system emails).
@@ -24,8 +24,8 @@ class EmailService
 
     /**
      * Resolve email config for From address (email + display_name).
-     * Uses emails table when address provided, else .env or first active email.
-     * SendGrid uses a single API key - no per-email SMTP credentials.
+     * Uses from_emails table when address provided, else .env or first active email.
+     * AWS SES uses IAM credentials from .env — no per-email SMTP credentials.
      *
      * @param string|null $emailAddress Email address to use (must exist in from_emails table when provided)
      * @return \App\Models\FromEmail|object|null The email config (email, display_name), or null
@@ -71,7 +71,7 @@ class EmailService
     }
 
     /**
-     * Send an email via SendGrid.
+     * Send an email via AWS SES.
      *
      * @param string $view
      * @param array $data
@@ -94,7 +94,7 @@ class EmailService
                 ->whereRaw('LOWER(TRIM(email)) = ?', [strtolower($trimmed)])
                 ->first();
             if (!$emailConfig) {
-                // Allow SendGrid verified senders (From dropdown is populated from SendGrid API)
+                // Allow SES verified senders (From dropdown is populated from SES API / SES_SENDERS)
                 if (! filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
                     throw new \Exception("Invalid From email address: {$trimmed}");
                 }
@@ -104,7 +104,7 @@ class EmailService
                 ];
             }
 
-            Log::info('EmailService - Sending Email via SendGrid', [
+            Log::info('EmailService - Sending Email via AWS SES', [
                 'from_email' => $emailConfig->email,
                 'to' => $to,
                 'subject' => $subject,

@@ -490,7 +490,7 @@ class EducationEliteInboxService
             'snippet' => $snippet,
             'date' => $dateStr,
             'direction' => 'inbound',
-            'direction_label' => 'Inbound (SendGrid)',
+            'direction_label' => 'Inbound (SES)',
             'has_attachments' => $hasAttachments,
             'sort_ts' => $ts,
             'body_fetch_url' => ($s3Key !== '' && Schema::hasColumn('elite_emails', 'body_html_s3_key'))
@@ -583,9 +583,9 @@ class EducationEliteInboxService
     {
         $mention = $this->domain !== '' ? '@'.$this->domain : 'the configured Elite domain';
         if ($this->shouldMergeCrm()) {
-            return 'No inbound mail for '.$mention.' yet. SendGrid Inbound Parse must POST to the webhook URL below; CRM-imported inbox (mail_type 0) appears here too. Use "Simulate inbound" to test the webhook.';
+            return 'No inbound mail for '.$mention.' yet. Configure AWS SES inbound → S3 and run ses:sync-inbound, or use "Simulate inbound" to test.';
         }
 
-        return 'No inbound mail for '.$mention.' yet. Configure SendGrid Inbound Parse to POST to the webhook URL shown below, or use "Simulate inbound" to test.';
+        return 'No inbound mail for '.$mention.' yet. Configure AWS SES inbound (S3 bucket + ses:sync-inbound) or use "Simulate inbound" to test.';
     }
 }

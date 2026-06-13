@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Route;
 | Education Elite email
 |--------------------------------------------------------------------------
 |
-| POST /emails/elite — SendGrid Inbound Parse only: MUST stay public (no auth), CSRF exempt, optional ?secret=
-| All GET routes — admin login required (UI, JSON inbox/sent/drafts, attachment downloads for img src)
+| POST /emails/elite — Legacy inbound webhook (optional): public, CSRF exempt, optional ?secret=
+| Primary inbound: AWS SES → S3 (.eml), imported by `php artisan ses:sync-inbound`.
 |
-| Legacy POST /elite/emails is kept for existing SendGrid Inbound Parse URLs until updated.
+| Legacy POST /elite/emails is kept for older inbound webhook URLs until removed.
 |
 */
 

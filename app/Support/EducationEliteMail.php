@@ -4,7 +4,7 @@ namespace App\Support;
 
 /**
  * Elite / Education Elite mail domain rules: apex sender domain and subdomains
- * used for SendGrid Inbound Parse (e.g. parse.example.com → mail to *@parse.example.com).
+ * used for inbound mail routing (e.g. parse.example.com → mail to *@parse.example.com).
  */
 final class EducationEliteMail
 {

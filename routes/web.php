@@ -286,7 +286,7 @@ Route::get('/invoice/attachfileemail', [InvoiceController::class, 'attachfileema
 // Route::get('/api-key', 'Admin\ApiController@index')->name('apikey.index');
 // Manage Api key
 
-// SendGrid email API (used by Elite inbox + CRM compose modals)
+// SES verified senders API (used by Elite inbox + CRM compose modals)
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/outlook/senders', [OutlookController::class, 'senders'])->name('outlook.senders');
     Route::post('/outlook/send', [OutlookController::class, 'send'])->name('outlook.send');

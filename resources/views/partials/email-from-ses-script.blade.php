@@ -1,9 +1,9 @@
-{{-- Populate Compose Email From dropdowns with SendGrid verified senders --}}
+{{-- Populate Compose Email From dropdowns with AWS SES verified senders --}}
 <script>
 (function() {
 	var sendersUrl = '{{ route("admin.outlook.senders") }}';
 	function refreshEmailFromSenders() {
-		var selects = document.querySelectorAll('.email-from-sendgrid');
+		var selects = document.querySelectorAll('.email-from-ses');
 		if (selects.length === 0) return;
 		fetch(sendersUrl, {
 			headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -33,13 +33,13 @@
 						fallback.selected = true;
 						select.appendChild(fallback);
 					} else {
-						select.innerHTML = '<option value="">No SendGrid senders found</option>';
+						select.innerHTML = '<option value="">No SES senders found</option>';
 					}
 				});
 			})
 			.catch(function() {
 				selects.forEach(function(select) {
-					select.innerHTML = '<option value="">SendGrid unavailable – check SENDGRID_API_KEY</option>';
+					select.innerHTML = '<option value="">SES unavailable – check AWS credentials</option>';
 				});
 			});
 	}

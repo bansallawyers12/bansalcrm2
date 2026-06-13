@@ -123,7 +123,7 @@ class DocumentSignatureController extends Controller
                     'documentTitle' => $document->checklist ?? $document->file_name ?? 'Document',
                     'signingUrl' => $signingUrl,
                 ];
-                \Illuminate\Support\Facades\Mail::mailer('sendgrid')->send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $emailConfig) {
+                Mail::mailer('ses')->send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $emailConfig) {
                     $mail->to($signer->email, $signer->name)
                          ->subject($subject)
                          ->from($emailConfig->email, $emailConfig->display_name ?? $emailConfig->email);

@@ -46,7 +46,7 @@ class VisaExpireReminderEmail extends Command
 		$sendername = $sendername ?: ($emailConfig->display_name ?? $emailConfig->email);
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::mailer('sendgrid')->to($explodeTo);
+		$q = Mail::mailer('ses')->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}

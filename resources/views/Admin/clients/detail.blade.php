@@ -1943,7 +1943,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6">
 							<div class="form-group form-group-compact">
 								<label for="email_from">From <span class="span_req">*</span></label>
-								@include('partials.email-from-sendgrid')
+								@include('partials.email-from-ses')
 								@if ($errors->has('email_from'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('email_from') }}</strong>

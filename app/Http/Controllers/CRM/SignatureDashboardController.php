@@ -445,7 +445,7 @@ class SignatureDashboardController extends Controller
                 ];
                 
                 // Send email using the signature-request template
-                Mail::mailer('sendgrid')->send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
+                Mail::mailer('ses')->send('emails.signature-request', $emailData, function ($mail) use ($signer, $subject, $mailFromAddress, $mailFromName) {
                     $mail->to($signer->email, $signer->name)
                          ->subject($subject)
                          ->from($mailFromAddress, $mailFromName);

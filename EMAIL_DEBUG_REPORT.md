@@ -1,4 +1,8 @@
-# Email 535 Authentication Failed - Debug Report
+# Email Debug Report (AWS SES)
+
+## Note
+
+This report was written during the Zoho → SendGrid migration. Outbound email now uses **AWS SES**. See `SES_EMAIL_MIGRATION.md` and run `php artisan ses:test`.
 
 ## Error Summary
 **Error:** Failed to authenticate on SMTP server with username `info@bansaleducation.com.au` (535 Authentication Failed)

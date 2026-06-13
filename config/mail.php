@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env('MAIL_MAILER', 'ses'),
 
     /*
     |--------------------------------------------------------------------------
@@ -45,39 +45,6 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
-        ],
-
-        'sendgrid' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.sendgrid.net'),
-            'port' => env('MAIL_PORT', 587),
-            'username' => env('MAIL_USERNAME', 'apikey'),
-            'password' => env('MAIL_PASSWORD') ?: env('SENDGRID_API_KEY'),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
-        ],
-
-        'sendgrid_outlook' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST2', 'smtp.sendgrid.net'),
-            'port' => env('MAIL_PORT2', 587),
-            'username' => env('MAIL_USERNAME2', 'apikey'),
-            'password' => env('MAIL_PASSWORD2') ?: env('SENDGRID_API_KEY'),
-            'encryption' => env('MAIL_ENCRYPTION2', 'tls'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
-        ],
-
-        'sendgrid_elite' => [
-            'transport' => 'smtp',
-            'host' => env('MAIL_HOST_ELITE', 'smtp.sendgrid.net'),
-            'port' => env('MAIL_PORT_ELITE', 587),
-            'username' => env('MAIL_USERNAME_ELITE', 'apikey'),
-            'password' => env('MAIL_PASSWORD_ELITE') ?: env('SENDGRID_ELITE_API_KEY') ?: env('SENDGRID_API_KEY'),
-            'encryption' => env('MAIL_ENCRYPTION_ELITE', 'tls'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
