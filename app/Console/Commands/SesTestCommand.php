@@ -69,7 +69,7 @@ class SesTestCommand extends Command
         }
 
         $this->newLine();
-        $this->info('Compose From dropdown (Admin Console → Emails / SES_SENDERS / SES_ELITE_SENDERS):');
+        $this->info('Compose From dropdown (Admin Console → Emails, active + staff sharing when run as a user):');
         foreach ($sesSenderService->getComposeSenders() as $sender) {
             $this->line('  • '.($sender['email'] ?? ''));
         }

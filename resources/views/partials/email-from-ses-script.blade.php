@@ -38,7 +38,7 @@
 				fallback.selected = true;
 				select.appendChild(fallback);
 			} else {
-				select.innerHTML = '<option value="">No verified senders — add addresses in Admin Console → Emails</option>';
+				select.innerHTML = '<option value="">No verified senders — add active addresses in Admin Console → Emails</option>';
 			}
 		});
 	}
@@ -69,7 +69,7 @@
 			})
 			.catch(function() {
 				selects.forEach(function(select) {
-					select.innerHTML = '<option value="">Could not load senders — check AWS credentials and run php artisan config:clear</option>';
+					select.innerHTML = '<option value="">Could not load senders — check you are logged in and Admin Console → Emails has active addresses</option>';
 				});
 			});
 	}

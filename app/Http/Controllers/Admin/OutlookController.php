@@ -22,29 +22,31 @@ class OutlookController extends Controller
     }
 
     /**
-     * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
-     * Unified list: @bansaleducation.com.au + @educationelite.com.au (+ admission@bansalimmigration.com.au).
-     * Managed in Admin Console → Emails; ?elite=1 only changes the default From preference.
-     * GET /admin/outlook/senders
+     * Return active Admin Console senders as JSON for compose From dropdowns.
+     * GET /admin/outlook/senders — ?elite=1 prefers an @educationelite.com.au default.
      */
     public function senders(Request $request)
     {
         $list = $this->sesSenderService->getComposeSenders(auth('admin')->id());
         $emails = array_column($list, 'email');
+        $fromEmail = '';
 
         if ($request->boolean('elite')) {
-            $fromEmail = (string) config('services.ses_elite.from_email', '');
-            if ($fromEmail === '' || ! $this->sesSenderService->isAllowedSenderDomain($fromEmail)) {
-                $fromEmail = 'info@'.EducationEliteMail::apexDomain();
+            foreach ($list as $sender) {
+                $candidate = strtolower(trim((string) ($sender['email'] ?? '')));
+                if ($candidate !== '' && EducationEliteMail::isEliteOwnedAddress($candidate)) {
+                    $fromEmail = $candidate;
+                    break;
+                }
             }
         } else {
-            $fromEmail = (string) config('services.ses_crm.from_email', '');
+            $fromEmail = strtolower(trim((string) config('services.ses_crm.from_email', '')));
             if ($fromEmail === '') {
-                $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
+                $fromEmail = strtolower(trim((string) (optional(auth('admin')->user())->email ?? config('mail.from.address', ''))));
             }
         }
 
-        if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
+        if ($emails !== [] && ($fromEmail === '' || ! $this->emailInList($fromEmail, $emails))) {
             $fromEmail = $emails[0];
         }
 

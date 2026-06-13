@@ -24,7 +24,7 @@
 								<table class="table text_wrap">
 								<thead>
 									<tr>
-										
+										<th>SNo.</th>
 										<th>Name</th>
 										<th>Staff Sharing</th>
 										<th>Status</th>
@@ -34,7 +34,6 @@
 								
 								@if(@$totalData !== 0 && $lists)
 								
-								<?php $i=0; ?>
 								<tbody class="tdata">	
 								@foreach (($lists ?? []) as $list)
 									<?php
@@ -49,8 +48,8 @@
 										}
                                     } ?>
 									<tr id="id_{{@$list->id}}">
-										
-										<td>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</td> 	
+										<td>{{ ($lists->currentPage() - 1) * $lists->perPage() + $loop->iteration }}</td>
+										<td>{{ @$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...') }}</td>
 										<td>{{ @$username == "" ? config('constants.empty') : str_limit(rtrim(@$username,', '), '50', '...') }}</td> 	
 										<td>
 										<?php
@@ -74,7 +73,7 @@
 								@else
 								<tbody>
 									<tr>
-										<td style="text-align:center;" colspan="7">
+										<td style="text-align:center;" colspan="5">
 											No Record found
 										</td>
 									</tr>

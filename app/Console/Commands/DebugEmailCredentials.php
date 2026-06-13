@@ -37,7 +37,7 @@ class DebugEmailCredentials extends Command
                 $this->line("  - {$e->email} | Display: ".($e->display_name ?? '(empty)'));
             }
             $this->newLine();
-            $this->info('Compose From dropdown (Admin Console → Emails):');
+            $this->info('Compose From dropdown (Admin Console → Emails, active only):');
             foreach ($sesSenderService->getComposeSenders() as $sender) {
                 $this->line('  - '.($sender['email'] ?? ''));
             }

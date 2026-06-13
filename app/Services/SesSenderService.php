@@ -10,65 +10,32 @@ use Illuminate\Support\Facades\Log;
 class SesSenderService
 {
     /**
-     * All verified From addresses for compose dropdowns (both @bansaleducation.com.au and @educationelite.com.au).
-     *
-     * Sources: Admin Console → Emails (from_emails), SES API, SES_SENDERS + SES_ELITE_SENDERS in .env.
+     * Active From addresses for compose dropdowns (Admin Console → Emails only).
      *
      * @return list<array{email: string, name: string, nickname: string}>
      */
     public function getComposeSenders(?int $adminId = null): array
     {
-        $fromEnvCrm = $this->parseSenderEmails((string) config('services.ses_crm.senders', ''));
-        $fromEnvElite = $this->parseSenderEmails((string) config('services.ses_elite.senders', ''));
-        $fromApi = $this->listVerifiedEmailIdentitiesFromApi();
-        $fromDb = FromEmail::where('status', true)
+        $rows = FromEmail::where('status', true)
             ->orderBy('id')
             ->get()
-            ->filter(fn (FromEmail $row) => $this->fromEmailVisibleToAdmin($row, $adminId))
-            ->pluck('email')
-            ->map(fn ($email) => strtolower(trim((string) $email)))
-            ->filter()
-            ->values()
-            ->all();
+            ->filter(fn (FromEmail $row) => $this->fromEmailVisibleToAdmin($row, $adminId));
 
-        $defaultFromCrm = strtolower(trim((string) config('services.ses_crm.from_email', '')));
-        if ($defaultFromCrm !== '' && filter_var($defaultFromCrm, FILTER_VALIDATE_EMAIL)) {
-            array_unshift($fromEnvCrm, $defaultFromCrm);
-        }
-
-        $defaultFromElite = strtolower(trim((string) config('services.ses_elite.from_email', '')));
-        if ($defaultFromElite !== '' && filter_var($defaultFromElite, FILTER_VALIDATE_EMAIL)) {
-            array_unshift($fromEnvElite, $defaultFromElite);
-        }
-
-        $emails = array_values(array_unique(array_merge($fromEnvCrm, $fromEnvElite, $fromApi, $fromDb)));
         $list = [];
-
-        foreach ($emails as $email) {
+        foreach ($rows as $row) {
+            $email = strtolower(trim((string) $row->email));
             if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 continue;
             }
-            $normalized = strtolower($email);
-            $list[$normalized] = [
-                'email' => $normalized,
-                'name' => $normalized,
+            $displayName = trim((string) ($row->display_name ?? ''));
+            $list[$email] = [
+                'email' => $email,
+                'name' => $displayName !== '' ? $displayName : $email,
                 'nickname' => '',
             ];
         }
 
-        $filtered = $this->filterComposeSenders(array_values($list));
-
-        foreach ($filtered as &$sender) {
-            $db = FromEmail::where('status', true)
-                ->whereRaw('LOWER(TRIM(email)) = ?', [$sender['email']])
-                ->first();
-            if ($db && $db->display_name) {
-                $sender['name'] = $db->display_name;
-            }
-        }
-        unset($sender);
-
-        return $filtered;
+        return $this->filterComposeSenders(array_values($list));
     }
 
     /**
@@ -202,21 +169,6 @@ class SesSenderService
         $allowed = array_map(static fn ($id) => (string) $id, $ids);
 
         return in_array((string) $adminId, $allowed, true);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function parseSenderEmails(string $raw): array
-    {
-        $emails = [];
-        foreach (array_filter(array_map('trim', explode(',', $raw))) as $email) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $emails[] = strtolower($email);
-            }
-        }
-
-        return $emails;
     }
 
     private function client(): SesV2Client
