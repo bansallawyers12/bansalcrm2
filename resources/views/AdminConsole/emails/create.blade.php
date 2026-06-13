@@ -31,8 +31,9 @@
 											<div class="row"> 						
 												<div class="col-12 col-md-12 col-lg-12">
 													<div class="form-group"> 
-														<label for="email">Email Id <span class="span_req">*</span></label>
-														{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'' ))  !!}
+														<label for="email">Email address <span class="span_req">*</span></label>
+														{!! Form::text('email', '', array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'e.g. apply@bansaleducation.com.au or info@educationelite.com.au' ))  !!}
+														<small class="form-text text-muted">@bansaleducation.com.au and @educationelite.com.au addresses appear in all compose From dropdowns once active. Domains must be verified in AWS SES.</small>
 														@if ($errors->has('email'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('email') }}</strong>

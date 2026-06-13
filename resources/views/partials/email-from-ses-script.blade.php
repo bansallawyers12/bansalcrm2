@@ -38,7 +38,7 @@
 				fallback.selected = true;
 				select.appendChild(fallback);
 			} else {
-				select.innerHTML = '<option value="">No @bansaleducation.com.au senders — check Admin Console → Emails or SES_SENDERS in .env</option>';
+				select.innerHTML = '<option value="">No verified senders — add addresses in Admin Console → Emails</option>';
 			}
 		});
 	}

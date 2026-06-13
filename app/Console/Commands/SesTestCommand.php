@@ -69,17 +69,9 @@ class SesTestCommand extends Command
         }
 
         $this->newLine();
-        $this->info('CRM From dropdown (SES_SENDERS / SES_FROM_EMAIL / DB):');
-        foreach ($sesSenderService->getCrmSenders() as $sender) {
+        $this->info('Compose From dropdown (Admin Console → Emails / SES_SENDERS / SES_ELITE_SENDERS):');
+        foreach ($sesSenderService->getComposeSenders() as $sender) {
             $this->line('  • '.($sender['email'] ?? ''));
-        }
-
-        $this->newLine();
-        $this->info('Elite From dropdown (SES_ELITE_SENDERS / SES_ELITE_FROM_EMAIL):');
-        $senders = (string) config('services.ses_elite.senders', '');
-        foreach (array_filter(array_map('trim', explode(',', $senders))) as $email) {
-            $ok = EducationEliteMail::isEliteOwnedAddress($email) ? '✓' : '✗';
-            $this->line("  {$ok} {$email}");
         }
 
         $this->newLine();

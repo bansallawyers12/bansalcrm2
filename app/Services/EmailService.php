@@ -94,7 +94,9 @@ class EmailService
                 'subject' => $subject,
             ]);
 
-            Mail::mailer(self::DEFAULT_MAILER)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
+            $mailer = app(SesSenderService::class)->mailerForAddress($emailConfig->email);
+
+            Mail::mailer($mailer)->send($view, $data, function (Message $message) use ($to, $subject, $emailConfig, $attachments, $cc) {
                 $message->to($to)
                     ->subject($subject)
                     ->from($emailConfig->email, $emailConfig->display_name ?? $emailConfig->email);

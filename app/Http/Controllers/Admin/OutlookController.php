@@ -23,38 +23,27 @@ class OutlookController extends Controller
 
     /**
      * Return verified senders as JSON for AJAX (e.g. frontend refresh on page load).
-     * CRM compose: @bansaleducation.com.au + admission@bansalimmigration.com.au (AWS SES).
-     * Elite compose (?elite=1): @educationelite.com.au addresses (AWS SES).
+     * Unified list: @bansaleducation.com.au + @educationelite.com.au (+ admission@bansalimmigration.com.au).
+     * Managed in Admin Console → Emails; ?elite=1 only changes the default From preference.
      * GET /admin/outlook/senders
      */
     public function senders(Request $request)
     {
+        $list = $this->sesSenderService->getComposeSenders(auth('admin')->id());
+        $emails = array_column($list, 'email');
+
         if ($request->boolean('elite')) {
-            $list = $this->getEliteSenders();
             $fromEmail = (string) config('services.ses_elite.from_email', '');
-            if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
+            if ($fromEmail === '' || ! $this->sesSenderService->isAllowedSenderDomain($fromEmail)) {
                 $fromEmail = 'info@'.EducationEliteMail::apexDomain();
             }
-            if ($fromEmail === '' || ! EducationEliteMail::isEliteOwnedAddress($fromEmail)) {
-                $fromEmail = $list[0]['email'] ?? '';
+        } else {
+            $fromEmail = (string) config('services.ses_crm.from_email', '');
+            if ($fromEmail === '') {
+                $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
             }
-            $emails = array_column($list, 'email');
-            if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
-                $fromEmail = $emails[0];
-            }
-
-            return response()->json([
-                'senders' => $list,
-                'default_from' => $fromEmail,
-            ]);
         }
 
-        $list = $this->sesSenderService->getCrmSenders(auth('admin')->id());
-        $fromEmail = (string) config('services.ses_crm.from_email', '');
-        if ($fromEmail === '') {
-            $fromEmail = optional(auth('admin')->user())->email ?? config('mail.from.address', '');
-        }
-        $emails = array_column($list, 'email');
         if (! empty($emails) && ! $this->emailInList($fromEmail, $emails)) {
             $fromEmail = $emails[0];
         }
@@ -66,76 +55,17 @@ class OutlookController extends Controller
     }
 
     /**
-     * Verified @educationelite.com.au From addresses for Elite compose (AWS SES).
-     *
-     * @return list<array{email: string, name: string, nickname: string}>
+     * Mailer for Outlook send — chosen from the From address domain.
      */
-    private function getEliteSenders(): array
+    private function mailerNameForAddress(string $from): string
     {
-        $defaultFrom = strtolower(trim((string) config(
-            'services.ses_elite.from_email',
-            'info@'.EducationEliteMail::apexDomain()
-        )));
-        $raw = (string) config('services.ses_elite.senders', '');
-        if (trim($raw) === '') {
-            $raw = $defaultFrom;
-        }
-        $displayName = (string) config('crm.education_elite_from_name', 'Education Elite');
-        $emails = array_filter(array_map('trim', explode(',', $raw)));
-
-        if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
-            array_unshift($emails, $defaultFrom);
-        }
-
-        $list = [];
-        foreach ($emails as $email) {
-            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-            if (! EducationEliteMail::isEliteOwnedAddress($email)) {
-                continue;
-            }
-            $normalized = strtolower($email);
-            $list[$normalized] = [
-                'email' => $normalized,
-                'name' => $displayName !== '' ? $displayName : $normalized,
-                'nickname' => '',
-            ];
-        }
-
-        return array_values($list);
-    }
-
-    /**
-     * Mailer for Outlook send: Elite compose uses ses_elite, CRM uses ses.
-     */
-    private function mailerNameForOutlookSend(Request $request): string
-    {
-        if ($request->boolean('_elite_compose')) {
-            if (! $this->sesSenderService->isConfigured()) {
-                Log::error('Outlook: SES credentials missing for Elite compose');
-
-                throw new \RuntimeException('AWS SES is not configured.');
-            }
-
-            return 'ses_elite';
-        }
-
         if (! $this->sesSenderService->isConfigured()) {
-            Log::error('Outlook: SES credentials missing for CRM compose');
+            Log::error('Outlook: SES credentials missing for compose');
 
             throw new \RuntimeException('AWS SES is not configured.');
         }
 
-        return 'ses';
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function allowedEliteFromEmails(): array
-    {
-        return array_column($this->getEliteSenders(), 'email');
+        return $this->sesSenderService->mailerForAddress($from);
     }
 
     /**
@@ -223,38 +153,35 @@ class OutlookController extends Controller
         $subject = $validated['subject'];
         $body = $validated['body'] ?? '';
 
-        if ($request->boolean('_elite_compose')) {
-            if (! EducationEliteMail::isEliteOwnedAddress($from)) {
-                $message = 'From address must be an @'.EducationEliteMail::apexDomain().' mailbox.';
-                if ($request->wantsJson()) {
-                    return response()->json(['ok' => false, 'message' => $message], 422);
-                }
-
-                return redirect()->back()->with('error', $message)->withInput();
+        if (! $this->sesSenderService->isAllowedSenderDomain($from)) {
+            $message = 'From address must be @bansaleducation.com.au, @'.EducationEliteMail::apexDomain().', or admission@bansalimmigration.com.au.';
+            if ($request->wantsJson()) {
+                return response()->json(['ok' => false, 'message' => $message], 422);
             }
-            $allowedFrom = $this->allowedEliteFromEmails();
-            if ($allowedFrom !== [] && ! $this->emailInList($from, $allowedFrom)) {
-                $message = 'From address is not an allowed Education Elite sender.';
-                if ($request->wantsJson()) {
-                    return response()->json(['ok' => false, 'message' => $message], 422);
-                }
 
-                return redirect()->back()->with('error', $message)->withInput();
+            return redirect()->back()->with('error', $message)->withInput();
+        }
+
+        $allowedFrom = array_column($this->sesSenderService->getComposeSenders(auth('admin')->id()), 'email');
+        if ($allowedFrom !== [] && ! $this->emailInList($from, $allowedFrom)) {
+            $message = 'From address is not in the allowed sender list. Add it in Admin Console → Emails.';
+            if ($request->wantsJson()) {
+                return response()->json(['ok' => false, 'message' => $message], 422);
             }
+
+            return redirect()->back()->with('error', $message)->withInput();
         }
 
         $eliteReplyTo = null;
-        if ($request->boolean('_elite_compose')) {
+        if ($request->boolean('_elite_compose') && EducationEliteMail::isEliteOwnedAddress($from)) {
             $eliteReplyTo = $this->resolveEliteComposeReplyTo();
         }
 
-        $verifiedSenders = $request->boolean('_elite_compose')
-            ? $this->getEliteSenders()
-            : $this->sesSenderService->getCrmSenders();
+        $verifiedSenders = $this->sesSenderService->getComposeSenders(auth('admin')->id());
         $fromDisplayName = $this->displayNameForFrom($from, $verifiedSenders);
         $htmlBody = $body !== '' ? $body : '<p> </p>';
         $plainBody = $this->htmlToPlainTextForMail($htmlBody);
-        $mailerName = $this->mailerNameForOutlookSend($request);
+        $mailerName = $this->mailerNameForAddress($from);
 
         try {
             /** @var LaravelMailer $mailer */

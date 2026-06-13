@@ -3,19 +3,23 @@
 namespace App\Services;
 
 use App\Models\FromEmail;
+use App\Support\EducationEliteMail;
 use Aws\SesV2\SesV2Client;
 use Illuminate\Support\Facades\Log;
 
 class SesSenderService
 {
     /**
-     * Verified CRM From addresses for compose dropdowns (@bansaleducation.com.au + admission@bansalimmigration.com.au).
+     * All verified From addresses for compose dropdowns (both @bansaleducation.com.au and @educationelite.com.au).
+     *
+     * Sources: Admin Console → Emails (from_emails), SES API, SES_SENDERS + SES_ELITE_SENDERS in .env.
      *
      * @return list<array{email: string, name: string, nickname: string}>
      */
-    public function getCrmSenders(?int $adminId = null): array
+    public function getComposeSenders(?int $adminId = null): array
     {
-        $fromEnv = $this->parseSenderEmails((string) config('services.ses_crm.senders', ''));
+        $fromEnvCrm = $this->parseSenderEmails((string) config('services.ses_crm.senders', ''));
+        $fromEnvElite = $this->parseSenderEmails((string) config('services.ses_elite.senders', ''));
         $fromApi = $this->listVerifiedEmailIdentitiesFromApi();
         $fromDb = FromEmail::where('status', true)
             ->orderBy('id')
@@ -27,12 +31,17 @@ class SesSenderService
             ->values()
             ->all();
 
-        $defaultFrom = strtolower(trim((string) config('services.ses_crm.from_email', '')));
-        if ($defaultFrom !== '' && filter_var($defaultFrom, FILTER_VALIDATE_EMAIL)) {
-            array_unshift($fromEnv, $defaultFrom);
+        $defaultFromCrm = strtolower(trim((string) config('services.ses_crm.from_email', '')));
+        if ($defaultFromCrm !== '' && filter_var($defaultFromCrm, FILTER_VALIDATE_EMAIL)) {
+            array_unshift($fromEnvCrm, $defaultFromCrm);
         }
 
-        $emails = array_values(array_unique(array_merge($fromEnv, $fromApi, $fromDb)));
+        $defaultFromElite = strtolower(trim((string) config('services.ses_elite.from_email', '')));
+        if ($defaultFromElite !== '' && filter_var($defaultFromElite, FILTER_VALIDATE_EMAIL)) {
+            array_unshift($fromEnvElite, $defaultFromElite);
+        }
+
+        $emails = array_values(array_unique(array_merge($fromEnvCrm, $fromEnvElite, $fromApi, $fromDb)));
         $list = [];
 
         foreach ($emails as $email) {
@@ -60,6 +69,34 @@ class SesSenderService
         unset($sender);
 
         return $filtered;
+    }
+
+    /**
+     * @return list<array{email: string, name: string, nickname: string}>
+     */
+    public function getCrmSenders(?int $adminId = null): array
+    {
+        return $this->getComposeSenders($adminId);
+    }
+
+    public function isAllowedSenderDomain(string $email): bool
+    {
+        $email = strtolower(trim($email));
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        return str_ends_with($email, '@bansaleducation.com.au')
+            || EducationEliteMail::isEliteOwnedAddress($email)
+            || $email === 'admission@bansalimmigration.com.au';
+    }
+
+    /**
+     * Pick Laravel mailer based on From domain (both use AWS SES credentials).
+     */
+    public function mailerForAddress(string $email): string
+    {
+        return EducationEliteMail::isEliteOwnedAddress($email) ? 'ses_elite' : 'ses';
     }
 
     /**
@@ -113,7 +150,7 @@ class SesSenderService
     }
 
     /**
-     * Limit Compose Email From dropdown to education addresses plus one immigration admission inbox.
+     * Limit Compose Email From dropdown to allowed sender domains.
      *
      * @param  list<array{email: string, name: string, nickname: string}>  $senders
      * @return list<array{email: string, name: string, nickname: string}>
@@ -122,12 +159,8 @@ class SesSenderService
     {
         $filtered = array_values(array_filter($senders, function (array $sender) {
             $email = strtolower(trim((string) ($sender['email'] ?? '')));
-            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return false;
-            }
 
-            return str_ends_with($email, '@bansaleducation.com.au')
-                || $email === 'admission@bansalimmigration.com.au';
+            return $this->isAllowedSenderDomain($email);
         }));
 
         usort($filtered, function (array $a, array $b) {

@@ -151,7 +151,8 @@ class Controller extends BaseController
 		$sender = $emailConfig->email;
 		$displayName = is_object($sendername) ? \App\Helpers\Helper::defaultCrmCompanyName() : ($sendername ?: $emailConfig->display_name);
 
-		Mail::mailer('ses')->to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
+		$mailer = app(\App\Services\SesSenderService::class)->mailerForAddress($sender);
+		Mail::mailer($mailer)->to($explodeTo)->send(new CommonMail($emailContent, $subject, $sender, $displayName, []));
 
 		// check for failures
 		if (Mail::failures()) {
@@ -175,7 +176,8 @@ class Controller extends BaseController
 		$sendername = $sendername ?: $emailConfig->display_name;
 
 		$explodeTo = explode(';', $to);//for multiple and single to
-		$q = Mail::mailer('ses')->to($explodeTo);
+		$mailer = app(\App\Services\SesSenderService::class)->mailerForAddress($sender);
+		$q = Mail::mailer($mailer)->to($explodeTo);
 			if(!empty($cc)){
 				$q->cc($cc);
 			}

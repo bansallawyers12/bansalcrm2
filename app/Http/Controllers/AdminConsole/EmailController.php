@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\FromEmail;
+use App\Services\SesSenderService;
 
 use Auth; 
 use Config;
@@ -67,7 +68,7 @@ class EmailController extends Controller
 		if ($request->isMethod('post')) 
 		{
 			$this->validate($request, [
-										'email' => 'required|max:255|unique:from_emails',
+										'email' => 'required|email|max:255|unique:from_emails',
 										'password' => 'nullable|string|min:1',
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
@@ -75,6 +76,12 @@ class EmailController extends Controller
 										'users.required' => 'Please select at least one user for User Sharing.',
 										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
+
+			if (! app(SesSenderService::class)->isAllowedSenderDomain((string) $request->input('email'))) {
+				return redirect()->back()
+					->withErrors(['email' => 'Use @bansaleducation.com.au, @educationelite.com.au, or admission@bansalimmigration.com.au.'])
+					->withInput();
+			}
 			
 			$requestData 		= 	$request->all();
 			
@@ -110,13 +117,19 @@ class EmailController extends Controller
 			$requestData 		= 	$request->all();
 			
 			$this->validate($request, [										
-										'email' => 'required|max:255|unique:from_emails,email,'.$requestData['id'],
+										'email' => 'required|email|max:255|unique:from_emails,email,'.$requestData['id'],
 										'users' => 'required|array|min:1',
 										'users.*' => 'required'
 									  ], [
 										'users.required' => 'Please select at least one user for User Sharing.',
 										'users.min' => 'Please select at least one user for User Sharing.'
 									  ]);
+
+			if (! app(SesSenderService::class)->isAllowedSenderDomain((string) $request->input('email'))) {
+				return redirect()->back()
+					->withErrors(['email' => 'Use @bansaleducation.com.au, @educationelite.com.au, or admission@bansalimmigration.com.au.'])
+					->withInput();
+			}
 								  					  
 			$obj			= 	FromEmail::find(@$requestData['id']);
 			$obj->email	=	@$requestData['email'];

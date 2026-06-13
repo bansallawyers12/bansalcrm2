@@ -14,6 +14,7 @@
 					<div class="card">
 						<div class="card-header">
 							<h4>All Emails</h4>
+							<p class="text-muted mb-0" style="font-size:13px;">Manage @bansaleducation.com.au and @educationelite.com.au senders in one place. Active addresses appear in CRM compose, Elite inbox, and Outlook.</p>
 							<div class="card-header-action">
 								<a href="{{route('adminconsole.emails.create')}}" class="btn btn-primary">Create Emails</a>
 							</div>
