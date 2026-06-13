@@ -65,7 +65,7 @@
 													<h4>Staff Sharing</h4>
 													<div class="form-group"> 
 														<label for="users">Select Staff <span class="span_req">*</span></label>
-														<select data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
+														<select id="email_create_users" data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
 															<option value="">Select Staff</option>
 															<?php
 																$roleIds = config('crm_access.exempt_role_ids', [1, 12]);
@@ -82,12 +82,12 @@
 																	}
 																	$selected = is_array($selectedUsers) && in_array((string) $user->id, array_map('strval', $selectedUsers), true);
 																	?>
-																	<option value="{{$user->id}}"{{ $selected ? ' selected' : '' }}>{{$user->first_name}} {{$user->last_name}}{{ $roleLabel }}</option>
+																	<option value="{{$user->id}}" data-role-id="{{ (int) $user->role }}"{{ $selected ? ' selected' : '' }}>{{$user->first_name}} {{$user->last_name}}{{ $roleLabel }}</option>
 																	<?php
 																}
 															?>
 														</select>
-														<small class="form-text text-muted">Required on create: select at least <strong>2 Super Admin</strong> and <strong>2 Admin</strong> staff.</small>
+														<small class="form-text text-muted">Required on create: select at least 2 roles — Super Admin and Admin staff.</small>
 														@if ($errors->has('users'))
 															<span class="custom-error" role="alert">
 																<strong>{{ $errors->first('users') }}</strong>
@@ -100,7 +100,7 @@
 									</div>
 								</div>
 								<div class="form-group float-end">
-									{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("add-emails")' ])  !!}
+									{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'return validateAndSaveAddEmail()' ])  !!}
 								</div> 
 							</div>
 						</div>	
@@ -111,4 +111,76 @@
 	</section>
 </div>
 
+@endsection
+
+@section('scripts')
+@php
+	$emailCreateRoleIds = config('crm_access.exempt_role_ids', [1, 12]);
+@endphp
+<script>
+(function () {
+	var superAdminRoleId = @json((int) ($emailCreateRoleIds[0] ?? 1));
+	var adminRoleId = @json((int) ($emailCreateRoleIds[1] ?? 12));
+	var staffRoleError = 'Please select at least 2 roles: Super Admin and Admin staff.';
+
+	window.validateEmailCreateStaffSharing = function () {
+		if (typeof jQuery === 'undefined') {
+			return true;
+		}
+		var $sel = jQuery('#email_create_users');
+		if (!$sel.length) {
+			return true;
+		}
+		$sel.closest('.form-group').find('.custom-error.staff-role-error').remove();
+
+		var selected = $sel.val() || [];
+		if (!selected.length) {
+			return true;
+		}
+
+		var hasSuperAdmin = false;
+		var hasAdmin = false;
+		selected.forEach(function (id) {
+			var roleId = parseInt($sel.find('option[value="' + id + '"]').attr('data-role-id'), 10);
+			if (roleId === superAdminRoleId) {
+				hasSuperAdmin = true;
+			}
+			if (roleId === adminRoleId) {
+				hasAdmin = true;
+			}
+		});
+
+		if (!hasSuperAdmin || !hasAdmin) {
+			var errorHtml = '<span class="custom-error staff-role-error" role="alert"><strong>' + staffRoleError + '</strong></span>';
+			var $select2 = $sel.next('.select2-container');
+			if ($select2.length) {
+				$select2.after(errorHtml);
+			} else {
+				$sel.after(errorHtml);
+			}
+			jQuery('html, body').animate({ scrollTop: $sel.closest('.form-group').offset().top - 80 }, 'slow');
+			return false;
+		}
+
+		return true;
+	};
+
+	window.validateAndSaveAddEmail = function () {
+		if (!window.validateEmailCreateStaffSharing()) {
+			if (typeof jQuery !== 'undefined') {
+				jQuery('.popuploader').hide();
+			}
+			return false;
+		}
+		customValidate('add-emails');
+		return false;
+	};
+
+	if (typeof jQuery !== 'undefined') {
+		jQuery(document).on('change', '#email_create_users', function () {
+			jQuery(this).closest('.form-group').find('.custom-error.staff-role-error').remove();
+		});
+	}
+})();
+</script>
 @endsection

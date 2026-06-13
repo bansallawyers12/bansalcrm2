@@ -84,12 +84,12 @@ class EmailController extends Controller
 
 			$this->validate($request, [
 										'password' => 'required|string|min:1',
-										'users' => 'required|array|min:4',
+										'users' => 'required|array|min:2',
 										'users.*' => 'required'
 									  ], [
 										'password.required' => 'Password is required.',
 										'users.required' => 'Please select staff for Staff Sharing.',
-										'users.min' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
+										'users.min' => 'Please select at least 2 roles: Super Admin and Admin staff.',
 									  ]);
 			
 			$requestData 		= 	$request->all();
@@ -248,7 +248,7 @@ class EmailController extends Controller
 	}
 
 	/**
-	 * On create: Staff Sharing must include at least 2 Super Admin and 2 Admin staff.
+	 * On create: Staff Sharing must include Super Admin and Admin roles (at least one of each).
 	 *
 	 * @throws ValidationException
 	 */
@@ -257,7 +257,7 @@ class EmailController extends Controller
 		$ids = array_values(array_unique(array_filter(array_map('intval', $userIds))));
 		if ($ids === []) {
 			throw ValidationException::withMessages([
-				'users' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
+				'users' => 'Please select at least 2 roles: Super Admin and Admin staff.',
 			]);
 		}
 
@@ -270,12 +270,12 @@ class EmailController extends Controller
 			->where('status', 1)
 			->get(['id', 'role']);
 
-		$superAdminCount = $staff->filter(fn (Staff $member) => (int) $member->role === $superAdminRoleId)->count();
-		$adminCount = $staff->filter(fn (Staff $member) => (int) $member->role === $adminRoleId)->count();
+		$hasSuperAdmin = $staff->contains(fn (Staff $member) => (int) $member->role === $superAdminRoleId);
+		$hasAdmin = $staff->contains(fn (Staff $member) => (int) $member->role === $adminRoleId);
 
-		if ($superAdminCount < 2 || $adminCount < 2) {
+		if (! $hasSuperAdmin || ! $hasAdmin) {
 			throw ValidationException::withMessages([
-				'users' => 'Please select at least 2 Super Admin and 2 Admin in Staff Sharing.',
+				'users' => 'Please select at least 2 roles: Super Admin and Admin staff.',
 			]);
 		}
 	}
