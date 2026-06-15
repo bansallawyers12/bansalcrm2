@@ -796,8 +796,8 @@ class PublicDocumentController extends Controller
             return $localUrl;
         }
 
-        $accessKey = env('AWS_ACCESS_KEY_ID');
-        $bucket = env('AWS_BUCKET');
+        $accessKey = config('filesystems.disks.s3.key');
+        $bucket = config('filesystems.disks.s3.bucket');
         if (empty($accessKey) || empty($bucket)) {
             return $localUrl;
         }

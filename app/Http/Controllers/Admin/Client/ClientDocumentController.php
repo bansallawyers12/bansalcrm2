@@ -587,11 +587,11 @@ class ClientDocumentController extends Controller
     {
         $this->s3UploadLog('info', '[S3DocumentUpload] environment_check', array_merge([
             'operation' => $operation,
-            'aws_access_key_configured' => ! empty(env('AWS_ACCESS_KEY_ID')),
-            'aws_secret_configured' => ! empty(env('AWS_SECRET_ACCESS_KEY')),
-            'aws_region' => env('AWS_DEFAULT_REGION'),
-            'aws_bucket' => env('AWS_BUCKET'),
-            'aws_url' => env('AWS_URL'),
+            'aws_access_key_configured' => ! empty(config('filesystems.disks.s3.key')),
+            'aws_secret_configured' => ! empty(config('filesystems.disks.s3.secret')),
+            'aws_region' => config('filesystems.disks.s3.region'),
+            'aws_bucket' => config('filesystems.disks.s3.bucket'),
+            'aws_url' => config('filesystems.disks.s3.url'),
             'filesystem_s3_driver' => config('filesystems.disks.s3.driver'),
         ], $extra));
     }

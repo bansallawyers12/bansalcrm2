@@ -60,8 +60,9 @@ return [
         ],
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            // File uploads (documents, attachments, etc.) — separate from SES/email credentials.
+            'key' => env('AWS_ACCESS_KEY_ID_FILE_UPLOAD', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('AWS_SECRET_ACCESS_KEY_FILE_UPLOAD', env('AWS_SECRET_ACCESS_KEY')),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
@@ -74,6 +75,7 @@ return [
          */
         's3_inbound' => [
             'driver' => 's3',
+            // SES inbound email sync — uses email credentials, not file-upload credentials.
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'ap-southeast-2'),
