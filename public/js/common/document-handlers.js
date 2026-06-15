@@ -122,6 +122,78 @@ function uploadFormData(formData) {
  * @param {string} fileUrl - URL to the file
  * @param {string} containerClass - CSS class of container element
  */
+function getPreviewDocumentBaseUrl() {
+    if (typeof App !== 'undefined' && App.getUrl && App.getUrl('previewDocument')) {
+        return App.getUrl('previewDocument');
+    }
+    if (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl')) {
+        return App.getUrl('siteUrl') + '/preview-document';
+    }
+    return window.location.origin + '/preview-document';
+}
+
+function isPrivateRemoteStorageUrl(fileUrl) {
+    if (!fileUrl || typeof fileUrl !== 'string') {
+        return false;
+    }
+    if (fileUrl.indexOf('/preview-document') !== -1) {
+        return false;
+    }
+    return /amazonaws\.com/i.test(fileUrl) || /\.s3[\.\-]/i.test(fileUrl);
+}
+
+function isLocalPreviewUrl(fileUrl) {
+    return fileUrl && (
+        fileUrl.startsWith(window.location.origin) ||
+        fileUrl.indexOf('127.0.0.1') !== -1 ||
+        fileUrl.indexOf('localhost') !== -1 ||
+        fileUrl.startsWith('/')
+    );
+}
+
+function resolvePreviewSourceUrl(fileUrl) {
+    if (!fileUrl || fileUrl.indexOf('/preview-document') !== -1) {
+        return fileUrl;
+    }
+    if (isPrivateRemoteStorageUrl(fileUrl)) {
+        return getPreviewDocumentBaseUrl() + '?filelink=' + encodeURIComponent(fileUrl);
+    }
+    return fileUrl;
+}
+
+function fetchPresignedPreviewUrl(fileUrl) {
+    const url = getPreviewDocumentBaseUrl()
+        + '?filelink=' + encodeURIComponent(fileUrl)
+        + '&format=json';
+
+    return fetch(url, {
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(function(response) {
+        if (!response.ok) {
+            throw new Error('Preview request failed');
+        }
+        return response.json();
+    }).then(function(data) {
+        if (!data || !data.url) {
+            throw new Error('Preview URL missing');
+        }
+        return data.url;
+    });
+}
+
+function showPreviewError(container, message) {
+    container.innerHTML = `
+        <div class="preview-placeholder">
+            <i class="fas fa-exclamation-circle fa-3x mb-3 text-warning"></i>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
 function previewFile(fileType, fileUrl, containerClass) {
     const container = document.querySelector(`.${containerClass}`);
 
@@ -133,54 +205,64 @@ function previewFile(fileType, fileUrl, containerClass) {
     // Clear existing content
     container.innerHTML = '';
 
-    switch (fileType.toLowerCase()) {
+    const normalizedType = (fileType || '').toLowerCase();
+    const isS3Url = isPrivateRemoteStorageUrl(fileUrl);
+    const previewSourceUrl = resolvePreviewSourceUrl(fileUrl);
+
+    switch (normalizedType) {
         case 'jpg':
         case 'jpeg':
         case 'png':
-        case 'gif':
+        case 'gif': {
             const img = document.createElement('img');
-            img.src = fileUrl;
+            img.src = isS3Url ? previewSourceUrl : fileUrl;
             img.className = 'preview-image';
             container.appendChild(img);
             break;
+        }
 
-        case 'pdf':
+        case 'pdf': {
             const pdfIframe = document.createElement('iframe');
-            // Use direct iframe for same-origin/localhost (public path); Google viewer for external (e.g. S3)
-            const isLocalPdfUrl = fileUrl && (
-                fileUrl.startsWith(window.location.origin) ||
-                fileUrl.indexOf('127.0.0.1') !== -1 ||
-                fileUrl.indexOf('localhost') !== -1 ||
-                fileUrl.startsWith('/')
-            );
-            if (isLocalPdfUrl) {
+            if (isLocalPreviewUrl(fileUrl)) {
                 pdfIframe.src = fileUrl;
+            } else if (isS3Url) {
+                pdfIframe.src = previewSourceUrl;
             } else {
                 pdfIframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
             }
             pdfIframe.className = 'pdf-viewer';
             container.appendChild(pdfIframe);
             break;
+        }
 
         case 'doc':
         case 'docx':
         case 'xls':
         case 'xlsx':
         case 'ppt':
-        case 'pptx':
+        case 'pptx': {
             const officeViewer = document.createElement('iframe');
-            officeViewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
             officeViewer.className = 'doc-viewer';
             container.appendChild(officeViewer);
+
+            if (isLocalPreviewUrl(fileUrl)) {
+                officeViewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl.startsWith('/') ? (window.location.origin + fileUrl) : fileUrl)}`;
+            } else if (isS3Url) {
+                fetchPresignedPreviewUrl(fileUrl)
+                    .then(function(presignedUrl) {
+                        officeViewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(presignedUrl)}`;
+                    })
+                    .catch(function() {
+                        showPreviewError(container, 'Unable to load preview. Please try downloading the file.');
+                    });
+            } else {
+                officeViewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+            }
             break;
+        }
 
         default:
-            container.innerHTML = `
-                <div class="preview-placeholder">
-                    <i class="fas fa-exclamation-circle fa-3x mb-3 text-warning"></i>
-                    <p>Preview not available for this file type.</p>
-                </div>
-            `;
+            showPreviewError(container, 'Preview not available for this file type.');
     }
 }
 

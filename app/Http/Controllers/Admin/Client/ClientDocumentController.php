@@ -40,6 +40,7 @@ use App\Traits\ClientHelpers;
  * - notuseddoc
  * - backtodoc
  * - download_document
+ * - preview_document
  * - bulkUploadDocuments
  * - getAutoChecklistMatches
  * 
@@ -566,36 +567,87 @@ class ClientDocumentController extends Controller
         }
 
         try {
-            // Extract S3 key from the URL
-            $parsed = parse_url($fileUrl);
-            if (!isset($parsed['path'])) {
-                return abort(400, 'Invalid S3 URL format');
-            }
-            
-            $s3Key = ltrim(urldecode($parsed['path']), '/');
-            
-            $disk = $this->s3Disk();
-            // Check if file exists in S3
-            if (! $disk->exists($s3Key)) {
-                return abort(404, 'File not found in S3');
-            }
-            
-            // Generate temporary URL with proper headers
-            $tempUrl = $disk->temporaryUrl(
-                $s3Key,
-                now()->addMinutes(5), // 5 minutes expiration
-                [
-                    'ResponseContentDisposition' => 'attachment; filename="' . $filename . '"',
-                ]
+            $tempUrl = $this->buildS3TemporaryAccessUrl(
+                (string) $fileUrl,
+                'attachment; filename="' . $filename . '"'
             );
-            
-            // Redirect to S3 temporary URL
+
             return redirect($tempUrl);
-            
+        } catch (\InvalidArgumentException $e) {
+            return abort(400, $e->getMessage());
+        } catch (\RuntimeException $e) {
+            return abort(404, $e->getMessage());
         } catch (\Exception $e) {
             Log::error('S3 download error: ' . $e->getMessage());
             return abort(500, 'Error generating download link');
         }
+    }
+
+    /**
+     * Preview Document from S3 (inline disposition via presigned URL).
+     * Supports ?format=json to return the presigned URL for Office Online embed.
+     */
+    public function preview_document(Request $request)
+    {
+        $fileUrl = $request->input('filelink');
+        $filename = $this->sanitizeDownloadFilename((string) $request->input('filename', 'preview.pdf'));
+
+        if (!$fileUrl) {
+            return abort(400, 'Missing file URL');
+        }
+
+        try {
+            $tempUrl = $this->buildS3TemporaryAccessUrl(
+                (string) $fileUrl,
+                'inline; filename="' . $filename . '"'
+            );
+
+            if ($request->query('format') === 'json' || $request->wantsJson()) {
+                return response()->json([
+                    'status' => true,
+                    'url' => $tempUrl,
+                ]);
+            }
+
+            return redirect($tempUrl);
+        } catch (\InvalidArgumentException $e) {
+            return abort(400, $e->getMessage());
+        } catch (\RuntimeException $e) {
+            return abort(404, $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('S3 preview error: ' . $e->getMessage());
+            return abort(500, 'Error generating preview link');
+        }
+    }
+
+    /**
+     * Build a short-lived presigned S3 URL from a stored file URL.
+     */
+    private function buildS3TemporaryAccessUrl(string $fileUrl, string $contentDisposition): string
+    {
+        $parsed = parse_url($fileUrl);
+        if (!isset($parsed['path'])) {
+            throw new \InvalidArgumentException('Invalid S3 URL format');
+        }
+
+        $s3Key = ltrim(urldecode($parsed['path']), '/');
+        $bucket = (string) env('AWS_BUCKET', '');
+        if ($bucket !== '' && str_starts_with($s3Key, $bucket . '/')) {
+            $s3Key = substr($s3Key, strlen($bucket) + 1);
+        }
+
+        $disk = $this->s3Disk();
+        if (! $disk->exists($s3Key)) {
+            throw new \RuntimeException('File not found in S3');
+        }
+
+        return $disk->temporaryUrl(
+            $s3Key,
+            now()->addMinutes(5),
+            [
+                'ResponseContentDisposition' => $contentDisposition,
+            ]
+        );
     }
     //Back To Document List From Not Used Tab
     public function backtodoc(Request $request){ //dd($request->all());

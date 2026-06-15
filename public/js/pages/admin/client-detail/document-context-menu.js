@@ -107,9 +107,26 @@
 
         // Preview
         menu.appendChild(createMenuItem('Preview', function() {
+            function openPreviewUrl(url) {
+                window.open(url, '_blank');
+            }
+
+            function getPreviewBaseUrl() {
+                return (typeof App !== 'undefined' && App.getUrl && App.getUrl('previewDocument'))
+                    || (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl') ? App.getUrl('siteUrl') + '/preview-document' : window.location.origin + '/preview-document');
+            }
+
+            function isS3StorageUrl(url) {
+                return url && (/amazonaws\.com/i.test(url) || /\.s3[\.\-]/i.test(url));
+            }
+
             // Full URL (e.g. public path or S3) - open directly
             if (myfile && (myfile.startsWith('http://') || myfile.startsWith('https://'))) {
-                window.open(myfile, '_blank');
+                if (isS3StorageUrl(myfile)) {
+                    openPreviewUrl(getPreviewBaseUrl() + '?filelink=' + encodeURIComponent(myfile));
+                } else {
+                    openPreviewUrl(myfile);
+                }
             } else if (myfileKey) {
                 // New file upload - open in new tab
                 let fileUrl = myfile;

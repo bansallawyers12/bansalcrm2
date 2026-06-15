@@ -2809,6 +2809,7 @@ use App\Http\Controllers\Controller;
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
         downloadDocument: '{{ url("/download-document") }}',
+        previewDocument: '{{ url("/preview-document") }}',
         deleteAction: '{{ url("/delete_action") }}',
         getActivities: '{{ url("/get-activities") }}',
         getNotes: '{{ url("/get-notes") }}',

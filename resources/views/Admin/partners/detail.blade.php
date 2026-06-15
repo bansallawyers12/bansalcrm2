@@ -2838,6 +2838,7 @@ use App\Http\Controllers\Controller;
     AppConfig.siteUrl = '{{ url("/") }}';
     AppConfig.urls = {
         siteUrl: '{{ url("/") }}',
+        previewDocument: '{{ url("/preview-document") }}',
         partnersUpdateStudentStatus: '{{ url("/partners/update-student-status") }}',
         partnersUpdateStudentApplicationStatus: '{{ url("/partners/update-student-application-overall-status") }}',
         partnersGetEnrolledStudentList: '{{ URL::to("/partners/getEnrolledStudentList") }}',

@@ -186,6 +186,10 @@ Route::middleware(['auth:admin'])->group(function() {
     // Download document (allow GET fallback for non-JS links)
     Route::match(['get', 'post'], '/download-document', [ClientDocumentController::class, 'download_document'])
         ->name('clients.download_document');
+
+    // Preview document inline (presigned S3 URL; ?format=json for Office embed)
+    Route::match(['get', 'post'], '/preview-document', [ClientDocumentController::class, 'preview_document'])
+        ->name('clients.preview_document');
     
     // Bulk upload routes for Documents tab
     Route::post('/documents/bulk-upload', [ClientDocumentController::class, 'bulkUploadDocuments'])->name('clients.documents.bulkUpload');
