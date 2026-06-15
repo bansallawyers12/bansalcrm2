@@ -440,10 +440,26 @@ class ClientDocumentController extends Controller
                     $fileExtension = $file->getClientOriginalExtension();
                     $name = time() . $file->getClientOriginalName();
                     $filePath = $client_unique_id . '/' . $doctype . '/' . $name;
-                    
+
+                    $s3Result = $this->putFileToS3WithLogging($file->getPathname(), $filePath, [
+                        'operation' => 'bulkUploadDocuments',
+                        'client_id' => $clientid,
+                        'client_unique_id' => $client_unique_id,
+                        'doctype' => $doctype,
+                        'original_filename' => $fileName,
+                        'user_id' => Auth::id(),
+                    ]);
                     $disk = $this->s3Disk();
-                    $disk->put($filePath, file_get_contents($file));
-                    $fileUrl = $disk->url($filePath);
+                    $fileUrl = $s3Result['file_url'] ?? $disk->url($filePath);
+                    if (! $s3Result['success']) {
+                        $this->s3UploadLog('warning', '[S3DocumentUpload] bulk_upload_continued_after_failure', [
+                            'operation' => 'bulkUploadDocuments',
+                            'client_id' => $clientid,
+                            's3_key' => $filePath,
+                            'error' => $s3Result['error'],
+                            'file_url_saved' => $fileUrl,
+                        ]);
+                    }
                     
                     // Update document with file info
                     $document->file_name = $nameWithoutExtension;
@@ -555,6 +571,127 @@ class ClientDocumentController extends Controller
     }
 
     /**
+     * Write S3 upload diagnostics to default log and storage/logs/s3-upload.log (no secrets logged).
+     */
+    private function s3UploadLog(string $level, string $message, array $context = []): void
+    {
+        $context['log_tag'] = 'S3DocumentUpload';
+        Log::log($level, $message, $context);
+        Log::channel('s3_upload')->log($level, $message, $context);
+    }
+
+    /**
+     * Log whether AWS/S3 env config is present (values only, never credentials).
+     */
+    private function logS3Environment(string $operation, array $extra = []): void
+    {
+        $this->s3UploadLog('info', '[S3DocumentUpload] environment_check', array_merge([
+            'operation' => $operation,
+            'aws_access_key_configured' => ! empty(env('AWS_ACCESS_KEY_ID')),
+            'aws_secret_configured' => ! empty(env('AWS_SECRET_ACCESS_KEY')),
+            'aws_region' => env('AWS_DEFAULT_REGION'),
+            'aws_bucket' => env('AWS_BUCKET'),
+            'aws_url' => env('AWS_URL'),
+            'filesystem_s3_driver' => config('filesystems.disks.s3.driver'),
+        ], $extra));
+    }
+
+    /**
+     * Upload to S3 with detailed logging. Does not throw; preserves legacy caller behaviour.
+     *
+     * @return array{success: bool, file_url: ?string, error: ?string}
+     */
+    private function putFileToS3WithLogging(string $localPath, string $s3Key, array $context = []): array
+    {
+        $logContext = array_merge($context, [
+            's3_key' => $s3Key,
+            'local_path' => $localPath,
+        ]);
+
+        $this->logS3Environment('upload_attempt', $logContext);
+
+        $result = [
+            'success' => false,
+            'file_url' => null,
+            'error' => null,
+        ];
+
+        try {
+            if (! is_readable($localPath)) {
+                $result['error'] = 'Upload temp file is not readable';
+                $this->s3UploadLog('error', '[S3DocumentUpload] read_failed', array_merge($logContext, [
+                    'error' => $result['error'],
+                ]));
+
+                return $result;
+            }
+
+            $fileContents = file_get_contents($localPath);
+            if ($fileContents === false) {
+                $result['error'] = 'Failed to read file contents from upload temp path';
+                $this->s3UploadLog('error', '[S3DocumentUpload] read_failed', array_merge($logContext, [
+                    'error' => $result['error'],
+                ]));
+
+                return $result;
+            }
+
+            $this->s3UploadLog('info', '[S3DocumentUpload] read_ok', array_merge($logContext, [
+                'file_size_bytes' => strlen($fileContents),
+            ]));
+
+            $disk = $this->s3Disk();
+            $putResult = $disk->put($s3Key, $fileContents);
+
+            $this->s3UploadLog('info', '[S3DocumentUpload] put_result', array_merge($logContext, [
+                'put_returned' => $putResult,
+                'put_return_type' => gettype($putResult),
+            ]));
+
+            if (! $putResult) {
+                $result['error'] = 'Storage::put returned false';
+                $this->s3UploadLog('error', '[S3DocumentUpload] put_failed', array_merge($logContext, [
+                    'error' => $result['error'],
+                ]));
+
+                return $result;
+            }
+
+            $exists = $disk->exists($s3Key);
+            $this->s3UploadLog('info', '[S3DocumentUpload] exists_check', array_merge($logContext, [
+                'exists' => $exists,
+            ]));
+
+            if (! $exists) {
+                $result['error'] = 'File not found in S3 immediately after put';
+                $this->s3UploadLog('error', '[S3DocumentUpload] exists_failed', array_merge($logContext, [
+                    'error' => $result['error'],
+                ]));
+
+                return $result;
+            }
+
+            $fileUrl = $disk->url($s3Key);
+            $this->s3UploadLog('info', '[S3DocumentUpload] upload_success', array_merge($logContext, [
+                'file_url' => $fileUrl,
+            ]));
+
+            $result['success'] = true;
+            $result['file_url'] = $fileUrl;
+
+            return $result;
+        } catch (\Throwable $e) {
+            $result['error'] = $e->getMessage();
+            $this->s3UploadLog('error', '[S3DocumentUpload] exception', array_merge($logContext, [
+                'error' => $e->getMessage(),
+                'exception_class' => get_class($e),
+            ]));
+
+            return $result;
+        }
+    }
+
+    /**
      * Download Document from S3
      */
     public function download_document(Request $request)
@@ -593,6 +730,10 @@ class ClientDocumentController extends Controller
         $filename = $this->sanitizeDownloadFilename((string) $request->input('filename', 'preview.pdf'));
 
         if (!$fileUrl) {
+            $this->s3UploadLog('warning', '[S3DocumentUpload] preview_missing_filelink', [
+                'operation' => 'preview_document',
+            ]);
+
             return abort(400, 'Missing file URL');
         }
 
@@ -611,11 +752,28 @@ class ClientDocumentController extends Controller
 
             return redirect($tempUrl);
         } catch (\InvalidArgumentException $e) {
+            $this->s3UploadLog('warning', '[S3DocumentUpload] preview_invalid_url', [
+                'operation' => 'preview_document',
+                'file_url' => $fileUrl,
+                'error' => $e->getMessage(),
+            ]);
+
             return abort(400, $e->getMessage());
         } catch (\RuntimeException $e) {
+            $this->s3UploadLog('error', '[S3DocumentUpload] preview_file_not_found', [
+                'operation' => 'preview_document',
+                'file_url' => $fileUrl,
+                'error' => $e->getMessage(),
+            ]);
+
             return abort(404, $e->getMessage());
         } catch (\Exception $e) {
-            Log::error('S3 preview error: ' . $e->getMessage());
+            $this->s3UploadLog('error', '[S3DocumentUpload] preview_error', [
+                'operation' => 'preview_document',
+                'file_url' => $fileUrl,
+                'error' => $e->getMessage(),
+            ]);
+
             return abort(500, 'Error generating preview link');
         }
     }
@@ -638,6 +796,13 @@ class ClientDocumentController extends Controller
 
         $disk = $this->s3Disk();
         if (! $disk->exists($s3Key)) {
+            $this->s3UploadLog('error', '[S3DocumentUpload] s3_key_not_found', [
+                'operation' => 'buildS3TemporaryAccessUrl',
+                's3_key' => $s3Key,
+                'file_url' => $fileUrl,
+                'bucket' => env('AWS_BUCKET'),
+                'region' => env('AWS_DEFAULT_REGION'),
+            ]);
             throw new \RuntimeException('File not found in S3');
         }
 
@@ -1147,8 +1312,38 @@ class ClientDocumentController extends Controller
             //echo $nameWithoutExtension."===".$fileExtension;
             $name = time() . $files->getClientOriginalName();
             $filePath = $client_unique_id.'/'.$doctype.'/'. $name;
+
+            $this->s3UploadLog('info', '[S3DocumentUpload] uploadalldocument_started', [
+                'operation' => 'uploadalldocument',
+                'client_id' => $clientid,
+                'client_unique_id' => $client_unique_id,
+                'document_id' => $request->fileid,
+                'doctype' => $doctype,
+                'original_filename' => $fileName,
+                'file_size_bytes' => $size,
+                's3_key' => $filePath,
+                'user_id' => Auth::id(),
+            ]);
+
+            if ($client_unique_id === '') {
+                $this->s3UploadLog('warning', '[S3DocumentUpload] uploadalldocument_empty_client_unique_id', [
+                    'operation' => 'uploadalldocument',
+                    'client_id' => $clientid,
+                    'document_id' => $request->fileid,
+                    's3_key' => $filePath,
+                ]);
+            }
+
+            $s3Result = $this->putFileToS3WithLogging($files->getPathname(), $filePath, [
+                'operation' => 'uploadalldocument',
+                'client_id' => $clientid,
+                'client_unique_id' => $client_unique_id,
+                'document_id' => $request->fileid,
+                'doctype' => $doctype,
+                'original_filename' => $fileName,
+                'user_id' => Auth::id(),
+            ]);
             $disk = $this->s3Disk();
-            $disk->put($filePath, file_get_contents($files));
             $exploadename = explode('.', $name);
 
             $req_file_id = $request->fileid;
@@ -1158,7 +1353,17 @@ class ClientDocumentController extends Controller
             $obj->user_id = Auth::user()->id;
             //$obj->myfile = $name;
             // Get the full URL of the uploaded file
-            $fileUrl = $disk->url($filePath);
+            $fileUrl = $s3Result['file_url'] ?? $disk->url($filePath);
+            if (! $s3Result['success']) {
+                $this->s3UploadLog('warning', '[S3DocumentUpload] uploadalldocument_continued_after_failure', [
+                    'operation' => 'uploadalldocument',
+                    'client_id' => $clientid,
+                    'document_id' => $req_file_id,
+                    's3_key' => $filePath,
+                    'error' => $s3Result['error'],
+                    'file_url_saved' => $fileUrl,
+                ]);
+            }
             $obj->myfile = $fileUrl;
             $obj->myfile_key = $name;
 
@@ -1177,6 +1382,16 @@ class ClientDocumentController extends Controller
             }
             
             $saved = $obj->save();
+
+            $this->s3UploadLog($saved ? 'info' : 'error', '[S3DocumentUpload] uploadalldocument_db_save', [
+                'operation' => 'uploadalldocument',
+                'client_id' => $clientid,
+                'document_id' => $req_file_id,
+                'saved' => (bool) $saved,
+                's3_upload_success' => $s3Result['success'],
+                'file_url_saved' => $fileUrl,
+                's3_key' => $filePath,
+            ]);
 
 			if($saved){
 				if($request->type == 'client'){

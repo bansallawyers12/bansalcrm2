@@ -93,6 +93,17 @@ return [
           'path' => storage_path('logs/cron.log'),
           'level' => 'error',
        ],
+
+        /*
+         * Dedicated channel for AWS S3 document uploads (client checklist / bulk upload / preview).
+         * Log file: storage/logs/s3-upload.log
+         */
+        's3_upload' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/s3-upload.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
     ],
 
 ];
