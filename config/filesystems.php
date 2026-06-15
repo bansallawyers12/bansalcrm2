@@ -61,8 +61,8 @@ return [
         's3' => [
             'driver' => 's3',
             // File uploads (documents, attachments, etc.) — separate from SES/email credentials.
-            'key' => env('AWS_ACCESS_KEY_ID_FILE_UPLOAD', env('AWS_ACCESS_KEY_ID')),
-            'secret' => env('AWS_SECRET_ACCESS_KEY_FILE_UPLOAD', env('AWS_SECRET_ACCESS_KEY')),
+            'key' => env('AWS_ACCESS_KEY_ID_FILE_UPLOAD'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY_FILE_UPLOAD'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
