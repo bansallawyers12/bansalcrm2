@@ -25,6 +25,7 @@ use App\Models\ActivitiesLog;
 use App\Models\PartnerEmail;
 use App\Models\PartnerPhone;
 use App\Helpers\PhoneHelper;
+use Illuminate\Support\Carbon;
 
 class PartnersController extends Controller
 {
@@ -1123,8 +1124,8 @@ class PartnersController extends Controller
 			}
 
 			// Set agreement fields
-			$agreement->contract_start = $request->contract_start;
-			$agreement->contract_expiry = $request->contract_expiry;
+			$agreement->contract_start = $this->normalizeAgreementDate($request->contract_start);
+			$agreement->contract_expiry = $this->normalizeAgreementDate($request->contract_expiry);
 			
 			if (isset($request->represent_region) && !empty($request->represent_region)) {
 				$agreement->represent_region = implode(',', $request->represent_region);
@@ -1319,6 +1320,30 @@ class PartnersController extends Controller
 				'message' => 'Failed to update agreement status'
 			]);
 		}
+	}
+
+	/**
+	 * Normalize agreement date input to Y-m-d in the application timezone.
+	 */
+	private function normalizeAgreementDate(?string $date): ?string
+	{
+		if ($date === null || trim($date) === '') {
+			return null;
+		}
+
+		$date = trim($date);
+
+		if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+			return $date;
+		}
+
+		if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+			return Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+		}
+
+		return Carbon::parse($date)
+			->timezone(config('app.timezone'))
+			->format('Y-m-d');
 	}
 
 	/**

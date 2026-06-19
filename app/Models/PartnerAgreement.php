@@ -38,8 +38,8 @@ class PartnerAgreement extends Model
      * @var array
      */
     protected $casts = [
-        'contract_start' => 'date',
-        'contract_expiry' => 'date',
+        'contract_start' => 'date:Y-m-d',
+        'contract_expiry' => 'date:Y-m-d',
         'gst' => 'boolean',
         'commission_percentage' => 'decimal:2',
         'bonus' => 'decimal:2',

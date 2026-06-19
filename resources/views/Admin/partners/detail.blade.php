@@ -2977,6 +2977,45 @@ use App\Http\Controllers\Controller;
         });
     });
     
+    function toAgreementDateInputValue(dateString) {
+        if (!dateString) return '';
+        var value = String(dateString).trim();
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return value;
+        }
+
+        if (value.indexOf('T') !== -1) {
+            var date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                var day = String(date.getDate()).padStart(2, '0');
+                var month = String(date.getMonth() + 1).padStart(2, '0');
+                var year = date.getFullYear();
+                return year + '-' + month + '-' + day;
+            }
+        }
+
+        var match = value.match(/^(\d{4}-\d{2}-\d{2})/);
+        return match ? match[1] : '';
+    }
+
+    function formatAgreementDate(dateString) {
+        var ymd = toAgreementDateInputValue(dateString);
+        if (!ymd) return 'N/A';
+        var parts = ymd.split('-');
+        return parts[2] + '/' + parts[1] + '/' + parts[0];
+    }
+
+    function setAgreementDateField(selector, ymdValue) {
+        var el = document.querySelector(selector);
+        if (!el) return;
+        if (el._flatpickr) {
+            el._flatpickr.setDate(ymdValue, true, 'Y-m-d');
+        } else {
+            $(selector).val(ymdValue);
+        }
+    }
+
     // Load all partner agreements
     function loadPartnerAgreements() {
         $.ajax({
@@ -3029,8 +3068,8 @@ use App\Http\Controllers\Controller;
                 ? '<span class="badge bg-success">Active</span>' 
                 : '<span class="badge bg-secondary">Inactive</span>';
             
-            var contractStart = agreement.contract_start ? formatDate(agreement.contract_start) : 'N/A';
-            var contractExpiry = agreement.contract_expiry ? formatDate(agreement.contract_expiry) : 'N/A';
+            var contractStart = agreement.contract_start ? formatAgreementDate(agreement.contract_start) : 'N/A';
+            var contractExpiry = agreement.contract_expiry ? formatAgreementDate(agreement.contract_expiry) : 'N/A';
             var commission = agreement.commission_percentage ? agreement.commission_percentage + '%' : 'N/A';
             var bonus = agreement.bonus ? '$' + parseFloat(agreement.bonus).toFixed(2) : 'N/A';
             
@@ -3119,8 +3158,8 @@ use App\Http\Controllers\Controller;
                     var agreement = response.agreement;
                     
                     $('#agreement_id').val(agreement.id);
-                    $('#agreement_contract_start').val(agreement.contract_start);
-                    $('#agreement_contract_expiry').val(agreement.contract_expiry);
+                    setAgreementDateField('#agreement_contract_start', toAgreementDateInputValue(agreement.contract_start));
+                    setAgreementDateField('#agreement_contract_expiry', toAgreementDateInputValue(agreement.contract_expiry));
                     $('#agreement_commission_percentage').val(agreement.commission_percentage);
                     $('#agreement_bonus').val(agreement.bonus);
                     $('#agreement_description').val(agreement.description);
@@ -3331,16 +3370,6 @@ use App\Http\Controllers\Controller;
                 }
             }
         });
-    }
-    
-    // Format date helper function
-    function formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        var date = new Date(dateString);
-        var day = String(date.getDate()).padStart(2, '0');
-        var month = String(date.getMonth() + 1).padStart(2, '0');
-        var year = date.getFullYear();
-        return day + '/' + month + '/' + year;
     }
 
 </script>
