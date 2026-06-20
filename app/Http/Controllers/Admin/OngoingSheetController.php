@@ -262,110 +262,24 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Load stage options from database (fallback when config is empty).
+     * Distinct stage values from applications on this sheet (same rules as the table query).
      */
     protected function getCurrentStagesFromDatabase(string $sheetType): \Illuminate\Support\Collection
     {
-        $visibleClient = function ($q) {
-            $q->where('admins.is_archived', 0)
-                ->whereNull('admins.is_deleted');
-        };
+        $query = $this->buildBaseQuery(new Request(), $sheetType);
 
-        if ($sheetType === 'coe_enrolled') {
-            return Application::query()
-                ->select('applications.stage')
-                ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->where($visibleClient)
-                ->tap(function ($q) {
-                    $u = Auth::guard('admin')->user();
-                    if ($u instanceof Staff) {
-                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
-                    }
-                })
-                ->whereNotIn('applications.status', [2, 8])
-                ->whereRaw('LOWER(TRIM(applications.stage)) IN (?, ?)', ['coe issued', 'enrolled'])
-                ->whereNotNull('applications.stage')
-                ->whereRaw('TRIM(applications.stage) <> ?', [''])
-                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
+        $staffUser = Auth::guard('admin')->user();
+        if ($staffUser instanceof Staff) {
+            StaffClientVisibility::restrictApplicationsToVisibleClients($query, $staffUser);
         }
-        if ($sheetType === 'discontinue') {
-            return Application::query()
-                ->select('applications.stage')
-                ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->where($visibleClient)
-                ->tap(function ($q) {
-                    $u = Auth::guard('admin')->user();
-                    if ($u instanceof Staff) {
-                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
-                    }
-                })
-                ->where(function ($q) {
-                    $q->where('applications.status', 2)
-                      ->orWhereRaw('LOWER(TRIM(applications.stage)) = ?', ['coe cancelled']);
-                })
-                ->whereNotNull('applications.stage')
-                ->whereRaw('TRIM(applications.stage) <> ?', [''])
-                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
-        }
-        if ($sheetType === 'refund') {
-            return Application::query()
-                ->select('applications.stage')
-                ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->where($visibleClient)
-                ->tap(function ($q) {
-                    $u = Auth::guard('admin')->user();
-                    if ($u instanceof Staff) {
-                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
-                    }
-                })
-                ->where('applications.status', 8) // 8 = Refund
-                ->whereNotNull('applications.stage')
-                ->whereRaw('TRIM(applications.stage) <> ?', [''])
-                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
-        }
-        if ($sheetType === 'checklist') {
-            $earlyStages = $this->getChecklistEarlyStages();
-            if (empty($earlyStages)) {
-                return collect();
-            }
-            $placeholders = implode(',', array_fill(0, count($earlyStages), '?'));
 
-            return Application::query()
-                ->select('applications.stage')
-                ->join('admins', 'applications.client_id', '=', 'admins.id')
-                ->where($visibleClient)
-                ->tap(function ($q) {
-                    $u = Auth::guard('admin')->user();
-                    if ($u instanceof Staff) {
-                        StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
-                    }
-                })
-                ->whereNotIn('applications.status', [2, 8])
-                ->whereRaw('LOWER(TRIM(applications.stage)) IN (' . $placeholders . ')', $earlyStages)
-                ->where(function ($q) {
-                    $q->whereNull('applications.checklist_sheet_status')
-                      ->orWhereIn('applications.checklist_sheet_status', ['active', 'hold']);
-                })
-                ->whereNotNull('applications.stage')
-                ->whereRaw('TRIM(applications.stage) <> ?', [''])
-                ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
-        }
-        // Ongoing (same client visibility and stage rules as buildBaseQuery)
-        return Application::query()
-            ->select('applications.stage')
-            ->join('admins', 'applications.client_id', '=', 'admins.id')
-            ->where($visibleClient)
-            ->tap(function ($q) {
-                $u = Auth::guard('admin')->user();
-                if ($u instanceof Staff) {
-                    StaffClientVisibility::restrictApplicationsToVisibleClients($q, $u);
-                }
-            })
-            ->whereNotIn('applications.status', [2, 8])
-            ->whereRaw('LOWER(TRIM(applications.stage)) NOT IN (?, ?, ?, ?)', ['coe issued', 'enrolled', 'coe cancelled', 'awaiting document'])
+        return $query
             ->whereNotNull('applications.stage')
             ->whereRaw('TRIM(applications.stage) <> ?', [''])
-            ->distinct()->orderBy('applications.stage')->pluck('applications.stage', 'applications.stage');
+            ->select('applications.stage')
+            ->distinct()
+            ->orderBy('applications.stage')
+            ->pluck('applications.stage', 'applications.stage');
     }
 
     /**

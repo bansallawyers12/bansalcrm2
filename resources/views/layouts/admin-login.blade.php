@@ -64,7 +64,7 @@
 	<!-- jQuery should now be available immediately -->
 	
 	<!-- Load legacy scripts that depend on jQuery -->
-	<script src="{{asset('js/scripts.js')}}"></script>
+	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}"></script>
 	<script src="{{asset('js/custom.js')}}"></script>
 </body>
 </html>

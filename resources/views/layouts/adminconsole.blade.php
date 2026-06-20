@@ -16,8 +16,9 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	
 	<!-- Load Select2 from CDN (after jQuery, before other scripts) -->
+	<!-- Select2 full build (required for dropdownCssClass / containerCssClass compat) -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
 	
 	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css">
@@ -300,7 +301,7 @@
 	
 	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}" defer></script> 
 	<script src="{{asset('js/custom-form-validation.js')}}" defer></script> 
-	<script src="{{asset('js/scripts.js')}}" defer></script>   
+	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>   
 
 	<!-- Custom JS File -->	
 	<script src="{{asset('js/custom.js')}}" defer></script>

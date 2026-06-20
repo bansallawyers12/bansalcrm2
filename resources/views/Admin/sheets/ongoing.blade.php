@@ -119,6 +119,17 @@
     .ongoing-filter-panel .ongoing-filter-field .select2-container .select2-selection__rendered {
         font-size: 0.8125rem;
         line-height: 32px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 1.25rem;
+        color: #374151;
+    }
+    .ongoing-filter-panel .ongoing-filter-field .select2-container--default .select2-selection--single .select2-selection__rendered:not(.select2-selection__placeholder) {
+        color: #374151;
+    }
+    .ongoing-filter-panel .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6b7280;
     }
     .ongoing-filter-panel .select2-container .select2-selection {
         border-radius: 5px;
@@ -129,6 +140,29 @@
     .ongoing-filter-panel .select2-container .select2-selection__rendered {
         font-size: 0.8125rem;
         line-height: 32px;
+    }
+    .select2-dropdown.ongoing-filter-select2-dropdown {
+        z-index: 1056;
+        width: auto !important;
+        min-width: 200px !important;
+        max-width: min(100vw - 1.5rem, 400px);
+        box-sizing: border-box;
+    }
+    /* Stage filter: wider menu for long labels; overrides global custom.css width:200px */
+    .select2-container--default .select2-dropdown.ongoing-filter-stage-select2-dropdown,
+    .select2-dropdown.ongoing-filter-stage-select2-dropdown {
+        z-index: 1056;
+        width: auto !important;
+        min-width: 280px !important;
+        max-width: min(calc(100vw - 1.5rem), 360px) !important;
+        box-sizing: border-box;
+    }
+    .select2-dropdown.ongoing-filter-stage-select2-dropdown .select2-results__option {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 6px 12px;
+        line-height: 1.35;
     }
     .ongoing-filter-panel .form-control:focus {
         border-color: #6f5fb8;
@@ -356,7 +390,7 @@
                                 <div class="row g-2 align-items-end">
                                     <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Branch</label>
-                                        <select name="branch[]" class="form-control select2" multiple>
+                                        <select name="branch[]" class="form-control select2 ongoing-filter-select2" multiple>
                                             @foreach($branches as $b)
                                                 <option value="{{ $b->id }}" 
                                                     {{ in_array($b->id, (array)request('branch', [])) ? 'selected' : '' }}>
@@ -377,13 +411,31 @@
                                     </div>
                                     <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Current Stage</label>
-                                        <select name="current_stage" class="form-control select2-single">
-                                            <option value="">All stages</option>
+                                        @php
+                                            $selectedCurrentStage = request()->filled('current_stage') ? trim((string) request('current_stage')) : '';
+                                            $selectedCurrentStageValue = $selectedCurrentStage;
+                                            if ($selectedCurrentStage !== '') {
+                                                foreach ($currentStages as $value => $label) {
+                                                    if (strtolower(trim((string) $value)) === strtolower($selectedCurrentStage)) {
+                                                        $selectedCurrentStageValue = trim((string) $value);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            $selectedStageInOptions = $selectedCurrentStage !== '' && $currentStages->contains(function ($label, $value) use ($selectedCurrentStage) {
+                                                return strtolower(trim((string) $value)) === strtolower($selectedCurrentStage);
+                                            });
+                                        @endphp
+                                        <select name="current_stage" id="ongoing-current-stage-filter" class="form-control ongoing-filter-select2 ongoing-filter-select2-single" data-selected-stage="{{ e($selectedCurrentStageValue) }}">
+                                            <option value="" {{ $selectedCurrentStage === '' ? 'selected' : '' }}></option>
                                             @foreach($currentStages as $value => $label)
-                                                <option value="{{ $value }}" {{ request('current_stage') == $value ? 'selected' : '' }}>
+                                                <option value="{{ $value }}" {{ $selectedCurrentStage !== '' && strtolower(trim((string) $value)) === strtolower($selectedCurrentStage) ? 'selected' : '' }}>
                                                     {{ $label ?: '—' }}
                                                 </option>
                                             @endforeach
+                                            @if($selectedCurrentStage !== '' && !$selectedStageInOptions)
+                                                <option value="{{ e($selectedCurrentStageValue) }}" selected>{{ $selectedCurrentStageValue }}</option>
+                                            @endif
                                         </select>
                                     </div>
                                     @if($showStageEntryDateFilters ?? false)
@@ -768,18 +820,185 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Initialize Select2 for branch filter (multiple)
-    $('.select2').select2({
+    // Initialize Select2 for filter panel only (excluded from global scripts.js to avoid double-init)
+    function initOngoingFilterSelect2($select, options) {
+        if (typeof $.fn.select2 !== 'function' || !$select.length) {
+            return;
+        }
+        $select.each(function() {
+            var $el = $(this);
+            if ($el.hasClass('select2-hidden-accessible')) {
+                $el.select2('destroy');
+            }
+            $el.select2(options);
+        });
+    }
+    var ongoingFilterDropdownParent = $(document.body);
+    var ongoingFilterBranchSelect2Options = {
         placeholder: 'Select branches',
         allowClear: true,
-        width: '100%'
-    });
-    // Initialize Select2 for single-select filters
-    $('.select2-single').select2({
-        placeholder: 'Select...',
+        width: '100%',
+        dropdownParent: ongoingFilterDropdownParent,
+        dropdownCssClass: 'ongoing-filter-select2-dropdown'
+    };
+    var ongoingFilterStageSelect2Options = {
+        placeholder: 'All stages',
         allowClear: true,
-        width: '100%'
+        width: '100%',
+        dropdownParent: ongoingFilterDropdownParent,
+        minimumResultsForSearch: 10,
+        dropdownAutoWidth: true,
+        dropdownCssClass: 'ongoing-filter-stage-select2-dropdown'
+    };
+    var ongoingStageSelect2Bound = false;
+    function getOngoingStagePreservedValue($select) {
+        if (!$select || !$select.length) {
+            return null;
+        }
+        var fromData = ($select.attr('data-selected-stage') || '').trim();
+        var resolved = resolveOngoingStageOptionValue($select, fromData);
+        if (resolved) {
+            return resolved;
+        }
+        var $nativeSelected = $select.find('option:selected').filter(function() {
+            return String($(this).attr('value') || '').trim() !== '';
+        }).first();
+        if ($nativeSelected.length) {
+            return resolveOngoingStageOptionValue($select, $nativeSelected.attr('value')) || $nativeSelected.attr('value');
+        }
+        var currentVal = $select.val();
+        if (currentVal && String(currentVal).trim() !== '') {
+            return resolveOngoingStageOptionValue($select, currentVal) || currentVal;
+        }
+        return null;
+    }
+    function resolveOngoingStageOptionValue($select, stageVal) {
+        if (!stageVal) {
+            return null;
+        }
+        var norm = String(stageVal).trim().toLowerCase();
+        var resolved = null;
+        $select.find('option').each(function() {
+            var optVal = $(this).attr('value');
+            if (optVal && String(optVal).trim().toLowerCase() === norm) {
+                resolved = optVal;
+                return false;
+            }
+        });
+        return resolved;
+    }
+    function syncOngoingStageSelect2Display($el) {
+        if (!$el || !$el.length || !$el.hasClass('select2-hidden-accessible')) {
+            return;
+        }
+        var stageVal = getOngoingStagePreservedValue($el);
+        if (stageVal) {
+            $el.val(stageVal).trigger('change');
+            return;
+        }
+        if (!$el.val() || String($el.val()).trim() === '') {
+            $el.val(null).trigger('change');
+        }
+    }
+    function initOngoingStageSelect2(forceReinit) {
+        var $stageFilter = $('#ongoing-current-stage-filter');
+        var $filterPanel = $('#filterPanel');
+        if (!$stageFilter.length || typeof $.fn.select2 !== 'function') {
+            return;
+        }
+        if (!$filterPanel.hasClass('show')) {
+            return;
+        }
+        var preservedVal = getOngoingStagePreservedValue($stageFilter);
+        if (preservedVal) {
+            $stageFilter.val(preservedVal);
+        } else {
+            $stageFilter.val('');
+        }
+        if ($stageFilter.hasClass('select2-hidden-accessible')) {
+            if (!forceReinit) {
+                syncOngoingStageSelect2Display($stageFilter);
+                return;
+            }
+            $stageFilter.select2('destroy');
+            if (preservedVal) {
+                $stageFilter.val(preservedVal);
+            }
+        }
+        $stageFilter.select2(ongoingFilterStageSelect2Options);
+        if (preservedVal) {
+            $stageFilter.val(preservedVal).trigger('change');
+        } else {
+            $stageFilter.val(null).trigger('change');
+        }
+        window.setTimeout(function() {
+            if (preservedVal) {
+                $stageFilter.val(preservedVal).trigger('change');
+            } else {
+                syncOngoingStageSelect2Display($stageFilter);
+            }
+        }, 0);
+        if (!ongoingStageSelect2Bound) {
+            bindOngoingStageDropdownWidth();
+            $stageFilter.on('select2:clear', function() {
+                $(this).attr('data-selected-stage', '');
+                $(this).val(null).trigger('change');
+            });
+            $stageFilter.on('select2:select', function(e) {
+                var val = e.params && e.params.data ? e.params.data.id : $(this).val();
+                $(this).attr('data-selected-stage', val || '');
+            });
+            ongoingStageSelect2Bound = true;
+        }
+    }
+    function initOngoingFilterPanelWhenVisible() {
+        var $filterPanel = $('#filterPanel');
+        if (!$filterPanel.hasClass('show')) {
+            return;
+        }
+        initOngoingFilterSelect2($('.ongoing-filter-panel select.ongoing-filter-select2[multiple]'), ongoingFilterBranchSelect2Options);
+        initOngoingStageSelect2(true);
+    }
+    function bindOngoingStageDropdownWidth() {
+        var $stage = $('#ongoing-current-stage-filter');
+        if (!$stage.length || $stage.data('ongoingStageWidthBound')) {
+            return;
+        }
+        $stage.data('ongoingStageWidthBound', true);
+        $stage.on('select2:open', function() {
+            window.setTimeout(function() {
+                var $dropdown = $('.select2-dropdown.ongoing-filter-stage-select2-dropdown');
+                var $container = $stage.next('.select2-container');
+                if (!$dropdown.length || !$container.length) {
+                    return;
+                }
+                var triggerWidth = $container.outerWidth() || 0;
+                var minWidth = Math.max(triggerWidth, 280);
+                var maxWidth = Math.min(window.innerWidth - 16, 360);
+                var width = Math.min(minWidth, maxWidth);
+                $dropdown.css('width', width + 'px');
+                var left = $dropdown.offset().left;
+                if (left + width > window.innerWidth - 8) {
+                    $dropdown.css('left', Math.max(8, window.innerWidth - width - 8) + 'px');
+                }
+            }, 0);
+        });
+    }
+    var $filterPanel = $('#filterPanel');
+    function scheduleOngoingFilterPanelInit() {
+        if (!$filterPanel.hasClass('show')) {
+            return;
+        }
+        window.setTimeout(function() {
+            initOngoingFilterPanelWhenVisible();
+        }, 0);
+    }
+    $filterPanel.on('shown.bs.collapse', function() {
+        initOngoingFilterPanelWhenVisible();
     });
+    if ($filterPanel.hasClass('show')) {
+        scheduleOngoingFilterPanelInit();
+    }
     // Assignee in top bar: navigate on change, preserve other params
     $('#ongoing-assignee-bar').on('change', function() {
         var assignee = $(this).val();

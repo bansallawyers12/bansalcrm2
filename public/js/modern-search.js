@@ -439,6 +439,7 @@
             placeholder: 'Search clients, leads, partners... (Ctrl+K)',
             allowClear: true,
             minimumInputLength: 2,
+            dropdownCssClass: 'modern-search-dropdown',
             ajax: {
                 url: (typeof site_url !== 'undefined' ? site_url : '') + '/clients/get-allclients',
                 dataType: 'json',

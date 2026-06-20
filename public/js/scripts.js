@@ -395,6 +395,7 @@ $(function () {
       .not(".js-data-example-ajaxcc")
       .not(".js-data-example-ajaxccd")
       .not(".js-data-example-ajaxccapp")
+      .not(".ongoing-filter-select2")
       .select2();
   }
 
