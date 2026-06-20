@@ -290,22 +290,23 @@ class ActionController extends Controller
     public function assignedByMe(Request $request)
     {  //dd(Auth::user()->id);
          if(\Auth::user()->role == 1){
-             $assignees_notCompleted = \App\Models\Note::sortable()
-             ->with(['noteUser','noteClient','assigned_user'])
-             ->where('status','<>','1')
-             ->where('type','client')
-             ->whereNotNull('client_id')
-             ->where('is_action',1)
-             ->orderByRaw('created_at DESC NULLS LAST')
-             ->paginate(20);
+             $assignees_notCompleted = $this->applyFollowupAssignDateVisibilityFilter(
+                 \App\Models\Note::sortable()
+                 ->with(['noteUser','noteClient','assigned_user'])
+                 ->where('status','<>','1')
+                 ->where('type','client')
+                 ->whereNotNull('client_id')
+                 ->where('is_action',1)
+             )->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
          } else {
-             $assignees_notCompleted = \App\Models\Note::sortable()
-             ->with(['noteUser','noteClient','assigned_user'])
-             ->where('status','<>','1')
-             ->where('user_id',\Auth::user()->id)
-             ->where('type','client')
-             ->where('is_action',1)
-             ->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
+             $assignees_notCompleted = $this->applyFollowupAssignDateVisibilityFilter(
+                 \App\Models\Note::sortable()
+                 ->with(['noteUser','noteClient','assigned_user'])
+                 ->where('status','<>','1')
+                 ->where('user_id',\Auth::user()->id)
+                 ->where('type','client')
+                 ->where('is_action',1)
+             )->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
          }
          #dd($assignees_notCompleted);
          return view('Admin.action.assigned_by_me',compact('assignees_notCompleted'))
@@ -317,14 +318,27 @@ class ActionController extends Controller
     public function assignedToMe(Request $request)
     {
         if(\Auth::user()->role == 1){
-            $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);//where('status','not like','Closed')
+            $assignees_notCompleted = $this->applyFollowupAssignDateVisibilityFilter(
+                \App\Models\Note::sortable()
+                ->with(['noteUser','noteClient','assigned_user'])
+                ->where('status','<>','1')
+                ->where('assigned_to',\Auth::user()->id)
+                ->where('type','client')
+                ->whereNotNull('client_id')
+                ->where('is_action',1)
+            )->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
 
             $assignees_completed = \App\Models\Note::sortable()
             ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->whereNotNull('client_id')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
         }else{
-            $assignees_notCompleted = \App\Models\Note::sortable()
-            ->with(['noteUser','noteClient','assigned_user'])->where('status','<>','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
+            $assignees_notCompleted = $this->applyFollowupAssignDateVisibilityFilter(
+                \App\Models\Note::sortable()
+                ->with(['noteUser','noteClient','assigned_user'])
+                ->where('status','<>','1')
+                ->where('assigned_to',\Auth::user()->id)
+                ->where('type','client')
+                ->where('is_action',1)
+            )->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
 
             $assignees_completed = \App\Models\Note::sortable()
             ->with(['noteUser','noteClient','assigned_user'])->where('status','1')->where('assigned_to',\Auth::user()->id)->where('type','client')->where('is_action',1)->orderByRaw('created_at DESC NULLS LAST')->paginate(20);
@@ -584,26 +598,44 @@ class ActionController extends Controller
         return view('Admin.action.index');
     }
 
+    /**
+     * Followup actions appear on the Action page only on/after their assign date.
+     * All other action types are unchanged.
+     */
+    private function applyFollowupAssignDateVisibilityFilter($query)
+    {
+        $today = Carbon::today(config('app.timezone'));
+
+        return $query->where(function ($q) use ($today) {
+            $q->where('task_group', '!=', 'Followup')
+                ->orWhereNull('task_group')
+                ->orWhereNull('action_assign_date')
+                ->orWhereDate('action_assign_date', '<=', $today);
+        });
+    }
+
     public function getList(Request $request) {
         if ($request->ajax()) {
            if(\Auth::user()->role == 1)
             { //admin role
-            	$data = \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
-            	->where('status','<>','1')
-            	//->where('type','client')
-                ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
-            	->where('is_action',1)
-            	->orderByRaw('created_at DESC NULLS LAST')->get();
+            	$data = $this->applyFollowupAssignDateVisibilityFilter(
+                    \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
+                    ->where('status','<>','1')
+                    //->where('type','client')
+                    ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
+                    ->where('is_action',1)
+                )->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             else
             { //role is not admin
-            	$data = \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
-            	->where('status','<>','1')
-            	->where('assigned_to',\Auth::user()->id)
-            	//->where('type','client')
-                ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
-            	->where('is_action',1)
-            	->orderByRaw('created_at DESC NULLS LAST')->get();
+            	$data = $this->applyFollowupAssignDateVisibilityFilter(
+                    \App\Models\Note::with(['noteUser','noteClient','notePartner','assigned_user'])
+                    ->where('status','<>','1')
+                    ->where('assigned_to',\Auth::user()->id)
+                    //->where('type','client')
+                    ->whereIn('type', ['client', 'partner']) // Include 'client' or 'partner'
+                    ->where('is_action',1)
+                )->orderByRaw('created_at DESC NULLS LAST')->get();
             }
             //dd($data);
             return Datatables::of($data)
@@ -665,7 +697,17 @@ class ActionController extends Controller
             })
               
             ->addColumn('note_description', function($data) {
-                $cleanDescription = Utf8Helper::sanitize(trim(strip_tags($data->description ?? '')));
+                $rawDescription = $data->description ?? '';
+
+                if (strcasecmp((string) $data->task_group, 'Followup') === 0) {
+                    $parsed = FollowupController::parseScheduledFollowupNoteHtml((string) $rawDescription);
+                    $detailsPlain = trim($parsed['details_plain'] ?? '');
+                    if ($detailsPlain !== '') {
+                        $rawDescription = $detailsPlain;
+                    }
+                }
+
+                $cleanDescription = Utf8Helper::sanitize(trim(strip_tags($rawDescription)));
 
                 if ($cleanDescription === '') {
                     return 'N/P';

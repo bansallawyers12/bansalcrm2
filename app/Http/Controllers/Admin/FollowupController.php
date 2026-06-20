@@ -142,7 +142,7 @@ class FollowupController extends Controller
      *
      * @return array{followup_type: string, service: string, consultant_display: string, followup_detail: string, preferred_language: string, details_plain: string}
      */
-    protected static function parseScheduledFollowupNoteHtml(string $html): array
+    public static function parseScheduledFollowupNoteHtml(string $html): array
     {
         $out = [
             'followup_type' => '',
