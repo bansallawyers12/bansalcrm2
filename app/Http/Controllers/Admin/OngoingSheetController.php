@@ -69,10 +69,8 @@ class OngoingSheetController extends Controller
         // Merge request with session-stored filters (session as fallback when no query params)
         $request->merge($this->getFiltersFromSession($request));
 
-        // Default assignee to logged-in user when not set (first visit); "all" = show all assignees
-        if (!$request->has('assignee') || $request->input('assignee') === '') {
-            $request->merge(['assignee' => Auth::id()]);
-        }
+        // Restrict assignee filter to configured staff; default to self when allowed, else "all"
+        $this->normalizeSheetAssigneeFilter($request);
 
         // Pagination
         $perPage = (int) $request->get('per_page', 50);
@@ -100,17 +98,9 @@ class OngoingSheetController extends Controller
         // Get rows (paginate)
         $rows = $query->paginate($perPage)->appends($request->except('page'));
 
-        // Dropdown data for filters (staff who have at least one application + current user)
+        // Dropdown data for top-bar assignee filter (fixed counsellor list from config)
         $branches = Branch::orderBy('office_name')->get(['id', 'office_name']);
-        $assignees = \App\Models\Staff::where('status', 1)
-            ->whereIn('id', Application::select('user_id')->whereNotNull('user_id')->distinct())
-            ->orderBy('first_name')->orderBy('last_name')
-            ->get(['id', 'first_name', 'last_name']);
-        $currentStaff = \App\Models\Staff::find(Auth::id());
-        if ($currentStaff && $assignees->pluck('id')->doesntContain($currentStaff->id)) {
-            $assignees->push($currentStaff);
-            $assignees = $assignees->sortBy(fn ($a) => trim(($a->first_name ?? '') . ' ' . ($a->last_name ?? '')))->values();
-        }
+        $assignees = $this->getSheetAssigneeFilterOptions();
         // Full staff list for Change assignee modal (active only, same as Application tab)
         $assigneesForChangeModal = \App\Models\Staff::where('status', 1)
             ->orderBy('first_name')->orderBy('last_name')
@@ -181,6 +171,64 @@ class OngoingSheetController extends Controller
         });
         $key = $this->currentFilterSessionKey ?? self::FILTER_SESSION_KEY;
         session()->put($key, $payload);
+    }
+
+    /**
+     * Staff ids allowed in the sheet top-bar assignee filter dropdown.
+     *
+     * @return list<int>
+     */
+    protected function getSheetAssigneeFilterStaffIds(): array
+    {
+        $ids = config('sheets.sheet_assignee_filter_staff_ids', []);
+
+        if (! is_array($ids)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('intval', $ids), static fn (int $id) => $id > 0));
+    }
+
+    /**
+     * Default assignee to logged-in user when they are in the allowed list; otherwise "all".
+     * Reject assignee values outside the allowed list (e.g. stale session).
+     */
+    protected function normalizeSheetAssigneeFilter(Request $request): void
+    {
+        $allowedIds = $this->getSheetAssigneeFilterStaffIds();
+        $assignee = $request->input('assignee');
+
+        if ($assignee === null || $assignee === '') {
+            $default = in_array((int) Auth::id(), $allowedIds, true)
+                ? (string) Auth::id()
+                : 'all';
+            $request->merge(['assignee' => $default]);
+
+            return;
+        }
+
+        if ($assignee !== 'all' && ! in_array((int) $assignee, $allowedIds, true)) {
+            $request->merge(['assignee' => 'all']);
+        }
+    }
+
+    /**
+     * Options for #ongoing-assignee-bar — fixed staff list in config order.
+     */
+    protected function getSheetAssigneeFilterOptions()
+    {
+        $ids = $this->getSheetAssigneeFilterStaffIds();
+        if ($ids === []) {
+            return collect();
+        }
+
+        $order = array_flip($ids);
+        $staff = Staff::query()
+            ->where('status', 1)
+            ->whereIn('id', $ids)
+            ->get(['id', 'first_name', 'last_name', 'email']);
+
+        return $staff->sortBy(fn ($member) => $order[(int) $member->id] ?? PHP_INT_MAX)->values();
     }
 
     /**
