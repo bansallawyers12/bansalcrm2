@@ -259,7 +259,7 @@
 									<small class="text-muted">Client ID: <span class="badge badge-secondary">{{ @$fetchedData->client_id }}</span></small>
 								</div>
 								<div class="card-header-action">
-								    <a href="{{route('clients.index')}}" class="btn btn-outline-secondary me-2">
+								    <a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$fetchedData->id))) }}" class="btn btn-outline-secondary me-2">
 								    	<i class="fa fa-arrow-left"></i> Back
 								    </a>
 								    <button type="button" class="btn btn-primary" onclick="customValidate('edit-clients')">
