@@ -60,8 +60,11 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px;">
                                 <tr>
                                     <td style="background-color: #fff8e6; border-left: 4px solid #f5a623; padding: 15px; border-radius: 4px;">
-                                        <p style="margin: 0; font-size: 14px; color: #333;">
+                                        <p style="margin: 0 0 10px 0; font-size: 14px; color: #333;">
                                             <strong>Important:</strong> This link is unique to you and should not be shared. It will expire once the document is signed or after the due date.
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; color: #333;">
+                                            Above sign document link cannot be accessed from outside India or Australia. From outside, you can access this link with the use of VPN.
                                         </p>
                                     </td>
                                 </tr>
