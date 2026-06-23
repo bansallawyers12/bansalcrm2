@@ -1622,74 +1622,10 @@ use App\Http\Controllers\Controller;
 
 									</div>
 									<div class="note_term_list">
-									<?php
-									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->whereNull('assigned_to')->whereNull('task_group')->where('type', 'client')->orderby('pin', 'DESC')->orderBy('created_at', 'DESC')->get();
-									//dd($notelist);
-                                    foreach($notelist as $list){
-										$staff = \App\Models\Staff::select('id', 'first_name', 'last_name', 'email', 'team')->find($list->user_id);//dd($staff);
-										$color = $staff?->team ? \App\Models\Team::select('color')->where('id', $staff->team)->first() : null;
-
-									?>
-										<div class="note_col" id="note_id_{{$list->id}}">
-                                            <div class="note_content">
-											    <h4><a <?php if($color){ ?>style="color: #fff!important;"<?php } ?> class="viewnote" data-id="{{$list->id}}" href="javascript:;">{{ @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...') }}</a></h4>
-											<?php if($list->pin == 1){
-									?><div class="pined_note"><i class="fa fa-thumbtack"></i></i></div><?php } ?>
-											</div>
-											<div class="extra_content">
-											     @if(!empty($list->description))
-                                                    @php
-                                                        $description = $list->description;
-                                                    @endphp
-
-                                                    @if(strpos($description, '<xml>') !== false || strpos($description, '<o:OfficeDocumentSettings>') !== false)
-                                                        <p>{!! htmlentities($description) !!}</p>
-                                                    @else
-                                                        <p>{!! \App\Helpers\Helper::normalizeActivityDescriptionHtml($description) !!}</p>
-                                                    @endif
-                                                @endif
-
-                                                <?php if( isset($list->mobile_number) && $list->mobile_number != ""){ ?>
-                                                    <p>{{ @$list->mobile_number }}</p>
-                                                <?php }?>
-
-												<div class="left">
-													@if($staff)
-													<div class="author">
-														<a href="{{ route('staff.view', ['id' => $staff->id]) }}">{{ substr($staff->first_name, 0, 1) }}</a>
-													</div>
-													<div class="note_modify">
-														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>
-														{{$staff->first_name}} {{$staff->last_name}}
-													</div>
-													@else
-													<div class="note_modify">
-														<small>Last Modified <span>{{date('d/m/Y h:i A', strtotime($list->updated_at))}}</span></small>
-														<span class="text-muted">—</span>
-													</div>
-													@endif
-												</div>
-												<div class="right">
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
-                                                            @if(Auth::user()->role == 1)
-															<a data-id="{{$list->id}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
-                                                            @endif
-															<?php if($list->pin == 1){
-                                                            ?>
-                                                            	<a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >UnPin</a>
-                                                            <?php
-                                                            }else{ ?>
-                                                                <a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >Pin</a>
-                                                            <?php } ?>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									<?php } ?>
+									@php
+									$notelist = \App\Models\Note::where('client_id', $fetchedData->id)->whereNull('assigned_to')->whereNull('task_group')->where('type', 'client')->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
+									@endphp
+									@include('Admin.partials.notes-list', ['notelist' => $notelist])
 									</div>
 									<div class="clearfix"></div>
 								</div>

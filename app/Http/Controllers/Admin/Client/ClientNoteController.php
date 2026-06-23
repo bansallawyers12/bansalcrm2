@@ -134,54 +134,15 @@ class ClientNoteController extends Controller
 		$client_id = $request->clientid;
 		$type = $request->type;
 
-		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
-		ob_start();
-		foreach($notelist as $list){
-			$admin = \App\Models\Staff::find($list->user_id);
-			?>
-			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
-				<div class="note_content">
-					<h4><a class="viewnote" data-id="<?php echo $list->id; ?>" href="javascript:;"><?php echo @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...'); ?> </a></h4>
-					<?php if($list->pin == 1){
-									?><div class="pined_note"><i class="fa fa-thumbtack"></i></i></div><?php } ?>
-				</div>
-				<div class="extra_content">
-				    <p><?php echo @$list->description; ?></p>
-                  
-                    <?php if( isset($list->mobile_number) && $list->mobile_number != ""){ ?>
-                        <p><?php echo @$list->mobile_number; ?></p>
-                    <?php } ?>
-                  
-					<div class="left">
-						<div class="author">
-							<a href="<?php echo route('staff.view', ['id' => $admin->id]); ?>"><?php echo substr($admin->first_name, 0, 1); ?></a>
-						</div>
-						<div class="note_modify">
-							<small>Last Modified <span><?php echo date('d/m/Y h:i A', strtotime($list->updated_at)); ?></span></small>
-							<?php echo $admin->first_name.' '.$admin->last_name; ?>
-						</div>
-					</div>
-					<div class="right">
-						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-							<div class="dropdown-menu">
-								<a class="dropdown-item opennoteform" data-id="<?php echo $list->id; ?>" href="javascript:;">Edit</a>
-                                <?php if(Auth::user()->role == 1){ ?>
-								<a data-id="<?php echo $list->id; ?>" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
-                                <?php }?>
-								<?php if($list->pin == 1){ ?>
-									<a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >UnPin</a>
-								<?php }else{ ?>
-									<a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >Pin</a>
-								<?php } ?>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<?php
-		}
-		return ob_get_clean();
+		$notelist = \App\Models\Note::where('client_id', $client_id)
+			->whereNull('assigned_to')
+			->whereNull('task_group')
+			->where('type', $type)
+			->orderby('pin', 'DESC')
+			->orderByRaw('created_at DESC NULLS LAST')
+			->get();
+
+		return view('Admin.partials.notes-list', compact('notelist'))->render();
 	}
 
 	public function deletenote(Request $request){
