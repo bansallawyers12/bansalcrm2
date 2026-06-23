@@ -156,10 +156,42 @@ jQuery(document).ready(function($){
         });
     });
 
+    function setNoteTitleSelect($select, title) {
+        if (!$select || !$select.length) {
+            return;
+        }
+        var value = (title == null) ? '' : String(title).trim();
+        $select.find('option[data-legacy-note-title="1"]').remove();
+        if (value === '') {
+            $select.val('');
+            return;
+        }
+        var hasOption = $select.find('option').filter(function() {
+            return $(this).val() === value;
+        }).length > 0;
+        if (!hasOption) {
+            $select.append(
+                $('<option>', {
+                    value: value,
+                    text: value
+                }).attr('data-legacy-note-title', '1')
+            );
+        }
+        $select.val(value);
+    }
+
+    function clearNoteTitleSelect($select) {
+        if (!$select || !$select.length) {
+            return;
+        }
+        $select.find('option[data-legacy-note-title="1"]').remove();
+        $select.val('');
+    }
+
     $(document).delegate('.create_note', 'click', function(){
+        clearNoteTitleSelect($('#create_note select[name="title"]'));
         $('#create_note').modal('show');
         $('#create_note input[name="mailid"]').val(0);
-        $('#create_note input[name="title"]').val('');
         $('#create_note #appliationModalLabel').html('Create Note');
         $("#create_note .tinymce-simple").val('');
         $('#create_note input[name="noteid"]').val('');
@@ -169,7 +201,7 @@ jQuery(document).ready(function($){
         }else{
             var datasubject = $(this).attr('datasubject');
             var datamailid = $(this).attr('datamailid');
-            $('#create_note input[name="title"]').val(datasubject);
+            setNoteTitleSelect($('#create_note select[name="title"]'), datasubject);
             $('#create_note input[name="mailid"]').val(datamailid);
             $('.is_not_note').show();
         }
@@ -348,24 +380,29 @@ jQuery(document).ready(function($){
     }
 
     $(document).delegate('.opennoteform', 'click', function(){
-        $('#create_note').modal('show');
+        var $titleSelect = $('#create_note select[name="title"]');
+        clearNoteTitleSelect($titleSelect);
         $('#create_note #appliationModalLabel').html('Edit Note');
         var v = $(this).attr('data-id');
         $('#create_note input[name="noteid"]').val(v);
+        $('#create_note').modal('show');
         $('.popuploader').show();
         $.ajax({
             url: App.getUrl('getnotedetail'),
             type:'GET',
-            datatype:'json',
+            dataType:'json',
             data:{note_id:v},
             success:function(response){
                 $('.popuploader').hide();
-                var res = JSON.parse(response);
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
                 if(res.status){
-                    $('#create_note input[name="title"]').val(res.data.title);
+                    setNoteTitleSelect($titleSelect, res.data.title);
                     $("#create_note .tinymce-simple").val(res.data.description);
                     if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.setContentBySelector("#create_note .tinymce-simple", res.data.description);
                 }
+            },
+            error: function() {
+                $('.popuploader').hide();
             }
         });
     });

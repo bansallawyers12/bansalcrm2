@@ -2174,8 +2174,7 @@ function customValidate(formName, savetype = '')
 								var obj = $.parseJSON(response);
 								
 								if(obj.status){
-								    $('#create_note_d input[name="title"]').val('');
-								    $('#create_note_d input[name="title"]').val('');
+								    $('#create_note_d select[name="title"]').val('');
 					$("#create_note_d .tinymce-simple").val('');
 				$('#create_note_d input[name="noteid"]').val('');                    
 			if (typeof TinyMCEHelpers !== 'undefined') TinyMCEHelpers.resetBySelector('#create_note_d .tinymce-simple');

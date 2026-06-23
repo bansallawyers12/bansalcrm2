@@ -3048,7 +3048,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/schedule-followup.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/schedule-followup.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/delete-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/notes.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/notes.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/notes.js')) }}"></script>
 
 {{-- Main client-detail file (cleaned up, orchestrates modules) --}}
 <script src="{{ asset('js/pages/admin/client-detail.js') }}"></script>
