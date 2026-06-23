@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Locate the row in the DataTable
                 const table = $('.table-3').DataTable();
                 const rowIndex = table.rows().eq(0).filter((rowIdx) => {
-                    return table.cell(rowIdx, 22).data() == studentId; // Match student ID column
+                    return table.cell(rowIdx, 23).data() == studentId; // Match student ID column
                 });
 
                 // Update the cell value

@@ -16,9 +16,29 @@ class Application extends Model
      */
 	
 	protected $fillable = [
-        'id', 'client_id', 'user_id', 'product_id', 'partner_id', 'branch', 
+        'id', 'client_id', 'user_id', 'product_id', 'enrolment_type', 'partner_id', 'branch', 
         'workflow', 'stage', 'status', 'checklist_sheet_status', 'checklist_sent_at', 'created_at', 'updated_at'
     ];
+
+    public const ENROLMENT_TYPE_TRANSFER = 'transfer_option';
+    public const ENROLMENT_TYPE_COURSE_PROGRESSION = 'course_progression';
+
+    public static function enrolmentTypeOptions(): array
+    {
+        return [
+            self::ENROLMENT_TYPE_TRANSFER => 'Transfer',
+            self::ENROLMENT_TYPE_COURSE_PROGRESSION => 'Course progression',
+        ];
+    }
+
+    public static function enrolmentTypeLabel(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return self::enrolmentTypeOptions()[$value] ?? $value;
+    }
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];
     

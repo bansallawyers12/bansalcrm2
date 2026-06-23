@@ -823,6 +823,7 @@ class PartnersController extends Controller
 					applications.student_id,
 					applications.start_date,
 					applications.end_date,
+					applications.enrolment_type,
 					applications.student_add_notes,
 					admins.client_id          AS client_reference,
 					admins.first_name,
@@ -907,9 +908,10 @@ class PartnersController extends Controller
 					$data->commission_paid_as_per_fee_reported            ?? '0.00',                // 19
 					$data->commission_pending                             ?? '0.00',                // 20
 					$statusMap[$data->status] ?? '',                                                // 21 Status text
-					(string) $data->id,                                                             // 22 Hidden ID
-					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 23 Note
-					$actionHtml,                                                                    // 24 Action
+					\App\Models\Application::enrolmentTypeLabel($data->enrolment_type ?? null) ?: '—', // 22 Enrolment Type
+					(string) $data->id,                                                             // 23 Hidden ID
+					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 24 Note
+					$actionHtml,                                                                    // 25 Action
 				];
 			}
 			return $formatted;
@@ -918,7 +920,7 @@ class PartnersController extends Controller
 		// Cache for 5 minutes per partner (keyed by partner ID).
 		// If Redis is unavailable we fall back to running the queries directly
 		// so the endpoint never errors out due to a cache driver issue.
-		$cacheKey = "partner_students_{$id}";
+		$cacheKey = "partner_students_v2_{$id}";
 		$build = function () use ($baseQuery, $formatRows, $partnerName) {
 			return [
 				'status'   => true,
@@ -957,7 +959,7 @@ class PartnersController extends Controller
 			return;
 		}
 		try {
-			Cache::forget("partner_students_{$partnerId}");
+			Cache::forget("partner_students_v2_{$partnerId}");
 		} catch (\Throwable $e) {
 			// Same resilience as getStudentTabData when cache is unavailable
 		}

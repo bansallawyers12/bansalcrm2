@@ -84,9 +84,10 @@ jQuery(document).ready(function($){
             { data: 19 }, // 19 Commission paid
             { data: 20 }, // 20 Commission Pending
             { data: 21 }, // 21 Student Status
-            { data: 22 }, // 22 Hidden Student ID
-            { data: 23 }, // 23 Note textarea
-            { data: 24 }  // 24 Action
+            { data: 22 }, // 22 Enrolment Type
+            { data: 23 }, // 23 Hidden Student ID
+            { data: 24 }, // 24 Note textarea
+            { data: 25 }  // 25 Action
         ],
         dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
         buttons: [
@@ -95,7 +96,7 @@ jQuery(document).ready(function($){
                 text: '<i class="fas fa-file-excel"></i> Excel',
                 className: 'btn btn-success btn-sm',
                 exportOptions: {
-                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
                     format: {
                         body: function (data) {
                             if (typeof data === 'string') {
@@ -123,7 +124,7 @@ jQuery(document).ready(function($){
                 text: '<i class="fas fa-file-csv"></i> CSV',
                 className: 'btn btn-info btn-sm',
                 exportOptions: {
-                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
                     format: {
                         body: function (data) {
                             if (typeof data === 'string') {
@@ -153,7 +154,7 @@ jQuery(document).ready(function($){
                     return meta.row + 1;
                 }
             },
-            { targets: 22, visible: false }
+            { targets: 23, visible: false }
         ],
         order: [],
         drawCallback: function () {
@@ -214,11 +215,11 @@ jQuery(document).ready(function($){
                     const studentId = response.studentId;
                     const studentNote = response.studentNote;
                     const rowIndex = table33.rows().eq(0).filter((rowIdx) => {
-                        return table33.cell(rowIdx, 22).data() == studentId;
+                        return table33.cell(rowIdx, 23).data() == studentId;
                     });
 
                     if (rowIndex.length > 0) {
-                        table33.cell(rowIndex[0], 23).data(studentNote).draw();
+                        table33.cell(rowIndex[0], 24).data(studentNote).draw();
                     }
                     $('.custom-error-msg').html('<span class="alert alert-success">'+response.message+'</span>');
                 } else {
@@ -242,7 +243,7 @@ jQuery(document).ready(function($){
             { data: 5 }, { data: 6 }, { data: 7 }, { data: 8 }, { data: 9 },
             { data: 10 }, { data: 11 }, { data: 12 }, { data: 13 }, { data: 14 },
             { data: 15 }, { data: 16 }, { data: 17 }, { data: 18 }, { data: 19 },
-            { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }
+            { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }, { data: 25 }
         ],
         dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
         buttons: [
@@ -251,7 +252,7 @@ jQuery(document).ready(function($){
                 text: '<i class="fas fa-file-excel"></i> Excel',
                 className: 'btn btn-success btn-sm',
                 exportOptions: {
-                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
                     format: {
                         body: function (data) {
                             if (typeof data === 'string') {
@@ -279,7 +280,7 @@ jQuery(document).ready(function($){
                 text: '<i class="fas fa-file-csv"></i> CSV',
                 className: 'btn btn-info btn-sm',
                 exportOptions: {
-                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+                    columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22],
                     format: {
                         body: function (data) {
                             if (typeof data === 'string') {
@@ -309,7 +310,7 @@ jQuery(document).ready(function($){
                     return meta.row + 1;
                 }
             },
-            { targets: 22, visible: false }
+            { targets: 23, visible: false }
         ],
         order: [],
         drawCallback: function () {
@@ -343,11 +344,11 @@ jQuery(document).ready(function($){
                     const studentId = response.studentId;
                     const studentNote = response.studentNote;
                     const rowIndex = table331.rows().eq(0).filter((rowIdx) => {
-                        return table331.cell(rowIdx, 22).data() == studentId;
+                        return table331.cell(rowIdx, 23).data() == studentId;
                     });
 
                     if (rowIndex.length > 0) {
-                        table331.cell(rowIndex[0], 23).data(studentNote).draw();
+                        table331.cell(rowIndex[0], 24).data(studentNote).draw();
                     }
                     $('.custom-error-msg').html('<span class="alert alert-success">'+response.message+'</span>');
                 } else {

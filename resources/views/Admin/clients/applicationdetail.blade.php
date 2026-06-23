@@ -94,6 +94,10 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 		<p>{{@$workflow->name}}</p>
 	</div>
 	<div class="grid_column">
+		<span>Enrolment Type:</span>
+		<p>{{ \App\Models\Application::enrolmentTypeLabel($fetchData->enrolment_type ?? null) ?: '—' }}</p>
+	</div>
+	<div class="grid_column">
 		<span>Current Stage:</span>
 		<p class="text-success curerentstage" style="font-weight: 600;font-size: 14px;">{{@$fetchData->stage}}</p>
 	</div>

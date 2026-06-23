@@ -51,6 +51,20 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label for="enrolment_type">Enrolment Type <span class="span_req">*</span></label>
+								<select data-valid="required" class="form-control" id="enrolment_type" name="enrolment_type">
+									<option value="">Please Select Enrolment Type</option>
+									@foreach(\App\Models\Application::enrolmentTypeOptions() as $value => $label)
+										<option value="{{ $value }}">{{ $label }}</option>
+									@endforeach
+								</select>
+								<span class="custom-error enrolment_type_error" role="alert">
+									<strong></strong>
+								</span>
+							</div>
+						</div>
+						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('applicationform')" type="button" class="btn btn-primary">Save</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>

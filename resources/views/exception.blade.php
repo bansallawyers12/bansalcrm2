@@ -78,6 +78,10 @@
 		<script src="{{asset('js/pace-progress/js/pace.min.js')}}"></script>
 		<script src="{{asset('js/perfect-scrollbar/js/perfect-scrollbar.min.js')}}"></script>
 		<!-- Removed broken reference: icons/@coreui/coreui-pro/js/coreui.min.js (not installed) -->
+		@if(request()->is('agent', 'agent/*'))
+		<script src="{{ asset('js/agent-custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/agent-custom-form-validation.js')) }}"></script>
+		@else
 		<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}"></script>
+		@endif
 	</body>
 </html>

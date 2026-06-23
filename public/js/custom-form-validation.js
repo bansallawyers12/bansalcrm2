@@ -2279,6 +2279,7 @@ $('#add_application').modal('hide');
 								$(".add_appliation #workflow").val('').trigger('change');
 			$(".add_appliation #partner").val('').trigger('change');
 			$(".add_appliation #product").val('').trigger('change');
+			$(".add_appliation #enrolment_type").val('');
 								if(obj.status){
 									$('.add_appliation').modal('hide');
 								$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');

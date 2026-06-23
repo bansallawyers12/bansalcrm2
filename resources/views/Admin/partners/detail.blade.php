@@ -1250,6 +1250,7 @@ use App\Http\Controllers\Controller;
                                                             <label class="dropdown-option"><input type="checkbox" value="21" checked /> Commission Pending</label>
 
                                                             <label class="dropdown-option"><input type="checkbox" value="22" checked /> Student Status</label>
+                                                            <label class="dropdown-option"><input type="checkbox" value="23" checked /> Enrolment Type</label>
                                                         </div>
                                                     </div>
                                                     <div class="table-responsive student_table_data">
@@ -1290,6 +1291,7 @@ use App\Http\Controllers\Controller;
 
 
                                                                     <th>Student Status</th>
+                                                                    <th>Enrolment Type</th>
                                                                     <th style="display: none;">Student ID</th> <!-- Hidden column -->
                                                                     <th>Add Note</th>
                                                                     <th>Action</th>
@@ -1621,6 +1623,7 @@ use App\Http\Controllers\Controller;
                                                         <label class="dropdown-option"><input type="checkbox" value="20" checked /> Commission paid as per fee Reported</label>
                                                         <label class="dropdown-option"><input type="checkbox" value="21" checked /> Commission Pending</label>
                                                         <label class="dropdown-option"><input type="checkbox" value="22" checked /> Student Status</label>
+                                                        <label class="dropdown-option"><input type="checkbox" value="23" checked /> Enrolment Type</label>
                                                     </div>
                                                 </div>
                                                 <div class="table-responsive student_table_data1">
@@ -1654,6 +1657,7 @@ use App\Http\Controllers\Controller;
                                                                 <th>Commission Pending</th>
 
                                                                 <th>Student Status</th>
+                                                                <th>Enrolment Type</th>
                                                                 <th style="display: none;">Student ID</th> <!-- Hidden column -->
                                                                 <th>Add Note</th>
                                                                 <th>Action</th>
@@ -3399,13 +3403,13 @@ use App\Http\Controllers\Controller;
 </script>
 
 {{-- Page-Specific JavaScript Modules --}}
-<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/notes-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/mail-upload.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/application-tab.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/invoice-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/bulk-upload.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/payment-field-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}"></script>

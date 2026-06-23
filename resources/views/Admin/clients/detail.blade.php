@@ -1166,6 +1166,7 @@ use App\Http\Controllers\Controller;
 													<th>Status</th>
 													<th>Start Date</th>
 													<th>End Date</th>
+													<th>Enrolment Type</th>
 												</tr>
 											</thead>
 											<tbody class="applicationtdata">
@@ -1218,6 +1219,7 @@ use App\Http\Controllers\Controller;
 
 													<td><?php if(@$alist->start_date != ''){ echo date('d/m/Y', strtotime($alist->start_date)); } ?></td>
 													<td><?php if(@$alist->end_date != ''){ echo date('d/m/Y', strtotime($alist->end_date)); } ?></td>
+													<td>{{ \App\Models\Application::enrolmentTypeLabel($alist->enrolment_type ?? null) ?: '—' }}</td>
 												</tr>
 												<?php
 											}
@@ -2966,7 +2968,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-categories.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/datatable-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}?v=639067000000000000"></script>
 <script src="{{ asset('js/pages/admin/client-detail/application-stage.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>

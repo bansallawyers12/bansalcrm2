@@ -26,6 +26,18 @@ class ClientApplicationController extends Controller
     }
 
     public function saveapplication(Request $request){
+		$response = [
+			'status' => false,
+			'message' => 'Please try again',
+		];
+
+		$enrolmentType = $request->input('enrolment_type');
+		if (! array_key_exists($enrolmentType, \App\Models\Application::enrolmentTypeOptions())) {
+			$response['message'] = 'Please select an Enrolment Type.';
+			echo json_encode($response);
+			return;
+		}
+
 		if(Admin::where('id', $request->client_id)->exists()){
 			$workflow = $request->workflow;
 			$explode = explode('_', $request->partner_branch);
@@ -43,6 +55,7 @@ class ClientApplicationController extends Controller
 			$obj->partner_id = $partner;
 			$obj->branch = $branch;
 			$obj->product_id = $product;
+			$obj->enrolment_type = $enrolmentType;
 			$obj->status = $status;
 			$obj->stage = $stage;
 			$obj->checklist_sheet_status = 'active'; // first-stage sheet: new apps show on Checklist until status is changed
@@ -132,6 +145,7 @@ class ClientApplicationController extends Controller
 
 				<td><?php if(@$alist->start_date != ''){ echo date('d/m/Y', strtotime($alist->start_date)); } ?></td>
 				<td><?php if(@$alist->end_date != ''){ echo date('d/m/Y', strtotime($alist->end_date)); } ?></td>
+				<td><?php echo e(\App\Models\Application::enrolmentTypeLabel($alist->enrolment_type ?? null) ?: '—'); ?></td>
 			</tr>
 				<?php
 			}
