@@ -2,7 +2,7 @@
 @section('title', 'Client Detail')
 
 @push('styles')
-<link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
+<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/client-detail.css')) }}">
 <style>
 /* Fix: Make Select2 dropdown appear in front of modal */
 .select2-container--open {
@@ -1014,30 +1014,32 @@ use App\Http\Controllers\Controller;
 															<p><b>{{$admin->first_name}}</b>  <?php echo @$activit->subject; ?></p>
                                                     	</div>
 
-                                                     	<div class="activity-date">
-                                                          <span class="text-job">{{date('d M Y, H:i A', strtotime($activit->created_at))}}</span>
-                                                        </div>
-                                                    </div>
+														<div class="activity-head-actions">
+															<div class="activity-date">
+																<span class="text-job">{{date('d M Y, H:i A', strtotime($activit->created_at))}}</span>
+															</div>
 
-                                                    <div class="right" style="float: right;margin-top: -40px;">
-                                                        <?php if($activit->pin == 1){?>
-                                                            <div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
-                                                        <?php } ?>
+															<div class="activity-actions">
+																<?php if($activit->pin == 1){?>
+																	<div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
+																<?php } ?>
 
-                                                        <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                            <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                                            <div class="dropdown-menu">
-                                                                @if(Auth::user()->role == 1)
-                                                                <a data-id="{{$activit->id}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
-                                                               @endif
-                                                                <?php if($activit->pin == 1){ ?>
-                                                                    <a data-id="<?php echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >UnPin</a>
-                                                                <?php
-                                                                } else { ?>
-                                                                    <a data-id="<?php echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >Pin</a>
-                                                                <?php } ?>
-                                                            </div>
-                                                        </div>
+																<div class="dropdown d-inline dropdown_ellipsis_icon">
+																	<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																	<div class="dropdown-menu">
+																		@if(Auth::user()->role == 1)
+																		<a data-id="{{$activit->id}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
+																		@endif
+																		<?php if($activit->pin == 1){ ?>
+																			<a data-id="<?php echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >UnPin</a>
+																		<?php
+																		} else { ?>
+																			<a data-id="<?php echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >Pin</a>
+																		<?php } ?>
+																	</div>
+																</div>
+															</div>
+														</div>
                                                     </div>
 
 													@if(!empty($activit->description))
@@ -2790,7 +2792,7 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<script src="{{asset('js/popover.js')}}"></script>
+<script src="{{ asset('js/popover.js') }}"></script>
 
 @if($showAlert)
     <script>
@@ -2865,6 +2867,7 @@ use App\Http\Controllers\Controller;
     PageConfig.clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
     PageConfig.clientEmail = {!! json_encode($fetchedData->email ?? '') !!};
     PageConfig.clientType = 'client';
+    PageConfig.canDeleteActivityLog = {{ Auth::user()->role == 1 ? 'true' : 'false' }};
 </script>
 
 @if($showGoogleReviewReminderModal ?? false)
@@ -2993,7 +2996,7 @@ $(function () {
 <script src="{{ asset('js/common/ajax-helpers.js') }}"></script>
 <script src="{{ asset('js/common/utilities.js') }}"></script>
 <script src="{{ asset('js/common/crud-operations.js') }}"></script>
-<script src="{{ asset('js/common/activity-handlers.js') }}"></script>
+<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
 <script>
 (function() {
@@ -3043,7 +3046,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/schedule-followup.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/schedule-followup.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/delete-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/notes.js') }}"></script>
 

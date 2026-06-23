@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="{{ asset('icons/font-awesome/css/all.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/components.css') }}">
-	<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">
 	@stack('styles')
 </head>
 <body>

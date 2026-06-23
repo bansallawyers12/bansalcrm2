@@ -484,7 +484,8 @@
 .activity-head {
 	display: flex;
 	justify-content: space-between;
-	align-items: start;
+	align-items: flex-start;
+	gap: 12px;
 	margin-bottom: 12px;
 }
 
@@ -493,6 +494,7 @@
 	color: var(--text-primary);
 	font-weight: 600;
 	flex: 1;
+	min-width: 0;
 	line-height: 1.5;
 }
 
@@ -501,12 +503,28 @@
 	font-weight: 700;
 }
 
+.activity-head-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
 .activity-date {
 	font-size: 13px;
 	color: var(--text-secondary);
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	white-space: nowrap;
+}
+
+.activity-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
 }
 
 .activity-detail p {

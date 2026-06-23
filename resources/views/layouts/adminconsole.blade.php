@@ -46,7 +46,7 @@
   
 	<link rel="stylesheet" href="{{asset('css/components.css')}}">
 	<!-- Custom style CSS -->
-	<link rel="stylesheet" href="{{asset('css/custom.css')}}">
+	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">
 	<!-- Modern Search CSS -->
 	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	
@@ -300,8 +300,8 @@
 	<script src="{{asset('js/bootstrap-timepicker.min.js')}}" defer></script> 
 	
 	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}" defer></script> 
-	<script src="{{asset('js/custom-form-validation.js')}}" defer></script> 
-	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>   
+	<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}" defer></script>
+	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
 	<!-- Custom JS File -->	
 	<script src="{{asset('js/custom.js')}}" defer></script>

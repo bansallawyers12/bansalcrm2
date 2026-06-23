@@ -657,19 +657,17 @@ function getallactivities(){
 	$.ajax({
 					url: site_url+'/get-activities',
 					type:'GET',
-					datatype:'json',
+					dataType:'json',
 					data:{id:'{{$fetchedData->id}}'},
 					success: function(responses){
-						var ress = JSON.parse(responses);
-						var html = '';
-						$.each(ress.data, function(k, v) {
-							html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-							if(v.message != null){
-								html += '<p>'+v.message+'</p>';
-							}
-							html += '</div></div>';
-						});
-						$('.activities').html(html);
+						if (typeof applyActivitiesResponse === 'function') {
+							applyActivitiesResponse(responses);
+							return;
+						}
+						var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+						if (ress && ress.html) {
+							$('.activities').html(ress.html);
+						}
 					}
 				});
 }

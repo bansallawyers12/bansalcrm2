@@ -213,7 +213,7 @@ class OngoingSheetController extends Controller
     }
 
     /**
-     * Options for #ongoing-assignee-bar — fixed staff list in config order.
+     * Options for #ongoing-assignee-bar — fixed staff list, alphabetical by display name.
      */
     protected function getSheetAssigneeFilterOptions()
     {
@@ -222,13 +222,14 @@ class OngoingSheetController extends Controller
             return collect();
         }
 
-        $order = array_flip($ids);
         $staff = Staff::query()
             ->where('status', 1)
             ->whereIn('id', $ids)
             ->get(['id', 'first_name', 'last_name', 'email']);
 
-        return $staff->sortBy(fn ($member) => $order[(int) $member->id] ?? PHP_INT_MAX)->values();
+        return $staff
+            ->sortBy(fn ($member) => strtolower(trim(($member->first_name ?? '') . ' ' . ($member->last_name ?? '')) ?: ($member->email ?? '')))
+            ->values();
     }
 
     /**

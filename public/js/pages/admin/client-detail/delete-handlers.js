@@ -101,6 +101,7 @@
                 datatype:'json',
                 data:{activitylogid:activitylogid},
                 success:function(response){
+                    $('.popuploader').hide();
                     var res = typeof response === 'string' ? JSON.parse(response) : response;
                     $('#confirmLogModal').modal('hide');
                     if(res.status){
@@ -109,6 +110,12 @@
                             getallactivities();
                         }
                     }
+                },
+                error: function(xhr, status, error){
+                    $('.popuploader').hide();
+                    $('#confirmLogModal').modal('hide');
+                    console.error('Delete activity failed:', error);
+                    alert('Delete operation failed. Please try again.');
                 }
             });
         });

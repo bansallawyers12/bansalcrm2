@@ -5,10 +5,79 @@
  * 
  * Usage:
  *   getallactivities()
+ *   applyActivitiesResponse(response)
  *   deleteactivitylog(id)
  */
 
 'use strict';
+
+/**
+ * Apply activities API response to the DOM.
+ * Prefers server-rendered HTML; falls back to legacy JSON data builder.
+ * @param {object|string} response
+ */
+function applyActivitiesResponse(response) {
+    var ress = typeof response === 'string' ? JSON.parse(response) : response;
+    var html = '';
+
+    if (ress && ress.html) {
+        html = ress.html;
+    } else if (ress && ress.data && ress.data.length > 0) {
+        $.each(ress.data, function(k, v) {
+            html += buildLegacyActivityItemHtml(v);
+        });
+    }
+
+    if ($('.activities').length) {
+        $('.activities').html(html);
+    } else if ($('.activitiesdata').length) {
+        $('.activitiesdata').html(html);
+    }
+}
+
+/**
+ * Legacy fallback when server HTML is unavailable.
+ * @param {object} v
+ * @returns {string}
+ */
+function buildLegacyActivityItemHtml(v) {
+    var activityId = v.activity_id || v.id || '';
+    var pinHtml = (v.pin == 1)
+        ? '<div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>'
+        : '';
+    var pinLabel = (v.pin == 1) ? 'UnPin' : 'Pin';
+    var canDelete = App.getPageConfig && App.getPageConfig('canDeleteActivityLog');
+    var deleteHtml = canDelete
+        ? '<a data-id="' + activityId + '" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;">Delete</a>'
+        : '';
+
+    var html = '<div class="activity" id="activity_' + activityId + '">';
+    html += '<div class="activity-icon bg-primary text-white"><span>' + (v.createdname || '') + '</span></div>';
+    html += '<div class="activity-detail">';
+    html += '<div class="activity-head">';
+    html += '<div class="activity-title"><p><b>' + (v.name || '') + '</b> ' + (v.subject || '') + '</p></div>';
+    html += '<div class="activity-head-actions">';
+    html += '<div class="activity-date"><span class="text-job">' + (v.date || '') + '</span></div>';
+    html += '<div class="activity-actions">';
+    html += pinHtml;
+    html += '<div class="dropdown d-inline dropdown_ellipsis_icon">';
+    html += '<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>';
+    html += '<div class="dropdown-menu">';
+    html += deleteHtml;
+    html += '<a data-id="' + activityId + '" class="dropdown-item pinactivitylog" href="javascript:;">' + pinLabel + '</a>';
+    html += '</div></div></div></div></div>';
+    if (v.message != null) {
+        html += '<div class="activity-content-card"><div class="activity-content-body"><p>' + v.message + '</p></div></div>';
+    }
+    if (v.followup_date) {
+        html += '<p>' + v.followup_date + '</p>';
+    }
+    if (v.task_group) {
+        html += '<p>' + v.task_group + '</p>';
+    }
+    html += '</div></div>';
+    return html;
+}
 
 /**
  * Get all activities for the current page
@@ -41,30 +110,7 @@ function getallactivities(onSuccess) {
         dataType: 'json',
         data: { id: activityId },
         success: function(responses) {
-            var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
-            var html = '';
-            
-            if (ress.data && ress.data.length > 0) {
-                $.each(ress.data, function(k, v) {
-                    // Build activity HTML with proper structure
-                    html += '<div class="activity" id="activity_' + (v.activity_id || v.id) + '">';
-                    html += '<div class="activity-icon bg-primary text-white"><span>' + (v.createdname || '') + '</span></div>';
-                    html += '<div class="activity-detail">';
-                    html += '<div class="mb-2"><span class="text-job">' + (v.date || '') + '</span></div>';
-                    html += '<p><b>' + (v.name || '') + '</b> ' + (v.subject || '') + '</p>';
-                    if (v.message != null) {
-                        html += '<p>' + v.message + '</p>';
-                    }
-                    html += '</div></div>';
-                });
-            }
-            
-            // Update activities container (support both .activities and .activitiesdata)
-            if ($('.activities').length) {
-                $('.activities').html(html);
-            } else if ($('.activitiesdata').length) {
-                $('.activitiesdata').html(html);
-            }
+            applyActivitiesResponse(responses);
             if (typeof onSuccess === 'function') onSuccess();
         },
         error: function(xhr, status, err) {
@@ -143,5 +189,5 @@ if (typeof window !== 'undefined') {
     window.getallactivities = getallactivities;
     window.getallnotes = getallnotes;
     window.deleteactivitylog = deleteactivitylog;
+    window.applyActivitiesResponse = applyActivitiesResponse;
 }
-

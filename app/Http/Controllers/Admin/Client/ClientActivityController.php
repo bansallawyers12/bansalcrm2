@@ -120,6 +120,9 @@ class ClientActivityController extends Controller
 			$data = array();
 			foreach($activities as $activit){
 				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
+				if (!$admin) {
+					continue;
+				}
 
 				$data[] = array(
                     'activity_id' => $activit->id,
@@ -136,6 +139,7 @@ class ClientActivityController extends Controller
 
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
+			$response['html'] = view('Admin.partials.activities-list', compact('activities'))->render();
 		}else{
 			$response['status'] 	= 	false;
 			$response['message']	=	'Please try again';

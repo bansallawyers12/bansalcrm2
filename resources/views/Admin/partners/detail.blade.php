@@ -34,7 +34,7 @@
 		$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 	}
 @endphp
-<link rel="stylesheet" href="{{asset('css/client-detail.css')}}">
+<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/client-detail.css')) }}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -3376,6 +3376,7 @@ use App\Http\Controllers\Controller;
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
+<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
 <script>
 (function() {
@@ -3408,7 +3409,7 @@ use App\Http\Controllers\Controller;
 <script src="{{ asset('js/pages/admin/partner-detail/payment-field-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/notes-contact-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>

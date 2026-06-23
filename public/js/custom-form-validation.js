@@ -47,6 +47,39 @@ function syncEditorContent($form) {
 	});
 }
 
+/**
+ * Refresh the activities list after an AJAX action (notes, appointments, etc.).
+ * Uses shared getallactivities() when available; otherwise fetches server-rendered HTML.
+ */
+function refreshClientActivities(clientId) {
+	if (typeof getallactivities === 'function') {
+		getallactivities();
+		return;
+	}
+
+	var id = clientId || $('input[name="client_id"]').val();
+	if (!id || typeof site_url === 'undefined') {
+		return;
+	}
+
+	$.ajax({
+		url: site_url + '/get-activities',
+		type: 'GET',
+		dataType: 'json',
+		data: { id: id },
+		success: function(responses) {
+			if (typeof applyActivitiesResponse === 'function') {
+				applyActivitiesResponse(responses);
+				return;
+			}
+			var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
+			if (ress && ress.html) {
+				$('.activities').html(ress.html);
+			}
+		}
+	});
+}
+
 // Helper function to get value from TinyMCE fields
 function getFieldValue($field) {
 	var for_class = $field.attr('class') || '';
@@ -1748,24 +1781,7 @@ function customValidate(formName, savetype = '')
                                                 $('.appointmentlist').html(responses);
                                             }
                                         });
-                                        $.ajax({
-                                            url: site_url+'/get-activities',
-                                            type:'GET',
-                                            datatype:'json',
-                                            data:{id:client_id},
-                                            success: function(responses){
-                                                var ress = JSON.parse(responses);
-                                                var html = '';
-                                                $.each(ress.data, function(k, v) {
-                                                    html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-                                                    if(v.message != null){
-                                                        html += '<p>'+v.message+'</p>';
-                                                    }
-                                                    html += '</div></div>';
-                                                });
-                                                $('.activities').html(html);
-                                            }
-                                        });
+                                        refreshClientActivities(client_id);
 									}else{
 										$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -2026,24 +2042,7 @@ function customValidate(formName, savetype = '')
                                             $('.note_term_list').html(responses);
                                         }
                                     });
-                                    $.ajax({
-                                        url: site_url+'/get-activities',
-                                        type:'GET',
-                                        datatype:'json',
-                                        data:{id:client_id},
-                                        success: function(responses){
-                                            var ress = JSON.parse(responses);
-                                            var html = '';
-                                            $.each(ress.data, function(k, v) {
-                                                html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-                                                if(v.message != null){
-                                                    html += '<p>'+v.message+'</p>';
-                                                }
-                                                html += '</div></div>';
-                                            });
-                                            $('.activities').html(html);
-                                        }
-                                    });
+                                    refreshClientActivities(client_id);
 									$('.custom-error-msg').html('<span class="alert alert-success">'+obj.message+'</span>');
 								} else {
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
@@ -2079,24 +2078,7 @@ function customValidate(formName, savetype = '')
 											$('.appointmentlist').html(responses);
 										}
 									});
-									$.ajax({
-										url: site_url+'/get-activities',
-										type:'GET',
-										datatype:'json',
-										data:{id:client_id},
-										success: function(responses){
-											var ress = JSON.parse(responses);
-											var html = '';
-											$.each(ress.data, function(k, v) {
-												html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-												if(v.message != null){
-													html += '<p>'+v.message+'</p>';
-												}
-												html += '</div></div>';
-											});
-											$('.activities').html(html);
-										}
-									});
+									refreshClientActivities(client_id);
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -2166,24 +2148,7 @@ function customValidate(formName, savetype = '')
 		$('.note_term_list').html(responses);
 	}
 });
-									$.ajax({
-										url: site_url+'/get-activities',
-										type:'GET',
-										datatype:'json',
-										data:{id:client_id},
-										success: function(responses){
-											var ress = JSON.parse(responses);
-											var html = '';
-											$.each(ress.data, function(k, v) {
-												html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-												if(v.message != null){
-													html += '<p>'+v.message+'</p>';
-												}
-												html += '</div></div>';
-											});
-											$('.activities').html(html);
-										}
-									});
+									refreshClientActivities(client_id);
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -2225,24 +2190,7 @@ function customValidate(formName, savetype = '')
 			$('.note_term_list').html(responses);
 		}
 	});
-									$.ajax({
-										url: site_url+'/get-activities',
-										type:'GET',
-										datatype:'json',
-										data:{id:client_id},
-										success: function(responses){
-											var ress = JSON.parse(responses);
-											var html = '';
-											$.each(ress.data, function(k, v) {
-												html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-												if(v.message != null){
-													html += '<p>'+v.message+'</p>';
-												}
-												html += '</div></div>';
-											});
-											$('.activities').html(html);
-										}
-									});
+									refreshClientActivities(client_id);
 								}else{
 									$('.custom-error-msg').html('<span class="alert alert-danger">'+obj.message+'</span>');
 									
@@ -2344,24 +2292,7 @@ $('#add_application').modal('hide');
 						$('.applicationtdata').html(responses);
 					}
 				});
-									$.ajax({
-					url: site_url+'/get-activities',
-					type:'GET',
-					datatype:'json',
-					data:{id:client_id},
-					success: function(responses){
-						var ress = JSON.parse(responses);
-						var html = '';
-						$.each(ress.data, function(k, v) {
-							html += '<div class="activity"><div class="activity-icon bg-primary text-white"><span>'+v.createdname+'</span></div><div class="activity-detail"><div class="mb-2"><span class="text-job">'+v.date+'</span></div><p><b>'+v.name+'</b> '+v.subject+'</p>';
-							if(v.message != null){
-								html += '<p>'+v.message+'</p>';
-							}
-							html += '</div></div>';
-						});
-						$('.activities').html(html);
-					}
-				});
+									refreshClientActivities(client_id);
 									// If "Send Checklist" was checked, open email modal and pre-fill for checklist
 									if ($('#send_checklist_after').is(':checked') && obj.application_id && $('#emailmodal').length) {
 										$('#sendmail_application_id').val(obj.application_id);

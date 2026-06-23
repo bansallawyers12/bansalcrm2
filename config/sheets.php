@@ -74,11 +74,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Only these staff.id values appear in the top-bar Assignee filter (#ongoing-assignee-bar).
-    | Order here is preserved in the dropdown. Override via SHEETS_ASSIGNEE_FILTER_STAFF_IDS.
+    | Dropdown order is alphabetical by display name. Override via SHEETS_ASSIGNEE_FILTER_STAFF_IDS.
     |
     */
     'sheet_assignee_filter_staff_ids' => array_values(array_filter(array_map(
         'intval',
-        explode(',', (string) env('SHEETS_ASSIGNEE_FILTER_STAFF_IDS', '1599,52594,47134,1215,51885'))
+        explode(',', (string) env('SHEETS_ASSIGNEE_FILTER_STAFF_IDS', '1599,52594,47134,1215,51885,541'))
     ), static fn (int $id) => $id > 0)),
 ];

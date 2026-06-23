@@ -660,7 +660,7 @@ text-overflow: ellipsis;white-space: nowrap;}
 .select2-container--default .select2-dropdown{/*width: 330px!important;*/ width: 200px!important;}
 
 .activity-detail .activity-head{display: flex;}
-.activity-detail .activity-title{margin-right: 60px;}
+.activity-detail .activity-title{margin-right: 0; min-width: 0;}
 
 .note_term_list .note_col .note_content{position: relative;}
 .note_term_list .note_col .note_content .pined_note{position: absolute;top: 5px;right: 5px;}

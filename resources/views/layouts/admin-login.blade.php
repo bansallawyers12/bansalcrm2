@@ -23,7 +23,7 @@
 	<link href="{{asset('css/bootstrap-social.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/style.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/components.css')}}" rel="stylesheet">	
-	<link href="{{asset('css/custom.css')}}" rel="stylesheet">
+	<link href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}" rel="stylesheet">
 	
 	<script async src="https://www.google.com/recaptcha/api.js"></script> <!-- Add recaptcha script -->
 </head>
