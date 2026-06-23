@@ -386,6 +386,7 @@ use App\Http\Controllers\Controller;
 													<th>Product Name</th>
 													<th>Workflow</th>
 													<th>Current Stage</th>
+													<th>Enrolment Type</th>
 													<th>Status</th>
 													<th>Added On</th>
 													<th>Last Updated</th>
@@ -406,6 +407,7 @@ use App\Http\Controllers\Controller;
 													<td><a href="{{URL::to('clients/detail/')}}/{{base64_encode(convert_uuencode(@$partnerdetail->id))}}?tab=application&appid={{@$alist->id}}">{{$productdetail->name}}</a></td>
 													<td>{{$workflow->name}}</td>
 													<td>{{$alist->stage}}</td>
+													<td>{{ \App\Models\Application::enrolmentTypeLabel($alist->enrolment_type ?? null) ?: '—' }}</td>
 													<td>
 													@if($alist->status == 0)
 														<span class="badge badge-info" style="margin-top: 5px;margin-bottom:5px;">In Progress</span>
