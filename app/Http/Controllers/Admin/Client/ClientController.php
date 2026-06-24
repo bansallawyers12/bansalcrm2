@@ -173,6 +173,9 @@ class ClientController extends Controller
 
               'office' => 'nullable|exists:branches,id',
 
+              'service' => 'required|string|max:255',
+              'source' => 'required|string|max:255',
+
             ]);
 
             // Primary (first) email must be unique in admins table

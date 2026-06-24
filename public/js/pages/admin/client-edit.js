@@ -1114,3 +1114,28 @@ if(typeof window !== 'undefined') {
     window.initAutocomplete = initAutocomplete;
 }
 
+/**
+ * Client edit form save — runs customValidate and shows a top summary when fields are missing.
+ * Scoped to edit-clients only; does not affect other forms using customValidate().
+ */
+window.validateEditClientForm = function() {
+    var $summary = $('#edit-clients-js-validation-alert');
+    if ($summary.length) {
+        $summary.hide();
+    }
+
+    if (typeof customValidate !== 'function') {
+        return false;
+    }
+
+    var isValid = customValidate('edit-clients');
+
+    if (!isValid && $summary.length) {
+        $summary.show();
+        var scrollTarget = $summary.offset().top - 20;
+        $('html, body').animate({ scrollTop: scrollTarget }, 'slow');
+    }
+
+    return isValid;
+};
+

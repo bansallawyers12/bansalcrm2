@@ -231,7 +231,8 @@
 			<form action="{{ url('clients/edit') }}" method="POST" name="edit-clients" autocomplete="off" enctype="multipart/form-data">
 				@csrf
 				<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
-				<input type="hidden" name="type" value="{{ @$fetchedData->type }}"> 
+				<input type="hidden" name="type" value="{{ @$fetchedData->type }}">
+				<div class="removesids_contact"></div>
 				
 				<!-- Validation Errors Summary -->
 				@if ($errors->any())
@@ -245,6 +246,11 @@
 						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 					</div>
 				@endif
+				
+				<!-- Client-side validation summary (shown when Save fails before submit) -->
+				<div id="edit-clients-js-validation-alert" class="alert alert-danger mb-3" role="alert" style="display:none;">
+					<strong><i class="fas fa-exclamation-triangle"></i> Some required fields need to be filled. Please check the highlighted fields below.</strong>
+				</div>
 				
 				<!-- Page Header -->
 				<div class="row">   
@@ -262,7 +268,7 @@
 								    <a href="{{ URL::to('/clients/detail/'.base64_encode(convert_uuencode(@$fetchedData->id))) }}" class="btn btn-outline-secondary me-2">
 								    	<i class="fa fa-arrow-left"></i> Back
 								    </a>
-								    <button type="button" class="btn btn-primary" onclick="customValidate('edit-clients')">
+								    <button type="button" class="btn btn-primary" onclick="return validateEditClientForm()">
 								    	<i class="fas fa-save"></i> Save Changes
 								    </button>
 								</div>
@@ -1218,16 +1224,16 @@
 									<div class="col-sm-3">
 										<div class="form-group">
 											<label for="lead_source">Source <span style="color:#ff0000;">*</span></label>
-											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="">
+											<select style="padding: 0px 5px;" name="source" id="lead_source" class="form-control select2" data-valid="required">
 												<option value="">- Source -</option>
 												<option value="Sub Agent" @if(old('source', @$fetchedData->source) == 'Sub Agent') selected @endif>Sub Agent</option>
 												@foreach(\App\Models\Source::all() as $sources)
 													<option value="{{$sources->name}}" @if(old('source', @$fetchedData->source) == $sources->name) selected @endif>{{$sources->name}}</option>
 												@endforeach
 											</select>
-											@if ($errors->has('lead_source'))
+											@if ($errors->has('source'))
 												<span class="custom-error" role="alert">
-													<strong>{{ @$errors->first('lead_source') }}</strong>
+													<strong>{{ @$errors->first('source') }}</strong>
 												</span> 
 											@endif 
 										</div>
@@ -1354,12 +1360,6 @@
 											@endif
 										</div>
 									</div>  
-									<div class="col-sm-12">
-										<div class="form-group float-end">
-                                             <div class="removesids_contact"></div>
-											{!! Form::button('Save', ['class'=>'btn btn-primary', 'onClick'=>'customValidate("edit-clients")' ])  !!}
-										</div>
-									</div>
 								</div>
 								</section> 
 							</div>
