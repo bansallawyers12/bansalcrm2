@@ -83,6 +83,73 @@
 .dt-buttons .btn i {
     margin-right: 5px;
 }
+/* Partner student tab: single-row DataTables toolbar */
+.student-dt-toolbar-host {
+    overflow: visible;
+    position: relative;
+    z-index: 20;
+    margin-bottom: 12px;
+}
+.student-dt-toolbar-host .student-dt-toolbar {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 0;
+}
+.student-dt-toolbar-host .student-dt-toolbar > [class*="col-"] {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+.student-dt-toolbar-host .student-dt-toolbar .dataTables_length,
+.student-dt-toolbar-host .student-dt-toolbar .dt-buttons {
+    margin-bottom: 0;
+}
+.student-dt-toolbar-host .student-dt-toolbar .dataTables_filter {
+    float: none !important;
+    text-align: left !important;
+    margin: 0;
+}
+.student-dt-toolbar-host .student-dt-filter-controls {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+.student-dt-toolbar-host .student-dt-filter-controls > label:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+}
+.student-dt-toolbar-host .student-dt-status-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+}
+.student-dt-toolbar-host .student-dt-status-filter select {
+    width: auto;
+    min-width: 120px;
+}
+.student-dt-toolbar-host .student-dt-columns,
+.student_table_panel .student_drop_table_data,
+.student_table_panel1 .student_drop_table_data1 {
+    position: relative;
+}
+.student_table_panel .student_drop_table_data .dropdown_list,
+.student_table_panel1 .student_drop_table_data1 .dropdown_list {
+    z-index: 1050;
+    overflow-y: auto;
+}
+.student-dt-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 /* Full width for email tab */
 .partner-main-content.email-tab-full-width {
     flex: 0 0 100% !important;
@@ -1231,6 +1298,7 @@ use App\Http\Controllers\Controller;
                                         <div class="tab-content" id="studentContent">
                                             <div class="tab-pane fade show active" id="stdactive" role="tabpanel" aria-labelledby="stdactive-tab">
                                                 <div class="tab-content" id="studentContent">
+                                                    <div class="student_table_panel">
                                                     <div class="student_drop_table_data" style="display: inline-block;margin-right: 10px;">
                                                         <button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
                                                         <div class="dropdown_list student_dropdown_list">
@@ -1260,13 +1328,14 @@ use App\Http\Controllers\Controller;
                                                             <label class="dropdown-option"><input type="checkbox" value="23" checked /> Enrolment Type</label>
                                                         </div>
                                                     </div>
-                                                    <div class="table-responsive student_table_data">
                                                         <div class="totals-container mb-3 row g-1">
                                                             <div class="col-md-6">Total Commission Claimed: <strong>$<span id="total_commission_claimed">0.00</span></strong></div>
                                                             <div class="col-md-6">Total Commission Paid: <strong>$<span id="total_commission_paid">0.00</span></strong></div>
                                                             <div class="col-md-6">Total Commission Pending: <strong>$<span id="total_commission_pending">0.00</span></strong></div>
                                                             <div class="col-md-6">Total Commission Anticipated: <strong>$<span id="total_commission_anticipated">0.00</span></strong></div>
                                                         </div>
+                                                        <div class="student-dt-toolbar-host"></div>
+                                                        <div class="table-responsive student_table_data student-dt-table-scroll">
                                                         <table class="table text_wrap table-3">
                                                             <thead>
                                                                 <tr>
@@ -1601,10 +1670,12 @@ use App\Http\Controllers\Controller;
                                                             
                                                         </table>
                                                     </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <div class="tab-pane fade" id="stdinactive" role="tabpanel" aria-labelledby="stdinactive-tab">
+                                                <div class="student_table_panel1">
                                                 <div class="student_drop_table_data1" style="display: inline-block;margin-right: 10px;">
                                                     <button type="button" class="btn btn-primary dropdown-toggle"><i class="fas fa-columns"></i></button>
                                                     <div class="dropdown_list student_dropdown_list1">
@@ -1633,7 +1704,8 @@ use App\Http\Controllers\Controller;
                                                         <label class="dropdown-option"><input type="checkbox" value="23" checked /> Enrolment Type</label>
                                                     </div>
                                                 </div>
-                                                <div class="table-responsive student_table_data1">
+                                                <div class="student-dt-toolbar-host"></div>
+                                                <div class="table-responsive student_table_data1 student-dt-table-scroll">
                                                     <table class="table text_wrap table-31">
                                                         <thead>
                                                             <tr>
@@ -1972,6 +2044,7 @@ use App\Http\Controllers\Controller;
                                                             </tr>
                                                         </tfoot>
                                                     </table>
+                                                </div>
                                                 </div>
                                             </div>
                                         </div>

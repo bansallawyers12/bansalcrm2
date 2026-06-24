@@ -106,6 +106,53 @@ jQuery(document).ready(function($){
         });
     }
 
+    var studentToolbarDom = '<"row student-dt-toolbar align-items-center g-2"<"col-auto"l><"col-auto"B><"col-auto ms-auto"f>>rtip';
+
+    function buildStatusFilterHtml(selectId) {
+        return '<label class="student-dt-status-filter mb-0">Filter by Status:' +
+            '<select id="' + selectId + '" class="form-control form-control-sm">' +
+            '<option value="">All</option>' +
+            '<option value="In Progress">In Progress</option>' +
+            '<option value="Completed">Completed</option>' +
+            '<option value="Discontinued">Discontinued</option>' +
+            '<option value="Cancelled">Cancelled</option>' +
+            '<option value="Withdrawn">Withdrawn</option>' +
+            '<option value="Deferred">Deferred</option>' +
+            '<option value="Future">Future</option>' +
+            '<option value="VOE">VOE</option>' +
+            '<option value="Refund">Refund</option>' +
+            '</select></label>';
+    }
+
+    function setupStudentToolbar(api, options) {
+        var $wrapper = $(api.table().container()).closest('.dataTables_wrapper');
+        var $toolbar = $wrapper.children('.student-dt-toolbar').first();
+        var $toolbarHost = $(options.toolbarHostSelector);
+
+        if (!$toolbar.length || !$toolbarHost.length) {
+            return;
+        }
+
+        var $colToggle = $(options.columnToggleSelector).detach().removeAttr('style');
+        $toolbar.prepend($('<div class="col-auto student-dt-columns">').append($colToggle));
+        $toolbar.detach().appendTo($toolbarHost);
+
+        var $filter = $toolbar.find('.dataTables_filter');
+        $filter.addClass('student-dt-filter-controls');
+
+        if (options.statusFilterId) {
+            $filter.append(buildStatusFilterHtml(options.statusFilterId));
+            $('#' + options.statusFilterId).on('change', function () {
+                var statusFilterval = $(this).val();
+                if (statusFilterval === '') {
+                    api.column(21).search('').draw();
+                } else {
+                    api.column(21).search('^' + statusFilterval + '$', true, false).draw();
+                }
+            });
+        }
+    }
+
     $(".table-2").dataTable({
         "searching": false,
         "lengthChange": false,
@@ -153,7 +200,7 @@ jQuery(document).ready(function($){
             { data: 24 }, // 24 Note textarea
             { data: 25 }  // 25 Action
         ],
-        dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
+        dom: studentToolbarDom,
         buttons: [
             {
                 extend: 'excelHtml5',
@@ -225,6 +272,13 @@ jQuery(document).ready(function($){
             { targets: 23, visible: false }
         ],
         order: [],
+        initComplete: function () {
+            setupStudentToolbar(this.api(), {
+                columnToggleSelector: '.student_drop_table_data',
+                toolbarHostSelector: '.student_table_panel .student-dt-toolbar-host',
+                statusFilterId: 'statusFilter'
+            });
+        },
         drawCallback: function () {
             var api = this.api();
             var sumAllRecords = function (index) {
@@ -242,33 +296,6 @@ jQuery(document).ready(function($){
             $("#total_commission_paid").text(sumAllRecords(19).toFixed(2));
             $("#total_commission_pending").text(sumAllRecords(20).toFixed(2));
             syncEnrolmentTypeSelects(api.table().container());
-        }
-    });
-
-    var statusFilter = `
-        <label>Filter by Status:
-            <select id="statusFilter" class="form-control form-control-sm">
-                <option value="">All</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Discontinued">Discontinued</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="Withdrawn">Withdrawn</option>
-                <option value="Deferred">Deferred</option>
-                <option value="Future">Future</option>
-                <option value="VOE">VOE</option>
-                <option value="Refund">Refund</option>
-            </select>
-        </label>`;
-
-    $(".dataTables_filter").append(statusFilter);
-
-    $("#statusFilter").on("change", function () {
-        var statusFilterval = $(this).val();
-        if (statusFilterval === "") {
-            table33.column(21).search("").draw();
-        } else {
-            table33.column(21).search("^" + statusFilterval + "$", true, false).draw();
         }
     });
 
@@ -355,7 +382,7 @@ jQuery(document).ready(function($){
             { data: 15 }, { data: 16 }, { data: 17 }, { data: 18 }, { data: 19 },
             { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }, { data: 25 }
         ],
-        dom: '<"row"<"col-md-4 text-start"l><"col-md-4 text-center"B><"col-md-4 text-end"f>>rtip',
+        dom: studentToolbarDom,
         buttons: [
             {
                 extend: 'excelHtml5',
@@ -427,6 +454,12 @@ jQuery(document).ready(function($){
             { targets: 23, visible: false }
         ],
         order: [],
+        initComplete: function () {
+            setupStudentToolbar(this.api(), {
+                columnToggleSelector: '.student_drop_table_data1',
+                toolbarHostSelector: '.student_table_panel1 .student-dt-toolbar-host'
+            });
+        },
         drawCallback: function () {
             var api = this.api();
             var sumColumn1 = function (index) {
