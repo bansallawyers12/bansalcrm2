@@ -59,4 +59,11 @@ interface SmsProviderInterface
      * ]
      */
     public function getHealthStatus(): array;
+
+    /**
+     * Get SMS delivery status from the provider.
+     *
+     * @return array<string, mixed>
+     */
+    public function getSmsStatus(string $messageId): array;
 }

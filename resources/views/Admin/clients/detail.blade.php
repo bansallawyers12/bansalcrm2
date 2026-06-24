@@ -2100,8 +2100,22 @@ use App\Http\Controllers\Controller;
 
 @include('Admin.clients.partials.schedule-followup-modal')
 
+@php
+	$smsClientId = (int) ($fetchedData->id ?? 0);
+	$smsContext = ['application_id' => request()->query('applicationId')];
+	$smsTemplateVarMap = $smsClientId > 0
+		? \App\Services\Sms\SmsTemplateVariableResolver::placeholderReplacements($smsClientId, $smsContext)
+		: [];
+@endphp
+
 <!-- Send SMS Modal -->
-<div id="sendSmsModal" data-backdrop="static" data-keyboard="false" data-page-client-id="{{ $fetchedData->id ?? '' }}" class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
+<div id="sendSmsModal" data-backdrop="static" data-keyboard="false"
+	data-page-client-id="{{ $fetchedData->id ?? '' }}"
+	data-page-client-name="{{ e($smsTemplateVarMap['{client_name}'] ?? 'there') }}"
+	data-page-client-first-name="{{ e($smsTemplateVarMap['{first_name}'] ?? 'there') }}"
+	data-page-client-last-name="{{ e($smsTemplateVarMap['{last_name}'] ?? '') }}"
+	data-page-student-name="{{ e($smsTemplateVarMap['{Student_Name}'] ?? 'Client') }}"
+	class="modal fade custom_modal" tabindex="-1" role="dialog" aria-labelledby="sendSmsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -3061,6 +3075,9 @@ $(document).ready(function() {
 
 {{-- Send SMS modal: open button, load phones/templates, submit --}}
 <script>
+window.sendSmsTemplateReplacements = @json($smsTemplateVarMap);
+</script>
+<script>
 $(document).ready(function(){
 	var sendSmsSendUrl = '{{ route("adminconsole.features.sms.send") }}';
 	var sendSmsTemplatesActiveUrl = '{{ route("adminconsole.features.sms.templates.active") }}';
@@ -3126,6 +3143,49 @@ $(document).ready(function(){
 		el.style.overflow = '';
 	}
 
+	function getSendSmsTemplateReplacements() {
+		var replacements = window.sendSmsTemplateReplacements;
+		if (typeof replacements === 'string') {
+			try {
+				replacements = JSON.parse(replacements);
+			} catch (e) {
+				replacements = null;
+			}
+		}
+		if (!replacements || typeof replacements !== 'object') {
+			replacements = {};
+		}
+
+		var $modal = $('#sendSmsModal');
+		if (!replacements['{client_name}']) {
+			replacements['{client_name}'] = $modal.attr('data-page-client-name') || 'there';
+		}
+		if (!replacements['{first_name}']) {
+			replacements['{first_name}'] = $modal.attr('data-page-client-first-name') || 'there';
+		}
+		if (!replacements['{last_name}']) {
+			replacements['{last_name}'] = $modal.attr('data-page-client-last-name') || '';
+		}
+		if (!replacements['{Student_Name}']) {
+			replacements['{Student_Name}'] = $modal.attr('data-page-student-name') || 'Client';
+		}
+		if (!replacements['{student_name}']) {
+			replacements['{student_name}'] = replacements['{Student_Name}'];
+		}
+
+		return replacements;
+	}
+
+	function applySendSmsTemplateVariables(message) {
+		if (!message) return message;
+		var replacements = getSendSmsTemplateReplacements();
+		Object.keys(replacements).sort(function(a, b) { return b.length - a.length; }).forEach(function(key) {
+			if (!key) return;
+			message = message.split(key).join(replacements[key] || '');
+		});
+		return message;
+	}
+
 	// Open Send SMS modal from URL: ?open_sms_reminder=1&applicationId=xxx
 	var urlParams = new URLSearchParams(window.location.search);
 	var openSmsReminder = urlParams.get('open_sms_reminder');
@@ -3147,7 +3207,7 @@ $(document).ready(function(){
 	}
 
 	$('.send-sms-btn').on('click', function(){
-		var clientId = $(this).data('client-id');
+		var clientId = $(this).attr('data-client-id') || '';
 		$('#sendSms_client_id').val(clientId);
 		$('#sendSms_application_id').val('');
 		$('#sendSms_phone').empty().append('<option value="">Select phone...</option>');
@@ -3171,8 +3231,9 @@ $(document).ready(function(){
 		if (!id) return;
 		$.get('{{ url("adminconsole/features/sms/templates") }}/' + id, function(r){
 			if (r.success && r.data && r.data.message) {
-				$('#sendSms_message').val(r.data.message);
-				$('#sendSms_charCount').text(r.data.message.length);
+				var message = applySendSmsTemplateVariables(r.data.message);
+				$('#sendSms_message').val(message);
+				$('#sendSms_charCount').text(message.length);
 				setTimeout(function(){ autoResizeSendSmsMessage(); }, 10);
 			}
 		});
@@ -3180,10 +3241,10 @@ $(document).ready(function(){
 
 	$('#sendSmsForm').on('submit', function(e){
 		e.preventDefault();
-		var clientId = $('#sendSms_client_id').val() || $('#sendSmsModal').data('page-client-id') || '';
+		var clientId = $('#sendSms_client_id').val() || $('#sendSmsModal').attr('data-page-client-id') || '';
 		var applicationId = $('#sendSms_application_id').val() || '';
 		var phone = $('#sendSms_phone').val();
-		var message = $('#sendSms_message').val();
+		var message = applySendSmsTemplateVariables($('#sendSms_message').val());
 		if (!phone || !message) { alert('Please select a phone and enter a message.'); return; }
 		$('#sendSms_submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
 		$.ajax({

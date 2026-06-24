@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class SmsSendController extends Controller
 {
-    protected $smsManager;
+    protected UnifiedSmsManager $smsManager;
 
     public function __construct(UnifiedSmsManager $smsManager)
     {
@@ -32,7 +32,7 @@ class SmsSendController extends Controller
 
     /**
      * Send manual SMS (API endpoint - used in client detail and send form)
-     * Replaces {Student_Name} and {Date} placeholders when client_id/application_id provided
+     * Replaces client/date placeholders when client_id/application_id provided
      */
     public function send(Request $request)
     {
@@ -54,7 +54,7 @@ class SmsSendController extends Controller
 
         $message = $request->message;
 
-        // Placeholder replacement ({Student_Name}, {Date}) is done in UnifiedSmsManager::sendSms()
+        // Placeholder replacement is done in UnifiedSmsManager::sendSms()
 
         $result = $this->smsManager->sendSms(
             $request->phone,

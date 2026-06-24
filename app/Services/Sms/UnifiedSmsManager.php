@@ -2,16 +2,13 @@
 
 namespace App\Services\Sms;
 
-use App\Models\Admin;
-use App\Models\Application;
 use App\Models\ActivitiesLog;
+use App\Models\ClientPhone;
 use App\Models\SmsLog;
 use App\Helpers\PhoneValidationHelper;
 use App\Services\Sms\Contracts\SmsProviderInterface;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
  * UnifiedSmsManager
@@ -40,14 +37,18 @@ class UnifiedSmsManager
      * @param string $to Phone number (9-10 digits for AU numbers)
      * @param string $message SMS message content
      * @param string $type Message type: verification|notification|manual|reminder
-     * @param array $context Additional context (client_id, contact_id, template_id)
-     * @return array Result with success status and data
+     * @param array<string, mixed> $context Additional context (client_id, contact_id, template_id)
+     * @return array<string, mixed> Result with success status and data
      */
-    public function sendSms($to, $message, $type = 'manual', $context = [])
+    public function sendSms(string $to, string $message, string $type = 'manual', array $context = []): array
     {
         try {
-            // Replace {Student_Name} and {Date} placeholders when client_id is in context
-            $message = $this->replaceSmsPlaceholders($message, $context);
+            // Replace client/template placeholders when client_id is in context
+            $message = SmsTemplateVariableResolver::apply(
+                $message,
+                (int) ($context['client_id'] ?? 0),
+                $context
+            );
 
             // Validate phone number
             $validation = PhoneValidationHelper::validatePhoneNumber($to);
@@ -103,21 +104,8 @@ class UnifiedSmsManager
                 }
             }
 
-            // Extract country code from phone number or contact
-            $countryCode = '+61'; // Default to Australia
-            // Try to get from contact if available (bansalcrm2 has no ClientContact - guard this)
-            if (class_exists(\App\Models\ClientContact::class) && !empty($context['contact_id'])) {
-                $contact = \App\Models\ClientContact::find($context['contact_id']);
-                if ($contact && $contact->country_code) {
-                    $countryCode = $contact->country_code;
-                }
-            }
-            // Fallback: extract from phone number string
-            if ($countryCode === '+61' && preg_match('/^(\+\d{1,3})/', $to, $matches)) {
-                $countryCode = $matches[1];
-            } elseif ($countryCode === '+61' && preg_match('/^(\+\d{1,3})/', $formatted, $matches)) {
-                $countryCode = $matches[1];
-            }
+            // Extract country code from phone number or contact record
+            $countryCode = $this->resolveCountryCode($context, $to, $formatted);
 
             // Log SMS activity to database
             $smsLog = $this->logSmsActivity([
@@ -139,7 +127,7 @@ class UnifiedSmsManager
             ]);
 
             // Add SMS log ID to result (if logging succeeded)
-            if (isset($smsLog->id)) {
+            if ($smsLog !== null && $smsLog->id) {
                 $result['sms_log_id'] = $smsLog->id;
             }
 
@@ -159,48 +147,59 @@ class UnifiedSmsManager
     }
 
     /**
-     * Replace {Student_Name} and {Date} placeholders in SMS message
+     * @deprecated Use SmsTemplateVariableResolver::apply() directly.
+     *
+     * @param array<string, mixed> $context
      */
-    protected function replaceSmsPlaceholders($message, $context)
+    protected function replaceSmsPlaceholders(string $message, array $context): string
     {
-        $clientId = $context['client_id'] ?? null;
-        if (!$clientId || !is_numeric($clientId)) {
-            return $message;
-        }
+        $clientId = (int) ($context['client_id'] ?? 0);
 
-        $hasPlaceholders = str_contains($message, '{Student_Name}') || str_contains($message, '{student_name}')
-            || str_contains($message, '{Date}') || str_contains($message, '{date}');
-        if (!$hasPlaceholders) {
-            return $message;
-        }
+        return SmsTemplateVariableResolver::apply($message, $clientId, $context);
+    }
 
-        $client = Admin::find((int) $clientId);
-        $studentName = $client
-            ? (trim(($client->first_name ?? '') . ' ' . ($client->last_name ?? '')) ?: 'Client')
-            : 'Client';
+    /**
+     * @deprecated Use SmsTemplateVariableResolver::placeholderReplacements().
+     *
+     * @param array<string, mixed> $context
+     * @return array<string, string>
+     */
+    protected function buildClientPlaceholderReplacements(int $clientId, array $context): array
+    {
+        return SmsTemplateVariableResolver::placeholderReplacements($clientId, $context);
+    }
 
-        $checklistDate = Carbon::now()->format('d/m/Y');
-        $applicationId = $context['application_id'] ?? null;
-        if ($applicationId && is_numeric($applicationId)) {
-            $app = Application::find((int) $applicationId);
-            if ($app && $app->checklist_sent_at) {
-                $checklistDate = Carbon::parse($app->checklist_sent_at)->format('d/m/Y');
+    /**
+     * Resolve country code from client phone record or the recipient number.
+     *
+     * @param array<string, mixed> $context
+     */
+    protected function resolveCountryCode(array $context, string $to, string $formatted): string
+    {
+        $countryCode = '+61';
+
+        if (! empty($context['contact_id'])) {
+            $contact = ClientPhone::find($context['contact_id']);
+            if ($contact && ! empty($contact->client_country_code)) {
+                $countryCode = $contact->client_country_code;
             }
         }
 
-        $replacements = [
-            '{Student_Name}' => $studentName,
-            '{student_name}' => $studentName,
-            '{Date}' => $checklistDate,
-            '{date}' => $checklistDate,
-        ];
-        return str_replace(array_keys($replacements), array_values($replacements), $message);
+        if ($countryCode === '+61' && preg_match('/^(\+\d{1,3})/', $to, $matches)) {
+            $countryCode = $matches[1];
+        } elseif ($countryCode === '+61' && preg_match('/^(\+\d{1,3})/', $formatted, $matches)) {
+            $countryCode = $matches[1];
+        }
+
+        return $countryCode;
     }
 
     /**
      * Send SMS via specific provider
+     *
+     * @return array<string, mixed>
      */
-    protected function sendViaProvider($provider, $phone, $message)
+    protected function sendViaProvider(string $provider, string $phone, string $message): array
     {
         if ($provider === 'cellcast') {
             return $this->cellcastService->sendSms($phone, $message);
@@ -210,9 +209,10 @@ class UnifiedSmsManager
     }
 
     /**
-     * Send verification code SMS
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
      */
-    public function sendVerificationCode($to, $code, $context = [])
+    public function sendVerificationCode(string $to, string $code, array $context = []): array
     {
         $message = "BANSAL IMMIGRATION: Your verification code is {$code}. This code expires in 5 minutes.";
 
@@ -221,8 +221,12 @@ class UnifiedSmsManager
 
     /**
      * Send SMS from template
+     *
+     * @param array<string, string> $variables
+     * @param array<string, mixed> $context
+     * @return array<string, mixed>
      */
-    public function sendFromTemplate($to, $templateId, $variables = [], $context = [])
+    public function sendFromTemplate(string $to, int $templateId, array $variables = [], array $context = []): array
     {
         try {
             $template = \App\Models\SmsTemplate::find($templateId);
@@ -259,9 +263,9 @@ class UnifiedSmsManager
     }
 
     /**
-     * Replace template variables
+     * @param array<string, string> $variables
      */
-    protected function replaceTemplateVariables($message, $variables)
+    protected function replaceTemplateVariables(string $message, array $variables): string
     {
         foreach ($variables as $key => $value) {
             $message = str_replace('{' . $key . '}', $value, $message);
@@ -271,9 +275,9 @@ class UnifiedSmsManager
     }
 
     /**
-     * Log SMS activity to database and create activity log entry
+     * @param array<string, mixed> $data
      */
-    protected function logSmsActivity($data)
+    protected function logSmsActivity(array $data): ?SmsLog
     {
         try {
             // Create SMS log entry
@@ -302,15 +306,12 @@ class UnifiedSmsManager
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // Return a dummy log entry to prevent breaking the flow
-            return (object)['id' => null];
+            // Return null to prevent breaking the flow
+            return null;
         }
     }
 
-    /**
-     * Get activity subject based on message type
-     */
-    protected function getActivitySubject($type, $status)
+    protected function getActivitySubject(string $type, string $status): string
     {
         $statusText = $status === 'sent' ? 'sent' : 'failed to send';
 
@@ -328,9 +329,9 @@ class UnifiedSmsManager
     }
 
     /**
-     * Format activity description with SMS details (complete message)
+     * @param array<string, mixed> $data
      */
-    protected function formatActivityDescription($data)
+    protected function formatActivityDescription(array $data): string
     {
         $messageContent = trim($data['message_content']);
         $statusBadge = $data['status'] === 'sent'
@@ -357,9 +358,9 @@ class UnifiedSmsManager
     }
 
     /**
-     * Get SMS delivery status from provider
+     * @return array<string, mixed>
      */
-    public function getDeliveryStatus($smsLogId)
+    public function getDeliveryStatus(int|string $smsLogId): array
     {
         try {
             $smsLog = SmsLog::find($smsLogId);
@@ -409,9 +410,9 @@ class UnifiedSmsManager
     }
 
     /**
-     * Get SMS statistics
+     * @return array<string, mixed>
      */
-    public function getStatistics($startDate = null, $endDate = null)
+    public function getStatistics(?string $startDate = null, ?string $endDate = null): array
     {
         $query = SmsLog::query();
 

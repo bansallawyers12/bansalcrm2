@@ -9,10 +9,10 @@ use Exception;
 
 class CellcastProvider implements SmsProviderInterface
 {
-    protected $apiKey;
-    protected $baseUrl;
-    protected $maxRetries = 3;
-    protected $retryDelay = 2; // seconds
+    protected ?string $apiKey;
+    protected string $baseUrl;
+    protected int $maxRetries = 3;
+    protected int $retryDelay = 2; // seconds
 
     public function __construct()
     {
@@ -93,8 +93,10 @@ class CellcastProvider implements SmsProviderInterface
 
     /**
      * Send verification code SMS
+     *
+     * @return array<string, mixed>
      */
-    public function sendVerificationCodeSMS($to, $message)
+    public function sendVerificationCodeSMS(string $to, string $message): array
     {
         return $this->sendSms($to, $message);
     }
@@ -102,8 +104,10 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Make API call to Cellcast v3 with retry mechanism
      * Success check: meta.code === 200 (v3 API)
+     *
+     * @return array<string, mixed>
      */
-    protected function makeApiCall($to, $message)
+    protected function makeApiCall(string $to, string $message): array
     {
         $attempt = 0;
         $lastError = null;
@@ -187,7 +191,7 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Validate phone number format
      */
-    protected function isValidPhoneNumber($phone)
+    protected function isValidPhoneNumber(string $phone): bool
     {
         // Remove any non-digit characters except +
         $cleaned = preg_replace('/[^\d+]/', '', $phone);
@@ -199,7 +203,7 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Check if phone number is a placeholder
      */
-    protected function isPlaceholderNumber($phone)
+    protected function isPlaceholderNumber(string $phone): bool
     {
         // Remove any non-digit characters
         $cleaned = preg_replace('/[^\d]/', '', $phone);
@@ -211,7 +215,7 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Format phone number for Australian numbers
      */
-    protected function formatPhoneNumber($phone)
+    protected function formatPhoneNumber(string $phone): string
     {
         // Remove any non-digit characters except +
         $cleaned = preg_replace('/[^\d+]/', '', $phone);
@@ -239,7 +243,7 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Check if phone number is Australian
      */
-    public function isAustralianNumber($phone)
+    public function isAustralianNumber(string $phone): bool
     {
         $formatted = $this->formatPhoneNumber($phone);
         return strpos($formatted, '+61') === 0;
@@ -248,7 +252,7 @@ class CellcastProvider implements SmsProviderInterface
     /**
      * Get SMS status (if supported by Cellcast API)
      */
-    public function getSmsStatus($messageId)
+    public function getSmsStatus(string $messageId): array
     {
         try {
             $response = Http::timeout(config('services.cellcast.timeout', 30))

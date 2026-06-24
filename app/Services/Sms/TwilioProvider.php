@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 
 class TwilioProvider implements SmsProviderInterface
 {
-    protected $twilioClient;
-    protected $fromNumber;
+    protected ?TwilioClient $twilioClient;
+    protected ?string $fromNumber;
 
     public function __construct()
     {
@@ -83,7 +83,7 @@ class TwilioProvider implements SmsProviderInterface
     /**
      * Get SMS status from Twilio
      */
-    public function getSmsStatus($messageSid)
+    public function getSmsStatus(string $messageSid): array
     {
         try {
             $message = $this->twilioClient->messages($messageSid)->fetch();
@@ -111,8 +111,10 @@ class TwilioProvider implements SmsProviderInterface
 
     /**
      * Get incoming SMS responses from Twilio
+     *
+     * @return array<int, array<string, mixed>>
      */
-    public function getResponses($pageSize = 50)
+    public function getResponses(int $pageSize = 50): array
     {
         try {
             $messages = $this->twilioClient->messages->read([
@@ -146,8 +148,10 @@ class TwilioProvider implements SmsProviderInterface
     /**
      * Send verification code SMS
      * Note: Use UnifiedSmsManager for automatic provider selection
+     *
+     * @return array<string, mixed>
      */
-    public function sendVerificationCode($to, $code)
+    public function sendVerificationCode(string $to, string $code): array
     {
         $message = "Your verification code is: $code";
         return $this->sendSms($to, $message);
