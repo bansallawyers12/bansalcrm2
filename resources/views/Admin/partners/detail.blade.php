@@ -66,14 +66,19 @@
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
 .accordion .accordion-header.app_blue{background-color: rgba(3,169,244,.1);color: #03a9f4;}
-.buttons-excel {margin-top: 28px;}
 /* Export buttons styling */
 .dt-buttons {
     margin-bottom: 15px;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 .dt-buttons .btn {
-    margin-right: 5px;
-    margin-bottom: 5px;
+    margin: 0;
+    white-space: nowrap;
+    line-height: 1.5;
+    align-self: center;
 }
 .dt-buttons .btn i {
     margin-right: 5px;
@@ -1256,11 +1261,11 @@ use App\Http\Controllers\Controller;
                                                         </div>
                                                     </div>
                                                     <div class="table-responsive student_table_data">
-                                                        <div class="totals-container mb-3">
-                                                            <div>Total Commission Claimed: <strong>$<span id="total_commission_claimed">0.00</span></strong></div>
-                                                            <div>Total Commission Paid: <strong>$<span id="total_commission_paid">0.00</span></strong></div>
-                                                            <div>Total Commission Pending : <strong>$<span id="total_commission_pending">0.00</span></strong></div>
-                                                            <div>Total Commission Anticipated : <strong>$<span id="total_commission_anticipated">0.00</span></strong></div>
+                                                        <div class="totals-container mb-3 row g-1">
+                                                            <div class="col-md-6">Total Commission Claimed: <strong>$<span id="total_commission_claimed">0.00</span></strong></div>
+                                                            <div class="col-md-6">Total Commission Paid: <strong>$<span id="total_commission_paid">0.00</span></strong></div>
+                                                            <div class="col-md-6">Total Commission Pending: <strong>$<span id="total_commission_pending">0.00</span></strong></div>
+                                                            <div class="col-md-6">Total Commission Anticipated: <strong>$<span id="total_commission_anticipated">0.00</span></strong></div>
                                                         </div>
                                                         <table class="table text_wrap table-3">
                                                             <thead>
