@@ -39,6 +39,43 @@ class Application extends Model
 
         return self::enrolmentTypeOptions()[$value] ?? $value;
     }
+
+    public static function normalizeEnrolmentType(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $options = self::enrolmentTypeOptions();
+        if (array_key_exists($value, $options)) {
+            return $value;
+        }
+
+        $normalized = strtolower(trim($value));
+        foreach ($options as $key => $label) {
+            if ($normalized === strtolower($key) || $normalized === strtolower($label)) {
+                return $key;
+            }
+        }
+
+        return $value;
+    }
+
+    public static function enrolmentTypeSelectHtml(int $applicationId, ?string $currentValue, string $cssClass = 'form-control form-control-sm enrolment-type-field'): string
+    {
+        $currentValue = self::normalizeEnrolmentType($currentValue);
+        $html = '<select class="'.e($cssClass).'" data-application-id="'.(int) $applicationId.'" data-enrolment-type="'.e($currentValue).'">';
+        $html .= '<option value=""'.($currentValue === '' ? ' selected="selected"' : '').'>Select</option>';
+
+        foreach (self::enrolmentTypeOptions() as $value => $label) {
+            $selected = $currentValue === $value ? ' selected="selected"' : '';
+            $html .= '<option value="'.e($value).'"'.$selected.'>'.e($label).'</option>';
+        }
+
+        $html .= '</select>';
+
+        return $html;
+    }
 	
 	public $sortable = ['id', 'created_at', 'updated_at'];
     

@@ -42,6 +42,70 @@
 jQuery(document).ready(function($){
     const partnerName = PageConfig.partnerName || 'Partner';
 
+    var enrolmentTypeLabels = {
+        transfer_option: 'Transfer',
+        course_progression: 'Course progression'
+    };
+
+    function parseEnrolmentTypeValue(data) {
+        if (data === null || data === undefined) {
+            return '';
+        }
+
+        if (typeof data === 'string' && data.indexOf('<select') !== -1) {
+            var attrMatch = data.match(/data-enrolment-type="([^"]*)"/);
+            if (attrMatch) {
+                return attrMatch[1] || '';
+            }
+
+            var selectedMatch = data.match(/<option value="(transfer_option|course_progression)" selected/);
+            if (selectedMatch) {
+                return selectedMatch[1];
+            }
+
+            return '';
+        }
+
+        return String(data);
+    }
+
+    function buildEnrolmentTypeSelect(applicationId, currentValue, cssClass) {
+        currentValue = parseEnrolmentTypeValue(currentValue);
+        var html = '<select class="' + cssClass + '" data-application-id="' + applicationId + '" data-enrolment-type="' + currentValue + '">';
+        html += '<option value=""' + (currentValue === '' ? ' selected="selected"' : '') + '>Select</option>';
+
+        Object.keys(enrolmentTypeLabels).forEach(function (value) {
+            html += '<option value="' + value + '"' + (currentValue === value ? ' selected="selected"' : '') + '>' + enrolmentTypeLabels[value] + '</option>';
+        });
+
+        html += '</select>';
+        return html;
+    }
+
+    function enrolmentTypeColumnRender(cssClass) {
+        return function (data, type, row) {
+            var applicationId = row[23];
+            var currentValue = parseEnrolmentTypeValue(data);
+
+            if (type === 'display') {
+                return buildEnrolmentTypeSelect(applicationId, currentValue, cssClass);
+            }
+
+            if (type === 'export' || type === 'filter' || type === 'sort') {
+                return enrolmentTypeLabels[currentValue] || 'Select';
+            }
+
+            return currentValue;
+        };
+    }
+
+    function syncEnrolmentTypeSelects(container) {
+        $(container).find('.enrolment-type-field, .enrolment-type-field1').each(function () {
+            var value = $(this).attr('data-enrolment-type') || '';
+            $(this).val(value);
+        });
+    }
+
     $(".table-2").dataTable({
         "searching": false,
         "lengthChange": false,
@@ -154,6 +218,10 @@ jQuery(document).ready(function($){
                     return meta.row + 1;
                 }
             },
+            {
+                targets: 22,
+                render: enrolmentTypeColumnRender('form-control form-control-sm enrolment-type-field')
+            },
             { targets: 23, visible: false }
         ],
         order: [],
@@ -173,6 +241,7 @@ jQuery(document).ready(function($){
             $("#total_commission_anticipated").text(sumAllRecords(18).toFixed(2));
             $("#total_commission_paid").text(sumAllRecords(19).toFixed(2));
             $("#total_commission_pending").text(sumAllRecords(20).toFixed(2));
+            syncEnrolmentTypeSelects(api.table().container());
         }
     });
 
@@ -203,13 +272,54 @@ jQuery(document).ready(function($){
         }
     });
 
+    function updateEnrolmentTypeCell(table, studentId, enrolmentType) {
+        var rowIndex = table.rows().eq(0).filter(function (rowIdx) {
+            return table.cell(rowIdx, 23).data() == studentId;
+        });
+
+        if (rowIndex.length > 0) {
+            table.cell(rowIndex[0], 22).data(enrolmentType || '').draw(false);
+            syncEnrolmentTypeSelects(table.table().container());
+        }
+    }
+
+    $(document).on('change', '.enrolment-type-field, .enrolment-type-field1', function () {
+        var applicationId = $(this).data('application-id');
+        var newValue = $(this).val();
+        var tableType = $(this).hasClass('enrolment-type-field1') ? 'inactive' : 'active';
+
+        $.ajax({
+            url: App.getUrl('partnersSaveStudentEnrolmentType'),
+            method: 'POST',
+            data: {
+                rowId: applicationId,
+                enrolment_type: newValue,
+                table: tableType,
+                _token: App.getCsrf()
+            },
+            success: function (response) {
+                if (response && response.status) {
+                    var table = tableType === 'inactive' ? table331 : table33;
+                    updateEnrolmentTypeCell(table, response.studentId, response.enrolmentType);
+                    $('.custom-error-msg').html('<span class="alert alert-success">' + response.message + '</span>');
+                } else {
+                    $('.custom-error-msg').html('<span class="alert alert-danger">' + (response ? response.message : 'Failed to update enrolment type') + '</span>');
+                }
+            },
+            error: function (error) {
+                console.error('Error saving enrolment type:', error);
+                $('.custom-error-msg').html('<span class="alert alert-danger">Failed to update enrolment type. Please try again.</span>');
+            }
+        });
+    });
+
     $(document).on('change', '.note-field', function () {
         var studentid = $(this).attr('data-studentid');
         var newValue = $(this).val();
         $.ajax({
             url: App.getUrl('partnersSaveStudentNote'),
             method: 'POST',
-            data: { rowId: studentid, note: newValue},
+            data: { rowId: studentid, note: newValue, _token: App.getCsrf()},
             success: function (response) {
                 if (response && response.status) {
                     const studentId = response.studentId;
@@ -310,6 +420,10 @@ jQuery(document).ready(function($){
                     return meta.row + 1;
                 }
             },
+            {
+                targets: 22,
+                render: enrolmentTypeColumnRender('form-control form-control-sm enrolment-type-field1')
+            },
             { targets: 23, visible: false }
         ],
         order: [],
@@ -329,6 +443,7 @@ jQuery(document).ready(function($){
             $("#total_commission_anticipated1").text(sumColumn1(18).toFixed(2));
             $("#total_commission_paid_as_per_fee_reported1").text(sumColumn1(19).toFixed(2));
             $("#total_commission_pending1").text(sumColumn1(20).toFixed(2));
+            syncEnrolmentTypeSelects(api.table().container());
         }
     });
 
@@ -338,7 +453,7 @@ jQuery(document).ready(function($){
         $.ajax({
             url: App.getUrl('partnersSaveStudentNote'),
             method: 'POST',
-            data: { rowId: studentid, note: newValue},
+            data: { rowId: studentid, note: newValue, _token: App.getCsrf()},
             success: function (response) {
                 if (response && response.status) {
                     const studentId = response.studentId;

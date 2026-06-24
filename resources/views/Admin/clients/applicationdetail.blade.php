@@ -95,7 +95,13 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 	</div>
 	<div class="grid_column">
 		<span>Enrolment Type:</span>
-		<p>{{ \App\Models\Application::enrolmentTypeLabel($fetchData->enrolment_type ?? null) ?: '—' }}</p>
+		<p class="mb-0">
+			{!! \App\Models\Application::enrolmentTypeSelectHtml(
+				(int) $fetchData->id,
+				$fetchData->enrolment_type ?? null,
+				'form-control form-control-sm application-enrolment-type-field'
+			) !!}
+		</p>
 	</div>
 	<div class="grid_column">
 		<span>Current Stage:</span>
@@ -769,5 +775,86 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 @if(isset($assignees))
 {{-- Assignee change handlers are in application-handlers.js (uses event delegation, works with AJAX-loaded content) --}}
 @endif
+</script>
+
+<script>
+(function($) {
+	function getCsrfToken() {
+		if (typeof App !== 'undefined' && App.getCsrf) {
+			return App.getCsrf();
+		}
+		var meta = document.querySelector('meta[name="csrf-token"]');
+		return meta ? meta.getAttribute('content') : '';
+	}
+
+	function getUpdateEnrolmentTypeUrl() {
+		if (typeof App !== 'undefined' && App.getUrl && App.getUrl('updateApplicationEnrolmentType')) {
+			return App.getUrl('updateApplicationEnrolmentType');
+		}
+		return '/application/update-enrolment-type';
+	}
+
+	function syncApplicationEnrolmentTypeSelects() {
+		$('.application-enrolment-type-field').each(function() {
+			$(this).val($(this).attr('data-enrolment-type') || '');
+		});
+	}
+
+	if (!window.__applicationEnrolmentTypeHandlerBound) {
+		window.__applicationEnrolmentTypeHandlerBound = true;
+
+		$(document).on('change', '.application-enrolment-type-field', function() {
+			var $select = $(this);
+			var applicationId = $select.data('application-id');
+			var previousValue = $select.attr('data-enrolment-type') || '';
+
+			$.ajax({
+				url: getUpdateEnrolmentTypeUrl(),
+				method: 'POST',
+				data: {
+					appid: applicationId,
+					enrolment_type: $select.val(),
+					_token: getCsrfToken()
+				},
+				success: function(response) {
+					if (response && response.status) {
+						$select.attr('data-enrolment-type', response.enrolmentType || '');
+						$select.val(response.enrolmentType || '');
+						if ($('.custom-error-msg').length) {
+							$('.custom-error-msg').html('<span class="alert alert-success">' + response.message + '</span>');
+						}
+						var clientId = (typeof App !== 'undefined' && App.getPageConfig) ? App.getPageConfig('clientId') : null;
+						if (clientId && $('.applicationtdata').length) {
+							var listUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('getApplicationLists'))
+								? App.getUrl('getApplicationLists')
+								: '/get-application-lists';
+							$.ajax({
+								url: listUrl,
+								type: 'GET',
+								data: { id: clientId },
+								success: function(html) {
+									$('.applicationtdata').html(html);
+								}
+							});
+						}
+					} else {
+						$select.val(previousValue);
+						if ($('.custom-error-msg').length) {
+							$('.custom-error-msg').html('<span class="alert alert-danger">' + (response ? response.message : 'Failed to update enrolment type') + '</span>');
+						}
+					}
+				},
+				error: function() {
+					$select.val(previousValue);
+					if ($('.custom-error-msg').length) {
+						$('.custom-error-msg').html('<span class="alert alert-danger">Failed to update enrolment type. Please try again.</span>');
+					}
+				}
+			});
+		});
+	}
+
+	syncApplicationEnrolmentTypeSelects();
+})(jQuery);
 </script>
 

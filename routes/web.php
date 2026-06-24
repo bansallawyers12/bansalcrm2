@@ -408,6 +408,7 @@ Route::post('/create-app-note', [ApplicationsController::class, 'addNote']);
 Route::get('/getapplicationnotes', [ApplicationsController::class, 'getapplicationnotes']);
 Route::post('/application-sendmail', [ApplicationsController::class, 'applicationsendmail']);
 Route::get('/application/updateintake', [ApplicationsController::class, 'updateintake']);
+Route::post('/application/update-enrolment-type', [ApplicationsController::class, 'updateEnrolmentType'])->name('application.updateEnrolmentType');
 Route::get('/application/updatedates', [ApplicationsController::class, 'updatedates']);
 Route::get('/application/updateexpectwin', [ApplicationsController::class, 'updateexpectwin']);
 Route::get('/application/getapplicationbycid', [ApplicationsController::class, 'getapplicationbycid']);
@@ -665,6 +666,7 @@ Route::post('/refund_application', [ApplicationsController::class, 'refund_appli
 
 // save student note
 Route::post('/partners/save-student-note', [PartnersController::class, 'saveStudentNote'])->name('partners.saveStudentNote');
+Route::post('/partners/save-student-enrolment-type', [PartnersController::class, 'saveStudentEnrolmentType'])->name('partners.saveStudentEnrolmentType');
 
 // Get partner notes
 Route::get('/get-partner-notes', [PartnersController::class, 'getPartnerNotes'])->name('partners.getPartnerNotes');

@@ -499,6 +499,49 @@ class ApplicationsController extends Controller
 		
 		echo json_encode($response);
 	}
+
+	public function updateEnrolmentType(Request $request)
+	{
+		$request->validate([
+			'appid' => 'required|integer',
+			'enrolment_type' => 'nullable|string',
+		]);
+
+		$enrolmentType = $request->input('enrolment_type');
+		if ($enrolmentType !== null && $enrolmentType !== '' && !array_key_exists($enrolmentType, Application::enrolmentTypeOptions())) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Invalid enrolment type selected.',
+				'enrolmentType' => '',
+			]);
+		}
+
+		$application = Application::find($request->appid);
+		if (!$application) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Application not found. Please try again.',
+				'enrolmentType' => '',
+			]);
+		}
+
+		$application->enrolment_type = ($enrolmentType === '' || $enrolmentType === null)
+			? null
+			: Application::normalizeEnrolmentType($enrolmentType);
+		$application->save();
+
+		if ($application->partner_id) {
+			PartnersController::forgetPartnerStudentTabCache((int) $application->partner_id);
+		}
+
+		$normalized = Application::normalizeEnrolmentType($application->enrolment_type);
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Enrolment type updated successfully.',
+			'enrolmentType' => $normalized,
+		]);
+	}
 	
 	public function updateexpectwin(Request $request){
 		$requestData = $request->all();

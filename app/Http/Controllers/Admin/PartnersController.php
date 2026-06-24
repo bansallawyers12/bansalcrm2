@@ -908,7 +908,7 @@ class PartnersController extends Controller
 					$data->commission_paid_as_per_fee_reported            ?? '0.00',                // 19
 					$data->commission_pending                             ?? '0.00',                // 20
 					$statusMap[$data->status] ?? '',                                                // 21 Status text
-					\App\Models\Application::enrolmentTypeLabel($data->enrolment_type ?? null) ?: '—', // 22 Enrolment Type
+					(string) \App\Models\Application::normalizeEnrolmentType($data->enrolment_type ?? null), // 22 Enrolment Type (raw; rendered as dropdown in JS)
 					(string) $data->id,                                                             // 23 Hidden ID
 					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 24 Note
 					$actionHtml,                                                                    // 25 Action
@@ -920,7 +920,7 @@ class PartnersController extends Controller
 		// Cache for 5 minutes per partner (keyed by partner ID).
 		// If Redis is unavailable we fall back to running the queries directly
 		// so the endpoint never errors out due to a cache driver issue.
-		$cacheKey = "partner_students_v2_{$id}";
+		$cacheKey = "partner_students_v4_{$id}";
 		$build = function () use ($baseQuery, $formatRows, $partnerName) {
 			return [
 				'status'   => true,
@@ -959,7 +959,7 @@ class PartnersController extends Controller
 			return;
 		}
 		try {
-			Cache::forget("partner_students_v2_{$partnerId}");
+			Cache::forget("partner_students_v4_{$partnerId}");
 		} catch (\Throwable $e) {
 			// Same resilience as getStudentTabData when cache is unavailable
 		}
@@ -2953,6 +2953,50 @@ class PartnersController extends Controller
   
   
   
+    public function saveStudentEnrolmentType(Request $request)
+    {
+        $request->validate([
+            'rowId' => 'required|integer',
+            'enrolment_type' => 'nullable|string',
+        ]);
+
+        $enrolmentType = $request->input('enrolment_type');
+        if ($enrolmentType !== null && $enrolmentType !== '' && !array_key_exists($enrolmentType, \App\Models\Application::enrolmentTypeOptions())) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid enrolment type selected.',
+                'studentId' => '',
+                'enrolmentTypeHtml' => '',
+            ]);
+        }
+
+        $application = \App\Models\Application::find($request->rowId);
+        if (!$application) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Application not found. Please try again.',
+                'studentId' => '',
+                'enrolmentTypeHtml' => '',
+            ]);
+        }
+
+        $application->enrolment_type = ($enrolmentType === '' || $enrolmentType === null)
+            ? null
+            : \App\Models\Application::normalizeEnrolmentType($enrolmentType);
+        $application->save();
+
+        if ($application->partner_id) {
+            $this->clearStudentTabCache((int) $application->partner_id);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Enrolment type updated successfully.',
+            'studentId' => (string) $application->id,
+            'enrolmentType' => (string) \App\Models\Application::normalizeEnrolmentType($application->enrolment_type),
+        ]);
+    }
+
    //save student note
     public function saveStudentNote(Request $request)
 	{

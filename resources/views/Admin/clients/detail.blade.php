@@ -2793,6 +2793,7 @@ use App\Http\Controllers\Controller;
         applicationChecklistUpload: '{{ url("/application/checklistupload") }}',
         getApplicationsLogs: '{{ url("/get-applications-logs") }}',
         getApplicationDetail: '{{ url("/getapplicationdetail") }}',
+        updateApplicationEnrolmentType: '{{ url("/application/update-enrolment-type") }}',
         getApplicationNotes: '{{ url("/getapplicationnotes") }}',
         updateApplicationDates: '{{ url("/application/updatedates") }}',
         showProductFee: '{{ url("/showproductfee") }}',
