@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Services\PythonEmailParserService;
 use App\Models\ActivitiesLog;
@@ -1069,7 +1070,11 @@ class PartnersController extends Controller
 			case 21:
 				return $query->orderBy('applications.status', $dir)->select('applications.id');
 			case 22:
-				return $query->orderBy('applications.enrolment_type', $dir)->select('applications.id');
+				if (Schema::hasColumn('applications', 'enrolment_type')) {
+					return $query->orderBy('applications.enrolment_type', $dir)->select('applications.id');
+				}
+
+				return $query->orderBy('applications.id', $dir)->select('applications.id');
 			default:
 				return $query->orderBy('applications.id', $dir)->select('applications.id');
 		}
@@ -1177,21 +1182,31 @@ class PartnersController extends Controller
 			return ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
 		}
 
-		$latestFees = $this->partnerStudentLatestFeesForIds($applicationIds);
-		$claimed = $anticipated = $paid = $pending = 0.0;
+		$latestFeeIds = DB::table('application_fee_options')
+			->select(DB::raw('MAX(id) as id'))
+			->whereIn('app_id', $applicationIds->all())
+			->groupBy('app_id')
+			->pluck('id');
 
-		foreach ($latestFees as $fee) {
-			$claimed += (float) ($fee->commission_as_per_fee_reported ?? 0);
-			$anticipated += (float) ($fee->commission_payable_as_per_anticipated_fee ?? 0);
-			$paid += (float) ($fee->commission_paid_as_per_fee_reported ?? 0);
-			$pending += (float) ($fee->commission_pending ?? 0);
+		if ($latestFeeIds->isEmpty()) {
+			return ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
 		}
 
+		$totals = DB::table('application_fee_options')
+			->whereIn('id', $latestFeeIds->all())
+			->selectRaw('
+				COALESCE(SUM(commission_as_per_fee_reported), 0) as claimed,
+				COALESCE(SUM(commission_payable_as_per_anticipated_fee), 0) as anticipated,
+				COALESCE(SUM(commission_paid_as_per_fee_reported), 0) as paid,
+				COALESCE(SUM(commission_pending), 0) as pending
+			')
+			->first();
+
 		return [
-			'claimed'     => round($claimed, 2),
-			'anticipated' => round($anticipated, 2),
-			'paid'        => round($paid, 2),
-			'pending'     => round($pending, 2),
+			'claimed'     => round((float) ($totals->claimed ?? 0), 2),
+			'anticipated' => round((float) ($totals->anticipated ?? 0), 2),
+			'paid'        => round((float) ($totals->paid ?? 0), 2),
+			'pending'     => round((float) ($totals->pending ?? 0), 2),
 		];
 	}
 
@@ -1200,82 +1215,116 @@ class PartnersController extends Controller
 	 */
 	public function getStudentTabData(Request $request, string $id)
 	{
-		$partnerId = $this->decodeString($id);
-		$partner = Partner::query()->select(['id', 'partner_name'])->find($partnerId);
+		$draw = (int) $request->input('draw', 1);
 
-		if (!$partner) {
-			return response()->json(['message' => 'Partner not found'], 404);
-		}
-
-		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
-		$isActive = $list !== 'inactive';
-
-		$draw   = (int) $request->input('draw', 1);
-		$start  = max(0, (int) $request->input('start', 0));
-		$length = (int) $request->input('length', 10);
-		$length = $length < 1 ? 10 : min($length, 500);
-
-		$searchValue  = trim((string) data_get($request->input('search'), 'value', ''));
-		$statusFilter = trim((string) $request->input('status_filter', ''));
-
-		$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
-		$recordsTotal = (clone $baseQuery)->count();
-
-		$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
-		$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
-		$recordsFiltered = (clone $filteredQuery)->count();
-
-		$orderColIndex = (int) data_get($request->input('order'), '0.column', 1);
-		$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-
-		$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
-		$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('id');
-
-		$data = [];
-		if ($pageIds->isNotEmpty()) {
-			$applications = DB::table('applications')
-				->join('admins', 'admins.id', '=', 'applications.client_id')
-				->leftJoin('products', 'products.id', '=', 'applications.product_id')
-				->whereIn('applications.id', $pageIds->all())
-				->select(
-					'applications.*',
-					'admins.client_id as client_reference',
-					'admins.first_name',
-					'admins.last_name',
-					'admins.dob',
-					'products.name as coursename'
-				)
-				->get()
-				->keyBy('id');
-
-			$latestFees = $this->partnerStudentLatestFeesForIds($pageIds);
-
-			foreach ($pageIds as $appId) {
-				$row = $applications->get($appId);
-				if (!$row) {
-					continue;
-				}
-				$fee = $latestFees[$appId] ?? null;
-				if ($fee) {
-					foreach ([
-						'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
-						'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
-						'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
-						'commission_paid_as_per_fee_reported', 'commission_pending',
-					] as $feeField) {
-						$row->{$feeField} = $fee->{$feeField} ?? '0.00';
-					}
-				}
-				$data[] = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
+		try {
+			$partnerId = $this->decodeString($id);
+			if (!$partnerId) {
+				return response()->json([
+					'draw'            => $draw,
+					'recordsTotal'    => 0,
+					'recordsFiltered' => 0,
+					'data'            => [],
+					'error'           => 'Invalid partner reference.',
+				], 400);
 			}
-		}
 
-		return response()->json([
-			'draw'            => $draw,
-			'recordsTotal'    => $recordsTotal,
-			'recordsFiltered' => $recordsFiltered,
-			'data'            => $data,
-		]);
+			$partner = Partner::query()->select(['id', 'partner_name'])->find($partnerId);
+
+			if (!$partner) {
+				return response()->json([
+					'draw'            => $draw,
+					'recordsTotal'    => 0,
+					'recordsFiltered' => 0,
+					'data'            => [],
+					'error'           => 'Partner not found.',
+				], 404);
+			}
+
+			$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+			$isActive = $list !== 'inactive';
+
+			$start  = max(0, (int) $request->input('start', 0));
+			$length = (int) $request->input('length', 10);
+			$length = $length < 1 ? 10 : min($length, 500);
+
+			$searchValue  = trim((string) data_get($request->input('search'), 'value', ''));
+			$statusFilter = trim((string) $request->input('status_filter', ''));
+
+			$baseQuery = $this->partnerStudentTabIdQuery((int) $partnerId, $list);
+			$recordsTotal = (clone $baseQuery)->count();
+
+			$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
+			$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
+			$recordsFiltered = (clone $filteredQuery)->count();
+
+			$orderColIndex = (int) data_get($request->input('order'), '0.column', 1);
+			$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+			$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
+			$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('applications.id');
+
+			$data = [];
+			if ($pageIds->isNotEmpty()) {
+				$applications = DB::table('applications')
+					->join('admins', 'admins.id', '=', 'applications.client_id')
+					->leftJoin('products', 'products.id', '=', 'applications.product_id')
+					->whereIn('applications.id', $pageIds->all())
+					->select(
+						'applications.*',
+						'admins.client_id as client_reference',
+						'admins.first_name',
+						'admins.last_name',
+						'admins.dob',
+						'products.name as coursename'
+					)
+					->get()
+					->keyBy('id');
+
+				$latestFees = $this->partnerStudentLatestFeesForIds($pageIds);
+
+				foreach ($pageIds as $appId) {
+					$row = $applications->get($appId);
+					if (!$row) {
+						continue;
+					}
+					$fee = $latestFees[$appId] ?? null;
+					if ($fee) {
+						foreach ([
+							'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
+							'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
+							'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
+							'commission_paid_as_per_fee_reported', 'commission_pending',
+						] as $feeField) {
+							$row->{$feeField} = $fee->{$feeField} ?? '0.00';
+						}
+					}
+					$data[] = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
+				}
+			}
+
+			return response()->json([
+				'draw'            => $draw,
+				'recordsTotal'    => $recordsTotal,
+				'recordsFiltered' => $recordsFiltered,
+				'data'            => $data,
+			]);
+		} catch (\Throwable $e) {
+			Log::error('partners.getStudentTabData failed', [
+				'partner_ref' => $id,
+				'message'     => $e->getMessage(),
+				'file'        => $e->getFile(),
+				'line'        => $e->getLine(),
+			]);
+
+			return response()->json([
+				'draw'            => $draw,
+				'recordsTotal'    => 0,
+				'recordsFiltered' => 0,
+				'data'            => [],
+				'error'           => 'Unable to load student data.',
+			], 500);
+		}
 	}
 
 	/**
@@ -1283,25 +1332,34 @@ class PartnersController extends Controller
 	 */
 	public function getStudentTabTotals(Request $request, string $id)
 	{
-		$partnerId = $this->decodeString($id);
+		try {
+			$partnerId = $this->decodeString($id);
 
-		if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
-			return response()->json(['message' => 'Partner not found'], 404);
+			if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
+				return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
+			}
+
+			$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+			$searchValue  = trim((string) $request->input('search', ''));
+			$statusFilter = trim((string) $request->input('status_filter', ''));
+
+			$totals = $this->computePartnerStudentTabTotals((int) $partnerId, $list, $searchValue, $statusFilter);
+
+			return response()->json([
+				'status'      => true,
+				'claimed'     => number_format($totals['claimed'], 2, '.', ''),
+				'anticipated' => number_format($totals['anticipated'], 2, '.', ''),
+				'paid'        => number_format($totals['paid'], 2, '.', ''),
+				'pending'     => number_format($totals['pending'], 2, '.', ''),
+			]);
+		} catch (\Throwable $e) {
+			Log::error('partners.getStudentTabTotals failed', [
+				'partner_ref' => $id,
+				'message'     => $e->getMessage(),
+			]);
+
+			return response()->json(['status' => false, 'message' => 'Unable to load totals.'], 500);
 		}
-
-		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
-		$searchValue  = trim((string) $request->input('search', ''));
-		$statusFilter = trim((string) $request->input('status_filter', ''));
-
-		$totals = $this->computePartnerStudentTabTotals($partnerId, $list, $searchValue, $statusFilter);
-
-		return response()->json([
-			'status'      => true,
-			'claimed'     => number_format($totals['claimed'], 2, '.', ''),
-			'anticipated' => number_format($totals['anticipated'], 2, '.', ''),
-			'paid'        => number_format($totals['paid'], 2, '.', ''),
-			'pending'     => number_format($totals['pending'], 2, '.', ''),
-		]);
 	}
 
 	/**

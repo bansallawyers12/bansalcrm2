@@ -219,6 +219,22 @@ jQuery(document).ready(function($){
         ? AppConfig.urls.partnersExportStudentTabData
         : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersExportStudentTabData') : null);
 
+    if (!studentDataUrl) {
+        console.error('[partner-detail] partnersGetStudentTabData URL is not configured.');
+        return;
+    }
+
+    var refreshTotalsTimer = null;
+    function scheduleStudentTotalsRefresh(api, list) {
+        if (!studentTotalsUrl) {
+            return;
+        }
+        clearTimeout(refreshTotalsTimer);
+        refreshTotalsTimer = setTimeout(function () {
+            refreshStudentTotals(api, list);
+        }, 400);
+    }
+
     var studentColumnDefs = [
         { data: 0 }, { data: 1 }, { data: 2 }, { data: 3 }, { data: 4 },
         { data: 5 }, { data: 6 }, { data: 7 }, { data: 8 }, { data: 9 },
@@ -309,6 +325,9 @@ jQuery(document).ready(function($){
                     if (options.statusFilterId) {
                         d.status_filter = $('#' + options.statusFilterId).val() || '';
                     }
+                },
+                error: function (xhr, textStatus) {
+                    console.error('[partner-detail] Student tab data request failed:', xhr.status, textStatus, xhr.responseText);
                 }
             },
             columns: studentColumnDefs,
@@ -344,14 +363,16 @@ jQuery(document).ready(function($){
                     $('#' + options.statusFilterId).off('change.partnerStudent').on('change.partnerStudent', function () {
                         var api = options.apiGetter();
                         api.ajax.reload();
-                        refreshStudentTotals(api, options.list);
+                        scheduleStudentTotalsRefresh(api, options.list);
                     });
                 }
                 refreshStudentTotals(this.api(), options.list);
+                this.api().on('search.dt', function () {
+                    scheduleStudentTotalsRefresh(options.apiGetter(), options.list);
+                });
             },
             drawCallback: function () {
                 syncEnrolmentTypeSelects(this.api().table().container());
-                refreshStudentTotals(this.api(), options.list);
             }
         });
     }
