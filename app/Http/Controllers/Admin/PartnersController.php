@@ -1337,18 +1337,68 @@ class PartnersController extends Controller
 	}
 
 	/**
-	 * AJAX endpoint for the Student tab DataTables (server-side pagination).
+	 * Bulk-fetch student rows for client-side DataTables (one JSON payload: active + inactive).
+	 *
+	 * @return array<int, object>
+	 */
+	private function partnerStudentTabBulkQuery(int $partnerId, ?int $overallStatus): array
+	{
+		$bindings = [$partnerId];
+		$overallFilter = '';
+		if ($overallStatus !== null) {
+			$overallFilter = 'AND applications.overall_status = ?';
+			$bindings[] = $overallStatus;
+		}
+
+		$stages = implode("', '", self::PARTNER_STUDENT_STAGES);
+
+		return DB::select("
+			SELECT DISTINCT ON (applications.id)
+				applications.id,
+				applications.client_id,
+				applications.status,
+				applications.overall_status,
+				applications.student_id,
+				applications.start_date,
+				applications.end_date,
+				applications.enrolment_type,
+				applications.student_add_notes,
+				admins.client_id          AS client_reference,
+				admins.first_name,
+				admins.last_name,
+				admins.dob,
+				products.name             AS coursename,
+				afo.total_course_fee_amount,
+				afo.enrolment_fee_amount,
+				afo.material_fees,
+				afo.tution_fees,
+				afo.fee_reported_by_college,
+				afo.bonus_amount,
+				afo.bonus_pending_amount,
+				afo.scholarship_fee_amount,
+				afo.commission_as_per_fee_reported,
+				afo.commission_payable_as_per_anticipated_fee,
+				afo.commission_paid_as_per_fee_reported,
+				afo.commission_pending
+			FROM applications
+			INNER JOIN admins       ON admins.id       = applications.client_id
+			LEFT  JOIN products     ON products.id     = applications.product_id
+			LEFT  JOIN application_fee_options afo ON afo.app_id = applications.id
+			WHERE applications.partner_id = ?
+			  AND applications.stage IN ('{$stages}')
+			  {$overallFilter}
+			ORDER BY applications.id ASC, afo.id DESC
+		", $bindings);
+	}
+
+	/**
+	 * AJAX endpoint for the Student tab — bulk load for client-side DataTables.
 	 */
 	public function getStudentTabData(Request $request, ?string $id = null)
 	{
-		$draw = (int) $request->input('draw', 1);
-
-		$this->logPartnerStudentTab('info', 'getStudentTabData request started', [
+		$this->logPartnerStudentTab('info', 'getStudentTabData bulk request started', [
 			'route_id'   => $id,
 			'partner_id' => $request->input('partner_id'),
-			'list'       => $request->input('list', 'active'),
-			'start'      => $request->input('start', 0),
-			'length'     => $request->input('length', 10),
 		]);
 
 		try {
@@ -1359,134 +1409,54 @@ class PartnersController extends Controller
 					'partner_id' => $request->input('partner_id'),
 				]);
 
-				return response()->json([
-					'draw'            => $draw,
-					'recordsTotal'    => 0,
-					'recordsFiltered' => 0,
-					'data'            => [],
-					'error'           => 'Invalid partner reference.',
-				], 400);
+				return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
 			}
 
 			$partner = Partner::query()->select(['id', 'partner_name'])->find($partnerId);
-
 			if (!$partner) {
-				$this->logPartnerStudentTab('warning', 'Partner not found', ['route_id' => $id, 'partner_id' => $partnerId]);
-
-				return response()->json([
-					'draw'            => $draw,
-					'recordsTotal'    => 0,
-					'recordsFiltered' => 0,
-					'data'            => [],
-					'error'           => 'Partner not found.',
-				], 404);
+				return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
 			}
 
-			$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
-			$isActive = $list !== 'inactive';
-
-			$start  = max(0, (int) $request->input('start', 0));
-			$length = (int) $request->input('length', 10);
-			$length = $length < 1 ? 10 : min($length, 500);
-
-			$searchValue  = trim((string) data_get($request->input('search'), 'value', ''));
-			$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
-
-			$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
-			$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
-			$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
-
-			$orderColIndex = (int) data_get($request->input('order'), '0.column', -1);
-			$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
-
-			$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
-			$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('applications.id');
-
-			$data = [];
-			if ($pageIds->isNotEmpty()) {
-				$applications = DB::table('applications')
-					->join('admins', 'admins.id', '=', 'applications.client_id')
-					->leftJoin('products', 'products.id', '=', 'applications.product_id')
-					->whereIn('applications.id', $pageIds->all())
-					->select(
-						'applications.*',
-						'admins.client_id as client_reference',
-						'admins.first_name',
-						'admins.last_name',
-						'admins.dob',
-						'products.name as coursename'
-					)
-					->get()
-					->keyBy('id');
-
-				$latestFees = $this->partnerStudentLatestFeesForIds($pageIds);
-
-				foreach ($pageIds as $appId) {
-					try {
-						$row = $applications->get($appId);
-						if (!$row) {
-							continue;
+			$cacheKey = "partner_students_v4_{$partnerId}";
+			$build = function () use ($partnerId, $partner) {
+				$formatList = function (?int $overallStatus, bool $isActive) use ($partnerId, $partner) {
+					$rows = $this->partnerStudentTabBulkQuery($partnerId, $overallStatus);
+					$formatted = [];
+					foreach ($rows as $row) {
+						try {
+							$formatted[] = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
+						} catch (\Throwable $rowException) {
+							$this->logPartnerStudentTab('error', 'Student row formatting failed', [
+								'partner_id'     => $partnerId,
+								'application_id' => $row->id ?? null,
+								'message'        => $rowException->getMessage(),
+							]);
 						}
-						$fee = $latestFees[$appId] ?? null;
-						if ($fee) {
-							foreach ([
-								'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
-								'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
-								'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
-								'commission_paid_as_per_fee_reported', 'commission_pending',
-							] as $feeField) {
-								$row->{$feeField} = $fee->{$feeField} ?? '0.00';
-							}
-						}
-						$data[] = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
-					} catch (\Throwable $rowException) {
-						$this->logPartnerStudentTab('error', 'Student row formatting failed', [
-							'partner_id'     => $partnerId,
-							'application_id' => $appId,
-							'message'        => $rowException->getMessage(),
-						]);
 					}
-				}
+
+					return $formatted;
+				};
+
+				return [
+					'status'   => true,
+					'active'   => $formatList(null, true),
+					'inactive' => $formatList(1, false),
+				];
+			};
+
+			try {
+				$result = Cache::remember($cacheKey, self::PARTNER_STUDENT_TAB_CACHE_SECONDS, $build);
+			} catch (\Throwable $e) {
+				$result = $build();
 			}
 
-			$recordsTotal = 0;
-			$recordsFiltered = 0;
-			$deferCounts = $request->boolean('defer_counts')
-				&& $start === 0
-				&& $searchValue === ''
-				&& $statusFilter === '';
-
-			if ($deferCounts) {
-				[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
-			} else {
-				try {
-					$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
-					$recordsFiltered = ($searchValue === '' && $statusFilter === '')
-						? $recordsTotal
-						: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
-				} catch (\Throwable $countException) {
-					[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
-					$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
-						'partner_id' => $partnerId,
-						'message'    => $countException->getMessage(),
-						'estimated'  => $recordsTotal,
-					]);
-				}
-			}
-
-			$this->logPartnerStudentTab('info', 'getStudentTabData request completed', [
-				'partner_id'       => $partnerId,
-				'records_total'    => $recordsTotal,
-				'records_filtered' => $recordsFiltered,
-				'rows_returned'    => count($data),
+			$this->logPartnerStudentTab('info', 'getStudentTabData bulk request completed', [
+				'partner_id'      => $partnerId,
+				'active_count'    => count($result['active'] ?? []),
+				'inactive_count'  => count($result['inactive'] ?? []),
 			]);
 
-			return response()->json([
-				'draw'            => $draw,
-				'recordsTotal'    => $recordsTotal,
-				'recordsFiltered' => $recordsFiltered,
-				'data'            => $data,
-			]);
+			return response()->json($result);
 		} catch (\Throwable $e) {
 			$this->logPartnerStudentTab('error', 'getStudentTabData failed', [
 				'route_id'  => $id,
@@ -1496,13 +1466,7 @@ class PartnersController extends Controller
 				'exception' => $e::class,
 			]);
 
-			return response()->json([
-				'draw'            => $draw,
-				'recordsTotal'    => 0,
-				'recordsFiltered' => 0,
-				'data'            => [],
-				'error'           => 'Unable to load student data.',
-			], 500);
+			return response()->json(['status' => false, 'message' => 'Unable to load student data.'], 500);
 		}
 	}
 

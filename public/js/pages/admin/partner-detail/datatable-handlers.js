@@ -208,7 +208,7 @@ jQuery(document).ready(function($){
         });
     }
 
-    // Student tab DataTables — only init when that tab is active (full page navigation).
+    // Student tab — client-side DataTables with one bulk AJAX load (morning approach).
     if (activeTab !== 'student') {
         return;
     }
@@ -216,14 +216,6 @@ jQuery(document).ready(function($){
     var studentDataUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetStudentTabData)
         ? AppConfig.urls.partnersGetStudentTabData
         : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetStudentTabData') : null);
-
-    var studentTotalsUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetStudentTabTotals)
-        ? AppConfig.urls.partnersGetStudentTabTotals
-        : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetStudentTabTotals') : null);
-
-    var studentExportUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersExportStudentTabData)
-        ? AppConfig.urls.partnersExportStudentTabData
-        : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersExportStudentTabData') : null);
 
     if (!studentDataUrl) {
         console.error('[partner-detail] partnersGetStudentTabData URL is not configured.');
@@ -235,29 +227,31 @@ jQuery(document).ready(function($){
         return;
     }
 
-    var refreshTotalsTimer = null;
-    var initialTotalsDelayMs = 2500;
-    var countsReloadDelayMs = 4000;
-
-    function normaliseStudentStatusFilterValue(value) {
-        if (value === null || value === undefined) {
-            return '';
+    var studentAjaxConfig = {
+        url: studentDataUrl,
+        type: 'GET',
+        data: function () {
+            return { partner_id: partnerNumericId };
+        },
+        error: function (xhr, textStatus) {
+            var responsePreview = xhr && xhr.responseText ? xhr.responseText.substring(0, 500) : '';
+            console.error('[partner-detail] Student tab data request failed:', xhr.status, textStatus, responsePreview);
         }
-        var trimmed = String(value).trim();
-        return (trimmed === '' || trimmed === '-' || trimmed === 'null') ? '' : trimmed;
-    }
+    };
 
-    function scheduleStudentTotalsRefresh(api, list, delayMs) {
-        if (!studentTotalsUrl) {
-            return;
+    var studentExportFormat = {
+        body: function (data) {
+            if (typeof data === 'string') {
+                data = data.replace(/<[^>]*>/g, '');
+                var txt = document.createElement('textarea');
+                txt.innerHTML = data;
+                data = txt.value;
+            }
+            return data || '';
         }
-        clearTimeout(refreshTotalsTimer);
-        refreshTotalsTimer = setTimeout(function () {
-            refreshStudentTotals(api, list);
-        }, typeof delayMs === 'number' ? delayMs : 800);
-    }
+    };
 
-    var studentColumnDefs = [
+    var studentColumnList = [
         { data: 0 }, { data: 1 }, { data: 2 }, { data: 3 }, { data: 4 },
         { data: 5 }, { data: 6 }, { data: 7 }, { data: 8 }, { data: 9 },
         { data: 10 }, { data: 11 }, { data: 12 }, { data: 13 }, { data: 14 },
@@ -265,194 +259,151 @@ jQuery(document).ready(function($){
         { data: 20 }, { data: 21 }, { data: 22 }, { data: 23 }, { data: 24 }, { data: 25 }
     ];
 
-    function buildStudentExportUrl(list, api) {
-        var params = new URLSearchParams();
-        params.set('partner_id', partnerNumericId);
-        params.set('list', list);
-        params.set('format', 'csv');
-        if (api && typeof api.search === 'function') {
-            var searchVal = api.search();
-            if (searchVal) {
-                params.set('search', searchVal);
-            }
-        }
-        if (list === 'active') {
-            var statusVal = normaliseStudentStatusFilterValue($('#statusFilter').val());
-            if (statusVal) {
-                params.set('status_filter', statusVal);
-            }
-        }
-        return studentExportUrl + '?' + params.toString();
+    function sumStudentColumn(api, index, scope) {
+        return api
+            .column(index, scope)
+            .data()
+            .reduce(function (a, b) {
+                var val = typeof b === 'string' ? b.replace(/[^0-9.-]+/g, '') : String(b);
+                return parseFloat(a) + (parseFloat(val) || 0);
+            }, 0);
     }
 
-    function refreshStudentTotals(api, list) {
-        if (!studentTotalsUrl) {
-            return;
-        }
-        var payload = {
-            partner_id: partnerNumericId,
-            list: list,
-            search: api && typeof api.search === 'function' ? api.search() : ''
-        };
-        if (list === 'active') {
-            payload.status_filter = normaliseStudentStatusFilterValue($('#statusFilter').val());
-        }
-        $.get(studentTotalsUrl, payload, function (resp) {
-            if (!resp || !resp.status) {
-                return;
-            }
-            if (list === 'active') {
-                $('#total_commission_claimed').text(resp.claimed);
-                $('#total_commission_anticipated').text(resp.anticipated);
-                $('#total_commission_paid').text(resp.paid);
-                $('#total_commission_pending').text(resp.pending);
-            } else {
-                $('#total_commission_as_per_fee_reported1').text(resp.claimed);
-                $('#total_commission_anticipated1').text(resp.anticipated);
-                $('#total_commission_paid_as_per_fee_reported1').text(resp.paid);
-                $('#total_commission_pending1').text(resp.pending);
-            }
-        });
-    }
-
-    function buildStudentExportButtons(list, apiGetter) {
-        var suffix = list === 'inactive' ? '_Inactive_' : '_';
-        return [
+    var table33 = $('.table-3').DataTable({
+        processing: true,
+        ajax: $.extend({}, studentAjaxConfig, { dataSrc: 'active' }),
+        columns: studentColumnList,
+        dom: studentToolbarDom,
+        buttons: [
             {
+                extend: 'excelHtml5',
                 text: '<i class="fas fa-file-excel"></i> Excel',
                 className: 'btn btn-success btn-sm',
-                action: function () {
-                    var api = typeof apiGetter === 'function' ? apiGetter() : null;
-                    window.location.href = buildStudentExportUrl(list, api);
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+                    format: { body: studentExportFormat.body }
+                },
+                filename: function () {
+                    return 'Partner_Student_Data_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+                },
+                title: 'Partner Student Data - ' + partnerName,
+                messageTop: 'Partner: ' + partnerName + '\nExport Date: ' + new Date().toLocaleString()
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<i class="fas fa-file-csv"></i> CSV',
+                className: 'btn btn-info btn-sm',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+                    format: { body: studentExportFormat.body }
+                },
+                filename: function () {
+                    return 'Partner_Student_Data_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+                }
+            }
+        ],
+        searching: true,
+        lengthChange: true,
+        lengthMenu: [[10, 20, 50, 100, 200, 500, 1000], [10, 20, 50, 100, 200, 500, 1000]],
+        columnDefs: [
+            {
+                targets: 0,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
                 }
             },
             {
-                text: '<i class="fas fa-file-csv"></i> CSV',
-                className: 'btn btn-info btn-sm',
-                action: function () {
-                    var api = typeof apiGetter === 'function' ? apiGetter() : null;
-                    window.location.href = buildStudentExportUrl(list, api);
-                }
-            }
-        ];
-    }
-
-    function initPartnerStudentTable(options) {
-        var initialTotalsScheduled = false;
-        var deferStudentCounts = true;
-        var countsReloadScheduled = false;
-
-        return $(options.tableSelector).DataTable({
-            processing: true,
-            serverSide: true,
-            pageLength: 25,
-            ajax: {
-                url: studentDataUrl,
-                type: 'GET',
-                data: function (d) {
-                    d.partner_id = partnerNumericId;
-                    d.list = options.list;
-                    if (deferStudentCounts && (d.start === 0 || d.start === '0')) {
-                        d.defer_counts = 1;
-                    }
-                    if (options.statusFilterId) {
-                        d.status_filter = normaliseStudentStatusFilterValue(
-                            $('#' + options.statusFilterId).val()
-                        );
-                    }
-                },
-                error: function (xhr, textStatus) {
-                    var responsePreview = xhr && xhr.responseText ? xhr.responseText.substring(0, 500) : '';
-                    console.error('[partner-detail] Student tab data request failed:', xhr.status, textStatus, responsePreview);
-                }
+                targets: 22,
+                render: enrolmentTypeColumnRender('form-control form-control-sm enrolment-type-field')
             },
-            columns: studentColumnDefs,
-            dom: studentToolbarDom,
-            buttons: buildStudentExportButtons(options.list, options.apiGetter),
-            searching: true,
-            lengthChange: true,
-            lengthMenu: [[10, 25, 50, 100, 200, 500], [10, 25, 50, 100, 200, 500]],
-            columnDefs: [
-                {
-                    targets: 0,
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, row, meta) {
-                        return meta.row + 1 + meta.settings._iDisplayStart;
-                    }
-                },
-                {
-                    targets: 22,
-                    render: enrolmentTypeColumnRender(options.enrolmentClass)
-                },
-                { targets: 23, visible: false }
-            ],
-            order: [],
-            initComplete: function () {
-                setupStudentToolbar(this.api(), {
-                    columnToggleSelector: options.columnToggleSelector,
-                    toolbarHostSelector: options.toolbarHostSelector,
-                    statusFilterId: options.statusFilterId || null,
-                    serverSideStatusFilter: true
-                });
-                if (options.statusFilterId) {
-                    $('#' + options.statusFilterId).off('change.partnerStudent').on('change.partnerStudent', function () {
-                        var api = options.apiGetter();
-                        api.ajax.reload();
-                        scheduleStudentTotalsRefresh(api, options.list);
-                    });
-                }
-                this.api().on('search.dt', function () {
-                    scheduleStudentTotalsRefresh(options.apiGetter(), options.list);
-                });
-            },
-            drawCallback: function () {
-                syncEnrolmentTypeSelects(this.api().table().container());
-                if (!initialTotalsScheduled) {
-                    initialTotalsScheduled = true;
-                    scheduleStudentTotalsRefresh(options.apiGetter(), options.list, initialTotalsDelayMs);
-                }
-                if (deferStudentCounts && !countsReloadScheduled) {
-                    deferStudentCounts = false;
-                    countsReloadScheduled = true;
-                    setTimeout(function () {
-                        options.apiGetter().ajax.reload(null, false);
-                    }, countsReloadDelayMs);
-                }
-            }
-        });
-    }
-
-    var table33 = initPartnerStudentTable({
-        list: 'active',
-        tableSelector: '.table-3',
-        enrolmentClass: 'form-control form-control-sm enrolment-type-field',
-        columnToggleSelector: '.student_drop_table_data',
-        toolbarHostSelector: '.student_table_panel .student-dt-toolbar-host',
-        statusFilterId: 'statusFilter',
-        apiGetter: function () { return table33; }
+            { targets: 23, visible: false }
+        ],
+        order: [],
+        initComplete: function () {
+            setupStudentToolbar(this.api(), {
+                columnToggleSelector: '.student_drop_table_data',
+                toolbarHostSelector: '.student_table_panel .student-dt-toolbar-host',
+                statusFilterId: 'statusFilter'
+            });
+        },
+        drawCallback: function () {
+            var api = this.api();
+            $('#total_commission_claimed').text(sumStudentColumn(api, 17, { search: 'applied' }).toFixed(2));
+            $('#total_commission_anticipated').text(sumStudentColumn(api, 18, { search: 'applied' }).toFixed(2));
+            $('#total_commission_paid').text(sumStudentColumn(api, 19, { search: 'applied' }).toFixed(2));
+            $('#total_commission_pending').text(sumStudentColumn(api, 20, { search: 'applied' }).toFixed(2));
+            syncEnrolmentTypeSelects(api.table().container());
+        }
     });
 
-    var table331 = null;
-    var inactiveStudentTableInitialized = false;
-
-    function initInactiveStudentTable() {
-        if (inactiveStudentTableInitialized || !$('.table-31').length) {
-            return;
+    var table331 = $('.table-31').DataTable({
+        processing: true,
+        ajax: $.extend({}, studentAjaxConfig, { dataSrc: 'inactive' }),
+        columns: studentColumnList,
+        dom: studentToolbarDom,
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success btn-sm',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+                    format: { body: studentExportFormat.body }
+                },
+                filename: function () {
+                    return 'Partner_Student_Data_Inactive_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+                },
+                title: 'Partner Student Data (Inactive) - ' + partnerName,
+                messageTop: 'Partner: ' + partnerName + '\nExport Date: ' + new Date().toLocaleString()
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<i class="fas fa-file-csv"></i> CSV',
+                className: 'btn btn-info btn-sm',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+                    format: { body: studentExportFormat.body }
+                },
+                filename: function () {
+                    return 'Partner_Student_Data_Inactive_' + partnerName.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().split('T')[0];
+                }
+            }
+        ],
+        searching: true,
+        lengthChange: true,
+        lengthMenu: [[10, 20, 50, 100, 200, 500, 1000], [10, 20, 50, 100, 200, 500, 1000]],
+        columnDefs: [
+            {
+                targets: 0,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            {
+                targets: 22,
+                render: enrolmentTypeColumnRender('form-control form-control-sm enrolment-type-field1')
+            },
+            { targets: 23, visible: false }
+        ],
+        order: [],
+        initComplete: function () {
+            setupStudentToolbar(this.api(), {
+                columnToggleSelector: '.student_drop_table_data1',
+                toolbarHostSelector: '.student_table_panel1 .student-dt-toolbar-host'
+            });
+        },
+        drawCallback: function () {
+            var api = this.api();
+            $('#total_commission_as_per_fee_reported1').text(sumStudentColumn(api, 17, { page: 'current' }).toFixed(2));
+            $('#total_commission_anticipated1').text(sumStudentColumn(api, 18, { page: 'current' }).toFixed(2));
+            $('#total_commission_paid_as_per_fee_reported1').text(sumStudentColumn(api, 19, { page: 'current' }).toFixed(2));
+            $('#total_commission_pending1').text(sumStudentColumn(api, 20, { page: 'current' }).toFixed(2));
+            syncEnrolmentTypeSelects(api.table().container());
         }
-        inactiveStudentTableInitialized = true;
-        table331 = initPartnerStudentTable({
-            list: 'inactive',
-            tableSelector: '.table-31',
-            enrolmentClass: 'form-control form-control-sm enrolment-type-field1',
-            columnToggleSelector: '.student_drop_table_data1',
-            toolbarHostSelector: '.student_table_panel1 .student-dt-toolbar-host',
-            apiGetter: function () { return table331; }
-        });
-    }
-
-    $('a#stdinactive-tab').on('shown.bs.tab', function () {
-        initInactiveStudentTable();
     });
 
     function updateEnrolmentTypeCell(table, studentId, enrolmentType) {
@@ -483,9 +434,7 @@ jQuery(document).ready(function($){
             success: function (response) {
                 if (response && response.status) {
                     var table = tableType === 'inactive' ? table331 : table33;
-                    if (table) {
-                        updateEnrolmentTypeCell(table, response.studentId, response.enrolmentType);
-                    }
+                    updateEnrolmentTypeCell(table, response.studentId, response.enrolmentType);
                     $('.custom-error-msg').html('<span class="alert alert-success">' + response.message + '</span>');
                 } else {
                     $('.custom-error-msg').html('<span class="alert alert-danger">' + (response ? response.message : 'Failed to update enrolment type') + '</span>');
@@ -538,9 +487,6 @@ jQuery(document).ready(function($){
                 if (response && response.status) {
                     const studentId = response.studentId;
                     const studentNote = response.studentNote;
-                    if (!table331) {
-                        return;
-                    }
                     const rowIndex = table331.rows().eq(0).filter((rowIdx) => {
                         return table331.cell(rowIdx, 23).data() == studentId;
                     });
