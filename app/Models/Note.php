@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 
-class Note extends Model
+class Note extends BaseModel
 {
     use Notifiable;
 	use Sortable;

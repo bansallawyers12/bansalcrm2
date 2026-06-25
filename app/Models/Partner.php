@@ -3,10 +3,9 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\SanitizesEmail;
 
-class Partner extends Model
+class Partner extends BaseModel
 {
 	use Sortable, SanitizesEmail;
 	
@@ -56,7 +55,7 @@ class Partner extends Model
     /**
      * Mutator: Normalize country_code when saving
      */
-    public function setCountryCodeAttribute($value)
+    public function setCountryCodeAttribute(mixed $value): void
     {
         $this->attributes['country_code'] = \App\Helpers\PhoneHelper::normalizeCountryCode($value);
     }
@@ -64,7 +63,7 @@ class Partner extends Model
     /**
      * Accessor: Always return normalized country_code when reading
      */
-    public function getCountryCodeAttribute($value)
+    public function getCountryCodeAttribute(mixed $value): string
     {
         return \App\Helpers\PhoneHelper::normalizeCountryCode($value);
     }

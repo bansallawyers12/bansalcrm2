@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
-class PartnerAgreement extends Model
+class PartnerAgreement extends BaseModel
 {
     /**
      * The table associated with the model.
@@ -56,7 +56,7 @@ class PartnerAgreement extends Model
     /**
      * Scope a query to only include active agreements.
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 'active');
     }
@@ -64,7 +64,7 @@ class PartnerAgreement extends Model
     /**
      * Scope a query to only include inactive agreements.
      */
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): Builder
     {
         return $query->where('status', 'inactive');
     }

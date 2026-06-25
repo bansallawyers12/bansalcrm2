@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 
-class Application extends Model
+class Application extends BaseModel
 {
     use Sortable;
 	
@@ -84,6 +83,11 @@ class Application extends Model
         return $this->belongsTo('App\Models\Staff', 'user_id', 'id');
     }
 	
+	public function client()
+	{
+		return $this->belongsTo(Admin::class, 'client_id', 'id');
+	}
+
 	public function product()
 	{
 		return $this->belongsTo('App\Models\Product', 'product_id', 'id');

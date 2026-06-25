@@ -4,9 +4,8 @@ namespace App\Models;
 
 use App\Helpers\PhoneHelper;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 
-class PartnerPhone extends Model
+class PartnerPhone extends BaseModel
 {	use Sortable;
 
     /**
@@ -31,7 +30,7 @@ class PartnerPhone extends Model
     /**
      * Mutator: Normalize country code when saving
      */
-    public function setPartnerCountryCodeAttribute($value)
+    public function setPartnerCountryCodeAttribute(mixed $value): void
     {
         $this->attributes['partner_country_code'] = PhoneHelper::normalizeCountryCode($value);
     }
@@ -39,7 +38,7 @@ class PartnerPhone extends Model
     /**
      * Accessor: Always return normalized format when reading
      */
-    public function getPartnerCountryCodeAttribute($value)
+    public function getPartnerCountryCodeAttribute(mixed $value): string
     {
         return PhoneHelper::normalizeCountryCode($value);
     }

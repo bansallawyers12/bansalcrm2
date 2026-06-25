@@ -3,10 +3,9 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\SanitizesEmail;
 
-class PartnerEmail extends Model
+class PartnerEmail extends BaseModel
 {	use Sortable, SanitizesEmail;
 
     protected $emailAttributes = ['partner_email'];

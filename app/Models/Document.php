@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use App\Traits\SanitizesEmail;
 
-class Document extends Model
+class Document extends BaseModel
 {
     use Sortable, SanitizesEmail;
 
@@ -151,29 +152,29 @@ class Document extends Model
 
     // ==================== Scopes ====================
 
-    public function scopeForUser($query, $userId)
+    public function scopeForUser(Builder $query, int|string $userId): Builder
     {
         return $query->where('created_by', $userId);
     }
 
-    public function scopeByStatus($query, $status)
+    public function scopeByStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
     }
 
-    public function scopeAssociated($query)
+    public function scopeAssociated(Builder $query): Builder
     {
         return $query->whereNotNull('documentable_type')
                     ->whereNotNull('documentable_id');
     }
 
-    public function scopeAdhoc($query)
+    public function scopeAdhoc(Builder $query): Builder
     {
         return $query->whereNull('documentable_type')
                     ->whereNull('documentable_id');
     }
 
-    public function scopeNotArchived($query)
+    public function scopeNotArchived(Builder $query): Builder
     {
         return $query->whereNull('archived_at');
     }
@@ -182,7 +183,7 @@ class Document extends Model
      * Scope: documents stored in public folder (not on S3).
      * Local = myfile_key null/empty and myfile has a value.
      */
-    public function scopeStoredLocally($query)
+    public function scopeStoredLocally(Builder $query): Builder
     {
         return $query
             ->where(function ($q) {
@@ -198,11 +199,11 @@ class Document extends Model
      * Used for Storage column and document_storage in recent-clients.
      * doc_type=documents, category in (Application, Education, Migration); Edu/Mig require migrate success.
      */
-    public function scopeAppEduMigForStorage($query)
+    public function scopeAppEduMigForStorage(Builder $query): Builder
     {
-        $appId = \App\Models\DocumentCategory::where('name', 'Application')->default()->value('id');
-        $eduId = \App\Models\DocumentCategory::where('name', 'Education')->default()->value('id');
-        $migId = \App\Models\DocumentCategory::where('name', 'Migration')->default()->value('id');
+        $appId = DocumentCategory::query()->where('name', 'Application')->default()->value('id');
+        $eduId = DocumentCategory::query()->where('name', 'Education')->default()->value('id');
+        $migId = DocumentCategory::query()->where('name', 'Migration')->default()->value('id');
 
         if (!$appId && !$eduId && !$migId) {
             return $query->whereRaw('1=0');
@@ -234,7 +235,7 @@ class Document extends Model
     /**
      * Scope to filter documents based on user visibility permissions
      */
-    public function scopeVisible($query, $user)
+    public function scopeVisible(Builder $query, mixed $user): Builder
     {
         // Global access - everyone can see all documents
         return $query;
@@ -244,7 +245,7 @@ class Document extends Model
      * Scope to show only signature workflow documents
      * Excludes client file uploads which don't have created_by set
      */
-    public function scopeForSignatureWorkflow($query)
+    public function scopeForSignatureWorkflow(Builder $query): Builder
     {
         return $query->whereNotNull('created_by');
     }
@@ -345,7 +346,7 @@ class Document extends Model
         $this->hash_generated_at = now();
         $this->save();
 
-        \Log::info('Document hash generated', [
+        Log::info('Document hash generated', [
             'document_id' => $this->id,
             'hash' => $hash,
             'file_path' => $filePath
@@ -360,12 +361,12 @@ class Document extends Model
     public function verifySignedHash(?string $filePath = null): bool
     {
         if (!$this->signed_hash) {
-            \Log::warning('No hash stored for document verification', ['document_id' => $this->id]);
+            Log::warning('No hash stored for document verification', ['document_id' => $this->id]);
             return false;
         }
 
         if (!$this->signed_doc_link) {
-            \Log::warning('No signed document link for verification', ['document_id' => $this->id]);
+            Log::warning('No signed document link for verification', ['document_id' => $this->id]);
             return false;
         }
 
@@ -375,7 +376,7 @@ class Document extends Model
                 if (file_exists(storage_path('app/public/signed/' . $this->id . '_signed.pdf'))) {
                     $filePath = storage_path('app/public/signed/' . $this->id . '_signed.pdf');
                 } else {
-                    \Log::error('Signed document not found', ['document_id' => $this->id]);
+                    Log::error('Signed document not found', ['document_id' => $this->id]);
                     return false;
                 }
             }
@@ -383,7 +384,7 @@ class Document extends Model
             $currentHash = hash_file('sha256', $filePath);
             $isValid = $currentHash === $this->signed_hash;
 
-            \Log::info('Document hash verification', [
+            Log::info('Document hash verification', [
                 'document_id' => $this->id,
                 'is_valid' => $isValid,
                 'stored_hash' => $this->signed_hash,
@@ -392,7 +393,7 @@ class Document extends Model
 
             return $isValid;
         } catch (\Exception $e) {
-            \Log::error('Error verifying document hash', [
+            Log::error('Error verifying document hash', [
                 'document_id' => $this->id,
                 'error' => $e->getMessage()
             ]);

@@ -7,6 +7,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\SanitizesEmail;
 
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ */
 class Admin extends Authenticatable
 {
     use Notifiable;
@@ -167,7 +171,7 @@ class Admin extends Authenticatable
     /**
      * Mutator: Normalize country_code when saving
      */
-    public function setCountryCodeAttribute($value)
+    public function setCountryCodeAttribute(mixed $value): void
     {
         $this->attributes['country_code'] = \App\Helpers\PhoneHelper::normalizeCountryCode($value);
     }
@@ -175,7 +179,7 @@ class Admin extends Authenticatable
     /**
      * Accessor: Always return normalized country_code when reading
      */
-    public function getCountryCodeAttribute($value)
+    public function getCountryCodeAttribute(mixed $value): string
     {
         return \App\Helpers\PhoneHelper::normalizeCountryCode($value);
     }

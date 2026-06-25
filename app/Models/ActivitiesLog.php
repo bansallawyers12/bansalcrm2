@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
 use App\Models\SmsLog;
-use Illuminate\Database\Eloquent\Model;
 
-class ActivitiesLog extends Model
+class ActivitiesLog extends BaseModel
 {	
     use Sortable;
     

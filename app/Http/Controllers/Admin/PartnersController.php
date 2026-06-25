@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
+use App\Models\Application;
 use App\Models\Partner;
 use App\Models\PartnerBranch;
 use App\Models\PartnerAgreement;
@@ -15,8 +16,10 @@ use App\Models\PartnerAgreement;
 // use App\Models\TaskLog; // Task system removed - December 2025
 //use App\Models\ActivitiesLog;
  
-use Auth; 
-use Config;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
@@ -54,7 +57,7 @@ class PartnersController extends Controller
 			} */	
 		//check authorization end 
 	
-		 $query 		= Partner::where('status',0); 
+		 $query 		= Partner::query()->where('status',0); 
 		 
 		$totalData 	= $query->count();	//for all data
 		if ($request->has('name')) 
@@ -116,7 +119,7 @@ class PartnersController extends Controller
   
     public function inactivePartnerList(Request $request)
 	{
-		$query 	= Partner::where('status',1);
+		$query 	= Partner::query()->where('status',1);
         $totalData 	= $query->count();	//for all data
 		if ($request->has('name'))
 		{
@@ -252,7 +255,7 @@ class PartnersController extends Controller
 
                     if( isset($partner_email_type[$ii]) && $partner_email_type[$ii] == 'Personal'){
                         //Update partner  table
-                        $partnerInfo = Partner::find($obj->id); // Retrieve the record by ID
+                        $partnerInfo = Partner::query()->find($obj->id); // Retrieve the record by ID
                         //$lastEmail = end($requestData['partner_email']);
                         $lastEmail = $partner_email[$ii];;
                         $partnerInfo->email =  $lastEmail;
@@ -282,7 +285,7 @@ class PartnersController extends Controller
 
                     if( isset($partner_phone_type[$iii]) && $partner_phone_type[$iii] == 'Personal'){
                         //Update partner  table
-                        $partnerInfo1 = Partner::find($obj->id); // Retrieve the record by ID
+                        $partnerInfo1 = Partner::query()->find($obj->id); // Retrieve the record by ID
 
                         //$lastPhone = end($requestData['partner_phone']);
                         //$lastPhoneCountryCode = end($requestData['partner_country_code']);
@@ -378,7 +381,7 @@ class PartnersController extends Controller
                 'partner_email.*' => 'required|email|max:255' // Validate each email within the array
             ]);
 
-			$obj			= 	Partner::find(@$requestData['id']);
+			$obj			= 	Partner::query()->find(@$requestData['id']);
 
 			//$obj->master_category	=	@$requestData['master_category'];
 			$obj->partner_type	=	@$requestData['partner_type'];
@@ -412,8 +415,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem_email'])){
                 $rem_email =  @$requestData['rem_email'];
                 for($irem_email=0; $irem_email< count($rem_email); $irem_email++){
-                    if(\App\Models\PartnerEmail::where('id', $rem_email[$irem_email])->exists()){
-                        \App\Models\PartnerEmail::where('id', $rem_email[$irem_email])->delete();
+                    if(\App\Models\PartnerEmail::query()->where('id', $rem_email[$irem_email])->exists()){
+                        \App\Models\PartnerEmail::query()->where('id', $rem_email[$irem_email])->delete();
                     }
                 }
             }
@@ -433,8 +436,8 @@ class PartnersController extends Controller
             if(count($partner_email) >0){
                 for($ii=0; $ii< count($partner_email); $ii++){
 
-                    if(\App\Models\PartnerEmail::where('id', $requestData['partneremailid'][$ii])->exists()){
-                        $os = \App\Models\PartnerEmail::find($requestData['partneremailid'][$ii]);
+                    if(\App\Models\PartnerEmail::query()->where('id', $requestData['partneremailid'][$ii])->exists()){
+                        $os = \App\Models\PartnerEmail::query()->find($requestData['partneremailid'][$ii]);
                         $os->user_id = @Auth::user()->id;
                         $os->partner_id = @$obj->id;
                         $os->partner_email_type = @$partner_email_type[$ii];
@@ -454,7 +457,7 @@ class PartnersController extends Controller
 
                     if( isset($partner_email_type[$ii]) && $partner_email_type[$ii] == 'Personal'){
                         //Update partner  table
-                        $partnerInfo = Partner::find($obj->id); // Retrieve the record by ID
+                        $partnerInfo = Partner::query()->find($obj->id); // Retrieve the record by ID
                         //$lastEmail = end($requestData['partner_email']);
                         $lastEmail = $partner_email[$ii];;
                         $partnerInfo->email =  $lastEmail;
@@ -477,8 +480,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem_phone'])){
                 $rem_phone =  @$requestData['rem_phone'];
                 for($irem_phone=0; $irem_phone< count($rem_phone); $irem_phone++){
-                    if(\App\Models\PartnerPhone::where('id', $rem_phone[$irem_phone])->exists()){
-                        \App\Models\PartnerPhone::where('id', $rem_phone[$irem_phone])->delete();
+                    if(\App\Models\PartnerPhone::query()->where('id', $rem_phone[$irem_phone])->exists()){
+                        \App\Models\PartnerPhone::query()->where('id', $rem_phone[$irem_phone])->delete();
                     }
                 }
             }
@@ -506,8 +509,8 @@ class PartnersController extends Controller
             if(count($partner_phone) >0){
                 for($iii=0; $iii< count($partner_phone); $iii++){
 
-                    if(\App\Models\PartnerPhone::where('id', $requestData['partnerphoneid'][$iii])->exists()){
-                        $os1 = \App\Models\PartnerPhone::find($requestData['partnerphoneid'][$iii]);
+                    if(\App\Models\PartnerPhone::query()->where('id', $requestData['partnerphoneid'][$iii])->exists()){
+                        $os1 = \App\Models\PartnerPhone::query()->find($requestData['partnerphoneid'][$iii]);
                         $os1->user_id = @Auth::user()->id;
                         $os1->partner_id = @$obj->id;
                         $os1->partner_phone_type = @$partner_phone_type[$iii];
@@ -529,7 +532,7 @@ class PartnersController extends Controller
 
                     if( isset($partner_phone_type[$iii]) && $partner_phone_type[$iii] == 'Personal'){
                         //Update partner  table
-                        $partnerInfo1 = Partner::find($obj->id); // Retrieve the record by ID
+                        $partnerInfo1 = Partner::query()->find($obj->id); // Retrieve the record by ID
 
                         //$lastPhone = end($requestData['partner_phone']);
                         //$lastPhoneCountryCode = end($requestData['partner_country_code']);
@@ -554,8 +557,8 @@ class PartnersController extends Controller
             if(isset($requestData['rem'])){
                 $rem =  @$requestData['rem'];
                 for($irem=0; $irem< count($rem); $irem++){
-                    if(\App\Models\PartnerBranch::where('id', $rem[$irem])->exists()){
-                        \App\Models\PartnerBranch::where('id', $rem[$irem])->delete();
+                    if(\App\Models\PartnerBranch::query()->where('id', $rem[$irem])->exists()){
+                        \App\Models\PartnerBranch::query()->where('id', $rem[$irem])->delete();
                     }
                 }
             }
@@ -593,6 +596,7 @@ class PartnersController extends Controller
                 $branchreg =  $requestData['branchreg'];
             }
 
+            $branchcountry_code = [];
             if(isset($requestData['branchcountry_code'])){
                 $branchcountry_code = array_map(function($code) {
                     return PhoneHelper::normalizeCountryCode($code);
@@ -609,8 +613,8 @@ class PartnersController extends Controller
                     if($i==0){
                         $is_headoffice = 1;
                     }
-                    if(\App\Models\PartnerBranch::where('id', $requestData['branchid'][$i])->exists()){
-                        $os = \App\Models\PartnerBranch::find($requestData['branchid'][$i]);
+                    if(\App\Models\PartnerBranch::query()->where('id', $requestData['branchid'][$i])->exists()){
+                        $os = \App\Models\PartnerBranch::query()->find($requestData['branchid'][$i]);
 
                         $os->name = @$branchname[$i];
                         $os->email = @$branchemail[$i];
@@ -660,12 +664,12 @@ class PartnersController extends Controller
 			if(isset($id) && !empty($id))
 			{
                 $id = $this->decodeString($id);
-				if(Partner::where('id', '=', $id)->exists())
+				if(Partner::query()->where('id', '=', $id)->exists())
 				{
-					$fetchedData = Partner::find($id); //dd($fetchedData);
+					$fetchedData = Partner::query()->find($id); //dd($fetchedData);
 
                     //Check email record is exist in partner email table
-                    if( \App\Models\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
+                    if( \App\Models\PartnerEmail::query()->where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
                         $oef = new \App\Models\PartnerEmail;
                         $oef->user_id = @Auth::user()->id;
                         $oef->partner_id = $id;
@@ -676,7 +680,7 @@ class PartnersController extends Controller
                     }
 
                     //Check phone record is exist in partner phone table
-                    if( \App\Models\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
+                    if( \App\Models\PartnerPhone::query()->where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
                         $oef1 = new \App\Models\PartnerPhone;
                         $oef1->user_id = @Auth::user()->id;
                         $oef1->partner_id = $id;
@@ -705,7 +709,7 @@ class PartnersController extends Controller
 	
 	public function getpaymenttype(Request $request){
 		$catid = $request->cat_id;
-		$lists = \App\Models\PartnerType::where('category_id', $catid)->orderby('name','ASC')->get();
+		$lists = \App\Models\PartnerType::query()->where('category_id', $catid)->orderby('name','ASC')->get();
 		ob_start();
 		?>
 		<option value="">Select a Partner Type</option>
@@ -722,12 +726,12 @@ class PartnersController extends Controller
 		if(isset($id) && !empty($id))  
 			{				
 				$id = $this->decodeString($id);	
-				if(Partner::where('id', '=', $id)->exists()) 
+				if(Partner::query()->where('id', '=', $id)->exists()) 
 				{ 
-					$fetchedData = Partner::find($id);
+					$fetchedData = Partner::query()->find($id);
                   
                     //Check email record is exist in partner email table
-                    if( \App\Models\PartnerEmail::where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
+                    if( \App\Models\PartnerEmail::query()->where('partner_id', $id)->doesntExist()  && $fetchedData->email != ""){
                         $oef = new \App\Models\PartnerEmail;
                         $oef->user_id = @Auth::user()->id;
                         $oef->partner_id = $id;
@@ -738,7 +742,7 @@ class PartnersController extends Controller
                     }
 
                     //Check phone record is exist in partner phone table
-                    if( \App\Models\PartnerPhone::where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
+                    if( \App\Models\PartnerPhone::query()->where('partner_id', $id)->doesntExist()  && $fetchedData->phone != ""){
                         $oef1 = new \App\Models\PartnerPhone;
                         $oef1->user_id = @Auth::user()->id;
                         $oef1->partner_id = $id;
@@ -759,8 +763,16 @@ class PartnersController extends Controller
                         $requestedTab = 'application';
                     }
                     $activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
-                  
-					return view('Admin.partners.detail', compact(['fetchedData', 'activeTab']));
+
+                    $applicationStatusCounts = null;
+                    if ($activeTab === 'application') {
+                        $applicationStatusCounts = Application::query()->where('partner_id', $id)
+                            ->selectRaw('status, COUNT(*) as total')
+                            ->groupBy('status')
+                            ->pluck('total', 'status');
+                    }
+
+					return view('Admin.partners.detail', compact(['fetchedData', 'activeTab', 'applicationStatusCounts']));
 				}
 				else 
 				{  
@@ -774,169 +786,617 @@ class PartnersController extends Controller
 	}
 
 	/**
-	 * AJAX endpoint for the Student tab DataTables.
-	 *
-	 * Optimisations applied:
-	 *  1. partners join removed — partner_name taken directly from fetched partner row.
-	 *  2. ->distinct() replaced with PostgreSQL DISTINCT ON (applications.id) to avoid
-	 *     a full sort when application_fee_options has multiple rows per application.
-	 *  3. Result cached per partner for 5 minutes (300s). Cache is busted by
-	 *     clearStudentTabCache() which should be called from any controller that
-	 *     modifies a student's stage, status, overall_status, or fee options.
+	 * AJAX endpoint for the Applications tab DataTables (server-side pagination).
 	 */
-	public function getStudentTabData(Request $request, $id)
+	public function getApplicationTabData(Request $request, string $id)
 	{
-		$id = $this->decodeString($id);
+		$partnerId = $this->decodeString($id);
 
-		$partner = Partner::select('id', 'partner_name')->find($id);
-		if (!$partner) {
-			return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
+		if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
+			return response()->json(['message' => 'Partner not found'], 404);
 		}
 
-		$partnerName = $partner->partner_name;
+		$draw   = (int) $request->input('draw', 1);
+		$start  = max(0, (int) $request->input('start', 0));
+		$length = (int) $request->input('length', 10);
+		$length = $length < 1 ? 10 : min($length, 500);
 
-		$statusMap = [
+		$searchValue = trim((string) data_get($request->input('search'), 'value', ''));
+
+		$query = Application::query()->where('partner_id', $partnerId);
+
+		$recordsTotal = (clone $query)->count();
+
+		if ($searchValue !== '') {
+			$like = '%' . addcslashes($searchValue, '%_\\') . '%';
+			$query->where(function ($q) use ($like) {
+				$q->whereHas('client', function ($c) use ($like) {
+					$c->where('first_name', 'ilike', $like)
+						->orWhere('last_name', 'ilike', $like);
+				})
+				->orWhereHas('product', function ($p) use ($like) {
+					$p->where('name', 'ilike', $like);
+				})
+				->orWhere('stage', 'ilike', $like);
+			});
+		}
+
+		$recordsFiltered = (clone $query)->count();
+
+		$orderColIndex = (int) data_get($request->input('order'), '0.column', 7);
+		$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+		$query = $this->applyPartnerApplicationTabOrdering($query, $orderColIndex, $orderDir);
+
+		$applications = $query
+			->with([
+				'client:id,first_name,last_name',
+				'product:id,name',
+				'workflow:id,name',
+			])
+			->skip($start)
+			->take($length)
+			->get();
+
+		$data = [];
+		foreach ($applications as $application) {
+			$data[] = $this->formatPartnerApplicationTabRow($application);
+		}
+
+		return response()->json([
+			'draw'            => $draw,
+			'recordsTotal'    => $recordsTotal,
+			'recordsFiltered' => $recordsFiltered,
+			'data'            => $data,
+		]);
+	}
+
+	/**
+	 * @param  \Illuminate\Database\Eloquent\Builder  $query
+	 * @return \Illuminate\Database\Eloquent\Builder
+	 */
+	private function applyPartnerApplicationTabOrdering($query, int $colIndex, string $dir)
+	{
+		switch ($colIndex) {
+			case 0:
+				return $query
+					->leftJoin('admins as partner_app_clients', 'applications.client_id', '=', 'partner_app_clients.id')
+					->orderBy('partner_app_clients.first_name', $dir)
+					->orderBy('partner_app_clients.last_name', $dir)
+					->select('applications.*');
+			case 2:
+				return $query
+					->leftJoin('products as partner_app_products', 'applications.product_id', '=', 'partner_app_products.id')
+					->orderBy('partner_app_products.name', $dir)
+					->select('applications.*');
+			case 3:
+				return $query
+					->leftJoin('workflows as partner_app_workflows', 'applications.workflow', '=', 'partner_app_workflows.id')
+					->orderBy('partner_app_workflows.name', $dir)
+					->select('applications.*');
+			case 4:
+				return $query->orderBy('applications.stage', $dir);
+			case 6:
+				return $query->orderBy('applications.status', $dir);
+			case 8:
+				return $query->orderBy('applications.updated_at', $dir);
+			case 7:
+			default:
+				return $query->orderBy('applications.created_at', $dir);
+		}
+	}
+
+	private function formatPartnerApplicationTabRow(Application $alist): array
+	{
+		$client   = $alist->client;
+		$product  = $alist->product;
+		$workflow = $alist->workflow;
+
+		$clientEncodedId = $client
+			? base64_encode(convert_uuencode($client->id))
+			: '';
+
+		$nameHtml = $client
+			? '<a href="'.url('/clients/detail/'.$clientEncodedId).'">'.e(trim($client->first_name.' '.$client->last_name)).'</a>'
+			: '';
+
+		$productHtml = ($product && $clientEncodedId !== '')
+			? '<a href="'.url('clients/detail/'.$clientEncodedId.'?tab=application&appid='.$alist->id).'">'.e($product->name).'</a>'
+			: '';
+
+		$enrolmentLabel = Application::enrolmentTypeLabel($alist->enrolment_type ?? null) ?: '—';
+
+		return [
+			$nameHtml,
+			'',
+			$productHtml,
+			e($workflow->name ?? ''),
+			e($alist->stage ?? ''),
+			e($enrolmentLabel),
+			$this->formatPartnerApplicationStatusBadge((int) $alist->status),
+			!empty($alist->created_at) ? date('d/m/Y', strtotime($alist->created_at)) : '',
+			!empty($alist->updated_at) ? date('d/m/Y', strtotime($alist->updated_at)) : '',
+		];
+	}
+
+	private function formatPartnerApplicationStatusBadge(int $status): string
+	{
+		$style = 'margin-top: 5px;margin-bottom:5px;';
+		$labels = [
+			0 => ['In Progress', 'badge-info'],
+			1 => ['Completed', 'badge-success'],
+			2 => ['Discontinued', 'badge-success'],
+			3 => ['Cancelled', 'badge-success'],
+			4 => ['Withdrawn', 'badge-success'],
+			5 => ['Deferred', 'badge-success'],
+			6 => ['Future', 'badge-success'],
+			7 => ['VOE', 'badge-success'],
+		];
+
+		if (!isset($labels[$status])) {
+			return '';
+		}
+
+		[$label, $class] = $labels[$status];
+
+		return '<span class="badge '.$class.'" style="'.$style.'">'.e($label).'</span>';
+	}
+
+	private const PARTNER_STUDENT_STAGES = ['Coe issued', 'Enrolled', 'Coe Cancelled'];
+
+	private function partnerStudentStatusMap(): array
+	{
+		return [
 			0 => 'In Progress', 1 => 'Completed', 2 => 'Discontinued',
 			3 => 'Cancelled',   4 => 'Withdrawn', 5 => 'Deferred',
 			6 => 'Future',      7 => 'VOE',       8 => 'Refund',
 		];
+	}
 
-		// Fetch students using DISTINCT ON (PostgreSQL) to deduplicate
-		// application_fee_options rows without an expensive full-result sort.
-		// DISTINCT ON (applications.id) must be the first ORDER BY key; within each
-		// application group afo.id DESC picks the latest fee record.
-		$baseQuery = function (?int $overallStatus) use ($id) {
-			// Always use bound parameters — never interpolate values into raw SQL.
-			$bindings = [$id];
-			$overallFilter = '';
-			if ($overallStatus !== null) {
-				$overallFilter = 'AND applications.overall_status = ?';
-				$bindings[]    = $overallStatus;
+	private function partnerStudentStatusLabelToInt(string $label): ?int
+	{
+		foreach ($this->partnerStudentStatusMap() as $statusId => $statusLabel) {
+			if ($statusLabel === $label) {
+				return (int) $statusId;
 			}
-
-			return DB::select("
-				SELECT DISTINCT ON (applications.id)
-					applications.id,
-					applications.client_id,
-					applications.status,
-					applications.overall_status,
-					applications.student_id,
-					applications.start_date,
-					applications.end_date,
-					applications.enrolment_type,
-					applications.student_add_notes,
-					admins.client_id          AS client_reference,
-					admins.first_name,
-					admins.last_name,
-					admins.dob,
-					products.name             AS coursename,
-					afo.total_course_fee_amount,
-					afo.enrolment_fee_amount,
-					afo.material_fees,
-					afo.tution_fees,
-					afo.fee_reported_by_college,
-					afo.bonus_amount,
-					afo.bonus_pending_amount,
-					afo.scholarship_fee_amount,
-					afo.commission_as_per_fee_reported,
-					afo.commission_payable_as_per_anticipated_fee,
-					afo.commission_paid_as_per_fee_reported,
-					afo.commission_pending
-				FROM applications
-				INNER JOIN admins       ON admins.id       = applications.client_id
-				LEFT  JOIN products     ON products.id     = applications.product_id
-				LEFT  JOIN application_fee_options afo ON afo.app_id = applications.id
-				WHERE applications.partner_id = ?
-				  AND applications.stage IN ('Coe issued', 'Enrolled', 'Coe Cancelled')
-				  {$overallFilter}
-				ORDER BY applications.id ASC, afo.id DESC
-			", $bindings);
-		};
-
-		$formatRows = function ($rows, bool $isActive, string $partnerName) use ($statusMap) {
-			$formatted = [];
-			foreach ($rows as $data) {
-				$clientEncodedId = base64_encode(convert_uuencode(@$data->client_id));
-
-				$crmRef = $data->client_reference
-					? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
-					: 'N/P';
-
-				$dob = 'N/P';
-				if (!empty($data->dob)) {
-					$dobArr = explode('-', $data->dob);
-					$dob = ($dobArr[2] ?? '').'/'.($dobArr[1] ?? '').'/'.($dobArr[0] ?? '');
-				}
-
-				$coursename = 'N/P';
-				if (!empty($data->coursename)) {
-					$coursename = '<a href="'.url('/clients/detail/'.$clientEncodedId.'/application/'.$data->id).'" target="_blank">'.e($data->coursename).'</a>';
-				}
-
-				$overallStatusBtn = $isActive
-					? '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>'
-					: '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Active</button>';
-
-				$actionHtml = '<div class="dropdown d-inline">
-					<button style="margin-top:3px;margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-					<div class="dropdown-menu">
-						<button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="'.$data->id.'" data-current-status="'.$data->status.'" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
-						'.$overallStatusBtn.'
-					</div>
-				</div>';
-
-				$formatted[] = [
-					'',                                                                             // 0  SNo
-					$crmRef,                                                                        // 1  CRM Ref
-					($data->first_name ?? '') != '' ? $data->first_name.' '.$data->last_name : 'N/P', // 2  Student Name
-					$dob,                                                                           // 3  DOB
-					($data->student_id ?? '') != '' ? $data->student_id : 'N/P',                   // 4  Student Id
-					e($partnerName) ?: 'N/P',                                                       // 5  College Name (from partner row, not join)
-					$coursename,                                                                    // 6  Course Name
-					!empty($data->start_date) ? date('d/m/Y', strtotime($data->start_date)) : 'N/P', // 7  Start Date
-					!empty($data->end_date)   ? date('d/m/Y', strtotime($data->end_date))   : 'N/P', // 8  End Date
-					$data->total_course_fee_amount                        ?? '0.00',                // 9
-					$data->enrolment_fee_amount                           ?? '0.00',                // 10
-					$data->material_fees                                  ?? '0.00',                // 11
-					$data->tution_fees                                    ?? '0.00',                // 12
-					$data->fee_reported_by_college                        ?? '0.00',                // 13
-					$data->bonus_amount                                   ?? '0.00',                // 14
-					$data->bonus_pending_amount                           ?? '0.00',                // 15
-					$data->scholarship_fee_amount                         ?? '0.00',                // 16
-					$data->commission_as_per_fee_reported                 ?? '0.00',                // 17
-					$data->commission_payable_as_per_anticipated_fee      ?? '0.00',                // 18
-					$data->commission_paid_as_per_fee_reported            ?? '0.00',                // 19
-					$data->commission_pending                             ?? '0.00',                // 20
-					$statusMap[$data->status] ?? '',                                                // 21 Status text
-					(string) \App\Models\Application::normalizeEnrolmentType($data->enrolment_type ?? null), // 22 Enrolment Type (raw; rendered as dropdown in JS)
-					(string) $data->id,                                                             // 23 Hidden ID
-					'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>', // 24 Note
-					$actionHtml,                                                                    // 25 Action
-				];
-			}
-			return $formatted;
-		};
-
-		// Cache for 5 minutes per partner (keyed by partner ID).
-		// If Redis is unavailable we fall back to running the queries directly
-		// so the endpoint never errors out due to a cache driver issue.
-		$cacheKey = "partner_students_v4_{$id}";
-		$build = function () use ($baseQuery, $formatRows, $partnerName) {
-			return [
-				'status'   => true,
-				'active'   => $formatRows($baseQuery(null), true,  $partnerName),
-				'inactive' => $formatRows($baseQuery(1),    false, $partnerName),
-			];
-		};
-
-		try {
-			$result = Cache::remember($cacheKey, 300, $build);
-		} catch (\Exception $e) {
-			// Redis down or misconfigured — serve live data so the tab still works.
-			$result = $build();
 		}
 
-		return response()->json($result);
+		return null;
+	}
+
+	/**
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	private function partnerStudentTabIdQuery(int $partnerId, string $list)
+	{
+		$query = DB::table('applications')
+			->where('applications.partner_id', $partnerId)
+			->whereIn('applications.stage', self::PARTNER_STUDENT_STAGES);
+
+		if ($list === 'inactive') {
+			$query->where('applications.overall_status', 1);
+		}
+
+		return $query;
+	}
+
+	/**
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	private function applyPartnerStudentTabSearch($query, string $searchValue)
+	{
+		if ($searchValue === '') {
+			return $query;
+		}
+
+		$like = '%'.addcslashes($searchValue, '%_\\').'%';
+
+		return $query->where(function ($q) use ($like) {
+			$q->where('applications.student_id', 'ilike', $like)
+				->orWhere('applications.stage', 'ilike', $like)
+				->orWhereExists(function ($sub) use ($like) {
+					$sub->select(DB::raw('1'))
+						->from('admins')
+						->whereColumn('admins.id', 'applications.client_id')
+						->where(function ($a) use ($like) {
+							$a->where('admins.first_name', 'ilike', $like)
+								->orWhere('admins.last_name', 'ilike', $like)
+								->orWhere('admins.client_id', 'ilike', $like);
+						});
+				})
+				->orWhereExists(function ($sub) use ($like) {
+					$sub->select(DB::raw('1'))
+						->from('products')
+						->whereColumn('products.id', 'applications.product_id')
+						->where('products.name', 'ilike', $like);
+				});
+		});
+	}
+
+	/**
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	private function applyPartnerStudentTabStatusFilter($query, string $statusFilter)
+	{
+		if ($statusFilter === '') {
+			return $query;
+		}
+
+		$statusId = $this->partnerStudentStatusLabelToInt($statusFilter);
+		if ($statusId !== null) {
+			$query->where('applications.status', $statusId);
+		}
+
+		return $query;
+	}
+
+	/**
+	 * @param  \Illuminate\Database\Query\Builder  $query
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	private function applyPartnerStudentTabOrdering($query, int $colIndex, string $dir)
+	{
+		switch ($colIndex) {
+			case 1:
+				return $query
+					->leftJoin('admins as partner_stu_clients', 'applications.client_id', '=', 'partner_stu_clients.id')
+					->orderBy('partner_stu_clients.client_id', $dir)
+					->select('applications.id');
+			case 2:
+				return $query
+					->leftJoin('admins as partner_stu_clients', 'applications.client_id', '=', 'partner_stu_clients.id')
+					->orderBy('partner_stu_clients.first_name', $dir)
+					->orderBy('partner_stu_clients.last_name', $dir)
+					->select('applications.id');
+			case 3:
+				return $query
+					->leftJoin('admins as partner_stu_clients', 'applications.client_id', '=', 'partner_stu_clients.id')
+					->orderBy('partner_stu_clients.dob', $dir)
+					->select('applications.id');
+			case 4:
+				return $query->orderBy('applications.student_id', $dir)->select('applications.id');
+			case 6:
+				return $query
+					->leftJoin('products as partner_stu_products', 'applications.product_id', '=', 'partner_stu_products.id')
+					->orderBy('partner_stu_products.name', $dir)
+					->select('applications.id');
+			case 7:
+				return $query->orderBy('applications.start_date', $dir)->select('applications.id');
+			case 8:
+				return $query->orderBy('applications.end_date', $dir)->select('applications.id');
+			case 21:
+				return $query->orderBy('applications.status', $dir)->select('applications.id');
+			case 22:
+				return $query->orderBy('applications.enrolment_type', $dir)->select('applications.id');
+			default:
+				return $query->orderBy('applications.id', $dir)->select('applications.id');
+		}
+	}
+
+	/**
+	 * @param  \Illuminate\Support\Collection<int, int>  $applicationIds
+	 * @return array<int, object>
+	 */
+	private function partnerStudentLatestFeesForIds($applicationIds): array
+	{
+		if ($applicationIds->isEmpty()) {
+			return [];
+		}
+
+		$fees = DB::table('application_fee_options')
+			->whereIn('app_id', $applicationIds->all())
+			->orderBy('app_id')
+			->orderByDesc('id')
+			->get();
+
+		$latest = [];
+		foreach ($fees as $fee) {
+			if (!isset($latest[$fee->app_id])) {
+				$latest[$fee->app_id] = $fee;
+			}
+		}
+
+		return $latest;
+	}
+
+	private function formatPartnerStudentTabRow(object $data, bool $isActive, string $partnerName): array
+	{
+		$statusMap = $this->partnerStudentStatusMap();
+		$clientEncodedId = base64_encode(convert_uuencode(@$data->client_id));
+
+		$crmRef = !empty($data->client_reference)
+			? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
+			: 'N/P';
+
+		$dob = 'N/P';
+		if (!empty($data->dob)) {
+			$dobArr = explode('-', $data->dob);
+			$dob = ($dobArr[2] ?? '').'/'.($dobArr[1] ?? '').'/'.($dobArr[0] ?? '');
+		}
+
+		$coursename = 'N/P';
+		if (!empty($data->coursename)) {
+			$coursename = '<a href="'.url('/clients/detail/'.$clientEncodedId.'/application/'.$data->id).'" target="_blank">'.e($data->coursename).'</a>';
+		}
+
+		$overallStatusBtn = $isActive
+			? '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Inactive</button>'
+			: '<button class="btn btn-sm btn-primary dropdown-item change-application-overall-status-btn" data-id="'.$data->id.'" data-application-overall-status="'.$data->overall_status.'" data-bs-toggle="modal" data-bs-target="#changeApplicationOverallStatusModal">Change Application To Active</button>';
+
+		$actionHtml = '<div class="dropdown d-inline">
+			<button style="margin-top:3px;margin-bottom:3px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+			<div class="dropdown-menu">
+				<button class="btn btn-sm btn-primary dropdown-item change-status-btn" data-id="'.$data->id.'" data-current-status="'.$data->status.'" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
+				'.$overallStatusBtn.'
+			</div>
+		</div>';
+
+		return [
+			'',
+			$crmRef,
+			($data->first_name ?? '') !== '' ? $data->first_name.' '.$data->last_name : 'N/P',
+			$dob,
+			($data->student_id ?? '') !== '' ? $data->student_id : 'N/P',
+			e($partnerName) ?: 'N/P',
+			$coursename,
+			!empty($data->start_date) ? date('d/m/Y', strtotime($data->start_date)) : 'N/P',
+			!empty($data->end_date) ? date('d/m/Y', strtotime($data->end_date)) : 'N/P',
+			$data->total_course_fee_amount ?? '0.00',
+			$data->enrolment_fee_amount ?? '0.00',
+			$data->material_fees ?? '0.00',
+			$data->tution_fees ?? '0.00',
+			$data->fee_reported_by_college ?? '0.00',
+			$data->bonus_amount ?? '0.00',
+			$data->bonus_pending_amount ?? '0.00',
+			$data->scholarship_fee_amount ?? '0.00',
+			$data->commission_as_per_fee_reported ?? '0.00',
+			$data->commission_payable_as_per_anticipated_fee ?? '0.00',
+			$data->commission_paid_as_per_fee_reported ?? '0.00',
+			$data->commission_pending ?? '0.00',
+			$statusMap[$data->status] ?? '',
+			(string) Application::normalizeEnrolmentType($data->enrolment_type ?? null),
+			(string) $data->id,
+			'<textarea class="'.($isActive ? 'note-field' : 'note-field1').'" data-studentid="'.$data->id.'">'.e($data->student_add_notes ?? '').'</textarea>',
+			$actionHtml,
+		];
+	}
+
+	/**
+	 * @return array{claimed: float, anticipated: float, paid: float, pending: float}
+	 */
+	private function computePartnerStudentTabTotals(int $partnerId, string $list, string $searchValue, string $statusFilter): array
+	{
+		$idQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
+		$idQuery = $this->applyPartnerStudentTabSearch($idQuery, $searchValue);
+		$idQuery = $this->applyPartnerStudentTabStatusFilter($idQuery, $statusFilter);
+
+		$applicationIds = (clone $idQuery)->pluck('applications.id');
+		if ($applicationIds->isEmpty()) {
+			return ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
+		}
+
+		$latestFees = $this->partnerStudentLatestFeesForIds($applicationIds);
+		$claimed = $anticipated = $paid = $pending = 0.0;
+
+		foreach ($latestFees as $fee) {
+			$claimed += (float) ($fee->commission_as_per_fee_reported ?? 0);
+			$anticipated += (float) ($fee->commission_payable_as_per_anticipated_fee ?? 0);
+			$paid += (float) ($fee->commission_paid_as_per_fee_reported ?? 0);
+			$pending += (float) ($fee->commission_pending ?? 0);
+		}
+
+		return [
+			'claimed'     => round($claimed, 2),
+			'anticipated' => round($anticipated, 2),
+			'paid'        => round($paid, 2),
+			'pending'     => round($pending, 2),
+		];
+	}
+
+	/**
+	 * AJAX endpoint for the Student tab DataTables (server-side pagination).
+	 */
+	public function getStudentTabData(Request $request, string $id)
+	{
+		$partnerId = $this->decodeString($id);
+		$partner = Partner::query()->select(['id', 'partner_name'])->find($partnerId);
+
+		if (!$partner) {
+			return response()->json(['message' => 'Partner not found'], 404);
+		}
+
+		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+		$isActive = $list !== 'inactive';
+
+		$draw   = (int) $request->input('draw', 1);
+		$start  = max(0, (int) $request->input('start', 0));
+		$length = (int) $request->input('length', 10);
+		$length = $length < 1 ? 10 : min($length, 500);
+
+		$searchValue  = trim((string) data_get($request->input('search'), 'value', ''));
+		$statusFilter = trim((string) $request->input('status_filter', ''));
+
+		$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
+		$recordsTotal = (clone $baseQuery)->count();
+
+		$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
+		$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
+		$recordsFiltered = (clone $filteredQuery)->count();
+
+		$orderColIndex = (int) data_get($request->input('order'), '0.column', 1);
+		$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+		$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
+		$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('id');
+
+		$data = [];
+		if ($pageIds->isNotEmpty()) {
+			$applications = DB::table('applications')
+				->join('admins', 'admins.id', '=', 'applications.client_id')
+				->leftJoin('products', 'products.id', '=', 'applications.product_id')
+				->whereIn('applications.id', $pageIds->all())
+				->select(
+					'applications.*',
+					'admins.client_id as client_reference',
+					'admins.first_name',
+					'admins.last_name',
+					'admins.dob',
+					'products.name as coursename'
+				)
+				->get()
+				->keyBy('id');
+
+			$latestFees = $this->partnerStudentLatestFeesForIds($pageIds);
+
+			foreach ($pageIds as $appId) {
+				$row = $applications->get($appId);
+				if (!$row) {
+					continue;
+				}
+				$fee = $latestFees[$appId] ?? null;
+				if ($fee) {
+					foreach ([
+						'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
+						'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
+						'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
+						'commission_paid_as_per_fee_reported', 'commission_pending',
+					] as $feeField) {
+						$row->{$feeField} = $fee->{$feeField} ?? '0.00';
+					}
+				}
+				$data[] = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
+			}
+		}
+
+		return response()->json([
+			'draw'            => $draw,
+			'recordsTotal'    => $recordsTotal,
+			'recordsFiltered' => $recordsFiltered,
+			'data'            => $data,
+		]);
+	}
+
+	/**
+	 * Commission totals for the Student tab (respects search + status filter).
+	 */
+	public function getStudentTabTotals(Request $request, string $id)
+	{
+		$partnerId = $this->decodeString($id);
+
+		if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
+			return response()->json(['message' => 'Partner not found'], 404);
+		}
+
+		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+		$searchValue  = trim((string) $request->input('search', ''));
+		$statusFilter = trim((string) $request->input('status_filter', ''));
+
+		$totals = $this->computePartnerStudentTabTotals($partnerId, $list, $searchValue, $statusFilter);
+
+		return response()->json([
+			'status'      => true,
+			'claimed'     => number_format($totals['claimed'], 2, '.', ''),
+			'anticipated' => number_format($totals['anticipated'], 2, '.', ''),
+			'paid'        => number_format($totals['paid'], 2, '.', ''),
+			'pending'     => number_format($totals['pending'], 2, '.', ''),
+		]);
+	}
+
+	/**
+	 * Export all student rows for a partner list (CSV — opens in Excel).
+	 */
+	public function exportStudentTabData(Request $request, string $id)
+	{
+		$partnerId = $this->decodeString($id);
+		$partner = Partner::query()->select(['id', 'partner_name'])->find($partnerId);
+
+		if (!$partner) {
+			abort(404, 'Partner not found');
+		}
+
+		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+		$isActive = $list !== 'inactive';
+		$searchValue  = trim((string) $request->input('search', ''));
+		$statusFilter = trim((string) $request->input('status_filter', ''));
+
+		$idQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
+		$idQuery = $this->applyPartnerStudentTabSearch($idQuery, $searchValue);
+		$idQuery = $this->applyPartnerStudentTabStatusFilter($idQuery, $statusFilter);
+		$applicationIds = $idQuery->orderBy('applications.id')->pluck('applications.id');
+
+		$filename = 'Partner_Student_Data'.($isActive ? '' : '_Inactive').'_'.preg_replace('/[^a-z0-9]+/i', '_', $partner->partner_name).'_'.date('Y-m-d').'.csv';
+
+		$headers = [
+			'Content-Type'        => 'text/csv; charset=UTF-8',
+			'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+		];
+
+		$callback = function () use ($applicationIds, $partner, $isActive) {
+			$handle = fopen('php://output', 'w');
+			fputcsv($handle, [
+				'SNo', 'CRM Ref', 'Student Name', 'Date of Birth', 'Student Id', 'College Name', 'Course Name',
+				'Start Date', 'End Date', 'Total Course Fee', 'Enrolment Fee', 'Material Fee', 'Tution Fee',
+				'Fee Reported by College', 'Total Bonus', 'Bonus Pending', 'Scholarship Fee',
+				'Commission as per Fee reported', 'Commission payable as per anticipated fee',
+				'Commission paid as per fee Reported', 'Commission Pending', 'Student Status', 'Enrolment Type',
+			]);
+
+			$chunkSize = 200;
+			$sno = 0;
+
+			foreach ($applicationIds->chunk($chunkSize) as $chunk) {
+				$rows = DB::table('applications')
+					->join('admins', 'admins.id', '=', 'applications.client_id')
+					->leftJoin('products', 'products.id', '=', 'applications.product_id')
+					->whereIn('applications.id', $chunk->all())
+					->select(
+						'applications.*',
+						'admins.client_id as client_reference',
+						'admins.first_name',
+						'admins.last_name',
+						'admins.dob',
+						'products.name as coursename'
+					)
+					->orderBy('applications.id')
+					->get();
+
+				$latestFees = $this->partnerStudentLatestFeesForIds($chunk);
+
+				foreach ($rows as $row) {
+					$fee = $latestFees[$row->id] ?? null;
+					if ($fee) {
+						foreach ([
+							'total_course_fee_amount', 'enrolment_fee_amount', 'material_fees', 'tution_fees',
+							'fee_reported_by_college', 'bonus_amount', 'bonus_pending_amount', 'scholarship_fee_amount',
+							'commission_as_per_fee_reported', 'commission_payable_as_per_anticipated_fee',
+							'commission_paid_as_per_fee_reported', 'commission_pending',
+						] as $feeField) {
+							$row->{$feeField} = $fee->{$feeField} ?? '0.00';
+						}
+					}
+
+					$formatted = $this->formatPartnerStudentTabRow($row, $isActive, $partner->partner_name);
+					$plain = array_map(function ($cell) {
+						if (!is_string($cell)) {
+							return $cell;
+						}
+						$text = strip_tags($cell);
+						$text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+						return trim($text);
+					}, array_slice($formatted, 1, 22));
+
+					$sno++;
+					fputcsv($handle, array_merge([(string) $sno], $plain));
+				}
+			}
+
+			fclose($handle);
+		};
+
+		return response()->stream($callback, 200, $headers);
 	}
 
 	/**
@@ -960,6 +1420,8 @@ class PartnersController extends Controller
 		}
 		try {
 			Cache::forget("partner_students_v4_{$partnerId}");
+			Cache::forget("partner_students_totals_v5_{$partnerId}_active");
+			Cache::forget("partner_students_totals_v5_{$partnerId}_inactive");
 		} catch (\Throwable $e) {
 			// Same resilience as getStudentTabData when cache is unavailable
 		}
@@ -1013,9 +1475,14 @@ class PartnersController extends Controller
 	}
 	
 	public function saveagreement(Request $request){ //dd($request->all());
-		if(Partner::where('id', '=', $request->partner_id)->exists()) 
+		$response = [
+			'status' => false,
+			'message' => 'Partner not found',
+		];
+
+		if(Partner::query()->where('id', '=', $request->partner_id)->exists()) 
 		{
-			$obj = Partner::find($request->partner_id);
+			$obj = Partner::query()->find($request->partner_id);
             $obj->contract_start = $request->contract_start;
 			$obj->contract_expiry = $request->contract_expiry;
 			if(isset($request->represent_region) && !empty($request->represent_region)){
@@ -1031,7 +1498,7 @@ class PartnersController extends Controller
           
             if ($request->hasfile('file_upload')) {
                 // Get partner info for S3 path structure
-                $partner_info = Partner::select('id','partner_name','email')->where('id', $request->partner_id)->first();
+                $partner_info = Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $request->partner_id)->first();
                 if(!empty($partner_info) && !empty($partner_info->email)){
                     $partner_unique_id = $partner_info->email;
                 } else {
@@ -1079,7 +1546,7 @@ class PartnersController extends Controller
                     Storage::disk('s3')->put($filePath, file_get_contents($file));
                     
                     // Get the full URL of the uploaded file
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $fileUrl = $this->s3Url($filePath);
                     $obj->file_upload = $fileUrl; // Store full S3 URL
                 }
             }
@@ -1104,7 +1571,7 @@ class PartnersController extends Controller
 	{
 		try {
 			// Validate partner exists
-			if (!Partner::where('id', '=', $request->partner_id)->exists()) {
+			if (!Partner::query()->where('id', '=', $request->partner_id)->exists()) {
 				return response()->json([
 					'status' => false,
 					'message' => 'Partner not found'
@@ -1113,7 +1580,7 @@ class PartnersController extends Controller
 
 			// Create or update agreement
 			if (isset($request->agreement_id) && $request->agreement_id != '') {
-				$agreement = PartnerAgreement::find($request->agreement_id);
+				$agreement = PartnerAgreement::query()->find($request->agreement_id);
 				if (!$agreement) {
 					return response()->json([
 						'status' => false,
@@ -1145,7 +1612,7 @@ class PartnersController extends Controller
 			// Handle file upload
 			if ($request->hasfile('file_upload')) {
 				// Get partner info for S3 path structure
-				$partner_info = Partner::select('id', 'partner_name', 'email')->where('id', $request->partner_id)->first();
+				$partner_info = Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $request->partner_id)->first();
 				$partner_unique_id = !empty($partner_info->email) ? $partner_info->email : "";
 
 				// Handle old file deletion (S3)
@@ -1169,7 +1636,7 @@ class PartnersController extends Controller
 				$filePath = $partner_unique_id . '/agreements/' . $name;
 				Storage::disk('s3')->put($filePath, file_get_contents($file));
 				
-				$fileUrl = Storage::disk('s3')->url($filePath);
+				$fileUrl = $this->s3Url($filePath);
 				$agreement->file_upload = $fileUrl;
 			}
 
@@ -1205,7 +1672,7 @@ class PartnersController extends Controller
 	{
 		$partner_id = $request->partner_id;
 		
-		$agreements = PartnerAgreement::where('partner_id', $partner_id)
+		$agreements = PartnerAgreement::query()->where('partner_id', $partner_id)
 			->orderBy('created_at', 'DESC')
 			->get();
 
@@ -1222,7 +1689,7 @@ class PartnersController extends Controller
 	{
 		$agreement_id = $request->agreement_id;
 		
-		$agreement = PartnerAgreement::find($agreement_id);
+		$agreement = PartnerAgreement::query()->find($agreement_id);
 
 		if ($agreement) {
 			return response()->json([
@@ -1244,7 +1711,7 @@ class PartnersController extends Controller
 	{
 		$agreement_id = $request->agreement_id;
 		
-		$agreement = PartnerAgreement::find($agreement_id);
+		$agreement = PartnerAgreement::query()->find($agreement_id);
 
 		if (!$agreement) {
 			return response()->json([
@@ -1266,7 +1733,7 @@ class PartnersController extends Controller
 			}
 		}
 
-		$deleted = $agreement->delete();
+		$deleted = DB::table('partner_agreements')->where('id', $agreement->id)->delete() > 0;
 
 		if ($deleted) {
 			// Update partners table for backward compatibility
@@ -1291,7 +1758,7 @@ class PartnersController extends Controller
 	{
 		$agreement_id = $request->agreement_id;
 		
-		$agreement = PartnerAgreement::find($agreement_id);
+		$agreement = PartnerAgreement::query()->find($agreement_id);
 
 		if (!$agreement) {
 			return response()->json([
@@ -1301,7 +1768,7 @@ class PartnersController extends Controller
 		}
 
 		// Deactivate all agreements for this partner
-		PartnerAgreement::where('partner_id', $agreement->partner_id)
+		PartnerAgreement::query()->where('partner_id', $agreement->partner_id)
 			->update(['status' => 'inactive']);
 
 		// Activate the selected agreement
@@ -1351,15 +1818,15 @@ class PartnersController extends Controller
 	/**
 	 * Sync partners table with latest active agreement for backward compatibility
 	 */
-	private function syncPartnerTableWithLatestAgreement($partner_id)
+	private function syncPartnerTableWithLatestAgreement(int|string $partner_id): void
 	{
-		$latestAgreement = PartnerAgreement::where('partner_id', $partner_id)
+		$latestAgreement = PartnerAgreement::query()->where('partner_id', $partner_id)
 			->where('status', 'active')
 			->orderBy('created_at', 'DESC')
 			->first();
 
 		if ($latestAgreement) {
-			$partner = Partner::find($partner_id);
+			$partner = Partner::query()->find($partner_id);
 			if ($partner) {
 				$partner->contract_start = $latestAgreement->contract_start;
 				$partner->contract_expiry = $latestAgreement->contract_expiry;
@@ -1375,7 +1842,7 @@ class PartnersController extends Controller
 	
 	public function createbranch(Request $request){
 		if(isset($request->branch_id) && $request->branch_id != ''){
-			$obj = PartnerBranch::find($request->branch_id);
+			$obj = PartnerBranch::query()->find($request->branch_id);
 		}else{
 			$obj = new PartnerBranch;
 		}
@@ -1406,7 +1873,7 @@ class PartnersController extends Controller
 	}
 	
 	public function getbranch(Request $request){
-		$branchesquery = PartnerBranch::where('partner_id', $request->clientid)->orderby('created_at', 'DESC');
+		$branchesquery = PartnerBranch::query()->where('partner_id', $request->clientid)->orderby('created_at', 'DESC');
 		$branchescount = $branchesquery->count();
 		$branches = $branchesquery->get();
 		if($branchescount !== 0){
@@ -1446,8 +1913,8 @@ class PartnersController extends Controller
 	
 	public function getbranchdetail(Request $request){
 		$note_id = $request->note_id;
-		if(\App\Models\PartnerBranch::where('id',$note_id)->exists()){
-			$data = \App\Models\PartnerBranch::where('id',$note_id)->first();
+		if(\App\Models\PartnerBranch::query()->where('id',$note_id)->exists()){
+			$data = \App\Models\PartnerBranch::query()->where('id',$note_id)->first();
 			$response['status'] 	= 	true;
 			$response['data']	=	$data;
 		}else{
@@ -1459,7 +1926,7 @@ class PartnersController extends Controller
 	
 	public function deletebranch(Request $request){
 		$note_id = $request->note_id;
-		if(\App\Models\PartnerBranch::where('id',$note_id)->exists()){
+		if(\App\Models\PartnerBranch::query()->where('id',$note_id)->exists()){
 			$res = DB::table('partner_branches')->where('id', @$note_id)->delete();
 			if($res){
 				
@@ -1479,8 +1946,19 @@ class PartnersController extends Controller
     public function savepartnerstudentinvoice(Request $request, $id = NULL)
 	{
 		$requestData = $request->all(); //echo '<pre>'; print_r($requestData); die;
+		$response = [];
+
         if( $requestData['function_type'] == 'add')
         {
+			$saved = false;
+			$finalArr = [];
+			$insertedDocId = null;
+			$doc_saved = false;
+			$name = '';
+			$client_unique_id = '';
+			$doctype = '';
+			$invoice_id = null;
+
             if ($request->hasfile('document_upload'))
             {
                 if(!is_array($request->file('document_upload'))){
@@ -1489,7 +1967,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -1509,7 +1987,7 @@ class PartnersController extends Controller
                     $obj->filetype = $exploadename[1];
                     $obj->user_id = Auth::user()->id;
                     //Get the full URL of the uploaded file
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $fileUrl = $this->s3Url($filePath);
                     $obj->myfile = $fileUrl;
                     $obj->myfile_key = $name;
 
@@ -1596,7 +2074,7 @@ class PartnersController extends Controller
                     $response['awsUrl'] =  "";
                     $subject = 'added student invoice with invoice No-'.$requestData['invoice_no'];
                 }
-                $printUrl = \URL::to('/partners/printpreviewcreateinvoice').'/'.$invoice_id;
+                $printUrl = URL::to('/partners/printpreviewcreateinvoice').'/'.$invoice_id;
                 $response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -1611,6 +2089,14 @@ class PartnersController extends Controller
         }
         else if( $requestData['function_type'] == 'edit')
         {
+			$saved = false;
+			$finalArr = [];
+			$insertedDocId2 = null;
+			$doc_saved2 = false;
+			$name = '';
+			$client_unique_id = '';
+			$doctype = '';
+
             if ($request->hasfile('document_upload'))
             {
                 if(!is_array($request->file('document_upload'))){
@@ -1619,7 +2105,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -1639,7 +2125,7 @@ class PartnersController extends Controller
                     $obj2->filetype = $exploadename[1];
                     $obj2->user_id = Auth::user()->id;
                     //Get the full URL of the uploaded file
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $fileUrl = $this->s3Url($filePath);
                     $obj2->myfile = $fileUrl;
                     $obj2->myfile_key = $name;
 
@@ -1773,7 +2259,7 @@ class PartnersController extends Controller
                     $response['awsUrl2'] =  "";
                     $subject = 'added student invoice with invoice No-'.$requestData['invoice_no'];
                 }
-                $printUrl2 = \URL::to('/partners/printpreviewcreateinvoice').'/'.$requestData['invoice_id'];
+                $printUrl2 = URL::to('/partners/printpreviewcreateinvoice').'/'.$requestData['invoice_id'];
                 $response['printUrl2'] = $printUrl2;
 
                 $response['status'] 	= 	true;
@@ -1861,8 +2347,19 @@ class PartnersController extends Controller
     public function savepartnerrecordinvoice(Request $request, $id = NULL)
 	{
 		$requestData = $request->all(); //echo '<pre>'; print_r($requestData); die;
+		$response = [];
+
         if( $requestData['function_type'] == 'add')
         {
+			$saved = false;
+			$finalArr = [];
+			$insertedDocId = null;
+			$doc_saved = false;
+			$name = '';
+			$client_unique_id = '';
+			$doctype = '';
+			$invoice_id = null;
+
             if ($request->hasfile('document_upload'))
             {
                 if(!is_array($request->file('document_upload'))){
@@ -1871,7 +2368,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -1896,7 +2393,7 @@ class PartnersController extends Controller
                     //$obj->myfile = $name;
 
                     // Get the full URL of the uploaded file
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $fileUrl = $this->s3Url($filePath);
                     $obj->myfile = $fileUrl;
                     $obj->myfile_key = $name;
 
@@ -1970,7 +2467,7 @@ class PartnersController extends Controller
                     $subject = 'added record invoice with Receipt No-'.$invoice_id;
                 }
 
-                //$printUrl = \URL::to('/partners/printpreviewrecordinvoice').'/'.$invoice_id;
+                //$printUrl = URL::to('/partners/printpreviewrecordinvoice').'/'.$invoice_id;
                 //$response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -2012,8 +2509,19 @@ class PartnersController extends Controller
     public function savepartnerrecordpayment(Request $request, $id = NULL)
 	{
 		$requestData = $request->all(); //echo '<pre>'; print_r($requestData); die;
+		$response = [];
+
         if( $requestData['function_type'] == 'add')
         {
+			$saved = false;
+			$finalArr = [];
+			$insertedDocId = null;
+			$doc_saved = false;
+			$name = '';
+			$client_unique_id = '';
+			$doctype = '';
+			$invoice_id = null;
+
             if ($request->hasfile('document_upload'))
             {
                 if(!is_array($request->file('document_upload'))){
@@ -2022,7 +2530,7 @@ class PartnersController extends Controller
                     $files = $request->file('document_upload');
                 }
 
-                $partner_info = \App\Models\Partner::select('id','partner_name','email')->where('id', $requestData['partner_id'])->first(); //dd($admin);
+                $partner_info = \App\Models\Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $requestData['partner_id'])->first(); //dd($admin);
                 if(!empty($partner_info)){
                     $client_unique_id = $partner_info->email;
                 } else {
@@ -2047,7 +2555,7 @@ class PartnersController extends Controller
                     //$obj->myfile = $name;
 
                     // Get the full URL of the uploaded file
-                    $fileUrl = Storage::disk('s3')->url($filePath);
+                    $fileUrl = $this->s3Url($filePath);
                     $obj->myfile = $fileUrl;
                     $obj->myfile_key = $name;
 
@@ -2114,7 +2622,7 @@ class PartnersController extends Controller
                     $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
                     $awsUrl = $url.$client_unique_id.'/'.$doctype.'/'.$name; //dd($awsUrl);
 
-                    //$awsUrl = \URL::to('/img/client_receipts').'/'.$document_upload;
+                    //$awsUrl = URL::to('/img/client_receipts').'/'.$document_upload;
                     $response['awsUrl'] = $awsUrl;
                     $response['message'] = 'Record Payment with document added successfully';
 
@@ -2125,7 +2633,7 @@ class PartnersController extends Controller
                     $subject = 'added record payment with Receipt No-'.$invoice_id;
                 }
 
-                $printUrl = \URL::to('/partners/printpreview').'/'.$invoice_id;
+                $printUrl = URL::to('/partners/printpreview').'/'.$invoice_id;
                 $response['printUrl'] = $printUrl;
             } else {
                 $response['lastInsertedId'] = "";
@@ -2156,7 +2664,7 @@ class PartnersController extends Controller
             $response['message']	=	'Student status updated successfully.';
             $response['studentId']	=   $request->student_id;
 
-
+			$student_status = (string) $request->new_status;
             if($request->new_status == 0){
                 $student_status = "In Progress";
             } else if($request->new_status == 1){
@@ -2193,7 +2701,7 @@ class PartnersController extends Controller
     public function getStudentInfo(Request $request)
 	{
         //dd($request->sel_student_id);
-        $record_get = \App\Models\Admin::select('first_name','last_name','id','dob','client_id')
+        $record_get = \App\Models\Admin::query()->select(['first_name', 'last_name', 'id', 'dob', 'client_id'])
         ->where('id', $request->sel_student_id)->first(); //dd($record_get);
         if($record_get) {
             if( $record_get->dob != ""){
@@ -2275,6 +2783,7 @@ class PartnersController extends Controller
 	{
         $requestData = 	$request->all();
         $invoice_type = $requestData['type'];
+		$newInvoice = null;
         $get_invoice_info = DB::table('partner_student_invoices')->select('invoice_no')->where('invoice_type', $invoice_type)->orderBy('id', 'desc')->first();
         //dd($get_invoice_info);
         if($get_invoice_info) {
@@ -2299,7 +2808,7 @@ class PartnersController extends Controller
     }
 
 
-    public function printpreviewcreateinvoice(Request $request, $id){
+    public function printpreviewcreateinvoice(Request $request, string|int $id){
         //phpinfo();
         $record_get = DB::table('partner_student_invoices')->where('invoice_type',1)->where('invoice_id',$id)->get();
         //dd($record_get);
@@ -2446,7 +2955,7 @@ class PartnersController extends Controller
             'message' => $failureMessage,
         ];
 
-        $partnerInfo = Partner::select('id', 'partner_name', 'email')->where('id', $request->partner_id)->first();
+        $partnerInfo = Partner::query()->select(['id', 'partner_name', 'email'])->where('id', $request->partner_id)->first();
         $partnerUniqueId = !empty($partnerInfo) ? $partnerInfo->email : '';
         $docType = 'partner_email_fetch';
 
@@ -2482,7 +2991,7 @@ class PartnersController extends Controller
             }
 
             Storage::disk('s3')->put($filePath, $fileContents);
-            $fileUrl = Storage::disk('s3')->url($filePath);
+            $fileUrl = $this->s3Url($filePath);
 
             $document = new \App\Models\Document;
             $document->file_name = $fileName;
@@ -2654,7 +3163,7 @@ class PartnersController extends Controller
         $action->description		= $description;
 
         //Get assigner name
-        $assignee_info = \App\Models\Staff::select('id','first_name','last_name')->find($requestData['rem_cat123']);
+        $assignee_info = \App\Models\Staff::query()->select(['id', 'first_name', 'last_name'])->find($requestData['rem_cat123']);
         if($assignee_info){
             $assignee_name = $assignee_info->first_name;
         } else {
@@ -2745,11 +3254,11 @@ class PartnersController extends Controller
   
     //Get partner all actions
     /*public function partnerActivities(Request $request){ //dd($request->all());
-		if(Partner::where('id', $request->id)->exists()){
-			$activities = ActivitiesLog::where('client_id', $request->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
+		if(Partner::query()->where('id', $request->id)->exists()){
+			$activities = ActivitiesLog::query()->where('client_id', $request->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){
-				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
+				$admin = \App\Models\Staff::query()->find($activit->created_by) ?? Admin::query()->find($activit->created_by);
                 $data[] = array(
                     'activity_id' => $activit->id,
 					'subject' => $activit->subject,
@@ -2774,10 +3283,10 @@ class PartnersController extends Controller
   
     //Fetch all contact list of any partner at create note popup
      public function fetchPartnerContactNo(Request $request){ //dd($request->all());
-        if( \App\Models\PartnerPhone::where('partner_id', $request->partner_id)->exists())
+        if( \App\Models\PartnerPhone::query()->where('partner_id', $request->partner_id)->exists())
         {
             //Fetch All partner contacts
-            $partnerContacts = \App\Models\PartnerPhone::select('partner_phone','partner_country_code')->where('partner_id', $request->partner_id)->get();
+            $partnerContacts = \App\Models\PartnerPhone::query()->select(['partner_phone', 'partner_country_code'])->where('partner_id', $request->partner_id)->get();
             //dd($partnerContacts);
             if( !empty($partnerContacts) && count($partnerContacts)>0 ){
                 $response['status'] 	= 	true;
@@ -2791,9 +3300,9 @@ class PartnersController extends Controller
         }
         else
         {
-            if( \App\Models\Partner::where('id', $request->partner_id)->exists()){
+            if( \App\Models\Partner::query()->where('id', $request->partner_id)->exists()){
                 //Fetch All partner contacts
-                $partnerContacts = \App\Models\Partner::select('phone as partner_phone','country_code as partner_country_code')->where('id', $request->partner_id)->get();
+                $partnerContacts = \App\Models\Partner::query()->select(['phone as partner_phone', 'country_code as partner_country_code'])->where('id', $request->partner_id)->get();
                 //dd($partnerContacts);
                 if( !empty($partnerContacts) && count($partnerContacts)>0 ){
                     $response['status'] 	= 	true;
@@ -2820,11 +3329,25 @@ class PartnersController extends Controller
     public function updateStudentApplicationOverallStatus(Request $request)
 	{
         //dd($request->all());
-        if( isset($request->application_overall_status) && $request->application_overall_status == 0){
+		$response = [];
+
+		if (!isset($request->application_overall_status)) {
+			$response['status'] = false;
+			$response['message'] = 'No changes made or student application overall not found.Please try again';
+			echo json_encode($response);
+			return;
+		}
+
+        if( (int) $request->application_overall_status === 0){
             $application_overall_status = 1;
-        } else if( isset($request->application_overall_status) && $request->application_overall_status == 1){
+        } else if( (int) $request->application_overall_status === 1){
             $application_overall_status = 0;
-        }
+        } else {
+			$response['status'] = false;
+			$response['message'] = 'No changes made or student application overall not found.Please try again';
+			echo json_encode($response);
+			return;
+		}
         $updatedRows = DB::table('applications')->where('id', $request->application_student_id)->update(['overall_status' => $application_overall_status]);
         // Check if the update was successful
         if ($updatedRows > 0) {
@@ -2848,7 +3371,7 @@ class PartnersController extends Controller
     public function addstudentnote(Request $request){ //dd($request->all());
         //In Student Note
         if(isset($request->noteid) && $request->noteid != ''){
-            $obj = \App\Models\Note::find($request->noteid);
+            $obj = \App\Models\Note::query()->find($request->noteid);
         } else {
             $obj = new \App\Models\Note;
         }
@@ -2922,11 +3445,11 @@ class PartnersController extends Controller
 
     //Get Partner all activity logs
     public function activities(Request $request){
-		if(Partner::where('id', $request->partner_id)->exists()){
-			$activities = ActivitiesLog::where('client_id', $request->partner_id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
+		if(Partner::query()->where('id', $request->partner_id)->exists()){
+			$activities = ActivitiesLog::query()->where('client_id', $request->partner_id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
 			$data = array();
 			foreach($activities as $activit){
-				$admin = \App\Models\Staff::find($activit->created_by) ?? Admin::find($activit->created_by);
+				$admin = \App\Models\Staff::query()->find($activit->created_by) ?? Admin::query()->find($activit->created_by);
                 $data[] = array(
                     'activity_id' => $activit->id,
 					'subject' => $activit->subject,
@@ -2970,7 +3493,7 @@ class PartnersController extends Controller
             ]);
         }
 
-        $application = \App\Models\Application::find($request->rowId);
+        $application = \App\Models\Application::query()->find($request->rowId);
         if (!$application) {
             return response()->json([
                 'status' => false,
@@ -3029,10 +3552,10 @@ class PartnersController extends Controller
 		$client_id = $request->clientid;
 		$type = $request->type;
 
-		$notelist = \App\Models\Note::where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
+		$notelist = \App\Models\Note::query()->where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
 		ob_start();
 		foreach($notelist as $list){
-			$admin = \App\Models\Staff::find($list->user_id);
+			$admin = \App\Models\Staff::query()->find($list->user_id);
 			?>
 			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
                 <div class="note-icon bg-primary text-white" style="width: 50px;height: 50px;line-height: 50px;font-size: 20px;margin-right: 20px;border-radius: 50%;text-align: center;">
@@ -3078,7 +3601,7 @@ class PartnersController extends Controller
 
 					<!--<div class="left">
 						<div class="author">
-							<a href="<?php //echo \URL::to('/users/view/'.$admin->id); ?>"><?php //echo substr($admin->first_name, 0, 1); ?></a>
+							<a href="<?php //echo URL::to('/users/view/'.$admin->id); ?>"><?php //echo substr($admin->first_name, 0, 1); ?></a>
 						</div>
 						<div class="note_modify">
 							<small>Last Modified <span><?php //echo date('d/m/Y h:i A', strtotime($list->updated_at)); ?></span></small>
@@ -3097,6 +3620,11 @@ class PartnersController extends Controller
    //Partner upload document
     public function uploadpartnerdocumentupload(Request $request){ //dd($request->all());
         $id = $request->clientid;
+		$response = [
+			'status' => false,
+			'message' => 'Please try again',
+		];
+		$saved = false;
         //get partner info
         $partner_info = \App\Models\Partner::select('email')->where('id', $id)->first(); //dd($partner_info);
         if(!empty($partner_info)){
@@ -3128,7 +3656,7 @@ class PartnersController extends Controller
                 $obj->filetype = $fileExtension;
                 $obj->user_id = Auth::user()->id;
                 // Get the full URL of the uploaded file
-                $fileUrl = Storage::disk('s3')->url($filePath);
+                $fileUrl = $this->s3Url($filePath);
                 $obj->myfile = $fileUrl;
                 $obj->myfile_key = $name;
 
@@ -3153,14 +3681,14 @@ class PartnersController extends Controller
                 }
 				$response['status'] 	= 	true;
 				$response['message']	=	'You have successfully uploaded your partner document';
-				$fetchd = \App\Models\Document::where('client_id',$id)
+				$fetchd = \App\Models\Document::query()->where('client_id',$id)
                         ->where(function ($query) {
                             $query->whereNull('doc_type')
                                 ->orWhere('doc_type', '');
                         })->where('type','partner')->orderby('created_at', 'DESC')->get();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Staff::find($fetch->user_id);
+					$admin = \App\Models\Staff::query()->find($fetch->user_id);
                     ?>
 					<tr class="drow" id="id_<?php echo $fetch->id; ?>">
                         <td style="white-space: initial;">
@@ -3199,7 +3727,7 @@ class PartnersController extends Controller
                                             <?php
                                             $explodeimg = explode('.',$fetch->myfile);
                                             if($explodeimg[1] == 'jpg'|| $explodeimg[1] == 'png'|| $explodeimg[1] == 'jpeg'){ ?>
-                                                <a target="_blank" class="dropdown-item" href="<?php echo \URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
+                                                <a target="_blank" class="dropdown-item" href="<?php echo URL::to('/document/download/pdf'); ?>/<?php echo $fetch->id; ?>">PDF</a>
                                             <?php } ?>
                                             <a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>
                                         <?php
@@ -3217,7 +3745,7 @@ class PartnersController extends Controller
 				$data = ob_get_clean();
 				ob_start();
 				foreach($fetchd as $fetch){
-					$admin = \App\Models\Staff::find($fetch->user_id);
+					$admin = \App\Models\Staff::query()->find($fetch->user_id);
 					?>
 					<div class="grid_list">
 						<div class="grid_col">
@@ -3340,7 +3868,7 @@ class PartnersController extends Controller
                 $response['message'] = 'Checklist name is required';
             }
         } catch (\Exception $e) {
-            \Log::error('Error in addalldocchecklist (partner): ' . $e->getMessage() . ' at line ' . $e->getLine());
+            Log::error('Error in addalldocchecklist (partner): ' . $e->getMessage() . ' at line ' . $e->getLine());
             $response = ['status' => false, 'message' => 'An error occurred: ' . $e->getMessage()];
         }
         echo json_encode($response);
@@ -3370,7 +3898,7 @@ class PartnersController extends Controller
                 $name = time() . $files->getClientOriginalName();
                 $filePath = $partner_unique_email.'/'.$doctype.'/'. $name;
 
-                \Log::error('partners.uploadalldocument start', [
+                Log::error('partners.uploadalldocument start', [
                     'debug_id' => $debugId,
                     'client_id' => $partnerid,
                     'doctype' => $doctype,
@@ -3388,18 +3916,18 @@ class PartnersController extends Controller
                 
                 // If fileid provided, update existing entry
                 if (!empty($req_file_id)) {
-                    $obj = \App\Models\Document::find($req_file_id);
+                    $obj = \App\Models\Document::query()->find($req_file_id);
                     if (!$obj) {
                         $response['status'] = false;
                         $response['message'] = 'Document not found';
-                        \Log::error('partners.uploadalldocument missing document', [
+                        Log::error('partners.uploadalldocument missing document', [
                             'debug_id' => $debugId,
                             'fileid' => $req_file_id,
                         ]);
                         echo json_encode($response);
                         return;
                     }
-                    \Log::error('partners.uploadalldocument update existing', [
+                    Log::error('partners.uploadalldocument update existing', [
                         'debug_id' => $debugId,
                         'document_id' => $obj->id,
                         'existing_checklist' => $obj->checklist,
@@ -3407,7 +3935,7 @@ class PartnersController extends Controller
                 } else {
                     $obj = null;
                     if (!empty($checklist)) {
-                        $obj = \App\Models\Document::where('client_id', $partnerid)
+                        $obj = \App\Models\Document::query()->where('client_id', $partnerid)
                             ->where('type', 'partner')
                             ->where('doc_type', $doctype)
                             ->where('checklist', $checklist)
@@ -3422,12 +3950,12 @@ class PartnersController extends Controller
                         if (!empty($checklist)) {
                             $obj->checklist = $checklist;
                         }
-                        \Log::error('partners.uploadalldocument create new', [
+                        Log::error('partners.uploadalldocument create new', [
                             'debug_id' => $debugId,
                             'checklist' => $checklist,
                         ]);
                     } else {
-                        \Log::error('partners.uploadalldocument reuse checklist placeholder', [
+                        Log::error('partners.uploadalldocument reuse checklist placeholder', [
                             'debug_id' => $debugId,
                             'document_id' => $obj->id,
                             'checklist' => $obj->checklist,
@@ -3438,7 +3966,7 @@ class PartnersController extends Controller
                 $obj->file_name = $nameWithoutExtension;
                 $obj->filetype = $fileExtension;
                 $obj->user_id = Auth::user()->id;
-                $fileUrl = Storage::disk('s3')->url($filePath);
+                $fileUrl = $this->s3Url($filePath);
                 $obj->myfile = $fileUrl;
                 $obj->myfile_key = $name;
                 $obj->client_id = $partnerid;
@@ -3446,7 +3974,7 @@ class PartnersController extends Controller
                 $obj->file_size = $size;
                 $obj->doc_type = $doctype;
                 $saved = $obj->save();
-                \Log::error('partners.uploadalldocument saved', [
+                Log::error('partners.uploadalldocument saved', [
                     'debug_id' => $debugId,
                     'document_id' => $obj->id,
                     'saved' => (bool) $saved,
@@ -3454,14 +3982,14 @@ class PartnersController extends Controller
                     'final_file_name' => $obj->file_name,
                 ]);
                 if ($saved) {
-                    $dupes = \App\Models\Document::where('client_id', $partnerid)
+                    $dupes = \App\Models\Document::query()->where('client_id', $partnerid)
                         ->where('type', 'partner')
                         ->where('doc_type', $doctype)
                         ->where('file_name', $nameWithoutExtension)
                         ->whereNull('not_used_doc')
                         ->get(['id', 'checklist', 'file_name', 'created_at']);
                     if ($dupes->count() > 1) {
-                        \Log::error('partners.uploadalldocument duplicates detected', [
+                        Log::error('partners.uploadalldocument duplicates detected', [
                             'debug_id' => $debugId,
                             'duplicate_count' => $dupes->count(),
                             'records' => $dupes->map(function ($row) {
@@ -3500,7 +4028,7 @@ class PartnersController extends Controller
                 $response['message'] = 'Please try again';
             }
         } catch (\Throwable $e) {
-            \Log::error('partners.uploadalldocument exception', [
+            Log::error('partners.uploadalldocument exception', [
                 'debug_id' => $request->input('debug_id'),
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
@@ -3510,6 +4038,14 @@ class PartnersController extends Controller
             $response['message'] = 'Upload failed: ' . $e->getMessage();
         }
         echo json_encode($response);
+    }
+
+    private function s3Url(string $path): string
+    {
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('s3');
+
+        return $disk->url($path);
     }
     
 }

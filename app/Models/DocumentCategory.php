@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
-class DocumentCategory extends Model
+class DocumentCategory extends BaseModel
 {
     use Sortable;
 
@@ -72,7 +73,7 @@ class DocumentCategory extends Model
     /**
      * Scope to get only active categories
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 1);
     }
@@ -80,7 +81,7 @@ class DocumentCategory extends Model
     /**
      * Scope to get default categories (General)
      */
-    public function scopeDefault($query)
+    public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }
@@ -89,7 +90,7 @@ class DocumentCategory extends Model
      * Scope to get categories for a specific client
      * Includes default categories and client-specific categories
      */
-    public function scopeForClient($query, $clientId)
+    public function scopeForClient(Builder $query, int|string $clientId): Builder
     {
         return $query->where(function($q) use ($clientId) {
             $q->where('is_default', true) // Include default categories
@@ -100,7 +101,7 @@ class DocumentCategory extends Model
     /**
      * Scope to get categories created by a specific user for a client
      */
-    public function scopeForUserAndClient($query, $userId, $clientId)
+    public function scopeForUserAndClient(Builder $query, int|string $userId, int|string $clientId): Builder
     {
         return $query->where(function($q) use ($userId, $clientId) {
             $q->where('is_default', true) // Include default categories
@@ -142,24 +143,32 @@ class DocumentCategory extends Model
     /**
      * Get the count of documents in this category for a specific client
      */
-    public function getDocumentCount($clientId = null): int
+    public function getDocumentCount(int|string|null $clientId = null): int
     {
         // Education/Migration categories: count migrated (category_id) + legacy (doc_type)
         if ($this->name === 'Education') {
-            return Document::whereNull('not_used_doc')
-                ->where('type', 'client')
-                ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
-                ->where(function ($q) {
+            $query = DB::table('documents')
+                ->whereNull('not_used_doc')
+                ->where('type', 'client');
+            if ($clientId !== null) {
+                $query->where('client_id', $clientId);
+            }
+
+            return (int) $query->where(function ($q) {
                     $q->where('category_id', $this->id)
                         ->orWhere('doc_type', 'education');
                 })
                 ->count();
         }
         if ($this->name === 'Migration') {
-            return Document::whereNull('not_used_doc')
-                ->where('type', 'client')
-                ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
-                ->where(function ($q) {
+            $query = DB::table('documents')
+                ->whereNull('not_used_doc')
+                ->where('type', 'client');
+            if ($clientId !== null) {
+                $query->where('client_id', $clientId);
+            }
+
+            return (int) $query->where(function ($q) {
                     $q->where('category_id', $this->id)
                         ->orWhere('doc_type', 'migration');
                 })

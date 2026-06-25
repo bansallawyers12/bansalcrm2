@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Support\StaffAssigneeResolver;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Kyslik\ColumnSortable\Sortable;
 
+/**
+ * @method static static|null find($id, $columns = null)
+ * @method static \Illuminate\Database\Eloquent\Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ */
 class Staff extends Authenticatable
 {
     use Notifiable, Sortable;
@@ -75,7 +80,7 @@ class Staff extends Authenticatable
         );
     }
 
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', 1);
     }

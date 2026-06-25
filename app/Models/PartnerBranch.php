@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 
-class PartnerBranch extends Model
+class PartnerBranch extends BaseModel
 {
 	use Sortable;
 	
