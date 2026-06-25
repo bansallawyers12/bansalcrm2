@@ -945,6 +945,8 @@ class PartnersController extends Controller
 
 	private const PARTNER_STUDENT_STAGES = ['Coe issued', 'Enrolled', 'Coe Cancelled'];
 
+	private const PARTNER_STUDENT_TAB_CACHE_SECONDS = 600;
+
 	private function partnerStudentStatusMap(): array
 	{
 		return [
@@ -1122,7 +1124,7 @@ class PartnersController extends Controller
 		$cacheKey = "partner_student_count_v6_{$partnerId}_{$list}";
 
 		try {
-			return (int) Cache::remember($cacheKey, 300, function () use ($query) {
+			return (int) Cache::remember($cacheKey, self::PARTNER_STUDENT_TAB_CACHE_SECONDS, function () use ($query) {
 				return (clone $query)->count();
 			});
 		} catch (\Throwable $e) {
@@ -1313,7 +1315,7 @@ class PartnersController extends Controller
 		$cacheKey = "partner_students_totals_v7_{$partnerId}_{$list}";
 
 		try {
-			return Cache::remember($cacheKey, 300, function () use ($partnerId, $list) {
+			return Cache::remember($cacheKey, self::PARTNER_STUDENT_TAB_CACHE_SECONDS, function () use ($partnerId, $list) {
 				return $this->computePartnerStudentTabTotals($partnerId, $list, '', '');
 			});
 		} catch (\Throwable $e) {
@@ -1449,18 +1451,27 @@ class PartnersController extends Controller
 
 			$recordsTotal = 0;
 			$recordsFiltered = 0;
-			try {
-				$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
-				$recordsFiltered = ($searchValue === '' && $statusFilter === '')
-					? $recordsTotal
-					: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
-			} catch (\Throwable $countException) {
+			$deferCounts = $request->boolean('defer_counts')
+				&& $start === 0
+				&& $searchValue === ''
+				&& $statusFilter === '';
+
+			if ($deferCounts) {
 				[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
-				$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
-					'partner_id' => $partnerId,
-					'message'    => $countException->getMessage(),
-					'estimated'  => $recordsTotal,
-				]);
+			} else {
+				try {
+					$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
+					$recordsFiltered = ($searchValue === '' && $statusFilter === '')
+						? $recordsTotal
+						: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
+				} catch (\Throwable $countException) {
+					[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
+					$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
+						'partner_id' => $partnerId,
+						'message'    => $countException->getMessage(),
+						'estimated'  => $recordsTotal,
+					]);
+				}
 			}
 
 			$this->logPartnerStudentTab('info', 'getStudentTabData request completed', [

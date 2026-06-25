@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Partner Detail')
 
 @section('content')
@@ -328,50 +328,52 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							@php
 								$partnerId = base64_encode(convert_uuencode($fetchedData->id));
+								$partnerRouteId = rawurlencode($partnerId);
+								$partnerDetailBase = url('/partners/detail/'.$partnerRouteId);
 							@endphp
 							<ul class="nav nav-pills" id="partner_tabs" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId])}}" id="application-tab" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
+									<a class="nav-link {{ $activeTab === 'application' ? 'active' : '' }}" href="{{ $partnerDetailBase }}" id="application-tab" role="tab" aria-controls="application" aria-selected="{{ $activeTab === 'application' ? 'true' : 'false' }}">Applications</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'partner-activities' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'activities'])}}" id="partner-activities-tab" role="tab" aria-controls="partner-activities" aria-selected="{{ $activeTab === 'partner-activities' ? 'true' : 'false' }}">Activities</a>
+									<a class="nav-link {{ $activeTab === 'partner-activities' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/activities' }}" id="partner-activities-tab" role="tab" aria-controls="partner-activities" aria-selected="{{ $activeTab === 'partner-activities' ? 'true' : 'false' }}">Activities</a>
                                 </li>
                               
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'products' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'products'])}}" id="products-tab" role="tab" aria-controls="products" aria-selected="{{ $activeTab === 'products' ? 'true' : 'false' }}">Products</a>
+									<a class="nav-link {{ $activeTab === 'products' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/products' }}" id="products-tab" role="tab" aria-controls="products" aria-selected="{{ $activeTab === 'products' ? 'true' : 'false' }}">Products</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'branches' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'branches'])}}" id="branches-tab" role="tab" aria-controls="branches" aria-selected="{{ $activeTab === 'branches' ? 'true' : 'false' }}">Branches</a>
+									<a class="nav-link {{ $activeTab === 'branches' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/branches' }}" id="branches-tab" role="tab" aria-controls="branches" aria-selected="{{ $activeTab === 'branches' ? 'true' : 'false' }}">Branches</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'agreements' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'agreements'])}}" id="agreements-tab" role="tab" aria-controls="agreements" aria-selected="{{ $activeTab === 'agreements' ? 'true' : 'false' }}">Agreements</a>
+									<a class="nav-link {{ $activeTab === 'agreements' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/agreements' }}" id="agreements-tab" role="tab" aria-controls="agreements" aria-selected="{{ $activeTab === 'agreements' ? 'true' : 'false' }}">Agreements</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'noteterm' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'notestrm'])}}" id="noteterm-tab" role="tab" aria-controls="noteterm" aria-selected="{{ $activeTab === 'noteterm' ? 'true' : 'false' }}">Notes & Terms</a>
+									<a class="nav-link {{ $activeTab === 'noteterm' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/notestrm' }}" id="noteterm-tab" role="tab" aria-controls="noteterm" aria-selected="{{ $activeTab === 'noteterm' ? 'true' : 'false' }}">Notes & Terms</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'documents'])}}" id="documents-tab" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Documents</a>
+									<a class="nav-link {{ $activeTab === 'documents' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/documents' }}" id="documents-tab" role="tab" aria-controls="documents" aria-selected="{{ $activeTab === 'documents' ? 'true' : 'false' }}">Documents</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'notuseddocuments' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'notuseddocuments'])}}" id="notuseddocuments-tab" role="tab" aria-controls="notuseddocuments" aria-selected="{{ $activeTab === 'notuseddocuments' ? 'true' : 'false' }}">Not Used Documents</a>
+									<a class="nav-link {{ $activeTab === 'notuseddocuments' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/notuseddocuments' }}" id="notuseddocuments-tab" role="tab" aria-controls="notuseddocuments" aria-selected="{{ $activeTab === 'notuseddocuments' ? 'true' : 'false' }}">Not Used Documents</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'accounts'])}}" id="accounts-tab" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
+									<a class="nav-link {{ $activeTab === 'accounts' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/accounts' }}" id="accounts-tab" role="tab" aria-controls="accounts" aria-selected="{{ $activeTab === 'accounts' ? 'true' : 'false' }}">Accounts</a>
 								</li>
 							<li class="nav-item">
-								<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'email-v2'])}}" id="email-v2-tab" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
+								<a class="nav-link {{ $activeTab === 'email-v2' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/email-v2' }}" id="email-v2-tab" role="tab" aria-controls="email-v2" aria-selected="{{ $activeTab === 'email-v2' ? 'true' : 'false' }}">Emails</a>
 							</li>
 								<li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'promotions' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'promotions'])}}" id="promotions-tab" role="tab" aria-controls="promotions" aria-selected="{{ $activeTab === 'promotions' ? 'true' : 'false' }}">Promotions</a>
+									<a class="nav-link {{ $activeTab === 'promotions' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/promotions' }}" id="promotions-tab" role="tab" aria-controls="promotions" aria-selected="{{ $activeTab === 'promotions' ? 'true' : 'false' }}">Promotions</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'student' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'student'])}}" id="student-tab" role="tab" aria-controls="student" aria-selected="{{ $activeTab === 'student' ? 'true' : 'false' }}">Student</a>
+									<a class="nav-link {{ $activeTab === 'student' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/student' }}" id="student-tab" role="tab" aria-controls="student" aria-selected="{{ $activeTab === 'student' ? 'true' : 'false' }}">Student</a>
 								</li>
                               
                                 <li class="nav-item">
-									<a class="nav-link {{ $activeTab === 'invoice' ? 'active' : '' }}" href="{{route('partners.detail', ['id' => $partnerId, 'tab' => 'invoice'])}}" id="invoice-tab" role="tab" aria-controls="invoice" aria-selected="{{ $activeTab === 'invoice' ? 'true' : 'false' }}">Invoice</a>
+									<a class="nav-link {{ $activeTab === 'invoice' ? 'active' : '' }}" href="{{ $partnerDetailBase.'/invoice' }}" id="invoice-tab" role="tab" aria-controls="invoice" aria-selected="{{ $activeTab === 'invoice' ? 'true' : 'false' }}">Invoice</a>
 								</li>
 							</ul> 
 							<div class="tab-content" id="partnerContent" style="padding-top:15px;">

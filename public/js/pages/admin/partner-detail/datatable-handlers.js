@@ -237,6 +237,16 @@ jQuery(document).ready(function($){
 
     var refreshTotalsTimer = null;
     var initialTotalsDelayMs = 2500;
+    var countsReloadDelayMs = 4000;
+
+    function normaliseStudentStatusFilterValue(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        var trimmed = String(value).trim();
+        return (trimmed === '' || trimmed === '-' || trimmed === 'null') ? '' : trimmed;
+    }
+
     function scheduleStudentTotalsRefresh(api, list, delayMs) {
         if (!studentTotalsUrl) {
             return;
@@ -267,7 +277,7 @@ jQuery(document).ready(function($){
             }
         }
         if (list === 'active') {
-            var statusVal = $('#statusFilter').val();
+            var statusVal = normaliseStudentStatusFilterValue($('#statusFilter').val());
             if (statusVal) {
                 params.set('status_filter', statusVal);
             }
@@ -285,7 +295,7 @@ jQuery(document).ready(function($){
             search: api && typeof api.search === 'function' ? api.search() : ''
         };
         if (list === 'active') {
-            payload.status_filter = $('#statusFilter').val() || '';
+            payload.status_filter = normaliseStudentStatusFilterValue($('#statusFilter').val());
         }
         $.get(studentTotalsUrl, payload, function (resp) {
             if (!resp || !resp.status) {
@@ -329,18 +339,26 @@ jQuery(document).ready(function($){
 
     function initPartnerStudentTable(options) {
         var initialTotalsScheduled = false;
+        var deferStudentCounts = true;
+        var countsReloadScheduled = false;
 
         return $(options.tableSelector).DataTable({
             processing: true,
             serverSide: true,
+            pageLength: 25,
             ajax: {
                 url: studentDataUrl,
                 type: 'GET',
                 data: function (d) {
                     d.partner_id = partnerNumericId;
                     d.list = options.list;
+                    if (deferStudentCounts && (d.start === 0 || d.start === '0')) {
+                        d.defer_counts = 1;
+                    }
                     if (options.statusFilterId) {
-                        d.status_filter = $('#' + options.statusFilterId).val() || '';
+                        d.status_filter = normaliseStudentStatusFilterValue(
+                            $('#' + options.statusFilterId).val()
+                        );
                     }
                 },
                 error: function (xhr, textStatus) {
@@ -353,7 +371,7 @@ jQuery(document).ready(function($){
             buttons: buildStudentExportButtons(options.list, options.apiGetter),
             searching: true,
             lengthChange: true,
-            lengthMenu: [[10, 20, 50, 100, 200, 500], [10, 20, 50, 100, 200, 500]],
+            lengthMenu: [[10, 25, 50, 100, 200, 500], [10, 25, 50, 100, 200, 500]],
             columnDefs: [
                 {
                     targets: 0,
@@ -393,6 +411,13 @@ jQuery(document).ready(function($){
                 if (!initialTotalsScheduled) {
                     initialTotalsScheduled = true;
                     scheduleStudentTotalsRefresh(options.apiGetter(), options.list, initialTotalsDelayMs);
+                }
+                if (deferStudentCounts && !countsReloadScheduled) {
+                    deferStudentCounts = false;
+                    countsReloadScheduled = true;
+                    setTimeout(function () {
+                        options.apiGetter().ajax.reload(null, false);
+                    }, countsReloadDelayMs);
                 }
             }
         });
