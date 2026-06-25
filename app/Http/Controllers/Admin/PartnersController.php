@@ -997,20 +997,17 @@ class PartnersController extends Controller
 	}
 
 	/**
-	 * Log Student tab diagnostics to storage/logs/partner-student-tab-*.log and PHP error_log.
+	 * Log Student tab diagnostics to storage/logs/laravel.log (grep: [partner-student-tab]).
 	 */
 	private function logPartnerStudentTab(string $level, string $message, array $context = []): void
 	{
-		$context['channel'] = 'partner_student_tab';
+		$context['scope'] = 'partner_student_tab';
 
 		try {
-			Log::channel('partner_student_tab')->{$level}($message, $context);
+			Log::{$level}('[partner-student-tab] '.$message, $context);
 		} catch (\Throwable $e) {
 			// Logging must never break the request.
 		}
-
-		$encoded = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
-		error_log('[partner-student-tab] '.$message.' '.$encoded);
 	}
 
 	/**
@@ -1408,13 +1405,6 @@ class PartnersController extends Controller
 				'file'      => $e->getFile(),
 				'line'      => $e->getLine(),
 				'exception' => $e::class,
-			]);
-
-			Log::error('partners.getStudentTabData failed', [
-				'partner_ref' => $id,
-				'message'     => $e->getMessage(),
-				'file'        => $e->getFile(),
-				'line'        => $e->getLine(),
 			]);
 
 			return response()->json([

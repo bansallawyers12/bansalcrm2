@@ -104,17 +104,6 @@ return [
             'level' => 'debug',
             'days' => 14,
         ],
-
-        /*
-         * Partner detail → Student tab AJAX (DataTables + totals).
-         * Also mirrored to PHP error_log when the log file is not writable.
-         */
-        'partner_student_tab' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/partner-student-tab.log'),
-            'level' => 'debug',
-            'days' => 14,
-        ],
     ],
 
 ];
