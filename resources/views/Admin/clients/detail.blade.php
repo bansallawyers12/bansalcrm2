@@ -2993,7 +2993,7 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/communications.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/communications.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/communications.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>

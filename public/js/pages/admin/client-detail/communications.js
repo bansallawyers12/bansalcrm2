@@ -48,7 +48,39 @@
         // ============================================================================
         // NOT PICKED CALL HANDLER
         // ============================================================================
+        var npSending = false;
+        var $npModal = $('#notPickedCallModal');
+        var $npSendBtn = $npModal.find('.sendMessage');
+        var npSendBtnOriginalHtml = $npSendBtn.length ? $npSendBtn.html() : 'Send';
+
+        function npModalFooterControls() {
+            return $npModal.find('.sendMessage, .modal-footer [data-bs-dismiss="modal"]');
+        }
+
+        function resetNpSendState() {
+            npSending = false;
+            npModalFooterControls().prop('disabled', false);
+            if ($npSendBtn.length) {
+                $npSendBtn.html(npSendBtnOriginalHtml);
+            }
+        }
+
+        function setNpSendingUi(active) {
+            npModalFooterControls().prop('disabled', active);
+            if (active && $npSendBtn.length) {
+                $npSendBtn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Sending…');
+            } else {
+                resetNpSendState();
+            }
+        }
+
+        $npModal.on('hidden.bs.modal.npNotPicked', function () {
+            resetNpSendState();
+        });
+
         $(document).on('click', '.not_picked_call', function (e) {
+            e.preventDefault();
+
             var clientName = App.getPageConfig('clientName') || 'user';
             clientName = clientName.charAt(0).toUpperCase() + clientName.slice(1).toLowerCase();
 
@@ -57,36 +89,45 @@ We tried reaching you but couldn't connect. Please call us at 0396021330 or let 
 Please do not reply via SMS.
 Bansal Immigration`;
 
+            resetNpSendState();
             $('#messageText').val(message);
-            $('#notPickedCallModal').modal('show');
+            $npModal.modal('show');
+        });
 
-            $('.sendMessage').off('click').on('click', function () {
-                var message = $('#messageText').val();
-                var not_picked_call = 1;
-                var url = App.getUrl('notPickedCall') || App.getUrl('siteUrl') + '/not-picked-call';
-                $.ajax({
-                    url: url,
-                    headers: { 'X-CSRF-TOKEN': App.getCsrf() },
-                    type: 'POST',
-                    datatype: 'json',
-                    data: {
-                        id: App.getPageConfig('clientId'),
-                        not_picked_call: not_picked_call,
-                        message: message
-                    },
-                    success: function (response) {
-                        var obj = typeof response === 'string' ? $.parseJSON(response) : response;
-                        if (obj.not_picked_call == 1) {
-                            alert(obj.message);
-                        } else {
-                            alert(obj.message);
-                        }
-                        if(typeof getallactivities === 'function') {
-                            getallactivities();
-                        }
-                        $('#notPickedCallModal').modal('hide');
+        $(document).on('click.npNotPicked', '#notPickedCallModal .sendMessage', function (e) {
+            e.preventDefault();
+            if (npSending) {
+                return;
+            }
+
+            var message = $('#messageText').val();
+            var url = App.getUrl('notPickedCall') || App.getUrl('siteUrl') + '/not-picked-call';
+
+            npSending = true;
+            setNpSendingUi(true);
+
+            $.ajax({
+                url: url,
+                headers: { 'X-CSRF-TOKEN': App.getCsrf() },
+                type: 'POST',
+                datatype: 'json',
+                data: {
+                    id: App.getPageConfig('clientId'),
+                    not_picked_call: 1,
+                    message: message
+                },
+                success: function (response) {
+                    var obj = typeof response === 'string' ? $.parseJSON(response) : response;
+                    alert(obj.message);
+                    if (typeof getallactivities === 'function') {
+                        getallactivities();
                     }
-                });
+                    $npModal.modal('hide');
+                },
+                error: function () {
+                    alert('Could not send SMS. Please try again.');
+                    resetNpSendState();
+                }
             });
         });
     });
