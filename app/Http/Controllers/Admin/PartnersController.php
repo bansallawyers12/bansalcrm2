@@ -789,9 +789,9 @@ class PartnersController extends Controller
 	/**
 	 * AJAX endpoint for the Applications tab DataTables (server-side pagination).
 	 */
-	public function getApplicationTabData(Request $request, string $id)
+	public function getApplicationTabData(Request $request, ?string $id = null)
 	{
-		$partnerId = $this->decodePartnerRouteId($id);
+		$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
 
 		if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
 			return response()->json(['message' => 'Partner not found'], 404);
@@ -991,6 +991,28 @@ class PartnersController extends Controller
 			if ($decoded !== false && $decoded !== '') {
 				return (int) $decoded;
 			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve partner id for tab AJAX endpoints: prefer numeric partner_id query param,
+	 * fall back to encoded route segment (legacy bookmarks / old JS URLs).
+	 *
+	 * @return int|false
+	 */
+	private function resolvePartnerTabPartnerId(Request $request, ?string $routeId)
+	{
+		$numericId = (int) $request->input('partner_id', 0);
+		if ($numericId > 0) {
+			return Partner::query()->where('id', $numericId)->exists() ? $numericId : false;
+		}
+
+		if ($routeId !== null && $routeId !== '') {
+			$decoded = $this->decodePartnerRouteId($routeId);
+
+			return $decoded ?: false;
 		}
 
 		return false;
@@ -1276,21 +1298,25 @@ class PartnersController extends Controller
 	/**
 	 * AJAX endpoint for the Student tab DataTables (server-side pagination).
 	 */
-	public function getStudentTabData(Request $request, string $id)
+	public function getStudentTabData(Request $request, ?string $id = null)
 	{
 		$draw = (int) $request->input('draw', 1);
 
 		$this->logPartnerStudentTab('info', 'getStudentTabData request started', [
-			'route_id' => $id,
-			'list'     => $request->input('list', 'active'),
-			'start'    => $request->input('start', 0),
-			'length'   => $request->input('length', 10),
+			'route_id'   => $id,
+			'partner_id' => $request->input('partner_id'),
+			'list'       => $request->input('list', 'active'),
+			'start'      => $request->input('start', 0),
+			'length'     => $request->input('length', 10),
 		]);
 
 		try {
-			$partnerId = $this->decodePartnerRouteId($id);
+			$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
 			if (!$partnerId) {
-				$this->logPartnerStudentTab('warning', 'Invalid partner route id', ['route_id' => $id]);
+				$this->logPartnerStudentTab('warning', 'Invalid partner route id', [
+					'route_id'   => $id,
+					'partner_id' => $request->input('partner_id'),
+				]);
 
 				return response()->json([
 					'draw'            => $draw,
@@ -1420,13 +1446,16 @@ class PartnersController extends Controller
 	/**
 	 * Commission totals for the Student tab (respects search + status filter).
 	 */
-	public function getStudentTabTotals(Request $request, string $id)
+	public function getStudentTabTotals(Request $request, ?string $id = null)
 	{
 		try {
-			$partnerId = $this->decodePartnerRouteId($id);
+			$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
 
-			if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
-				$this->logPartnerStudentTab('warning', 'Totals: partner not found', ['route_id' => $id, 'partner_id' => $partnerId]);
+			if (!$partnerId) {
+				$this->logPartnerStudentTab('warning', 'Totals: partner not found', [
+					'route_id'   => $id,
+					'partner_id' => $request->input('partner_id'),
+				]);
 
 				return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
 			}
@@ -1466,9 +1495,9 @@ class PartnersController extends Controller
 	/**
 	 * Export all student rows for a partner list (CSV — opens in Excel).
 	 */
-	public function exportStudentTabData(Request $request, string $id)
+	public function exportStudentTabData(Request $request, ?string $id = null)
 	{
-		$partnerId = $this->decodePartnerRouteId($id);
+		$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
 		$partner = $partnerId ? Partner::query()->select(['id', 'partner_name'])->find($partnerId) : null;
 
 		if (!$partner) {

@@ -127,7 +127,7 @@
 											<td style="white-space: initial;">{{@$i+1}}</td>
 											<!--<td style="white-space: initial;">{{--@$list->id--}}</td>-->
 											<td style="white-space: initial;">
-                                              <a href="{{URL::to('/partners/detail/'.base64_encode(convert_uuencode(@$list->id)))}}">{{ @$list->partner_name == "" ? config('constants.empty') : str_limit(@$list->partner_name, '50', '...') }}</a>
+                                              <a href="{{ URL::to('/partners/detail/'.rawurlencode(base64_encode(convert_uuencode(@$list->id)))) }}">{{ @$list->partner_name == "" ? config('constants.empty') : str_limit(@$list->partner_name, '50', '...') }}</a>
                                               <!--<br/>-->
                                               <!--<a data-id="{{--@$list->id--}}" data-email="{{--@$list->email--}}" data-name="{{--@$list->partner_name--}}" href="javascript:;" class="partneremail">{{--@$list->email == "" ? config('constants.empty') : str_limit(@$list->email, '50', '...')--}}</a>-->
                                           </td> 

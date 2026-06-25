@@ -42,6 +42,9 @@
 jQuery(document).ready(function($){
     const partnerName = PageConfig.partnerName || 'Partner';
     const activeTab = (typeof PageConfig !== 'undefined' && PageConfig.activeTab) ? PageConfig.activeTab : 'application';
+    const partnerNumericId = (typeof PageConfig !== 'undefined' && PageConfig.partnerId)
+        ? parseInt(PageConfig.partnerId, 10)
+        : 0;
 
     var enrolmentTypeLabels = {
         transfer_option: 'Transfer',
@@ -166,7 +169,10 @@ jQuery(document).ready(function($){
             serverSide: true,
             ajax: {
                 url: applicationDataUrl,
-                type: 'GET'
+                type: 'GET',
+                data: function (d) {
+                    d.partner_id = partnerNumericId;
+                }
             },
             searching: true,
             lengthChange: true,
@@ -224,6 +230,11 @@ jQuery(document).ready(function($){
         return;
     }
 
+    if (!partnerNumericId) {
+        console.error('[partner-detail] PageConfig.partnerId is not configured.');
+        return;
+    }
+
     var refreshTotalsTimer = null;
     function scheduleStudentTotalsRefresh(api, list) {
         if (!studentTotalsUrl) {
@@ -245,6 +256,7 @@ jQuery(document).ready(function($){
 
     function buildStudentExportUrl(list, api) {
         var params = new URLSearchParams();
+        params.set('partner_id', partnerNumericId);
         params.set('list', list);
         params.set('format', 'csv');
         if (api && typeof api.search === 'function') {
@@ -267,6 +279,7 @@ jQuery(document).ready(function($){
             return;
         }
         var payload = {
+            partner_id: partnerNumericId,
             list: list,
             search: api && typeof api.search === 'function' ? api.search() : ''
         };
@@ -321,6 +334,7 @@ jQuery(document).ready(function($){
                 url: studentDataUrl,
                 type: 'GET',
                 data: function (d) {
+                    d.partner_id = partnerNumericId;
                     d.list = options.list;
                     if (options.statusFilterId) {
                         d.status_filter = $('#' + options.statusFilterId).val() || '';

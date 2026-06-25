@@ -328,7 +328,6 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							@php
 								$partnerId = base64_encode(convert_uuencode($fetchedData->id));
-								$partnerApiId = rawurlencode($partnerId);
 							@endphp
 							<ul class="nav nav-pills" id="partner_tabs" role="tablist">
 								<li class="nav-item">
@@ -2071,10 +2070,10 @@ use App\Http\Controllers\Controller;
         partnersUploadPartnerDocument: '{{ url("/upload-partner-document-upload") }}',
         partnersSaveStudentNote: '{{ url("/partners/save-student-note") }}',
         partnersSaveStudentEnrolmentType: '{{ url("/partners/save-student-enrolment-type") }}',
-        partnersGetStudentTabData: '{{ url("/partners/getStudentTabData/" . $partnerApiId) }}',
-        partnersGetStudentTabTotals: '{{ url("/partners/getStudentTabTotals/" . $partnerApiId) }}',
-        partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData/" . $partnerApiId) }}',
-        partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData/" . $partnerApiId) }}',
+        partnersGetStudentTabData: '{{ url("/partners/getStudentTabData") }}',
+        partnersGetStudentTabTotals: '{{ url("/partners/getStudentTabTotals") }}',
+        partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData") }}',
+        partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData") }}',
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',
