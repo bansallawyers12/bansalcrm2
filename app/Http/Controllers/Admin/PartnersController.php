@@ -1082,6 +1082,26 @@ class PartnersController extends Controller
 	}
 
 	/**
+	 * Count student-tab rows; cache unfiltered totals for 5 minutes per partner/list.
+	 */
+	private function countPartnerStudentTabQuery($query, int $partnerId, string $list, string $searchValue, string $statusFilter): int
+	{
+		if ($searchValue !== '' || $statusFilter !== '') {
+			return (clone $query)->count();
+		}
+
+		$cacheKey = "partner_student_count_v6_{$partnerId}_{$list}";
+
+		try {
+			return (int) Cache::remember($cacheKey, 300, function () use ($query) {
+				return (clone $query)->count();
+			});
+		} catch (\Throwable $e) {
+			return (clone $query)->count();
+		}
+	}
+
+	/**
 	 * @param  \Illuminate\Database\Query\Builder  $query
 	 * @return \Illuminate\Database\Query\Builder
 	 */
@@ -1309,13 +1329,13 @@ class PartnersController extends Controller
 			$statusFilter = trim((string) $request->input('status_filter', ''));
 
 			$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
-			$recordsTotal = (clone $baseQuery)->count();
+			$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
 
 			$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
 			$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
-			$recordsFiltered = (clone $filteredQuery)->count();
+			$recordsFiltered = $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
 
-			$orderColIndex = (int) data_get($request->input('order'), '0.column', 1);
+			$orderColIndex = (int) data_get($request->input('order'), '0.column', -1);
 			$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
 
 			$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
@@ -1571,6 +1591,8 @@ class PartnersController extends Controller
 			Cache::forget("partner_students_v4_{$partnerId}");
 			Cache::forget("partner_students_totals_v5_{$partnerId}_active");
 			Cache::forget("partner_students_totals_v5_{$partnerId}_inactive");
+			Cache::forget("partner_student_count_v6_{$partnerId}_active");
+			Cache::forget("partner_student_count_v6_{$partnerId}_inactive");
 		} catch (\Throwable $e) {
 			// Same resilience as getStudentTabData when cache is unavailable
 		}

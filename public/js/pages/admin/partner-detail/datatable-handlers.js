@@ -352,7 +352,7 @@ jQuery(document).ready(function($){
                 },
                 { targets: 23, visible: false }
             ],
-            order: [[1, 'asc']],
+            order: [],
             initComplete: function () {
                 setupStudentToolbar(this.api(), {
                     columnToggleSelector: options.columnToggleSelector,
