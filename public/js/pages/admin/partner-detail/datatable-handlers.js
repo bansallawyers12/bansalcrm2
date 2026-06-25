@@ -236,14 +236,15 @@ jQuery(document).ready(function($){
     }
 
     var refreshTotalsTimer = null;
-    function scheduleStudentTotalsRefresh(api, list) {
+    var initialTotalsDelayMs = 2500;
+    function scheduleStudentTotalsRefresh(api, list, delayMs) {
         if (!studentTotalsUrl) {
             return;
         }
         clearTimeout(refreshTotalsTimer);
         refreshTotalsTimer = setTimeout(function () {
             refreshStudentTotals(api, list);
-        }, 400);
+        }, typeof delayMs === 'number' ? delayMs : 800);
     }
 
     var studentColumnDefs = [
@@ -327,6 +328,8 @@ jQuery(document).ready(function($){
     }
 
     function initPartnerStudentTable(options) {
+        var initialTotalsScheduled = false;
+
         return $(options.tableSelector).DataTable({
             processing: true,
             serverSide: true,
@@ -381,13 +384,16 @@ jQuery(document).ready(function($){
                         scheduleStudentTotalsRefresh(api, options.list);
                     });
                 }
-                refreshStudentTotals(this.api(), options.list);
                 this.api().on('search.dt', function () {
                     scheduleStudentTotalsRefresh(options.apiGetter(), options.list);
                 });
             },
             drawCallback: function () {
                 syncEnrolmentTypeSelects(this.api().table().container());
+                if (!initialTotalsScheduled) {
+                    initialTotalsScheduled = true;
+                    scheduleStudentTotalsRefresh(options.apiGetter(), options.list, initialTotalsDelayMs);
+                }
             }
         });
     }

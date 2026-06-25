@@ -1101,6 +1101,16 @@ class PartnersController extends Controller
 	}
 
 	/**
+	 * Normalise DataTables status filter sent from the Student tab toolbar.
+	 */
+	private function normalisePartnerStudentTabStatusFilter(string $statusFilter): string
+	{
+		$statusFilter = trim($statusFilter);
+
+		return ($statusFilter === '' || $statusFilter === '-' || $statusFilter === 'null') ? '' : $statusFilter;
+	}
+
+	/**
 	 * Count student-tab rows; cache unfiltered totals for 5 minutes per partner/list.
 	 */
 	private function countPartnerStudentTabQuery($query, int $partnerId, string $list, string $searchValue, string $statusFilter): int
@@ -1258,34 +1268,28 @@ class PartnersController extends Controller
 	 */
 	private function computePartnerStudentTabTotals(int $partnerId, string $list, string $searchValue, string $statusFilter): array
 	{
+		$zero = ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
+
 		$idQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
 		$idQuery = $this->applyPartnerStudentTabSearch($idQuery, $searchValue);
 		$idQuery = $this->applyPartnerStudentTabStatusFilter($idQuery, $statusFilter);
 
-		$applicationIds = (clone $idQuery)->pluck('applications.id');
-		if ($applicationIds->isEmpty()) {
-			return ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
-		}
-
-		$latestFeeIds = DB::table('application_fee_options')
-			->select(DB::raw('MAX(id) as id'))
-			->whereIn('app_id', $applicationIds->all())
-			->groupBy('app_id')
-			->pluck('id');
-
-		if ($latestFeeIds->isEmpty()) {
-			return ['claimed' => 0.0, 'anticipated' => 0.0, 'paid' => 0.0, 'pending' => 0.0];
-		}
-
-		$totals = DB::table('application_fee_options')
-			->whereIn('id', $latestFeeIds->all())
+		$totals = DB::table('application_fee_options as afo')
+			->whereIn('afo.app_id', (clone $idQuery)->select('applications.id'))
+			->whereRaw(
+				'afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = afo.app_id)'
+			)
 			->selectRaw('
-				COALESCE(SUM(commission_as_per_fee_reported), 0) as claimed,
-				COALESCE(SUM(commission_payable_as_per_anticipated_fee), 0) as anticipated,
-				COALESCE(SUM(commission_paid_as_per_fee_reported), 0) as paid,
-				COALESCE(SUM(commission_pending), 0) as pending
+				COALESCE(SUM(afo.commission_as_per_fee_reported), 0) as claimed,
+				COALESCE(SUM(afo.commission_payable_as_per_anticipated_fee), 0) as anticipated,
+				COALESCE(SUM(afo.commission_paid_as_per_fee_reported), 0) as paid,
+				COALESCE(SUM(afo.commission_pending), 0) as pending
 			')
 			->first();
+
+		if (!$totals) {
+			return $zero;
+		}
 
 		return [
 			'claimed'     => round((float) ($totals->claimed ?? 0), 2),
@@ -1293,6 +1297,41 @@ class PartnersController extends Controller
 			'paid'        => round((float) ($totals->paid ?? 0), 2),
 			'pending'     => round((float) ($totals->pending ?? 0), 2),
 		];
+	}
+
+	/**
+	 * Cached commission totals when list has no search/status filter applied.
+	 *
+	 * @return array{claimed: float, anticipated: float, paid: float, pending: float}
+	 */
+	private function partnerStudentTabTotals(int $partnerId, string $list, string $searchValue, string $statusFilter): array
+	{
+		if ($searchValue !== '' || $statusFilter !== '') {
+			return $this->computePartnerStudentTabTotals($partnerId, $list, $searchValue, $statusFilter);
+		}
+
+		$cacheKey = "partner_students_totals_v7_{$partnerId}_{$list}";
+
+		try {
+			return Cache::remember($cacheKey, 300, function () use ($partnerId, $list) {
+				return $this->computePartnerStudentTabTotals($partnerId, $list, '', '');
+			});
+		} catch (\Throwable $e) {
+			return $this->computePartnerStudentTabTotals($partnerId, $list, '', '');
+		}
+	}
+
+	/**
+	 * Estimate row counts when the cached/live count query fails (keeps table usable).
+	 *
+	 * @return array{0: int, 1: int}
+	 */
+	private function estimatePartnerStudentTabCounts(int $start, int $length, int $rowCount): array
+	{
+		$recordsFiltered = $start + $rowCount;
+		$recordsTotal = $rowCount >= $length ? $recordsFiltered + 1 : $recordsFiltered;
+
+		return [$recordsTotal, $recordsFiltered];
 	}
 
 	/**
@@ -1349,14 +1388,11 @@ class PartnersController extends Controller
 			$length = $length < 1 ? 10 : min($length, 500);
 
 			$searchValue  = trim((string) data_get($request->input('search'), 'value', ''));
-			$statusFilter = trim((string) $request->input('status_filter', ''));
+			$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
 
 			$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
-			$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
-
 			$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
 			$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
-			$recordsFiltered = $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
 
 			$orderColIndex = (int) data_get($request->input('order'), '0.column', -1);
 			$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
@@ -1411,6 +1447,22 @@ class PartnersController extends Controller
 				}
 			}
 
+			$recordsTotal = 0;
+			$recordsFiltered = 0;
+			try {
+				$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
+				$recordsFiltered = ($searchValue === '' && $statusFilter === '')
+					? $recordsTotal
+					: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
+			} catch (\Throwable $countException) {
+				[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
+				$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
+					'partner_id' => $partnerId,
+					'message'    => $countException->getMessage(),
+					'estimated'  => $recordsTotal,
+				]);
+			}
+
 			$this->logPartnerStudentTab('info', 'getStudentTabData request completed', [
 				'partner_id'       => $partnerId,
 				'records_total'    => $recordsTotal,
@@ -1462,9 +1514,9 @@ class PartnersController extends Controller
 
 			$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
 			$searchValue  = trim((string) $request->input('search', ''));
-			$statusFilter = trim((string) $request->input('status_filter', ''));
+			$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
 
-			$totals = $this->computePartnerStudentTabTotals($partnerId, $list, $searchValue, $statusFilter);
+			$totals = $this->partnerStudentTabTotals($partnerId, $list, $searchValue, $statusFilter);
 
 			$this->logPartnerStudentTab('info', 'getStudentTabTotals completed', [
 				'partner_id' => $partnerId,
@@ -1507,7 +1559,7 @@ class PartnersController extends Controller
 		$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
 		$isActive = $list !== 'inactive';
 		$searchValue  = trim((string) $request->input('search', ''));
-		$statusFilter = trim((string) $request->input('status_filter', ''));
+		$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
 
 		$idQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
 		$idQuery = $this->applyPartnerStudentTabSearch($idQuery, $searchValue);
@@ -1610,6 +1662,8 @@ class PartnersController extends Controller
 			Cache::forget("partner_students_v4_{$partnerId}");
 			Cache::forget("partner_students_totals_v5_{$partnerId}_active");
 			Cache::forget("partner_students_totals_v5_{$partnerId}_inactive");
+			Cache::forget("partner_students_totals_v7_{$partnerId}_active");
+			Cache::forget("partner_students_totals_v7_{$partnerId}_inactive");
 			Cache::forget("partner_student_count_v6_{$partnerId}_active");
 			Cache::forget("partner_student_count_v6_{$partnerId}_inactive");
 		} catch (\Throwable $e) {
