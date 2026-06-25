@@ -328,6 +328,7 @@ use App\Http\Controllers\Controller;
 						<div class="card-body">
 							@php
 								$partnerId = base64_encode(convert_uuencode($fetchedData->id));
+								$partnerApiId = rawurlencode($partnerId);
 							@endphp
 							<ul class="nav nav-pills" id="partner_tabs" role="tablist">
 								<li class="nav-item">
@@ -2070,10 +2071,10 @@ use App\Http\Controllers\Controller;
         partnersUploadPartnerDocument: '{{ url("/upload-partner-document-upload") }}',
         partnersSaveStudentNote: '{{ url("/partners/save-student-note") }}',
         partnersSaveStudentEnrolmentType: '{{ url("/partners/save-student-enrolment-type") }}',
-        partnersGetStudentTabData: '{{ route("partners.getStudentTabData", ["id" => base64_encode(convert_uuencode($fetchedData->id))]) }}',
-        partnersGetStudentTabTotals: '{{ route("partners.getStudentTabTotals", ["id" => base64_encode(convert_uuencode($fetchedData->id))]) }}',
-        partnersExportStudentTabData: '{{ route("partners.exportStudentTabData", ["id" => base64_encode(convert_uuencode($fetchedData->id))]) }}',
-        partnersGetApplicationTabData: '{{ route("partners.getApplicationTabData", ["id" => base64_encode(convert_uuencode($fetchedData->id))]) }}',
+        partnersGetStudentTabData: '{{ url("/partners/getStudentTabData/" . $partnerApiId) }}',
+        partnersGetStudentTabTotals: '{{ url("/partners/getStudentTabTotals/" . $partnerApiId) }}',
+        partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData/" . $partnerApiId) }}',
+        partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData/" . $partnerApiId) }}',
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',

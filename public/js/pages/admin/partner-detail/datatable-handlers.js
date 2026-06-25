@@ -327,7 +327,8 @@ jQuery(document).ready(function($){
                     }
                 },
                 error: function (xhr, textStatus) {
-                    console.error('[partner-detail] Student tab data request failed:', xhr.status, textStatus, xhr.responseText);
+                    var responsePreview = xhr && xhr.responseText ? xhr.responseText.substring(0, 500) : '';
+                    console.error('[partner-detail] Student tab data request failed:', xhr.status, textStatus, responsePreview);
                 }
             },
             columns: studentColumnDefs,
