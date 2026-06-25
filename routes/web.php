@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\ActionController;
@@ -503,6 +505,7 @@ Route::post('/attend_session', [OfficeVisitController::class, 'attend_session'])
 Route::post('/complete_session', [OfficeVisitController::class, 'complete_session']);
 Route::get('/office-visits/change_assignee', [OfficeVisitController::class, 'change_assignee']);
 Route::get('/fetch-office-visit-notifications', [OfficeVisitController::class, 'fetchOfficeVisitNotifications'])->name('officevisits.fetch-notifications');
+Route::get('/check-checkin-status', [OfficeVisitController::class, 'checkCheckinStatus'])->name('officevisits.check-checkin-status');
 Route::post('/mark-notification-seen', [OfficeVisitController::class, 'markNotificationSeen'])->name('officevisits.mark-notification-seen');
 Route::post('/update-checkin-status', [OfficeVisitController::class, 'updateCheckinStatus'])->name('officevisits.update-checkin-status');
 // Route::post('/agents/store', 'Admin\AgentController@store')->name('agents.store');

@@ -7,15 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 use App\Models\Admin;
 use App\Models\CheckinLog;
 use App\Models\CheckinHistory;
 use App\Models\ActivitiesLog;
 use App\Events\OfficeVisitNotificationCreated;
- 
-use Auth;
-use Config;
 
 class OfficeVisitController extends Controller
 {
@@ -133,7 +134,7 @@ class OfficeVisitController extends Controller
 				$notification->sender_id = Auth::user()->id;
 				$notification->receiver_id = $assigneeId;
 				$notification->module_id = $obj->id;
-				$notification->url = \URL::to('/office-visits/waiting');
+				$notification->url = URL::to('/office-visits/waiting');
 				$notification->notification_type = 'officevisit';
 				$notification->message = 'Office visit Assigned by ' . Auth::user()->first_name . ' ' . Auth::user()->last_name;
 				$notification->seen = 0;
@@ -167,7 +168,7 @@ class OfficeVisitController extends Controller
 					));
 				} catch (\Exception $broadcastException) {
 					// Log broadcast error but don't fail the entire operation
-					\Log::warning('Failed to broadcast office visit notification', [
+					Log::warning('Failed to broadcast office visit notification', [
 						'notification_id' => $notification->id,
 						'error' => $broadcastException->getMessage()
 					]);
@@ -206,7 +207,7 @@ class OfficeVisitController extends Controller
 				DB::rollBack();
 				
 				// Log the error for debugging
-				\Log::error('Checkin creation failed', [
+				Log::error('Checkin creation failed', [
 					'error' => $e->getMessage(),
 					'trace' => $e->getTraceAsString(),
 					'request_data' => $request->except(['_token'])
@@ -222,7 +223,7 @@ class OfficeVisitController extends Controller
 				->withInput();
 		} catch (\Exception $e) {
 			// Catch any unexpected errors
-			\Log::error('Unexpected error in checkin method', [
+			Log::error('Unexpected error in checkin method', [
 				'error' => $e->getMessage(),
 				'trace' => $e->getTraceAsString()
 			]);
@@ -280,7 +281,7 @@ class OfficeVisitController extends Controller
 						<?php
 						$branch = is_object($CheckinLog->office) ? $CheckinLog->office : \App\Models\Branch::find($CheckinLog->getAttribute('office'));
 						if ($branch) {
-							echo '<a target="_blank" href="'.\URL::to('/branch/view/'.$branch->id).'">'.$branch->office_name.'</a>';
+							echo '<a target="_blank" href="'.URL::to('/branch/view/'.$branch->id).'">'.$branch->office_name.'</a>';
 						}
 						?>
 						
@@ -503,7 +504,7 @@ class OfficeVisitController extends Controller
 		    $t = 'attending';
 		}else if($objs->status == 1){
 		    $t = 'completed';
-		}else if($objs->status == 0){
+		}else{
 		    $t = 'waiting';
 		}
 		if($saved){
@@ -511,7 +512,7 @@ class OfficeVisitController extends Controller
 	    	$o->sender_id = Auth::user()->id;
 	    	$o->receiver_id = $request->assinee;
 	    	$o->module_id = $request->id;
-	    	$o->url = \URL::to('/office-visits/'.$t);
+	    	$o->url = URL::to('/office-visits/'.$t);
 	    	$o->notification_type = 'officevisit';
 	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
 	    	$o->seen = 0;
@@ -538,7 +539,7 @@ class OfficeVisitController extends Controller
 	    	        ]
 	    	    ));
 	    	} catch (\Exception $e) {
-	    	    \Log::warning('Failed to broadcast change assignee notification', [
+	    	    Log::warning('Failed to broadcast change assignee notification', [
 	    	        'error' => $e->getMessage()
 	    	    ]);
 	    	}
@@ -590,40 +591,46 @@ class OfficeVisitController extends Controller
 
         $saved = $obj->save();
 
-        // When assignee clicks "Waiting" (waitingtype != 1): notify reception to send the client. When "Pls send" (waitingtype == 1): no popup.
-        if ($saved && $request->waitingtype != 1) {
-		    $o = new \App\Models\Notification;
-	    	$o->sender_id = Auth::user()->id;
-	    	$receptionId = config('constants.reception_user_id');
-	    	$o->receiver_id = $receptionId ? (int) $receptionId : $obj->user_id;
-	    	$o->module_id = $request->id;
-	    	$o->url = \URL::to('/office-visits/waiting');
-	    	$o->notification_type = 'officevisit';
-	    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
-	    	$o->seen = 0;
-	    	$o->receiver_status = 0;
-	    	$o->sender_status = 1;
-	    	$o->save();
-	    	
-	    	try {
-	    	    $client = Admin::find($obj->client_id);
-	    	    broadcast(new OfficeVisitNotificationCreated(
-	    	        $o->id,
-	    	        $o->receiver_id,
-	    	        [
-	    	            'id' => $o->id,
-	    	            'checkin_id' => $obj->id,
-	    	            'message' => $o->message,
-	    	            'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-	    	            'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
-	    	            'visit_purpose' => $obj->visit_purpose,
-	    	            'created_at' => $o->created_at ? $o->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
-	    	            'url' => $o->url
-	    	        ]
-	    	    ));
-	    	} catch (\Exception $e) {
-	    	    \Log::warning('Failed to broadcast attend session notification', ['error' => $e->getMessage()]);
-	    	}
+        // Notify reception on both: red "Waiting" (escalate to Pls Send) and green "Pls Send" (session started).
+        // Delivery to reception UI is via polling fetchOfficeVisitNotifications (3–5s).
+        if ($saved) {
+		    $receiverId = self::resolveReceptionReceiverId($obj);
+		    if ($receiverId <= 0) {
+		    	Log::warning('Office visit attend_session: no valid notification receiver', ['checkin_id' => $obj->id]);
+		    } else {
+		    	$o = new \App\Models\Notification;
+		    	$o->sender_id = Auth::user()->id;
+		    	$o->receiver_id = $receiverId;
+		    	$o->module_id = $request->id;
+		    	$o->url = URL::to('/office-visits/'.$t);
+		    	$o->notification_type = 'officevisit';
+		    	$o->message = 'Office Visit Assigned by '.Auth::user()->first_name.' '.Auth::user()->last_name;
+		    	$o->seen = 0;
+		    	$o->receiver_status = 0;
+		    	$o->sender_status = 1;
+		    	$o->save();
+
+		    	try {
+		    	    $client = Admin::find($obj->client_id);
+		    	    broadcast(new OfficeVisitNotificationCreated(
+		    	        $o->id,
+		    	        $o->receiver_id,
+		    	        [
+		    	            'id' => $o->id,
+		    	            'checkin_id' => $obj->id,
+		    	            'is_reception_alert' => true,
+		    	            'message' => $o->message,
+		    	            'sender_name' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+		    	            'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
+		    	            'visit_purpose' => $obj->visit_purpose,
+		    	            'created_at' => $o->created_at ? $o->created_at->format('d/m/Y h:i A') : now()->format('d/m/Y h:i A'),
+		    	            'url' => $o->url,
+		    	        ]
+		    	    ));
+		    	} catch (\Exception $e) {
+		    	    Log::warning('Failed to broadcast attend session notification', ['error' => $e->getMessage()]);
+		    	}
+		    }
 		}
 
 		// Create CheckinHistory
@@ -712,36 +719,87 @@ class OfficeVisitController extends Controller
 		$notifications = \App\Models\Notification::where('receiver_id', $userId)
 			->where('notification_type', 'officevisit')
 			->where('receiver_status', 0)
-			->whereHas('checkinLog', function ($q) {
-				$q->where('status', 0);
-			})
 			->orderBy('created_at', 'desc')
-			->get()
-			->map(function ($n) {
-				$log = $n->checkinLog;
-				if (!$log) {
-					return null;
-				}
-				$client = Admin::find($log->client_id);
-				$sender = \App\Models\Staff::find($n->sender_id) ?? Admin::find($n->sender_id);
-				$isPleaseSendMsg = (int) $log->wait_type === 1
-					&& self::officeVisitMessageIsPleaseSendToReception($n->message);
-				return [
-					'id' => $n->id,
-					'checkin_id' => $log->id,
-					'message' => $n->message,
-					'sender_name' => $sender ? $sender->first_name . ' ' . $sender->last_name : '',
-					'client_name' => $client ? $client->first_name . ' ' . $client->last_name : 'Unknown Client',
-					'visit_purpose' => $log->visit_purpose,
-					'created_at' => $n->created_at ? $n->created_at->format('d/m/Y h:i A') : '',
-					'url' => $n->url,
-					'popup_title' => $isPleaseSendMsg ? 'Please send the client' : null,
-					'show_pls_send_button' => $isPleaseSendMsg ? false : null,
-				];
-			})
-			->filter()
-			->values();
-		return response()->json(['notifications' => $notifications, 'count' => $notifications->count()]);
+			->get();
+
+		if ($notifications->isEmpty()) {
+			return response()->json(['notifications' => [], 'count' => 0]);
+		}
+
+		$checkinLogIds = $notifications->pluck('module_id')->filter()->unique();
+		$receptionUserId = (int) config('constants.reception_user_id', 22136);
+		$viewerIsReception = (int) $userId === $receptionUserId;
+
+		$checkinQuery = CheckinLog::whereIn('id', $checkinLogIds);
+		if (!$viewerIsReception) {
+			$checkinQuery->where('status', 0);
+		} else {
+			// Reception: include attending (e.g. after "Pls Send") so poll can still show unread alerts
+			$checkinQuery->whereIn('status', [0, 2]);
+		}
+		$checkinLogs = $checkinQuery->get()->keyBy('id');
+
+		if ($checkinLogs->isEmpty()) {
+			return response()->json(['notifications' => [], 'count' => 0]);
+		}
+
+		$clientIds = $checkinLogs->pluck('client_id')->filter()->unique()->values();
+		$clients = $clientIds->isNotEmpty()
+			? Admin::whereIn('id', $clientIds)->get()->keyBy('id')
+			: collect();
+
+		$senderIds = $notifications->pluck('sender_id')->filter()->unique()->values();
+		$senders = $senderIds->isNotEmpty()
+			? \App\Models\Staff::whereIn('id', $senderIds)->get()->keyBy('id')
+			: collect();
+
+		$data = [];
+		foreach ($notifications as $notification) {
+			$log = $checkinLogs->get($notification->module_id);
+			if (!$log) {
+				continue;
+			}
+
+			$client = $log->client_id ? $clients->get($log->client_id) : null;
+			$sender = $senders->get($notification->sender_id) ?? Admin::find($notification->sender_id);
+			$senderName = $sender ? trim($sender->first_name . ' ' . $sender->last_name) : 'System';
+
+			$isReceptionAlert = $viewerIsReception
+				&& ((int) $log->wait_type === 1 || (int) $log->status === 2);
+
+			$isPleaseSendMsg = !$viewerIsReception
+				&& (int) $log->wait_type === 1
+				&& self::officeVisitMessageIsPleaseSendToReception($notification->message);
+
+			$data[] = [
+				'id' => $notification->id,
+				'checkin_id' => $log->id,
+				'is_reception_alert' => $isReceptionAlert,
+				'message' => $notification->message,
+				'sender_name' => $senderName,
+				'client_name' => $client ? trim($client->first_name . ' ' . $client->last_name) : 'Unknown Client',
+				'visit_purpose' => $log->visit_purpose,
+				'created_at' => $notification->created_at ? $notification->created_at->format('d/m/Y h:i A') : '',
+				'url' => $notification->url,
+				'popup_title' => $isPleaseSendMsg ? 'Please send the client' : null,
+				'show_pls_send_button' => $isPleaseSendMsg ? false : null,
+			];
+		}
+
+		return response()->json(['notifications' => $data, 'count' => count($data)]);
+	}
+
+	/**
+	 * GET: Check check-in status (used by popup to auto-close when visit leaves waiting).
+	 */
+	public function checkCheckinStatus(Request $request)
+	{
+		$checkinLog = CheckinLog::find($request->input('checkin_id'));
+		if (!$checkinLog) {
+			return response()->json(['success' => false, 'message' => 'Check-in not found']);
+		}
+
+		return response()->json(['success' => true, 'status' => $checkinLog->status]);
 	}
 
 	/**
@@ -792,13 +850,10 @@ class OfficeVisitController extends Controller
 
 				$requestedPlsSend = $request->has('wait_type') && (int) $request->input('wait_type') === 1;
 				if ($requestedPlsSend && $previousWaitType !== 1 && (int) $obj->status === 0) {
-					$receptionIdRaw = config('constants.reception_user_id');
-					$receiverId = ($receptionIdRaw !== null && $receptionIdRaw !== '' && (int) $receptionIdRaw > 0)
-						? (int) $receptionIdRaw
-						: (int) $obj->user_id;
+					$receiverId = self::resolveReceptionReceiverId($obj);
 
 					if ($receiverId <= 0) {
-						\Log::warning('Office visit please-send: no valid notification receiver', ['checkin_id' => $obj->id]);
+						Log::warning('Office visit please-send: no valid notification receiver', ['checkin_id' => $obj->id]);
 					} else {
 						$sender = Auth::user();
 						$senderName = trim(($sender->first_name ?? '') . ' ' . ($sender->last_name ?? ''));
@@ -810,7 +865,7 @@ class OfficeVisitController extends Controller
 						$o->sender_id = $sender->id;
 						$o->receiver_id = $receiverId;
 						$o->module_id = $obj->id;
-						$o->url = \URL::to('/office-visits/waiting');
+						$o->url = URL::to('/office-visits/waiting');
 						$o->notification_type = 'officevisit';
 						$o->message = $displayName . ' asked reception to send the client.';
 						$o->seen = 0;
@@ -856,7 +911,7 @@ class OfficeVisitController extends Controller
 					$broadcastPayload
 				));
 			} catch (\Exception $e) {
-				\Log::warning('Failed to broadcast reception please-send notification', [
+				Log::warning('Failed to broadcast reception please-send notification', [
 					'notification_id' => $broadcastPayload['id'],
 					'error' => $e->getMessage(),
 				]);
@@ -873,6 +928,19 @@ class OfficeVisitController extends Controller
 	private static function officeVisitMessageIsPleaseSendToReception(?string $message): bool
 	{
 		return is_string($message) && str_ends_with(trim($message), 'asked reception to send the client.');
+	}
+
+	/**
+	 * Reception staff id for office visit notifications (falls back to check-in assignee).
+	 */
+	private static function resolveReceptionReceiverId(CheckinLog $log): int
+	{
+		$receptionIdRaw = config('constants.reception_user_id');
+		if ($receptionIdRaw !== null && $receptionIdRaw !== '' && (int) $receptionIdRaw > 0) {
+			return (int) $receptionIdRaw;
+		}
+
+		return (int) $log->user_id;
 	}
 
 	public function waiting(Request $request)

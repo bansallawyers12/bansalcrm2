@@ -475,24 +475,30 @@ i[style*="color:rgba"] {
 		currentUserId = currentUserId ? (currentUserId.getAttribute('content') || '').trim() : '';
 		var baseUrl = document.querySelector('script[data-site-url]') ? document.querySelector('script[data-site-url]').getAttribute('data-site-url') : (typeof site_url !== 'undefined' ? site_url : '');
 		var fetchUrl = '{{ url("/fetch-office-visit-notifications") }}';
+		var checkStatusUrl = '{{ url("/check-checkin-status") }}';
+		var attendSessionUrl = '{{ url("/attend_session") }}';
 		var markSeenUrl = '{{ url("/mark-notification-seen") }}';
 		var updateStatusUrl = '{{ url("/update-checkin-status") }}';
 		var csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+		var pollIntervalMs = 4000;
 
 		function showTeamsNotification(notification) {
 			if (!notification || !notification.id) return;
 			var id = 'ov-notif-' + notification.id;
 			if (document.getElementById(id)) return;
+			var isReception = !!notification.is_reception_alert;
 			var card = document.createElement('div');
 			card.className = 'teams-notification-card';
 			card.id = id;
 			card.setAttribute('data-notification-id', notification.id);
 			card.setAttribute('data-checkin-id', notification.checkin_id || '');
 			var headerTitle = notification.popup_title || 'Office Visit Assignment';
-			var showPlsSend = notification.show_pls_send_button !== false;
-			var plsSendBtn = showPlsSend
-				? '<button type="button" class="btn btn-success teams-notification-plssend">Pls Send The Client</button>'
-				: '';
+			var primaryBtn = '';
+			if (isReception) {
+				primaryBtn = '<button type="button" class="btn btn-success teams-notification-primary" data-waitingtype="1">Client Sent</button>';
+			} else if (notification.show_pls_send_button !== false) {
+				primaryBtn = '<button type="button" class="btn btn-success teams-notification-primary" data-waitingtype="0">Pls Send The Client</button>';
+			}
 			card.innerHTML =
 				'<div class="teams-notification-header">' +
 					'<h6>' + headerTitle + '</h6>' +
@@ -503,11 +509,12 @@ i[style*="color:rgba"] {
 				'</div>' +
 				'<div class="teams-notification-body">' +
 					'<p><strong>' + (notification.sender_name || '') + '</strong></p>' +
+					'<p>' + (notification.message || '') + '</p>' +
 					'<p>Client: ' + (notification.client_name || '') + '</p>' +
 					'<p>Purpose: ' + (notification.visit_purpose || '') + '</p>' +
 					'<p>Time: ' + (notification.created_at || '') + '</p>' +
 					'<div class="btn-group">' +
-						plsSendBtn +
+						primaryBtn +
 						'<a href="' + (notification.url || baseUrl + '/office-visits/waiting') + '" class="btn btn-outline-primary">View Details</a>' +
 					'</div>' +
 				'</div>';
@@ -515,41 +522,85 @@ i[style*="color:rgba"] {
 
 			card.querySelector('.teams-notification-close').addEventListener('click', function() { closeNotification(notification.id); });
 			card.querySelector('.teams-notification-minimize').addEventListener('click', function() { card.classList.toggle('minimized'); });
-			var plsSendEl = card.querySelector('.teams-notification-plssend');
-			if (plsSendEl) {
-				plsSendEl.addEventListener('click', function() {
-					attendSession(notification.checkin_id, notification.id, card);
+			var primaryEl = card.querySelector('.teams-notification-primary');
+			if (primaryEl) {
+				primaryEl.addEventListener('click', function() {
+					var waitingtype = parseInt(primaryEl.getAttribute('data-waitingtype') || '0', 10);
+					handlePrimaryAction(notification.checkin_id, notification.id, card, isReception, waitingtype);
 				});
 			}
-		}
 
-		function closeNotification(notificationId) {
-			var el = document.getElementById('ov-notif-' + notificationId);
-			if (el) el.remove();
-			if (notificationId && csrfToken) {
-				fetch(markSeenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify({ notification_id: notificationId }) });
+			if (notification.checkin_id && checkStatusUrl) {
+				var statusCheckInterval = setInterval(function() {
+					fetch(checkStatusUrl + '?checkin_id=' + encodeURIComponent(notification.checkin_id), {
+						headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+						credentials: 'same-origin'
+					})
+						.then(function(r) { return r.json(); })
+						.then(function(response) {
+							if (response && response.success && response.status !== 0) {
+								clearInterval(statusCheckInterval);
+								closeNotification(notification.id);
+							}
+						})
+						.catch(function() {});
+				}, pollIntervalMs);
 			}
 		}
 
-		function attendSession(checkinId, notificationId, cardEl) {
+		window.showTeamsNotification = showTeamsNotification;
+
+		function handlePrimaryAction(checkinId, notificationId, cardEl, isReception, waitingtype) {
 			if (!checkinId) return;
 			if (cardEl) cardEl.remove();
-			if (csrfToken && updateStatusUrl) {
+			if (!csrfToken) return;
+
+			if (isReception && attendSessionUrl) {
+				var body = new URLSearchParams();
+				body.append('id', checkinId);
+				body.append('waitingtype', String(waitingtype));
+				body.append('waitcountdata', '00h:00m:00s');
+				body.append('_token', csrfToken);
+				fetch(attendSessionUrl, {
+					method: 'POST',
+					headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: body.toString(),
+					credentials: 'same-origin'
+				}).then(function() {
+					if (notificationId) markNotificationSeen(notificationId);
+				}).catch(function() {});
+				return;
+			}
+
+			if (updateStatusUrl) {
 				fetch(updateStatusUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
 					body: JSON.stringify({ checkin_id: checkinId, notification_id: notificationId, status: 0, wait_type: 1 })
 				}).then(function(r) { return r.json(); }).then(function() {
-					if (notificationId && markSeenUrl) {
-						fetch(markSeenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: JSON.stringify({ notification_id: notificationId }) });
-					}
-				});
+					if (notificationId) markNotificationSeen(notificationId);
+				}).catch(function() {});
 			}
+		}
+
+		function markNotificationSeen(notificationId) {
+			if (!notificationId || !csrfToken || !markSeenUrl) return;
+			fetch(markSeenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify({ notification_id: notificationId }) });
+		}
+
+		function closeNotification(notificationId) {
+			var el = document.getElementById('ov-notif-' + notificationId);
+			if (el) el.remove();
+			markNotificationSeen(notificationId);
+		}
+
+		function attendSession(checkinId, notificationId, cardEl) {
+			handlePrimaryAction(checkinId, notificationId, cardEl, false, 0);
 		}
 
 		function loadOfficeVisitNotifications() {
 			if (!fetchUrl) return;
-			fetch(fetchUrl, { headers: { 'Accept': 'application/json' } })
+			fetch(fetchUrl, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
 				.then(function(r) { return r.json(); })
 				.then(function(data) {
 					if (data.notifications && data.notifications.length) {
@@ -557,6 +608,11 @@ i[style*="color:rgba"] {
 					}
 				})
 				.catch(function() {});
+		}
+
+		function pollOfficeVisitNotifications() {
+			if (document.visibilityState === 'hidden') return;
+			loadOfficeVisitNotifications();
 		}
 
 		function setupOfficeVisitRealtimeNotifications() {
@@ -568,6 +624,10 @@ i[style*="color:rgba"] {
 		}
 
 		loadOfficeVisitNotifications();
+		setInterval(pollOfficeVisitNotifications, pollIntervalMs);
+		document.addEventListener('visibilitychange', function() {
+			if (document.visibilityState === 'visible') pollOfficeVisitNotifications();
+		});
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', setupOfficeVisitRealtimeNotifications);
 		} else {
