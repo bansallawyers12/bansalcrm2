@@ -26,37 +26,6 @@
         });
     }
 
-    function showLegacyToast(message, type) {
-        type = type || 'info';
-        var text = (message != null && String(message).trim() !== '') ? String(message).trim() : '';
-        if (!text) {
-            if (type === 'error') {
-                text = 'Something went wrong.';
-            } else if (type === 'success') {
-                text = 'Done.';
-            } else {
-                return;
-            }
-        }
-        text = text.replace(/\s*\n+\s*/g, ' — ');
-        if (typeof iziToast !== 'undefined') {
-            var opts = {
-                message: text,
-                position: 'topRight',
-                timeout: type === 'error' ? 8000 : 5000
-            };
-            if (type === 'error') {
-                iziToast.error(opts);
-            } else if (type === 'success') {
-                iziToast.success(opts);
-            } else {
-                iziToast.show(opts);
-            }
-            return;
-        }
-        alert(text);
-    }
-
     function parseAjaxJson(response) {
         if (response == null || response === '') {
             throw new Error('Empty response');
@@ -117,11 +86,13 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
+                                showToast('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
+                        showToast('Could not save visit purpose.', 'error');
                     }
                 });
             });
@@ -147,16 +118,16 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
+                                showToast('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
+                        showToast('Could not save comment.', 'error');
                     }
                 });
             });
-            
-            $(document).delegate('.attendsession', 'click', function(){
                 var appliid = $(this).attr('data-id');
                 var waitingtype = $(this).attr('data-waitingtype');
                 $('.popuploader').show();
@@ -184,29 +155,29 @@
                                         $('.popuploader').hide();
                                         $('.showchecindetail').html(res);
                                         $('#checkindetailmodal').modal('hide');
-                                        showLegacyToast(successMessage, 'success');
+                                        showToast(successMessage, 'success');
                                     },
                                     error: function(){
                                         $('.popuploader').hide();
                                         $('#checkindetailmodal').modal('hide');
-                                        showLegacyToast(successMessage, 'success');
+                                        showToast(successMessage, 'success');
                                     }
                                 });
                                 $('.checindata #id_'+appliid).remove();
                             }else{
                                 $('.popuploader').hide();
-                                showLegacyToast(obj.message || 'Could not attend session.', 'error');
+                                showToast(obj.message || 'Could not attend session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            showLegacyToast('Error processing response', 'error');
+                            showToast('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        showLegacyToast('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        showToast('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -229,7 +200,7 @@
                                 $('.popuploader').hide();
                                 // Close modal and show message immediately so popup always closes after success
                                 $('#checkindetailmodal').modal('hide');
-                                showLegacyToast(obj.message || 'Session completed successfully!', 'success');
+                                showToast(obj.message || 'Session completed successfully!', 'success');
                                 // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
                                 if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
                                     $('#attending-tab .countAction').text(obj.attending);
@@ -248,18 +219,18 @@
                                 });
                             }else{
                                 $('.popuploader').hide();
-                                showLegacyToast(obj.message || 'Could not complete session.', 'error');
+                                showToast(obj.message || 'Could not complete session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            showLegacyToast('Error processing response', 'error');
+                            showToast('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        showLegacyToast('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        showToast('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -279,6 +250,7 @@
                         },
                         error: function(){
                             $('.popuploader').hide();
+                            showToast('Could not load check-in details.', 'error');
                         }
                     });
             });

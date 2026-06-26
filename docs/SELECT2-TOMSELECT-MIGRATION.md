@@ -213,14 +213,28 @@ Add-branch modal `.select2` chain migrated in Phase 6b.
 
 `contact_name` AJAX fields remain commented out in modal blades — no live migration needed.
 
-## Phase 6c candidates
+## Phase 6c — Email templates, staff/agents, invoice, ongoing filters (Done)
 
-1. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
-2. Header modern search (`modern-search.js`) — last
-3. Ongoing sheet stage filter (`.ongoing-filter-select2`)
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| Email modals (clients, partners, staff, agents, products, invoice list pages) | `.selecttemplate` | `tomselect` + `email-modal-tomselect.js` on `#emailmodal` shown |
+| Client detail | `#changeassignee`, email `#template` | `initTomSelect` multi / compact |
+| Staff view | `.staff-timezone-select`, fee edit AJAX selects | Tom Select via shared init + `initTomSelectAllPreserveValues` |
+| Invoice group create | Partner picker | `group-invoice-partner-select tomselect` |
+| Products fee modal | `residencyelect2`, `installment_type` | `tomselect` + modal `initModalTomSelects` |
+| Staff/agents/products/partner detail | Removed dead `timezoneselect2` Select2 inits | Rely on global modal init when `#create_appoint` exists |
+| `sheets/ongoing.blade.php` | Branch multi + stage single filters | `ongoing-filter-branch-select`, `ongoing-filter-stage-select` |
+
+Deferred to Phase 6d: header `modern-search.js`, action page `assigneeselect2`, partner agreement modal Select2.
+
+## Phase 6d candidates
+
+1. Header modern search (`modern-search.js`) — last
+2. Action pages (`assigneeselect2` in legacy-init / popover)
+3. Partner detail agreement modal (`#agreement_represent_region`, `#agreement_default_super_agent`)
 4. Edit modals static `contact_name` (if uncommented)
 
-## Phase 6b candidates (superseded — see Phase 6c)
+## Phase 6c candidates (superseded — see Phase 6d)
 
 ## Phase 0 test checklist
 

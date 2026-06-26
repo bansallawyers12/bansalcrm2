@@ -239,7 +239,7 @@ use App\Http\Controllers\Controller;
 											<div class="row">
 												<div class="col-12 col-md-6 col-lg-6">
 													<div class="form-group">
-														<select class="form-control userselect2" name="timezone">
+														<select class="form-control tomselect staff-timezone-select" name="timezone">
 															<option value="">Please select Timezone</option>
 															@foreach($list as $l)
 															<option @if($l == $fetchedData->time_zone) selected @endif value="{{$l}}">{{$l}}</option>
@@ -429,7 +429,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="template">Templates </label>
-								<select data-valid="" class="form-control select2 selecttemplate" name="template">
+								<select data-valid="" class="form-control tomselect selecttemplate" name="template">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
@@ -1296,15 +1296,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		});
 	});
 	
-	$(".timezoneselect2").select2({
-		dropdownParent: $("#create_appoint .modal-content")
-	});
-	
-	$(".userselect2").select2({});
-	$(".installment_type, .residencyelect2").select2({
-		dropdownParent: $("#new_fee_option .modal-content")
-	});
-	
+	// Staff timezone + fee modals: Tom Select via email-modal-tomselect.js / initModalTomSelects
   
   $('#attachments').on('change',function(){
        // output raw value of file input
@@ -1368,9 +1360,12 @@ $(document).delegate('#notes-tab', 'click', function(){
 			success:function(response){
 				$('.popuploader').hide();
 				$('.showfeeoptionedit').html(response);
-				$(".edit_installment_type, .residencyelect2").select2({ 
-					dropdownParent: $("#editfeeoption .modal-content")
-				});
+				if (typeof initTomSelectAllPreserveValues === 'function') {
+					initTomSelectAllPreserveValues('#editfeeoption .edit_installment_type, #editfeeoption .residencyelect2', {
+						width: '100%',
+						dropdownParent: document.querySelector('#editfeeoption .modal-content') || document.querySelector('#editfeeoption')
+					});
+				}
 			}
 		});
 	});

@@ -187,9 +187,7 @@ jQuery(document).ready(function($){
         });
     });
 
-    $(".timezoneselect2").select2({
-        dropdownParent: $("#create_appoint .modal-content")
-    });
+    // Appointment modal timezone selects: initModalTomSelects on #create_appoint shown (if present)
 });
 
 })(); // End async wrapper

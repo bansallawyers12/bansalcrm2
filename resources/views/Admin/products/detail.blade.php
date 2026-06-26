@@ -327,7 +327,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="template">Templates </label>
-								<select data-valid="" class="form-control select2 selecttemplate" name="template">
+								<select data-valid="" class="form-control tomselect selecttemplate" name="template">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
@@ -905,10 +905,7 @@ $(document).delegate('#notes-tab', 'click', function(){
 		});
 	});
 	
-	$(".timezoneselect2").select2({
-		dropdownParent: $("#create_appoint .modal-content")
-	});
-	
+	// Appointment modal timezone selects: initModalTomSelects on #create_appoint shown (if present)
   
   $('#attachments').on('change',function(){
        // output raw value of file input

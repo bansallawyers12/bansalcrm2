@@ -321,6 +321,7 @@ i[style*="color:rgba"] {
 	@endif
 	<script src="{{ asset('js/common/tomselect-init.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/tomselect-init.js')) }}" defer></script>
 	<script src="{{ asset('js/common/application-modal-cascade.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/application-modal-cascade.js')) }}" defer></script>
+	<script src="{{ asset('js/common/email-modal-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/email-modal-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/common/recipient-select.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/recipient-select.js')) }}" defer></script>
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 

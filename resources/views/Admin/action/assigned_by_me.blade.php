@@ -614,7 +614,7 @@
         var message = $('#completion_message').val().trim();
         
         if (!message) {
-            alert('Please enter a completion message.');
+            showToast('Please enter a completion message.', 'warning');
             return;
         }
         
@@ -642,12 +642,12 @@
                     }
                     
                     // Show success message
-                    alert(response.message || 'Action completed successfully!');
+                    showToast(response.message || 'Action completed successfully!', 'success');
                     
                     // Reload page to reflect changes
                     location.reload();
                 } else {
-                    alert(response.message || 'Failed to complete action. Please try again.');
+                    showToast(response.message || 'Failed to complete action. Please try again.', 'error');
                     $('#submitCompleteAction').prop('disabled', false).html('Complete Action');
                 }
             },
@@ -656,7 +656,7 @@
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                alert(errorMsg);
+                showToast(errorMsg, 'error');
                 $('#submitCompleteAction').prop('disabled', false).html('Complete Action');
             }
         });

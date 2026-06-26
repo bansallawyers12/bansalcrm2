@@ -5,7 +5,16 @@
 
 (function() {
     jQuery(document).ready(function($){
-        $('.selecttemplate').select2({dropdownParent: $('#emailmodal')});
+        if (typeof initTomSelect === 'function' && $('#emailmodal .selecttemplate').length) {
+            var emailModal = document.querySelector('#emailmodal');
+            var dropdownParent = emailModal
+                ? (emailModal.querySelector('.modal-content') || emailModal)
+                : document.body;
+            initTomSelect('#emailmodal .selecttemplate', {
+                width: '100%',
+                dropdownParent: dropdownParent
+            });
+        }
 
         // Flatpickr replacements for receipt forms
         if (typeof flatpickr !== 'undefined') {
@@ -53,10 +62,12 @@
             }
         });
 
-        // Set select2 drop down box width
-        if ($('#changeassignee').length) {
-            $('#changeassignee').select2();
-            $('#changeassignee').next('.select2-container').first().css('width', '220px');
+        if ($('#changeassignee').length && typeof initTomSelect === 'function') {
+            initTomSelect('#changeassignee', {
+                width: '220px',
+                multiple: true,
+                closeOnSelect: false
+            });
         }
     });
 })();

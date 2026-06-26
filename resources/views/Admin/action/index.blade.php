@@ -706,7 +706,7 @@ jQuery(document).ready(function($){
         var message = $('#completion_message').val().trim();
         
         if (!message) {
-            alert('Please enter a completion message.');
+            showToast('Please enter a completion message.', 'warning');
             return;
         }
         
@@ -749,11 +749,11 @@ jQuery(document).ready(function($){
                             message: response.message || 'Action completed successfully!'
                         });
                     } else {
-                        alert(response.message || 'Action completed successfully!');
+                        showToast(response.message || 'Action completed successfully!', 'success');
                     }
                 } else {
                     // Handle error response
-                    alert(response.message || 'Failed to complete action. Please try again.');
+                    showToast(response.message || 'Failed to complete action. Please try again.', 'error');
                 }
             },
             error: function(xhr) {
@@ -764,7 +764,7 @@ jQuery(document).ready(function($){
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-                alert(errorMsg);
+                showToast(errorMsg, 'error');
             }
         });
     });

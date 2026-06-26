@@ -28,7 +28,47 @@ import 'izitoast/dist/css/iziToast.min.css';
 window.flatpickr = flatpickr;
 window.iziToast = iziToast;
 
-// DataTables and select2 are jQuery plugins, so they're automatically available via $
+/**
+ * Shared toast helper for legacy scripts (replaces alert()).
+ * @param {string} message
+ * @param {'success'|'error'|'warning'|'info'} [type]
+ */
+window.showToast = function (message, type) {
+    type = type || 'info';
+    var text = (message != null && String(message).trim() !== '') ? String(message).trim() : '';
+    if (!text) {
+        if (type === 'error') {
+            text = 'Something went wrong.';
+        } else if (type === 'success') {
+            text = 'Done.';
+        } else if (type === 'warning') {
+            text = 'Please check your input.';
+        } else {
+            return;
+        }
+    }
+    text = text.replace(/\s*\n+\s*/g, ' — ');
+    if (typeof window.iziToast !== 'undefined') {
+        var opts = {
+            message: text,
+            position: 'topRight',
+            timeout: type === 'error' ? 8000 : 5000,
+        };
+        if (type === 'error' && typeof window.iziToast.error === 'function') {
+            window.iziToast.error(opts);
+        } else if (type === 'success' && typeof window.iziToast.success === 'function') {
+            window.iziToast.success(opts);
+        } else if (type === 'warning' && typeof window.iziToast.warning === 'function') {
+            window.iziToast.warning(opts);
+        } else {
+            window.iziToast.show(opts);
+        }
+        return;
+    }
+    alert(text);
+};
+window.showLegacyToast = window.showToast;
+
 // But we can also expose them explicitly if needed
 
 // Create a promise that resolves when all plugins are ready

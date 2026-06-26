@@ -119,7 +119,7 @@
 						<div class="col-12 col-md-12 col-lg-12 is_partnerinv">
 							<div class="form-group">
 								<label for="timezone">Select Partner for which you want to create invoice <span class="span_req">*</span></label>
-								<select class="form-control timezoneselect2" name="partner" data-valid="required">
+								<select class="form-control tomselect group-invoice-partner-select" name="partner" data-valid="required">
 									<option value="">Select</option>
 									<?php
 									foreach(\App\Models\Partner::all() as $tlist){

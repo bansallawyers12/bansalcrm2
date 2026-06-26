@@ -896,7 +896,7 @@
 						<div class="col-12 col-md-4 col-lg-4">
 							<div class="form-group">
 								<label for="country_residency">Country of Residency <span class="span_req">*</span></label> 
-								<select class="form-control residencyelect2" name="country_residency" data-valid="required">
+								<select class="form-control tomselect residencyelect2" name="country_residency" data-valid="required">
 								<option value="">Select Country</option>
 								<?php
 									foreach(\App\Models\Country::all() as $list){
@@ -914,7 +914,7 @@
 						<div class="col-12 col-md-4 col-lg-4">
 							<div class="form-group">
 								<label for="degree_level">Installment Type <span class="span_req">*</span></label> 
-								<select data-valid="required" class="form-control degree_level installment_type select2" name="degree_level">
+								<select data-valid="required" class="form-control degree_level tomselect installment_type" name="degree_level">
 									<option value="">Select Type</option>
 									<option value="Full Fee">Full Fee</option>
 									<option value="Per Year">Per Year</option>

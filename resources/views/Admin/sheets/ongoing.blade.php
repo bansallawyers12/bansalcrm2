@@ -128,34 +128,17 @@
     .ongoing-filter-panel .ongoing-filter-field .select2-container--default .select2-selection--single .select2-selection__rendered:not(.select2-selection__placeholder) {
         color: #374151;
     }
-    .ongoing-filter-panel .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #6b7280;
-    }
-    .ongoing-filter-panel .select2-container .select2-selection {
-        border-radius: 5px;
-        border: 1px solid #d1d5db;
+    .ongoing-filter-panel .ts-wrapper .ts-control {
         min-height: 34px;
-        padding: 0 0.5rem;
-    }
-    .ongoing-filter-panel .select2-container .select2-selection__rendered {
         font-size: 0.8125rem;
-        line-height: 32px;
     }
-    .select2-dropdown.ongoing-filter-select2-dropdown {
+    .ongoing-filter-panel .ts-dropdown {
         z-index: 1056;
-        width: auto !important;
-        min-width: 200px !important;
-        max-width: min(100vw - 1.5rem, 400px);
-        box-sizing: border-box;
     }
-    /* Stage filter: wider menu for long labels; overrides global custom.css width:200px */
-    .select2-container--default .select2-dropdown.ongoing-filter-stage-select2-dropdown,
-    .select2-dropdown.ongoing-filter-stage-select2-dropdown {
-        z-index: 1056;
-        width: auto !important;
-        min-width: 280px !important;
-        max-width: min(calc(100vw - 1.5rem), 360px) !important;
-        box-sizing: border-box;
+    .ongoing-filter-stage-select + .ts-wrapper .ts-dropdown,
+    .ongoing-filter-stage-select.tomselect ~ .ts-wrapper .ts-dropdown {
+        min-width: 280px;
+        max-width: min(calc(100vw - 1.5rem), 360px);
     }
     .select2-dropdown.ongoing-filter-stage-select2-dropdown .select2-results__option {
         white-space: nowrap;
@@ -390,7 +373,7 @@
                                 <div class="row g-2 align-items-end">
                                     <div class="col-6 col-md-3 ongoing-filter-field">
                                         <label class="form-label">Branch</label>
-                                        <select name="branch[]" class="form-control select2 ongoing-filter-select2" multiple>
+                                        <select name="branch[]" class="form-control tomselect ongoing-filter-branch-select" multiple>
                                             @foreach($branches as $b)
                                                 <option value="{{ $b->id }}" 
                                                     {{ in_array($b->id, (array)request('branch', [])) ? 'selected' : '' }}>
@@ -426,7 +409,7 @@
                                                 return strtolower(trim((string) $value)) === strtolower($selectedCurrentStage);
                                             });
                                         @endphp
-                                        <select name="current_stage" id="ongoing-current-stage-filter" class="form-control ongoing-filter-select2 ongoing-filter-select2-single" data-selected-stage="{{ e($selectedCurrentStageValue) }}">
+                                        <select name="current_stage" id="ongoing-current-stage-filter" class="form-control tomselect ongoing-filter-stage-select" data-selected-stage="{{ e($selectedCurrentStageValue) }}">
                                             <option value="" {{ $selectedCurrentStage === '' ? 'selected' : '' }}></option>
                                             @foreach($currentStages as $value => $label)
                                                 <option value="{{ $value }}" {{ $selectedCurrentStage !== '' && strtolower(trim((string) $value)) === strtolower($selectedCurrentStage) ? 'selected' : '' }}>
@@ -820,181 +803,137 @@ $(document).ready(function() {
         clickOpens: true
     });
     
-    // Initialize Select2 for filter panel only (excluded from global scripts.js to avoid double-init)
-    function initOngoingFilterSelect2($select, options) {
-        if (typeof $.fn.select2 !== 'function' || !$select.length) {
-            return;
-        }
-        $select.each(function() {
-            var $el = $(this);
-            if ($el.hasClass('select2-hidden-accessible')) {
-                $el.select2('destroy');
-            }
-            $el.select2(options);
-        });
-    }
-    var ongoingFilterDropdownParent = $(document.body);
-    var ongoingFilterBranchSelect2Options = {
-        placeholder: 'Select branches',
-        allowClear: true,
-        width: '100%',
-        dropdownParent: ongoingFilterDropdownParent,
-        dropdownCssClass: 'ongoing-filter-select2-dropdown'
-    };
-    var ongoingFilterStageSelect2Options = {
-        placeholder: 'All stages',
-        allowClear: true,
-        width: '100%',
-        dropdownParent: ongoingFilterDropdownParent,
-        minimumResultsForSearch: 10,
-        dropdownAutoWidth: true,
-        dropdownCssClass: 'ongoing-filter-stage-select2-dropdown'
-    };
-    var ongoingStageSelect2Bound = false;
-    function getOngoingStagePreservedValue($select) {
-        if (!$select || !$select.length) {
-            return null;
-        }
-        var fromData = ($select.attr('data-selected-stage') || '').trim();
-        var resolved = resolveOngoingStageOptionValue($select, fromData);
-        if (resolved) {
-            return resolved;
-        }
-        var $nativeSelected = $select.find('option:selected').filter(function() {
-            return String($(this).attr('value') || '').trim() !== '';
-        }).first();
-        if ($nativeSelected.length) {
-            return resolveOngoingStageOptionValue($select, $nativeSelected.attr('value')) || $nativeSelected.attr('value');
-        }
-        var currentVal = $select.val();
-        if (currentVal && String(currentVal).trim() !== '') {
-            return resolveOngoingStageOptionValue($select, currentVal) || currentVal;
-        }
-        return null;
-    }
-    function resolveOngoingStageOptionValue($select, stageVal) {
-        if (!stageVal) {
+    // Tom Select for filter panel (excluded from global scripts.js Select2 init)
+    var ongoingStageTomSelectBound = false;
+
+    function resolveOngoingStageOptionValue(stageEl, stageVal) {
+        if (!stageEl || !stageVal) {
             return null;
         }
         var norm = String(stageVal).trim().toLowerCase();
         var resolved = null;
-        $select.find('option').each(function() {
-            var optVal = $(this).attr('value');
+        stageEl.querySelectorAll('option').forEach(function (opt) {
+            var optVal = opt.getAttribute('value');
             if (optVal && String(optVal).trim().toLowerCase() === norm) {
                 resolved = optVal;
-                return false;
             }
         });
         return resolved;
     }
-    function syncOngoingStageSelect2Display($el) {
-        if (!$el || !$el.length || !$el.hasClass('select2-hidden-accessible')) {
-            return;
+
+    function getOngoingStagePreservedValue(stageEl) {
+        if (!stageEl) {
+            return null;
         }
-        var stageVal = getOngoingStagePreservedValue($el);
-        if (stageVal) {
-            $el.val(stageVal).trigger('change');
-            return;
+        var fromData = (stageEl.getAttribute('data-selected-stage') || '').trim();
+        var resolved = resolveOngoingStageOptionValue(stageEl, fromData);
+        if (resolved) {
+            return resolved;
         }
-        if (!$el.val() || String($el.val()).trim() === '') {
-            $el.val(null).trigger('change');
+        var selected = stageEl.querySelector('option:checked');
+        if (selected && String(selected.value || '').trim() !== '') {
+            return resolveOngoingStageOptionValue(stageEl, selected.value) || selected.value;
         }
+        if (stageEl.value && String(stageEl.value).trim() !== '') {
+            return resolveOngoingStageOptionValue(stageEl, stageEl.value) || stageEl.value;
+        }
+        return null;
     }
-    function initOngoingStageSelect2(forceReinit) {
-        var $stageFilter = $('#ongoing-current-stage-filter');
-        var $filterPanel = $('#filterPanel');
-        if (!$stageFilter.length || typeof $.fn.select2 !== 'function') {
+
+    function initOngoingBranchFilterTomSelect() {
+        if (typeof initTomSelectPreserveValue !== 'function') {
             return;
         }
-        if (!$filterPanel.hasClass('show')) {
-            return;
-        }
-        var preservedVal = getOngoingStagePreservedValue($stageFilter);
-        if (preservedVal) {
-            $stageFilter.val(preservedVal);
-        } else {
-            $stageFilter.val('');
-        }
-        if ($stageFilter.hasClass('select2-hidden-accessible')) {
-            if (!forceReinit) {
-                syncOngoingStageSelect2Display($stageFilter);
+        document.querySelectorAll('.ongoing-filter-panel select.ongoing-filter-branch-select').forEach(function (el) {
+            if (el.tomselect) {
                 return;
             }
-            $stageFilter.select2('destroy');
-            if (preservedVal) {
-                $stageFilter.val(preservedVal);
-            }
-        }
-        $stageFilter.select2(ongoingFilterStageSelect2Options);
-        if (preservedVal) {
-            $stageFilter.val(preservedVal).trigger('change');
-        } else {
-            $stageFilter.val(null).trigger('change');
-        }
-        window.setTimeout(function() {
-            if (preservedVal) {
-                $stageFilter.val(preservedVal).trigger('change');
-            } else {
-                syncOngoingStageSelect2Display($stageFilter);
-            }
-        }, 0);
-        if (!ongoingStageSelect2Bound) {
-            bindOngoingStageDropdownWidth();
-            $stageFilter.on('select2:clear', function() {
-                $(this).attr('data-selected-stage', '');
-                $(this).val(null).trigger('change');
+            initTomSelectPreserveValue(el, {
+                width: '100%',
+                multiple: true,
+                closeOnSelect: false
             });
-            $stageFilter.on('select2:select', function(e) {
-                var val = e.params && e.params.data ? e.params.data.id : $(this).val();
-                $(this).attr('data-selected-stage', val || '');
-            });
-            ongoingStageSelect2Bound = true;
-        }
-    }
-    function initOngoingFilterPanelWhenVisible() {
-        var $filterPanel = $('#filterPanel');
-        if (!$filterPanel.hasClass('show')) {
-            return;
-        }
-        initOngoingFilterSelect2($('.ongoing-filter-panel select.ongoing-filter-select2[multiple]'), ongoingFilterBranchSelect2Options);
-        initOngoingStageSelect2(true);
-    }
-    function bindOngoingStageDropdownWidth() {
-        var $stage = $('#ongoing-current-stage-filter');
-        if (!$stage.length || $stage.data('ongoingStageWidthBound')) {
-            return;
-        }
-        $stage.data('ongoingStageWidthBound', true);
-        $stage.on('select2:open', function() {
-            window.setTimeout(function() {
-                var $dropdown = $('.select2-dropdown.ongoing-filter-stage-select2-dropdown');
-                var $container = $stage.next('.select2-container');
-                if (!$dropdown.length || !$container.length) {
-                    return;
-                }
-                var triggerWidth = $container.outerWidth() || 0;
-                var minWidth = Math.max(triggerWidth, 280);
-                var maxWidth = Math.min(window.innerWidth - 16, 360);
-                var width = Math.min(minWidth, maxWidth);
-                $dropdown.css('width', width + 'px');
-                var left = $dropdown.offset().left;
-                if (left + width > window.innerWidth - 8) {
-                    $dropdown.css('left', Math.max(8, window.innerWidth - width - 8) + 'px');
-                }
-            }, 0);
         });
     }
+
+    function initOngoingStageFilterTomSelect(forceReinit) {
+        var stageEl = document.getElementById('ongoing-current-stage-filter');
+        var filterPanel = document.getElementById('filterPanel');
+        if (!stageEl || typeof initTomSelect !== 'function' || !filterPanel || !filterPanel.classList.contains('show')) {
+            return;
+        }
+        var preservedVal = getOngoingStagePreservedValue(stageEl);
+        if (preservedVal) {
+            stageEl.value = preservedVal;
+        } else {
+            stageEl.value = '';
+        }
+        if (stageEl.tomselect) {
+            if (!forceReinit) {
+                if (typeof setEnhancedSelectValue === 'function') {
+                    setEnhancedSelectValue(stageEl, preservedVal || '', true);
+                }
+                return;
+            }
+            if (typeof destroyEnhancedSelect === 'function') {
+                destroyEnhancedSelect(stageEl);
+            }
+        }
+        var stageOpts = {
+            width: '100%',
+            allowClear: true,
+            placeholder: 'All stages'
+        };
+        if (typeof initTomSelectPreserveValue === 'function') {
+            initTomSelectPreserveValue(stageEl, stageOpts);
+        } else {
+            initTomSelect(stageEl, stageOpts);
+        }
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue(stageEl, preservedVal || '', true);
+        }
+        if (!ongoingStageTomSelectBound) {
+            stageEl.addEventListener('change', function () {
+                var val = typeof getEnhancedSelectValue === 'function'
+                    ? getEnhancedSelectValue(stageEl)
+                    : stageEl.value;
+                stageEl.setAttribute('data-selected-stage', val || '');
+            });
+            ongoingStageTomSelectBound = true;
+        }
+    }
+
+    function initOngoingFilterPanelWhenVisible() {
+        var filterPanel = document.getElementById('filterPanel');
+        if (!filterPanel || !filterPanel.classList.contains('show')) {
+            return;
+        }
+        initOngoingBranchFilterTomSelect();
+        initOngoingStageFilterTomSelect(true);
+    }
+
     var $filterPanel = $('#filterPanel');
     function scheduleOngoingFilterPanelInit() {
         if (!$filterPanel.hasClass('show')) {
             return;
         }
-        window.setTimeout(function() {
-            initOngoingFilterPanelWhenVisible();
-        }, 0);
+        var run = function () {
+            window.setTimeout(function () {
+                initOngoingFilterPanelWhenVisible();
+            }, 0);
+        };
+        if (typeof whenTomSelectReady === 'function') {
+            whenTomSelectReady(run);
+        } else {
+            run();
+        }
     }
     $filterPanel.on('shown.bs.collapse', function() {
-        initOngoingFilterPanelWhenVisible();
+        if (typeof whenTomSelectReady === 'function') {
+            whenTomSelectReady(initOngoingFilterPanelWhenVisible);
+        } else {
+            initOngoingFilterPanelWhenVisible();
+        }
     });
     if ($filterPanel.hasClass('show')) {
         scheduleOngoingFilterPanelInit();

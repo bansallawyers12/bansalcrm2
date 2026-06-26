@@ -7,12 +7,20 @@
 
 "use strict";
 
+function crmToast(message, type) {
+	if (typeof window.showToast === 'function') {
+		window.crmToast(message, type);
+	} else {
+		alert(message);
+	}
+}
+
 //Delete Function Start
 	function declineAction( id, table ) {
 			var conf = confirm('Do you want to change status to declined?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -53,7 +61,7 @@
 			var conf = confirm('Do you want to change status to Approve?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -96,7 +104,7 @@
 			var conf = confirm('Do you want to change status to Process?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -140,7 +148,7 @@
 			var conf = confirm('Do you want to change status to Archive?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -183,7 +191,7 @@
 		var conf = confirm('Do you want to change status to inactive?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -224,7 +232,7 @@
 		var conf = confirm('Do you want to change status to active?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to update the record.');
+				crmToast('Please select ID to update the record.', 'warning');
 				return false;	
 			} else {
 				$(".server-error").html(''); //remove server error.
@@ -264,7 +272,7 @@
 		var conf = confirm('Are you sure, you would like to delete this record. Remember all Related data would be deleted.');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to delete the record.');
+				crmToast('Please select ID to delete the record.', 'warning');
 				return false;	
 			} else {
 				$('.popuploader').show();
@@ -321,7 +329,7 @@
 		var conf = confirm('Are you sure you want to restore this client to the active list?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to delete the record.');
+				crmToast('Please select ID to delete the record.', 'warning');
 				return false;	
 			} else {
 				$('.popuploader').show();
@@ -366,7 +374,7 @@
 		var conf = confirm('WARNING: This will permanently delete this client and all related data. This action cannot be undone. Are you absolutely sure?');
 		if(conf){	 
 			if(id == '') {
-				alert('Please select ID to permanently delete the record.');
+				crmToast('Please select ID to permanently delete the record.', 'warning');
 				return false;	
 			} else {
 				$('.popuploader').show();

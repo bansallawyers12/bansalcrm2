@@ -94,18 +94,33 @@ jQuery(document).ready(function($){
     const partnerId = PageConfig.partnerId;
 
     $(document).delegate('input[name="apply_to"]', 'change', function () {
-        var v = $('input[name="apply_to"]:checked').val();
-        if(v == 'All Products'){
-            $('.ifselectproducts').hide();
-            $('.promotion-product-select').attr('data-valid', '');
-        }else{
-            $('.ifselectproducts').show();
-            $('.promotion-product-select').attr('data-valid', 'required');
+        var $form = $(this).closest('form');
+        var v = $(this).val();
+        if (v == 'All Products') {
+            $form.find('.ifselectproducts').hide();
+            $form.find('.promotion-product-select').attr('data-valid', '');
+        } else {
+            $form.find('.ifselectproducts').show();
+            $form.find('.promotion-product-select').attr('data-valid', 'required');
             if (typeof initPromotionProductSelects === 'function') {
-                initPromotionProductSelects('#create_promotion');
-                initPromotionProductSelects('.showpromotionedit');
+                var modalRoot = $form.closest('.modal')[0] || $form[0];
+                initPromotionProductSelects(modalRoot);
             }
         }
+    });
+
+    $('#create_promotion').on('hidden.bs.modal', function () {
+        var form = this.querySelector('#promotionform');
+        if (form) {
+            form.reset();
+        }
+        this.querySelectorAll('.promotion-product-select').forEach(function (el) {
+            if (typeof destroyEnhancedSelect === 'function') {
+                destroyEnhancedSelect(el);
+            }
+        });
+        $(this).find('.ifselectproducts').hide();
+        $(this).find('#all_product').prop('checked', true);
     });
 
     $('#create_promotion').on('shown.bs.modal', function () {

@@ -531,7 +531,7 @@ use App\Http\Controllers\Controller;
 								<div class="assigneeshow" style="display:none;">
 								    <table>
 								        <tr>
-								            <td><select class="form-control select2" id="changeassignee" name="changeassignee[]" multiple="multiple">
+								            <td><select class="form-control tomselect" id="changeassignee" name="changeassignee[]" multiple="multiple">
 						                 	<?php
 												foreach(\App\Models\Staff::select('id', 'office_id', 'first_name', 'last_name')->orderby('first_name','ASC')->get() as $admin){
 													$branchname = \App\Models\Branch::select('id', 'office_name')->where('id',$admin->office_id)->first();
@@ -1911,7 +1911,7 @@ use App\Http\Controllers\Controller;
                                 $clientAssigneeName = $assignee ? $assignee->first_name : 'NA';
 								$clientDob = (!empty($fetchedData->dob) && $fetchedData->dob != '0000-00-00') ? date('d/m/Y', strtotime($fetchedData->dob)) : '';
 								?>
-								<select id="template" data-valid="" class="form-control form-control-sm select2 selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
+								<select id="template" data-valid="" class="form-control form-control-sm tomselect selecttemplate" name="template" data-clientid="{{@$fetchedData->id}}" data-clientfirstname="{{@$fetchedData->first_name}}" data-clientvisaExpiry="{{@$fetchedData->visaExpiry}}" data-clientreference_number="{{@$fetchedData->client_id}}" data-clientassignee_name="{{@$clientAssigneeName}}" data-clientdob="{{@$clientDob}}">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::orderBy('id', 'desc')->get() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
