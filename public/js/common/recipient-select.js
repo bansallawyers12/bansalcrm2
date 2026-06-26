@@ -7,12 +7,14 @@
  *   RecipientSelect.init('#emailmodal .js-data-example-ajax', { url: '/clients/get-recipients', dropdownParent: '#emailmodal' });
  *   RecipientSelect.setClientEmailRecipient('#emailmodal .js-data-example-ajax', id, name, email, 'Client', { dropdownParent: '#emailmodal' });
  *   var collected = RecipientSelect.collectFromCheckboxes('.cb-element', 'Client');
- *   RecipientSelect.setRecipientSelectData('#emailmodal .js-data-example-ajax', collected.entries, { dropdownParent: '#emailmodal' });
+ *   RecipientSelect.setData('#emailmodal .js-data-example-ajax', collected.entries, { dropdownParent: '#emailmodal' });
  */
 (function (window) {
     'use strict';
 
-    var $ = window.jQuery;
+    function get$() {
+        return window.jQuery;
+    }
 
     function resolveUrl(options) {
         options = options || {};
@@ -76,6 +78,8 @@
         if (repo.html) {
             return repo.html;
         }
+
+        var $ = get$();
         if (!$) {
             return repo.name || repo.text || '';
         }
@@ -104,20 +108,28 @@
     }
 
     function resolveJQuery(el) {
+        var $ = get$();
+        if (!$) {
+            return null;
+        }
         if (!el) {
             return $();
         }
-        if ($ && el instanceof $) {
+        if (el instanceof $) {
             return el;
         }
         return $(el);
     }
 
     function destroyRecipientSelect(el) {
+        var $ = get$();
         if (!$) {
             return;
         }
         var $el = resolveJQuery(el);
+        if (!$el || !$el.length) {
+            return;
+        }
         if ($el.data('select2')) {
             $el.select2('destroy');
         }
@@ -147,8 +159,20 @@
         return ajax;
     }
 
+    function ensureMultipleAttribute($el, isMultiple) {
+        if (!isMultiple || !$el || !$el.length) {
+            return;
+        }
+        $el.each(function () {
+            if (!this.hasAttribute('multiple')) {
+                this.setAttribute('multiple', 'multiple');
+            }
+        });
+    }
+
     function initRecipientSelect(el, options) {
         options = options || {};
+        var $ = get$();
 
         if (!$ || typeof $.fn.select2 !== 'function') {
             console.warn('[RecipientSelect] Select2 not available');
@@ -156,11 +180,13 @@
         }
 
         var $el = resolveJQuery(el);
-        if (!$el.length) {
+        if (!$el || !$el.length) {
             return;
         }
 
-        if ($el.data('select2')) {
+        if (options.force || options.reinit) {
+            destroyRecipientSelect($el);
+        } else if ($el.data('select2')) {
             return;
         }
 
@@ -171,6 +197,8 @@
         }
 
         var isMultiple = options.multiple !== false;
+        ensureMultipleAttribute($el, isMultiple);
+
         var select2Options = {
             multiple: isMultiple,
             closeOnSelect: options.closeOnSelect === false ? false : (isMultiple ? false : true),
@@ -188,6 +216,7 @@
     }
 
     function initRecipientSelects(selector, options) {
+        var $ = get$();
         if (!$) {
             return;
         }
@@ -196,15 +225,22 @@
         });
     }
 
+    function reinitRecipientSelect(el, options) {
+        options = options || {};
+        options.reinit = true;
+        initRecipientSelect(el, options);
+    }
+
     function setRecipientSelectData(el, entries, options) {
         options = options || {};
+        var $ = get$();
 
         if (!$ || typeof $.fn.select2 !== 'function') {
             return;
         }
 
         var $el = resolveJQuery(el);
-        if (!$el.length) {
+        if (!$el || !$el.length) {
             return;
         }
 
@@ -219,6 +255,7 @@
         }
 
         var isMultiple = options.multiple !== false;
+        ensureMultipleAttribute($el, isMultiple);
 
         $el.select2({
             multiple: isMultiple,
@@ -245,6 +282,7 @@
 
     function collectFromCheckboxes(checkboxSelector, statusLabel) {
         var entries = [];
+        var $ = get$();
         if (!$) {
             return { ids: [], entries: [] };
         }
@@ -276,6 +314,7 @@
         destroy: destroyRecipientSelect,
         init: initRecipientSelect,
         initAll: initRecipientSelects,
+        reinit: reinitRecipientSelect,
         setData: setRecipientSelectData,
         setClientEmailRecipient: setClientEmailRecipient,
         collectFromCheckboxes: collectFromCheckboxes

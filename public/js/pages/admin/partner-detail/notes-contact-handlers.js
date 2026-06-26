@@ -337,6 +337,10 @@ jQuery(document).ready(function($){
             url: rsUrl,
             dropdownParent: '#emailmodal'
         });
+        RecipientSelect.init('#emailmodal .js-data-example-ajaxcc', {
+            url: rsUrl,
+            dropdownParent: '#emailmodal'
+        });
     }
 
     $(document).delegate('.opennoteform', 'click', function(){

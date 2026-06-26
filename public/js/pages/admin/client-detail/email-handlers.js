@@ -49,7 +49,27 @@ jQuery(document).ready(function($){
      * Replace To field with fixed Select2 options (client id or raw email for college).
      */
     function setComposeToRecipients(entries) {
-        RecipientSelect.setData('.js-data-example-ajax', entries, { dropdownParent: '#emailmodal' });
+        RecipientSelect.setData('#emailmodal .js-data-example-ajax', entries, { dropdownParent: '#emailmodal' });
+    }
+
+    function getEmailRecipientInitOptions() {
+        var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
+        return {
+            url: rsUrl,
+            dropdownParent: '#emailmodal',
+            csrf: true
+        };
+    }
+
+    function restoreEmailRecipientAjaxSelects() {
+        if (!window.RecipientSelect) {
+            return;
+        }
+        var opts = getEmailRecipientInitOptions();
+        RecipientSelect.reinit('#emailmodal .js-data-example-ajax', opts);
+        if ($('#emailmodal .js-data-example-ajaxccd').length) {
+            RecipientSelect.reinit('#emailmodal .js-data-example-ajaxccd', opts);
+        }
     }
     
     // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
@@ -59,6 +79,7 @@ jQuery(document).ready(function($){
         $('#compose_email_category').val('');
         // Multi-file state is managed in detail.blade.php inline script
         if (typeof window.clearComposeAttachFiles === 'function') window.clearComposeAttachFiles();
+        restoreEmailRecipientAjaxSelects();
     });
 
     // Compose labels: Sent is always applied server-side. Populate Add label dropdown and handle chip add/remove.
@@ -327,18 +348,10 @@ jQuery(document).ready(function($){
     var openedFromChecklist = urlParams.get('open_checklist_email') === '1' || urlParams.get('open_email_reminder') === '1';
     
     if (!openedFromChecklist && window.RecipientSelect) {
-        var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
-        RecipientSelect.init('.js-data-example-ajax', {
-            url: rsUrl,
-            dropdownParent: '#emailmodal',
-            csrf: true
-        });
+        var opts = getEmailRecipientInitOptions();
+        RecipientSelect.init('#emailmodal .js-data-example-ajax', opts);
         if ($('#emailmodal .js-data-example-ajaxccd').length) {
-            RecipientSelect.init('.js-data-example-ajaxccd', {
-                url: rsUrl,
-                dropdownParent: '#emailmodal',
-                csrf: true
-            });
+            RecipientSelect.init('#emailmodal .js-data-example-ajaxccd', opts);
         }
     }
 

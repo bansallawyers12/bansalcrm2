@@ -109,12 +109,12 @@
 
         if (window.RecipientSelect) {
             var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
-            RecipientSelect.init('.js-data-example-ajaxcc', {
+            RecipientSelect.init('#create_note .js-data-example-ajaxcc', {
                 url: rsUrl,
                 dropdownParent: '#create_note',
                 csrf: true
             });
-            RecipientSelect.init('.js-data-example-ajaxccapp', {
+            RecipientSelect.init('#applicationemailmodal .js-data-example-ajaxccapp', {
                 url: rsUrl,
                 dropdownParent: '#applicationemailmodal',
                 csrf: true
