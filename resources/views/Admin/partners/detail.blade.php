@@ -1800,6 +1800,7 @@ use App\Http\Controllers\Controller;
         partnersSaveStudentNote: '{{ url("/partners/save-student-note") }}',
         partnersSaveStudentEnrolmentType: '{{ url("/partners/save-student-enrolment-type") }}',
         partnersGetStudentTabData: '{{ url("/partners/getStudentTabData") }}',
+        partnersGetStudentTabCount: '{{ url("/partners/getStudentTabCount") }}',
         partnersGetStudentTabTotals: '{{ url("/partners/getStudentTabTotals") }}',
         partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData") }}',
         partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData") }}',
