@@ -1736,16 +1736,14 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<!-- jQuery Confirm for custom confirmation box -->
-<script src="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-confirm@3.3.0/dist/jquery-confirm.min.css">
-
 <style>
     /* Custom styles for date fields (Flatpickr) */
     .datepicker-input {
-        width: 200px;
-        padding: 5px;
-        margin-top: 10px;
+        max-width: 200px;
+    }
+
+    #invoiceSentConfirmModal .flatpickr-calendar {
+        z-index: 1060;
     }
     
     /* Fix Select2 dropdown z-index in modals */

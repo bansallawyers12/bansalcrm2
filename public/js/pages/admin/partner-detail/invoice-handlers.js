@@ -6,7 +6,7 @@
  * Dependencies:
  *   - jQuery
  *   - Flatpickr
- *   - jQuery Confirm
+ *   - Bootstrap 5 (modals)
  *   - config.js (App object)
  */
 
@@ -25,7 +25,10 @@
         console.log('[invoice-handlers.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && typeof flatpickr !== 'undefined') {
+                if (typeof $ !== 'undefined' &&
+                    typeof flatpickr !== 'undefined' &&
+                    typeof bootstrap !== 'undefined' &&
+                    bootstrap.Modal) {
                     console.log('[invoice-handlers.js] All vendor libraries detected!');
                     resolve();
                 } else {
@@ -265,55 +268,144 @@ jQuery(document).ready(function($){
         $('.total_deposit_amount_all_rows').html("$" + total_deposit_amount_all_rows.toFixed(2));
     }
 
-    $(document).delegate('.sent_option', 'change', function(){
-        var sel_invoice_id = $(this).attr('data-invoiceid');
-        var sel_option_val = $(this).val();
-        if(sel_invoice_id != "" && sel_option_val == 'Yes'){
-            $.confirm({
-                title: 'Are you sure you want to confirm and send the invoice?',
-                content: `
-                    <label for="sent-date">Sent Date:</label>
-                    <input type="text" id="sent-date" data-valid="required" class="datepicker-input" placeholder="Select sent date"><br>
-                `,
-                buttons: {
-                    confirm: {
-                        text: 'Confirm',
-                        action: function () {
-                            var sentDate = $('#sent-date').val();
-                            if (sentDate) {
-                                $.ajax({
-                                    type:'post',
-                                    url: App.getUrl('partnersUpdateInvoiceSentOptionToYes'),
-                                    sync:true,
-                                    data: {sel_invoice_id:sel_invoice_id,sentDate:sentDate},
-                                    success: function(){
-                                        $('#TrRow_'+sel_invoice_id).find('td:last-child select').remove();
-                                        $('#TrRow_'+sel_invoice_id).find('td:last-child').html('<span> Yes <br>'+ sentDate+'</span>');
-                                        $('#TrRow_' + sel_invoice_id + ' td:nth-child(4) .updatedraftstudentinvoice').remove();
-                                        $('#TrRow_' + sel_invoice_id + ' td:nth-child(4) .deletestudentinvoice').remove();
-                                    }
-                                });
-                            } else {
-                                alert('Please select sent date.');
-                                return false;
-                            }
+    function showInvoiceSentConfirmModal(invoiceId, $select, previousValue) {
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            alert('Unable to open confirmation dialog. Please refresh the page and try again.');
+            $select.val(previousValue || 'No');
+            return;
+        }
+
+        var modalId = 'invoiceSentConfirmModal';
+        $('#' + modalId).remove();
+
+        var html =
+            '<div class="modal fade" id="' + modalId + '" tabindex="-1" aria-labelledby="' + modalId + 'Label" aria-hidden="true">' +
+                '<div class="modal-dialog"><div class="modal-content">' +
+                    '<div class="modal-header">' +
+                        '<h5 class="modal-title" id="' + modalId + 'Label">Confirm invoice sent</h5>' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+                    '</div>' +
+                    '<div class="modal-body">' +
+                        '<p class="mb-3">Are you sure you want to confirm and send the invoice?</p>' +
+                        '<label for="invoice-sent-date" class="form-label">Sent Date:</label>' +
+                        '<input type="text" id="invoice-sent-date" class="form-control datepicker-input" placeholder="Select sent date">' +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                        '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>' +
+                        '<button type="button" class="btn btn-primary invoice-sent-confirm-btn">Confirm</button>' +
+                    '</div>' +
+                '</div></div>' +
+            '</div>';
+
+        var $modal = $(html);
+        $('body').append($modal);
+
+        var modalEl = $modal[0];
+        var bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        var confirmed = false;
+        var sentDatePicker = null;
+        var $confirmBtn = $modal.find('.invoice-sent-confirm-btn');
+
+        $modal.one('shown.bs.modal', function() {
+            var input = document.getElementById('invoice-sent-date');
+            if (input && typeof flatpickr !== 'undefined' && !input._flatpickr) {
+                sentDatePicker = flatpickr(input, {
+                    dateFormat: 'd/m/Y',
+                    defaultDate: 'today',
+                    allowInput: true,
+                    static: true
+                });
+            }
+        });
+
+        $confirmBtn.on('click', function() {
+            var sentDate = $('#invoice-sent-date').val();
+            if (!sentDate) {
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.warning({
+                        title: 'Required',
+                        message: 'Please select sent date.',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Please select sent date.');
+                }
+                return;
+            }
+
+            $confirmBtn.prop('disabled', true);
+
+            $.ajax({
+                type: 'post',
+                url: App.getUrl('partnersUpdateInvoiceSentOptionToYes'),
+                data: { sel_invoice_id: invoiceId, sentDate: sentDate },
+                success: function(response) {
+                    var obj = typeof response === 'object' ? response : $.parseJSON(response);
+                    if (obj.status) {
+                        confirmed = true;
+                        $('#TrRow_' + invoiceId).find('td:last-child select').remove();
+                        $('#TrRow_' + invoiceId).find('td:last-child').html('<span> Yes <br>' + sentDate + '</span>');
+                        $('#TrRow_' + invoiceId + ' td:nth-child(4) .updatedraftstudentinvoice').remove();
+                        $('#TrRow_' + invoiceId + ' td:nth-child(4) .deletestudentinvoice').remove();
+                        bsModal.hide();
+                    } else {
+                        if (typeof iziToast !== 'undefined') {
+                            iziToast.error({
+                                title: 'Error',
+                                message: obj.message || 'Could not update invoice.',
+                                position: 'topRight'
+                            });
+                        } else {
+                            alert(obj.message || 'Could not update invoice.');
                         }
-                    },
-                    cancel: {
-                        text: 'Cancel',
-                        action: function () {}
+                        $confirmBtn.prop('disabled', false);
                     }
                 },
-                onContentReady: function () {
-                    if (typeof flatpickr !== 'undefined') {
-                        flatpickr('#sent-date', {
-                            dateFormat: 'd/m/Y',
-                            defaultDate: 'today',
-                            allowInput: true
+                error: function() {
+                    if (typeof iziToast !== 'undefined') {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Request failed. Please try again.',
+                            position: 'topRight'
                         });
+                    } else {
+                        alert('Request failed. Please try again.');
                     }
+                    $confirmBtn.prop('disabled', false);
                 }
             });
+        });
+
+        $modal.one('hidden.bs.modal', function() {
+            if (!confirmed) {
+                $select.val(previousValue || 'No');
+            }
+            if (sentDatePicker) {
+                sentDatePicker.destroy();
+            } else {
+                var input = document.getElementById('invoice-sent-date');
+                if (input && input._flatpickr) {
+                    input._flatpickr.destroy();
+                }
+            }
+            $modal.remove();
+        });
+
+        bsModal.show();
+    }
+
+    function rememberSentOptionPreviousValue() {
+        $(this).data('previous-value', $(this).val());
+    }
+
+    $(document).delegate('.sent_option', 'mousedown focus', rememberSentOptionPreviousValue);
+
+    $(document).delegate('.sent_option', 'change', function(){
+        var $select = $(this);
+        var sel_invoice_id = $select.attr('data-invoiceid');
+        var sel_option_val = $select.val();
+        if (sel_invoice_id != "" && sel_option_val == 'Yes') {
+            showInvoiceSentConfirmModal(sel_invoice_id, $select, $select.data('previous-value'));
         }
     });
 

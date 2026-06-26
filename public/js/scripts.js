@@ -85,13 +85,6 @@ $(function () {
   };
   sidebar_dropdown();
 
-  if ($("#top-5-scroll").length) {
-    $("#top-5-scroll").css({ height: 315 });
-  }
-  if ($("#scroll-new").length) {
-    $("#scroll-new").css({ height: 200 });
-  }
-
   $(".main-content").css({
     minHeight: $(window).outerHeight() - 95
   });

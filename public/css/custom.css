@@ -2040,18 +2040,29 @@ select.form-control:focus {
 }
 
 /* Native scrollbars (replaces jQuery NiceScroll) */
-body:not(.sidebar-mini) .main-sidebar {
+.main-sidebar {
 	overflow-y: auto;
 	overflow-x: hidden;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
 }
 
 .dropdown-list-content {
+	overflow-x: hidden;
 	overflow-y: auto !important;
 }
 
-.settingSidebar-body,
-#top-5-scroll,
+.settingSidebar-body {
+	overflow-y: auto;
+}
+
+#top-5-scroll {
+	height: 315px;
+	overflow-y: auto;
+}
+
 #scroll-new {
+	height: 200px;
 	overflow-y: auto;
 }
 
