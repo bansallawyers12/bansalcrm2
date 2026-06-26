@@ -44,6 +44,9 @@
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="{{asset('icons/font-awesome/css/all.min.css')}}">
+
+	<!-- Bootstrap CSS in head (prevents header FOUC); Bootstrap JS still loaded via app.js -->
+	@vite(['resources/sass/app.scss'])
   
 	<link rel="stylesheet" href="{{asset('css/style.css')}}">
   
@@ -317,7 +320,7 @@ i[style*="color:rgba"] {
 	@vite(['resources/js/app.js'])
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
-	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
+	<!-- Bootstrap JS loaded via app.js -> bootstrap.js; CSS loaded in <head> via app.scss -->
 	<!-- Feather Icons and jQuery NiceScroll now loaded via Vite (ui-libs.js) -->
 	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
  	<!-- flatpickr, iziToast now loaded via Vite (vendor-libs.js) -->

@@ -5,6 +5,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
+                'resources/sass/app.scss',  // Bootstrap CSS in <head> (JS stays in app.js)
                 'resources/js/jquery-init.js',  // Load jQuery first
                 'resources/js/fullcalendar-init.js',  // Load FullCalendar v6
                 'resources/js/vendor-libs.js',  // Third-party libraries (flatpickr, izitoast)

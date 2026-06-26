@@ -19,6 +19,7 @@
 			<link rel="stylesheet" type="text/css" href="{{asset('icons/font-awesome/css/all.min.css')}}" />
 		
 	<!-- Main styles for this application-->
+		@vite(['resources/sass/app.scss'])
 		<link rel="stylesheet" type="text/css" href="{{asset('css/style.css')}}" />
 		<link rel="stylesheet" type="text/css" href="{{asset('css/pace.min.css')}}" />
 		<link rel="stylesheet" type="text/css" href="{{asset('css/admin.css')}}" />
@@ -71,7 +72,7 @@
 	@vite(['resources/js/app.js'])
 	
 	<!-- jQuery should now be available immediately -->
-	<!-- Bootstrap is already loaded via Vite (app.js -> bootstrap.js), no need for duplicate bundle -->
+	<!-- Bootstrap JS via app.js; CSS loaded in <head> via app.scss -->
 	<!-- Popper.js is already included in Bootstrap 5 bundle via Vite -->
 	
 	<!-- Apnamentor necessary plugins-->

@@ -3,5 +3,5 @@
  * This is a great starting point when building robust, powerful web applications using Laravel.
  */
 
-import '../sass/app.scss';
+// Bootstrap CSS is loaded via @vite(['resources/sass/app.scss']) in layout <head>.
 import './bootstrap';

@@ -8,15 +8,12 @@
     "name": "jquery"
   },
   "resources/js/app.js": {
-    "file": "assets/app-Cvc5z_Z_.js",
+    "file": "assets/app-lb2huWfE.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
       "__commonjsHelpers-Cpj98o6Y.js"
-    ],
-    "css": [
-      "assets/app-BKQ-TXAN.css"
     ]
   },
   "resources/js/fullcalendar-init.js": {
@@ -67,6 +64,15 @@
     ],
     "css": [
       "assets/vendor-libs-CK8CL8qG.css"
+    ]
+  },
+  "resources/sass/app.scss": {
+    "file": "assets/app-BKQ-TXAN.css",
+    "src": "resources/sass/app.scss",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
     ]
   }
 }

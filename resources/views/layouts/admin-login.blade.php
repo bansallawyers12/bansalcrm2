@@ -20,6 +20,7 @@
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 			 
 	 <!-- BASE CSS -->
+	@vite(['resources/sass/app.scss'])
 	<link href="{{asset('css/bootstrap-social.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/style.css')}}" rel="stylesheet">	
 	<link href="{{asset('css/components.css')}}" rel="stylesheet">	

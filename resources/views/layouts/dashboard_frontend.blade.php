@@ -9,7 +9,8 @@
 	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	
-	<!-- Bootstrap CSS -->
+	<!-- Bootstrap CSS in head (prevents FOUC); Bootstrap JS still loaded via app.js -->
+	@vite(['resources/sass/app.scss'])
     <link href="{{asset('css/font-awesome.min.css')}}" rel="stylesheet">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
     <link href="{{asset('css/components.css')}}" rel="stylesheet">
