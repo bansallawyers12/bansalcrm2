@@ -938,6 +938,9 @@ $(document).delegate('.paymentAmount','keyup', function(){
 					}
 				});
 			}
+			if (typeof initExpectDatepickers === 'function') {
+				initExpectDatepickers('.ifapplicationdetailnot', appliid);
+			}
 			
 
 		}
@@ -992,6 +995,9 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 							}
 						}
 					});
+				}
+				if (typeof initExpectDatepickers === 'function') {
+					initExpectDatepickers('.ifapplicationdetailnot', appliid);
 				}
 				
 

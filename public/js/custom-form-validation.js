@@ -1118,6 +1118,9 @@ function customValidate(formName, savetype = '')
 												success: function(html){
 													$('.ifapplicationdetailnot').html(html);
 													if(typeof reinitializeAccordions === 'function') reinitializeAccordions();
+													if(typeof initExpectDatepickers === 'function'){
+														initExpectDatepickers('.ifapplicationdetailnot', appIdForReload);
+													}
 												}
 											});
 										}

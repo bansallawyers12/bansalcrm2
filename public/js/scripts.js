@@ -1,5 +1,37 @@
 "use strict";
 
+function initExpectDatepickers(context, appid) {
+  if (typeof flatpickr === 'undefined') {
+    return;
+  }
+  var $scope = context ? $(context) : $(document);
+  $scope.find('.expectdatepicker').each(function() {
+    if (!this._flatpickr) {
+      var options = {
+        dateFormat: 'Y-m-d',
+        allowInput: true
+      };
+      if (appid) {
+        options.onChange = function(selectedDates, dateStr) {
+          if (selectedDates.length > 0) {
+            var baseUrl = (typeof App !== 'undefined' && App.getUrl && App.getUrl('siteUrl'))
+              ? App.getUrl('siteUrl')
+              : (typeof site_url !== 'undefined' ? site_url : '');
+            $.ajax({
+              url: baseUrl + '/application/updateexpectwin',
+              method: 'GET',
+              dataType: 'json',
+              data: { from: dateStr, appid: appid }
+            });
+          }
+        };
+      }
+      flatpickr(this, options);
+    }
+  });
+}
+window.initExpectDatepickers = initExpectDatepickers;
+
 // Hide loader on window load OR after 3 seconds (fallback)
 $(window).on("load", function () {
   $(".loader").fadeOut("slow");
@@ -25,12 +57,7 @@ $(document).ready(function() {
 
 // Global
 $(function () {
-  let sidebar_nicescroll_opts = {
-    cursoropacitymin: 0,
-    cursoropacitymax: 0.8,
-    zindex: 892
-  },
-    now_layout_class = null;
+  let now_layout_class = null;
 
   var sidebar_sticky = function () {
     if ($("body").hasClass("layout-2")) {
@@ -42,47 +69,8 @@ $(function () {
   };
   sidebar_sticky();
 
-  var sidebar_nicescroll;
-  var update_sidebar_nicescroll = function () {
-    let a = setInterval(function () {
-      if (sidebar_nicescroll != null) sidebar_nicescroll.resize();
-    }, 10);
-
-    setTimeout(function () {
-      clearInterval(a);
-    }, 600);
-  };
-
-  // Helper function to wait for niceScroll plugin to be available
-  var waitForNiceScroll = function(callback, maxAttempts) {
-    maxAttempts = maxAttempts || 50; // Default 50 attempts (2.5 seconds at 50ms intervals)
-    var attempts = 0;
-    
-    var check = function() {
-      attempts++;
-      if (typeof $.fn.niceScroll === 'function') {
-        callback();
-      } else if (attempts < maxAttempts) {
-        setTimeout(check, 50);
-      } else {
-        // Plugin not available after max attempts - silent fail (no warning)
-        // This allows the page to function normally without custom scrollbars
-      }
-    };
-    
-    check();
-  };
-
   var sidebar_dropdown = function () {
     if ($(".main-sidebar").length) {
-      // Wait for niceScroll plugin to be available before initializing
-      waitForNiceScroll(function() {
-        if (typeof $.fn.niceScroll === 'function') {
-          $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
-          sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
-        }
-      });
-
       $(".main-sidebar .sidebar-menu li a.has-dropdown")
         .off("click")
         .on("click", function () {
@@ -90,10 +78,7 @@ $(function () {
 
           me.parent()
             .find("> .dropdown-menu")
-            .slideToggle(500, function () {
-              update_sidebar_nicescroll();
-              return false;
-            });
+            .slideToggle(500);
           return false;
         });
     }
@@ -101,22 +86,10 @@ $(function () {
   sidebar_dropdown();
 
   if ($("#top-5-scroll").length) {
-    $("#top-5-scroll")
-      .css({
-        height: 315
-      });
-    if (typeof $.fn.niceScroll === 'function') {
-      $("#top-5-scroll").niceScroll();
-    }
+    $("#top-5-scroll").css({ height: 315 });
   }
   if ($("#scroll-new").length) {
-    $("#scroll-new")
-      .css({
-        height: 200
-      });
-    if (typeof $.fn.niceScroll === 'function') {
-      $("#scroll-new").niceScroll();
-    }
+    $("#scroll-new").css({ height: 200 });
   }
 
   $(".main-content").css({
@@ -140,16 +113,7 @@ $(function () {
 
     if (!mini) {
       body.removeClass("sidebar-mini");
-      $(".main-sidebar").css({
-      overflow: "hidden"
-    });
-    setTimeout(function () {
-      if (typeof $.fn.niceScroll === 'function') {
-        $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
-        sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
-      }
-    }, 500);
-    $(".main-sidebar .sidebar-menu > li > ul .dropdown-title").remove();
+      $(".main-sidebar .sidebar-menu > li > ul .dropdown-title").remove();
       $(".main-sidebar .sidebar-menu > li > a").removeAttr("data-toggle");
       $(".main-sidebar .sidebar-menu > li > a").removeAttr(
         "data-original-title"
@@ -158,10 +122,6 @@ $(function () {
     } else {
       body.addClass("sidebar-mini");
       body.removeClass("sidebar-show");
-      if (sidebar_nicescroll != null) {
-        sidebar_nicescroll.remove();
-      }
-      sidebar_nicescroll = null;
       $(".main-sidebar .sidebar-menu > li").each(function () {
         let me = $(this);
 
@@ -218,8 +178,6 @@ $(function () {
         body.addClass("sidebar-gone");
         body.removeClass("sidebar-show");
       }
-
-      update_sidebar_nicescroll();
     } else {
       body.removeClass("search-show search-gone");
       if (body.hasClass("sidebar-mini")) {
@@ -249,10 +207,6 @@ $(function () {
   if (w.outerWidth() <= 1024) {
     if ($("body").hasClass("sidebar-mini")) {
       toggle_sidebar_mini(false);
-      if (typeof $.fn.niceScroll === 'function') {
-        $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
-        sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
-      }
     }
 
       $("body").addClass("sidebar-gone");
@@ -267,12 +221,8 @@ $(function () {
             $("body").removeClass("sidebar-show");
             $("body").addClass("sidebar-gone");
             $("body").removeClass("search-show");
-
-            update_sidebar_nicescroll();
           }
         });
-
-      update_sidebar_nicescroll();
 
       if (now_layout_class == "layout-3") {
         let nav_second_classes = $(".navbar-secondary").attr("class"),
@@ -302,12 +252,6 @@ $(function () {
         }).html($(".navbar-brand").html())
       )
     );
-    setTimeout(function () {
-      if (typeof $.fn.niceScroll === 'function') {
-        sidebar_nicescroll = main_sidebar.niceScroll(sidebar_nicescroll_opts);
-        sidebar_nicescroll = main_sidebar.getNiceScroll();
-      }
-    }, 700);
 
     sidebar_dropdown();
     $(".main-wrapper").removeClass("container");
@@ -342,12 +286,8 @@ $(function () {
         main_sidebar.removeAttr("tabindex");
         main_sidebar.removeAttr("data-nav-classes");
         $(".main-wrapper").addClass("container");
-        // if(sidebar_nicescroll != null)
-        //   sidebar_nicescroll.remove();
       } else if (now_layout_class == "layout-2") {
         $("body").addClass("layout-2");
-      } else {
-        update_sidebar_nicescroll();
       }
     }
   };
@@ -420,18 +360,6 @@ $(function () {
     });
   }
   
-  $(".notification-toggle")
-    .parent()
-    .on("shown.bs.dropdown", function () {
-      if (typeof $.fn.niceScroll === 'function') {
-        $(".dropdown-list-icons").niceScroll({
-          cursoropacitymin: 0.3,
-          cursoropacitymax: 0.8,
-          cursorwidth: 7
-        });
-      }
-    });
-
   // Bootstrap 5 Dropdown - Initialize message toggle using Bootstrap 5 API
   if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
     document.querySelectorAll('.message-toggle').forEach(function(element) {
@@ -439,18 +367,6 @@ $(function () {
     });
   }
   
-  $(".message-toggle")
-    .parent()
-    .on("shown.bs.dropdown", function () {
-      if (typeof $.fn.niceScroll === 'function') {
-        $(".dropdown-list-message").niceScroll({
-          cursoropacitymin: 0.3,
-          cursoropacitymax: 0.8,
-          cursorwidth: 7
-        });
-      }
-    });
-
   // TinyMCE initialization is handled in tinymce-init.js
   // This code is kept for backward compatibility but TinyMCE handles initialization automatically
   // Summernote has been replaced with TinyMCE
@@ -796,6 +712,9 @@ $(function () {
       });
     }
 
+    // Expected win date — use initExpectDatepickers() after AJAX loads application detail
+    initExpectDatepickers();
+
     // Date range picker
     if ($(".daterange").length) {
       $(".daterange").each(function() {
@@ -885,11 +804,6 @@ $(function () {
     $(".page-wrapper").on("click", function () {
       $(".settingSidebar").removeClass("showSettingPanel");
     });
-
-  // Initialize niceScroll for settingSidebar if available
-  if (typeof $.fn.niceScroll === 'function' && $(".settingSidebar-body").length) {
-    $(".settingSidebar-body").niceScroll();
-  }
 
   // close right sidebar when click outside
   var mouse_is_inside = false;

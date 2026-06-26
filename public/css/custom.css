@@ -2039,3 +2039,53 @@ select.form-control:focus {
 	background-color: #5568d3 !important;
 }
 
+/* Native scrollbars (replaces jQuery NiceScroll) */
+body:not(.sidebar-mini) .main-sidebar {
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.dropdown-list-content {
+	overflow-y: auto !important;
+}
+
+.settingSidebar-body,
+#top-5-scroll,
+#scroll-new {
+	overflow-y: auto;
+}
+
+.main-sidebar,
+.dropdown-list-content,
+.settingSidebar-body,
+#top-5-scroll,
+#scroll-new {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+
+.main-sidebar::-webkit-scrollbar,
+.dropdown-list-content::-webkit-scrollbar,
+.settingSidebar-body::-webkit-scrollbar,
+#top-5-scroll::-webkit-scrollbar,
+#scroll-new::-webkit-scrollbar {
+	width: 7px;
+}
+
+.main-sidebar::-webkit-scrollbar-thumb,
+.dropdown-list-content::-webkit-scrollbar-thumb,
+.settingSidebar-body::-webkit-scrollbar-thumb,
+#top-5-scroll::-webkit-scrollbar-thumb,
+#scroll-new::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.25);
+	border-radius: 4px;
+}
+
+.main-sidebar::-webkit-scrollbar-thumb:hover,
+.dropdown-list-content::-webkit-scrollbar-thumb:hover,
+.settingSidebar-body::-webkit-scrollbar-thumb:hover,
+#top-5-scroll::-webkit-scrollbar-thumb:hover,
+#scroll-new::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 0, 0, 0.4);
+}
+

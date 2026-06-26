@@ -380,6 +380,10 @@ jQuery(document).ready(function($){
                         }
                     });
                 }
+
+                if (typeof initExpectDatepickers === 'function') {
+                    initExpectDatepickers('.ifapplicationdetailnot', appliid);
+                }
             },
             error: function(xhr, status, error) {
                 $('.popuploader').hide();

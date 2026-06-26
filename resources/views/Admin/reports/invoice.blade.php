@@ -104,7 +104,7 @@
 											<td>{{@$partnerdetail->partner_name}}</td> 
 											<td>{{@$productdetail->name}}</td> 
 											<td>{{@$Appldetail->workflow}}</td>
-											<td>{{ @$list->currency == "" ? config('constants.empty') : str_limit(@$list->currency, '50', '...') }}</td>
+											<td>{{ str_limit(@$list->currency ?: 'AUD', '50', '...') }}</td>
 											<td>{{ @$list->type == "" ? config('constants.empty') : str_limit(@$list->type, '50', '...') }}</td>
 											<td>{{ @$list->due_date == "" ? config('constants.empty') : date('d/m/Y',strtotime(@$list->due_date)) }}</td>
 											<td>-</td>

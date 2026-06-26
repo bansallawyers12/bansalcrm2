@@ -134,8 +134,8 @@
 												<div class="col-12 col-md-6 col-lg-6">
 													<div class="form-group"> 
 														<label for="intake_month">Intake Month</label>
-														<select class="form-control tomselect" name="intake_month">
-															<option>-- Select Intake Month --</option>
+								<select class="form-control tomselect" name="intake_month">
+									<option value="">-- Select Intake Month --</option>
 															<option value="January" <?php if($fetchedData->intake_month == 'January'){ echo 'selected'; } ?>>January</option>
 															<option value="February" <?php if($fetchedData->intake_month == 'February'){ echo 'selected'; } ?>>February</option>
 															<option value="March" <?php if($fetchedData->intake_month == 'March'){ echo 'selected'; } ?>>March</option>
@@ -201,7 +201,7 @@ jQuery(document).ready(function($){
 	if (typeof waitForTomSelect === 'function') {
 		waitForTomSelect().then(function () {
 			initTomSelect('select[name="product_type"]', { width: '100%', allowClear: true });
-			initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true });
+			initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true, placeholder: '-- Select Intake Month --' });
 		});
 	}
 

@@ -59,6 +59,10 @@ jQuery(document).ready(function($){
                         }
                     });
                 }
+
+                if (typeof initExpectDatepickers === 'function') {
+                    initExpectDatepickers('.ifapplicationdetailnot', appliid);
+                }
             }
         });
     });

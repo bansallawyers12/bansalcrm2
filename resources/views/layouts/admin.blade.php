@@ -314,7 +314,7 @@ i[style*="color:rgba"] {
  	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
 	
-	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
+	<!-- Load UI libraries (feather-icons) -->
 	@vite(['resources/js/ui-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc -->
@@ -322,7 +322,7 @@ i[style*="color:rgba"] {
 	 
 	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
 	<!-- Bootstrap JS loaded via app.js -> bootstrap.js; CSS loaded in <head> via app.scss -->
-	<!-- Feather Icons and jQuery NiceScroll now loaded via Vite (ui-libs.js) -->
+	<!-- Feather Icons loaded via Vite (ui-libs.js) -->
 	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
  	<!-- flatpickr, iziToast now loaded via Vite (vendor-libs.js) -->
  	<!-- Select2 and DataTables are loaded from CDN in <head> section -->

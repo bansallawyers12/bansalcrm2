@@ -286,7 +286,7 @@ use App\Http\Controllers\Controller;
 							</p>
 							<p class="clearfix"> 
 								<span class="float-start">Currency code:</span>
-								<span class="float-end text-muted">{{$fetchedData->currency}}</span>
+								<span class="float-end text-muted">AUD</span>
 							</p>
 							
 						</div>

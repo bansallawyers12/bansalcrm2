@@ -1,11 +1,4 @@
 {
-  "_jquery-BPjCcfmm.js": {
-    "file": "assets/jquery-BPjCcfmm.js",
-    "name": "jquery",
-    "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
-    ]
-  },
   "_rolldown-runtime-QTnfLwEv.js": {
     "file": "assets/rolldown-runtime-QTnfLwEv.js",
     "name": "rolldown-runtime"
@@ -26,13 +19,12 @@
     "isEntry": true
   },
   "resources/js/jquery-init.js": {
-    "file": "assets/jquery-init-B6E86mKc.js",
+    "file": "assets/jquery-init-8nVBr6kU.js",
     "name": "jquery-init",
     "src": "resources/js/jquery-init.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js",
-      "_jquery-BPjCcfmm.js"
+      "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
   "resources/js/legacy-init.js": {
@@ -48,13 +40,12 @@
     "isEntry": true
   },
   "resources/js/ui-libs.js": {
-    "file": "assets/ui-libs-DKYRzJn9.js",
+    "file": "assets/ui-libs-WkfLqj6x.js",
     "name": "ui-libs",
     "src": "resources/js/ui-libs.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js",
-      "_jquery-BPjCcfmm.js"
+      "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
   "resources/js/vendor-libs.js": {

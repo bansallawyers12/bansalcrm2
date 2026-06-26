@@ -1175,7 +1175,9 @@ $(document).delegate('.openapplicationdetail', 'click', function(){
 					}
 				});
 			}
-			
+			if (typeof initExpectDatepickers === 'function') {
+				initExpectDatepickers('.ifapplicationdetailnot', appliid);
+			}
 
 		}
 	});

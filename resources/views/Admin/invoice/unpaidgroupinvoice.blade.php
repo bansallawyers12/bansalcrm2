@@ -131,6 +131,12 @@
 								</select>
 							</div>
 						</div>
+						<div class="col-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label for="currency">Currency</label>
+								@include('partials.currency-aud-field')
+							</div>
+						</div>
 						<div class="col-12 col-md-12 col-lg-12 is_superagentinv">
 							<div class="form-group">
 								<label for="timezone">Select Super Agent for which you want to create invoice <span class="span_req">*</span></label>
@@ -139,12 +145,6 @@
 								</select>
 							</div>
 						</div>
-						<div class="col-12 col-md-12 col-lg-12 is_superagentinv">
-							<div class="form-group">
-								<label for="currency">Currency</label>
-								@include('partials.currency-aud-field', ['required' => true])
-							</div>
-						</div>						
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('addgroupinvoice')" type="button" class="btn btn-primary">Save</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

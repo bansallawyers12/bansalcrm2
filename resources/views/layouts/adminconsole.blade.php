@@ -295,7 +295,7 @@
  	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
 	
-	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
+	<!-- Load UI libraries (feather-icons) -->
 	@vite(['resources/js/ui-libs.js'])
 	
 	<!-- Then load main app with Bootstrap, etc -->
