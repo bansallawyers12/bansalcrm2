@@ -14,7 +14,7 @@
             var error = "";
             $(".custom-error").remove();
             
-            if($('#rem_cat').val() == ''){
+            if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') === '' : $('#rem_cat').val() == ''){
                 $('.popuploader').hide();
                 error="Assignee field is required.";
                 $('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -26,7 +26,7 @@
                 $('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
                 flag = false;
             }
-            if($('#task_group').val() == ''){
+            if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') === '' : $('#task_group').val() == ''){
                 $('.popuploader').hide();
                 error="Group field is required.";
                 $('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -43,9 +43,9 @@
                         description:$('#assignnote').val(),
                         client_id:$('#assign_client_id').val(),
                         followup_datetime:$('#popoverdatetime').val(),
-                        assignee_name:$('#rem_cat :selected').text(),
-                        rem_cat:$('#rem_cat option:selected').val(),
-                        task_group:$('#task_group option:selected').val()
+                        assignee_name: typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel('#rem_cat') : $('#rem_cat :selected').text(),
+                        rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') : $('#rem_cat option:selected').val(),
+                        task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') : $('#task_group option:selected').val()
                     },
                     success: function(response){
                         $('.popuploader').hide();

@@ -398,7 +398,11 @@
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $popover.find('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($popover.find('#rem_cat')[0], obj.message, $popover[0]);
+                        } else {
+                            $popover.find('#rem_cat').html(obj.message);
+                        }
                     }
                 });
                 
@@ -422,7 +426,11 @@
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($('#rem_cat')[0], obj.message, document.body);
+                        } else {
+                            $('#rem_cat').html(obj.message);
+                        }
                     }
                 });
             }
@@ -473,7 +481,11 @@
                         data: {assignedto:assignedto},
                         success: function(response){
                             var obj = $.parseJSON(response);
-                            $select.html(obj.message);
+                            if (window.ActionPopoverTomSelect) {
+                                ActionPopoverTomSelect.refreshAssigneeSelect($select[0], obj.message, $popover[0]);
+                            } else {
+                                $select.html(obj.message);
+                            }
                         }
                     });
                 });
@@ -498,7 +510,11 @@
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($('#rem_cat')[0], obj.message, document.body);
+                        } else {
+                            $('#rem_cat').html(obj.message);
+                        }
                     }
                 });
             }
@@ -674,7 +690,7 @@
 		var $popover = $('.popover:visible').last();
 		var $form = $popover.length ? $popover : $(document); // Fallback to document if popover not found
 		
-		if($form.find('#rem_cat').val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) === '' : $form.find('#rem_cat').val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$form.find('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -686,7 +702,7 @@
 			$form.find('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($form.find('#task_group').val() == ''){
+        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) === '' : $form.find('#task_group').val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$form.find('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -703,9 +719,9 @@
 					description: $form.find('#assignnote').val(),
 					client_id: $form.find('#assign_client_id').val(),
 					followup_datetime: $form.find('#popoverdatetime').val(),
-					assignee_name: $form.find('#rem_cat :selected').text(),
-					rem_cat: $form.find('#rem_cat option:selected').val(),
-					task_group: $form.find('#task_group option:selected').val()
+					assignee_name: typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel($form.find('#rem_cat')) : $form.find('#rem_cat :selected').text(),
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) : $form.find('#rem_cat option:selected').val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) : $form.find('#task_group option:selected').val()
 				},
                 success: function(response){
                     console.log(response);
@@ -739,7 +755,7 @@
 		var $popover = $('.popover:visible').last();
 		var $form = $popover.length ? $popover : $(document); // Fallback to document if popover not found
 
-		if($form.find('#rem_cat').val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) === '' : $form.find('#rem_cat').val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$form.find('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -751,7 +767,7 @@
 			$form.find('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($form.find('#task_group').val() == ''){
+        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) === '' : $form.find('#task_group').val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$form.find('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -768,9 +784,9 @@
 					description: $form.find('#assignnote').val(),
 					client_id: $form.find('#assign_client_id').val(),
 					followup_datetime: $form.find('#popoverdatetime').val(),
-					assignee_name: $form.find('#rem_cat :selected').text(),
-					rem_cat: $form.find('#rem_cat option:selected').val(),
-					task_group: $form.find('#task_group option:selected').val()
+					assignee_name: typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel($form.find('#rem_cat')) : $form.find('#rem_cat :selected').text(),
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#rem_cat')) : $form.find('#rem_cat option:selected').val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($form.find('#task_group')) : $form.find('#task_group option:selected').val()
 				},
                 success: function(response){
                     console.log(response);

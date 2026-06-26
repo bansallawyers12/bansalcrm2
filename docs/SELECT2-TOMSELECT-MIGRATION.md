@@ -225,16 +225,22 @@ Add-branch modal `.select2` chain migrated in Phase 6b.
 | Staff/agents/products/partner detail | Removed dead `timezoneselect2` Select2 inits | Rely on global modal init when `#create_appoint` exists |
 | `sheets/ongoing.blade.php` | Branch multi + stage single filters | `ongoing-filter-branch-select`, `ongoing-filter-stage-select` |
 
-Deferred to Phase 6d: header `modern-search.js`, action page `assigneeselect2`, partner agreement modal Select2.
+## Phase 6d — Header search, action popovers, agreement modal, check-in (Done)
 
-## Phase 6d candidates
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| Header global search | `.js-data-example-ajaxccsearch` | Tom Select AJAX + optgroups in `modern-search.js`; Ctrl+K / access modal unchanged |
+| Action pages | `.assigneeselect2`, `.task_group` | `tomselect` class + `action-popover-tomselect.js` on popover/modal shown |
+| Partner agreement modal | `#agreement_represent_region`, `#agreement_default_super_agent` | `tomselect` + `initModalTomSelects` on `#agreementModal` shown; `setEnhancedSelectValue` / `clearEnhancedSelectValue` |
+| Check-in modal | `.assineeselect2` | `tomselect` + init on `#checkinmodal` shown |
+| Add-my-task popover | `.js-data-example-ajaxccsearch__addmytask` | `RecipientSelect.init` in `popover.js` |
 
-1. Header modern search (`modern-search.js`) — last
-2. Action pages (`assigneeselect2` in legacy-init / popover)
-3. Partner detail agreement modal (`#agreement_represent_region`, `#agreement_default_super_agent`)
-4. Edit modals static `contact_name` (if uncommented)
+Value reads in action/client scripts use `actionPopoverSelectVal` / `actionPopoverAssigneeLabel`. AJAX assignee list refresh uses `ActionPopoverTomSelect.refreshAssigneeSelect`.
 
-## Phase 6c candidates (superseded — see Phase 6d)
+## Phase 6e candidates
+
+1. Remove Select2 from admin layouts when no longer referenced
+2. Edit modals static `contact_name` (if uncommented)
 
 ## Phase 0 test checklist
 

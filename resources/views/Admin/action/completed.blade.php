@@ -406,7 +406,11 @@ jQuery(document).ready(function($){
         var $clone = $template.clone().removeClass('d-none');
         $clone.find('.assign_note_id').val(taskId);
         $clone.find('.assignnote').val(noteId);
-        $clone.find('.task_group').val(taskgroupId);
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
+        } else {
+            $clone.find('.task_group').val(taskgroupId);
+        }
         $clone.find('.popoverdatetime').val(followupdate);
 
         $('#actionPopoverModalLabel').text('Update Task');
@@ -437,7 +441,11 @@ jQuery(document).ready(function($){
         var $clone = $template.clone().removeClass('d-none');
         $clone.find('.assign_note_id').val(taskId);
         $clone.find('.assignnote').val(noteId);
-        $clone.find('.task_group').val(taskgroupId);
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue($clone.find('.task_group')[0], taskgroupId);
+        } else {
+            $clone.find('.task_group').val(taskgroupId);
+        }
         $clone.find('.popoverdatetime').val(followupdate);
 
         $('#actionPopoverModalLabel').text('Re-Assign Staff');
@@ -445,7 +453,7 @@ jQuery(document).ready(function($){
 
         if (assignedTo) {
             $.ajax({ type:'post', url:"{{URL::to('/')}}/action/assignee-list", headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}, data: {assignedto: assignedTo},
-                success: function(r){ var obj = $.parseJSON(r); if(obj.message) { var html = Array.isArray(obj.message) ? obj.message.join('') : obj.message; $('#actionPopoverModalBody .rem_cat').first().html(html); } }
+                success: function(r){ var obj = $.parseJSON(r); if(obj.message) { var html = Array.isArray(obj.message) ? obj.message.join('') : obj.message; var $sel = $('#actionPopoverModalBody .rem_cat').first(); if (window.ActionPopoverTomSelect) { ActionPopoverTomSelect.refreshAssigneeSelect($sel[0], html, $('#actionPopoverModalBody')[0]); } else { $sel.html(html); } } }
             });
         }
 
@@ -509,7 +517,7 @@ jQuery(document).ready(function($){
 		var $assignNoteId = $modal.find('.assign_note_id');
 		var $assignClientId = $modal.find('.assign_client_id');
 		var $popoverDateTime = $modal.find('.popoverdatetime');
-		if($remCat.val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) === '' : $remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -521,7 +529,7 @@ jQuery(document).ready(function($){
 			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($taskGroup.val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) === '' : $taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -539,8 +547,8 @@ jQuery(document).ready(function($){
 					client_id:$assignClientId.val(),
 					followup_datetime:$popoverDateTime.val(),
 					assignee_name:$remCat.find(':selected').text(),
-					rem_cat:$remCat.val(),
-					task_group:$taskGroup.val()
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) : $remCat.val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) : $taskGroup.val()
 				},
 				success: function(response){
 					$('.popuploader').hide();
@@ -573,7 +581,7 @@ jQuery(document).ready(function($){
 		var $assignNoteId = $modal.find('.assign_note_id');
 		var $assignClientId = $modal.find('.assign_client_id');
 		var $popoverDateTime = $modal.find('.popoverdatetime');
-		if($remCat.val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) === '' : $remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -585,7 +593,7 @@ jQuery(document).ready(function($){
 			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-		if($taskGroup.val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) === '' : $taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -603,8 +611,8 @@ jQuery(document).ready(function($){
 					client_id:$assignClientId.val(),
 					followup_datetime:$popoverDateTime.val(),
 					assignee_name:$remCat.find(':selected').text(),
-					rem_cat:$remCat.val(),
-					task_group:$taskGroup.val()
+					rem_cat: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) : $remCat.val(),
+					task_group: typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) : $taskGroup.val()
 				},
 				success: function(response){
 					$('.popuploader').hide();

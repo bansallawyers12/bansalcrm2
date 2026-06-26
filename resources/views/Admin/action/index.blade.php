@@ -473,7 +473,11 @@ jQuery(document).ready(function($){
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $popover.find('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($popover.find('#rem_cat')[0], obj.message, $popover[0]);
+                        } else {
+                            $popover.find('#rem_cat').html(obj.message);
+                        }
                     }
                 });
                 
@@ -497,7 +501,11 @@ jQuery(document).ready(function($){
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($('#rem_cat')[0], obj.message, document.body);
+                        } else {
+                            $('#rem_cat').html(obj.message);
+                        }
                     }
                 });
             }
@@ -563,7 +571,11 @@ jQuery(document).ready(function($){
                         data: {assignedto:assignedto},
                         success: function(response){
                             var obj = $.parseJSON(response);
-                            $select.html(obj.message);
+                            if (window.ActionPopoverTomSelect) {
+                                ActionPopoverTomSelect.refreshAssigneeSelect($select[0], obj.message, $popover[0]);
+                            } else {
+                                $select.html(obj.message);
+                            }
                         }
                     });
                 });
@@ -588,7 +600,11 @@ jQuery(document).ready(function($){
                     data: {assignedto:assignedto},
                     success: function(response){
                         var obj = $.parseJSON(response);
-                        $('#rem_cat').html(obj.message);
+                        if (window.ActionPopoverTomSelect) {
+                            ActionPopoverTomSelect.refreshAssigneeSelect($('#rem_cat')[0], obj.message, document.body);
+                        } else {
+                            $('#rem_cat').html(obj.message);
+                        }
                     }
                 });
             }
@@ -743,14 +759,7 @@ jQuery(document).ready(function($){
                     $('.yajra-datatable').DataTable().draw(false);
                     
                     // Show success message
-                    if (typeof iziToast !== 'undefined') {
-                        iziToast.success({
-                            title: 'Success',
-                            message: response.message || 'Action completed successfully!'
-                        });
-                    } else {
-                        showToast(response.message || 'Action completed successfully!', 'success');
-                    }
+                    showToast(response.message || 'Action completed successfully!', 'success');
                 } else {
                     // Handle error response
                     showToast(response.message || 'Failed to complete action. Please try again.', 'error');
@@ -798,7 +807,7 @@ jQuery(document).ready(function($){
 			$popoverDateTime = $('#popoverdatetime');
 		}
 		
-		if($remCat.val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) === '' : $remCat.val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$remCat.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -810,7 +819,7 @@ jQuery(document).ready(function($){
 			$assignNote.after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($taskGroup.val() == ''){
+        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) === '' : $taskGroup.val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$taskGroup.after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -822,9 +831,9 @@ jQuery(document).ready(function($){
 			var noteDescription = $assignNote.val();
 			var clientId = $assignClientId.val();
 			var followupDateTime = $popoverDateTime.val();
-			var assigneeName = $remCat.find(':selected').text();
-			var remCat = $remCat.val();
-			var taskGroup = $taskGroup.val();
+			var assigneeName = typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel($remCat) : $remCat.find(':selected').text();
+			var remCat = typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($remCat) : $remCat.val();
+			var taskGroup = typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal($taskGroup) : $taskGroup.val();
 			
 			if (!noteId) {
 				$('.popuploader').hide();
@@ -883,7 +892,7 @@ jQuery(document).ready(function($){
 		var error ="";
 		$(".custom-error").remove();
 
-		if($('#rem_cat').val() == ''){
+		if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') === '' : $('#rem_cat').val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -895,7 +904,7 @@ jQuery(document).ready(function($){
 			$('#assignnote').after("<span class='custom-error' role='alert'>"+error+"</span>");
 			flag = false;
 		}
-        if($('#task_group').val() == ''){
+        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') === '' : $('#task_group').val() == ''){
 			$('.popuploader').hide();
 			error="Group field is required.";
 			$('#task_group').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -906,7 +915,7 @@ jQuery(document).ready(function($){
 				type:'post',
                 url:"{{URL::to('/')}}/clients/updateaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_id:$('#assign_note_id').val(),note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group option:selected').val()},
+                data: {note_id:$('#assign_note_id').val(),note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:(typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel('#rem_cat') : $('#rem_cat :selected').text()),rem_cat:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') : $('#rem_cat option:selected').val()),task_group:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') : $('#task_group option:selected').val())},
                 success: function(response){
                     console.log(response);
                     $('.popuploader').hide();
@@ -937,7 +946,7 @@ jQuery(document).ready(function($){
 		var flag = true;
 		var error ="";
 		$(".custom-error").remove();
-        if($('#rem_cat').val() == ''){
+        if(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') === '' : $('#rem_cat').val() == ''){
 			$('.popuploader').hide();
 			error="Assignee field is required.";
 			$('#rem_cat').after("<span class='custom-error' role='alert'>"+error+"</span>");
@@ -957,7 +966,7 @@ jQuery(document).ready(function($){
 				type:'post',
                 url:"{{URL::to('/')}}/clients/personalaction/store",
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:$('#rem_cat :selected').text(),rem_cat:$('#rem_cat option:selected').val(),task_group:$('#task_group').val()},
+                data: {note_type:'action',description:$('#assignnote').val(),client_id:$('#assign_client_id').val(),followup_datetime:$('#popoverdatetime').val(),assignee_name:(typeof actionPopoverAssigneeLabel === 'function' ? actionPopoverAssigneeLabel('#rem_cat') : $('#rem_cat :selected').text()),rem_cat:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#rem_cat') : $('#rem_cat option:selected').val()),task_group:(typeof actionPopoverSelectVal === 'function' ? actionPopoverSelectVal('#task_group') : $('#task_group').val())},
                 success: function(response){
                     //console.log(response);
                     $('.popuploader').hide();

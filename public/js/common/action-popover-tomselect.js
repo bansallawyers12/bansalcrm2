@@ -47,7 +47,7 @@
         var opts = compactOpts(dropdownParent);
         var instances = [];
 
-        root.querySelectorAll('select.assigneeselect2, select.task_group').forEach(function (element) {
+        root.querySelectorAll('select.assigneeselect2, select.task_group, select.assineeselect2').forEach(function (element) {
             if (element.tomselect) {
                 return;
             }
@@ -152,6 +152,14 @@
         getValue: getValue,
         setValue: setValue,
         getAssigneeLabel: getAssigneeLabel
+    };
+
+    window.actionPopoverSelectVal = function (el) {
+        return getValue(el && el.jquery ? el[0] : el);
+    };
+
+    window.actionPopoverAssigneeLabel = function (el) {
+        return getAssigneeLabel(el && el.jquery ? el[0] : el);
     };
 
     if (typeof whenTomSelectReady === 'function') {
