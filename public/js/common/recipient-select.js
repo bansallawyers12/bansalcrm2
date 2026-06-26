@@ -70,7 +70,7 @@
             "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + email + "</small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
-            "<span class='ui label yellow select2-result-repository__statistics'>" + status + "</span>" +
+            "<span class='badge bg-warning text-dark select2-result-repository__statistics'>" + status + "</span>" +
             "</div></div>"
         );
     }
@@ -112,13 +112,13 @@
             "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
-            "<span class='ui label yellow select2-result-repository__statistics'></span>" +
+            "<span class='badge bg-warning text-dark select2-result-repository__statistics'></span>" +
             "</div></div>"
         );
 
         $container.find('.select2-result-repository__title').text(repo.name || repo.text || '');
         $container.find('.select2-result-repository__description').text(repo.email || '');
-        $container.find('.select2-result-repository__statistics').append(repo.status || '');
+        $container.find('.select2-result-repository__statistics').text(repo.status || '');
 
         return $container;
     }

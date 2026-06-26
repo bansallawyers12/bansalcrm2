@@ -16,7 +16,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="workflow">Select Workflow <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control workflow select2" id="workflow" name="workflow">
+								<select data-valid="required" class="form-control workflow tomselect" id="workflow" name="workflow">
 									<option value="">Please Select a Workflow</option>
 									@foreach(\App\Models\Workflow::all() as $wlist)
 										<option value="{{$wlist->id}}">{{$wlist->name}}</option>
@@ -30,7 +30,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="partner_branch">Select Partner & Branch <span class="span_req">*</span></label> 
-								<select data-valid="required" class="form-control partner_branch select2" id="partner" name="partner_branch">
+								<select data-valid="required" class="form-control partner_branch tomselect" id="partner" name="partner_branch">
 									<option value="">Please Select a Partner & Branch</option>
 								</select> 
 								<span class="custom-error partner_branch_error" role="alert">
@@ -41,7 +41,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="product">Select Product</label> 
-								<select data-valid="required" class="form-control product select2" id="product" name="product">
+								<select data-valid="required" class="form-control product tomselect" id="product" name="product">
 									<option value="">Please Select a Product</option>
 									
 								</select> 

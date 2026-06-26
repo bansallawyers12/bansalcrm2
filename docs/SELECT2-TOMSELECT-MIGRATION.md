@@ -124,9 +124,9 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 | Partner create/edit | `country`, branch modal country, **`getpartnertype` / `partner_type` / `service_workflow`** | Add-branch modal `.select2` chain |
 | Product create/edit | **`product_type`, `intake_month`, `#intrested_product`, `#intrested_branch`** | — |
 | Leads create | Static fields + **related files, `#lead_source`, `subagent`** | — |
-| Modals (`addclientmodal`, etc.) | Static selects | `workflow`/`partner`/`product` chains, `applicationselect2*`, AJAX `contact_name` |
+| Modals (`addclientmodal`, etc.) | Static selects + **Add Application `#workflow` / `#partner` / `#product`** | AJAX `contact_name`, other modal Select2 |
 
-Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
+Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`. Add Application cascade: `application-modal-cascade.js`.
 
 ## Phase 3 — Filter pages (Done)
 
@@ -165,7 +165,7 @@ Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimum
 | Partner edit | `partner_type`, `service_workflow` | `initTomSelectAllPreserveValues` (saved selections preserved) |
 | `tomselect-init.js` | `reinitTomSelectAfterHtml`, `compactTomSelectOptions`, `initTomSelectPreserveValue`, `initTomSelectAllPreserveValues` | Shared cascade helpers |
 
-Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6).
+Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6b).
 
 ### Phase 5 review fixes (applied)
 
@@ -178,14 +178,34 @@ Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6).
 | Script load race on inline page scripts | `whenTomSelectReady()` poll fallback |
 | Master category cleared | Reset `#partner_type` via `reinitTomSelectAfterHtml` |
 
-## Phase 6 candidates
+## Phase 6a — Add Application modal cascade (Done)
 
-1. Application/modal handlers — `applicationselect2`, `productselect2`, modal workflow chains
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| `addclientmodal.blade.php` | `#workflow`, `#partner`, `#product` | `select.tomselect`; global `initModalTomSelects` on show |
+| `addproductmodal`, `addagentmodal`, `addpartnermodal` | same three selects | `select2` → `tomselect` |
+| `application-modal-cascade.js` | Shared workflow → partner → product AJAX | `reinitTomSelectAfterHtml`, `getEnhancedSelectValue`, destroy on `hidden.bs.modal` |
+| `application-handlers.js` | Removed duplicate cascade | Cascade delegated to shared module |
+| `staff/view`, `products/detail`, `agents/detail`, `partner-detail/service-handlers.js` | Removed inline Select2 cascade handlers | Shared module via `admin.blade.php` |
+| `custom-form-validation.js`, `agent-custom-form-validation.js` | Post-save form reset | `ApplicationModalCascade.clearSelectValue` |
+
+### Phase 6a review notes
+
+| Item | Detail |
+|------|--------|
+| URL fallbacks | `/getpartnerbranch`, `/getbranchproduct` (not `/admin/…`) |
+| Product disable during AJAX | `tomselect.disable()` / `enable()` |
+| Modal destroy on hide | Clears instances so next open re-inits via `initModalTomSelects` |
+
+## Phase 6b candidates
+
+1. Modal AJAX `contact_name`, `productselect2` in partner promotion handlers
 2. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
 3. Header modern search (`modern-search.js`) — last
 4. Ongoing sheet stage filter (`.ongoing-filter-select2`)
+5. Partner add-branch modal `.select2` chain
 
-## Pilot pages (superseded — see Phase 6)
+## Pilot pages (superseded — see Phase 6b)
 
 ## Phase 0 test checklist
 

@@ -1,34 +1,34 @@
 {
-  "_rolldown-runtime-QTnfLwEv.js": {
-    "file": "assets/rolldown-runtime-QTnfLwEv.js",
-    "name": "rolldown-runtime"
+  "_chunk-QTnfLwEv.js": {
+    "file": "assets/chunk-QTnfLwEv.js",
+    "name": "chunk"
   },
   "resources/js/app.js": {
-    "file": "assets/app-DxLT-DV4.js",
+    "file": "assets/app-BCgyiisG.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
+      "_chunk-QTnfLwEv.js"
     ]
   },
   "resources/js/fullcalendar-init.js": {
-    "file": "assets/fullcalendar-init-DfbF2P9X.js",
+    "file": "assets/fullcalendar-init-BAJf9oxD.js",
     "name": "fullcalendar-init",
     "src": "resources/js/fullcalendar-init.js",
     "isEntry": true
   },
   "resources/js/jquery-init.js": {
-    "file": "assets/jquery-init-8nVBr6kU.js",
+    "file": "assets/jquery-init-BHeSBUqb.js",
     "name": "jquery-init",
     "src": "resources/js/jquery-init.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
+      "_chunk-QTnfLwEv.js"
     ]
   },
   "resources/js/legacy-init.js": {
-    "file": "assets/legacy-init-BjsfRM1T.js",
+    "file": "assets/legacy-init-DzV3hDPe.js",
     "name": "legacy-init",
     "src": "resources/js/legacy-init.js",
     "isEntry": true
@@ -40,21 +40,21 @@
     "isEntry": true
   },
   "resources/js/ui-libs.js": {
-    "file": "assets/ui-libs-WkfLqj6x.js",
+    "file": "assets/ui-libs-8PoX7dOZ.js",
     "name": "ui-libs",
     "src": "resources/js/ui-libs.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
+      "_chunk-QTnfLwEv.js"
     ]
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-BRo4iT6X.js",
+    "file": "assets/vendor-libs-CHnxvzPv.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
+      "_chunk-QTnfLwEv.js"
     ],
     "css": [
       "assets/vendor-libs-B8bANzpe.css"

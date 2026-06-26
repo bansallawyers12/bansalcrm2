@@ -212,7 +212,7 @@ jQuery(document).ready(function($){
                 "</div>" +
             "</div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                "<span class='ui label yellow select2-result-repository__statistics'>"+ status +
+                "<span class='badge bg-warning text-dark select2-result-repository__statistics'>"+ status +
                 "</span>" +
             "</div>" +
             "</div>",
@@ -247,7 +247,7 @@ jQuery(document).ready(function($){
                 "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>" + safeCollegeName + "</span>&nbsp;</div>" +
                 "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + safeCollegeEmail + "</small></div></div></div>" +
                 "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                "<span class='ui label select2-result-repository__statistics' style='background:#6366f1;color:#fff;'>College</span>" +
+                "<span class='badge bg-primary select2-result-repository__statistics'>College</span>" +
                 "</div></div>",
             title: cName
         }];

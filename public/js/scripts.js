@@ -304,7 +304,7 @@ $(function () {
   if (typeof $.fn.tooltip === 'function') {
     $("[data-bs-toggle='tooltip']").not('[data-role="popover"]').tooltip();
   } else {
-    console.warn('Bootstrap tooltip not available. Ensure bootstrap.bundle.min.js is loaded before scripts.js');
+    console.warn('Bootstrap tooltip not available. Ensure Vite app.js (Bootstrap) is loaded before scripts.js');
   }
 
   // popover - only initialize elements that don't already have an instance
@@ -319,7 +319,7 @@ $(function () {
       }
     });
   } else {
-    console.warn('Bootstrap popover not available. Ensure bootstrap.bundle.min.js is loaded before scripts.js');
+    console.warn('Bootstrap popover not available. Ensure Vite app.js (Bootstrap) is loaded before scripts.js');
   }
 
   // Select2 (skip elements migrated to Tom Select)

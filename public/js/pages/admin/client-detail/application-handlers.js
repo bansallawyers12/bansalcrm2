@@ -5,7 +5,7 @@
  * 
  * Dependencies:
  *   - jQuery
- *   - Select2
+ *   - Tom Select (tomselect-init.js)
  *   - Bootstrap (for modals and tabs)
  *   - Flatpickr (for date pickers)
  *   - config.js (App object)
@@ -28,8 +28,8 @@
         console.log('[application-handlers.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && 
-                    typeof $.fn.select2 === 'function') {
+                if (typeof $ !== 'undefined' &&
+                    typeof window.initTomSelect === 'function') {
                     console.log('[application-handlers.js] All vendor libraries detected!');
                     resolve();
                 } else {
@@ -42,74 +42,19 @@
 
 // ============================================================================
 // APPLICATION WORKFLOW HANDLERS
+// Cascade: application-modal-cascade.js (global, Tom Select)
 // ============================================================================
 
 jQuery(document).ready(function($){
-    
-    // ============================================================================
-    // APPLICATION FORM - WORKFLOW CHANGE HANDLER
-    // ============================================================================
-    
-    $(document).on('change', '.add_appliation #workflow', function(){
-        var v = $('.add_appliation #workflow option:selected').val();
-        if(v != ''){
-            $('.popuploader').show();
-            var url = App.getUrl('getPartnerBranch') || App.getUrl('siteUrl') + '/admin/getpartnerbranch';
-            $.ajax({
-                url: url,
-                type:'GET',
-                data:{cat_id:v},
-                success:function(response){
-                    $('.popuploader').hide();
-                    $('.add_appliation #partner').html(response);
-                    $(".add_appliation #partner").val('').trigger('change');
-                    $(".add_appliation #product").val('').trigger('change');
-                    $(".add_appliation #branch").val('').trigger('change');
-                }
-            });
-        }
-    });
-
-    // ============================================================================
-    // APPLICATION FORM - PARTNER CHANGE HANDLER
-    // ============================================================================
-    
-    $(document).on('change', '.add_appliation #partner', function(){
-        var v = $('.add_appliation #partner option:selected').val();
-        var explode = v.split('_');
-        if(v != ''){
-            $('.popuploader').show();
-            $('.add_appliation #product').attr('data-valid', '');
-            $('.add_appliation #product').prop('disabled', true);
-            $('.add_appliation .product_error').html('');
-            var url = App.getUrl('getBranchProduct') || App.getUrl('siteUrl') + '/admin/getbranchproduct';
-            $.ajax({
-                url: url,
-                type:'GET',
-                data:{cat_id:explode[0]},
-                success:function(response){
-                    $('.popuploader').hide();
-                    $('.add_appliation #product').html(response);
-                    $('.add_appliation #product').prop('disabled', false);
-                    $('.add_appliation #product').attr('data-valid', 'required');
-                    $(".add_appliation #product").val('').trigger('change');
-                },
-                error: function() {
-                    $('.popuploader').hide();
-                    $('.add_appliation #product').prop('disabled', false);
-                    $('.add_appliation #product').attr('data-valid', 'required');
-                    $('.add_appliation #product').html('<option value="">Select Product</option>');
-                }
-            });
-        }
-    });
 
     // ============================================================================
     // INTERESTED PRODUCT HANDLER
     // ============================================================================
-    
+
     $(document).on('change', '#intrested_product', function(){
-        var v = $('#intrested_product option:selected').val();
+        var v = typeof getEnhancedSelectValue === 'function'
+            ? getEnhancedSelectValue('#intrested_product')
+            : ($('#intrested_product').val() || '');
         if(v != ''){
             $('.popuploader').show();
             var url = App.getUrl('getBranch') || App.getUrl('siteUrl') + '/get-branches';
@@ -119,8 +64,16 @@ jQuery(document).ready(function($){
                 data:{cat_id:v},
                 success:function(response){
                     $('.popuploader').hide();
-                    $('#intrested_branch').html(response);
-                    $("#intrested_branch").val('').trigger('change');
+                    if (typeof reinitTomSelectAfterHtml === 'function') {
+                        reinitTomSelectAfterHtml('#intrested_branch', response, { width: '100%' });
+                    } else {
+                        $('#intrested_branch').html(response);
+                    }
+                    if (typeof clearEnhancedSelectValue === 'function') {
+                        clearEnhancedSelectValue('#intrested_branch', true);
+                    } else {
+                        $('#intrested_branch').val('').trigger('change');
+                    }
                 }
             });
         }
@@ -567,52 +520,6 @@ jQuery(document).ready(function($){
         });
     });
 
-    // ============================================================================
-    // SELECT2 INITIALIZATION FOR APPLICATION FORMS
-    // ============================================================================
-    
-    // Initialize Select2 when modal is shown to ensure proper rendering
-    $('.add_appliation').on('shown.bs.modal', function () {
-        // Destroy any existing Select2 instances first
-        if ($(".applicationselect2").hasClass("select2-hidden-accessible")) {
-            $(".applicationselect2").select2('destroy');
-        }
-        if ($(".partner_branchselect2").hasClass("select2-hidden-accessible")) {
-            $(".partner_branchselect2").select2('destroy');
-        }
-        if ($(".approductselect2").hasClass("select2-hidden-accessible")) {
-            $(".approductselect2").select2('destroy');
-        }
-        
-        // Initialize Select2 with dropdownParent
-        $(".applicationselect2").select2({
-            dropdownParent: $(".add_appliation"),
-            width: '100%'
-        });
-
-        $(".partner_branchselect2").select2({
-            dropdownParent: $(".add_appliation"),
-            width: '100%'
-        });
-        
-        $(".approductselect2").select2({
-            dropdownParent: $(".add_appliation"),
-            width: '100%'
-        });
-    });
-    
-    // Clean up Select2 when modal is hidden
-    $('.add_appliation').on('hidden.bs.modal', function () {
-        if ($(".applicationselect2").hasClass("select2-hidden-accessible")) {
-            $(".applicationselect2").select2('destroy');
-        }
-        if ($(".partner_branchselect2").hasClass("select2-hidden-accessible")) {
-            $(".partner_branchselect2").select2('destroy');
-        }
-        if ($(".approductselect2").hasClass("select2-hidden-accessible")) {
-            $(".approductselect2").select2('destroy');
-        }
-    });
 
     console.log('[application-handlers.js] Application handlers initialized');
 });

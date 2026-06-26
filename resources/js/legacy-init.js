@@ -26,6 +26,28 @@
         });
     }
 
+    function showLegacyToast(message, type) {
+        if (!message) {
+            return;
+        }
+        if (typeof iziToast !== 'undefined') {
+            var opts = {
+                message: message,
+                position: 'topRight',
+                timeout: type === 'error' ? 8000 : 5000
+            };
+            if (type === 'error') {
+                iziToast.error(opts);
+            } else if (type === 'success') {
+                iziToast.success(opts);
+            } else {
+                iziToast.show(opts);
+            }
+            return;
+        }
+        alert(message);
+    }
+
     // Now initialize all components
     function initializeComponents() {
         $(document).ready(function () {
@@ -122,12 +144,12 @@
                                  $('.popuploader').hide();
                                 $('.showchecindetail').html(res);
                                 $('#checkindetailmodal').modal('hide');
-                                alert(obj.message || 'Attend session successful!');
+                                showLegacyToast(obj.message || 'Attend session successful!', 'success');
                             }
                         });
                             $('.checindata #id_'+appliid).remove();
                         }else{
-                            alert(obj.message);
+                            showLegacyToast(obj.message, 'error');
                         }
                     }
                 });
@@ -151,7 +173,7 @@
                                 $('.popuploader').hide();
                                 // Close modal and show message immediately so popup always closes after success
                                 $('#checkindetailmodal').modal('hide');
-                                alert('Session completed successfully!');
+                                showLegacyToast('Session completed successfully!', 'success');
                                 // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
                                 if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
                                     $('#attending-tab .countAction').text(obj.attending);
@@ -170,18 +192,18 @@
                                 });
                             }else{
                                 $('.popuploader').hide();
-                                alert(obj.message);
+                                showLegacyToast(obj.message, 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            alert('Error processing response');
+                            showLegacyToast('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        alert('Failed to complete session. Error: ' + error + '\nStatus: ' + xhr.status + '\nResponse: ' + xhr.responseText);
+                        showLegacyToast('Failed to complete session. Error: ' + error + '\nStatus: ' + xhr.status + '\nResponse: ' + xhr.responseText, 'error');
                     }
                 });
             });
@@ -689,9 +711,9 @@
                 $container.find(".select2-result-repository__title").text(repo.name);
                 $container.find(".select2-result-repository__description").text(repo.email);
                 if(repo.status == 'Archived'){
-                    $container.find(".select2resultrepositorystatistics").append('<span class="ui label  select2-result-repository__statistics">'+repo.status+'</span>');
+                    $container.find(".select2resultrepositorystatistics").append('<span class="badge bg-secondary select2-result-repository__statistics">'+repo.status+'</span>');
                 } else{
-                    $container.find(".select2resultrepositorystatistics").append('<span class="ui label yellow select2-result-repository__statistics">'+repo.status+'</span>');
+                    $container.find(".select2resultrepositorystatistics").append('<span class="badge bg-warning text-dark select2-result-repository__statistics">'+repo.status+'</span>');
                 }
                 return $container;
             }

@@ -2300,9 +2300,19 @@ $('#add_application').modal('hide');
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
-								$(".add_appliation #workflow").val('').trigger('change');
-			$(".add_appliation #partner").val('').trigger('change');
-			$(".add_appliation #product").val('').trigger('change');
+								if (typeof ApplicationModalCascade !== 'undefined') {
+									ApplicationModalCascade.clearSelectValue('.add_appliation #workflow', true);
+									ApplicationModalCascade.clearSelectValue('.add_appliation #partner', true);
+									ApplicationModalCascade.clearSelectValue('.add_appliation #product', true);
+								} else if (typeof clearEnhancedSelectValue === 'function') {
+									clearEnhancedSelectValue('.add_appliation #workflow', true);
+									clearEnhancedSelectValue('.add_appliation #partner', true);
+									clearEnhancedSelectValue('.add_appliation #product', true);
+								} else {
+									$(".add_appliation #workflow").val('').trigger('change');
+									$(".add_appliation #partner").val('').trigger('change');
+									$(".add_appliation #product").val('').trigger('change');
+								}
 			$(".add_appliation #enrolment_type").val('');
 								if(obj.status){
 									$('.add_appliation').modal('hide');

@@ -776,46 +776,7 @@ function getallactivities(){
 			}
 		});
 	});
-	$(document).delegate('.add_appliation #workflow', 'change', function(){
-	
-				var v = $('.add_appliation #workflow option:selected').val();
-				if(v != ''){
-						$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getpartnerbranch')}}',
-			type:'GET',
-			data:{cat_id:v},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.add_appliation #partner').html(response);
-				
-				$(".add_appliation #partner").val('').trigger('change');
-			$(".add_appliation #product").val('').trigger('change');
-			$(".add_appliation #branch").val('').trigger('change');
-			}
-		});
-				}
-	});
-	
-	$(document).delegate('.add_appliation #partner','change', function(){
-		
-				var v = $('.add_appliation #partner option:selected').val();
-				var explode = v.split('_');
-				if(v != ''){
-					$('.popuploader').show();
-		$.ajax({
-			url: '{{URL::to('/getbranchproduct')}}',
-			type:'GET',
-			data:{cat_id:explode[0]},
-			success:function(response){
-				$('.popuploader').hide();
-				$('.add_appliation #product').html(response);
-				$(".add_appliation #product").val('').trigger('change');
-			
-			}
-		});
-				}
-	});
+	// Add Application modal cascade: application-modal-cascade.js (Tom Select)
 	
 	
 	
