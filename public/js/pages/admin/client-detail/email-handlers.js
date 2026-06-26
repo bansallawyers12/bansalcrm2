@@ -22,8 +22,16 @@
         console.log('[email-handlers.js] Waiting for vendorLibsReady promise...');
         await window.vendorLibsReady;
         console.log('[email-handlers.js] Vendor libraries ready!');
-    } else {
-        // Fallback: Poll for vendor libraries
+    }
+
+    if (typeof window.waitForTomSelect === 'function') {
+        await window.waitForTomSelect();
+    }
+
+    if (typeof window.waitForRecipientSelect === 'function') {
+        await window.waitForRecipientSelect();
+    } else if (typeof window.RecipientSelect === 'undefined') {
+        // Fallback: Poll for vendor libraries + Tom Select + RecipientSelect
         console.log('[email-handlers.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {

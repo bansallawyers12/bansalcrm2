@@ -23,6 +23,10 @@
         await window.waitForTomSelect();
     }
 
+    if (typeof window.waitForRecipientSelect === 'function') {
+        await window.waitForRecipientSelect();
+    }
+
     // ============================================================================
     // MAIN JQUERY READY BLOCK
     // ============================================================================

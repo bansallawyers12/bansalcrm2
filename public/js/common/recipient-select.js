@@ -295,8 +295,6 @@
             return;
         }
 
-        destroyRecipientSelect(element);
-
         var ids = (entries || []).map(function (e) {
             return String(e.id);
         });
@@ -306,7 +304,16 @@
         var initOpts = buildStaticOptions(options);
         initOpts.data = entries || [];
 
-        window.initTomSelect(element, initOpts);
+        var instance = typeof window.reinitTomSelect === 'function'
+            ? window.reinitTomSelect(element, initOpts)
+            : (function () {
+                destroyRecipientSelect(element);
+                return window.initTomSelect(element, initOpts);
+            }());
+
+        if (!instance) {
+            return;
+        }
 
         if (typeof window.setEnhancedSelectValue === 'function') {
             window.setEnhancedSelectValue(element, ids, true);
@@ -383,6 +390,29 @@
         collectFromCheckboxes: collectFromCheckboxes
     };
 
+    function waitForRecipientSelect(maxAttempts) {
+        var limit = maxAttempts || 200;
+
+        return new Promise(function (resolve) {
+            var attempts = 0;
+
+            function check() {
+                attempts += 1;
+                if (typeof window.RecipientSelect !== 'undefined') {
+                    resolve(window.RecipientSelect);
+                } else if (attempts >= limit) {
+                    console.warn('[waitForRecipientSelect] RecipientSelect not loaded after timeout');
+                    resolve(null);
+                } else {
+                    setTimeout(check, 50);
+                }
+            }
+
+            check();
+        });
+    }
+
+    window.waitForRecipientSelect = waitForRecipientSelect;
     window.RecipientSelect = api;
     window.BansalRecipientSelect = api;
 })(window);

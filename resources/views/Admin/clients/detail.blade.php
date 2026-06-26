@@ -3041,9 +3041,12 @@ $(document).ready(function() {
 	var clientName = {!! json_encode(trim(($fetchedData->first_name ?? '').' '.($fetchedData->last_name ?? '')) ?: 'Client') !!};
 
 	$(document).ready(function(){
-		// Defer to run after email-handlers.js (which may run later due to vendorLibsReady)
-		var runChecklistModal = function() {
+		function runChecklistModal(attempts) {
+			attempts = attempts || 0;
 			if (typeof RecipientSelect === 'undefined') {
+				if (attempts < 40) {
+					setTimeout(function() { runChecklistModal(attempts + 1); }, 50);
+				}
 				return;
 			}
 			if (openChecklist === '1' && applicationId && $('#emailmodal').length) {
@@ -3064,8 +3067,8 @@ $(document).ready(function() {
 				RecipientSelect.setData('#emailmodal .js-data-example-ajax', data, { dropdownParent: '#emailmodal' });
 				$('#emailmodal').modal('show');
 			}
-		};
-		setTimeout(runChecklistModal, 150);
+		}
+		runChecklistModal(0);
 	});
 })();
 </script>

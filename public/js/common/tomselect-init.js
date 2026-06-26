@@ -373,7 +373,12 @@
     function destroyTomSelect(el) {
         var element = resolveElement(el);
         if (element && element.tomselect) {
-            element.tomselect.destroy();
+            try {
+                element.tomselect.destroy();
+            } catch (err) {
+                console.warn('[destroyTomSelect] destroy failed', err);
+            }
+            delete element.tomselect;
             unmarkMigration(element);
         }
     }

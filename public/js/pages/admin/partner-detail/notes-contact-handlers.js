@@ -28,6 +28,25 @@
         });
     }
 
+    if (typeof window.waitForTomSelect === 'function') {
+        await window.waitForTomSelect();
+    }
+
+    if (typeof window.waitForRecipientSelect === 'function') {
+        await window.waitForRecipientSelect();
+    } else if (typeof window.RecipientSelect === 'undefined') {
+        await new Promise((resolve) => {
+            const check = () => {
+                if (typeof window.RecipientSelect !== 'undefined') {
+                    resolve();
+                } else {
+                    setTimeout(check, 50);
+                }
+            };
+            check();
+        });
+    }
+
 jQuery(document).ready(function($){
     const partnerId = PageConfig.partnerId;
     const siteUrl = App.getUrl('siteUrl') || AppConfig.siteUrl || '';
