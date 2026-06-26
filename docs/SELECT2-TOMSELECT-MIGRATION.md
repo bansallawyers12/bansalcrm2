@@ -161,6 +161,17 @@ Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimum
 
 Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6).
 
+### Phase 5 review fixes (applied)
+
+| Issue | Fix |
+|-------|-----|
+| Cascade change handlers read `option:selected` (unreliable with Tom Select) | `getEnhancedSelectValue()` |
+| `destroyTomSelect` removed `tomselect` class before re-init | `reinitTomSelectAfterHtml` re-adds `tomselect` class |
+| Partner create init flag set when Tom Select not loaded | Guard on `typeof TomSelect` before setting flag |
+| Edit pages: `product_type` / `intake_month` / `country` saved values | `initTomSelectPreserveValue` on all pre-filled selects |
+| Script load race on inline page scripts | `whenTomSelectReady()` poll fallback |
+| Master category cleared | Reset `#partner_type` via `reinitTomSelectAfterHtml` |
+
 ## Phase 6 candidates
 
 1. Application/modal handlers — `applicationselect2`, `productselect2`, modal workflow chains

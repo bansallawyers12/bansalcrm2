@@ -198,7 +198,7 @@ jQuery(document).ready(function($){
 	var productBranchOpts = { width: '100%', allowClear: true };
 
 	function initProductFormTomSelects() {
-		if (typeof initTomSelect !== 'function') {
+		if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
 			return;
 		}
 		initTomSelectPreserveValue('#intrested_product', Object.assign({
@@ -206,16 +206,20 @@ jQuery(document).ready(function($){
 			allowClear: true
 		}, productBranchOpts));
 		initTomSelectPreserveValue('#intrested_branch', productBranchOpts);
-		initTomSelect('select[name="product_type"]', { width: '100%', allowClear: true });
-		initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true, placeholder: '-- Select Intake Month --' });
+		initTomSelectPreserveValue('select[name="product_type"]', { width: '100%', allowClear: true });
+		initTomSelectPreserveValue('select[name="intake_month"]', { width: '100%', allowClear: true, placeholder: '-- Select Intake Month --' });
 	}
 
-	if (typeof waitForTomSelect === 'function') {
+	if (typeof whenTomSelectReady === 'function') {
+		whenTomSelectReady(initProductFormTomSelects);
+	} else if (typeof waitForTomSelect === 'function') {
 		waitForTomSelect().then(initProductFormTomSelects);
 	}
 
 	$(document).delegate('#intrested_product', 'change', function(){
-		var v = $('#intrested_product option:selected').val();
+		var v = typeof getEnhancedSelectValue === 'function'
+			? getEnhancedSelectValue('#intrested_product')
+			: $('#intrested_product').val();
 		if (v != '') {
 			$('.popuploader').show();
 			$.ajax({

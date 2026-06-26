@@ -1079,21 +1079,28 @@ jQuery(document).ready(function($){
 	});
 
     // Initialize Tom Select on partner form dropdowns (compact — no search box)
-    if (typeof waitForTomSelect === 'function') {
-        waitForTomSelect().then(function () {
-            var compact = typeof compactTomSelectOptions === 'function'
-                ? compactTomSelectOptions()
-                : { width: '100%', minimumResultsForSearch: Infinity };
+    function initPartnerEditTomSelects() {
+        if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
+            return;
+        }
+        var compact = typeof compactTomSelectOptions === 'function'
+            ? compactTomSelectOptions()
+            : { width: '100%', minimumResultsForSearch: Infinity };
 
-            if (typeof $.fn.select2 === 'function') {
-                $(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({
-                    dropdownParent: $(".addbranch .modal-content")
-                });
-            }
+        if (typeof $.fn.select2 === 'function') {
+            $(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({
+                dropdownParent: $(".addbranch .modal-content")
+            });
+        }
 
-            initTomSelectAllPreserveValues('select.tomselect[name="partner_type"], select.tomselect[name="service_workflow"]', compact);
-            initTomSelectPreserveValue('select[name="country"]', compact);
-        });
+        initTomSelectAllPreserveValues('select.tomselect[name="partner_type"], select.tomselect[name="service_workflow"]', compact);
+        initTomSelectPreserveValue('select[name="country"]', compact);
+    }
+
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(initPartnerEditTomSelects);
+    } else if (typeof waitForTomSelect === 'function') {
+        waitForTomSelect().then(initPartnerEditTomSelects);
     }
 
 

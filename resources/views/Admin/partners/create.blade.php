@@ -686,7 +686,7 @@ jQuery(document).ready(function($){
 		if (window.__partnerCreateTomSelectInitialized) {
 			return;
 		}
-		if (typeof initTomSelect !== 'function') {
+		if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
 			console.warn('Tom Select not available yet, skipping partner form init');
 			return;
 		}
@@ -704,7 +704,7 @@ jQuery(document).ready(function($){
 		initTomSelectPreserveValue('#getpartnertype', compact);
 		initTomSelectPreserveValue('#partner_type', compact);
 		initTomSelectPreserveValue('select[name="service_workflow"]', compact);
-		initTomSelect('select[name="country"]', compact);
+		initTomSelectPreserveValue('select[name="country"]', compact);
 
 		window.__partnerCreateTomSelectInitialized = true;
 	}
@@ -730,7 +730,19 @@ jQuery(document).ready(function($){
 
     $(document).delegate('#getpartnertype','change', function(){
 		$('.popuploader').show();
-		var v = $('#getpartnertype option:selected').val();
+		var v = typeof getEnhancedSelectValue === 'function'
+			? getEnhancedSelectValue('#getpartnertype')
+			: $('#getpartnertype option:selected').val();
+		if (!v) {
+			$('.popuploader').hide();
+			if (typeof reinitTomSelectAfterHtml === 'function') {
+				var emptyCompact = typeof compactTomSelectOptions === 'function'
+					? compactTomSelectOptions()
+					: { width: '100%', minimumResultsForSearch: Infinity };
+				reinitTomSelectAfterHtml('#partner_type', '<option value="">Select a Partner Type</option>', emptyCompact);
+			}
+			return;
+		}
 		$.ajax({
 			url: '{{URL::to('/getpaymenttype')}}',
 			type:'GET',

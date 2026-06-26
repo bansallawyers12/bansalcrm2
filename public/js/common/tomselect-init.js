@@ -472,6 +472,7 @@
         }
         destroyEnhancedSelect(element);
         element.innerHTML = html;
+        element.classList.add('tomselect');
         return initTomSelect(element, options || {});
     }
 
@@ -567,6 +568,48 @@
         setEnhancedSelectValue(el, null, silent);
     }
 
+    function getEnhancedSelectValue(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return '';
+        }
+        if (element.tomselect) {
+            var value = element.tomselect.getValue();
+            if (Array.isArray(value)) {
+                return value.length ? value : '';
+            }
+            return value == null ? '' : value;
+        }
+        if (window.jQuery) {
+            var nativeVal = window.jQuery(element).val();
+            return nativeVal == null ? '' : nativeVal;
+        }
+        return element.value || '';
+    }
+
+    /** Run callback when Tom Select helpers are ready (Promise + poll fallback). */
+    function whenTomSelectReady(callback, maxAttempts) {
+        if (typeof callback !== 'function') {
+            return;
+        }
+        if (typeof waitForTomSelect === 'function') {
+            waitForTomSelect(maxAttempts).then(callback);
+            return;
+        }
+        var limit = maxAttempts || 200;
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            if (typeof TomSelect !== 'undefined' && typeof window.initTomSelect === 'function') {
+                clearInterval(timer);
+                callback();
+            } else if (attempts >= limit) {
+                clearInterval(timer);
+                console.warn('[whenTomSelectReady] Tom Select helpers not loaded after timeout');
+            }
+        }, 50);
+    }
+
     function waitForTomSelect(maxAttempts) {
         var limit = maxAttempts || 200;
 
@@ -604,8 +647,10 @@
     window.initTomSelectAllPreserveValues = initTomSelectAllPreserveValues;
     window.initModalTomSelects = initModalTomSelects;
     window.setEnhancedSelectValue = setEnhancedSelectValue;
+    window.getEnhancedSelectValue = getEnhancedSelectValue;
     window.clearEnhancedSelectValue = clearEnhancedSelectValue;
     window.waitForTomSelect = waitForTomSelect;
+    window.whenTomSelectReady = whenTomSelectReady;
 
     if (window.jQuery) {
         window.jQuery(document).on('shown.bs.modal', '.modal', function () {
@@ -625,7 +670,9 @@
         initAllPreserveValues: initTomSelectAllPreserveValues,
         initModal: initModalTomSelects,
         setValue: setEnhancedSelectValue,
+        getValue: getEnhancedSelectValue,
         clearValue: clearEnhancedSelectValue,
+        whenReady: whenTomSelectReady,
         isTomSelect: isTomSelect,
         isSelect2: isSelect2,
         getEnhancementWrapper: getEnhancementWrapper,
