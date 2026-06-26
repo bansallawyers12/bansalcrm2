@@ -334,7 +334,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof flatpickr !== 'undefined') {
         flatpickr('.audit-datepicker', { dateFormat: 'd/m/Y', allowInput: true });
     }
-    if (typeof waitForTomSelect === 'function') {
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(function () {
+            initTomSelect('.audit-staff-select', {
+                width: '100%',
+                allowClear: true
+            });
+        });
+    } else if (typeof waitForTomSelect === 'function') {
         waitForTomSelect().then(function () {
             initTomSelect('.audit-staff-select', {
                 width: '100%',

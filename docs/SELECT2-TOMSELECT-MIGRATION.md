@@ -35,7 +35,13 @@ Phase 0 foundation: Tom Select loads alongside Select2. No existing `.select2()`
 | `reinitTomSelect(el, options)` | Destroy then init Tom Select |
 | `initModalTomSelects(modalEl, options)` | Init all `select.tomselect` in modal on `shown.bs.modal` |
 | `setEnhancedSelectValue(el, value)` | Set value on Tom Select or native select |
+| `getEnhancedSelectValue(el)` | Read value from Tom Select or native select |
+| `whenTomSelectReady(callback)` | Run callback when helpers loaded (Promise + poll fallback) |
 | `waitForTomSelect()` | Promise when `TomSelect` global is available |
+| `reinitTomSelectAfterHtml(el, html, opts)` | AJAX cascade: destroy → replace `<option>` HTML → re-init |
+| `compactTomSelectOptions(extra)` | Full-width, no search (`minimumResultsForSearch: Infinity`) |
+| `initTomSelectPreserveValue(el, opts)` | Init and restore pre-selected native value (edit pages) |
+| `initTomSelectAllPreserveValues(sel, opts)` | Batch version of preserve-value init |
 
 ## Migration workflow (per page)
 
@@ -112,13 +118,13 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 
 ## Phase 2 — Form pages: static + multi + modal (Done)
 
-| Area | Migrated | Deferred (still Select2) |
+| Area | Migrated | Still Select2 (Phase 6+) |
 |------|----------|---------------------------|
-| Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` → **Phase 4** |
-| Partner create/edit | `country`, `branch_country` (add-branch modal) | `#getpartnertype` → `#partner_type` chain → **Phase 5**; add-branch modal `.select2` chain |
-| Product create/edit | `product_type`, `intake_month`, `#intrested_product` / `#intrested_branch` | — |
-| Leads create | Same static set as client create (via `client-create.js`) | `related_files`, `lead_source`, `subagent` → **Phase 4** |
-| Modals (`addclientmodal`, `addpartnermodal`, `addproductmodal`) | Static: `application`, `fee_type`, `template`, `agent_id`, `checklist[]`, `degree_level`, `document_type` | `workflow`/`partner`/`product` chains, `applicationselect2*`, `productselect2`, AJAX `contact_name` |
+| Client create/edit | Static fields + **`related_files[]`** | — |
+| Partner create/edit | `country`, branch modal country, **`getpartnertype` / `partner_type` / `service_workflow`** | Add-branch modal `.select2` chain |
+| Product create/edit | **`product_type`, `intake_month`, `#intrested_product`, `#intrested_branch`** | — |
+| Leads create | Static fields + **related files, `#lead_source`, `subagent`** | — |
+| Modals (`addclientmodal`, etc.) | Static selects | `workflow`/`partner`/`product` chains, `applicationselect2*`, AJAX `contact_name` |
 
 Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
 

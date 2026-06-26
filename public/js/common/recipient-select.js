@@ -45,7 +45,7 @@
             return App.getUrl('clientGetRecipients')
                 || App.getUrl('clientsGetRecipients')
                 || App.getUrl('getRecipients')
-                || App.getUrl('siteUrl') + '/clients/get-recipients';
+                || ((App.getUrl('siteUrl') || '') + '/clients/get-recipients');
         }
         if (window.AppConfig && window.AppConfig.urls) {
             if (window.AppConfig.urls.getRecipients) {

@@ -223,7 +223,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof flatpickr !== 'undefined') {
         flatpickr('.insights-datepicker', { dateFormat: 'd/m/Y', allowInput: true });
     }
-    if (typeof waitForTomSelect === 'function') {
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(function () {
+            initTomSelect('.insights-branch-select', {
+                width: '100%',
+                closeAfterSelect: false
+            });
+        });
+    } else if (typeof waitForTomSelect === 'function') {
         waitForTomSelect().then(function () {
             initTomSelect('.insights-branch-select', {
                 width: '100%',
