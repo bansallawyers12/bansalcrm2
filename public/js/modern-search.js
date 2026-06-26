@@ -413,6 +413,38 @@
 
     var modernSearchInstance = null;
 
+    /** Fixed positioning for body-attached dropdown (Tom Select uses document coords; fixed needs viewport coords). */
+    function positionModernSearchDropdown(ts) {
+        if (!ts || !ts.control || !ts.dropdown) {
+            return;
+        }
+
+        var rect = ts.control.getBoundingClientRect();
+        var dropdown = ts.dropdown;
+        var maxWidth = Math.min(600, window.innerWidth - 24);
+        var width = Math.min(Math.max(Math.round(rect.width), 550), maxWidth);
+        var left = Math.round(rect.left);
+        if (left + width > window.innerWidth - 12) {
+            left = Math.max(12, window.innerWidth - width - 12);
+        }
+
+        dropdown.style.position = 'fixed';
+        dropdown.style.top = Math.round(rect.bottom + 2) + 'px';
+        dropdown.style.left = left + 'px';
+        dropdown.style.width = width + 'px';
+        dropdown.style.minWidth = width + 'px';
+        dropdown.style.maxWidth = maxWidth + 'px';
+        dropdown.style.zIndex = '10100';
+        dropdown.style.visibility = 'visible';
+        dropdown.style.display = 'block';
+        dropdown.style.opacity = '1';
+        dropdown.style.background = '#fff';
+        dropdown.style.backgroundColor = '#fff';
+        dropdown.style.isolation = 'isolate';
+        dropdown.style.pointerEvents = 'auto';
+        dropdown.classList.add('modern-search-dropdown');
+    }
+
     function buildSearchResultHtml(repo) {
         if (repo.loading) {
             return repo.text || '';
@@ -521,6 +553,19 @@
         if (!Array.isArray(grouped)) {
             return options;
         }
+
+        // Flat API list (no category children)
+        if (grouped.length && !grouped[0].children) {
+            grouped.forEach(function (item) {
+                var id = item.id;
+                options.push(Object.assign({}, item, {
+                    value: id,
+                    text: item.name || item.text || ''
+                }));
+            });
+            return options;
+        }
+
         grouped.forEach(function (group, idx) {
             if (!group.children || !group.children.length) {
                 return;
@@ -564,6 +609,8 @@
         var siteUrl = siteBase();
         var instance = initTomSelect(searchElement, {
             maxItems: 1,
+            width: '450px',
+            dropdownParent: 'body',
             valueField: 'value',
             labelField: 'text',
             searchField: ['text', 'name', 'email', 'client_id'],
@@ -596,7 +643,16 @@
                     },
                     success: function (data) {
                         var grouped = groupResultsByCategory(data.items || []);
-                        callback(flattenGroupedForTomSelect(grouped, ts));
+                        var flat = flattenGroupedForTomSelect(grouped, ts);
+                        callback(flat);
+                        if (flat.length) {
+                            window.setTimeout(function () {
+                                if (!ts.isOpen) {
+                                    ts.open();
+                                }
+                                positionModernSearchDropdown(ts);
+                            }, 0);
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('Search error:', error, xhr);
@@ -633,15 +689,25 @@
                 }
                 navigateToResult(data);
             },
-            onDropdownClose: function () {
-                var self = this;
-                setTimeout(function () {
-                    self.clear(true);
-                }, 100);
+            onDropdownOpen: function () {
+                positionModernSearchDropdown(this);
             }
         });
 
         modernSearchInstance = instance;
+
+        if (instance) {
+            // Tom Select positionDropdown() uses document coords — override for fixed viewport positioning.
+            instance.positionDropdown = function () {
+                positionModernSearchDropdown(this);
+            };
+
+            $(window).off('scroll.modernSearch resize.modernSearch').on('scroll.modernSearch resize.modernSearch', function () {
+                if (instance.isOpen) {
+                    positionModernSearchDropdown(instance);
+                }
+            });
+        }
 
         // Keyboard shortcut: Ctrl+K or Cmd+K
         $(document).off('keydown.modernSearch').on('keydown.modernSearch', function (e) {
@@ -663,6 +729,9 @@
             e.preventDefault();
             if (modernSearchInstance) {
                 modernSearchInstance.open();
+                window.setTimeout(function () {
+                    positionModernSearchDropdown(modernSearchInstance);
+                }, 0);
             }
         });
 

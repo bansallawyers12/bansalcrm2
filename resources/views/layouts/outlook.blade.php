@@ -25,7 +25,7 @@
 	@vite(['resources/js/jquery-init.js'])
 	@vite(['resources/js/app.js'])
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
-	<script src="{{ asset('js/custom.js') }}" defer></script>
+	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}" defer></script>
 	<script>
 		var site_url = '{{ URL::to('/') }}';
 	</script>

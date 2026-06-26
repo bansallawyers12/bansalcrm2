@@ -313,7 +313,7 @@
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
 	<!-- Custom JS File -->	
-	<script src="{{asset('js/custom.js')}}" defer></script>
+	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}" defer></script>
 	
 	<!-- Legacy initialization now loaded via Vite (legacy-init.js) -->
 	@vite(['resources/js/legacy-init.js'])
@@ -327,7 +327,7 @@
 	</form>
 
 	<!-- Auto-logout after 15 minutes of inactivity -->
-	<script src="{{ asset('js/inactivity-logout.js') }}" defer></script>
+	<script src="{{ asset('js/inactivity-logout.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/inactivity-logout.js')) }}" defer></script>
 
 	@include('partials.email-from-ses-script')
 

@@ -33,9 +33,8 @@
 		}
 		$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 	}
-	$assetV = config('app.asset_version') ?: '1';
 @endphp
-<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ $assetV }}">
+<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/client-detail.css')) }}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -2332,38 +2331,38 @@ use App\Http\Controllers\Controller;
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
-<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/notes-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/notes-contact-handlers.js')) }}"></script>
 
 @if($activeTab === 'application')
 <script src="{{ asset('js/pages/admin/partner-detail/application-tab.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/application-handlers.js')) }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/service-handlers.js')) }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
 @endif
 
 @if(in_array($activeTab, ['documents', 'notuseddocuments'], true))
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/bulk-upload.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 @endif
 
 @if($activeTab === 'accounts')
-<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/partner-detail/payment-field-handlers.js') }}"></script>
 @endif
 
 @if($activeTab === 'promotions')
-<script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/promotion-handlers.js')) }}"></script>
 @endif
 
 @if($activeTab === 'student')
-<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
 @endif
 
 @if($activeTab === 'invoice')

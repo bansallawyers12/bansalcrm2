@@ -2744,7 +2744,7 @@ use App\Http\Controllers\Controller;
 
 @endsection
 @section('scripts')
-<script src="{{ asset('js/popover.js') }}"></script>
+<script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 
 @if($showAlert)
     <script>
@@ -2977,14 +2977,14 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/session-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/client-status.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/assignee-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/email-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/email-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/email-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-upload.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/document-categories.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/drag-drop-handlers.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/datatable-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}?v=639067000000000000"></script>
+<script src="{{ asset('js/pages/admin/client-detail/application-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/application-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/application-stage.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/commission-handlers.js') }}"></script>
 
@@ -2994,10 +2994,10 @@ $(function () {
 <script src="{{ asset('js/pages/admin/client-detail/document-signature.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/ui-layout-and-tabs.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/communications.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/communications.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/ui-initialization.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/ui-initialization.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/receipts-and-payments.js') }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/modal-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/assignments.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/assignments.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/schedule-followup.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/schedule-followup.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/delete-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/client-detail/delete-handlers.js')) }}"></script>
 <script src="{{ asset('js/pages/admin/client-detail/pin-and-publish.js') }}"></script>

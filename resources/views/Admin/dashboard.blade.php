@@ -1132,7 +1132,7 @@
 @endsection
 
 @section('scripts')
-<script src="{{asset('js/popover.js')}}"></script>
+<script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 <script>
 $(document).ready(function() {
     // Update current session duration in real-time

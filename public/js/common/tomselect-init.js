@@ -115,7 +115,11 @@
 
             switch (key) {
                 case 'dropdownParent':
-                    mapped.dropdownParent = resolveElement(options.dropdownParent) || options.dropdownParent;
+                    if (options.dropdownParent === 'body' || options.dropdownParent === document.body) {
+                        mapped.dropdownParent = 'body';
+                    } else {
+                        mapped.dropdownParent = resolveElement(options.dropdownParent) || options.dropdownParent;
+                    }
                     break;
                 case 'allowClear':
                     if (options.allowClear) {

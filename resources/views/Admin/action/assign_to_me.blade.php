@@ -438,7 +438,7 @@
 </div>
 @endsection
 @section('scripts')
-<script src="{{asset('js/popover.js')}}"></script>
+<script src="{{ asset('js/popover.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/popover.js')) }}"></script>
 <script>
 	jQuery(document).ready(function($){
      $(document).delegate('.openassignee', 'click', function(){

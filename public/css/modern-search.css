@@ -31,7 +31,9 @@ mark.search-highlight {
     padding: 12px 16px;
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
-    min-width: 500px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .modern-search-result:hover {
@@ -62,8 +64,9 @@ mark.search-highlight {
     line-height: 1.4;
 }
 
+/* Locked rows: keep full opacity so dashboard text does not show through */
 .modern-search-result--locked {
-    opacity: 0.95;
+    opacity: 1 !important;
     border-left-color: #fd7e14 !important;
 }
 .modern-search-lock {
@@ -148,13 +151,82 @@ mark.search-highlight {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Dropdown improvements — header search only (class set in modern-search.js) */
-.select2-dropdown.modern-search-dropdown {
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 550px !important;
-    width: auto !important;
+/* Dropdown panel — header global search only (.modern-search-dropdown from modern-search.js) */
+.select2-dropdown.modern-search-dropdown,
+.ts-dropdown.modern-search-dropdown {
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+    border-top: 1px solid #ced4da !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    min-width: 550px;
+    background: #fff !important;
+    background-color: #fff !important;
+    background-image: none !important;
+    color: #212529 !important;
+    opacity: 1 !important;
+    isolation: isolate;
+    z-index: 10100 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.ts-dropdown.modern-search-dropdown .ts-dropdown-content {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #fff !important;
+    background-color: #fff !important;
+    padding: 4px 0;
+}
+
+.ts-dropdown.modern-search-dropdown .option,
+.ts-dropdown.modern-search-dropdown .option[data-selectable],
+.ts-dropdown.modern-search-dropdown [data-selectable].option {
+    padding: 0 !important;
+    margin: 0;
+    background-color: #fff !important;
+    color: #212529 !important;
+    border: none;
+    opacity: 1 !important;
+    animation: fadeInResult 0.2s ease;
+}
+
+.ts-dropdown.modern-search-dropdown .option.active,
+.ts-dropdown.modern-search-dropdown .option:hover,
+.ts-dropdown.modern-search-dropdown .option.active:hover {
+    background-color: #e7f3ff !important;
+    color: #212529 !important;
+}
+
+.ts-dropdown.modern-search-dropdown .optgroup-header {
+    padding: 0;
+    margin: 0;
+    background: #fff !important;
+    background-color: #fff !important;
+    border: none;
+    pointer-events: none;
+    opacity: 1 !important;
+}
+
+.ts-dropdown.modern-search-dropdown .optgroup-header .select2-category-header {
+    display: block;
+}
+
+.ts-dropdown.modern-search-dropdown .no-results {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+    background: #fff;
+}
+
+/* Override tomselect-bridge flex on repository rows — inner content handles layout */
+.ts-dropdown.modern-search-dropdown .select2-result-repository.modern-search-result {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Loading state */
@@ -175,11 +247,56 @@ mark.search-highlight {
 /* Search element in header */
 .search-element {
     position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .search-element .select2-container {
     min-width: 450px;
     width: 450px !important;
+    flex: 0 0 auto;
+}
+
+/* Tom Select header search — mirrors select2 layout above */
+.search-element .ts-wrapper {
+    display: inline-flex;
+    vertical-align: middle;
+    min-width: 450px;
+    width: 450px !important;
+    max-width: 450px;
+    flex: 0 0 auto;
+}
+
+.search-element .ts-wrapper.single .ts-control {
+    border-radius: 5px 0 0 5px;
+    border-right: 0;
+    min-height: calc(1.5em + 0.75rem + 2px);
+}
+
+.search-element .btn {
+    flex: 0 0 auto;
+    border-radius: 0 5px 5px 0;
+    margin-top: 0;
+}
+
+.search-element .ts-control,
+.search-element .ts-wrapper .ts-control input {
+    color: #1a202c !important;
+}
+
+/* Prevent navbar clipping the search dropdown */
+.navbar.main-navbar .form-inline,
+.navbar.main-navbar .form-inline .navbar-nav,
+.navbar.main-navbar .form-inline .navbar-nav > li,
+.search-element,
+.search-element .ts-wrapper {
+    overflow: visible !important;
+}
+
+.search-element .ts-wrapper.dropdown-active,
+.search-element .ts-wrapper.focus {
+    z-index: 10101;
 }
 
 /* Keyboard shortcut hint */
@@ -195,6 +312,22 @@ mark.search-highlight {
     .search-element .select2-container {
         min-width: 250px;
         width: 250px !important;
+    }
+
+    .search-element .ts-wrapper {
+        min-width: 250px;
+        width: 250px !important;
+        max-width: 250px;
+    }
+
+    .ts-dropdown.modern-search-dropdown {
+        min-width: calc(100vw - 24px) !important;
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+    }
+
+    .modern-search-result {
+        min-width: 0;
     }
     
     .modern-search-result-content {
@@ -217,6 +350,12 @@ mark.search-highlight {
     .search-element .select2-container {
         min-width: 350px;
         width: 350px !important;
+    }
+
+    .search-element .ts-wrapper {
+        min-width: 350px;
+        width: 350px !important;
+        max-width: 350px;
     }
 }
 

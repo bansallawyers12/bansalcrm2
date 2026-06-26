@@ -143,7 +143,9 @@
 }
 
 .search-element .form-control,
-.search-element .select2-container .select2-selection__rendered {
+.search-element .select2-container .select2-selection__rendered,
+.search-element .ts-control,
+.search-element .ts-wrapper .ts-control input {
     color: #1a202c !important;
 }
 
@@ -327,8 +329,7 @@ i[style*="color:rgba"] {
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
 	<!-- Custom JS File -->	
-	<script src="{{asset('js/custom.js')}}" defer>
-	</script>
+	<script src="{{ asset('js/custom.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom.js')) }}" defer></script>
 	
 	<!-- Legacy initialization now loaded via Vite (legacy-init.js) -->
 	@vite(['resources/js/legacy-init.js'])
@@ -622,7 +623,7 @@ i[style*="color:rgba"] {
 	@endauth
 
 	<!-- Auto-logout after 15 minutes of inactivity -->
-	<script src="{{ asset('js/inactivity-logout.js') }}" defer></script>
+	<script src="{{ asset('js/inactivity-logout.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/inactivity-logout.js')) }}" defer></script>
 
 	@include('partials.email-from-ses-script')
 
