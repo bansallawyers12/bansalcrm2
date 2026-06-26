@@ -310,7 +310,7 @@
             config.loadThrottle = config.loadThrottle || config._select2Ajax.delay || 250;
         }
 
-        if (options.multiple) {
+        if (options.multiple || element.hasAttribute('multiple')) {
             config.plugins = ensurePlugin(config.plugins, 'remove_button');
         }
 

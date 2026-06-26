@@ -110,6 +110,18 @@
     width: 315px !important;
 }
 
+/* Filter pages (audit logs, sheets insights) — no .form-group wrapper */
+.audit-filter-card .ts-wrapper,
+.insights-filter-card .ts-wrapper {
+    width: 100%;
+}
+
+.audit-filter-card .ts-dropdown,
+.insights-filter-card .ts-dropdown {
+    width: 100%;
+    min-width: 0;
+}
+
 /* Recipient AJAX dropdown rows (HTML from RecipientSelect / formatRepo) */
 .ts-dropdown .select2-result-repository {
     display: flex;

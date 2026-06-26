@@ -687,6 +687,14 @@ class OngoingSheetController extends Controller
         $branchFilter = $request->filled('branch')
             ? (is_array($request->input('branch')) ? $request->input('branch') : [$request->input('branch')])
             : null;
+        if ($branchFilter) {
+            $branchFilter = array_values(array_filter($branchFilter, function ($id) {
+                return $id !== null && $id !== '';
+            }));
+            if ($branchFilter === []) {
+                $branchFilter = null;
+            }
+        }
         $assigneeFilter = $request->filled('assignee') && $request->input('assignee') !== 'all'
             ? (int) $request->input('assignee')
             : null;

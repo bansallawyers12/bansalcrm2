@@ -122,13 +122,20 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 
 Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
 
-## Phase 3 candidates
+## Phase 3 — Filter pages (Done)
 
-1. **Audit Logs** — `resources/views/Admin/auditlogs/index.blade.php`
-2. **Sheets Insights** — `resources/views/Admin/sheets/insights.blade.php`
-3. AJAX / destroy-reinit chains (related files, partner type, intrested_branch, application handlers)
+| Page | Layout | Controls |
+|------|--------|----------|
+| `Admin/auditlogs/index.blade.php` | admin | `.audit-staff-select` — single staff filter |
+| `Admin/sheets/insights.blade.php` | admin | `.insights-branch-select` — multi branch filter (`closeAfterSelect: false`; no placeholder — avoids empty `branch[]` in GET) |
 
-## Pilot pages (superseded — see Phase 3)
+## Phase 4 candidates
+
+1. AJAX / destroy-reinit chains (related files, partner type, intrested_branch, application handlers)
+2. Invoice, staff, agents, action pages (assorted `.select2` / `.timezoneselect2`)
+3. Header modern search (`modern-search.js`) — last (high visibility)
+
+## Pilot pages (superseded — see Phase 4)
 
 ## Phase 0 test checklist
 
@@ -200,4 +207,5 @@ s.remove();
 | 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
 | 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
 | 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
-| 3+ | AJAX chains, audit logs, insights, remaining pages | Pending |
+| 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
+| 4+ | AJAX chains, invoice/staff/agents, modern search | Pending |
