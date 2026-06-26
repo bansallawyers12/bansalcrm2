@@ -5,7 +5,7 @@
  * 
  * Dependencies:
  *   - jQuery
- *   - Select2
+ *   - Tom Select (via RecipientSelect / tomselect-init.js)
  *   - Summernote (for rich text editing)
  *   - config.js (App object)
  */
@@ -27,8 +27,9 @@
         console.log('[email-handlers.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && 
-                    typeof $.fn.select2 === 'function') {
+                if (typeof $ !== 'undefined' &&
+                    typeof TomSelect !== 'undefined' &&
+                    typeof window.RecipientSelect !== 'undefined') {
                     console.log('[email-handlers.js] All vendor libraries detected!');
                     resolve();
                 } else {
@@ -375,7 +376,9 @@ jQuery(document).ready(function($){
         
         // Validate required fields before submission
         var emailFrom = $('select[name="email_from"]').val();
-        var emailTo = $('.js-data-example-ajax').val();
+        var emailTo = window.RecipientSelect
+            ? RecipientSelect.getValue('#emailmodal .js-data-example-ajax')
+            : $('#emailmodal .js-data-example-ajax').val();
         var subject = $('.selectedsubject').val();
         
         if (!emailFrom || emailFrom === '') {

@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-QTnfLwEv.js";import{t}from"./jquery-BPjCcfmm.js";var n=e(t(),1);window.jQuery===void 0?(window.$=window.jQuery=n.default,console.log(`jQuery `+n.default.fn.jquery+` loaded via Vite`)):console.log(`jQuery `+window.jQuery.fn.jquery+` already loaded from CDN`);

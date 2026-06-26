@@ -1,38 +1,38 @@
 {
-  "_chunk-QTnfLwEv.js": {
-    "file": "assets/chunk-QTnfLwEv.js",
-    "name": "chunk"
-  },
-  "_jquery-CozVaE-x.js": {
-    "file": "assets/jquery-CozVaE-x.js",
+  "_jquery-BPjCcfmm.js": {
+    "file": "assets/jquery-BPjCcfmm.js",
     "name": "jquery",
     "imports": [
-      "_chunk-QTnfLwEv.js"
+      "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
+  "_rolldown-runtime-QTnfLwEv.js": {
+    "file": "assets/rolldown-runtime-QTnfLwEv.js",
+    "name": "rolldown-runtime"
+  },
   "resources/js/app.js": {
-    "file": "assets/app-BCgyiisG.js",
+    "file": "assets/app-DxLT-DV4.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_chunk-QTnfLwEv.js"
+      "_rolldown-runtime-QTnfLwEv.js"
     ]
   },
   "resources/js/fullcalendar-init.js": {
-    "file": "assets/fullcalendar-init-BAJf9oxD.js",
+    "file": "assets/fullcalendar-init-DfbF2P9X.js",
     "name": "fullcalendar-init",
     "src": "resources/js/fullcalendar-init.js",
     "isEntry": true
   },
   "resources/js/jquery-init.js": {
-    "file": "assets/jquery-init-B5l-Y9fj.js",
+    "file": "assets/jquery-init-B6E86mKc.js",
     "name": "jquery-init",
     "src": "resources/js/jquery-init.js",
     "isEntry": true,
     "imports": [
-      "_chunk-QTnfLwEv.js",
-      "_jquery-CozVaE-x.js"
+      "_rolldown-runtime-QTnfLwEv.js",
+      "_jquery-BPjCcfmm.js"
     ]
   },
   "resources/js/legacy-init.js": {
@@ -42,28 +42,28 @@
     "isEntry": true
   },
   "resources/js/pages/admin/account.js": {
-    "file": "assets/account-hlrKVmsG.js",
+    "file": "assets/account-B5w1pLkh.js",
     "name": "account",
     "src": "resources/js/pages/admin/account.js",
     "isEntry": true
   },
   "resources/js/ui-libs.js": {
-    "file": "assets/ui-libs-Bu8kK_1z.js",
+    "file": "assets/ui-libs-DKYRzJn9.js",
     "name": "ui-libs",
     "src": "resources/js/ui-libs.js",
     "isEntry": true,
     "imports": [
-      "_chunk-QTnfLwEv.js",
-      "_jquery-CozVaE-x.js"
+      "_rolldown-runtime-QTnfLwEv.js",
+      "_jquery-BPjCcfmm.js"
     ]
   },
   "resources/js/vendor-libs.js": {
-    "file": "assets/vendor-libs-CHnxvzPv.js",
+    "file": "assets/vendor-libs-BRo4iT6X.js",
     "name": "vendor-libs",
     "src": "resources/js/vendor-libs.js",
     "isEntry": true,
     "imports": [
-      "_chunk-QTnfLwEv.js"
+      "_rolldown-runtime-QTnfLwEv.js"
     ],
     "css": [
       "assets/vendor-libs-B8bANzpe.css"

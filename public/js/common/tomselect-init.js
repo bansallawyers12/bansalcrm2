@@ -233,7 +233,7 @@
                 return;
             }
 
-            $.ajax({
+            var ajaxSettings = {
                 url: ajax.url,
                 dataType: ajax.dataType || 'json',
                 data: requestData,
@@ -247,7 +247,13 @@
                 error: function () {
                     callback();
                 }
-            });
+            };
+
+            if (ajax.headers) {
+                ajaxSettings.headers = ajax.headers;
+            }
+
+            $.ajax(ajaxSettings);
         };
     }
 
@@ -296,18 +302,35 @@
         if (config._select2Ajax) {
             config.valueField = config.valueField || 'id';
             config.labelField = config.labelField || 'text';
-            config.searchField = config.searchField || ['text'];
+            config.searchField = config.searchField || ['text', 'name', 'email'];
             config.load = buildAjaxLoader(config._select2Ajax, minimumInputLength);
             config.loadThrottle = config.loadThrottle || config._select2Ajax.delay || 250;
         }
 
+        if (options.multiple) {
+            config.plugins = ensurePlugin(config.plugins, 'remove_button');
+        }
+
         if (config._select2Data) {
             config.options = config._select2Data.map(function (item) {
-                return {
+                var opt = {
                     value: item.id != null ? item.id : item.value,
                     text: item.text,
                     html: item.html
                 };
+                if (item.name != null) {
+                    opt.name = item.name;
+                }
+                if (item.email != null) {
+                    opt.email = item.email;
+                }
+                if (item.status != null) {
+                    opt.status = item.status;
+                }
+                if (item.title != null) {
+                    opt.title = item.title;
+                }
+                return opt;
             });
         }
 

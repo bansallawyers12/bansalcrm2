@@ -9,7 +9,7 @@
     } else {
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && typeof $.fn.select2 === 'function') {
+                if (typeof $ !== 'undefined' && typeof TomSelect !== 'undefined') {
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -17,6 +17,10 @@
             };
             check();
         });
+    }
+
+    if (typeof window.waitForTomSelect === 'function') {
+        await window.waitForTomSelect();
     }
 
     // ============================================================================

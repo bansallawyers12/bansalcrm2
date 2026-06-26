@@ -1,7 +1,7 @@
 /**
- * Recipient Select — shared Select2 AJAX recipient picker (email modals, notes CC, etc.).
+ * Recipient Select — shared Tom Select AJAX recipient picker (email modals, notes CC, etc.).
  *
- * Phase 2.5 consolidation; Phase 3 will swap internals to Tom Select via tomselect-init.js.
+ * Phase 3: Tom Select backend via tomselect-init.js (Select2 API surface retained for callers).
  *
  * Usage:
  *   RecipientSelect.init('#emailmodal .js-data-example-ajax', { url: '/clients/get-recipients', dropdownParent: '#emailmodal' });
@@ -14,6 +14,26 @@
 
     function get$() {
         return window.jQuery;
+    }
+
+    function resolveElement(el) {
+        if (!el) {
+            return null;
+        }
+        if (el instanceof Element) {
+            return el;
+        }
+        if (typeof el === 'string') {
+            return document.querySelector(el);
+        }
+        var $ = get$();
+        if ($ && (el instanceof $ || el.jquery !== undefined)) {
+            return el.length ? el[0] : null;
+        }
+        if (el.nodeType === 1) {
+            return el;
+        }
+        return null;
     }
 
     function resolveUrl(options) {
@@ -107,31 +127,34 @@
         return repo.name || repo.text || '';
     }
 
-    function resolveJQuery(el) {
-        var $ = get$();
-        if (!$) {
-            return null;
+    function isEnhanced(element) {
+        if (!element) {
+            return false;
         }
-        if (!el) {
-            return $();
+        if (typeof window.isTomSelect === 'function' && window.isTomSelect(element)) {
+            return true;
         }
-        if (el instanceof $) {
-            return el;
+        if (typeof window.isSelect2 === 'function' && window.isSelect2(element)) {
+            return true;
         }
-        return $(el);
+        return false;
     }
 
     function destroyRecipientSelect(el) {
+        if (typeof window.destroyEnhancedSelect === 'function') {
+            window.destroyEnhancedSelect(el);
+            return;
+        }
+        var element = resolveElement(el);
+        if (!element) {
+            return;
+        }
+        if (typeof window.destroyTomSelect === 'function') {
+            window.destroyTomSelect(element);
+        }
         var $ = get$();
-        if (!$) {
-            return;
-        }
-        var $el = resolveJQuery(el);
-        if (!$el || !$el.length) {
-            return;
-        }
-        if ($el.data('select2')) {
-            $el.select2('destroy');
+        if ($ && element && $(element).data('select2')) {
+            $(element).select2('destroy');
         }
     }
 
@@ -159,109 +182,45 @@
         return ajax;
     }
 
-    function ensureMultipleAttribute($el, isMultiple) {
-        if (!isMultiple || !$el || !$el.length) {
+    function ensureMultipleAttribute(element, isMultiple) {
+        if (!isMultiple || !element) {
             return;
         }
-        $el.each(function () {
-            if (!this.hasAttribute('multiple')) {
-                this.setAttribute('multiple', 'multiple');
-            }
-        });
+        if (!element.hasAttribute('multiple')) {
+            element.setAttribute('multiple', 'multiple');
+        }
     }
 
-    function initRecipientSelect(el, options) {
+    function buildInitOptions(url, options) {
         options = options || {};
-        var $ = get$();
-
-        if (!$ || typeof $.fn.select2 !== 'function') {
-            console.warn('[RecipientSelect] Select2 not available');
-            return;
-        }
-
-        var $el = resolveJQuery(el);
-        if (!$el || !$el.length) {
-            return;
-        }
-
-        if (options.force || options.reinit) {
-            destroyRecipientSelect($el);
-        } else if ($el.data('select2')) {
-            return;
-        }
-
-        var url = resolveUrl(options);
-        var dropdownParent = options.dropdownParent;
-        if (dropdownParent) {
-            dropdownParent = resolveJQuery(dropdownParent);
-        }
-
         var isMultiple = options.multiple !== false;
-        ensureMultipleAttribute($el, isMultiple);
 
-        var select2Options = {
+        var initOpts = {
             multiple: isMultiple,
-            closeOnSelect: options.closeOnSelect === false ? false : (isMultiple ? false : true),
-            dropdownParent: dropdownParent,
+            closeOnSelect: false,
+            dropdownParent: options.dropdownParent,
+            width: '100%',
             ajax: buildAjaxOptions(url, options),
             templateResult: formatRepo,
             templateSelection: formatRepoSelection
         };
 
         if (options.minimumInputLength) {
-            select2Options.minimumInputLength = options.minimumInputLength;
+            initOpts.minimumInputLength = options.minimumInputLength;
         }
 
-        $el.select2(select2Options);
+        return initOpts;
     }
 
-    function initRecipientSelects(selector, options) {
-        var $ = get$();
-        if (!$) {
-            return;
-        }
-        $(selector).each(function () {
-            initRecipientSelect(this, options);
-        });
-    }
-
-    function reinitRecipientSelect(el, options) {
+    function buildStaticOptions(options) {
         options = options || {};
-        options.reinit = true;
-        initRecipientSelect(el, options);
-    }
-
-    function setRecipientSelectData(el, entries, options) {
-        options = options || {};
-        var $ = get$();
-
-        if (!$ || typeof $.fn.select2 !== 'function') {
-            return;
-        }
-
-        var $el = resolveJQuery(el);
-        if (!$el || !$el.length) {
-            return;
-        }
-
-        destroyRecipientSelect($el);
-
-        var ids = (entries || []).map(function (e) {
-            return String(e.id);
-        });
-        var dropdownParent = options.dropdownParent;
-        if (dropdownParent) {
-            dropdownParent = resolveJQuery(dropdownParent);
-        }
-
         var isMultiple = options.multiple !== false;
-        ensureMultipleAttribute($el, isMultiple);
 
-        $el.select2({
+        return {
             multiple: isMultiple,
-            closeOnSelect: options.closeOnSelect === false ? false : false,
-            dropdownParent: dropdownParent,
-            data: entries || [],
+            closeOnSelect: false,
+            dropdownParent: options.dropdownParent,
+            width: '100%',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -271,13 +230,116 @@
             templateSelection: function (data) {
                 return data.text;
             }
-        });
+        };
+    }
 
-        $el.val(ids).trigger('change');
+    function initRecipientSelect(el, options) {
+        options = options || {};
+
+        if (typeof TomSelect === 'undefined' || typeof window.initTomSelect !== 'function') {
+            console.warn('[RecipientSelect] Tom Select not available');
+            return null;
+        }
+
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+
+        if (options.force || options.reinit) {
+            destroyRecipientSelect(element);
+        } else if (isEnhanced(element)) {
+            return element.tomselect || null;
+        }
+
+        var isMultiple = options.multiple !== false;
+        ensureMultipleAttribute(element, isMultiple);
+
+        return window.initTomSelect(element, buildInitOptions(resolveUrl(options), options));
+    }
+
+    function initRecipientSelects(selector, options) {
+        var instances = [];
+        document.querySelectorAll(selector).forEach(function (element) {
+            var instance = initRecipientSelect(element, options);
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+        return instances;
+    }
+
+    function reinitRecipientSelect(el, options) {
+        if (typeof window.reinitTomSelect === 'function') {
+            var element = resolveElement(el);
+            if (!element) {
+                return null;
+            }
+            ensureMultipleAttribute(element, (options && options.multiple !== false));
+            return window.reinitTomSelect(element, buildInitOptions(resolveUrl(options || {}), options || {}));
+        }
+        options = options || {};
+        options.reinit = true;
+        return initRecipientSelect(el, options);
+    }
+
+    function setRecipientSelectData(el, entries, options) {
+        options = options || {};
+
+        if (typeof TomSelect === 'undefined' || typeof window.initTomSelect !== 'function') {
+            return;
+        }
+
+        var element = resolveElement(el);
+        if (!element) {
+            return;
+        }
+
+        destroyRecipientSelect(element);
+
+        var ids = (entries || []).map(function (e) {
+            return String(e.id);
+        });
+        var isMultiple = options.multiple !== false;
+        ensureMultipleAttribute(element, isMultiple);
+
+        var initOpts = buildStaticOptions(options);
+        initOpts.data = entries || [];
+
+        window.initTomSelect(element, initOpts);
+
+        if (typeof window.setEnhancedSelectValue === 'function') {
+            window.setEnhancedSelectValue(element, ids, true);
+        } else if (element.tomselect) {
+            element.tomselect.setValue(ids, true);
+        }
     }
 
     function setClientEmailRecipient(el, id, name, email, status, options) {
         setRecipientSelectData(el, [buildRecipientEntry(id, name, email, status || 'Client')], options);
+    }
+
+    function getRecipientSelectValue(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+        if (element.tomselect) {
+            var value = element.tomselect.getValue();
+            if (Array.isArray(value)) {
+                return value;
+            }
+            return value ? [value] : [];
+        }
+        var $ = get$();
+        if ($) {
+            var nativeVal = $(element).val();
+            if (Array.isArray(nativeVal)) {
+                return nativeVal;
+            }
+            return nativeVal ? [nativeVal] : [];
+        }
+        return null;
     }
 
     function collectFromCheckboxes(checkboxSelector, statusLabel) {
@@ -317,6 +379,7 @@
         reinit: reinitRecipientSelect,
         setData: setRecipientSelectData,
         setClientEmailRecipient: setClientEmailRecipient,
+        getValue: getRecipientSelectValue,
         collectFromCheckboxes: collectFromCheckboxes
     };
 
