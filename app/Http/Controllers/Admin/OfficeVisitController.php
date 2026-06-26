@@ -591,9 +591,12 @@ class OfficeVisitController extends Controller
 
         $saved = $obj->save();
 
-        // Notify reception on both: red "Waiting" (escalate to Pls Send) and green "Pls Send" (session started).
-        // Delivery to reception UI is via polling fetchOfficeVisitNotifications (3–5s).
-        if ($saved) {
+        // Create CheckinHistory
+        $objs = new CheckinHistory;
+        $objs->subject = 'has started session';
+        $objs->created_by = Auth::user()->id;
+        $objs->checkin_id = $request->id;
+        $objs->save();
 		    $receiverId = self::resolveReceptionReceiverId($obj);
 		    if ($receiverId <= 0) {
 		    	Log::warning('Office visit attend_session: no valid notification receiver', ['checkin_id' => $obj->id]);

@@ -5,51 +5,69 @@
 (function (window) {
     'use strict';
 
-    function applicationModalDropdownParent() {
-        var modal = document.querySelector('.add_appliation .modal-content') ||
-            document.querySelector('.add_appliation');
-        return modal || document.body;
+    function resolveApplicationModal(el) {
+        if (!el) {
+            return document.querySelector('.add_appliation');
+        }
+        if (el.classList && el.classList.contains('add_appliation')) {
+            return el;
+        }
+        if (el.closest) {
+            return el.closest('.add_appliation');
+        }
+        return document.querySelector('.add_appliation');
     }
 
-    function applicationModalTomSelectOpts(extra) {
+    function applicationModalDropdownParent(modalEl) {
+        var modal = resolveApplicationModal(modalEl);
+        if (!modal) {
+            return document.body;
+        }
+        return modal.querySelector('.modal-content') || modal;
+    }
+
+    function applicationModalTomSelectOpts(modalEl, extra) {
         return Object.assign({
             width: '100%',
-            dropdownParent: applicationModalDropdownParent()
+            dropdownParent: applicationModalDropdownParent(modalEl)
         }, extra || {});
     }
 
-    function readApplicationSelectValue(selector) {
+    function readApplicationSelectValue(el) {
         if (typeof getEnhancedSelectValue === 'function') {
-            return getEnhancedSelectValue(selector);
+            return getEnhancedSelectValue(el);
         }
         if (window.jQuery) {
-            return window.jQuery(selector).val() || '';
+            return window.jQuery(el).val() || '';
         }
-        return '';
+        return el && el.value ? el.value : '';
     }
 
-    function reloadApplicationSelectHtml(selector, html) {
+    function reloadApplicationSelectHtml(el, html, modalEl) {
+        var element = typeof el === 'string' ? document.querySelector(el) : el;
+        if (!element) {
+            return null;
+        }
         if (typeof reinitTomSelectAfterHtml === 'function') {
-            return reinitTomSelectAfterHtml(selector, html, applicationModalTomSelectOpts());
+            return reinitTomSelectAfterHtml(element, html, applicationModalTomSelectOpts(modalEl || element));
         }
-        if (window.jQuery) {
-            window.jQuery(selector).html(html);
-        }
+        element.innerHTML = html;
         return null;
     }
 
-    function clearApplicationSelectValue(selector) {
+    function clearApplicationSelectValue(el, silent) {
         if (typeof clearEnhancedSelectValue === 'function') {
-            clearEnhancedSelectValue(selector, true);
+            clearEnhancedSelectValue(el, silent !== false);
             return;
         }
         if (window.jQuery) {
-            window.jQuery(selector).val('').trigger('change');
+            window.jQuery(el).val('').trigger('change');
         }
     }
 
-    function setApplicationProductDisabled(disabled) {
-        var productEl = document.querySelector('.add_appliation #product');
+    function setApplicationProductDisabled(modalEl, disabled) {
+        var modal = resolveApplicationModal(modalEl);
+        var productEl = modal ? modal.querySelector('#product') : null;
         if (productEl && productEl.tomselect) {
             if (disabled) {
                 productEl.tomselect.disable();
@@ -58,17 +76,46 @@
             }
             return;
         }
-        if (window.jQuery) {
-            window.jQuery('.add_appliation #product').prop('disabled', disabled);
+        if (productEl) {
+            productEl.disabled = !!disabled;
         }
     }
 
-    function destroyApplicationModalSelects() {
+    function destroyApplicationModalSelects(modalEl) {
+        var modal = resolveApplicationModal(modalEl);
+        if (!modal) {
+            return;
+        }
         ['#workflow', '#partner', '#product'].forEach(function (selector) {
-            if (typeof destroyEnhancedSelect === 'function') {
-                destroyEnhancedSelect('.add_appliation ' + selector);
+            var el = modal.querySelector(selector);
+            if (el && typeof destroyEnhancedSelect === 'function') {
+                destroyEnhancedSelect(el);
             }
         });
+    }
+
+    function resetApplicationModalSelects(modalEl) {
+        var modal = resolveApplicationModal(modalEl);
+        if (!modal) {
+            return;
+        }
+        destroyApplicationModalSelects(modal);
+        var partner = modal.querySelector('#partner');
+        var product = modal.querySelector('#product');
+        var workflow = modal.querySelector('#workflow');
+        if (partner) {
+            partner.innerHTML = '<option value="">Please Select a Partner & Branch</option>';
+            partner.classList.add('tomselect');
+        }
+        if (product) {
+            product.innerHTML = '<option value="">Please Select a Product</option>';
+            product.disabled = false;
+            product.classList.add('tomselect');
+        }
+        if (workflow) {
+            workflow.value = '';
+            workflow.classList.add('tomselect');
+        }
     }
 
     function resolveCascadeUrl(keys, fallbackPath) {
@@ -81,7 +128,14 @@
                 }
             }
         }
-        return fallbackPath || '';
+        if (!fallbackPath) {
+            return '';
+        }
+        var base = '';
+        if (typeof site_url !== 'undefined' && site_url) {
+            base = String(site_url).replace(/\/+$/, '');
+        }
+        return base + fallbackPath;
     }
 
     function bindApplicationModalCascade(getPartnerBranchUrl, getBranchProductUrl) {
@@ -95,8 +149,9 @@
         var productUrl = getBranchProductUrl || resolveCascadeUrl(['getBranchProduct', 'getbranchproduct'], '/getbranchproduct');
 
         $(document).on('change', '.add_appliation #workflow', function () {
-            var v = readApplicationSelectValue('.add_appliation #workflow');
-            if (v === '') {
+            var modal = resolveApplicationModal(this);
+            var v = readApplicationSelectValue(this);
+            if (v === '' || !modal) {
                 return;
             }
             $('.popuploader').show();
@@ -106,53 +161,73 @@
                 data: { cat_id: v },
                 success: function (response) {
                     $('.popuploader').hide();
-                    reloadApplicationSelectHtml('.add_appliation #partner', response);
-                    clearApplicationSelectValue('.add_appliation #partner');
-                    reloadApplicationSelectHtml('.add_appliation #product', '<option value="">Please Select a Product</option>');
-                    clearApplicationSelectValue('.add_appliation #product');
-                    setApplicationProductDisabled(false);
+                    reloadApplicationSelectHtml(modal.querySelector('#partner'), response, modal);
+                    clearApplicationSelectValue(modal.querySelector('#partner'), true);
+                    reloadApplicationSelectHtml(
+                        modal.querySelector('#product'),
+                        '<option value="">Please Select a Product</option>',
+                        modal
+                    );
+                    clearApplicationSelectValue(modal.querySelector('#product'), true);
+                    setApplicationProductDisabled(modal, false);
+                },
+                error: function () {
+                    $('.popuploader').hide();
                 }
             });
         });
 
         $(document).on('change', '.add_appliation #partner', function () {
-            var v = readApplicationSelectValue('.add_appliation #partner');
+            var modal = resolveApplicationModal(this);
+            var v = readApplicationSelectValue(this);
             var explode = v ? String(v).split('_') : [];
-            if (v === '') {
+            if (v === '' || !modal) {
                 return;
             }
+            var productEl = modal.querySelector('#product');
             $('.popuploader').show();
-            $('.add_appliation #product').attr('data-valid', '');
-            setApplicationProductDisabled(true);
-            $('.add_appliation .product_error').html('');
+            if (productEl) {
+                productEl.setAttribute('data-valid', '');
+            }
+            setApplicationProductDisabled(modal, true);
+            $(modal).find('.product_error').html('');
             $.ajax({
                 url: productUrl,
                 type: 'GET',
                 data: { cat_id: explode[0] },
                 success: function (response) {
                     $('.popuploader').hide();
-                    reloadApplicationSelectHtml('.add_appliation #product', response);
-                    setApplicationProductDisabled(false);
-                    $('.add_appliation #product').attr('data-valid', 'required');
-                    clearApplicationSelectValue('.add_appliation #product');
+                    reloadApplicationSelectHtml(productEl, response, modal);
+                    setApplicationProductDisabled(modal, false);
+                    if (productEl) {
+                        productEl.setAttribute('data-valid', 'required');
+                    }
+                    clearApplicationSelectValue(productEl, true);
                 },
                 error: function () {
                     $('.popuploader').hide();
-                    setApplicationProductDisabled(false);
-                    $('.add_appliation #product').attr('data-valid', 'required');
-                    reloadApplicationSelectHtml('.add_appliation #product', '<option value="">Select Product</option>');
+                    setApplicationProductDisabled(modal, false);
+                    if (productEl) {
+                        productEl.setAttribute('data-valid', 'required');
+                    }
+                    reloadApplicationSelectHtml(
+                        productEl,
+                        '<option value="">Select Product</option>',
+                        modal
+                    );
                 }
             });
         });
 
-        $('.add_appliation').on('hidden.bs.modal', function () {
-            destroyApplicationModalSelects();
+        $(document).on('hidden.bs.modal', '.add_appliation', function () {
+            resetApplicationModalSelects(this);
         });
     }
 
     window.ApplicationModalCascade = {
         bind: bindApplicationModalCascade,
         destroySelects: destroyApplicationModalSelects,
+        resetSelects: resetApplicationModalSelects,
         clearSelectValue: clearApplicationSelectValue
     };
 

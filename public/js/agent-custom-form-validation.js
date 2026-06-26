@@ -1530,10 +1530,12 @@ $('#add_application').modal('hide');
 							success: function(response){
 								$('.popuploader').hide(); 
 								var obj = $.parseJSON(response);
-								if (typeof ApplicationModalCascade !== 'undefined') {
-									ApplicationModalCascade.clearSelectValue('.add_appliation #workflow', true);
-									ApplicationModalCascade.clearSelectValue('.add_appliation #partner', true);
-									ApplicationModalCascade.clearSelectValue('.add_appliation #product', true);
+								var appModal = document.querySelector('.add_appliation.show') ||
+									document.querySelector('.add_appliation');
+								if (appModal && typeof ApplicationModalCascade !== 'undefined') {
+									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#workflow'), true);
+									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#partner'), true);
+									ApplicationModalCascade.clearSelectValue(appModal.querySelector('#product'), true);
 								} else if (typeof clearEnhancedSelectValue === 'function') {
 									clearEnhancedSelectValue('.add_appliation #workflow', true);
 									clearEnhancedSelectValue('.add_appliation #partner', true);

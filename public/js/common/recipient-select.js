@@ -58,6 +58,12 @@
         return '/clients/get-recipients';
     }
 
+    function statusBadgeClass(status) {
+        return status === 'Archived'
+            ? 'badge bg-secondary select2-result-repository__statistics'
+            : 'badge bg-warning text-dark select2-result-repository__statistics';
+    }
+
     function buildRecipientHtml(name, email, status) {
         name = name || '';
         email = email || '';
@@ -70,7 +76,7 @@
             "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>" + email + "</small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
-            "<span class='badge bg-warning text-dark select2-result-repository__statistics'>" + status + "</span>" +
+            "<span class='" + statusBadgeClass(status) + "'>" + status + "</span>" +
             "</div></div>"
         );
     }
@@ -112,7 +118,7 @@
             "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small></div>" +
             "</div></div>" +
             "<div class='ag-flex ag-flex-column ag-align-end'>" +
-            "<span class='badge bg-warning text-dark select2-result-repository__statistics'></span>" +
+            "<span class='" + statusBadgeClass(repo.status) + "'></span>" +
             "</div></div>"
         );
 

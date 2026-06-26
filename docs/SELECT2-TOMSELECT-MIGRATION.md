@@ -193,9 +193,12 @@ Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6b).
 
 | Item | Detail |
 |------|--------|
-| URL fallbacks | `/getpartnerbranch`, `/getbranchproduct` (not `/admin/…`) |
-| Product disable during AJAX | `tomselect.disable()` / `enable()` |
+| URL fallbacks | `site_url + /getpartnerbranch` when `App.getUrl` absent (product/agent pages) |
+| Modal scoping | Cascade + destroy scoped to the modal that fired the event |
+| Product disable during AJAX | `tomselect.disable()` / `enable()` on modal-scoped `#product` |
 | Modal destroy on hide | Clears instances so next open re-inits via `initModalTomSelects` |
+| Workflow AJAX error | Hides `.popuploader` on failure |
+| Post-save clear | Uses visible `.add_appliation.show` modal element refs |
 
 ## Phase 6b candidates
 
