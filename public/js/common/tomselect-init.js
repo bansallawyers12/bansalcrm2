@@ -316,9 +316,11 @@
 
         if (config._select2Data) {
             config.options = config._select2Data.map(function (item) {
+                var id = item.id != null ? item.id : item.value;
                 var opt = {
-                    value: item.id != null ? item.id : item.value,
-                    text: item.text,
+                    value: id,
+                    id: id,
+                    text: item.text || item.name || '',
                     html: item.html
                 };
                 if (item.name != null) {

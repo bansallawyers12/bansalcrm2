@@ -114,10 +114,10 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 
 | Area | Migrated | Deferred (still Select2) |
 |------|----------|---------------------------|
-| Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` (`.js-data-example-ajaxcc`), `lead_source`, `subagent` |
+| Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` → **Phase 4** |
 | Partner create/edit | `country`, `branch_country` (add-branch modal) | `#partner_type` / `#getpartnertype` destroy-reinit, `addressselect2` fields |
 | Product create/edit | `product_type`, `intake_month` | `#intrested_product` → `#intrested_branch` destroy/reinit chain |
-| Leads create | Same static set as client create (via `client-create.js`) | `related_files` AJAX |
+| Leads create | Same static set as client create (via `client-create.js`) | `related_files`, `lead_source`, `subagent` → **Phase 4** |
 | Modals (`addclientmodal`, `addpartnermodal`, `addproductmodal`) | Static: `application`, `fee_type`, `template`, `agent_id`, `checklist[]`, `degree_level`, `document_type` | `workflow`/`partner`/`product` chains, `applicationselect2*`, `productselect2`, AJAX `contact_name` |
 
 Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
@@ -129,13 +129,34 @@ Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use glo
 | `Admin/auditlogs/index.blade.php` | admin | `.audit-staff-select` — single staff filter |
 | `Admin/sheets/insights.blade.php` | admin | `.insights-branch-select` — multi branch filter (`closeAfterSelect: false`; no placeholder — avoids empty `branch[]` in GET) |
 
-## Phase 4 candidates
+## Phase 4 — Related Files AJAX + leads static selects (Done)
 
-1. AJAX / destroy-reinit chains (related files, partner type, intrested_branch, application handlers)
+| Area | Migrated | Notes |
+|------|----------|-------|
+| Client create | `select[name="related_files[]"]` | `RecipientSelect.initRelatedFiles()` — AJAX + `minimumInputLength: 1` |
+| Client edit | same | Preloads from `PageConfig.relatedFilesData` / `.relatedfile` hidden inputs |
+| Leads create | related files + `#lead_source` + `subagent` | Removed duplicate inline Select2 block; uses `client-create.js` |
+| `recipient-select.js` | `initRelatedFiles`, `ensureRelatedFiles`, `collectRelatedFileEntries` | Shared with email modals (same API endpoint) |
+
+Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimumInputLength: 1 })` (no placeholder on multi — avoids empty `related_files[]` in POST).
+
+### Phase 4 review fixes (applied)
+
+| Issue | Fix |
+|-------|-----|
+| AJAX `valueField: 'id'` but preloaded options only had `value` | `tomselect-init.js` maps both `id` and `value` on `_select2Data` options |
+| Edit page: `waitForRecipientSelect` missing if script order wrong | Fallback poll + explicit `App.getUrl('getRecipients')` URL |
+| Multi placeholder could inject empty option | Removed `placeholder` from related files init |
+| `#lead_source` subagent toggle after Tom Select init | `syncSubagentVisibility()` uses `tomselect.getValue()` |
+| `resolveUrl` missed `getRecipients` key used on edit page | Added `App.getUrl('getRecipients')` |
+
+## Phase 5 candidates
+
+1. Destroy-reinit chains — partner type, `intrested_branch`, application/modal handlers
 2. Invoice, staff, agents, action pages (assorted `.select2` / `.timezoneselect2`)
 3. Header modern search (`modern-search.js`) — last (high visibility)
 
-## Pilot pages (superseded — see Phase 4)
+## Pilot pages (superseded — see Phase 5)
 
 ## Phase 0 test checklist
 
@@ -208,4 +229,5 @@ s.remove();
 | 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
 | 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
 | 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
-| 4+ | AJAX chains, invoice/staff/agents, modern search | Pending |
+| 4 | Related files AJAX + leads source/subagent | **Done** |
+| 5+ | Destroy-reinit chains, invoice/staff/agents, modern search | Pending |

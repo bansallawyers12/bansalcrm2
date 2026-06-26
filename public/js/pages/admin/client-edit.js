@@ -29,8 +29,8 @@
         console.log('[client-edit.js] vendorLibsReady not found, polling for libraries...');
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined' && 
-                    typeof $.fn.select2 === 'function' &&
+                if (typeof $ !== 'undefined' &&
+                    typeof window.initTomSelect === 'function' &&
                     typeof flatpickr !== 'undefined') {
                     console.log('[client-edit.js] Required vendor libraries detected!');
                     resolve();
@@ -973,127 +973,41 @@ jQuery(document).ready(function($){
     });
     
     // ============================================================================
-    // RELATED FILES SELECT2
+    // RELATED FILES (Tom Select AJAX — Phase 4)
     // ============================================================================
-    
-    var relatedFilesData = App.getPageConfig('relatedFilesData');
-    if (!relatedFilesData || relatedFilesData.length === 0) {
-        relatedFilesData = [];
-        $('.relatedfile').each(function() {
-            var $item = $(this);
-            var id = $item.data('id');
-            var name = $item.data('name');
-            var email = $item.data('email');
-            if (id) {
-                relatedFilesData.push({
-                    id: id,
-                    name: name || '',
-                    email: email || ''
-                });
-            }
-        });
-    }
-    if (relatedFilesData && relatedFilesData.length > 0) {
-        var array = [];
-        var data = [];
-        
-        relatedFilesData.forEach(function(file) {
-            array.push(file.id);
-            var status = 'Client';
-            
-            data.push({
-                id: file.id,
-                name: file.name,
-                email: file.email,
-                status: status,
-                text: file.name,
-                html: "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                    "<div class='ag-flex ag-align-start'>" +
-                    "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'>"+file.name+"</span>&nbsp;</div>" +
-                    "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+file.email+"</small></div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                    "<span class='ui label yellow select2-result-repository__statistics'>"+ status +"</span>" +
-                    "</div>" +
-                    "</div>",
-                title: file.name
-            });
-        });
-        
-        $(".js-data-example-ajaxcc").select2({
-            data: data,
-            escapeMarkup: function(markup) {
-                return markup;
-            },
-            templateResult: function(data) {
-                return data.html;
-            },
-            templateSelection: function(data) {
-                return data.text;
-            }
-        });
-        $('.js-data-example-ajaxcc').val(array);
-        $('.js-data-example-ajaxcc').trigger('change');
-    }
-    
-    // Re-initialize with AJAX support (this overrides the previous initialization)
-    console.log('About to initialize Select2 with AJAX for:', $('.js-data-example-ajaxcc').length, 'elements');
-    $('.js-data-example-ajaxcc').select2({
-        multiple: true,
-        closeOnSelect: false,
-        ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-            dataType: 'json',
-            data: function (params) {
-                console.log('AJAX data function called with params:', params);
-                return {
-                    q: params.term, // search term
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data) {
-                console.log('AJAX processResults called with:', data);
-                return {
-                    results: data.items
-                };
-            },
-            cache: true
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepoSelection
-    });
-    console.log('Select2 initialized. Configuration:', $('.js-data-example-ajaxcc').data('select2'));
-    
-    function formatRepo (repo) {
-        if (repo.loading) {
-            return repo.text;
+
+    function initEditRelatedFiles() {
+        if (!document.querySelector('select[name="related_files[]"]')) {
+            return;
         }
-
-        var $container = $(
-            "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-            "<div class='ag-flex ag-align-start'>" +
-            "<div class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-            "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small></div>" +
-            "</div>" +
-            "</div>" +
-            "<div class='ag-flex ag-flex-column ag-align-end'>" +
-            "<span class='ui label yellow select2-result-repository__statistics'></span>" +
-            "</div>" +
-            "</div>"
-        );
-
-        $container.find(".select2-result-repository__title").text(repo.name);
-        $container.find(".select2-result-repository__description").text(repo.email);
-        $container.find(".select2-result-repository__statistics").append(repo.status);
- 
-        return $container;
+        var opts = {
+            url: (typeof App !== 'undefined' && typeof App.getUrl === 'function' && App.getUrl('getRecipients'))
+                || (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.getRecipients)
+                || '/clients/get-recipients',
+            minimumInputLength: 1
+        };
+        if (window.RecipientSelect && typeof window.RecipientSelect.ensureRelatedFiles === 'function') {
+            window.RecipientSelect.ensureRelatedFiles(opts);
+        } else if (window.RecipientSelect && typeof window.RecipientSelect.initRelatedFiles === 'function') {
+            window.RecipientSelect.initRelatedFiles(opts);
+        }
     }
 
-    function formatRepoSelection (repo) {
-        return repo.name || repo.text;
+    if (typeof waitForRecipientSelect === 'function') {
+        waitForRecipientSelect().then(initEditRelatedFiles);
+    } else if (typeof window.RecipientSelect !== 'undefined') {
+        initEditRelatedFiles();
+    } else {
+        var editRelatedAttempts = 0;
+        var editRelatedTimer = setInterval(function () {
+            editRelatedAttempts += 1;
+            if (typeof window.RecipientSelect !== 'undefined' || editRelatedAttempts >= 100) {
+                clearInterval(editRelatedTimer);
+                initEditRelatedFiles();
+            }
+        }, 50);
     }
-    
+
     // ============================================================================
     // PROFILE IMAGE PREVIEW
     // ============================================================================

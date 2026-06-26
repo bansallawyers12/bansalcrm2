@@ -634,7 +634,7 @@
 							<div class="content-grid">
 								<div class="form-group" style="grid-column: span 2;">
 									<label for="related_files">Similar Related Files</label>
-									<select class="form-control js-data-example-ajaxcc select2" name="related_files[]" multiple>
+									<select class="form-control tomselect related-files-select" name="related_files[]" multiple>
 									</select>
 									@if ($errors->has('related_files'))
 										<span class="text-danger">{{ @$errors->first('related_files') }}</span>
