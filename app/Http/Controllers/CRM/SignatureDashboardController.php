@@ -419,9 +419,9 @@ class SignatureDashboardController extends Controller
         $emailsSent = 0;
         $errors = [];
 
-        // Configure mailer - uses .env when no From email provided, else uses emails table
+        // Signature emails use info@ (config) — not MAIL_FROM_ADDRESS / noreply@
         $emailService = app(\App\Services\EmailService::class);
-        $emailConfig = $emailService->configureMailerForEmail($request->input('from_email'));
+        $emailConfig = $emailService->configureMailerForSignature($request->input('from_email'));
         if (!$emailConfig) {
             return back()->with('error', 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.');
         }

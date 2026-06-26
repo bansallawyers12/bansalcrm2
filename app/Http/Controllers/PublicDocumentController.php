@@ -931,9 +931,9 @@ class PublicDocumentController extends Controller
                 return redirect()->back()->with('error', 'Maximum reminders already sent.');
             }
 
-            // Send reminder email via AWS SES
+            // Send reminder email via AWS SES (signature From address)
             $emailService = app(\App\Services\EmailService::class);
-            $emailConfig = $emailService->configureMailerForEmail(null);
+            $emailConfig = $emailService->configureMailerForSignature(null);
             if (!$emailConfig) {
                 return redirect()->back()->with('error', 'No email configuration available. Configure MAIL_* in .env or add an active email in Admin Console.');
             }

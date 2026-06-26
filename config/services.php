@@ -33,6 +33,8 @@ return [
     'ses_crm' => [
         'senders' => env('SES_SENDERS', env('MAIL_FROM_ADDRESS', '')),
         'from_email' => env('SES_FROM_EMAIL', env('MAIL_FROM_ADDRESS', '')),
+        // Signature request / reminder emails only (does not change MAIL_FROM_ADDRESS for other mail).
+        'signature_from_email' => env('SIGNATURE_FROM_EMAIL', 'info@bansaleducation.com.au'),
     ],
 
     /*

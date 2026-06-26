@@ -106,7 +106,7 @@ class DocumentSignatureController extends Controller
         }
 
         $emailService = app(\App\Services\EmailService::class);
-        $emailConfig = $emailService->configureMailerForEmail(null);
+        $emailConfig = $emailService->configureMailerForSignature(null);
         if (!$emailConfig) {
             return response()->json(['status' => false, 'message' => 'No email configuration. Add active email in Admin Console.'], 500);
         }

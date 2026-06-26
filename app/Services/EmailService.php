@@ -47,6 +47,23 @@ class EmailService
         return $emailConfig;
     }
 
+    /**
+     * From address for document signature emails only (send + reminders).
+     * Uses signature_from_email from config / from_emails table — not MAIL_FROM_ADDRESS.
+     */
+    public function configureMailerForSignature(?string $emailAddress = null): ?object
+    {
+        $address = ($emailAddress && trim($emailAddress) !== '')
+            ? trim($emailAddress)
+            : trim((string) config('services.ses_crm.signature_from_email', 'info@bansaleducation.com.au'));
+
+        if ($address === '') {
+            return $this->getDefaultEmail();
+        }
+
+        return $this->configureMailerForEmail($address);
+    }
+
     public function getAllActiveEmails()
     {
         return FromEmail::where('status', true)

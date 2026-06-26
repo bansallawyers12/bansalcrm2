@@ -63,14 +63,13 @@ class SignatureService
     }
 
     /**
-     * Configure mailer from emails table (not .env).
-     * Uses from_email from options if in DB, else first active email.
+     * Configure mailer for signature emails (info@ by default, not MAIL_FROM_ADDRESS).
      */
     protected function configureMailer(array $options = []): ?\App\Models\FromEmail
     {
         $fromEmail = $options['from_email'] ?? null;
         $emailService = app(EmailService::class);
-        return $emailService->configureMailerForEmail($fromEmail);
+        return $emailService->configureMailerForSignature($fromEmail);
     }
 
     /**
