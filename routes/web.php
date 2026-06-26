@@ -618,9 +618,9 @@ Route::post('/partners/update-student-status', [PartnersController::class, 'upda
 Route::post('/partners/getStudentInfo', [PartnersController::class, 'getStudentInfo'])->name('partners.getStudentInfo');
 Route::post('/partners/getStudentCourseInfo', [PartnersController::class, 'getStudentCourseInfo'])->name('partners.getStudentCourseInfo');
 // Student tab AJAX data endpoint (partner_id query param preferred; {id} kept for legacy URLs)
-Route::get('/partners/getStudentTabData/{id?}', [PartnersController::class, 'getStudentTabData'])->name('partners.getStudentTabData');
-Route::get('/partners/getStudentTabCount/{id?}', [PartnersController::class, 'getStudentTabCount'])->name('partners.getStudentTabCount');
-Route::get('/partners/getStudentTabTotals/{id?}', [PartnersController::class, 'getStudentTabTotals'])->name('partners.getStudentTabTotals');
+Route::match(['get', 'post'], '/partners/getStudentTabData/{id?}', [PartnersController::class, 'getStudentTabData'])->name('partners.getStudentTabData');
+Route::match(['get', 'post'], '/partners/getStudentTabCount/{id?}', [PartnersController::class, 'getStudentTabCount'])->name('partners.getStudentTabCount');
+Route::match(['get', 'post'], '/partners/getStudentTabTotals/{id?}', [PartnersController::class, 'getStudentTabTotals'])->name('partners.getStudentTabTotals');
 Route::get('/partners/exportStudentTabData/{id?}', [PartnersController::class, 'exportStudentTabData'])->name('partners.exportStudentTabData');
 Route::get('/partners/getApplicationTabData/{id?}', [PartnersController::class, 'getApplicationTabData'])->name('partners.getApplicationTabData');
 Route::get('/partners/getAccountsTabData/{id?}', [PartnersController::class, 'getAccountsTabData'])->name('partners.getAccountsTabData');

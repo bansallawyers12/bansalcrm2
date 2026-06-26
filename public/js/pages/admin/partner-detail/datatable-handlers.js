@@ -290,6 +290,22 @@ jQuery(document).ready(function($){
     var initialTotalsDelayMs = 2500;
     var countFetchDelayMs = 3000;
 
+    function studentTabCsrfToken() {
+        return (typeof App !== 'undefined' && App.getCsrf) ? App.getCsrf() : '';
+    }
+
+    function studentTabPost(url, payload, onSuccess) {
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: $.extend({}, payload, { _token: studentTabCsrfToken() }),
+            headers: {
+                'X-CSRF-TOKEN': studentTabCsrfToken()
+            },
+            success: onSuccess
+        });
+    }
+
     function applyStudentTableCounts(api, recordsTotal, recordsFiltered) {
         if (!api) {
             return;
@@ -317,11 +333,19 @@ jQuery(document).ready(function($){
                 $('#' + options.statusFilterId).val()
             );
         }
-        $.get(studentCountUrl, payload, function (resp) {
-            if (!resp || !resp.status) {
-                return;
+        $.ajax({
+            url: studentCountUrl,
+            type: 'POST',
+            data: $.extend({}, payload, { _token: studentTabCsrfToken() }),
+            headers: {
+                'X-CSRF-TOKEN': studentTabCsrfToken()
+            },
+            success: function (resp) {
+                if (!resp || !resp.status) {
+                    return;
+                }
+                applyStudentTableCounts(api, resp.recordsTotal, resp.recordsFiltered);
             }
-            applyStudentTableCounts(api, resp.recordsTotal, resp.recordsFiltered);
         });
     }
 
@@ -386,7 +410,7 @@ jQuery(document).ready(function($){
         if (list === 'active') {
             payload.status_filter = normaliseStudentStatusFilterValue($('#statusFilter').val());
         }
-        $.get(studentTotalsUrl, payload, function (resp) {
+        studentTabPost(studentTotalsUrl, payload, function (resp) {
             if (!resp || !resp.status) {
                 return;
             }
@@ -436,8 +460,12 @@ jQuery(document).ready(function($){
             pageLength: 25,
             ajax: {
                 url: studentDataUrl,
-                type: 'GET',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': studentTabCsrfToken()
+                },
                 data: function (d) {
+                    d._token = studentTabCsrfToken();
                     d.partner_id = partnerNumericId;
                     d.list = options.list;
                     if (deferStudentCounts && (d.start === 0 || d.start === '0')) {
