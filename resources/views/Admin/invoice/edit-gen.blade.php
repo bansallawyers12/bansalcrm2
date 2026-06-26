@@ -78,7 +78,7 @@
 								</div>
 								<div class="form-group"> 
 									<label for="currency">Currency <span class="span_req">*</span></label>
-									<div class="bfh-selectbox bfh-currencies" data-currency="{{$invoicedetail->currency}}" data-flags="true" data-name="currency"></div>
+									@include('partials.currency-aud-field', ['required' => true])
 									@if ($errors->has('currency'))
 										<span class="custom-error" role="alert">
 											<strong>{{ @$errors->first('currency') }}</strong>
@@ -574,7 +574,7 @@ $trLast.after($trNew);
 			grandtotal();
 	
 	});
-	$('.attachfile').on('change',function(){
+    $('.attachfile').on('change',function(){
        // output raw value of file input
       $('.showfilename').html(''); 
 

@@ -371,8 +371,14 @@
         };
     }
 
-    window.formatRepo = formatRepo;
-    window.formatRepoSelection = formatRepoSelection;
+    // Only fill globals when no page-level definition is already present.
+    // recipient-select.js is deferred, so it runs after inline scripts.
+    if (!window.formatRepo) {
+        window.formatRepo = formatRepo;
+    }
+    if (!window.formatRepoSelection) {
+        window.formatRepoSelection = formatRepoSelection;
+    }
 
     var api = {
         resolveUrl: resolveUrl,

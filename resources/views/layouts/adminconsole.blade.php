@@ -34,10 +34,8 @@
  	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
-	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
 	<!-- Template CSS -->
   
-	<link rel="stylesheet" href="{{asset('css/bootstrap-formhelpers.min.css')}}">
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
   
 	<!-- Google Font: Nunito (standardized across CRM) -->
@@ -305,9 +303,6 @@
 	 
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<script src="{{asset('js/bootstrap-timepicker.min.js')}}" defer></script> 
-	
-	<script src="{{asset('js/bootstrap-formhelpers.min.js')}}" defer></script> 
 	@if(request()->is('agent', 'agent/*'))
 	<script src="{{ asset('js/agent-custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/agent-custom-form-validation.js')) }}" defer></script>
 	@else

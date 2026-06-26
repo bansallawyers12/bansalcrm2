@@ -222,7 +222,7 @@ class PartnersController extends Controller
             $obj->legal_name	=	@$requestData['legal_name'];
 			$obj->business_reg_no	=	@$requestData['business_reg_no'];
 			$obj->service_workflow	=	@$requestData['service_workflow'];
-			$obj->currency	=	@$requestData['currency'];
+			$obj->currency	=	'AUD';
 			$obj->address	=	@$requestData['address'];
 			$obj->city	=	@$requestData['city'];
 			$obj->state	=	@$requestData['state'];
@@ -397,7 +397,7 @@ class PartnersController extends Controller
             $obj->legal_name	=	@$requestData['legal_name'];
 			$obj->business_reg_no	=	@$requestData['business_reg_no'];
 			$obj->service_workflow	=	@$requestData['service_workflow'];
-			$obj->currency	=	@$requestData['currency'];
+			$obj->currency	=	'AUD';
 			$obj->address	=	@$requestData['address'];
 			$obj->city	=	@$requestData['city'];
 			$obj->state	=	@$requestData['state'];

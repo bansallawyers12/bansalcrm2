@@ -85,8 +85,7 @@
 								</div>
 							<div class="form-group"> 
 								<label for="currency_display">Currency <span class="span_req">*</span></label>
-								<input type="hidden" name="currency" value="AUD" data-valid="required">
-								<input class="form-control" id="currency_display" type="text" value="Australian dollar (AUD)" readonly>
+								@include('partials.currency-aud-field', ['required' => true])
 								@if ($errors->has('currency'))
 									<span class="custom-error" role="alert">
 										<strong>{{ @$errors->first('currency') }}</strong>

@@ -782,6 +782,20 @@ $(function () {
       });
     }
 
+    // Time-only picker (replaces bootstrap-timepicker)
+    if ($(".timepicker").length) {
+      $(".timepicker").each(function() {
+        flatpickr(this, {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "h:i K",
+          time_24hr: false,
+          minuteIncrement: 15,
+          allowInput: true
+        });
+      });
+    }
+
     // Date range picker
     if ($(".daterange").length) {
       $(".daterange").each(function() {
@@ -801,16 +815,6 @@ $(function () {
           dateFormat: 'Y-m-d',
           allowInput: true
         });
-      }
-    });
-  }
-
-  // Timepicker
-  if (jQuery().timepicker && $(".timepicker").length) {
-    $(".timepicker").timepicker({
-      icons: {
-        up: "fas fa-chevron-up",
-        down: "fas fa-chevron-down"
       }
     });
   }

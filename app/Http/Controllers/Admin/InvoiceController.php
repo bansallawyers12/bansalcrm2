@@ -722,6 +722,7 @@ class InvoiceController extends Controller
 	$obj->notes					=	@$requestData['notes'];  
 	$obj->payment_option		=	@$requestData['paymentoption'];  
 	$obj->attachments			=	$attachfile ? implode(",",$attachfile) : null;
+		$obj->currency				=	'AUD';
 		$obj->status				=	0;  
 		$obj->profile				=	@$pdetail;  
 		$saved				=	$obj->save();  
@@ -817,9 +818,10 @@ class InvoiceController extends Controller
 		$obj->net_fee_rec			=	@$requestData['invoice_net_amount'];
 		$obj->net_incone			=	@$requestData['invoice_net_income'];  
 		$obj->notes					=	@$requestData['notes'];  
-		$obj->payment_option		=	@$requestData['paymentoption'];  
-		$obj->attachments			=	$attachfile;  
-		$obj->status				=	0;  
+	$obj->payment_option		=	@$requestData['paymentoption'];  
+	$obj->attachments			=	$attachfile;  
+	$obj->currency				=	'AUD';
+		$obj->status				=	0;
 		$obj->profile				=	@$pdetail;  
 		$saved				=	$obj->save();  
 		$res= InvoiceDetail::where('invoice_id',$obj->id)->delete();

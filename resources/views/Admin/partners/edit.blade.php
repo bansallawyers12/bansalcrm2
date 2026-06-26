@@ -166,7 +166,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="currency">Currency <span class="span_req">*</span></label>
-																<div class="bfh-selectbox bfh-currencies" data-currency="{{@$fetchedData->currency}}" data-flags="true" data-name="currency"></div>
+																@include('partials.currency-aud-field', ['required' => true])
 																@if ($errors->has('currency'))
 																	<span class="custom-error" role="alert">
 																		<strong>{{ @$errors->first('currency') }}</strong>

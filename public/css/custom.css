@@ -53,9 +53,6 @@
 
 
 .card .card-body .form-group .span_note, .modal .modal-body .form-group .span_note{font-size:10px;line-height:14px;display: block;margin-top: 4px;}
-.bfh-selectbox .bfh-selectbox-options ul li>a>i, .bfh-selectbox .bfh-selectbox-toggle .bfh-selectbox-option i{display:inline-block;} 
-
-.card .card-body ul.nav-pills li.nav-item{margin:0px 5px 5px 0px;}
 .card .card-body .invoice-detail-item .invoice-detail-name{letter-spacing: 0.3px;color: #98a6ad;margin-bottom: 4px;}
 .card .card-body .invoice-detail-item .invoice-detail-value{font-size: 18px;color: #34395e;font-weight: 700;}
 .card .card-body table.vertical_align tbody tr td{vertical-align:top;}
@@ -790,30 +787,6 @@ form[name="add-leads"] select:invalid {
 	outline: none !important;
 	text-decoration: none !important;
 	text-decoration-line: none !important;
-}
-
-/* =============================================================================
-   FIX: Remove Currency Flags (Prevents 404 errors for missing flag images)
-   ============================================================================= */
-/* Hide all bootstrap-formhelpers currency and country flags to prevent 404 errors */
-.bfh-flag-AUD, .bfh-flag-CHF, .bfh-flag-DKK, .bfh-flag-EUR, 
-.bfh-flag-XAF, .bfh-flag-XCD, .bfh-flag-XOF, .bfh-flag-XPF, 
-.bfh-flag-ZAR, .bfh-flag-AD, .bfh-flag-AE, .bfh-flag-AF, 
-.bfh-flag-AG, .bfh-flag-AI, .bfh-flag-AL, .bfh-flag-AM,
-[class*="bfh-flag-"] {
-	background-image: none !important;
-	background: transparent !important;
-	width: 0px !important;
-	height: 0px !important;
-	display: none !important;
-	margin: 0 !important;
-	padding: 0 !important;
-}
-
-/* Hide flag containers if they exist */
-.bfh-selectbox-option .bfh-flag,
-.bootstrap-select .bfh-flag {
-	display: none !important;
 }
 
 /* =============================================================================

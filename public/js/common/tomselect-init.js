@@ -14,7 +14,11 @@
 (function (window) {
     'use strict';
 
-    /** Select2-only keys — never pass through to TomSelect constructor */
+    /**
+     * Select2-only keys — never pass through to TomSelect constructor.
+     * NOTE: dropdownParent is intentionally NOT listed here — it is a valid
+     * Tom Select option with the same name and must be preserved after mapping.
+     */
     var SELECT2_ONLY_KEYS = {
         ajax: true,
         data: true,
@@ -27,7 +31,6 @@
         allowClear: true,
         minimumInputLength: true,
         tags: true,
-        dropdownParent: true,
         multiple: true,
         closeOnSelect: true,
         minimumResultsForSearch: true,
