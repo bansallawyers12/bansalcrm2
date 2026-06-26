@@ -1401,7 +1401,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
 								<label for="branch_country">Country</label>
-							<select class="form-control branch_country select2" name="branch_country" >
+							<select class="form-control branch_country tomselect" name="branch_country" >
 								<option value="">Select</option>
 								@foreach($partnerDetailCountries as $list)
 									<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>

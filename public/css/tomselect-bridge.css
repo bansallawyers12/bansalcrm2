@@ -94,6 +94,24 @@
     overflow: visible !important;
 }
 
+#create_promotion .ts-wrapper,
+#create_promotion .ts-dropdown,
+#edit_promotion .ts-wrapper,
+#edit_promotion .ts-dropdown,
+.addbranch .ts-wrapper,
+.addbranch .ts-dropdown {
+    z-index: 9999 !important;
+}
+
+#create_promotion .modal-body,
+#create_promotion .modal-content,
+#edit_promotion .modal-body,
+#edit_promotion .modal-content,
+.addbranch .modal-body,
+.addbranch .modal-content {
+    overflow: visible !important;
+}
+
 /* Report calendar modals (followup / action calendar) */
 #event-details-modal .ts-wrapper,
 #event-details-modal .ts-dropdown {

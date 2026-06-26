@@ -1088,8 +1088,7 @@
 						</div>
 						<div class="col-12 col-md-12 col-lg-12 ifselectproducts" multiple style="display:none;">
 							<div class="form-group">
-								<select  class="form-control productselect2"  name="selectproduct[]">
-										 <option></option>
+								<select class="form-control tomselect promotion-product-select" name="selectproduct[]" multiple>
 									@foreach($partnerDetailProducts as $plist)
 										<option value="{{ $plist['id'] }}">{{ $plist['name'] }}</option>
 									@endforeach

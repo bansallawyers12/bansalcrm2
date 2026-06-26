@@ -165,7 +165,7 @@ Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimum
 | Partner edit | `partner_type`, `service_workflow` | `initTomSelectAllPreserveValues` (saved selections preserved) |
 | `tomselect-init.js` | `reinitTomSelectAfterHtml`, `compactTomSelectOptions`, `initTomSelectPreserveValue`, `initTomSelectAllPreserveValues` | Shared cascade helpers |
 
-Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6b).
+Add-branch modal `.select2` chain migrated in Phase 6b.
 
 ### Phase 5 review fixes (applied)
 
@@ -200,15 +200,27 @@ Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6b).
 | Workflow AJAX error | Hides `.popuploader` on failure |
 | Post-save clear | Uses visible `.add_appliation.show` modal element refs |
 
-## Phase 6b candidates
+## Phase 6b — Promotion product multi-select + add-branch modal (Done)
 
-1. Modal AJAX `contact_name`, `productselect2` in partner promotion handlers
-2. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
-3. Header modern search (`modern-search.js`) — last
-4. Ongoing sheet stage filter (`.ongoing-filter-select2`)
-5. Partner add-branch modal `.select2` chain
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| `addpartnermodal.blade.php` | `#create_promotion` product picker | `tomselect promotion-product-select` + `multiple`; no empty placeholder option |
+| `PromotionController::getpromotioneditform` | Edit form product picker | Same markup |
+| `promotion-handlers.js` | `initPromotionProductSelects()` | Tom Select multi, `closeOnSelect: false`, `initTomSelectPreserveValue` on AJAX edit load |
+| Partner create/edit | `.addbranch` modal `#branch_country` | Removed Select2 init; Tom Select via `initTomSelect` on modal shown + `compactTomSelectOptions` |
+| `partners/detail.blade.php` | `.addbranch .branch_country` | `select2` → `tomselect` (legacy modal markup aligned) |
+| `tomselect-bridge.css` | Promotion + add-branch modals | Dropdown z-index / overflow rules |
 
-## Pilot pages (superseded — see Phase 6b)
+`contact_name` AJAX fields remain commented out in modal blades — no live migration needed.
+
+## Phase 6c candidates
+
+1. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
+2. Header modern search (`modern-search.js`) — last
+3. Ongoing sheet stage filter (`.ongoing-filter-select2`)
+4. Edit modals static `contact_name` (if uncommented)
+
+## Phase 6b candidates (superseded — see Phase 6c)
 
 ## Phase 0 test checklist
 

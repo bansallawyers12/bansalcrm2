@@ -403,9 +403,13 @@ console.log(timestring);
         $container.find(".select2-result-repository__title").text(repo.name);
         $container.find(".select2-result-repository__description").text(repo.email);
         if(repo.status == 'Archived'){
-            $container.find(".select2resultrepositorystatistics").append('<span class="badge bg-secondary select2-result-repository__statistics">'+repo.status+'</span>');
+            $container.find(".select2resultrepositorystatistics").append(
+                $('<span class="badge bg-secondary select2-result-repository__statistics"></span>').text(repo.status)
+            );
         }else{
-            $container.find(".select2resultrepositorystatistics").append('<span class="badge bg-warning text-dark select2-result-repository__statistics">'+repo.status+'</span>');
+            $container.find(".select2resultrepositorystatistics").append(
+                $('<span class="badge bg-warning text-dark select2-result-repository__statistics"></span>').text(repo.status)
+            );
         }
         return $container;
     }

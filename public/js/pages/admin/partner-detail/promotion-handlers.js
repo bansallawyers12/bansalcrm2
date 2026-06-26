@@ -5,11 +5,74 @@
  *
  * Dependencies:
  *   - jQuery
- *   - Select2
+ *   - Tom Select (tomselect-init.js)
  *   - config.js (App object)
  */
 
 'use strict';
+
+(function initPromotionProductSelectsHelper() {
+    function promotionProductDropdownParent(el) {
+        if (!el) {
+            return null;
+        }
+        var modal = el.closest ? el.closest('.modal-content') || el.closest('.modal') : null;
+        return modal || document.body;
+    }
+
+    function initPromotionProductSelects(context) {
+        if (typeof initTomSelect !== 'function') {
+            return [];
+        }
+
+        var root = context;
+        if (typeof context === 'string') {
+            root = document.querySelector(context);
+        }
+        if (!root) {
+            root = document;
+        }
+
+        var instances = [];
+        var nodes = root.querySelectorAll
+            ? root.querySelectorAll('.promotion-product-select')
+            : [];
+
+        nodes.forEach(function (element) {
+            if (element.tomselect) {
+                return;
+            }
+            if (!element.hasAttribute('multiple')) {
+                element.setAttribute('multiple', 'multiple');
+            }
+
+            var instance;
+            if (typeof initTomSelectPreserveValue === 'function') {
+                instance = initTomSelectPreserveValue(element, {
+                    width: '100%',
+                    multiple: true,
+                    closeOnSelect: false,
+                    dropdownParent: promotionProductDropdownParent(element)
+                });
+            } else {
+                instance = initTomSelect(element, {
+                    width: '100%',
+                    multiple: true,
+                    closeOnSelect: false,
+                    dropdownParent: promotionProductDropdownParent(element)
+                });
+            }
+
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+
+        return instances;
+    }
+
+    window.initPromotionProductSelects = initPromotionProductSelects;
+})();
 
 (async function() {
     if (typeof window.vendorLibsReady !== 'undefined') {
@@ -17,7 +80,7 @@
     } else {
         await new Promise((resolve) => {
             const check = () => {
-                if (typeof $ !== 'undefined') {
+                if (typeof $ !== 'undefined' && typeof initTomSelect === 'function') {
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -34,17 +97,21 @@ jQuery(document).ready(function($){
         var v = $('input[name="apply_to"]:checked').val();
         if(v == 'All Products'){
             $('.ifselectproducts').hide();
-            $('.productselect2').attr('data-valid', '');
+            $('.promotion-product-select').attr('data-valid', '');
         }else{
             $('.ifselectproducts').show();
-            $('.productselect2').attr('data-valid', 'required');
+            $('.promotion-product-select').attr('data-valid', 'required');
+            if (typeof initPromotionProductSelects === 'function') {
+                initPromotionProductSelects('#create_promotion');
+                initPromotionProductSelects('.showpromotionedit');
+            }
         }
     });
 
-    $('.productselect2').select2({
-        placeholder: "Select Product",
-        multiple: true,
-        width: "100%"
+    $('#create_promotion').on('shown.bs.modal', function () {
+        if (typeof initPromotionProductSelects === 'function') {
+            initPromotionProductSelects(this);
+        }
     });
 
     $(document).delegate('.add_promotion', 'click', function(){
@@ -96,12 +163,15 @@ jQuery(document).ready(function($){
             data:{id:appliid},
             success:function(response){
                 $('.popuploader').hide();
-                $('.showpromotionedit').html(response);
-                $('.productselect2').select2({
-                    placeholder: "Select Product",
-                    multiple: true,
-                    width: "100%"
+                $('.showpromotionedit .promotion-product-select').each(function () {
+                    if (typeof destroyEnhancedSelect === 'function') {
+                        destroyEnhancedSelect(this);
+                    }
                 });
+                $('.showpromotionedit').html(response);
+                if (typeof initPromotionProductSelects === 'function') {
+                    initPromotionProductSelects('.showpromotionedit');
+                }
             }
         });
     });

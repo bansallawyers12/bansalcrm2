@@ -577,6 +577,10 @@ class OfficeVisitController extends Controller
 	
 	public function attend_session(Request $request){
 		$obj = CheckinLog::find($request->id);
+		if (!$obj) {
+			echo json_encode(['status' => false, 'message' => 'Session not found.']);
+			return;
+		}
 		$obj->sesion_start = date('Y-m-d H:i');
 		$obj->wait_time = $request->waitcountdata;
 
@@ -589,14 +593,11 @@ class OfficeVisitController extends Controller
             $t = 'waiting';
         }
 
-        $saved = $obj->save();
+        $checkinSaved = $obj->save();
 
-        // Create CheckinHistory
-        $objs = new CheckinHistory;
-        $objs->subject = 'has started session';
-        $objs->created_by = Auth::user()->id;
-        $objs->checkin_id = $request->id;
-        $objs->save();
+        // Notify reception on both: red "Waiting" (escalate to Pls Send) and green "Pls Send" (session started).
+        // Delivery to reception UI is via polling fetchOfficeVisitNotifications (3–5s).
+        if ($checkinSaved) {
 		    $receiverId = self::resolveReceptionReceiverId($obj);
 		    if ($receiverId <= 0) {
 		    	Log::warning('Office visit attend_session: no valid notification receiver', ['checkin_id' => $obj->id]);
@@ -641,7 +642,7 @@ class OfficeVisitController extends Controller
 		$objs->subject = 'has started session';
 		$objs->created_by = Auth::user()->id;
 		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		$objs->save();
 		
 		// Keep ActivitiesLog for backward compatibility
 		if($obj->contact_type == 'Client') {
@@ -655,7 +656,7 @@ class OfficeVisitController extends Controller
 			$activityLog->save();
 		}
 		
-		if($saved){
+		if($checkinSaved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';
 			// Return updated counts so office-visits tab badges can refresh without full page reload
@@ -671,17 +672,21 @@ class OfficeVisitController extends Controller
 	
 	public function complete_session(Request $request){
 		$obj = CheckinLog::find($request->id);
+		if (!$obj) {
+			echo json_encode(['status' => false, 'message' => 'Session not found.']);
+			return;
+		}
 		$obj->sesion_end = date('Y-m-d H:i');
 		$obj->attend_time = $request->attendcountdata;
 		$obj->status = 1;
-		$saved = $obj->save();
+		$checkinSaved = $obj->save();
 		
 		// Create CheckinHistory
 		$objs = new CheckinHistory;
 		$objs->subject = 'has completed session';
 		$objs->created_by = Auth::user()->id;
 		$objs->checkin_id = $request->id;
-		$saved = $objs->save();
+		$objs->save();
 		
 		// Keep ActivitiesLog for backward compatibility
 		if($obj->contact_type == 'Client') {
@@ -699,7 +704,7 @@ class OfficeVisitController extends Controller
 			$activityLog->save();
 		}
 		
-		if($saved){
+		if($checkinSaved){
 			$response['status'] 	= 	true;
 			$response['message']	=	'saved successfully';
 			// Return updated counts so office-visits tab badges can refresh without full page reload

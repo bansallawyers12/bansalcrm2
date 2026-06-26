@@ -228,8 +228,7 @@ class PromotionController extends Controller
 						?>
 						<div class="col-12 col-md-12 col-lg-12 ifselectproducts" multiple <?php if($obj->apply_to == 'Select Products'){}else{ ?>style="display:none;<?php } ?>">
 							<div class="form-group">
-								<select  class="form-control productselect2"  name="selectproduct[]">
-										 <option></option>
+								<select class="form-control tomselect promotion-product-select" name="selectproduct[]" multiple>
 									<?php foreach(\App\Models\Product::where('partner', $obj->partner_id)->orderby('created_at','DESC')->get() as $plist){ ?>
 										<option <?php if(in_array($plist->id, $exploder)){ echo 'selected'; } ?> value="<?php echo $plist->id; ?>"><?php echo $plist->name; ?></option>
 									<?php } ?>

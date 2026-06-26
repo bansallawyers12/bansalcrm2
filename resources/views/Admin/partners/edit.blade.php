@@ -855,8 +855,16 @@ jQuery(document).ready(function($){
 		}
 		$('#branchform')[0].reset();
 		$('.addbranch').one('shown.bs.modal.branchDefaultCountry', function () {
+			var modal = this;
+			var countryEl = modal.querySelector('.branch_country');
+			var branchOpts = typeof compactTomSelectOptions === 'function'
+				? compactTomSelectOptions({ dropdownParent: modal.querySelector('.modal-content') || modal })
+				: { width: '100%', minimumResultsForSearch: Infinity, dropdownParent: modal.querySelector('.modal-content') || modal };
+			if (countryEl && typeof initTomSelect === 'function' && !countryEl.tomselect) {
+				initTomSelect(countryEl, branchOpts);
+			}
 			if (typeof setEnhancedSelectValue === 'function') {
-				setEnhancedSelectValue('.branch_country', 'Australia');
+				setEnhancedSelectValue(countryEl || '.branch_country', 'Australia');
 			}
 		});
 		$('.addbranch').modal('show');
@@ -1055,8 +1063,18 @@ jQuery(document).ready(function($){
 
 		$('input[name="branch_phone"]').val(c.phone);
 		$('.addbranch').one('shown.bs.modal.branchEdit', function () {
+			var modal = this;
+			var countryEl = modal.querySelector('.branch_country');
+			var branchOpts = typeof compactTomSelectOptions === 'function'
+				? compactTomSelectOptions({ dropdownParent: modal.querySelector('.modal-content') || modal })
+				: { width: '100%', minimumResultsForSearch: Infinity, dropdownParent: modal.querySelector('.modal-content') || modal };
+			if (countryEl && typeof initTomSelectPreserveValue === 'function') {
+				initTomSelectPreserveValue(countryEl, branchOpts);
+			} else if (countryEl && typeof initTomSelect === 'function' && !countryEl.tomselect) {
+				initTomSelect(countryEl, branchOpts);
+			}
 			if (typeof setEnhancedSelectValue === 'function') {
-				setEnhancedSelectValue('.branch_country', c.country);
+				setEnhancedSelectValue(countryEl || '.branch_country', c.country);
 			} else {
 				$(".branch_country").val(c.country).trigger('change');
 			}
@@ -1086,12 +1104,6 @@ jQuery(document).ready(function($){
         var compact = typeof compactTomSelectOptions === 'function'
             ? compactTomSelectOptions()
             : { width: '100%', minimumResultsForSearch: Infinity };
-
-        if (typeof $.fn.select2 === 'function') {
-            $(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({
-                dropdownParent: $(".addbranch .modal-content")
-            });
-        }
 
         initTomSelectAllPreserveValues('select.tomselect[name="partner_type"], select.tomselect[name="service_workflow"]', compact);
         initTomSelectPreserveValue('select[name="country"]', compact);
