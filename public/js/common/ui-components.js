@@ -79,7 +79,7 @@ const UIComponents = {
         }
         
         try {
-            $(selector).select2(options || {});
+            $(selector).not('.tomselect, .tomselect-migrated, [data-enhanced="tomselect"]').select2(options || {});
         } catch (e) {
             console.error('Error initializing Select2:', e);
         }
@@ -103,9 +103,9 @@ const UIComponents = {
         // Initialize date pickers
         this.initDatepicker();
         
-        // Initialize Select2 dropdowns (if any exist)
-        if ($('.select2').length > 0) {
-            this.initSelect2('.select2');
+        // Initialize Select2 dropdowns (if any exist; skip Tom Select migrations)
+        if ($('.select2:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])').length > 0) {
+            this.initSelect2('.select2:not(.tomselect):not(.tomselect-migrated):not([data-enhanced="tomselect"])');
         }
     }
 };

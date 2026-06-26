@@ -1,0 +1,223 @@
+/**
+
+ * Tom Select bridge styles — mirrors Select2 layout rules during migration.
+
+ * Targets .ts-wrapper / .ts-control / .ts-dropdown alongside existing .select2-* rules.
+
+ */
+
+
+
+/* Form group width (mirrors custom.css .select2-container rules) */
+
+.card .card-body .form-group .ts-wrapper,
+
+.modal .modal-body .form-group .ts-wrapper {
+
+    display: block;
+
+}
+
+
+
+/* Fee option modal layouts */
+
+.new_fee_option .modal-body .ts-wrapper {
+
+    min-width: 120px;
+
+}
+
+
+
+.new_fee_option .modal-body .ts-control {
+
+    min-height: 35px;
+
+}
+
+
+
+.new_fee_option .modal-body .ts-wrapper.single .ts-control {
+
+    min-height: 35px;
+
+}
+
+
+
+.fee_type_sec .fee_fields .ts-wrapper {
+
+    width: 100% !important;
+
+}
+
+
+
+/*
+
+ * Dropdown width in form groups — full width (Tom Select matches control width).
+
+ * Legacy Select2 used 200px globally in custom.css; migrated controls use 100%.
+
+ */
+
+.card .card-body .form-group .ts-wrapper.single,
+
+.card .card-body .form-group .ts-wrapper.multi,
+
+.modal .modal-body .form-group .ts-wrapper.single,
+
+.modal .modal-body .form-group .ts-wrapper.multi {
+
+    width: 100%;
+
+}
+
+
+
+.card .card-body .form-group .ts-dropdown,
+
+.modal .modal-body .form-group .ts-dropdown {
+
+    width: 100%;
+
+    min-width: 0;
+
+}
+
+
+
+/* Modal z-index — Tom Select adds .focus to .ts-wrapper when dropdown is open */
+
+.modal.show .ts-wrapper.focus,
+
+.modal.show .ts-dropdown {
+
+    z-index: 9999 !important;
+
+}
+
+
+
+/* Commission Invoice Modal */
+
+#opencommissionmodal .ts-dropdown-content {
+
+    max-height: 300px !important;
+
+    overflow-y: auto !important;
+
+    overflow-x: hidden !important;
+
+}
+
+
+
+#opencommissionmodal .ts-wrapper,
+
+#opencommissionmodal .ts-dropdown {
+
+    z-index: 9999 !important;
+
+}
+
+
+
+#opencommissionmodal .modal-body,
+
+#opencommissionmodal .modal-content {
+
+    overflow: visible !important;
+
+}
+
+
+
+/* General Invoice Modal */
+
+#opengeneralinvoice .ts-dropdown-content {
+
+    max-height: 300px !important;
+
+    overflow-y: auto !important;
+
+    overflow-x: hidden !important;
+
+}
+
+
+
+#opengeneralinvoice .ts-wrapper,
+
+#opengeneralinvoice .ts-dropdown {
+
+    z-index: 9999 !important;
+
+}
+
+
+
+#opengeneralinvoice .modal-body,
+
+#opengeneralinvoice .modal-content {
+
+    overflow: visible !important;
+
+}
+
+
+
+/* Add Application Modal */
+
+.add_appliation .ts-wrapper,
+
+.add_appliation .ts-dropdown {
+
+    z-index: 9999 !important;
+
+}
+
+
+
+.add_appliation .modal-body,
+
+.add_appliation .modal-content {
+
+    overflow: visible !important;
+
+}
+
+
+
+/* Report calendar modals (followup / action calendar) */
+
+#event-details-modal .ts-wrapper,
+
+#event-details-modal .ts-dropdown {
+
+    z-index: 9999 !important;
+
+}
+
+
+
+#event-details-modal .modal-body,
+
+#event-details-modal .modal-content {
+
+    overflow: visible !important;
+
+}
+
+
+
+.action-page-select-bridge .ts-wrapper {
+
+    z-index: 100000;
+
+    width: 315px !important;
+
+}
+
+

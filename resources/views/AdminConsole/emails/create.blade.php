@@ -65,8 +65,7 @@
 													<h4>Staff Sharing</h4>
 													<div class="form-group"> 
 														<label for="users">Select Staff <span class="span_req">*</span></label>
-														<select id="email_create_users" data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
-															<option value="">Select Staff</option>
+														<select id="email_create_users" data-valid="required" multiple class="form-control tomselect {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
 															<?php
 																$roleIds = config('crm_access.exempt_role_ids', [1, 12]);
 																$superAdminRoleId = (int) ($roleIds[0] ?? 1);
@@ -133,7 +132,9 @@
 		}
 		$sel.closest('.form-group').find('.custom-error.staff-role-error').remove();
 
-		var selected = $sel.val() || [];
+		var selected = ($sel.val() || []).filter(function (v) {
+			return v !== '' && v != null;
+		});
 		if (!selected.length) {
 			return true;
 		}
@@ -152,9 +153,8 @@
 
 		if (!hasSuperAdmin || !hasAdmin) {
 			var errorHtml = '<span class="custom-error staff-role-error" role="alert"><strong>' + staffRoleError + '</strong></span>';
-			var $select2 = $sel.next('.select2-container');
-			if ($select2.length) {
-				$select2.after(errorHtml);
+			if (typeof placeValidationError === 'function') {
+				placeValidationError($sel[0], errorHtml);
 			} else {
 				$sel.after(errorHtml);
 			}
@@ -182,5 +182,15 @@
 		});
 	}
 })();
+
+document.addEventListener('DOMContentLoaded', function () {
+	waitForTomSelect().then(function () {
+		initTomSelect('#email_create_users', {
+			width: '100%',
+			placeholder: 'Select Staff',
+			plugins: ['remove_button']
+		});
+	});
+});
 </script>
 @endsection

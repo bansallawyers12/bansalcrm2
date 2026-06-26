@@ -68,8 +68,7 @@
 													<h4>Staff Sharing</h4>
 													<div class="form-group"> 
 														<label for="display_name">Select Staff</label>
-														<select data-valid="required" multiple class="form-control select2 {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
-															<option value="">Select Staff</option>
+														<select id="email_edit_users" data-valid="required" multiple class="form-control tomselect {{ $errors->has('users') ? 'is-invalid' : '' }}" name="users[]">
 															<?php
 															$userids = json_decode($fetchedData->user_id ?? '[]') ?? [];
 																$users = \App\Models\Staff::Where('status', '=', 1)->get();
@@ -103,4 +102,18 @@
 	</section>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    waitForTomSelect().then(function () {
+        initTomSelect('#email_edit_users', {
+            width: '100%',
+            placeholder: 'Select Staff',
+            plugins: ['remove_button']
+        });
+    });
+});
+</script>
 @endsection

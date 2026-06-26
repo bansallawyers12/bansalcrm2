@@ -30,6 +30,7 @@
         "flatpickr": "^4.6.13",
         "izitoast": "^1.4.0",
         "jquery.nicescroll": "^3.7.6",
-        "select2": "^4.0.13"
+        "select2": "^4.0.13",
+        "tom-select": "2.4.3"
     }
 }
