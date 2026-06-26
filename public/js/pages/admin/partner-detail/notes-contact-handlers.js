@@ -84,30 +84,36 @@ jQuery(document).ready(function($){
 
     function getallnotes(){
         $.ajax({
-            url: App.getUrl('getNotes'),
+            url: App.getUrl('getPartnerNotes') || App.getUrl('getNotes'),
             type:'GET',
             data:{clientid: partnerId, type:'partner'},
             success: function(responses){
                 $('.popuploader').hide();
-                $('.note_term_list').html(responses);
+                var html = responses && String(responses).trim() !== '' ? responses : '<h4>No Record Found</h4>';
+                $('.note_term_list').html(html);
             }
         });
     }
 
     function getallactivities(){
         $.ajax({
-            url: App.getUrl('getActivities'),
+            url: App.getUrl('getPartnerActivities') || App.getUrl('getActivities'),
             type:'GET',
             dataType:'json',
-            data:{id: partnerId},
+            data:{ partner_id: partnerId, id: partnerId },
             success: function(responses){
                 if (typeof applyActivitiesResponse === 'function') {
                     applyActivitiesResponse(responses);
+                    if ($('.activities').length && $('.activities').children().length === 0) {
+                        $('.activities').html('<h4>No Record Found</h4>');
+                    }
                     return;
                 }
                 var ress = typeof responses === 'string' ? JSON.parse(responses) : responses;
                 if (ress && ress.html) {
                     $('.activities').html(ress.html);
+                } else if (!ress || !ress.data || ress.data.length === 0) {
+                    $('.activities').html('<h4>No Record Found</h4>');
                 }
             }
         });
@@ -556,6 +562,13 @@ jQuery(document).ready(function($){
         templateResult: formatRepo,
         templateSelection: formatRepoSelection
     });
+
+    if (PageConfig.activeTab === 'partner-activities') {
+        getallactivities();
+    }
+    if (PageConfig.activeTab === 'noteterm') {
+        getallnotes();
+    }
 });
 
 })(); // End async wrapper

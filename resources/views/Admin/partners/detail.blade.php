@@ -33,8 +33,9 @@
 		}
 		$activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 	}
+	$assetV = config('app.asset_version') ?: '1';
 @endphp
-<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/client-detail.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/client-detail.css') }}?v={{ $assetV }}">
 <style>
 .ag-space-between {justify-content: space-between;} 
 .ag-align-center {align-items: center;}
@@ -219,39 +220,21 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix"> 
 								<span class="float-start">Phone No:</span>
 								<span class="float-end text-muted">
-                                    {{--$fetchedData->phone--}}
-                                    <?php
-                                    if( \App\Models\PartnerPhone::where('partner_id', $fetchedData->id)->exists()) {
-                                        $partnerContacts = \App\Models\PartnerPhone::select('partner_phone','partner_country_code','partner_phone_type')->where('partner_id', $fetchedData->id)->get();
-                                    } else {
-                                        if( \App\Models\Partner::where('id', $fetchedData->id)->exists()){
-                                            $partnerContacts = \App\Models\Partner::select('phone as partner_phone','country_code as partner_country_code')->where('id', $fetchedData->id)->get();
-                                        } else {
-                                            $partnerContacts = array();
-                                        }
-                                    }
-                                    //dd($partnerContacts);
-                                    if( !empty($partnerContacts) && count($partnerContacts)>0 ){
-                                        $phonenoStr = "";
-                                        foreach($partnerContacts as $conKey=>$conVal){
-                                            if( isset($conVal->partner_country_code) && $conVal->partner_country_code != "" ){
-                                                $partner_country_code = $conVal->partner_country_code;
-                                            } else {
-                                                $partner_country_code = "";
-                                            }
-
-                                            if( isset($conVal->partner_phone_type) && $conVal->partner_phone_type != "" ){
-                                                if( isset($conVal->partner_phone_type) && $conVal->partner_phone_type != "Not In Use" ){
-                                                    $phonenoStr .= $partner_country_code."".$conVal->partner_phone.'('.$conVal->partner_phone_type .')<br/>';
-                                                }
-                                            } else {
-                                                $phonenoStr .= $partner_country_code."".$conVal->partner_phone."<br/>";
-                                            }
-                                        }
-                                        echo $phonenoStr;
-                                    } else {
-                                        echo "N/A";
-                                    }?>
+                                    @if(!empty($partnerSidebarPhones) && count($partnerSidebarPhones) > 0)
+                                        @foreach($partnerSidebarPhones as $conVal)
+                                            @php
+                                                $partner_country_code = $conVal->partner_country_code ?? '';
+                                                $phoneType = $conVal->partner_phone_type ?? '';
+                                            @endphp
+                                            @if($phoneType !== '' && $phoneType !== 'Not In Use')
+                                                {!! $partner_country_code . $conVal->partner_phone . '(' . e($phoneType) . ')<br/>' !!}
+                                            @else
+                                                {!! $partner_country_code . $conVal->partner_phone . '<br/>' !!}
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        N/A
+                                    @endif
                                 </span>
 							</p>
 							<p class="clearfix"> 
@@ -261,32 +244,18 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix"> 
 								<span class="float-start">Email:</span>
 								<span class="float-end text-muted">
-                                    {{--$fetchedData->email--}}
-                                    <?php
-                                    if( \App\Models\PartnerEmail::where('partner_id', $fetchedData->id)->exists()) {
-                                        $partnerEmails = \App\Models\PartnerEmail::select('partner_email','partner_email_type')->where('partner_id', $fetchedData->id)->get();
-                                    } else {
-                                        if( \App\Models\Partner::where('id', $fetchedData->id)->exists()){
-                                            $partnerEmails = \App\Models\Partner::select('email as partner_email')->where('id', $fetchedData->id)->get();
-                                        } else {
-                                            $partnerEmails = array();
-                                        }
-                                    }
-                                    if( !empty($partnerEmails) && count($partnerEmails)>0 ){
-                                        $emailStr = "";
-                                        foreach($partnerEmails as $emailKey=>$emailVal){
-                                            if( isset($emailVal->partner_email_type) && $emailVal->partner_email_type != "" ){
-                                                if( isset($emailVal->partner_email_type) && $emailVal->partner_email_type != "Not In Use" ){
-                                                    $emailStr .= $emailVal->partner_email.'('.$emailVal->partner_email_type .')<br/>';
-                                                }
-                                            } else {
-                                                $emailStr .= $emailVal->partner_email."<br/>";
-                                            }
-                                        }
-                                        echo $emailStr;
-                                    } else {
-                                        echo "N/A";
-                                    }?>
+                                    @if(!empty($partnerSidebarEmails) && count($partnerSidebarEmails) > 0)
+                                        @foreach($partnerSidebarEmails as $emailVal)
+                                            @php $emailType = $emailVal->partner_email_type ?? ''; @endphp
+                                            @if($emailType !== '' && $emailType !== 'Not In Use')
+                                                {!! e($emailVal->partner_email) . '(' . e($emailType) . ')<br/>' !!}
+                                            @else
+                                                {!! e($emailVal->partner_email) . '<br/>' !!}
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        N/A
+                                    @endif
                                 </span>
 							</p>
 							<p class="clearfix"> 
@@ -299,12 +268,12 @@ use App\Http\Controllers\Controller;
 							</p>
 							<?php
 						
-							$workflows = \App\Models\Workflow::where('id', $fetchedData->service_workflow)->first();
+							$partnerServiceWorkflow = \App\Models\Workflow::where('id', $fetchedData->service_workflow)->first();
 							?>
 							
 							<p class="clearfix"> 
 								<span class="float-start">Services:</span>
-								<span class="float-end text-muted">{{@$workflows->name}}</span>
+								<span class="float-end text-muted">{{@$partnerServiceWorkflow->name}}</span>
 							</p>
 							
 							<p class="clearfix"> 
@@ -387,62 +356,7 @@ use App\Http\Controllers\Controller;
                                  <div class="tab-pane fade <?php echo ($activeTab === 'partner-activities') ? 'show active' : ''; ?>" id="partner-activities" role="tabpanel" aria-labelledby="partner-activities-tab">
 									@if($activeTab === 'partner-activities')
                                     <div class="activities">
-                                        <?php
-                                        $activities = \App\Models\ActivitiesLog::where('client_id', $fetchedData->id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
-                                        //dd($activities);
-                                        foreach($activities as $activit){
-                                            $admin = \App\Models\Staff::find($activit->created_by) ?? \App\Models\Admin::find($activit->created_by);
-                                            ?>
-                                            <div class="activity" id="activity_{{$activit->id}}">
-                                                <div class="activity-icon bg-primary text-white">
-                                                    <span>{{substr($admin->first_name, 0, 1)}}</span>
-                                                </div>
-                                                <div class="activity-detail" style="border: 1px solid #dbdbdb;background-color: #dbdbdb;">
-                                                    <div class="activity-head">
-                                                        <div class="activity-title">
-                                                            <p><b>{{$admin->first_name}}</b>  <?php echo @$activit->subject; ?></p>
-                                                        </div>
-
-                                                        <div class="activity-date">
-                                                          <span class="text-job">{{date('d M Y, H:i A', strtotime($activit->created_at))}}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!--<div class="right" style="float: right;margin-top: -40px;">
-                                                        <?php //if($activit->pin == 1){?>
-                                                            <div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
-                                                        <?php //} ?>
-
-                                                        <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                            <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                                            <div class="dropdown-menu">
-                                                                <a data-id="{{--$activit->id--}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
-                                                                <?php //if($activit->pin == 1){ ?>
-                                                                    <a data-id="<?php //echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >UnPin</a>
-                                                                <?php
-                                                                //} else { ?>
-                                                                    <a data-id="<?php //echo $activit->id;?>"  class="dropdown-item pinactivitylog" href="javascript:;" >Pin</a>
-                                                                <?php //} ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>-->
-
-                                                    @if($activit->description != '')
-                                                        <p>{!!$activit->description!!}</p>
-                                                    @endif
-
-                                                    @if($activit->followup_date != '')
-                                                        <p>{!!date('d/m/Y',strtotime($activit->followup_date))!!}</p>
-                                                    @endif
-
-                                                    @if($activit->task_group != '')
-                                                        <p>{!!$activit->task_group!!}</p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <?php
-                                                }
-                                            ?>
+                                        <p class="text-muted mb-0 activities-loading">Loading activities...</p>
                                     </div>
 									@endif
                                 </div>
@@ -592,75 +506,8 @@ use App\Http\Controllers\Controller;
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
 									</div>
-									<div class="note_term_list"> 
-									
-									<?php
-									
-									$querynotelist = \App\Models\Note::where('client_id', $fetchedData->id)->where('type', 'partner')->whereNull('task_group')->orderby('pin', 'DESC')->orderby('created_at', 'DESC');
-									$notelistcount = $querynotelist->count();
-									$notelist = $querynotelist->get();
-									if($notelistcount !== 0){
-									foreach($notelist as $list){
-										$admin = \App\Models\Staff::find($list->user_id);
-										
-									?>
-										<div class="note_col" id="note_id_{{$list->id}}"> 
-                                            <div class="note-icon bg-primary text-white" style="width: 50px;height: 50px;line-height: 50px;font-size: 20px;margin-right: 20px;border-radius: 50%;text-align: center;">
-                                                <span>{{substr($admin->first_name, 0, 1)}}</span>
-                                            </div>
-                                          
-											<div class="note_content">
-												<!--<h4><a class="viewnote" data-id="{{$list->id}}" href="javascript:;">{{ @$list->title == "" ? config('constants.empty') : str_limit(@$list->title, '19', '...') }}</a></h4>-->
-                                              
-                                                <div class="note-title" style="display: inline-block;margin-right: 60px;">
-                                                    <p><b>{{$admin->first_name}}</b>  Added Note with Title <b><?php echo @$list->title; ?></b></p>
-                                                </div>
-
-                                                <div class="note-date" style="display: inline-block;">
-                                                  <span class="text-job">{{date('d M Y, H:i A', strtotime($list->updated_at))}}</span>
-                                                </div>
-
-                                                <div class="right" style="float: right;width: 15px;">
-													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-														<div class="dropdown-menu">
-															<a class="dropdown-item opennoteform" data-id="{{$list->id}}" href="javascript:;">Edit</a>
-                                                            @if(Auth::user()->role == 1)
-															<a data-id="{{$list->id}}" data-href="deletenote" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
-                                                            @endif
-															<?php if($list->pin == 1){ ?>
-                                                                <a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >UnPin</a>
-                                                            <?php }else{ ?>
-                                                                <a data-id="<?php echo $list->id; ?>"  class="dropdown-item pinnote" href="javascript:;" >Pin</a>
-                                                            <?php } ?>
-														</div>
-													</div>
-												</div>
-												
-											</div>
-											<div class="extra_content">
-                                                <p>{!! @$list->description !!}</p>
-                                              
-                                                 <?php if( isset($list->mobile_number) && $list->mobile_number != ""){ ?>
-                                                    <p>{{ @$list->mobile_number }}</p>
-                                                <?php }?>
-                                              
-												<!--<div class="left">
-													<div class="author">
-														<a href="#">{{substr($admin->first_name, 0, 1)}}</a>
-													</div>
-													<div class="note_modify">
-														<small>Last Modified <span>{{date('d/m/Y', strtotime($list->updated_at))}}</span></small>
-													</div>
-												</div>-->  
-												
-											</div>
-										</div>
-									<?php }
-									}else{
-										echo '<h4>No Record Found</h4>';
-									}
-									?>
+									<div class="note_term_list">
+										<p class="text-muted mb-0 notes-loading">Loading notes...</p>
 									</div>
 									<div class="clearfix"></div>
 									@endif
@@ -704,23 +551,12 @@ use App\Http\Controllers\Controller;
 													</tr>
 												</thead>
 												<tbody class="tdata alldocumnetlist">
-													<?php
-													$fetchd = \App\Models\Document::where('client_id',$fetchedData->id)
-														->where('type','partner')
-														->whereNull('not_used_doc')
-														->where(function ($query) {
-															$query->where('doc_type', 'documents')
-																->orWhere(function ($q) {
-																	$q->whereNull('doc_type')->orWhere('doc_type', '');
-																});
-														})->orderby('updated_at', 'DESC')->get();
-													foreach($fetchd as $docKey=>$fetch)
-													{
-														$admin = \App\Models\Staff::find($fetch->user_id);
-														$addedByInfo = $admin->first_name . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
-														// Handle checklist field - use existing checklist if available, otherwise use file_name as fallback for backward compatibility
+													@forelse($partnerDocuments ?? [] as $fetch)
+													@php
+														$admin = $fetch->user;
+														$addedByInfo = ($admin ? $admin->first_name : 'Unknown') . ' on ' . date('d/m/Y', strtotime($fetch->created_at));
 														$checklist = !empty($fetch->checklist) ? $fetch->checklist : (!empty($fetch->file_name) ? $fetch->file_name : 'N/A');
-														?>
+													@endphp
 														<tr class="drow document-row" id="id_{{$fetch->id}}" 
 															data-doc-id="<?php echo $fetch->id;?>"
 															data-checklist-name="<?php echo htmlspecialchars($checklist, ENT_QUOTES, 'UTF-8'); ?>"
@@ -781,18 +617,16 @@ use App\Http\Controllers\Controller;
 																}?>
 															</td>
 														</tr>
-													<?php
-													} //end foreach?>
+													@empty
+														<tr><td colspan="2">No documents found.</td></tr>
+													@endforelse
 												</tbody>
 											</table>
 										</div>
 									</div>
 									<div class="grid_data allgriddata">
-										<?php
-										foreach($fetchd as $fetch)
-										{
-											$admin = \App\Models\Staff::find($fetch->user_id);
-											?>
+										@foreach($partnerDocuments ?? [] as $fetch)
+											@php $admin = $fetch->user; @endphp
 											<div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
 												<div class="grid_col">
 													<div class="grid_icon">
@@ -834,8 +668,7 @@ use App\Http\Controllers\Controller;
 													}?>
 												</div>
 											</div>
-										<?php
-										} //end foreach ?>
+										@endforeach
 										<div class="clearfix"></div>
 									</div>
 								   
@@ -886,22 +719,13 @@ use App\Http\Controllers\Controller;
 													</tr>
 												</thead>
 												<tbody class="tdata notuseddocumnetlist">
-													<?php
-													$fetchd = \App\Models\Document::where('client_id', $fetchedData->id)
-														->where('not_used_doc', 1)
-														->where('type', 'partner')
-														->where('doc_type', 'documents')
-														->orderBy('updated_at', 'DESC')
-														->get();
-													foreach($fetchd as $notuseKey=>$fetch)
-													{
-														$admin = \App\Models\Staff::find($fetch->user_id);
-														?>
+													@forelse($partnerNotUsedDocuments ?? [] as $fetch)
+													@php $admin = $fetch->user; @endphp
 														<tr class="drow" id="id_{{$fetch->id}}">
 															<td style="white-space: initial;"><?php echo $fetch->checklist; ?></td>
 															<td style="white-space: initial;">
 																<?php
-																	echo $admin->first_name. "<br>";
+																	echo ($admin ? $admin->first_name : 'Unknown') . "<br>";
 																	echo date('d/m/Y', strtotime($fetch->created_at));
 																?>
 															</td>
@@ -946,8 +770,9 @@ use App\Http\Controllers\Controller;
 																</div>
 															</td>
 														</tr>
-													<?php
-													} //end foreach?>
+													@empty
+														<tr><td colspan="4">No records found.</td></tr>
+													@endforelse
 												</tbody>
 											</table>
 										</div>
@@ -976,95 +801,7 @@ use App\Http\Controllers\Controller;
 												</tr> 
 											</thead>
 											<tbody class="tdata invoicedatalist">
-												<?php
-												// OPTIMIZED: Use eager loading to avoid N+1 query problem
-												// Fetch all applications with their related invoices, invoice details, and payments in fewer queries
-												$applications = \App\Models\Application::where('partner_id',$fetchedData->id)
-													->with([
-														'invoices' => function($query) {
-															$query->orderby('created_at','DESC')
-																->with(['invoiceDetails', 'invoicePayments']);
-														}
-													])
-													->get();
-												
-												// Pre-fetch workflows and partners to avoid repeated queries
-												$applicationIds = $applications->flatMap(function($app) {
-													return $app->invoices->pluck('application_id');
-												})->unique();
-												
-												$workflows = \App\Models\Workflow::whereIn('id', $applicationIds)->get()->keyBy('id');
-												$partners = \App\Models\Partner::where('id', $fetchedData->id)->first();
-												
-												foreach($applications as $application){
-													foreach($application->invoices as $invoicelist){
-														// Use pre-fetched data instead of querying
-														$workflowdaa = $workflows->get($invoicelist->application_id);
-														$partnerdata = $partners;
-														
-														// Use eager loaded relationships
-														$netamount = 0;
-														$coom_amt = 0;
-														$total_fee = 0;
-														foreach($invoicelist->invoiceDetails as $invoiceitemdetail){
-															$netamount += $invoiceitemdetail->netamount;
-															$coom_amt += $invoiceitemdetail->comm_amt;
-															$total_fee += $invoiceitemdetail->total_fee;
-														}
-												
-												$amount_rec = 0;
-												foreach($invoicelist->invoicePayments as $paymentdetail){
-													$amount_rec += $paymentdetail->amount_rec;
-												} 
-												if($invoicelist->type == 1){
-													$totaldue = $total_fee - $coom_amt;
-												} if($invoicelist->type == 2){
-													$totaldue = $netamount - $amount_rec;
-												}else{
-													$totaldue = $netamount - $amount_rec;
-												}
-												
-												
-											?>
-												<tr id="iid_{{$invoicelist->id}}">
-													<td>{{$invoicelist->id}}</td>
-													<td>{{$invoicelist->invoice_date}}
-													<?php if($invoicelist->type == 1){
-														$rtype = 'Net Claim';
-													}else if($invoicelist->type == 2){
-														$rtype = 'Gross Claim';
-													}else{
-														$rtype = 'General';
-													} ?>
-													<span title="{{$rtype}}" class="ui label zippyLabel">{{$rtype}}</span></td>
-													<td>{{@$workflowdaa->name}}<br>{{@$partnerdata->partner_name}}</td>
-													<td>AUD {{$invoicelist->net_fee_rec}}</td>	
-													<td>{{$amount_rec}}</td>
-													
-													<td>
-													@if($invoicelist->status == 1)
-														<span class="ag-label--circular" style="color: #6777ef" >Paid</span></td> 
-													@else
-														<span class="ag-label--circular" style="color: #ed5a5a" >UnPaid</span></td> 
-													@endif
-													<td>
-														<div class="dropdown d-inline">
-															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="#">Send Email</a>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/view/')}}/{{$invoicelist->id}}">View</a>
-																<?php if($invoicelist->status == 0){ ?>
-																<a target="_blank" class="dropdown-item has-icon" href="{{URL::to('invoice/edit/')}}/{{$invoicelist->id}}">Edit</a>
-																<a data-netamount="{{$netamount}}" data-dueamount="{{$totaldue}}" data-invoiceid="{{$invoicelist->id}}" class="dropdown-item has-icon addpaymentmodal" href="javascript:;"> Make Payment</a>
-																<?php } ?>
-															</div>
-														</div>								  
-													</td>
-												</tr>
-												<?php } 
-													
-												}
-												?>
+												{{-- Rows loaded via AJAX (server-side DataTables) --}}
 											</tbody>
 										</table>
 									</div>
@@ -1294,7 +1031,7 @@ use App\Http\Controllers\Controller;
                                                                     <?php echo $rec_val->invoice_date;?>
                                                                     <?php
                                                                     if(isset($rec_val->uploaded_doc_id) && $rec_val->uploaded_doc_id >0){
-                                                                        $client_doc_list = DB::table('documents')->select('id','myfile','client_id','doc_type')->where('id',$rec_val->uploaded_doc_id)->first();
+                                                                        $client_doc_list = ($invoiceDocumentMap ?? collect())->get($rec_val->uploaded_doc_id);
                                                                         if($client_doc_list){
                                                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
                                                                             $awsUrl =  $client_doc_list->myfile;
@@ -1379,7 +1116,7 @@ use App\Http\Controllers\Controller;
                                                                     <?php echo $inv_val->invoice_date;?>
                                                                     <?php
                                                                     if(isset($inv_val->uploaded_doc_id) && $inv_val->uploaded_doc_id >0){
-                                                                        $client_inv_doc_list = DB::table('documents')->select('id','myfile','client_id','doc_type')->where('id',$inv_val->uploaded_doc_id)->first();
+                                                                        $client_inv_doc_list = ($invoiceDocumentMap ?? collect())->get($inv_val->uploaded_doc_id);
                                                                         if($client_inv_doc_list){
                                                                             $awsUrl_inv =  $client_inv_doc_list->myfile;
                                                                         ?>
@@ -1454,7 +1191,7 @@ use App\Http\Controllers\Controller;
                                                                     <?php echo $pay_val->invoice_no;?>
                                                                     <?php
                                                                     if(isset($pay_val->uploaded_doc_id) && $pay_val->uploaded_doc_id >0){
-                                                                        $client_pay_doc_list = DB::table('documents')->select('id','myfile','client_id','doc_type')->where('id',$pay_val->uploaded_doc_id)->first();
+                                                                        $client_pay_doc_list = ($invoiceDocumentMap ?? collect())->get($pay_val->uploaded_doc_id);
                                                                         if($client_pay_doc_list){
                                                                             $awsUrl_pay =  $client_pay_doc_list->myfile;
                                                                         ?>
@@ -1572,8 +1309,8 @@ use App\Http\Controllers\Controller;
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selecttemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
-										<option value="{{$list->id}}">{{$list->name}}</option>
+									@foreach($partnerDetailEmailTemplates as $list)
+										<option value="{{ $list['id'] }}">{{ $list['name'] }}</option>
 									@endforeach
 								</select>
 								
@@ -1666,13 +1403,9 @@ use App\Http\Controllers\Controller;
 								<label for="branch_country">Country</label>
 							<select class="form-control branch_country select2" name="branch_country" >
 								<option value="">Select</option>
-								<?php
-								foreach(\App\Models\Country::all() as $list){
-									?>
-									<option value="{{@$list->name}}">{{@$list->name}}</option>
-									<?php
-								}
-								?>
+								@foreach($partnerDetailCountries as $list)
+									<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
+								@endforeach
 							</select>
 							</div>
 						</div>
@@ -1879,13 +1612,9 @@ use App\Http\Controllers\Controller;
 								<label for="agreement_represent_region">Representing Regions</label>
 								<select class="form-control select2" multiple name="represent_region[]" id="agreement_represent_region">
 									<option value="">Select</option>
-									<?php
-									foreach(\App\Models\Country::all() as $list){
-										?>
-										<option value="{{@$list->name}}">{{@$list->name}}</option>
-										<?php
-									}
-									?>
+									@foreach($partnerDetailCountries as $list)
+										<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
+									@endforeach
 								</select>
 							</div>
 						</div>
@@ -2076,6 +1805,9 @@ use App\Http\Controllers\Controller;
         partnersGetStudentTabTotals: '{{ url("/partners/getStudentTabTotals") }}',
         partnersExportStudentTabData: '{{ url("/partners/exportStudentTabData") }}',
         partnersGetApplicationTabData: '{{ url("/partners/getApplicationTabData") }}',
+        partnersGetAccountsTabData: '{{ url("/partners/getAccountsTabData") }}',
+        getPartnerActivities: '{{ url("/get-partner-activities") }}',
+        getPartnerNotes: '{{ url("/get-partner-notes") }}',
         getPartner: '{{ url("/getpartner") }}',
         getProduct: '{{ url("/getproduct") }}',
         getBranch: '{{ url("/getbranch") }}',
@@ -2093,8 +1825,8 @@ use App\Http\Controllers\Controller;
         partnersFetchPartnerContactNo: '{{ URL::to("/partners/fetchPartnerContactNo") }}',
         clientsFetchClientContactNo: '{{ URL::to("/clients/fetchClientContactNo") }}',
         clientsGetRecipients: '{{ URL::to("/clients/get-recipients") }}',
-        getNotes: '{{ url("/get-notes") }}',
-        getActivities: '{{ url("/get-activities") }}',
+        getNotes: '{{ url("/get-partner-notes") }}',
+        getActivities: '{{ url("/get-partner-activities") }}',
         deleteAction: '{{ URL::to("/") }}',
         pinnote: '{{ URL::to("/pinnote") }}',
         viewnotedetail: '{{ URL::to("/viewnotedetail") }}',
@@ -2596,8 +2328,45 @@ use App\Http\Controllers\Controller;
 
 {{-- Common JavaScript Files (load first) --}}
 <script src="{{ asset('js/common/config.js') }}"></script>
-<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/activity-handlers.js')) }}"></script>
+<script src="{{ asset('js/common/activity-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/notes-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}?v={{ $assetV }}"></script>
+
+@if($activeTab === 'application')
+<script src="{{ asset('js/pages/admin/partner-detail/application-tab.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
+@endif
+
+@if(in_array($activeTab, ['documents', 'notuseddocuments'], true))
 <script src="{{ asset('js/common/document-handlers.js') }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/bulk-upload.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
+<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
+@endif
+
+@if($activeTab === 'accounts')
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/payment-field-handlers.js') }}"></script>
+@endif
+
+@if($activeTab === 'promotions')
+<script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}"></script>
+@endif
+
+@if($activeTab === 'student')
+<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ $assetV }}"></script>
+<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ $assetV }}"></script>
+@endif
+
+@if($activeTab === 'invoice')
+<script src="{{ asset('js/pages/admin/partner-detail/invoice-handlers.js') }}"></script>
+@endif
+
+@if(in_array($activeTab, ['documents', 'notuseddocuments'], true))
 <script>
 (function() {
     var _previewFile = window.previewFile;
@@ -2617,33 +2386,19 @@ use App\Http\Controllers\Controller;
     }
 })();
 </script>
+@endif
 
-{{-- Page-Specific JavaScript Modules --}}
-<script src="{{ asset('js/pages/admin/partner-detail/status-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/status-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/notes-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/mail-upload.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/application-tab.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/invoice-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/bulk-upload.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/datatable-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/datatable-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/payment-field-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/application-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/promotion-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/notes-contact-handlers.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/pages/admin/partner-detail/notes-contact-handlers.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/service-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/partner-detail/archive-handlers.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-context-menu.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/document-context-menu.js')) }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-rename.js') }}"></script>
-<script src="{{ asset('js/pages/admin/client-detail/document-actions.js') }}"></script>
-
-{{-- Main partner-detail file (cleaned up, orchestrates modules) --}}
+{{-- Main partner-detail orchestrator --}}
 <script src="{{ asset('js/pages/admin/partner-detail.js') }}"></script>
 
+@if($activeTab !== 'email-v2')
 @push('tinymce-scripts')
 @include('partials.tinymce')
 @endpush
+@endif
 
-<!-- DataTables Buttons Extension for Export Functionality -->
+@if($activeTab === 'student')
+<!-- DataTables Buttons Extension for Student tab export only -->
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
@@ -2652,5 +2407,6 @@ use App\Http\Controllers\Controller;
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+@endif
 
 @endsection

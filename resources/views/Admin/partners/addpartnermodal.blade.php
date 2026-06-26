@@ -16,8 +16,8 @@
 								<label for="workflow">Select Workflow <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control workflow select2" id="workflow" name="workflow">
 									<option value="">Please Select a Workflow</option>
-									@foreach(\App\Models\Workflow::all() as $wlist)
-										<option value="{{$wlist->id}}">{{$wlist->name}}</option>
+									@foreach($partnerDetailWorkflowOptions as $wlist)
+										<option value="{{ $wlist['id'] }}">{{ $wlist['name'] }}</option>
 									@endforeach
 								</select>
 								<span class="custom-error workflow_error" role="alert">
@@ -171,9 +171,9 @@
 								<label for="branch">Country </label>
 								<select name="country" id="country" class="form-control" data-valid="required">
 									<?php
-										foreach(\App\Models\Country::all() as $list){
+										foreach($partnerDetailCountries as $list){
 											?>
-											<option value="{{@$list->name}}">{{@$list->name}}</option>
+											<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
 											<?php
 										}
 										?>
@@ -378,9 +378,6 @@
 			
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
-						<?php
-						$timelist = \DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-						?>
 							<div class="form-group">
 								<label style="display:block;" for="invoice_type">Choose invoice:</label>
 								<div class="form-check form-check-inline">
@@ -410,14 +407,8 @@
 								<label for="description">Application <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control select2" name="application">
 									<option value="">Select</option>
-									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->get() as $aplist)
-									<?php
-									$productdetail = \App\Models\Product::where('id', $aplist->product_id)->first();
-				$partnerdetail = \App\Models\Partner::where('id', $aplist->partner_id)->first();
-				$PartnerBranch = \App\Models\PartnerBranch::where('id', $aplist->branch)->first();
-				$workflow = \App\Models\Workflow::where('id', $aplist->workflow)->first();
-									?>
-										<option value="{{$aplist->id}}">{{$productdetail->name}} ({{$partnerdetail->partner_name}})</option>
+									@foreach($partnerDetailModalApplications as $aplist)
+										<option value="{{ $aplist['id'] }}">{{ $aplist['label'] }}</option>
 									@endforeach
 								</select>
 								
@@ -450,9 +441,6 @@
 			
 					<div class="row">
 						<div class="col-12 col-md-6 col-lg-6">
-						<?php
-						$timelist = \DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-						?>
 							<div class="form-group">
 								<label style="display:block;" for="invoice_type">Choose invoice:</label>
 								<div class="form-check form-check-inline">
@@ -479,12 +467,8 @@
 								<label for="description">Service <span class="span_req">*</span></label>
 								<select data-valid="required" class="form-control select2" name="application">
 									<option value="">Select</option>
-									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->select('workflow')->distinct()->get() as $aplist)
-									<?php
-									
-				$workflow = \App\Models\Workflow::where('id', $aplist->workflow)->first();
-									?>
-										<option value="{{$workflow->id}}">{{$workflow->name}}</option>
+									@foreach($partnerDetailApplicationWorkflows as $workflow)
+										<option value="{{ $workflow['id'] }}">{{ $workflow['name'] }}</option>
 									@endforeach
 								</select>
 								
@@ -983,8 +967,8 @@
 								<label for="template">Templates </label>
 								<select data-valid="" class="form-control select2 selectapplicationtemplate" name="template">
 									<option value="">Select</option>
-									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
-										<option value="{{$list->id}}">{{$list->name}}</option>
+									@foreach($partnerDetailEmailTemplates as $list)
+										<option value="{{ $list['id'] }}">{{ $list['name'] }}</option>
 									@endforeach
 								</select>
 								
@@ -1087,9 +1071,6 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
-						<?php
-							$timelist = \DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-						?>
 							<div class="form-group">
 								<label style="display:block;" for="apply_to">Apply To:</label>
 								<div class="form-check form-check-inline">
@@ -1109,8 +1090,8 @@
 							<div class="form-group">
 								<select  class="form-control productselect2"  name="selectproduct[]">
 										 <option></option>
-									@foreach(\App\Models\Product::where('partner', $fetchedData->id)->orderby('created_at','DESC')->get() as $plist)
-										<option value="{{$plist->id}}">{{$plist->name}}</option>
+									@foreach($partnerDetailProducts as $plist)
+										<option value="{{ $plist['id'] }}">{{ $plist['name'] }}</option>
 									@endforeach
 								</select>
 							</div>
@@ -1592,11 +1573,8 @@
 								<label for="rem_cat123">Select Assignee <span class="span_req">*</span></label>
 								<select class="assigneeselect123 form-control selec_reg23" id="rem_cat123" name="rem_cat123" data-valid="required">
                                     <option value="">Select</option>
-                                    @foreach(\App\Models\Staff::select('id', 'office_id', 'first_name', 'last_name')->where('status',1)->orderby('first_name','ASC')->get() as $admin)
-                                    <?php
-                                    $branchname = \App\Models\Branch::select('id', 'office_name')->where('id',$admin->office_id)->first();
-                                    ?>
-                                    <option value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                    @foreach($partnerDetailStaffAssignees as $admin)
+                                    <option value="{{ $admin['id'] }}">{{ $admin['first_name'] }} {{ $admin['last_name'] }} ({{ $admin['office_name'] }})</option>
                                     @endforeach
                                 </select>
 							</div>

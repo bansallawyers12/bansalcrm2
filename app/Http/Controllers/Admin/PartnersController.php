@@ -9,9 +9,14 @@ use Illuminate\Support\Facades\Redirect;
 
 use App\Models\Admin;
 use App\Models\Application;
+use App\Models\Country;
+use App\Models\CrmEmailTemplate;
 use App\Models\Partner;
 use App\Models\PartnerBranch;
 use App\Models\PartnerAgreement;
+use App\Models\Product;
+use App\Models\Staff;
+use App\Models\Workflow;
 // use App\Models\Task; // Task system removed - December 2025
 // use App\Models\TaskLog; // Task system removed - December 2025
 //use App\Models\ActivitiesLog;
@@ -28,6 +33,8 @@ use App\Services\PythonEmailParserService;
 use App\Models\ActivitiesLog;
 use App\Models\PartnerEmail;
 use App\Models\PartnerPhone;
+use App\Models\Document;
+use App\Models\Invoice;
 use App\Helpers\PhoneHelper;
 use Illuminate\Support\Carbon;
 
@@ -765,15 +772,16 @@ class PartnersController extends Controller
                     }
                     $activeTab = $tabAliases[$requestedTab] ?? $requestedTab;
 
-                    $applicationStatusCounts = null;
-                    if ($activeTab === 'application') {
-                        $applicationStatusCounts = Application::query()->where('partner_id', $id)
-                            ->selectRaw('status, COUNT(*) as total')
-                            ->groupBy('status')
-                            ->pluck('total', 'status');
-                    }
+                    $sharedDropdowns = $this->partnerDetailSharedDropdowns($id);
+                    $sidebarContacts = $this->partnerSidebarContactDetails($id, $fetchedData);
+                    $tabData = $this->partnerDetailTabData($id, $activeTab);
 
-					return view('Admin.partners.detail', compact(['fetchedData', 'activeTab', 'applicationStatusCounts']));
+					return view('Admin.partners.detail', array_merge(
+                        compact('fetchedData', 'activeTab'),
+                        $sharedDropdowns,
+                        $sidebarContacts,
+                        $tabData
+                    ));
 				}
 				else 
 				{  
@@ -784,6 +792,106 @@ class PartnersController extends Controller
 			{
 				return redirect()->route('partners.index')->with('error', Config::get('constants.unauthorized'));
 			}
+	}
+
+	/**
+	 * Cached/shared dropdown data for partner detail modals (Phase 1 — one load per request).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function partnerDetailSharedDropdowns(int $partnerId): array
+	{
+		// Store plain arrays in cache (not Eloquent models) to avoid broken unserialization.
+		$partnerDetailWorkflowOptions = Cache::remember('partner_detail_workflow_options_v2', 3600, function () {
+			return Workflow::query()
+				->orderBy('name')
+				->get(['id', 'name'])
+				->map(static fn ($row) => ['id' => $row->id, 'name' => $row->name])
+				->values()
+				->all();
+		});
+
+		$partnerDetailCountries = Cache::remember('partner_detail_countries_v2', 86400, function () {
+			return Country::query()
+				->orderBy('name')
+				->get(['id', 'name'])
+				->map(static fn ($row) => ['id' => $row->id, 'name' => $row->name])
+				->values()
+				->all();
+		});
+
+		$partnerDetailEmailTemplates = Cache::remember('partner_detail_email_templates_v2', 3600, function () {
+			return CrmEmailTemplate::query()
+				->orderBy('name')
+				->get(['id', 'name'])
+				->map(static fn ($row) => ['id' => $row->id, 'name' => $row->name])
+				->values()
+				->all();
+		});
+
+		$partnerDetailStaffAssignees = Cache::remember('partner_detail_staff_assignees_v2', 3600, function () {
+			return Staff::query()
+				->select('id', 'office_id', 'first_name', 'last_name')
+				->where('status', 1)
+				->orderBy('first_name')
+				->with(['office:id,office_name'])
+				->get()
+				->map(static fn ($admin) => [
+					'id' => $admin->id,
+					'first_name' => $admin->first_name,
+					'last_name' => $admin->last_name,
+					'office_name' => $admin->office->office_name ?? '',
+				])
+				->values()
+				->all();
+		});
+
+		$partnerDetailProducts = Product::query()
+			->where('partner', $partnerId)
+			->orderByDesc('created_at')
+			->get(['id', 'name'])
+			->map(static fn ($row) => ['id' => $row->id, 'name' => $row->name])
+			->values()
+			->all();
+
+		$partnerDetailModalApplications = Application::query()
+			->where('partner_id', $partnerId)
+			->with([
+				'product:id,name',
+				'partner:id,partner_name',
+			])
+			->orderByDesc('created_at')
+			->get(['id', 'product_id', 'partner_id'])
+			->map(static fn ($application) => [
+				'id' => $application->id,
+				'label' => trim(($application->product->name ?? '').' ('.($application->partner->partner_name ?? '').')'),
+			])
+			->values()
+			->all();
+
+		$partnerDetailApplicationWorkflows = Workflow::query()
+			->whereIn('id', function ($query) use ($partnerId) {
+				$query->select('workflow')
+					->from('applications')
+					->where('partner_id', $partnerId)
+					->whereNotNull('workflow')
+					->distinct();
+			})
+			->orderBy('name')
+			->get(['id', 'name'])
+			->map(static fn ($row) => ['id' => $row->id, 'name' => $row->name])
+			->values()
+			->all();
+
+		return compact(
+			'partnerDetailWorkflowOptions',
+			'partnerDetailCountries',
+			'partnerDetailEmailTemplates',
+			'partnerDetailStaffAssignees',
+			'partnerDetailProducts',
+			'partnerDetailModalApplications',
+			'partnerDetailApplicationWorkflows'
+		);
 	}
 
 	/**
@@ -844,12 +952,264 @@ class PartnersController extends Controller
 			$data[] = $this->formatPartnerApplicationTabRow($application);
 		}
 
+		$statusCounts = Application::query()
+			->where('partner_id', $partnerId)
+			->selectRaw('status, COUNT(*) as total')
+			->groupBy('status')
+			->pluck('total', 'status');
+
+		return response()->json([
+			'draw'            => $draw,
+			'recordsTotal'    => $recordsTotal,
+			'recordsFiltered' => $recordsFiltered,
+			'data'            => $data,
+			'statusCounts'    => [
+				0 => (int) ($statusCounts[0] ?? 0),
+				1 => (int) ($statusCounts[1] ?? 0),
+				2 => (int) ($statusCounts[2] ?? 0),
+				3 => (int) ($statusCounts[3] ?? 0),
+			],
+		]);
+	}
+
+	/**
+	 * AJAX endpoint for the Accounts tab DataTables (server-side pagination).
+	 */
+	public function getAccountsTabData(Request $request, ?string $id = null)
+	{
+		$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
+
+		if (!$partnerId || !Partner::query()->where('id', $partnerId)->exists()) {
+			return response()->json(['message' => 'Partner not found'], 404);
+		}
+
+		$partner = Partner::query()->select('id', 'partner_name')->find($partnerId);
+
+		$draw   = (int) $request->input('draw', 1);
+		$start  = max(0, (int) $request->input('start', 0));
+		$length = (int) $request->input('length', 10);
+		$length = $length < 1 ? 10 : min($length, 500);
+
+		$applicationIds = Application::query()
+			->where('partner_id', $partnerId)
+			->pluck('id');
+
+		if ($applicationIds->isEmpty()) {
+			return response()->json([
+				'draw'            => $draw,
+				'recordsTotal'    => 0,
+				'recordsFiltered' => 0,
+				'data'            => [],
+			]);
+		}
+
+		$query = Invoice::query()->whereIn('application_id', $applicationIds);
+
+		$recordsTotal = (clone $query)->count();
+
+		$searchValue = trim((string) data_get($request->input('search'), 'value', ''));
+		if ($searchValue !== '') {
+			$like = '%' . addcslashes($searchValue, '%_\\') . '%';
+			$query->where(function ($q) use ($like) {
+				$q->where('id', 'ilike', $like)
+					->orWhereHas('application.workflow', function ($w) use ($like) {
+						$w->where('name', 'ilike', $like);
+					});
+			});
+		}
+
+		$recordsFiltered = (clone $query)->count();
+
+		$orderColIndex = (int) data_get($request->input('order'), '0.column', 1);
+		$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+		if ($orderColIndex === 0) {
+			$query->orderBy('id', $orderDir);
+		} else {
+			$query->orderBy('invoice_date', $orderDir)->orderBy('id', $orderDir);
+		}
+
+		$invoices = $query
+			->with([
+				'application.workflow:id,name',
+				'invoiceDetails',
+				'invoicePayments',
+			])
+			->skip($start)
+			->take($length)
+			->get();
+
+		$data = [];
+		foreach ($invoices as $invoice) {
+			$data[] = $this->formatPartnerAccountsTabRow($invoice, $partner);
+		}
+
 		return response()->json([
 			'draw'            => $draw,
 			'recordsTotal'    => $recordsTotal,
 			'recordsFiltered' => $recordsFiltered,
 			'data'            => $data,
 		]);
+	}
+
+	/**
+	 * Sidebar phone/email for partner detail (single query each, no redundant exists()).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function partnerSidebarContactDetails(int $partnerId, Partner $partner): array
+	{
+		$partnerSidebarPhones = PartnerPhone::query()
+			->select('partner_phone', 'partner_country_code', 'partner_phone_type')
+			->where('partner_id', $partnerId)
+			->get();
+
+		if ($partnerSidebarPhones->isEmpty() && !empty($partner->phone)) {
+			$partnerSidebarPhones = collect([(object) [
+				'partner_phone'        => $partner->phone,
+				'partner_country_code' => $partner->country_code,
+				'partner_phone_type'   => null,
+			]]);
+		}
+
+		$partnerSidebarEmails = PartnerEmail::query()
+			->select('partner_email', 'partner_email_type')
+			->where('partner_id', $partnerId)
+			->get();
+
+		if ($partnerSidebarEmails->isEmpty() && !empty($partner->email)) {
+			$partnerSidebarEmails = collect([(object) [
+				'partner_email'      => $partner->email,
+				'partner_email_type' => null,
+			]]);
+		}
+
+		return compact('partnerSidebarPhones', 'partnerSidebarEmails');
+	}
+
+	/**
+	 * Tab-specific datasets loaded only when the active tab needs them.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function partnerDetailTabData(int $partnerId, string $activeTab): array
+	{
+		$partnerDocuments = null;
+		$partnerNotUsedDocuments = null;
+		$invoiceDocumentMap = collect();
+
+		if ($activeTab === 'documents') {
+			$partnerDocuments = Document::query()
+				->where('client_id', $partnerId)
+				->where('type', 'partner')
+				->whereNull('not_used_doc')
+				->where(function ($query) {
+					$query->where('doc_type', 'documents')
+						->orWhere(function ($q) {
+							$q->whereNull('doc_type')->orWhere('doc_type', '');
+						});
+				})
+				->with(['user:id,first_name'])
+				->orderBy('updated_at', 'DESC')
+				->get();
+		}
+
+		if ($activeTab === 'notuseddocuments') {
+			$partnerNotUsedDocuments = Document::query()
+				->where('client_id', $partnerId)
+				->where('not_used_doc', 1)
+				->where('type', 'partner')
+				->where('doc_type', 'documents')
+				->with(['user:id,first_name'])
+				->orderBy('updated_at', 'DESC')
+				->get();
+		}
+
+		if ($activeTab === 'invoice') {
+			$docIds = DB::table('partner_student_invoices')
+				->where('partner_id', $partnerId)
+				->where('uploaded_doc_id', '>', 0)
+				->pluck('uploaded_doc_id')
+				->unique()
+				->values();
+
+			if ($docIds->isNotEmpty()) {
+				$invoiceDocumentMap = Document::query()
+					->whereIn('id', $docIds)
+					->select('id', 'myfile', 'client_id', 'doc_type')
+					->get()
+					->keyBy('id');
+			}
+		}
+
+		return compact('partnerDocuments', 'partnerNotUsedDocuments', 'invoiceDocumentMap');
+	}
+
+	private function formatPartnerAccountsTabRow(Invoice $invoicelist, ?Partner $partner): array
+	{
+		$workflow = $invoicelist->application?->workflow;
+
+		$netamount = 0;
+		$coom_amt  = 0;
+		$total_fee = 0;
+		foreach ($invoicelist->invoiceDetails as $invoiceitemdetail) {
+			$netamount += $invoiceitemdetail->netamount;
+			$coom_amt  += $invoiceitemdetail->comm_amt;
+			$total_fee += $invoiceitemdetail->total_fee;
+		}
+
+		$amount_rec = 0;
+		foreach ($invoicelist->invoicePayments as $paymentdetail) {
+			$amount_rec += $paymentdetail->amount_rec;
+		}
+
+		if ((int) $invoicelist->type === 1) {
+			$totaldue = $total_fee - $coom_amt;
+		} elseif ((int) $invoicelist->type === 2) {
+			$totaldue = $netamount - $amount_rec;
+		} else {
+			$totaldue = $netamount - $amount_rec;
+		}
+
+		if ((int) $invoicelist->type === 1) {
+			$rtype = 'Net Claim';
+		} elseif ((int) $invoicelist->type === 2) {
+			$rtype = 'Gross Claim';
+		} else {
+			$rtype = 'General';
+		}
+
+		$issueDateHtml = e($invoicelist->invoice_date ?? '')
+			. ' <span title="' . e($rtype) . '" class="ui label zippyLabel">' . e($rtype) . '</span>';
+
+		$serviceHtml = e($workflow->name ?? '') . '<br>' . e($partner->partner_name ?? '');
+
+		$statusHtml = ((int) $invoicelist->status === 1)
+			? '<span class="ag-label--circular" style="color: #6777ef">Paid</span>'
+			: '<span class="ag-label--circular" style="color: #ed5a5a">UnPaid</span>';
+
+		$actionsHtml = '<div class="dropdown d-inline">'
+			. '<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>'
+			. '<div class="dropdown-menu">'
+			. '<a class="dropdown-item has-icon" href="#">Send Email</a>'
+			. '<a target="_blank" class="dropdown-item has-icon" href="' . url('invoice/view/' . $invoicelist->id) . '">View</a>';
+
+		if ((int) $invoicelist->status === 0) {
+			$actionsHtml .= '<a target="_blank" class="dropdown-item has-icon" href="' . url('invoice/edit/' . $invoicelist->id) . '">Edit</a>'
+				. '<a data-netamount="' . e((string) $netamount) . '" data-dueamount="' . e((string) $totaldue) . '" data-invoiceid="' . (int) $invoicelist->id . '" class="dropdown-item has-icon addpaymentmodal" href="javascript:;"> Make Payment</a>';
+		}
+
+		$actionsHtml .= '</div></div>';
+
+		return [
+			(string) $invoicelist->id,
+			$issueDateHtml,
+			$serviceHtml,
+			'AUD ' . e((string) ($invoicelist->net_fee_rec ?? '')),
+			e((string) $amount_rec),
+			$statusHtml,
+			$actionsHtml,
+		];
 	}
 
 	/**
@@ -3664,30 +4024,52 @@ class PartnersController extends Controller
 
     //Get Partner all activity logs
     public function activities(Request $request){
-		if(Partner::query()->where('id', $request->partner_id)->exists()){
-			$activities = ActivitiesLog::query()->where('client_id', $request->partner_id)->where('task_group', 'partner')->orderby('created_at', 'DESC')->get();
-			$data = array();
-			foreach($activities as $activit){
-				$admin = \App\Models\Staff::query()->find($activit->created_by) ?? Admin::query()->find($activit->created_by);
-                $data[] = array(
-                    'activity_id' => $activit->id,
-					'subject' => $activit->subject,
-					'createdname' => substr($admin->first_name, 0, 1),
-					'name' => $admin->first_name,
-					'message' => $activit->description,
-					'date' => date('d M Y, H:i A', strtotime($activit->created_at)),
-                   'followup_date' => $activit->followup_date,
-                   'task_group' => $activit->task_group,
-                   'pin' => $activit->pin
-                );
-			}
+		$partnerId = (int) ($request->partner_id ?: $request->id);
 
-			$response['status'] 	= 	true;
-			$response['data']	=	$data;
-		} else {
-			$response['status'] 	= 	false;
-			$response['message']	=	'Please try again';
+		if ($partnerId <= 0 || !Partner::query()->where('id', $partnerId)->exists()) {
+			$response['status']  = false;
+			$response['message'] = 'Please try again';
+			echo json_encode($response);
+			return;
 		}
+
+		$activities = ActivitiesLog::query()
+			->where('client_id', $partnerId)
+			->where('task_group', 'partner')
+			->orderby('created_at', 'DESC')
+			->get();
+
+		$creatorIds = $activities->pluck('created_by')->unique()->filter()->values();
+		$staffMap = Staff::query()->whereIn('id', $creatorIds)->get()->keyBy('id');
+		$adminMap = Admin::query()->whereIn('id', $creatorIds)->get()->keyBy('id');
+
+		$data = [];
+		foreach ($activities as $activit) {
+			$admin = $staffMap->get($activit->created_by) ?? $adminMap->get($activit->created_by);
+			if (!$admin) {
+				continue;
+			}
+			$data[] = [
+				'activity_id'   => $activit->id,
+				'subject'       => $activit->subject,
+				'createdname'   => substr($admin->first_name, 0, 1),
+				'name'          => $admin->first_name,
+				'message'       => $activit->description,
+				'date'          => date('d M Y, H:i A', strtotime($activit->created_at)),
+				'followup_date' => $activit->followup_date,
+				'task_group'    => $activit->task_group,
+				'pin'           => $activit->pin,
+			];
+		}
+
+		$response['status'] = true;
+		$response['data']   = $data;
+		$response['html']   = view('Admin.partials.activities-list', [
+			'activities' => $activities,
+			'staffMap'   => $staffMap,
+			'adminMap'   => $adminMap,
+		])->render();
+
 		echo json_encode($response);
 	}
 
@@ -3772,9 +4154,16 @@ class PartnersController extends Controller
 		$type = $request->type;
 
 		$notelist = \App\Models\Note::query()->where('client_id',$client_id)->whereNull('assigned_to')->whereNull('task_group')->where('type',$type)->orderby('pin', 'DESC')->orderByRaw('created_at DESC NULLS LAST')->get();
+
+		$staffIds = $notelist->pluck('user_id')->unique()->filter();
+		$staffMap = Staff::query()->whereIn('id', $staffIds)->get()->keyBy('id');
+
 		ob_start();
 		foreach($notelist as $list){
-			$admin = \App\Models\Staff::query()->find($list->user_id);
+			$admin = $staffMap->get($list->user_id);
+			if (!$admin) {
+				continue;
+			}
 			?>
 			<div class="note_col" id="note_id_<?php echo $list->id; ?>">
                 <div class="note-icon bg-primary text-white" style="width: 50px;height: 50px;line-height: 50px;font-size: 20px;margin-right: 20px;border-radius: 50%;text-align: center;">
@@ -3832,7 +4221,11 @@ class PartnersController extends Controller
 			</div>
 			<?php
 		}
-		return ob_get_clean();
+		$output = ob_get_clean();
+		if ($notelist->isEmpty()) {
+			return '<h4>No Record Found</h4>';
+		}
+		return $output;
 	}
   
   
