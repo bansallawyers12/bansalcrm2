@@ -459,6 +459,51 @@
         return initTomSelect(el, options);
     }
 
+    /** Options for compact dropdowns (no search box) — mirrors Select2 minimumResultsForSearch: Infinity */
+    function compactTomSelectOptions(extra) {
+        return Object.assign({ width: '100%', minimumResultsForSearch: Infinity }, extra || {});
+    }
+
+    /** Destroy enhanced select, replace options HTML, re-init (AJAX cascade chains). */
+    function reinitTomSelectAfterHtml(el, html, options) {
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+        destroyEnhancedSelect(element);
+        element.innerHTML = html;
+        return initTomSelect(element, options || {});
+    }
+
+    /** Init Tom Select and restore the native value (edit pages with pre-selected options). */
+    function initTomSelectPreserveValue(el, options) {
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+        if (isTomSelect(element)) {
+            return element.tomselect;
+        }
+        var currentValue = element.value;
+        var instance = initTomSelect(element, options || {});
+        if (instance && currentValue) {
+            setEnhancedSelectValue(element, currentValue, true);
+        }
+        return instance;
+    }
+
+    /** Batch init matching elements, preserving each element's current value. */
+    function initTomSelectAllPreserveValues(selector, options) {
+        var instances = [];
+        document.querySelectorAll(selector).forEach(function (element) {
+            var instance = initTomSelectPreserveValue(element, options || {});
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+        return instances;
+    }
+
     function resolveModalDropdownParent(modalEl) {
         var modal = resolveElement(modalEl);
         if (!modal) {
@@ -553,6 +598,10 @@
     window.placeValidationError = placeValidationError;
     window.destroyEnhancedSelect = destroyEnhancedSelect;
     window.reinitTomSelect = reinitTomSelect;
+    window.compactTomSelectOptions = compactTomSelectOptions;
+    window.reinitTomSelectAfterHtml = reinitTomSelectAfterHtml;
+    window.initTomSelectPreserveValue = initTomSelectPreserveValue;
+    window.initTomSelectAllPreserveValues = initTomSelectAllPreserveValues;
     window.initModalTomSelects = initModalTomSelects;
     window.setEnhancedSelectValue = setEnhancedSelectValue;
     window.clearEnhancedSelectValue = clearEnhancedSelectValue;
@@ -570,6 +619,10 @@
         destroy: destroyTomSelect,
         destroyEnhanced: destroyEnhancedSelect,
         reinit: reinitTomSelect,
+        reinitAfterHtml: reinitTomSelectAfterHtml,
+        compactOptions: compactTomSelectOptions,
+        initPreserveValue: initTomSelectPreserveValue,
+        initAllPreserveValues: initTomSelectAllPreserveValues,
         initModal: initModalTomSelects,
         setValue: setEnhancedSelectValue,
         clearValue: clearEnhancedSelectValue,

@@ -115,8 +115,8 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 | Area | Migrated | Deferred (still Select2) |
 |------|----------|---------------------------|
 | Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` → **Phase 4** |
-| Partner create/edit | `country`, `branch_country` (add-branch modal) | `#partner_type` / `#getpartnertype` destroy-reinit, `addressselect2` fields |
-| Product create/edit | `product_type`, `intake_month` | `#intrested_product` → `#intrested_branch` destroy/reinit chain |
+| Partner create/edit | `country`, `branch_country` (add-branch modal) | `#getpartnertype` → `#partner_type` chain → **Phase 5**; add-branch modal `.select2` chain |
+| Product create/edit | `product_type`, `intake_month`, `#intrested_product` / `#intrested_branch` | — |
 | Leads create | Same static set as client create (via `client-create.js`) | `related_files`, `lead_source`, `subagent` → **Phase 4** |
 | Modals (`addclientmodal`, `addpartnermodal`, `addproductmodal`) | Static: `application`, `fee_type`, `template`, `agent_id`, `checklist[]`, `degree_level`, `document_type` | `workflow`/`partner`/`product` chains, `applicationselect2*`, `productselect2`, AJAX `contact_name` |
 
@@ -150,13 +150,25 @@ Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimum
 | `#lead_source` subagent toggle after Tom Select init | `syncSubagentVisibility()` uses `tomselect.getValue()` |
 | `resolveUrl` missed `getRecipients` key used on edit page | Added `App.getUrl('getRecipients')` |
 
-## Phase 5 candidates
+## Phase 5 — Destroy/reinit chains: products + partners (Done)
 
-1. Destroy-reinit chains — partner type, `intrested_branch`, application/modal handlers
-2. Invoice, staff, agents, action pages (assorted `.select2` / `.timezoneselect2`)
-3. Header modern search (`modern-search.js`) — last (high visibility)
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| Product create/edit | `#intrested_product`, `#intrested_branch` | `initTomSelectPreserveValue` + `reinitTomSelectAfterHtml` on partner change → `/getnewPartnerbranch` |
+| Partner create | `#getpartnertype`, `#partner_type`, `service_workflow` | `compactTomSelectOptions()` + `reinitTomSelectAfterHtml` on category change → `/getpaymenttype` |
+| Partner edit | `partner_type`, `service_workflow` | `initTomSelectAllPreserveValues` (saved selections preserved) |
+| `tomselect-init.js` | `reinitTomSelectAfterHtml`, `compactTomSelectOptions`, `initTomSelectPreserveValue`, `initTomSelectAllPreserveValues` | Shared cascade helpers |
 
-## Pilot pages (superseded — see Phase 5)
+Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6).
+
+## Phase 6 candidates
+
+1. Application/modal handlers — `applicationselect2`, `productselect2`, modal workflow chains
+2. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
+3. Header modern search (`modern-search.js`) — last
+4. Ongoing sheet stage filter (`.ongoing-filter-select2`)
+
+## Pilot pages (superseded — see Phase 6)
 
 ## Phase 0 test checklist
 
@@ -230,4 +242,5 @@ s.remove();
 | 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
 | 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
 | 4 | Related files AJAX + leads source/subagent | **Done** |
-| 5+ | Destroy-reinit chains, invoice/staff/agents, modern search | Pending |
+| 5 | Product partner→branch chain; partner create/edit address selects | **Done** |
+| 6+ | Application modals, invoice/staff/agents, modern search, ongoing sheet | Pending |

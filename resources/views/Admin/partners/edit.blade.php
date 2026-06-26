@@ -95,7 +95,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="partner_type">Partner Type <span class="span_req">*</span></label>
-																<select data-valid="required" class="form-control addressselect2" name="partner_type" {{!$hasMasterCategory ? 'style=background-color:#fff3cd;' : ''}}>
+																<select data-valid="required" class="form-control tomselect" name="partner_type" {{!$hasMasterCategory ? 'style=background-color:#fff3cd;' : ''}}>
 																<option value="">Select a Partner Type</option>
 																	@foreach($partner_type as $clist)
 																	<option <?php if($clist->id == $fetchedData->partner_type){ echo 'selected'; } ?> value="{{$clist->id}}">{{$clist->name}}</option>
@@ -147,7 +147,7 @@
 																	$hasValidWorkflow = $currentWorkflow !== null;
 																}
 																?>
-																<select class="form-control addressselect2" name="service_workflow" {{!$hasValidWorkflow && !empty($fetchedData->service_workflow) ? 'style=background-color:#fff3cd;' : ''}}>
+																<select class="form-control tomselect" name="service_workflow" {{!$hasValidWorkflow && !empty($fetchedData->service_workflow) ? 'style=background-color:#fff3cd;' : ''}}>
 																<option value="">Choose Service workflow</option>
 																	@foreach($allWorkflows as $wlist)
 																		<option <?php if($wlist->id == $fetchedData->service_workflow){ echo 'selected'; } ?> value="{{$wlist->id}}">{{$wlist->name}}</option>
@@ -1078,47 +1078,21 @@ jQuery(document).ready(function($){
         }
 	});
 
-    // Initialize Select2 on remaining select2 elements (branch modal chain deferred)
-    $(".select2:not(.tomselect):not(.tomselect-migrated)").select2({ dropdownParent: $(".addbranch .modal-content") });
-    
-    // FIX: Initialize addressselect2 with proper configuration to prevent options from disappearing
-    // IMPORTANT: Delay initialization slightly to ensure DOM is fully loaded
-    setTimeout(function() {
-        $(".addressselect2").each(function() {
-            var $select = $(this);
-            
-            // Check if already initialized
-            if ($select.hasClass("select2-hidden-accessible")) {
-                // Already initialized, skip
-                return;
-            }
-            
-            // Store current value before initializing
-            var currentValue = $select.val();
-            
-            // Initialize Select2 with preserved options
-            $select.select2({
-                minimumResultsForSearch: Infinity,  // Disable search
-                width: '100%',  // Ensure proper width
-                placeholder: $select.find('option:first').text(),  // Use first option as placeholder
-                allowClear: false,  // Don't allow clearing selection
-                // Keep existing data from HTML
-                data: null
-            });
-            
-            // Restore selected value after initialization
-            if (currentValue) {
-                $select.val(currentValue).trigger('change.select2');
-            }
-        });
-    }, 100);  // 100ms delay to ensure DOM is ready
-
+    // Initialize Tom Select on partner form dropdowns (compact — no search box)
     if (typeof waitForTomSelect === 'function') {
         waitForTomSelect().then(function () {
-            initTomSelect('select[name="country"]', {
-                width: '100%',
-                minimumResultsForSearch: Infinity
-            });
+            var compact = typeof compactTomSelectOptions === 'function'
+                ? compactTomSelectOptions()
+                : { width: '100%', minimumResultsForSearch: Infinity };
+
+            if (typeof $.fn.select2 === 'function') {
+                $(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({
+                    dropdownParent: $(".addbranch .modal-content")
+                });
+            }
+
+            initTomSelectAllPreserveValues('select.tomselect[name="partner_type"], select.tomselect[name="service_workflow"]', compact);
+            initTomSelectPreserveValue('select[name="country"]', compact);
         });
     }
 

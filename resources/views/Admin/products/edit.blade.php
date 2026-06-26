@@ -44,7 +44,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="partner">Partner</label>
-														<select data-valid="required" class="form-control select2" id="intrested_product" name="partner">
+														<select data-valid="required" class="form-control tomselect" id="intrested_product" name="partner">
 															<option value="">Select Partner</option>
 															@foreach(\App\Models\Partner::all() as $plist)
 																<option value="{{$plist->id}}" <?php if($plist->id == $fetchedData->partner){ echo 'selected'; } ?>>{{$plist->partner_name}}</option>
@@ -60,7 +60,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="branches">Branches</label>
-														<select data-valid="required" class="form-control select2" id="intrested_branch" name="branches">
+														<select data-valid="required" class="form-control tomselect" id="intrested_branch" name="branches">
 															<option value="">Select</option>
 															<?php
 															$branches = \App\Models\PartnerBranch::Where('partner_id',$fetchedData->partner)->orderby('name','ASC')->get();
@@ -198,48 +198,46 @@
 @section('scripts')
 <script>
 jQuery(document).ready(function($){
-	if (typeof waitForTomSelect === 'function') {
-		waitForTomSelect().then(function () {
-			initTomSelect('select[name="product_type"]', { width: '100%', allowClear: true });
-			initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true, placeholder: '-- Select Intake Month --' });
-		});
+	var productBranchOpts = { width: '100%', allowClear: true };
+
+	function initProductFormTomSelects() {
+		if (typeof initTomSelect !== 'function') {
+			return;
+		}
+		initTomSelectPreserveValue('#intrested_product', Object.assign({
+			placeholder: 'Select Partner',
+			allowClear: true
+		}, productBranchOpts));
+		initTomSelectPreserveValue('#intrested_branch', productBranchOpts);
+		initTomSelect('select[name="product_type"]', { width: '100%', allowClear: true });
+		initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true, placeholder: '-- Select Intake Month --' });
 	}
 
-	$(document).delegate('#intrested_product','change', function(){
+	if (typeof waitForTomSelect === 'function') {
+		waitForTomSelect().then(initProductFormTomSelects);
+	}
+
+	$(document).delegate('#intrested_product', 'change', function(){
 		var v = $('#intrested_product option:selected').val();
-		if(v != ''){
+		if (v != '') {
 			$('.popuploader').show();
 			$.ajax({
 				url: '{{URL::to('/getnewPartnerbranch')}}',
-				type:'GET',
-				data:{cat_id:v},
-				success:function(response){
+				type: 'GET',
+				data: { cat_id: v },
+				success: function(response) {
 					$('.popuploader').hide();
-					// Destroy existing Select2 instance if it exists
-					if($('#intrested_branch').hasClass('select2-hidden-accessible')){
-						$('#intrested_branch').select2('destroy');
+					if (typeof reinitTomSelectAfterHtml === 'function') {
+						reinitTomSelectAfterHtml('#intrested_branch', response, productBranchOpts);
 					}
-					// Update the HTML
-					$('#intrested_branch').html(response);
-					// Re-initialize Select2 with search enabled
-					$('#intrested_branch').select2({
-						minimumResultsForSearch: 0
-					});
 				},
-				error:function(xhr, status, error){
+				error: function(xhr, status, error) {
 					$('.popuploader').hide();
 					console.error('Failed to load branches:', error);
 				}
 			});
-		} else {
-			// Clear branches dropdown when no partner is selected
-			if($('#intrested_branch').hasClass('select2-hidden-accessible')){
-				$('#intrested_branch').select2('destroy');
-			}
-			$('#intrested_branch').html('<option value="">Select</option>');
-			$('#intrested_branch').select2({
-				minimumResultsForSearch: 0
-			});
+		} else if (typeof reinitTomSelectAfterHtml === 'function') {
+			reinitTomSelectAfterHtml('#intrested_branch', '<option value="">Select</option>', productBranchOpts);
 		}
 	});
 });
