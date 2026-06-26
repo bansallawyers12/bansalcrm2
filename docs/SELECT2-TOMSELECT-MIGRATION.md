@@ -31,8 +31,11 @@ Phase 0 foundation: Tom Select loads alongside Select2. No existing `.select2()`
 | `isSelect2(el)` | True if Select2-enhanced (jQuery data or `select2-hidden-accessible`) |
 | `getEnhancementWrapper(el)` | Returns `.ts-wrapper` or `.select2-container` sibling |
 | `placeValidationError(el, errorHtml)` | Inserts validation error after enhancement wrapper |
+| `destroyEnhancedSelect(el)` | Destroy Tom Select or Select2 on element |
+| `reinitTomSelect(el, options)` | Destroy then init Tom Select |
+| `initModalTomSelects(modalEl, options)` | Init all `select.tomselect` in modal on `shown.bs.modal` |
+| `setEnhancedSelectValue(el, value)` | Set value on Tom Select or native select |
 | `waitForTomSelect()` | Promise when `TomSelect` global is available |
-| `BansalTomSelect.*` | Namespace with the same methods |
 
 ## Migration workflow (per page)
 
@@ -103,10 +106,29 @@ For each migrated control:
 - [ ] No double-init (`isTomSelect(el)` true, `isSelect2(el)` false)
 - [ ] Modal selects: dropdown visible above backdrop (`dropdownParent` set where needed)
 
-## Pilot pages (Phase 2 candidates)
+| `BansalTomSelect.*` | Namespace with the same methods |
+
+Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dropdownParent = `.modal-content`).
+
+## Phase 2 — Form pages: static + multi + modal (Done)
+
+| Area | Migrated | Deferred (still Select2) |
+|------|----------|---------------------------|
+| Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` (`.js-data-example-ajaxcc`), `lead_source`, `subagent` |
+| Partner create/edit | `country`, `branch_country` (add-branch modal) | `#partner_type` / `#getpartnertype` destroy-reinit, `addressselect2` fields |
+| Product create/edit | `product_type`, `intake_month` | `#intrested_product` → `#intrested_branch` destroy/reinit chain |
+| Leads create | Same static set as client create (via `client-create.js`) | `related_files` AJAX |
+| Modals (`addclientmodal`, `addpartnermodal`, `addproductmodal`) | Static: `application`, `fee_type`, `template`, `agent_id`, `checklist[]`, `degree_level`, `document_type` | `workflow`/`partner`/`product` chains, `applicationselect2*`, `productselect2`, AJAX `contact_name` |
+
+Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
+
+## Phase 3 candidates
 
 1. **Audit Logs** — `resources/views/Admin/auditlogs/index.blade.php`
 2. **Sheets Insights** — `resources/views/Admin/sheets/insights.blade.php`
+3. AJAX / destroy-reinit chains (related files, partner type, intrested_branch, application handlers)
+
+## Pilot pages (superseded — see Phase 3)
 
 ## Phase 0 test checklist
 
@@ -177,4 +199,5 @@ s.remove();
 |-------|-------|--------|
 | 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
 | 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
-| 2+ | Page-by-page migration (audit logs, insights, ajax selects, etc.) | Pending |
+| 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
+| 3+ | AJAX chains, audit logs, insights, remaining pages | Pending |

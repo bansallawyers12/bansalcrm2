@@ -407,6 +407,84 @@
         }
     }
 
+    function destroyEnhancedSelect(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return;
+        }
+        if (element.tomselect) {
+            destroyTomSelect(element);
+            return;
+        }
+        if (isSelect2(element) && window.jQuery) {
+            window.jQuery(element).select2('destroy');
+        }
+    }
+
+    function reinitTomSelect(el, options) {
+        destroyEnhancedSelect(el);
+        return initTomSelect(el, options);
+    }
+
+    function resolveModalDropdownParent(modalEl) {
+        var modal = resolveElement(modalEl);
+        if (!modal) {
+            return null;
+        }
+        return modal.querySelector('.modal-content') || modal;
+    }
+
+    /**
+     * Init all select.tomselect inside a modal (call on shown.bs.modal).
+     */
+    function initModalTomSelects(modalEl, options) {
+        var modal = resolveElement(modalEl);
+        if (!modal || typeof TomSelect === 'undefined') {
+            return [];
+        }
+
+        var dropdownParent = resolveModalDropdownParent(modal);
+        var base = Object.assign({ width: '100%', dropdownParent: dropdownParent }, options || {});
+        var instances = [];
+
+        modal.querySelectorAll('select.tomselect').forEach(function (element) {
+            if (element.tomselect) {
+                return;
+            }
+            var opts = Object.assign({}, base);
+            if (element.multiple) {
+                opts.plugins = ensurePlugin(opts.plugins, 'remove_button');
+                if (opts.closeAfterSelect === undefined) {
+                    opts.closeAfterSelect = false;
+                }
+            }
+            var instance = initTomSelect(element, opts);
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+
+        return instances;
+    }
+
+    function setEnhancedSelectValue(el, value, silent) {
+        var element = resolveElement(el);
+        if (!element) {
+            return;
+        }
+        if (element.tomselect) {
+            if (element.multiple && Array.isArray(value)) {
+                element.tomselect.setValue(value, silent !== false);
+            } else {
+                element.tomselect.setValue(value, silent !== false);
+            }
+            return;
+        }
+        if (window.jQuery) {
+            window.jQuery(element).val(value).trigger('change');
+        }
+    }
+
     function waitForTomSelect(maxAttempts) {
         var limit = maxAttempts || 200;
 
@@ -436,11 +514,26 @@
     window.isSelect2 = isSelect2;
     window.getEnhancementWrapper = getEnhancementWrapper;
     window.placeValidationError = placeValidationError;
+    window.destroyEnhancedSelect = destroyEnhancedSelect;
+    window.reinitTomSelect = reinitTomSelect;
+    window.initModalTomSelects = initModalTomSelects;
+    window.setEnhancedSelectValue = setEnhancedSelectValue;
     window.waitForTomSelect = waitForTomSelect;
+
+    if (window.jQuery) {
+        window.jQuery(document).on('shown.bs.modal', '.modal', function () {
+            initModalTomSelects(this);
+        });
+    }
+
     window.BansalTomSelect = {
         init: initTomSelect,
         initAll: initTomSelectAll,
         destroy: destroyTomSelect,
+        destroyEnhanced: destroyEnhancedSelect,
+        reinit: reinitTomSelect,
+        initModal: initModalTomSelects,
+        setValue: setEnhancedSelectValue,
         isTomSelect: isTomSelect,
         isSelect2: isSelect2,
         getEnhancementWrapper: getEnhancementWrapper,

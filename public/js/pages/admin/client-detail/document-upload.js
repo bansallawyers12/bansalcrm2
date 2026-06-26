@@ -48,7 +48,6 @@ jQuery(document).ready(function($){
     
     $(document).on('click', '.add_alldocument_doc', function () {
         $('.create_alldocument_docs').modal('show');
-        $("#checklist").select2({dropdownParent: $(".create_alldocument_docs")});
     });
 
     // Trigger file input when "Add Document" button is clicked

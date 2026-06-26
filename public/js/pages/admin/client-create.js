@@ -187,6 +187,45 @@
     }
 
     /**
+     * Initialize Tom Select on client form static fields (Phase 2).
+     */
+    function initClientFormTomSelects() {
+        if (typeof waitForTomSelect !== 'function' || typeof initTomSelect !== 'function') {
+            return;
+        }
+
+        waitForTomSelect().then(function () {
+            var fullWidth = { width: '100%' };
+
+            initTomSelect('#visa_type', Object.assign({
+                placeholder: '- Select Visa Type -',
+                allowClear: true
+            }, fullWidth));
+
+            initTomSelect('select[name="country_passport"]', fullWidth);
+
+            initTomSelect('#country_select', { width: '200px' });
+
+            initTomSelect('select[name="service"]', Object.assign({
+                placeholder: '- Select Lead Service -',
+                allowClear: true
+            }, fullWidth));
+
+            initTomSelect('#assign_to', Object.assign({}, fullWidth, {
+                plugins: ['remove_button'],
+                closeAfterSelect: false
+            }));
+
+            if (document.querySelector('#tag')) {
+                initTomSelect('#tag', Object.assign({}, fullWidth, {
+                    plugins: ['remove_button'],
+                    closeAfterSelect: false
+                }));
+            }
+        });
+    }
+
+    /**
      * Show/hide subagent field based on source selection
      */
     function initSubagentToggle() {
@@ -228,6 +267,9 @@
         setTimeout(function() {
             ensureRelatedFilesSelect2(20);
         }, 1000);
+
+        // Initialize Tom Select on static form fields
+        initClientFormTomSelects();
 
         // Initialize subagent toggle
         initSubagentToggle();

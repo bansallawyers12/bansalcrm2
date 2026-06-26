@@ -21,7 +21,7 @@
             }
 
             var $modal = $(modalSelector);
-            $modal.find('select.select2').each(function(){
+            $modal.find('select.select2:not(.tomselect):not(.tomselect-migrated)').each(function(){
                 var $select = $(this);
                 if ($select.hasClass('select2-hidden-accessible')) {
                     $select.select2('destroy');

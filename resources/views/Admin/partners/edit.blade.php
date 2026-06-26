@@ -256,7 +256,7 @@
 													<div class="form-group">
 														<label for="country">Country</label>
 
-														<select class="form-control  addressselect2" name="country" >
+														<select class="form-control tomselect" name="country" >
 														<?php
 															foreach(\App\Models\Country::all() as $list){
 																?>
@@ -617,7 +617,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="branch_country">Country</label>
-								<select class="form-control branch_country select2" name="branch_country" >
+								<select class="form-control branch_country tomselect" name="branch_country" >
 									<option value="">Select</option>
 									<?php
 									foreach(\App\Models\Country::all() as $list){
@@ -851,7 +851,11 @@ jQuery(document).ready(function($){
 		$('.savebranch').show();
 		$('#update_branch').hide();
 		$('#branchform')[0].reset();
-		$(".branch_country").val('Australia').trigger('change') ;
+		if (typeof setEnhancedSelectValue === 'function') {
+			setEnhancedSelectValue('.branch_country', 'Australia');
+		} else {
+			$(".branch_country").val('Australia').trigger('change');
+		}
 		$('.addbranch').modal('show');
 	});
 
@@ -943,7 +947,11 @@ jQuery(document).ready(function($){
 				$('.branchdata').append(html);
 				$('#branchform')[0].reset();
 				$('.addbranch').modal('hide');
-                $(".branch_country").val('').trigger('change') ;
+                if (typeof setEnhancedSelectValue === 'function') {
+                    setEnhancedSelectValue('.branch_country', '');
+                } else {
+                    $(".branch_country").val('').trigger('change');
+                }
 				itag++;
 			}
 		}
@@ -1039,7 +1047,11 @@ jQuery(document).ready(function($){
 		}
 
 		$('input[name="branch_phone"]').val(c.phone);
-		$(".branch_country").val(c.country).trigger('change') ;
+		if (typeof setEnhancedSelectValue === 'function') {
+			setEnhancedSelectValue('.branch_country', c.country);
+		} else {
+			$(".branch_country").val(c.country).trigger('change');
+		}
 		//alert(c.ccode);
 		$('#branchform select[name="brnch_country_code"]').val(c.ccode || '');
 		$('#clientModalLabel').html('Edit Branch');
@@ -1057,8 +1069,8 @@ jQuery(document).ready(function($){
         }
 	});
 
-    // Initialize Select2 on all select2 elements
-    $(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
+    // Initialize Select2 on remaining select2 elements (branch modal chain deferred)
+    $(".select2:not(.tomselect):not(.tomselect-migrated)").select2({ dropdownParent: $(".addbranch .modal-content") });
     
     // FIX: Initialize addressselect2 with proper configuration to prevent options from disappearing
     // IMPORTANT: Delay initialization slightly to ensure DOM is fully loaded
@@ -1091,6 +1103,15 @@ jQuery(document).ready(function($){
             }
         });
     }, 100);  // 100ms delay to ensure DOM is ready
+
+    if (typeof waitForTomSelect === 'function') {
+        waitForTomSelect().then(function () {
+            initTomSelect('select[name="country"]', {
+                width: '100%',
+                minimumResultsForSearch: Infinity
+            });
+        });
+    }
 
 
     ////////////////////////////////////////

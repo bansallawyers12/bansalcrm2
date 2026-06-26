@@ -79,7 +79,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="product_type">Product Type</label>
-														<select class="form-control select2" name="product_type">
+														<select class="form-control tomselect" name="product_type">
 														<option value=""></option>
 				@foreach(\App\Models\ProductType::all() as $plist)
 					<option value="{{$plist->name}}" <?php if($plist->name == $fetchedData->product_type){ echo 'selected'; } ?>>{{$plist->name}}</option>
@@ -134,7 +134,7 @@
 												<div class="col-12 col-md-6 col-lg-6">
 													<div class="form-group"> 
 														<label for="intake_month">Intake Month</label>
-														<select class="form-control select2" name="intake_month">
+														<select class="form-control tomselect" name="intake_month">
 															<option>-- Select Intake Month --</option>
 															<option value="January" <?php if($fetchedData->intake_month == 'January'){ echo 'selected'; } ?>>January</option>
 															<option value="February" <?php if($fetchedData->intake_month == 'February'){ echo 'selected'; } ?>>February</option>
@@ -198,6 +198,13 @@
 @section('scripts')
 <script>
 jQuery(document).ready(function($){
+	if (typeof waitForTomSelect === 'function') {
+		waitForTomSelect().then(function () {
+			initTomSelect('select[name="product_type"]', { width: '100%', allowClear: true });
+			initTomSelect('select[name="intake_month"]', { width: '100%', allowClear: true });
+		});
+	}
+
 	$(document).delegate('#intrested_product','change', function(){
 		var v = $('#intrested_product option:selected').val();
 		if(v != ''){

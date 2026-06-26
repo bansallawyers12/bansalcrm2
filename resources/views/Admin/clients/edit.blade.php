@@ -721,7 +721,7 @@
 										<div class="col-md-4 col-sm-12">
 											<div class="form-group"> 
 												<label for="visa_type">Visa Type</label>
-												<select class="form-control select2" name="visa_type">
+												<select class="form-control tomselect" name="visa_type">
 													<option value="">- Select Visa Type -</option>
 													@foreach(\App\Models\VisaType::orderby('name', 'ASC')->get() as $visalist)
 														<option @if(old('visa_type', $fetchedData->visa_type) == $visalist->name) selected @endif value="{{$visalist->name}}">{{$visalist->name}}</option>
@@ -787,7 +787,7 @@
 											<div class="col-md-4 col-sm-12">
 												<div class="form-group"> 
 													<label for="country_passport">Country of Passport</label>
-													<select class="form-control select2" name="country_passport">
+													<select class="form-control tomselect" name="country_passport">
 													<?php
 														foreach(\App\Models\Country::all() as $list){
 															?>
@@ -887,7 +887,7 @@
 										
 										<div class="form-group">
 											<label for="country">Country</label>
-											<select class="form-control select2" id="country_select" name="country">
+											<select class="form-control tomselect" id="country_select" name="country">
 											<?php
 												foreach(\App\Models\Country::all() as $list){
 													?>
@@ -1114,7 +1114,7 @@
 													<div class="col-sm-3">
 										<div class="form-group">
 											<label for="service">Service <span style="color:#ff0000;">*</span></label>
-											<select class="form-control select2" name="service" data-valid="required">
+											<select class="form-control tomselect" name="service" data-valid="required">
 												<option value="">- Select Lead Service -</option>
 												@foreach(\App\Models\LeadService::orderby('name', 'ASC')->get() as $leadservlist)
 												<option @if(old('service', $fetchedData->service) == $leadservlist->name) selected @endif value="{{$leadservlist->name}}">{{$leadservlist->name}}</option>
@@ -1145,7 +1145,7 @@
 										<div class="form-group">
 											<label for="assign_to">Assign To <span style="color:#ff0000;">*</span></label>
                                           
-											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control select2" data-valid="required" multiple="multiple">
+											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control tomselect" data-valid="required" multiple="multiple">
 											<?php
                                             if( !empty($fetchedData->assignee) )
                                             {

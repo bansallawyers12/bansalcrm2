@@ -167,7 +167,7 @@
 					<div class="col-12 col-md-6 col-lg-6">
 						<div class="form-group">
 							<label for="degree_level">Degree Level</label> 	
-							<select data-valid="required" class="form-control degree_level select2" name="degree_level">
+							<select data-valid="required" class="form-control degree_level tomselect" name="degree_level">
 								<option value=""></option>
 								<option value="Bachelor">Bachelor</option>
 									<option value="Certificate">Certificate</option>
@@ -259,7 +259,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Application <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="application">
+								<select data-valid="required" class="form-control tomselect" name="application">
 									<option value="">Select</option>
 									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->get() as $aplist)
 									<?php
@@ -328,7 +328,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Service <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="application">
+								<select data-valid="required" class="form-control tomselect" name="application">
 									<option value="">Select</option>
 									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->select('workflow')->distinct()->get() as $aplist)
 									<?php
@@ -487,7 +487,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="document_type">Document Type <span class="span_req">*</span></label>
-								<select class="form-control select2" name="document_type" data-valid="required">
+								<select class="form-control tomselect" name="document_type" data-valid="required">
 									<option value="">Please Select Document Type</option>
 									<option value="Salary Statement">Salary Statement</option>
 									<option value="Experience Letter">Experience Letter</option>
@@ -655,7 +655,7 @@
 									<div class="fees_type_col custom_type_col">
 										<div class="feetype_field">
 											<div class="form-group">
-												<select class="form-control select2" name="fee_type" data-valid="required">
+												<select class="form-control tomselect" name="fee_type" data-valid="required">
 													<option value="">Select Fee Type</option>
 													<option value="Tution Fees" selected>Tution Fees</option>
 												</select>
@@ -756,7 +756,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="fee_type">Invoice Type <span class="span_req">*</span></label>
-								<select class="form-control select2" name="fee_type" data-valid="required">
+								<select class="form-control tomselect" name="fee_type" data-valid="required">
 									<option value="">Select Invoice Type</option>
 									<option value="Net Claim">Net Claim</option>
 									<option value="Gross Claim">Gross Claim</option>
@@ -828,7 +828,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="template">Templates </label>
-								<select data-valid="" class="form-control select2 selectapplicationtemplate" name="template">
+								<select data-valid="" class="form-control tomselect selectapplicationtemplate" name="template">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>

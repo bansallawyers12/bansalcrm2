@@ -794,8 +794,37 @@ jQuery(document).ready(function($){
     // ============================================================================
     // ADDITIONAL CONTACT SECTION
     // ============================================================================
-    
-    $("#country_select").select2({ width: '200px' });
+
+    function initClientFormTomSelects() {
+        if (typeof waitForTomSelect !== 'function' || typeof initTomSelect !== 'function') {
+            return;
+        }
+
+        waitForTomSelect().then(function () {
+            var fullWidth = { width: '100%' };
+
+            initTomSelect('select[name="visa_type"]', Object.assign({
+                placeholder: '- Select Visa Type -',
+                allowClear: true
+            }, fullWidth));
+
+            initTomSelect('select[name="country_passport"]', fullWidth);
+
+            initTomSelect('#country_select', { width: '200px' });
+
+            initTomSelect('select[name="service"]', Object.assign({
+                placeholder: '- Select Lead Service -',
+                allowClear: true
+            }, fullWidth));
+
+            initTomSelect('#assign_to', Object.assign({}, fullWidth, {
+                plugins: ['remove_button'],
+                closeAfterSelect: false
+            }));
+        });
+    }
+
+    initClientFormTomSelects();
     
     $(document).delegate('.add_other_email_phone', 'click', function(){
         const section = $('.additional-contact-section');

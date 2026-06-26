@@ -217,7 +217,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group">
 														<label for="country">Country</label>
-														<select class="form-control addressselect2" name="country" >
+														<select class="form-control tomselect" name="country" >
 														<?php
 															foreach(\App\Models\Country::all() as $list){
 																?>
@@ -441,7 +441,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="branch_country">Country</label>
-								<select class="form-control branch_country select2" name="branch_country" >
+								<select class="form-control branch_country tomselect" name="branch_country" >
 									<option value="">Select</option>
 									<?php
 									foreach(\App\Models\Country::all() as $list){
@@ -694,7 +694,7 @@ jQuery(document).ready(function($){
 		console.log('Partner Create: Initializing Select2');
 
 		if ($(".addbranch .modal-content").length > 0) {
-			$(".select2").select2({ dropdownParent: $(".addbranch .modal-content") });
+			$(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({ dropdownParent: $(".addbranch .modal-content") });
 		}
 
 		$(".addressselect2").each(function() {
@@ -715,6 +715,15 @@ jQuery(document).ready(function($){
 
 		window.__partnerCreateSelect2Initialized = true;
 		console.log('Partner Create: Select2 initialization complete');
+
+		if (typeof waitForTomSelect === 'function') {
+			waitForTomSelect().then(function () {
+				initTomSelect('select[name="country"]', {
+					width: '100%',
+					minimumResultsForSearch: Infinity
+				});
+			});
+		}
 	}
 
 	var branchdata = new Array();
@@ -725,7 +734,11 @@ jQuery(document).ready(function($){
 		$('.savebranch').show();
 		$('#update_branch').hide();
 		$('#branchform')[0].reset();
-		$(".branch_country").val('Australia').trigger('change') ;
+		if (typeof setEnhancedSelectValue === 'function') {
+			setEnhancedSelectValue('.branch_country', 'Australia');
+		} else {
+			$(".branch_country").val('Australia').trigger('change');
+		}
 	    $('.addbranch').modal('show');
 	});
 

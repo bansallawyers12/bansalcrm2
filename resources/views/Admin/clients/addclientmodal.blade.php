@@ -386,7 +386,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Application <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="application">
+								<select data-valid="required" class="form-control tomselect" name="application">
 									<option value="">Select</option>
 									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->get() as $aplist)
 									<?php
@@ -455,7 +455,7 @@
 						<div class="col-12 col-md-12 col-lg-12">
 							<div class="form-group">
 								<label for="description">Service <span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="application">
+								<select data-valid="required" class="form-control tomselect" name="application">
 									<option value="">Select</option>
 									@foreach(\App\Models\Application::where('client_id',$fetchedData->id)->select('workflow')->distinct()->get() as $aplist)
 									<?php
@@ -775,7 +775,7 @@
 									<div class="fees_type_col custom_type_col">
 										<div class="feetype_field">
 											<div class="form-group">
-												<select class="form-control select2" name="fee_type" data-valid="required">
+												<select class="form-control tomselect" name="fee_type" data-valid="required">
 													<option value="">Select Fee Type</option>
 													<option value="Accommodation Fee">Accommodation Fee</option>
 													<option value="Administration Fee">Administration Fee</option>
@@ -880,7 +880,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="fee_type">Invoice Type <span class="span_req">*</span></label>
-								<select class="form-control select2" name="fee_type" data-valid="required">
+								<select class="form-control tomselect" name="fee_type" data-valid="required">
 									<option value="">Select Invoice Type</option>
 									<option value="Net Claim">Net Claim</option>
 									<option value="Gross Claim">Gross Claim</option>
@@ -952,7 +952,7 @@
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="template">Templates </label>
-								<select data-valid="" class="form-control select2 selectapplicationtemplate" name="template" id="email_template_select">
+								<select data-valid="" class="form-control tomselect selectapplicationtemplate" name="template" id="email_template_select">
 									<option value="">Select</option>
 									@foreach(\App\Models\CrmEmailTemplate::all() as $list)
 										<option value="{{$list->id}}">{{$list->name}}</option>
@@ -1370,7 +1370,7 @@
                         <div class="col-6 col-md-6 col-lg-6 d-none">
                             <div class="form-group">
                                 <label for="agent_id">Agent <span class="span_req">*</span></label>
-                                <select class="form-control select2" name="agent_id" id="sel_client_agent_id">
+                                <select class="form-control tomselect" name="agent_id" id="sel_client_agent_id">
                                     <option value="">Select Agent</option>
                                     @foreach(\App\Models\Agent::where('status',1)->get() as $aplist)
                                         <option value="{{$aplist->id}}">{{@$aplist->full_name}} ({{@$aplist->email}})</option>
@@ -1536,7 +1536,7 @@
                         <div class="col-6 col-md-6 col-lg-6">
 							<div class="form-group">
 								<label for="checklist">Select Checklist<span class="span_req">*</span></label>
-								<select data-valid="required" class="form-control select2" name="checklist[]" id="checklist" multiple>
+								<select data-valid="required" class="form-control tomselect" name="checklist[]" id="checklist" multiple>
 									<option value="">Select</option>
 									<?php
 									$eduChkList = \App\Models\DocumentChecklist::where('status',1)->get();
