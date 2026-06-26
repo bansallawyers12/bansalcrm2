@@ -87,7 +87,7 @@
             var message = `Hi ${clientName},
 We tried reaching you but couldn't connect. Please call us at 0396021330 or let us know a suitable time.
 Please do not reply via SMS.
-Bansal Immigration`;
+Bansal Education`;
 
             resetNpSendState();
             $('#messageText').val(message);
