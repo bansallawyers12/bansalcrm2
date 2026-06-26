@@ -59,10 +59,6 @@
     border: none !important;
 }
 
-.ui.yellow.label, .ui.yellow.labels .label {background-color: #fbbd08!important;border-color: #fbbd08!important;color: #fff!important;}
-.ui.label:last-child {margin-right: 0;}
-.ui.label:first-child { margin-left: 0;}
-.field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
 .zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}
@@ -1610,7 +1606,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-md-12">
 							<div class="form-group mb-3">
 								<label for="agreement_represent_region">Representing Regions</label>
-								<select class="form-control select2" multiple name="represent_region[]" id="agreement_represent_region">
+								<select class="form-control tomselect" multiple name="represent_region[]" id="agreement_represent_region">
 									<option value="">Select</option>
 									@foreach($partnerDetailCountries as $list)
 										<option value="{{ $list['name'] }}">{{ $list['name'] }}</option>
@@ -1642,7 +1638,7 @@ use App\Http\Controllers\Controller;
 						<div class="col-md-4">
 							<div class="form-group mb-3">
 								<label for="agreement_default_super_agent">Default Super Agent</label>
-								<select class="form-control select2" name="default_super_agent" id="agreement_default_super_agent">
+								<select class="form-control tomselect" name="default_super_agent" id="agreement_default_super_agent">
 									<option value="">Select</option>
 								</select>
 							</div>
@@ -1914,17 +1910,11 @@ use App\Http\Controllers\Controller;
             });
         }
 
-        // Initialize select2 for agreement modal dropdowns
-        $('#agreement_represent_region').select2({
-            placeholder: 'Select Representing Regions',
-            allowClear: true,
-            dropdownParent: $('#agreementModal')
-        });
-        
-        $('#agreement_default_super_agent').select2({
-            placeholder: 'Select Default Super Agent',
-            allowClear: true,
-            dropdownParent: $('#agreementModal')
+        // Agreement modal Tom Select (Phase 6d)
+        $(document).on('shown.bs.modal', '#agreementModal', function () {
+            if (typeof initModalTomSelects === 'function') {
+                initModalTomSelects(this);
+            }
         });
     });
     
@@ -2090,8 +2080,13 @@ use App\Http\Controllers\Controller;
         $('#agreementForm')[0].reset();
         $('#agreement_id').val('');
         $('#agreement_gst').prop('checked', false);
-        $('#agreement_represent_region').val(null).trigger('change');
-        $('#agreement_default_super_agent').val(null).trigger('change');
+        if (typeof clearEnhancedSelectValue === 'function') {
+            clearEnhancedSelectValue('#agreement_represent_region');
+            clearEnhancedSelectValue('#agreement_default_super_agent');
+        } else {
+            $('#agreement_represent_region').val(null);
+            $('#agreement_default_super_agent').val(null);
+        }
         $('#agreement_status').val('active');
         $('#current_file_display').text('');
     }
@@ -2115,15 +2110,25 @@ use App\Http\Controllers\Controller;
                     $('#agreement_bonus').val(agreement.bonus);
                     $('#agreement_description').val(agreement.description);
                     $('#agreement_gst').prop('checked', agreement.gst == 1);
-                    $('#agreement_default_super_agent').val(agreement.default_super_agent).trigger('change');
+                    if (typeof setEnhancedSelectValue === 'function') {
+                        setEnhancedSelectValue('#agreement_default_super_agent', agreement.default_super_agent);
+                    } else {
+                        $('#agreement_default_super_agent').val(agreement.default_super_agent);
+                    }
                     $('#agreement_status').val(agreement.status);
                     
                     // Set representing regions
                     if (agreement.represent_region) {
                         var regions = agreement.represent_region.split(',');
-                        $('#agreement_represent_region').val(regions).trigger('change');
+                        if (typeof setEnhancedSelectValue === 'function') {
+                            setEnhancedSelectValue('#agreement_represent_region', regions);
+                        } else {
+                            $('#agreement_represent_region').val(regions);
+                        }
+                    } else if (typeof clearEnhancedSelectValue === 'function') {
+                        clearEnhancedSelectValue('#agreement_represent_region');
                     } else {
-                        $('#agreement_represent_region').val(null).trigger('change');
+                        $('#agreement_represent_region').val(null);
                     }
                     
                     // Display current file

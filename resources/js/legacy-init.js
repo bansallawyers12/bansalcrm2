@@ -44,6 +44,14 @@
             .append($('<span></span>').addClass(badgeClass).text(status || ''));
     }
 
+    function toastMsg(message, type) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+        } else if (message) {
+            alert(message);
+        }
+    }
+
     // Now initialize all components
     function initializeComponents() {
         $(document).ready(function () {
@@ -52,12 +60,7 @@
                 this.value = this.value;
             });
             
-            // Initialize select2 for assignee dropdown
-            if (typeof $.fn.select2 !== 'undefined') {
-                $('.assineeselect2').select2({
-                   dropdownParent: $('#checkinmodal'),
-                });
-            }
+            // Check-in assignee — Tom Select via action-popover-tomselect.js on #checkinmodal shown
          
             // Modern search is now initialized in modern-search.js
             // This provides better performance with debouncing, keyboard shortcuts, and categorization
@@ -86,13 +89,13 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
-                                showToast('Could not refresh check-in details.', 'error');
+                                toastMsg('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
-                        showToast('Could not save visit purpose.', 'error');
+                        toastMsg('Could not save visit purpose.', 'error');
                     }
                 });
             });
@@ -118,16 +121,18 @@
                             },
                             error: function(){
                                 $('.popuploader').hide();
-                                showToast('Could not refresh check-in details.', 'error');
+                                toastMsg('Could not refresh check-in details.', 'error');
                             }
                         });
                     },
                     error: function(){
                         $('.popuploader').hide();
-                        showToast('Could not save comment.', 'error');
+                        toastMsg('Could not save comment.', 'error');
                     }
                 });
             });
+
+            $(document).delegate('.attendsession', 'click', function(){
                 var appliid = $(this).attr('data-id');
                 var waitingtype = $(this).attr('data-waitingtype');
                 $('.popuploader').show();
@@ -155,29 +160,29 @@
                                         $('.popuploader').hide();
                                         $('.showchecindetail').html(res);
                                         $('#checkindetailmodal').modal('hide');
-                                        showToast(successMessage, 'success');
+                                        toastMsg(successMessage, 'success');
                                     },
                                     error: function(){
                                         $('.popuploader').hide();
                                         $('#checkindetailmodal').modal('hide');
-                                        showToast(successMessage, 'success');
+                                        toastMsg(successMessage, 'success');
                                     }
                                 });
                                 $('.checindata #id_'+appliid).remove();
                             }else{
                                 $('.popuploader').hide();
-                                showToast(obj.message || 'Could not attend session.', 'error');
+                                toastMsg(obj.message || 'Could not attend session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            showToast('Error processing response', 'error');
+                            toastMsg('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        showToast('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        toastMsg('Failed to attend session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -200,7 +205,7 @@
                                 $('.popuploader').hide();
                                 // Close modal and show message immediately so popup always closes after success
                                 $('#checkindetailmodal').modal('hide');
-                                showToast(obj.message || 'Session completed successfully!', 'success');
+                                toastMsg(obj.message || 'Session completed successfully!', 'success');
                                 // Update office-visits tab badges (Attending / Completed / Waiting) if counts returned
                                 if (obj.attending !== undefined && obj.completed !== undefined && obj.waiting !== undefined) {
                                     $('#attending-tab .countAction').text(obj.attending);
@@ -219,18 +224,18 @@
                                 });
                             }else{
                                 $('.popuploader').hide();
-                                showToast(obj.message || 'Could not complete session.', 'error');
+                                toastMsg(obj.message || 'Could not complete session.', 'error');
                             }
                         } catch(e) {
                             $('.popuploader').hide();
                             console.error('Error parsing response:', e);
-                            showToast('Error processing response', 'error');
+                            toastMsg('Error processing response', 'error');
                         }
                     },
                     error: function(xhr, status, error){
                         $('.popuploader').hide();
                         console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
-                        showToast('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
+                        toastMsg('Failed to complete session. Error: ' + error + ' — Status: ' + xhr.status, 'error');
                     }
                 });
             });
@@ -250,7 +255,7 @@
                         },
                         error: function(){
                             $('.popuploader').hide();
-                            showToast('Could not load check-in details.', 'error');
+                            toastMsg('Could not load check-in details.', 'error');
                         }
                     });
             });

@@ -59,7 +59,7 @@
 		<li>
 			<form class="form-inline me-auto" onsubmit="return false;">
 				<div class="search-element">
-					<select class="form-control js-data-example-ajaxccsearch" type="search" placeholder="Search" aria-label="Search" data-width="200"></select>
+					<select class="form-control js-data-example-ajaxccsearch tomselect modern-search-field" type="search" placeholder="Search" aria-label="Search" data-width="200"></select>
 					<button class="btn" type="button"><i class="fas fa-search"></i></button>
 				</div>
 			</form>

@@ -690,7 +690,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #6777ef;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;"><?php echo substr($agent->full_name, 0, 1); ?></div>
 							<div class="cl_name" style="display: inline-block;margin-left: 5px;width: calc(100% - 60px);">
 								<span class="name"><?php echo $agent->full_name; ?></span>
-								<span class="ui label zippyLabel alignMiddle yellow">
+								<span class="badge bg-warning text-dark zippyLabel alignMiddle">
 							  <?php echo $agent->struture; ?>
 							</span>
 							</div>
@@ -715,7 +715,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							<div class="cl_logo" style="display: inline-block;width: 30px;height: 30px; border-radius: 50%;background: #6777ef;text-align: center;color: #fff;font-size: 14px; line-height: 30px; vertical-align: top;"><?php echo substr($subagent->full_name, 0, 1); ?></div>
 							<div class="cl_name" style="display: inline-block;margin-left: 5px;width: calc(100% - 60px);">
 								<span class="name"><?php echo $subagent->full_name; ?></span>
-								<span class="ui label zippyLabel alignMiddle yellow">
+								<span class="badge bg-warning text-dark zippyLabel alignMiddle">
 							  <?php echo $subagent->struture; ?>
 							</span>
 							</div>

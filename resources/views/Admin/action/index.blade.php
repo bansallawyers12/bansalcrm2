@@ -135,7 +135,7 @@
                                                 <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                     <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
                                                     <div class=&quot;col-sm-9&quot;>
-                                                        <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+                                                        <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
                                                             <option value=&quot;&quot; >Select</option>
                                                             {{--  @foreach(\App\Models\Admin::where('role','!=',7)->orderby('first_name','ASC')->get() as $admin) --}}
                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
@@ -828,7 +828,7 @@ jQuery(document).ready(function($){
 			
 			if (!noteId) {
 				$('.popuploader').hide();
-				alert('Note ID is missing. Please try again.');
+				showToast('Note ID is missing. Please try again.', 'warning');
 				return;
 			}
 			
@@ -860,7 +860,7 @@ jQuery(document).ready(function($){
                         if(typeof getallactivities === 'function') getallactivities();
                         if(typeof getallnotes === 'function') getallnotes();
                     } else{
-                        alert(obj.message || 'An error occurred');
+                        showToast(obj.message || 'An error occurred', 'error');
                         //location.reload();
                         $('.yajra-datatable').DataTable().draw(false);
                     }
@@ -868,7 +868,7 @@ jQuery(document).ready(function($){
 				error: function(xhr, status, error) {
 					$('.popuploader').hide();
 					console.error('AJAX Error:', error);
-					alert('Error: ' + (xhr.responseJSON?.message || error || 'Failed to reassign task'));
+					showToast('Error: ' + (xhr.responseJSON?.message || error || 'Failed to reassign task'), 'error');
 				}
 			});
 		}else{
@@ -920,7 +920,7 @@ jQuery(document).ready(function($){
                         getallactivities();
                         getallnotes();
                     } else{
-                        alert(obj.message);
+                        showToast(obj.message, 'error');
                         $('.yajra-datatable').DataTable().draw(false);
                         //location.reload();
                     }
@@ -971,7 +971,7 @@ jQuery(document).ready(function($){
                         getallactivities();
                         getallnotes();
                     } else{
-                        alert(obj.message);
+                        showToast(obj.message, 'error');
                         $('.yajra-datatable').DataTable().draw(false);
                         //location.reload();
                     }
@@ -989,7 +989,7 @@ jQuery(document).ready(function($){
                     } catch(e) {
                         errorMessage = xhr.responseText || error;
                     }
-                    alert(errorMessage);
+                    showToast(errorMessage, 'error');
                 }
 			});
 		}else{
@@ -1011,11 +1011,11 @@ jQuery(document).ready(function($){
 				// console.log(response);
 				 var obj = $.parseJSON(response);
 				if(obj.status){
-				    alert(obj.message);
+				    showToast(obj.message, 'success');
 				location.reload();
 
 				}else{
-					alert(obj.message);
+					showToast(obj.message, 'error');
 				}
 			}
 		});

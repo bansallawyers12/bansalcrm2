@@ -131,20 +131,20 @@
 											<td>{{-- $list->noteClient->service??'N/P' --}}</td>-->
 
 											<!--@if($list->noteClient->status === 0)
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Pending</span></td>
+											<td><span title="draft" class="badge bg-warning">Pending</span></td>
 											@elseif($list->noteClient->status === 1)
-											<td><span title="draft" class="ui label uppercase badge bg-success">Approved</span></td>
+											<td><span title="draft" class="badge bg-success">Approved</span></td>
 											@elseif($list->noteClient->status === 'Unassigned')
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Unassigned</span></td>
+											<td><span title="draft" class="badge bg-warning">Unassigned</span></td>
 											@elseif($list->noteClient->status === 'Assigned')
-											<td><span title="draft" class="ui label uppercase badge bg-info">Assigned</span></td>
+											<td><span title="draft" class="badge bg-info">Assigned</span></td>
 											@elseif($list->noteClient->status === 'In-Progress')
 
-											<td><span title="draft" class="ui label uppercase badge bg-primary">In-Progress</span></td>
+											<td><span title="draft" class="badge bg-primary">In-Progress</span></td>
 											@elseif($list->noteClient->status === 'Closed')
-											<td><span title="draft" class="ui label uppercase badge bg-success">Closed</span></td>
+											<td><span title="draft" class="badge bg-success">Closed</span></td>
 											@else
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Pending</span></td>
+											<td><span title="draft" class="badge bg-warning">Pending</span></td>
 											@endif-->
 
 
@@ -167,7 +167,7 @@
 														<div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
 															<label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
 															<div class=&quot;col-sm-9&quot;>
-																<select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+																<select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
 																	<option value=&quot;&quot; >Select</option>
 																	@foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
 																	<?php
@@ -202,7 +202,7 @@
                                                     <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                         <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
                                                         <div class=&quot;col-sm-9&quot;>
-                                                            <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
+                                                            <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
                                                                 <option value=&quot;&quot;>Select</option>
                                                                 <option value=&quot;Call&quot;>Call</option>
                                                                 <option value=&quot;Checklist&quot;>Checklist</option>
@@ -307,20 +307,20 @@
 											<td>{{-- $list->noteClient->service??'N/P' --}}</td>-->
 
 											<!--@if($listC->noteClient->status === 0)
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Pending</span></td>
+											<td><span title="draft" class="badge bg-warning">Pending</span></td>
 											@elseif($listC->noteClient->status === 1)
-											<td><span title="draft" class="ui label uppercase badge bg-success">Approved</span></td>
+											<td><span title="draft" class="badge bg-success">Approved</span></td>
 											@elseif($listC->noteClient->status === 'Unassigned')
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Unassigned</span></td>
+											<td><span title="draft" class="badge bg-warning">Unassigned</span></td>
 											@elseif($listC->noteClient->status === 'Assigned')
-											<td><span title="draft" class="ui label uppercase badge bg-info">Assigned</span></td>
+											<td><span title="draft" class="badge bg-info">Assigned</span></td>
 											@elseif($listC->noteClient->status === 'In-Progress')
 
-											<td><span title="draft" class="ui label uppercase badge bg-primary">In-Progress</span></td>
+											<td><span title="draft" class="badge bg-primary">In-Progress</span></td>
 											@elseif($listC->noteClient->status === 'Closed')
-											<td><span title="draft" class="ui label uppercase badge bg-success">Closed</span></td>
+											<td><span title="draft" class="badge bg-success">Closed</span></td>
 											@else
-											<td><span title="draft" class="ui label uppercase badge bg-warning">Pending</span></td>
+											<td><span title="draft" class="badge bg-warning">Pending</span></td>
 											@endif-->
 
 
@@ -343,7 +343,7 @@
 														<div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
 															<label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Select Assignee</label>
 															<div class=&quot;col-sm-9&quot;>
-																<select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
+																<select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;rem_cat&quot; name=&quot;rem_cat&quot; onchange=&quot;&quot;>
 																	<option value=&quot;&quot; >Select</option>
 																	@foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
 																	<?php
@@ -378,7 +378,7 @@
                                                     <div class=&quot;form-group row&quot; style=&quot;margin-bottom:12px&quot; >
                                                         <label for=&quot;inputSub3&quot; class=&quot;col-sm-3 control-label c6 f13&quot; style=&quot;margin-top:8px&quot;>Group</label>
                                                         <div class=&quot;col-sm-9&quot;>
-                                                            <select class=&quot;assigneeselect2 form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
+                                                            <select class=&quot;assigneeselect2 tomselect form-control selec_reg&quot; id=&quot;task_group&quot; name=&quot;task_group&quot;>
                                                                 <option value=&quot;&quot;>Select</option>
                                                                 <option value=&quot;Call&quot;>Call</option>
                                                                 <option value=&quot;Checklist&quot;>Checklist</option>
@@ -535,7 +535,7 @@
 							getallnotes();
 
 						}else{
-							alert(obj.message);
+							showToast(obj.message, 'error');
 							location.reload();
 
 						}
@@ -560,11 +560,11 @@
 				// console.log(response);
 				 var obj = $.parseJSON(response);
 				if(obj.status){
-				    alert(obj.message);
+				    showToast(obj.message, 'success');
 				location.reload();
 
 				}else{
-					alert(obj.message);
+					showToast(obj.message, 'error');
 				}
 			}
 		});

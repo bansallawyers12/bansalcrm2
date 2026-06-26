@@ -158,9 +158,9 @@
         });
 
         try {
-            var $hdrSearch = $('.js-data-example-ajaxccsearch');
-            if ($hdrSearch.length && $hdrSearch.hasClass('select2-hidden-accessible')) {
-                $hdrSearch.select2('close');
+            var hdrEl = document.querySelector('.js-data-example-ajaxccsearch');
+            if (hdrEl && hdrEl.tomselect) {
+                hdrEl.tomselect.close();
             }
         } catch (ignoreClose) {}
 
@@ -411,131 +411,262 @@
         };
     }
 
+    var modernSearchInstance = null;
+
+    function buildSearchResultHtml(repo) {
+        if (repo.loading) {
+            return repo.text || '';
+        }
+
+        if (repo.children) {
+            return '<strong class="select2-category-header">' + escapeHtml(repo.text) + '</strong>';
+        }
+
+        var idStr = repo.id ? String(repo.id) : '';
+        var idParts = idStr.split('/');
+        var encIdForRow = idParts[0] || '';
+        var typeFromId = idParts[1] || '';
+        var isCrmPersonRow = idStr.indexOf('/Client') !== -1 || idStr.indexOf('/Lead') !== -1;
+
+        var clientId = repo.client_id
+            ? '<span style="color: #007bff; font-weight: 600; margin-right: 8px;">#' + escapeHtml(String(repo.client_id)) + '</span>'
+            : '';
+
+        var lockPrefix = repo.locked
+            ? '<span class="modern-search-lock" title="No direct access — use Quick view below">&#128274;</span>'
+            : '';
+
+        var details = [];
+        if (repo.email) {
+            details.push(escapeHtml(repo.email));
+        }
+        if (repo.phone) {
+            details.push('Phone: ' + escapeHtml(repo.phone));
+        }
+        var detailsText = details.join(' • ');
+
+        var accessChips = '';
+        if (repo.locked && repo.access_ui) {
+            var ui = repo.access_ui;
+            if (ui.show_quick) {
+                accessChips += '<span class="badge rounded-pill bg-light text-dark border">Quick</span>';
+            }
+            if (ui.show_supervisor) {
+                accessChips += '<span class="badge rounded-pill bg-light text-dark border">Supervisor</span>';
+            }
+        }
+
+        var statusBadge = repo.status
+            ? '<span class="badge bg-warning text-dark">' + escapeHtml(repo.status) + '</span>'
+            : '';
+
+        var adminIdAttr = repo.admin_id != null && repo.admin_id !== '' ? String(repo.admin_id) : '';
+        var isLeadRow = !!(repo.is_lead || typeFromId === 'Lead');
+
+        var needsAccessFlow = !!(isCrmPersonRow && repo.allow_access_modal && !repo.has_active_temp_access && adminIdAttr && encIdForRow
+            && searchResultNeedsAccessModal(repo));
+
+        var quickViewLine = needsAccessFlow
+            ? '<div class="modern-search-result-quickview" data-admin-id="' + escapeHtml(adminIdAttr) + '" data-encoded-id="' + escapeHtml(encIdForRow) + '" data-is-lead="' + (isLeadRow ? '1' : '0') + '" title="Request access (Quick access in modal), then open record"><i class="fas fa-bolt" aria-hidden="true"></i><span>Quick view</span><span class="quickview-hint"> — Request access</span></div>'
+            : '';
+
+        var gateDataAttrs = needsAccessFlow
+            ? ' data-admin-id="' + escapeHtml(adminIdAttr) + '" data-encoded-id="' + escapeHtml(encIdForRow) + '" data-is-lead="' + (isLeadRow ? '1' : '0') + '"'
+            : '';
+        var accessGateClass = needsAccessFlow ? ' modern-search-result--access-gate' : '';
+
+        var metaParts = [];
+        if (accessChips) {
+            metaParts.push('<div class="d-flex flex-wrap justify-content-end gap-1">' + accessChips + '</div>');
+        }
+        if (statusBadge) {
+            metaParts.push('<div class="mt-1">' + statusBadge + '</div>');
+        }
+        var metaHtml = metaParts.length
+            ? '<div class="modern-search-result-meta text-end">' + metaParts.join('') + '</div>'
+            : '';
+
+        var nameHtml = repo.name || repo.text || '';
+        if (typeof nameHtml === 'string' && nameHtml.indexOf('<') !== -1) {
+            nameHtml = stripHtml(nameHtml);
+        }
+        nameHtml = escapeHtml(nameHtml);
+
+        return (
+            '<div class="select2-result-repository modern-search-result' +
+            (repo.locked ? ' modern-search-result--locked' : '') +
+            accessGateClass + '"' + gateDataAttrs + '>' +
+            '<div class="modern-search-result-content">' +
+            '<div class="modern-search-result-main">' +
+            '<div class="modern-search-result-title">' + lockPrefix + clientId + nameHtml + '</div>' +
+            '<div class="modern-search-result-subtitle">' + detailsText + '</div>' +
+            quickViewLine +
+            '</div>' +
+            metaHtml +
+            '</div></div>'
+        );
+    }
+
+    function escapeHtml(text) {
+        if (text == null) {
+            return '';
+        }
+        return String(text).replace(/[&<>"']/g, function (m) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+        });
+    }
+
+    function flattenGroupedForTomSelect(grouped, ts) {
+        var options = [];
+        if (!Array.isArray(grouped)) {
+            return options;
+        }
+        grouped.forEach(function (group, idx) {
+            if (!group.children || !group.children.length) {
+                return;
+            }
+            var ogKey = 'ms_og_' + idx;
+            if (ts && typeof ts.addOptionGroup === 'function') {
+                ts.addOptionGroup(ogKey, { label: group.text });
+            }
+            group.children.forEach(function (item) {
+                var id = item.id;
+                options.push(Object.assign({}, item, {
+                    value: id,
+                    text: item.name || item.text || '',
+                    optgroup: ogKey
+                }));
+            });
+        });
+        return options;
+    }
+
     // Initialize search with modern features
     function initModernSearch() {
         const searchSelector = '.js-data-example-ajaxccsearch';
-        const $searchElement = $(searchSelector);
+        const searchElement = document.querySelector(searchSelector);
 
-        if (!$searchElement.length) {
+        if (!searchElement) {
             console.log('Search element not found:', searchSelector);
             return;
         }
 
-        // Check if already initialized
-        if ($searchElement.hasClass('select2-hidden-accessible')) {
-            console.log('Search already initialized, skipping');
+        if (searchElement.tomselect) {
+            modernSearchInstance = searchElement.tomselect;
             return;
         }
 
-        // Check if Select2 is available
-        if (typeof $.fn.select2 === 'undefined') {
-            console.error('Select2 is not available');
+        if (typeof initTomSelect !== 'function' || typeof TomSelect === 'undefined') {
+            console.error('Tom Select is not available for modern search');
             return;
         }
 
-        // Initialize Select2 with modern config
-        $searchElement.select2({
-            closeOnSelect: true,
+        var siteUrl = siteBase();
+        var instance = initTomSelect(searchElement, {
+            maxItems: 1,
+            valueField: 'value',
+            labelField: 'text',
+            searchField: ['text', 'name', 'email', 'client_id'],
             placeholder: 'Search clients, leads, partners... (Ctrl+K)',
-            allowClear: true,
-            minimumInputLength: 2,
-            dropdownCssClass: 'modern-search-dropdown',
-            ajax: {
-                url: (typeof site_url !== 'undefined' ? site_url : '') + '/clients/get-allclients',
-                dataType: 'json',
-                delay: 300, // Debounce built into Select2
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+            plugins: ['clear_button'],
+            dropdownClass: 'modern-search-dropdown',
+            loadThrottle: 300,
+            shouldLoad: function (query) {
+                return query.length >= 2;
+            },
+            load: function (query, callback) {
+                if (!query || query.length < 2) {
+                    callback();
+                    return;
+                }
+                var ts = this;
+                if (!window.jQuery || !window.jQuery.ajax) {
+                    callback();
+                    return;
+                }
+                window.jQuery.ajax({
+                    url: siteUrl + '/clients/get-allclients',
+                    dataType: 'json',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: {
+                        q: query,
+                        page: 1
+                    },
+                    success: function (data) {
+                        var grouped = groupResultsByCategory(data.items || []);
+                        callback(flattenGroupedForTomSelect(grouped, ts));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Search error:', error, xhr);
+                        callback();
+                    }
+                });
+            },
+            render: {
+                option: function (data, escape) {
+                    if (data.loading) {
+                        return '<div>' + escape(data.text) + '</div>';
+                    }
+                    return buildSearchResultHtml(data);
                 },
-                data: function (params) {
-                    return {
-                        q: params.term, // search term
-                        page: params.page || 1
-                    };
+                item: function (data, escape) {
+                    var label = data.name || data.text || 'Search...';
+                    if (typeof label === 'string' && label.indexOf('<') !== -1) {
+                        label = stripHtml(label);
+                    }
+                    return '<div>' + escape(label) + '</div>';
                 },
-                processResults: function(data) {
-                    // Group results by category
-                    const grouped = groupResultsByCategory(data.items || []);
-                    return {
-                        results: grouped
-                    };
-                },
-                cache: true,
-                error: function(xhr, status, error) {
-                    console.error('Search error:', error, xhr);
-                    return {
-                        results: []
-                    };
+                optgroup_header: function (data, escape) {
+                    return '<strong class="select2-category-header">' + escape(data.label) + '</strong>';
                 }
             },
-            templateResult: formatSearchResult,
-            templateSelection: formatSearchSelection,
-            escapeMarkup: function(markup) {
-                return markup; // Allow HTML
-            }
-        });
-
-        // Locked / quick-access gated rows: intercept so Select2 does not navigate away (mouse + keyboard).
-        $searchElement.on('select2:selecting', function(e) {
-            const data = e.params.args.data;
-            if (!data || !data.id || !data.admin_id) {
-                return;
-            }
-            const parts = String(data.id).split('/');
-            const type = parts[1];
-            if (type !== 'Client' && type !== 'Lead') {
-                return;
-            }
-            if (!searchResultNeedsAccessModal(data)) {
-                return;
-            }
-            const encId = parts[0];
-            e.preventDefault();
-            openCrmAccessRequestModal({
-                adminId: parseInt(data.admin_id, 10),
-                encodedId: encId,
-                isLead: !!(data.is_lead || type === 'Lead'),
-                displayName: stripHtml(data.name || data.text || '')
-            });
-        });
-
-        // Keyboard shortcut: Ctrl+K or Cmd+K
-        $(document).on('keydown', function(e) {
-            // Ctrl+K (Windows/Linux) or Cmd+K (Mac)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                $searchElement.select2('open');
-                setTimeout(() => {
-                    $('.select2-search__field').focus();
+            onChange: function (value) {
+                if (!value) {
+                    return;
+                }
+                var data = this.options[value];
+                this.clear(true);
+                if (!data) {
+                    return;
+                }
+                navigateToResult(data);
+            },
+            onDropdownClose: function () {
+                var self = this;
+                setTimeout(function () {
+                    self.clear(true);
                 }, 100);
             }
+        });
 
-            // ESC to close
-            if (e.key === 'Escape') {
-                $searchElement.select2('close');
+        modernSearchInstance = instance;
+
+        // Keyboard shortcut: Ctrl+K or Cmd+K
+        $(document).off('keydown.modernSearch').on('keydown.modernSearch', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                if (modernSearchInstance) {
+                    modernSearchInstance.open();
+                    modernSearchInstance.focus();
+                }
             }
-        });
 
-        // Handle selection and navigation
-        $searchElement.on('select2:select', function(e) {
-            const data = e.params.data;
-            navigateToResult(data);
-        });
-
-        // Clear selection on close
-        $searchElement.on('select2:close', function() {
-            setTimeout(() => {
-                $(this).val(null).trigger('change');
-            }, 100);
+            if (e.key === 'Escape' && modernSearchInstance) {
+                modernSearchInstance.close();
+            }
         });
 
         // Handle search button click
-        $('.search-element .btn').on('click', function(e) {
+        $('.search-element .btn').off('click.modernSearch').on('click.modernSearch', function (e) {
             e.preventDefault();
-            $searchElement.select2('open');
+            if (modernSearchInstance) {
+                modernSearchInstance.open();
+            }
         });
 
-        console.log('Modern search initialized successfully');
+        console.log('Modern search initialized successfully (Tom Select)');
     }
 
     // Group results by category
@@ -715,9 +846,8 @@
         }
     }
 
-    // Wait for vendor libraries to be ready
+    // Wait for Tom Select helpers to be ready
     (async function() {
-        // Wait for vendorLibsReady promise if available
         if (typeof window.vendorLibsReady !== 'undefined') {
             try {
                 await window.vendorLibsReady;
@@ -725,29 +855,30 @@
                 console.warn('vendorLibsReady promise rejected, using fallback:', e);
             }
         }
-        
-        // Fallback: wait for select2 to be available
-        await new Promise((resolve) => {
-            let attempts = 0;
-            const maxAttempts = 100; // 5 seconds max wait
-            const check = () => {
-                attempts++;
-                if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
-                    resolve();
-                } else if (attempts < maxAttempts) {
-                    setTimeout(check, 50);
-                } else {
-                    console.error('Select2 not available after waiting');
-                    resolve(); // Resolve anyway to prevent infinite wait
-                }
-            };
-            check();
-        });
-        
-        // Now initialize when DOM is ready
+
+        if (typeof waitForTomSelect === 'function') {
+            await waitForTomSelect(200);
+        } else {
+            await new Promise(function (resolve) {
+                var attempts = 0;
+                var maxAttempts = 100;
+                var check = function () {
+                    attempts++;
+                    if (typeof TomSelect !== 'undefined' && typeof window.initTomSelect === 'function') {
+                        resolve();
+                    } else if (attempts < maxAttempts) {
+                        setTimeout(check, 50);
+                    } else {
+                        console.error('Tom Select not available after waiting');
+                        resolve();
+                    }
+                };
+                check();
+            });
+        }
+
         if (typeof $ !== 'undefined') {
             $(document).ready(function() {
-                // Small delay to ensure DOM is fully ready
                 setTimeout(function() {
                     wireCrmAccessModalOnce();
                     wireOngoingSheetCourseLinkAccessOnce();
@@ -762,7 +893,12 @@
 
     // Re-initialize on Turbolinks/AJAX page loads if needed
     $(document).on('turbolinks:load', function() {
-        if (typeof $.fn.select2 !== 'undefined') {
+        if (typeof TomSelect !== 'undefined' && typeof initTomSelect === 'function') {
+            var el = document.querySelector('.js-data-example-ajaxccsearch');
+            if (el && el.tomselect) {
+                el.tomselect.destroy();
+                modernSearchInstance = null;
+            }
             wireCrmAccessModalOnce();
             wireOngoingSheetCourseLinkAccessOnce();
             wireModernSearchQuickViewRowOnce();

@@ -31,22 +31,6 @@
     align-items: flex-end;
 }
 
-.ui.yellow.label, .ui.yellow.labels .label {
-    background-color: #fbbd08!important;
-    border-color: #fbbd08!important;
-    color: #fff!important;
-}
-.ui.label:last-child {
-    margin-right: 0;
-}
-.ui.label:first-child {
-    margin-left: 0;
-}
-.field .ui.label {
-    padding-left: 0.78571429em;
-    padding-right: 0.78571429em;
-}
-
 .ag-list__title{background-color: #fcfcfc;border: 1px solid #f2f2f2;padding: 0.8rem 1.2rem;}
 .ag-list__item{font-size: 12px;margin: 0;padding: 0.8rem 2.6rem;}
 .filter_panel {background: #f7f7f7;margin-bottom: 10px;border: 1pxsolid #eee;display: none;}

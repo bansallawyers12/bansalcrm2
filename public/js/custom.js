@@ -9,7 +9,7 @@
 
 function crmToast(message, type) {
 	if (typeof window.showToast === 'function') {
-		window.crmToast(message, type);
+		window.showToast(message, type);
 	} else {
 		alert(message);
 	}

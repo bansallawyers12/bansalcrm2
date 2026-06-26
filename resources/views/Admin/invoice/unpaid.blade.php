@@ -31,22 +31,6 @@
     align-items: flex-end;
 }
 
-.ui.yellow.label, .ui.yellow.labels .label {
-    background-color: #fbbd08!important;
-    border-color: #fbbd08!important;
-    color: #fff!important;
-}
-.ui.label:last-child {
-    margin-right: 0;
-}
-.ui.label:first-child {
-    margin-left: 0;
-}
-.field .ui.label {
-    padding-left: 0.78571429em;
-    padding-right: 0.78571429em;
-}
-
 </style>
 <!-- Main Content -->
 <div class="main-content">

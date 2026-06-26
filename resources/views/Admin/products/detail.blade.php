@@ -13,10 +13,6 @@
 .small, small {font-size: 85%;}
 .ag-align-end { align-items: flex-end;}
 
-.ui.yellow.label, .ui.yellow.labels .label {background-color: #fbbd08!important;border-color: #fbbd08!important;color: #fff!important;}
-.ui.label:last-child {margin-right: 0;}
-.ui.label:first-child { margin-left: 0;}
-.field .ui.label {padding-left: 0.78571429em; padding-right: 0.78571429em;}
 .zippyLabel{background-color: #e8e8e8; line-height: 1;display: inline-block;color: rgba(0,0,0,.6);font-weight: 700; border: 0 solid transparent; font-size: 10px;padding: 3px; }
 .accordion .accordion-header.app_green{background-color: #54b24b;color: #fff;}
 .accordion .accordion-header.app_green .accord_hover a{color: #fff!important;}

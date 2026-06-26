@@ -303,27 +303,44 @@ console.log(timestring);
        
     $("[data-role=popover]").on('shown.bs.popover', function(){
         
-        $('.js-data-example-ajaxccsearch__addmytask').select2({
-            closeOnSelect: true,
-            ajax: {
-                url: '/clients/get-recipients',
-                dataType: 'json',
-                data: function (params) {
-                    return {
-                        q: params.term, // search term
-                        page: params.page || 1
-                    };
-                },
-                processResults: function (data) {
-                    // Transforms the top-level key of the response object from 'items' to 'results'
-                    return {
-                    results: data.items
-                    };
-                },
-                cache: true
-            },
-            templateResult: formatRepomain_addmytask,
-            templateSelection: formatRepoSelectionmain_addmytask
+        $('.js-data-example-ajaxccsearch__addmytask').each(function () {
+            var el = this;
+            if (el.tomselect || (typeof isTomSelect === 'function' && isTomSelect(el))) {
+                return;
+            }
+            el.classList.add('tomselect');
+            var popoverRoot = el.closest('.popover') || document.querySelector('.popover.show');
+            var dropdownParent = popoverRoot || document.body;
+            if (typeof RecipientSelect !== 'undefined' && typeof RecipientSelect.init === 'function') {
+                RecipientSelect.init(el, {
+                    url: '/clients/get-recipients',
+                    dropdownParent: dropdownParent,
+                    minimumInputLength: 1,
+                    multiple: false,
+                    closeOnSelect: true
+                });
+            } else if (typeof initTomSelect === 'function') {
+                initTomSelect(el, {
+                    width: '100%',
+                    dropdownParent: dropdownParent,
+                    minimumInputLength: 1,
+                    closeOnSelect: true,
+                    ajax: {
+                        url: '/clients/get-recipients',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return { q: params.term, page: params.page || 1 };
+                        },
+                        processResults: function (data) {
+                            return { results: (data && data.items) ? data.items : [] };
+                        },
+                        cache: true
+                    },
+                    templateResult: formatRepomain_addmytask,
+                    templateSelection: formatRepoSelectionmain_addmytask
+                });
+            }
         });
         
          /* $("#popoverdate").inputmask("dd/mm/yyyy", {

@@ -323,6 +323,7 @@ i[style*="color:rgba"] {
 	<script src="{{ asset('js/common/application-modal-cascade.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/application-modal-cascade.js')) }}" defer></script>
 	<script src="{{ asset('js/common/email-modal-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/email-modal-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/common/recipient-select.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/recipient-select.js')) }}" defer></script>
+	<script src="{{ asset('js/common/action-popover-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/action-popover-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
 	<!-- Custom JS File -->	
@@ -392,7 +393,7 @@ i[style*="color:rgba"] {
 								<?php
 								$assignee = \App\Models\Staff::all();
 								?>
-								<select class="form-control assineeselect2" name="assignee">
+								<select class="form-control assineeselect2 tomselect" name="assignee">
 								@foreach($assignee as $assigne)
 									<option value="{{$assigne->id}}">{{$assigne->first_name}} ({{$assigne->email}})</option>
 								@endforeach

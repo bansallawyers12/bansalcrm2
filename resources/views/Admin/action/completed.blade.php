@@ -210,7 +210,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
                                                                     <div class="col-sm-9">
-                                                                        <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
+                                                                        <select class="assigneeselect2 tomselect form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
                                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
@@ -239,7 +239,7 @@
                                                             <div class="form-group row" style="margin-bottom:12px">
                                                                 <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
                                                                 <div class="col-sm-9">
-                                                                    <select class="assigneeselect2 form-control task_group" name="task_group">
+                                                                    <select class="assigneeselect2 tomselect form-control task_group" name="task_group">
                                                                         <option value="">Select</option>
                                                                         <option value="Call" {{ $list->task_group == 'Call' ? 'selected' : '' }}>Call</option>
                                                                         <option value="Checklist" {{ $list->task_group == 'Checklist' ? 'selected' : '' }}>Checklist</option>
@@ -275,7 +275,7 @@
                                                                 <div class="form-group row" style="margin-bottom:12px">
                                                                     <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Select Assignee</label>
                                                                     <div class="col-sm-9">
-                                                                        <select class="assigneeselect2 form-control selec_reg rem_cat" name="rem_cat">
+                                                                        <select class="assigneeselect2 tomselect form-control selec_reg rem_cat" name="rem_cat">
                                                                             <option value="">Select</option>
                                                                             @foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin)
                                                                             <?php $branchname = \App\Models\Branch::where('id',$admin->office_id)->first(); ?>
@@ -304,7 +304,7 @@
                                                             <div class="form-group row" style="margin-bottom:12px">
                                                                 <label class="col-sm-3 control-label c6 f13" style="margin-top:8px">Group</label>
                                                                 <div class="col-sm-9">
-                                                                    <select class="assigneeselect2 form-control task_group" name="task_group">
+                                                                    <select class="assigneeselect2 tomselect form-control task_group" name="task_group">
                                                                         <option value="">Select</option>
                                                                         <option value="Call">Call</option>
                                                                         <option value="Checklist">Checklist</option>
@@ -553,7 +553,7 @@ jQuery(document).ready(function($){
 						}
 						location.reload();
 					}else{
-						alert(obj.message);
+						showToast(obj.message, 'error');
 					}
 				}
 			});
@@ -619,7 +619,7 @@ jQuery(document).ready(function($){
 						}
 						location.reload();
 					}else{
-						alert(obj.message || 'Update failed');
+						showToast(obj.message || 'Update failed', 'error');
 					}
 				}
 			});
@@ -640,11 +640,11 @@ jQuery(document).ready(function($){
 				// console.log(response);
 				 var obj = $.parseJSON(response);
 				if(obj.status){
-				    alert(obj.message);
+				    showToast(obj.message, 'success');
 				location.reload();
 
 				}else{
-					alert(obj.message);
+					showToast(obj.message, 'error');
 				}
 			}
 		});

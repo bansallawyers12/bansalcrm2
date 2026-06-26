@@ -1,0 +1,162 @@
+/**
+ * Action page popovers + check-in modal — Tom Select for assignee / task group selects (Phase 6d).
+ */
+(function (window) {
+    'use strict';
+
+    function resolveElement(el) {
+        if (!el) {
+            return null;
+        }
+        if (el instanceof Element) {
+            return el;
+        }
+        if (typeof el === 'string') {
+            return document.querySelector(el);
+        }
+        if (window.jQuery && (el instanceof window.jQuery || el.jquery !== undefined)) {
+            return el.length ? el[0] : null;
+        }
+        return el.nodeType === 1 ? el : null;
+    }
+
+    function resolveDropdownParent(root) {
+        if (!root) {
+            return null;
+        }
+        return root.closest('.popover') || root.closest('.modal-content') || root.closest('.modal') || root;
+    }
+
+    function compactOpts(dropdownParent) {
+        var extra = { dropdownParent: dropdownParent, minimumResultsForSearch: Infinity };
+        if (typeof compactTomSelectOptions === 'function') {
+            return compactTomSelectOptions(extra);
+        }
+        return Object.assign({ width: '100%' }, extra);
+    }
+
+    function initInContainer(container) {
+        if (typeof initTomSelect !== 'function') {
+            return [];
+        }
+        var root = resolveElement(container);
+        if (!root) {
+            return [];
+        }
+        var dropdownParent = resolveDropdownParent(root);
+        var opts = compactOpts(dropdownParent);
+        var instances = [];
+
+        root.querySelectorAll('select.assigneeselect2, select.task_group').forEach(function (element) {
+            if (element.tomselect) {
+                return;
+            }
+            if (!element.classList.contains('tomselect')) {
+                element.classList.add('tomselect');
+            }
+            var instance = initTomSelect(element, opts);
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+
+        return instances;
+    }
+
+    function refreshAssigneeSelect(selectEl, html, container) {
+        var element = resolveElement(selectEl);
+        if (!element) {
+            return null;
+        }
+        var root = resolveElement(container) || element.closest('.popover') || element.closest('.modal-body') || document.body;
+        var opts = compactOpts(resolveDropdownParent(root));
+
+        if (typeof reinitTomSelectAfterHtml === 'function') {
+            return reinitTomSelectAfterHtml(element, html, opts);
+        }
+
+        if (element.tomselect) {
+            element.tomselect.destroy();
+        }
+        element.innerHTML = html;
+        element.classList.add('tomselect');
+        return initTomSelect(element, opts);
+    }
+
+    function getValue(el) {
+        if (typeof getEnhancedSelectValue === 'function') {
+            return getEnhancedSelectValue(el);
+        }
+        var element = resolveElement(el);
+        return element ? (element.value || '') : '';
+    }
+
+    function setValue(el, value, silent) {
+        if (typeof setEnhancedSelectValue === 'function') {
+            setEnhancedSelectValue(el, value, silent);
+            return;
+        }
+        var element = resolveElement(el);
+        if (element) {
+            element.value = value == null ? '' : value;
+        }
+    }
+
+    function getAssigneeLabel(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return '';
+        }
+        if (element.tomselect) {
+            var value = element.tomselect.getValue();
+            if (Array.isArray(value)) {
+                value = value.length ? value[0] : '';
+            }
+            if (value == null || value === '') {
+                return '';
+            }
+            var opt = element.tomselect.options[value];
+            return opt ? (opt.text || opt.name || '') : '';
+        }
+        if (window.jQuery) {
+            return window.jQuery(element).find('option:selected').text() || '';
+        }
+        var idx = element.selectedIndex;
+        return idx >= 0 ? (element.options[idx].text || '') : '';
+    }
+
+    function bindEvents() {
+        if (!window.jQuery) {
+            return;
+        }
+        var $ = window.jQuery;
+
+        $(document).on('shown.bs.popover', function () {
+            setTimeout(function () {
+                var popover = document.querySelector('.popover.show');
+                if (popover) {
+                    initInContainer(popover);
+                }
+            }, 0);
+        });
+
+        $(document).on('shown.bs.modal', '#checkinmodal, #actionPopoverModal', function () {
+            var body = this.querySelector('.modal-body') || this;
+            initInContainer(body);
+        });
+    }
+
+    window.ActionPopoverTomSelect = {
+        initContainer: initInContainer,
+        refreshAssigneeSelect: refreshAssigneeSelect,
+        getValue: getValue,
+        setValue: setValue,
+        getAssigneeLabel: getAssigneeLabel
+    };
+
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(bindEvents);
+    } else if (window.jQuery) {
+        window.jQuery(bindEvents);
+    }
+})(window);
