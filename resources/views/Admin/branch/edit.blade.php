@@ -96,7 +96,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="country">Country</label>
-														<select class="form-control  select2" name="country" >
+														<select class="form-control tomselect" name="country" id="branch_country">
 														<?php
 															foreach(\App\Models\Country::all() as $list){
 																?>
@@ -177,8 +177,16 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="choose_admin">Choose Admin</label>
-														<select class="form-control select2" name="choose_admin">
-															<option>-- Choose Admin --</option>
+														<select class="form-control tomselect" name="choose_admin" id="branch_choose_admin">
+															<option value="">-- Choose Admin --</option>
+															<?php
+															foreach (\App\Models\Staff::where('status', 1)->orderBy('first_name', 'ASC')->get() as $admin) {
+																$branchname = \App\Models\Branch::where('id', $admin->office_id)->first();
+																?>
+																<option value="{{ $admin->id }}"<?php if (@$fetchedData->choose_admin == $admin->id) { echo ' selected'; } ?>>{{ $admin->first_name }} {{ $admin->last_name }} ({{ @$branchname->office_name }})</option>
+																<?php
+															}
+															?>
 														</select>
 														@if ($errors->has('choose_admin'))
 															<span class="custom-error" role="alert">
@@ -203,3 +211,18 @@
 	</section>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    waitForTomSelect().then(function () {
+        initTomSelect('#branch_country', { width: '100%' });
+        initTomSelect('#branch_choose_admin', {
+            width: '100%',
+            placeholder: '-- Choose Admin --',
+            allowClear: true
+        });
+    });
+});
+</script>
+@endpush

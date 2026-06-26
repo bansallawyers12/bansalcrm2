@@ -389,9 +389,12 @@ $(function () {
     console.warn('Bootstrap popover not available. Ensure bootstrap.bundle.min.js is loaded before scripts.js');
   }
 
-  // Select2
+  // Select2 (skip elements migrated to Tom Select)
   if (jQuery().select2) {
     $(".select2")
+      .not(".tomselect")
+      .not(".tomselect-migrated")
+      .not("[data-enhanced='tomselect']")
       .not(".js-data-example-ajaxcc")
       .not(".js-data-example-ajaxccd")
       .not(".js-data-example-ajaxccapp")

@@ -83,6 +83,15 @@ foreach($followups as $followup){
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    waitForTomSelect().then(function () {
+        initTomSelect('#changeassignee', {
+            width: '100%',
+            placeholder: 'Select',
+            allowClear: true,
+            dropdownParent: '#event-details-modal'
+        });
+    });
+
     // Wait for FullCalendar to be loaded
     if (typeof window.FullCalendar === 'undefined') {
         console.error('FullCalendar v6 not loaded');
@@ -210,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Assigned To</label>
-                                    <select data-valid="required" class="form-control select2" id="changeassignee" name="changeassignee">
+                                    <select data-valid="required" class="form-control tomselect" id="changeassignee" name="changeassignee">
                                          <option value="">Select</option>
 						                 <?php 
 											foreach(\App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get() as $admin){

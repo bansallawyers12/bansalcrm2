@@ -119,8 +119,29 @@ function getFieldValue($field) {
 		}
 	}
 	
+	// Multi-select (Tom Select / native)
+	if ($field.prop('multiple')) {
+		var multiVal = $field.val();
+		if (!multiVal || !multiVal.length) {
+			return '';
+		}
+		var filtered = multiVal.filter(function (v) {
+			return v !== '' && v != null;
+		});
+		return filtered.length ? filtered : '';
+	}
+
 	// Default to regular val() for other fields
 	return $.trim($field.val());
+}
+
+function appendFieldValidationError($field, errorHtml) {
+	if (typeof placeValidationError === 'function' &&
+		($field.hasClass('tomselect') || $field.hasClass('tomselect-migrated') || ($field[0] && $field[0].tomselect))) {
+		placeValidationError($field[0], errorHtml);
+		return;
+	}
+	$field.after(errorHtml);
 }
 
 function customValidate(formName, savetype = '')
@@ -163,7 +184,7 @@ function customValidate(formName, savetype = '')
 								{
 									i++;
 									j++;
-									$(this).after(errorDisplay(requiredError));  
+									appendFieldValidationError($(this), errorDisplay(requiredError));  
 								}
 						}
 				}
@@ -176,7 +197,7 @@ function customValidate(formName, savetype = '')
 							if(!validateEmail(fieldValue)) 
 								{
 									i++;
-									$(this).after(errorDisplay(emailError));  
+									appendFieldValidationError($(this), errorDisplay(emailError));  
 								}
 						}
 						
@@ -191,7 +212,7 @@ function customValidate(formName, savetype = '')
 							if(value < digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(min+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(min+' '+digit+' character.'));  
 								}	
 						}
 						
@@ -205,7 +226,7 @@ function customValidate(formName, savetype = '')
 							if(value > digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(max+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(max+' '+digit+' character.'));  
 								}	
 						}
 						
@@ -219,7 +240,7 @@ function customValidate(formName, savetype = '')
 							if(value != digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(equal+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(equal+' '+digit+' character.'));  
 								}	
 						}
 				}			
@@ -2329,7 +2350,7 @@ $('#add_application').modal('hide');
 							var value = $.trim($(this).val());	
 							if(parseInt(value) > parseInt(data_max))	
 								{
-									$(this).after(errorDisplay(maxError + data_max)); 
+									appendFieldValidationError($(this), errorDisplay(maxError + data_max)); 
 									$("#loader").hide();
 									return false;	
 								}
@@ -2386,7 +2407,7 @@ function customInvoiceValidate(formName, savetype)
 								{
 									i++;
 									j++;
-									$(this).after(errorDisplay(requiredError));  
+									appendFieldValidationError($(this), errorDisplay(requiredError));  
 								}
 						}
 				}
@@ -2399,7 +2420,7 @@ function customInvoiceValidate(formName, savetype)
 							if(!validateEmail(fieldValue)) 
 								{
 									i++;
-									$(this).after(errorDisplay(emailError));  
+									appendFieldValidationError($(this), errorDisplay(emailError));  
 								}
 						}
 						
@@ -2414,7 +2435,7 @@ function customInvoiceValidate(formName, savetype)
 							if(value < digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(min+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(min+' '+digit+' character.'));  
 								}	
 						}
 						
@@ -2428,7 +2449,7 @@ function customInvoiceValidate(formName, savetype)
 							if(value > digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(max+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(max+' '+digit+' character.'));  
 								}	
 						}
 						
@@ -2442,7 +2463,7 @@ function customInvoiceValidate(formName, savetype)
 							if(value != digit) 
 								{
 									i++;
-									$(this).after(errorDisplay(equal+' '+digit+' character.'));  
+									appendFieldValidationError($(this), errorDisplay(equal+' '+digit+' character.'));  
 								}	
 						}
 				}			

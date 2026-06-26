@@ -20,6 +20,10 @@
 	<!-- Select2 full build (required for dropdownCssClass / containerCssClass compat) -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+
+	<!-- Tom Select (Select2 migration — Phase 0; loaded alongside Select2, not replacing it) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 	
 	<!-- Load DataTables from CDN (after jQuery, before other scripts) -->
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css">
@@ -28,7 +32,7 @@
 	
 	<link rel="icon" type="image/png" href="{{asset('img/favicon.png')}}">
  	<!-- CSS for libraries now loaded via Vite (vendor-libs.js): iziToast, flatpickr -->
- 	<!-- Note: select2 and DataTables are loaded from CDN above to avoid ES module issues -->
+ 	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
 	<link rel="stylesheet" href="{{asset('css/bootstrap-timepicker.min.css')}}">
@@ -53,6 +57,7 @@
 	<link rel="stylesheet" href="{{asset('css/components.css')}}">
 	<!-- Custom style CSS -->
 	<link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/custom.css')) }}">
+	<link rel="stylesheet" href="{{ asset('css/tomselect-bridge.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/tomselect-bridge.css')) }}">
 	<!-- Modern Search CSS -->
 	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	
@@ -310,7 +315,7 @@ i[style*="color:rgba"] {
 	@vite(['resources/js/fullcalendar-init.js'])
 	
  	<!-- Load vendor libraries (flatpickr, izitoast) -->
- 	<!-- Note: select2 and DataTables are loaded from CDN in <head> section above -->
+ 	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN in <head> section above -->
 	@vite(['resources/js/vendor-libs.js'])
 	
 	<!-- Load UI libraries (feather-icons, jquery.nicescroll) -->
@@ -343,6 +348,7 @@ i[style*="color:rgba"] {
 	@else
 	<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}" defer></script>
 	@endif
+	<script src="{{ asset('js/common/tomselect-init.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/tomselect-init.js')) }}" defer></script>
 	<script src="{{ asset('js/scripts.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/scripts.js')) }}" defer></script>
 
 	<!-- Custom JS File -->	

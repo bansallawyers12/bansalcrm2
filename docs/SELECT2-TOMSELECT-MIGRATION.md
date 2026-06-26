@@ -1,0 +1,180 @@
+# Select2 → Tom Select Migration
+
+Phase 0 foundation: Tom Select loads alongside Select2. No existing `.select2()` calls removed.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `package.json` | `tom-select` + `select2` npm deps (CDN used in layouts; npm for future Vite bundling) |
+| `resources/views/layouts/admin.blade.php` | Tom Select CDN + bridge CSS + `tomselect-init.js` |
+| `resources/views/layouts/adminconsole.blade.php` | Same as admin layout |
+| `public/js/common/tomselect-init.js` | `initTomSelect`, `destroyTomSelect`, detection/wrapper helpers |
+| `public/css/tomselect-bridge.css` | Layout/z-index rules mirroring `.select2-*` selectors |
+| `public/js/scripts.js` | Global init excludes `.tomselect` and `.tomselect-migrated` |
+| `public/js/common/ui-components.js` | `UIComponents.initSelect2` excludes migrated elements |
+
+## Conventions (Phase 0+)
+
+- Migrated `<select>` elements: add class **`tomselect`**, remove **`select2`** when fully migrated (Phase 1+).
+- `initTomSelect()` auto-adds `tomselect`, `tomselect-migrated`, and `data-enhanced="tomselect"`.
+- Global Select2 init in `scripts.js` skips `.tomselect` and `.tomselect-migrated`.
+
+## Helper API (`tomselect-init.js`)
+
+| Function | Purpose |
+|----------|---------|
+| `initTomSelect(el, options)` | Create Tom Select instance (accepts Select2-style options) |
+| `initTomSelectAll(selector, options)` | Batch init for all elements matching a selector |
+| `destroyTomSelect(el)` | Destroy instance and remove migration classes |
+| `isTomSelect(el)` | True if element has `element.tomselect` |
+| `isSelect2(el)` | True if Select2-enhanced (jQuery data or `select2-hidden-accessible`) |
+| `getEnhancementWrapper(el)` | Returns `.ts-wrapper` or `.select2-container` sibling |
+| `placeValidationError(el, errorHtml)` | Inserts validation error after enhancement wrapper |
+| `waitForTomSelect()` | Promise when `TomSelect` global is available |
+| `BansalTomSelect.*` | Namespace with the same methods |
+
+## Migration workflow (per page)
+
+1. Replace `$('.my-select').select2({ … })` with `initTomSelect('.my-select', { … })`.
+2. Remove class `select2` from the `<select>`; `initTomSelect` adds `tomselect` + `tomselect-migrated`.
+3. Use `placeValidationError(el, html)` or `getEnhancementWrapper()` for error placement after the wrapper.
+4. Verify modal dropdowns, form submit values, and destroy/re-init flows.
+
+## Select2 → Tom Select option mapping
+
+| Select2 | Tom Select / `initTomSelect` |
+|---------|------------------------------|
+| `$el.select2(options)` | `initTomSelect($el, options)` |
+| `$el.select2('destroy')` | `destroyTomSelect($el)` |
+| `$el.select2('open')` | `$el[0].tomselect.open()` |
+| `$el.select2('close')` | `$el[0].tomselect.close()` |
+| `width: '100%'` / `'200px'` | Mapped to wrapper inline width |
+| `placeholder: '…'` | `placeholder: '…'` |
+| `allowClear: true` | Adds `clear_button` plugin |
+| `multiple: true` | Keep `multiple` attribute on `<select>` |
+| `dropdownParent: $('#modal')` | `dropdownParent: '#modal'` or jQuery element |
+| `minimumInputLength: N` | Honored in ajax `load` callback |
+| `ajax: { url, data, processResults, delay }` | Mapped to Tom Select `load` + `loadThrottle` |
+| `data: [{ id, text }]` | Mapped to Tom Select `options` |
+| `templateResult` | `render.option` |
+| `templateSelection` | `render.item` |
+| `escapeMarkup: fn` | `render.option` / `render.item` (HTML allowed) |
+| `containerCssClass` | `wrapperClass` |
+| `dropdownCssClass` | `dropdownClass` |
+| `tags: true` | `create: true` |
+
+### Tom Select native options (pass through)
+
+These work directly in `initTomSelect` without mapping:
+
+- `maxItems`, `maxOptions`, `plugins`, `sortField`, `hideSelected`, `closeAfterSelect`
+- `valueField`, `labelField`, `searchField`, `preload`, `loadThrottle`
+- `onInitialize`, `onChange`, `onItemAdd`, `onItemRemove`, `onDropdownOpen`, `onDropdownClose`
+
+### Not yet mapped (handle manually in Phase N+)
+
+- Select2 `matcher` → Tom Select `score` callback
+- Select2 `language` / i18n → Tom Select `render` + custom strings
+- Select2 `maximumSelectionLength` → Tom Select `maxItems`
+- `$el.val(x).trigger('change')` → `$el[0].tomselect.setValue(x, true)` or `addItem`/`clear` for multi
+
+## Phase 1 — Tier A static dropdowns (Done)
+
+Migrated pages: class `select2` → `tomselect`, explicit `initTomSelect` / `waitForTomSelect`, no global Select2 init.
+
+| Page | Layout | Controls |
+|------|--------|----------|
+| `Admin/branch/create.blade.php` | adminconsole | `#branch_country`, `#branch_choose_admin` |
+| `Admin/branch/edit.blade.php` | adminconsole | `#branch_country`, `#branch_choose_admin` (staff list + saved admin repopulated) |
+| `Admin/reports/followup.blade.php` | admin | `#changeassignee` in `#event-details-modal` |
+| `Admin/reports/action_calendar.blade.php` | admin | `#changeassignee` in `#event-details-modal` |
+| `AdminConsole/emails/create.blade.php` | adminconsole | `#email_create_users` multi; errors via `getEnhancementWrapper` |
+| `AdminConsole/emails/edit.blade.php` | adminconsole | `#email_edit_users` multi |
+
+### Phase 1 per-control checklist
+
+For each migrated control:
+
+- [ ] Open / close dropdown (click + Escape)
+- [ ] Keyboard: type to filter, arrow keys, Enter to select
+- [ ] Form POST: submitted value matches selection (create + edit)
+- [ ] Edit page: previously saved value(s) shown on load
+- [ ] No double-init (`isTomSelect(el)` true, `isSelect2(el)` false)
+- [ ] Modal selects: dropdown visible above backdrop (`dropdownParent` set where needed)
+
+## Pilot pages (Phase 2 candidates)
+
+1. **Audit Logs** — `resources/views/Admin/auditlogs/index.blade.php`
+2. **Sheets Insights** — `resources/views/Admin/sheets/insights.blade.php`
+
+## Phase 0 test checklist
+
+Run after deploy; no user-facing change expected.
+
+### Load verification
+
+- [ ] Admin layout: no console errors on any admin page load
+- [ ] Admin Console layout: no console errors
+- [ ] `typeof TomSelect === 'function'` in browser console
+- [ ] `typeof $.fn.select2 === 'function'` still true
+- [ ] `typeof initTomSelect === 'function'` in browser console
+- [ ] `typeof BansalTomSelect === 'object'` in browser console
+- [ ] `typeof isTomSelect === 'function'` and `typeof getEnhancementWrapper === 'function'`
+- [ ] Network tab: Tom Select CSS/JS load from jsDelivr (200)
+- [ ] `tomselect-bridge.css` loads with cache-bust query param
+
+### Select2 regression (unchanged behaviour)
+
+- [ ] Global `.select2` elements still initialize (clients list modals, partner forms, etc.)
+- [ ] Header modern search still works (Select2 ajax)
+- [ ] Modal dropdowns: client detail email modal, add application modal, fee option modals
+- [ ] AJAX selects: `.js-data-example-ajax*` still excluded from global init and work per-page
+- [ ] Ongoing sheet stage filter (`.ongoing-filter-select2`) still works
+
+### Tom Select foundation (manual smoke test in console)
+
+On any admin page:
+
+```javascript
+// Create a throwaway select, init Tom Select, confirm no double-init with Select2
+var s = document.createElement('select');
+s.className = 'select2 tomselect-migrated';
+s.innerHTML = '<option value="">Choose</option><option value="1">One</option>';
+document.body.appendChild(s);
+var ts = initTomSelect(s, { placeholder: 'Choose' });
+ts.open(); // dropdown visible
+destroyTomSelect(s);
+s.remove();
+```
+
+- [ ] Tom Select dropdown opens above page content
+- [ ] Element has `tomselect-migrated` class after init
+- [ ] Global Select2 init does not attach to `.tomselect-migrated` element
+
+### CSS bridge
+
+- [ ] Form-group selects in modals: full width where Select2 was full width
+- [ ] Fee option modal: compact height (~35px) when migrated (Phase 1)
+- [ ] Commission / general invoice modals: dropdown z-index above modal backdrop when migrated
+
+## Phase 0 review fixes (applied)
+
+| Issue | Fix |
+|-------|-----|
+| Global `.ts-dropdown { width: 200px }` would break wide dropdowns | Scoped to `.card`/`.modal` form groups only |
+| Wrong class `.dropdown-active` (Select2, not Tom Select) | Use `.ts-wrapper.focus` when dropdown is open |
+| Failed `new TomSelect()` left `tomselect-migrated` on element | try/catch rolls back migration classes |
+| Select2-only options (`multiple`, `closeOnSelect`, etc.) passed to Tom Select | Blocked via `SELECT2_ONLY_KEYS` + explicit mapping |
+| `templateResult` returning jQuery DOM (common in CRM) | `normalizeTemplateOutput()` handles jQuery/Element/string |
+| Init on Select2-enhanced element | Auto-destroys Select2 before Tom Select init |
+| npm `^2.4.3` resolved to 2.6.1 while CDN uses 2.4.3 | Pinned `"tom-select": "2.4.3"` to match CDN |
+| Empty CSS rule block | Removed |
+
+## Phase status
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
+| 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
+| 2+ | Page-by-page migration (audit logs, insights, ajax selects, etc.) | Pending |
