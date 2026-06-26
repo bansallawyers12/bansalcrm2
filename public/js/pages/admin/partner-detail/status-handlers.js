@@ -73,21 +73,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.status) {
                 $('#changeStatusModal').modal('hide');
                 
-                // Update the status in the DataTable without reloading
+                // Update the status in the visible DataTable without reloading
                 const studentId = data.studentId;
                 const newStatus = data.newStatus;
                 const newStatus_id = data.newStatus_id;
 
-                // Locate the row in the DataTable
-                const table = $('.table-3').DataTable();
-                const rowIndex = table.rows().eq(0).filter((rowIdx) => {
-                    return table.cell(rowIdx, 23).data() == studentId; // Match student ID column
-                });
+                function updateStatusInTable(tableSelector) {
+                    if (!$(tableSelector).length || !$.fn.DataTable.isDataTable(tableSelector)) {
+                        return false;
+                    }
+                    const table = $(tableSelector).DataTable();
+                    const rowIndex = table.rows().eq(0).filter((rowIdx) => {
+                        return table.cell(rowIdx, 23).data() == studentId;
+                    });
+                    if (rowIndex.length > 0) {
+                        table.cell(rowIndex[0], 21).data(newStatus).draw(false);
+                        $(tableSelector).find('.change-status-btn[data-id="' + studentId + '"]').attr('data-current-status', newStatus_id);
+                        return true;
+                    }
+                    return false;
+                }
 
-                // Update the cell value
-                if (rowIndex.length > 0) {
-                    table.cell(rowIndex[0], 21).data(newStatus).draw(); // Update the status column
-                    $('.change-status-btn[data-id="' + studentId + '"]').attr('data-current-status', newStatus_id);
+                if (!updateStatusInTable('.table-3')) {
+                    updateStatusInTable('.table-31');
                 }
 
                 $('.custom-error-msg').html('<span class="alert alert-success">'+data.message+'</span>');
