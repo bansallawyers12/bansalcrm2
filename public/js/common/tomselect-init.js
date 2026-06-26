@@ -473,16 +473,20 @@
             return;
         }
         if (element.tomselect) {
-            if (element.multiple && Array.isArray(value)) {
-                element.tomselect.setValue(value, silent !== false);
-            } else {
-                element.tomselect.setValue(value, silent !== false);
+            if (value == null || value === '' || (Array.isArray(value) && !value.length)) {
+                element.tomselect.clear(silent !== false);
+                return;
             }
+            element.tomselect.setValue(value, silent !== false);
             return;
         }
         if (window.jQuery) {
             window.jQuery(element).val(value).trigger('change');
         }
+    }
+
+    function clearEnhancedSelectValue(el, silent) {
+        setEnhancedSelectValue(el, null, silent);
     }
 
     function waitForTomSelect(maxAttempts) {
@@ -493,10 +497,10 @@
 
             function check() {
                 attempts += 1;
-                if (typeof TomSelect !== 'undefined') {
+                if (typeof TomSelect !== 'undefined' && typeof window.initTomSelect === 'function') {
                     resolve();
                 } else if (attempts >= limit) {
-                    console.warn('[waitForTomSelect] Tom Select not loaded after timeout');
+                    console.warn('[waitForTomSelect] Tom Select helpers not loaded after timeout');
                     resolve();
                 } else {
                     setTimeout(check, 50);
@@ -518,6 +522,7 @@
     window.reinitTomSelect = reinitTomSelect;
     window.initModalTomSelects = initModalTomSelects;
     window.setEnhancedSelectValue = setEnhancedSelectValue;
+    window.clearEnhancedSelectValue = clearEnhancedSelectValue;
     window.waitForTomSelect = waitForTomSelect;
 
     if (window.jQuery) {
@@ -534,6 +539,7 @@
         reinit: reinitTomSelect,
         initModal: initModalTomSelects,
         setValue: setEnhancedSelectValue,
+        clearValue: clearEnhancedSelectValue,
         isTomSelect: isTomSelect,
         isSelect2: isSelect2,
         getEnhancementWrapper: getEnhancementWrapper,

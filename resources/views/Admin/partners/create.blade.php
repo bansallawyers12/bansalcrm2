@@ -733,12 +733,15 @@ jQuery(document).ready(function($){
 		$('#clientModalLabel').html('Add New Branch');
 		$('.savebranch').show();
 		$('#update_branch').hide();
-		$('#branchform')[0].reset();
-		if (typeof setEnhancedSelectValue === 'function') {
-			setEnhancedSelectValue('.branch_country', 'Australia');
-		} else {
-			$(".branch_country").val('Australia').trigger('change');
+		if (typeof destroyEnhancedSelect === 'function') {
+			destroyEnhancedSelect('.branch_country');
 		}
+		$('#branchform')[0].reset();
+		$('.addbranch').one('shown.bs.modal.branchDefaultCountry', function () {
+			if (typeof setEnhancedSelectValue === 'function') {
+				setEnhancedSelectValue('.branch_country', 'Australia');
+			}
+		});
 	    $('.addbranch').modal('show');
 	});
 
@@ -840,7 +843,13 @@ jQuery(document).ready(function($){
 				$('.branchdata').append(html);
 				$('#branchform')[0].reset();
 				$('.addbranch').modal('hide');
-                $(".branch_country").val('').trigger('change') ;
+				if (typeof destroyEnhancedSelect === 'function') {
+					destroyEnhancedSelect('.branch_country');
+				} else if (typeof clearEnhancedSelectValue === 'function') {
+					clearEnhancedSelectValue('.branch_country');
+				} else {
+					$(".branch_country").val('').trigger('change');
+				}
 				itag++;
 			}
 		}
@@ -915,13 +924,15 @@ jQuery(document).ready(function($){
 
             $('#branchform')[0].reset();
             $('.addbranch').modal('hide');
+            if (typeof destroyEnhancedSelect === 'function') {
+                destroyEnhancedSelect('.branch_country');
+            }
         }
     });
 
 	var mtval = 0;
 	$(document).delegate('.editbranch','click', function(){
 		var v = $(this).attr('dataid');
-		$('.addbranch').modal('show');
 		console.log(branchdata);
 		var c = branchdata[v];
 		mtval = v;
@@ -938,9 +949,15 @@ jQuery(document).ready(function($){
 		}
 
 		$('input[name="branch_phone"]').val(c.phone);
-		$(".branch_country").val(c.country).trigger('change') ;
-		//alert(c.ccode);
-		$('#branchform select[name="brnch_country_code"]').val(c.ccode || '');
+		$('.addbranch').one('shown.bs.modal.branchEdit', function () {
+			if (typeof setEnhancedSelectValue === 'function') {
+				setEnhancedSelectValue('.branch_country', c.country);
+			} else {
+				$(".branch_country").val(c.country).trigger('change');
+			}
+			$('#branchform select[name="brnch_country_code"]').val(c.ccode || '');
+		});
+		$('.addbranch').modal('show');
 		$('#clientModalLabel').html('Edit Branch');
 		$('.savebranch').hide();
 		$('#update_branch').show();

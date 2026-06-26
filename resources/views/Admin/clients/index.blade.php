@@ -501,108 +501,21 @@ $('.cb-element').change(function () {
 	}
 });
 $(document).delegate('.emailmodal', 'click', function(){
-
 	$('#emailmodal').modal('show');
-	var array = [];
-	var data = [];
-	$('.cb-element:checked').each(function(){
-		
-			var id = $(this).attr('data-id');
-			 array.push(id);
-			var email = $(this).attr('data-email');
-			var name = $(this).attr('data-name');
-			var status = 'Client';
-			
-			data.push({
-				id: id,
-  text: name,
-  html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-
-      "<div  class='ag-flex ag-align-start'>" +
-        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+name+"</span>&nbsp;</div>" +
-        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+email+"</small ></div>" +
-      
-      "</div>" +
-      "</div>" +
-	   "<div class='ag-flex ag-flex-column ag-align-end'>" +
-        
-        "<span class='ui label yellow select2-result-repository__statistics'>"+ status +
-          
-        "</span>" +
-      "</div>" +
-    "</div>",
-  title: name
-				});
-		
-
-
-	});
-	
-	$(".js-data-example-ajax").select2({
-  data: data,
-  escapeMarkup: function(markup) {
-    return markup;
-  },
-  templateResult: function(data) {
-    return data.html;
-  },
-  templateSelection: function(data) {
-    return data.text;
-  }
-})
-	$('.js-data-example-ajax').val(array);
-		$('.js-data-example-ajax').trigger('change');
-	
+	var collected = RecipientSelect.collectFromCheckboxes('.cb-element', 'Client');
+	RecipientSelect.setData('#emailmodal .js-data-example-ajax', collected.entries, { dropdownParent: '#emailmodal' });
 });
 
 $(document).delegate('.clientemail', 'click', function(){
 	$('#emailmodal').modal('show');
-	var array = [];
-	var data = [];
-
-		
-			var id = $(this).attr('data-id');
-			 array.push(id);
-			var email = $(this).attr('data-email');
-			var name = $(this).attr('data-name');
-			var status = 'Client';
-			
-			data.push({
-				id: id,
-  text: name,
-  html:  "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-
-      "<div  class='ag-flex ag-align-start'>" +
-        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'>"+name+"</span>&nbsp;</div>" +
-        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'>"+email+"</small ></div>" +
-      
-      "</div>" +
-      "</div>" +
-	   "<div class='ag-flex ag-flex-column ag-align-end'>" +
-        
-        "<span class='ui label yellow select2-result-repository__statistics'>"+ status +
-          
-        "</span>" +
-      "</div>" +
-    "</div>",
-  title: name
-				});
-	
-	$(".js-data-example-ajax").select2({
-  data: data,
-  escapeMarkup: function(markup) {
-    return markup;
-  },
-  templateResult: function(data) {
-    return data.html;
-  },
-  templateSelection: function(data) {
-    return data.text;
-  }
-})
-	$('.js-data-example-ajax').val(array);
-		$('.js-data-example-ajax').trigger('change');
-	
+	RecipientSelect.setClientEmailRecipient(
+		'#emailmodal .js-data-example-ajax',
+		$(this).attr('data-id'),
+		$(this).attr('data-name'),
+		$(this).attr('data-email'),
+		'Client',
+		{ dropdownParent: '#emailmodal' }
+	);
 });
 $(document).delegate('.selecttemplate', 'change', function(){
 	var v = $(this).val();
@@ -620,80 +533,9 @@ $(document).delegate('.selecttemplate', 'change', function(){
 		}
 	});
 });
-	$('.js-data-example-ajax').select2({
-		 multiple: true,
-		 closeOnSelect: false,
-		dropdownParent: $('#emailmodal'),
-		  ajax: {
-			url: '{{URL::to('/clients/get-recipients')}}',
-			dataType: 'json',
-			processResults: function (data) {
-			  // Transforms the top-level key of the response object from 'items' to 'results'
-			  return {
-				results: data.items
-			  };
-			  
-			},
-			 cache: true
-			
-		  },
-	templateResult: formatRepo,
-	templateSelection: formatRepoSelection
-});
-
-$('.js-data-example-ajaxcc').select2({
-		 multiple: true,
-		 closeOnSelect: false,
-		dropdownParent: $('#emailmodal'),
-		  ajax: {
-			url: '{{URL::to('/clients/get-recipients')}}',
-			dataType: 'json',
-			processResults: function (data) {
-			  // Transforms the top-level key of the response object from 'items' to 'results'
-			  return {
-				results: data.items
-			  };
-			  
-			},
-			 cache: true
-			
-		  },
-	templateResult: formatRepo,
-	templateSelection: formatRepoSelection
-});
-function formatRepo (repo) {
-  if (repo.loading) {
-    return repo.text;
-  }
-
-  var $container = $(
-    "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-
-      "<div  class='ag-flex ag-align-start'>" +
-        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
-      
-      "</div>" +
-      "</div>" +
-	   "<div class='ag-flex ag-flex-column ag-align-end'>" +
-        
-        "<span class='ui label yellow select2-result-repository__statistics'>" +
-          
-        "</span>" +
-      "</div>" +
-    "</div>"
-  );
-
-  $container.find(".select2-result-repository__title").text(repo.name);
-  $container.find(".select2-result-repository__description").text(repo.email);
-  $container.find(".select2-result-repository__statistics").append(repo.status);
- 
-  return $container;
-}
-
-function formatRepoSelection (repo) {
-  return repo.name || repo.text;
-}
+	var recipientsUrl = '{{URL::to('/clients/get-recipients')}}';
+	RecipientSelect.init('#emailmodal .js-data-example-ajax', { url: recipientsUrl, dropdownParent: '#emailmodal' });
+	RecipientSelect.init('#emailmodal .js-data-example-ajaxcc', { url: recipientsUrl, dropdownParent: '#emailmodal' });
 });
 
 // Show success toast notification

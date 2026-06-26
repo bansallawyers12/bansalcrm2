@@ -49,27 +49,7 @@ jQuery(document).ready(function($){
      * Replace To field with fixed Select2 options (client id or raw email for college).
      */
     function setComposeToRecipients(entries) {
-        var $toField = $('.js-data-example-ajax');
-        var ids = entries.map(function (e) { return String(e.id); });
-        if ($toField.data('select2')) {
-            $toField.select2('destroy');
-        }
-        $toField.select2({
-            multiple: true,
-            closeOnSelect: false,
-            dropdownParent: $('#emailmodal'),
-            data: entries,
-            escapeMarkup: function (markup) {
-                return markup;
-            },
-            templateResult: function (data) {
-                return data.html;
-            },
-            templateSelection: function (data) {
-                return data.text;
-            }
-        });
-        $toField.val(ids).trigger('change');
+        RecipientSelect.setData('.js-data-example-ajax', entries, { dropdownParent: '#emailmodal' });
     }
     
     // Clear send_context when email modal is closed (e.g. user clicks Close without sending)
@@ -346,48 +326,20 @@ jQuery(document).ready(function($){
     var urlParams = new URLSearchParams(window.location.search);
     var openedFromChecklist = urlParams.get('open_checklist_email') === '1' || urlParams.get('open_email_reminder') === '1';
     
-    if (!openedFromChecklist) {
-        // Initialize Select2 for email recipients (To field)
-        $('.js-data-example-ajax').select2({
-            multiple: true,
-            closeOnSelect: false,
-            dropdownParent: $('#emailmodal'),
-            ajax: {
-                url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: data.items
-                    };
-                },
-                cache: true
-            },
-            templateResult: formatRepo,
-            templateSelection: formatRepoSelection
+    if (!openedFromChecklist && window.RecipientSelect) {
+        var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
+        RecipientSelect.init('.js-data-example-ajax', {
+            url: rsUrl,
+            dropdownParent: '#emailmodal',
+            csrf: true
         });
-    }
-
-    // Initialize Select2 for email CC recipients (only if CC field exists - clients/detail has it removed)
-    if ($('#emailmodal .js-data-example-ajaxccd').length) {
-    $('.js-data-example-ajaxccd').select2({
-        multiple: true,
-        closeOnSelect: false,
-        dropdownParent: $('#emailmodal'),
-        ajax: {
-            url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-            headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-            dataType: 'json',
-            processResults: function (data) {
-                return {
-                    results: data.items
-                };
-            },
-            cache: true
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepoSelection
-    });
+        if ($('#emailmodal .js-data-example-ajaxccd').length) {
+            RecipientSelect.init('.js-data-example-ajaxccd', {
+                url: rsUrl,
+                dropdownParent: '#emailmodal',
+                csrf: true
+            });
+        }
     }
 
     // ============================================================================
@@ -534,25 +486,3 @@ jQuery(document).ready(function($){
 });
 
 })(); // End async wrapper
-
-// ============================================================================
-// HELPER FUNCTIONS (for Select2 templates)
-// ============================================================================
-
-// Note: formatRepo and formatRepoSelection are expected to be defined globally
-// or in a common utilities file. If they don't exist, provide fallback implementations.
-
-if (typeof window.formatRepo === 'undefined') {
-    window.formatRepo = function(repo) {
-        if (repo.loading) {
-            return repo.text;
-        }
-        return repo.html || repo.text;
-    };
-}
-
-if (typeof window.formatRepoSelection === 'undefined') {
-    window.formatRepoSelection = function(repo) {
-        return repo.text || repo.title;
-    };
-}

@@ -1147,36 +1147,21 @@
                                           
 											<select style="padding: 0px 5px;" name="assign_to[]" id="assign_to" class="form-control tomselect" data-valid="required" multiple="multiple">
 											<?php
-                                            if( !empty($fetchedData->assignee) )
-                                            {
-                                                if ( str_contains($fetchedData->assignee, ',') ) {
-                                                    $assigneeArr = explode(",",$fetchedData->assignee);
-                                                } else {
-                                                    $assigneeArr = array($fetchedData->assignee);
-                                                }
-
-                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
-                                                foreach($admins as $admin)
-                                                {
-                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                    foreach($assigneeArr as $assigneeKey=>$assigneeVal ) {
-                                            ?>
-                                                <option @if($assigneeVal == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
-                                            <?php
-                                                    }
-                                                }
+                                            $assigneeArr = [];
+                                            if (!empty($fetchedData->assignee)) {
+                                                $assigneeArr = str_contains($fetchedData->assignee, ',')
+                                                    ? explode(',', $fetchedData->assignee)
+                                                    : [$fetchedData->assignee];
                                             }
-                                            else
-                                            {
-                                                $assigneeArr = array();
-                                                $admins = \App\Models\Staff::where('status',1)->orderby('first_name','ASC')->get();
-                                                foreach($admins as $admin){
-                                                    $branchname = \App\Models\Branch::where('id',$admin->office_id)->first();
-                                                ?>
-                                                <option @if($fetchedData->assignee == $admin->id) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
+                                            $admins = \App\Models\Staff::where('status', 1)->orderby('first_name', 'ASC')->get();
+                                            foreach ($admins as $admin) {
+                                                $branchname = \App\Models\Branch::where('id', $admin->office_id)->first();
+                                                $selected = in_array((string) $admin->id, array_map('strval', $assigneeArr), true);
+                                            ?>
+                                                <option @if($selected) selected @endif value="<?php echo $admin->id; ?>"><?php echo $admin->first_name.' '.$admin->last_name.' ('.@$branchname->office_name.')'; ?></option>
                                             <?php
-                                                }
-                                            } ?>
+                                            }
+                                            ?>
 
                                             </select>
                                           

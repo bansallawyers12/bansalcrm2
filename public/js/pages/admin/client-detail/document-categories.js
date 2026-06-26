@@ -621,7 +621,11 @@
                         if (response.status) {
                             // Reset form first
                             form[0].reset();
-                            $('#checklist').val(null).trigger('change');
+                            if (typeof clearEnhancedSelectValue === 'function') {
+                                clearEnhancedSelectValue('#checklist');
+                            } else {
+                                $('#checklist').val(null).trigger('change');
+                            }
                             
                             // Close modal immediately
                             const modalElement = document.getElementById('openalldocsmodal');

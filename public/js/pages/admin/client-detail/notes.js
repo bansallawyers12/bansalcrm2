@@ -104,75 +104,21 @@
         });
 
         // ============================================================================
-        // SELECT2 INITIALIZATION FOR RECIPIENTS
+        // RECIPIENT SELECT INITIALIZATION
         // ============================================================================
-        
-        $('.js-data-example-ajaxcc').select2({
-            multiple: true,
-            closeOnSelect: false,
-            dropdownParent: $('#create_note'),
-            ajax: {
-                url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: data.items
-                    };
-                },
-                cache: true
-            },
-            templateResult: formatRepo,
-            templateSelection: formatRepoSelection
-        });
 
-        $('.js-data-example-ajaxccapp').select2({
-            multiple: true,
-            closeOnSelect: false,
-            dropdownParent: $('#applicationemailmodal'),
-            ajax: {
-                url: App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients',
-                headers: { 'X-CSRF-TOKEN': App.getCsrf()},
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: data.items
-                    };
-                },
-                cache: true
-            },
-            templateResult: formatRepo,
-            templateSelection: formatRepoSelection
-        });
-
-        function formatRepo (repo) {
-            if (repo.loading) {
-                return repo.text;
-            }
-
-            var $container = $(
-                "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                    "<div  class='ag-flex ag-align-start'>" +
-                        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-                        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
-                    "</div>" +
-                "</div>" +
-                "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                    "<span class='ui label yellow select2-result-repository__statistics'>" +
-                    "</span>" +
-                "</div>" +
-                "</div>"
-            );
-
-            $container.find(".select2-result-repository__title").text(repo.name);
-            $container.find(".select2-result-repository__description").text(repo.email);
-            $container.find(".select2-result-repository__statistics").append(repo.status);
-
-            return $container;
-        }
-
-        function formatRepoSelection (repo) {
-            return repo.name || repo.text;
+        if (window.RecipientSelect) {
+            var rsUrl = App.getUrl('clientGetRecipients') || App.getUrl('siteUrl') + '/clients/get-recipients';
+            RecipientSelect.init('.js-data-example-ajaxcc', {
+                url: rsUrl,
+                dropdownParent: '#create_note',
+                csrf: true
+            });
+            RecipientSelect.init('.js-data-example-ajaxccapp', {
+                url: rsUrl,
+                dropdownParent: '#applicationemailmodal',
+                csrf: true
+            });
         }
 
         /**

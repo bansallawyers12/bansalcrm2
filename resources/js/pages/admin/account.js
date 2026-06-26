@@ -32,66 +32,12 @@
 
         const recipientsUrl = getUrl('getRecipients', getUrl('siteUrl', '') + '/clients/get-recipients');
         const templatesUrl = getUrl('getTemplates', getUrl('siteUrl', '') + '/get-templates');
+        const recipientOpts = { url: recipientsUrl, dropdownParent: '#emailmodal' };
 
-        function formatRepo(repo) {
-            if (repo.loading) {
-                return repo.text;
-            }
-
-            const $container = $(
-                "<div  class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                    "<div  class='ag-flex ag-align-start'>" +
-                        "<div  class='ag-flex ag-flex-column col-hr-1'><div class='ag-flex'><span  class='select2-result-repository__title text-semi-bold'></span>&nbsp;</div>" +
-                        "<div class='ag-flex ag-align-center'><small class='select2-result-repository__description'></small ></div>" +
-                        "</div>" +
-                    "</div>" +
-                    "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                        "<span class='ui label yellow select2-result-repository__statistics'></span>" +
-                    "</div>" +
-                "</div>"
-            );
-
-            $container.find('.select2-result-repository__title').text(repo.name || repo.text || '');
-            $container.find('.select2-result-repository__description').text(repo.email || '');
-            $container.find('.select2-result-repository__statistics').append(repo.status || '');
-
-            return $container;
+        if (window.RecipientSelect) {
+            RecipientSelect.init('#emailmodal .js-data-example-ajax', recipientOpts);
+            RecipientSelect.init('#emailmodal .js-data-example-ajaxcc', recipientOpts);
         }
-
-        function formatRepoSelection(repo) {
-            return repo.name || repo.text;
-        }
-
-        function initRecipientSelect($el) {
-            if (!$el.length || typeof $.fn.select2 !== 'function') {
-                return;
-            }
-
-            if ($el.data('select2')) {
-                return;
-            }
-
-            $el.select2({
-                multiple: true,
-                closeOnSelect: false,
-                dropdownParent: $('#emailmodal'),
-                ajax: {
-                    url: recipientsUrl,
-                    dataType: 'json',
-                    processResults: function (data) {
-                        return {
-                            results: data.items || []
-                        };
-                    },
-                    cache: true
-                },
-                templateResult: formatRepo,
-                templateSelection: formatRepoSelection
-            });
-        }
-
-        initRecipientSelect($('.js-data-example-ajax'));
-        initRecipientSelect($('.js-data-example-ajaxcc'));
 
         // Email receipt modal handler
         $(document).on('click', '.clientemail', function(){
@@ -106,28 +52,15 @@
             }
             $('input[name="receipt"]').val(receiptId);
 
-            const id = $(this).attr('data-cus-id');
-            const email = $(this).attr('data-email');
-            const name = $(this).attr('data-name');
-
-            const $recipientSelect = $('.js-data-example-ajax');
-            initRecipientSelect($recipientSelect);
-
-            if (id && name) {
-                const option = new Option(name, id, true, true);
-                $recipientSelect.append(option).trigger('change');
-            }
-
-            if ($recipientSelect.data('select2')) {
-                $recipientSelect.select2('open');
-                $recipientSelect.select2('close');
-            }
-
-            if (email && typeof $.fn.select2 === 'function') {
-                $recipientSelect.trigger({
-                    type: 'select2:select',
-                    params: { data: { id: id, text: name, email: email, status: 'Client' } }
-                });
+            if (window.RecipientSelect) {
+                RecipientSelect.setClientEmailRecipient(
+                    '#emailmodal .js-data-example-ajax',
+                    $(this).attr('data-cus-id'),
+                    $(this).attr('data-name'),
+                    $(this).attr('data-email'),
+                    'Client',
+                    recipientOpts
+                );
             }
         });
 
