@@ -1394,6 +1394,78 @@ class PartnersController extends Controller
 		}
 	}
 
+	private function partnerStudentTabLikeOperator(): string
+	{
+		return DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+	}
+
+	private function partnerStudentTabOrderNullsSuffix(): string
+	{
+		return DB::getDriverName() === 'pgsql' ? ' NULLS LAST' : '';
+	}
+
+	private static function partnerStudentTabCountCacheKey(int $partnerId, string $list): string
+	{
+		return "partner_student_count_v6_{$partnerId}_{$list}";
+	}
+
+	private function peekCachedPartnerStudentTabCount(int $partnerId, string $list): ?int
+	{
+		try {
+			$cached = Cache::get(self::partnerStudentTabCountCacheKey($partnerId, $list));
+
+			return $cached === null ? null : (int) $cached;
+		} catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * @return array{0: int, 1: int}
+	 */
+	private function resolvePartnerStudentTabRecordCounts(
+		Request $request,
+		int $partnerId,
+		string $list,
+		int $start,
+		int $length,
+		int $rowCount,
+		$baseQuery,
+		$filteredQuery,
+		string $searchValue,
+		string $statusFilter
+	): array {
+		$deferCounts = $request->boolean('defer_counts')
+			&& $start === 0
+			&& $searchValue === ''
+			&& $statusFilter === '';
+
+		if ($deferCounts) {
+			$cachedTotal = $this->peekCachedPartnerStudentTabCount($partnerId, $list);
+			if ($cachedTotal !== null) {
+				return [$cachedTotal, $cachedTotal];
+			}
+
+			return $this->estimatePartnerStudentTabCounts($start, $length, $rowCount);
+		}
+
+		try {
+			$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
+			$recordsFiltered = ($searchValue === '' && $statusFilter === '')
+				? $recordsTotal
+				: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
+
+			return [$recordsTotal, $recordsFiltered];
+		} catch (\Throwable $countException) {
+			$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
+				'partner_id' => $partnerId,
+				'message'    => $countException->getMessage(),
+			]);
+
+			return $this->estimatePartnerStudentTabCounts($start, $length, $rowCount);
+		}
+	}
+
 	/**
 	 * @return \Illuminate\Database\Query\Builder
 	 */
@@ -1421,25 +1493,26 @@ class PartnersController extends Controller
 		}
 
 		$like = '%'.addcslashes($searchValue, '%_\\').'%';
+		$likeOp = $this->partnerStudentTabLikeOperator();
 
-		return $query->where(function ($q) use ($like) {
-			$q->where('applications.student_id', 'ilike', $like)
-				->orWhere('applications.stage', 'ilike', $like)
-				->orWhereExists(function ($sub) use ($like) {
+		return $query->where(function ($q) use ($like, $likeOp) {
+			$q->where('applications.student_id', $likeOp, $like)
+				->orWhere('applications.stage', $likeOp, $like)
+				->orWhereExists(function ($sub) use ($like, $likeOp) {
 					$sub->select(DB::raw('1'))
 						->from('admins')
 						->whereColumn('admins.id', 'applications.client_id')
-						->where(function ($a) use ($like) {
-							$a->where('admins.first_name', 'ilike', $like)
-								->orWhere('admins.last_name', 'ilike', $like)
-								->orWhere('admins.client_id', 'ilike', $like);
+						->where(function ($a) use ($like, $likeOp) {
+							$a->where('admins.first_name', $likeOp, $like)
+								->orWhere('admins.last_name', $likeOp, $like)
+								->orWhere('admins.client_id', $likeOp, $like);
 						});
 				})
-				->orWhereExists(function ($sub) use ($like) {
+				->orWhereExists(function ($sub) use ($like, $likeOp) {
 					$sub->select(DB::raw('1'))
 						->from('products')
 						->whereColumn('products.id', 'applications.product_id')
-						->where('products.name', 'ilike', $like);
+						->where('products.name', $likeOp, $like);
 				});
 		});
 	}
@@ -1481,7 +1554,7 @@ class PartnersController extends Controller
 			return (clone $query)->count();
 		}
 
-		$cacheKey = "partner_student_count_v6_{$partnerId}_{$list}";
+		$cacheKey = self::partnerStudentTabCountCacheKey($partnerId, $list);
 
 		try {
 			return (int) Cache::remember($cacheKey, self::PARTNER_STUDENT_TAB_CACHE_SECONDS, function () use ($query) {
@@ -1499,26 +1572,27 @@ class PartnersController extends Controller
 	private function applyPartnerStudentTabOrdering($query, int $colIndex, string $dir)
 	{
 		$dirSql = strtolower($dir) === 'desc' ? 'DESC' : 'ASC';
+		$nullsSuffix = $this->partnerStudentTabOrderNullsSuffix();
 
 		switch ($colIndex) {
 			case 1:
 				return $query->orderByRaw(
-					"(SELECT a.client_id FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql} NULLS LAST"
+					"(SELECT a.client_id FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql}{$nullsSuffix}"
 				)->select('applications.id');
 			case 2:
 				return $query
-					->orderByRaw("(SELECT a.first_name FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql} NULLS LAST")
-					->orderByRaw("(SELECT a.last_name FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql} NULLS LAST")
+					->orderByRaw("(SELECT a.first_name FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql}{$nullsSuffix}")
+					->orderByRaw("(SELECT a.last_name FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql}{$nullsSuffix}")
 					->select('applications.id');
 			case 3:
 				return $query->orderByRaw(
-					"(SELECT a.dob FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql} NULLS LAST"
+					"(SELECT a.dob FROM admins a WHERE a.id = applications.client_id LIMIT 1) {$dirSql}{$nullsSuffix}"
 				)->select('applications.id');
 			case 4:
 				return $query->orderBy('applications.student_id', $dir)->select('applications.id');
 			case 6:
 				return $query->orderByRaw(
-					"(SELECT p.name FROM products p WHERE p.id = applications.product_id LIMIT 1) {$dirSql} NULLS LAST"
+					"(SELECT p.name FROM products p WHERE p.id = applications.product_id LIMIT 1) {$dirSql}{$nullsSuffix}"
 				)->select('applications.id');
 			case 7:
 				return $query->orderBy('applications.start_date', $dir)->select('applications.id');
@@ -1547,17 +1621,19 @@ class PartnersController extends Controller
 			return [];
 		}
 
-		$fees = DB::table('application_fee_options')
-			->whereIn('app_id', $applicationIds->all())
-			->orderBy('app_id')
-			->orderByDesc('id')
+		$driver = DB::getDriverName();
+		$latestFeeConstraint = $driver === 'pgsql'
+			? 'afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = afo.app_id)'
+			: 'afo.id = (SELECT MAX(afo2.id) FROM application_fee_options afo2 WHERE afo2.app_id = afo.app_id LIMIT 1)';
+
+		$fees = DB::table('application_fee_options as afo')
+			->whereIn('afo.app_id', $applicationIds->all())
+			->whereRaw($latestFeeConstraint)
 			->get();
 
 		$latest = [];
 		foreach ($fees as $fee) {
-			if (!isset($latest[$fee->app_id])) {
-				$latest[$fee->app_id] = $fee;
-			}
+			$latest[$fee->app_id] = $fee;
 		}
 
 		return $latest;
@@ -1566,7 +1642,9 @@ class PartnersController extends Controller
 	private function formatPartnerStudentTabRow(object $data, bool $isActive, string $partnerName): array
 	{
 		$statusMap = $this->partnerStudentStatusMap();
-		$clientEncodedId = base64_encode(convert_uuencode(@$data->client_id));
+		$clientEncodedId = !empty($data->client_id)
+			? base64_encode(convert_uuencode((string) $data->client_id))
+			: '';
 
 		$crmRef = !empty($data->client_reference)
 			? '<a href="'.url('/clients/detail/'.$clientEncodedId).'" class="activate-app-tab" data-tab="application" data-id="'.$data->id.'" target="_blank">'.e($data->client_reference).'</a>'
@@ -1814,8 +1892,17 @@ class PartnersController extends Controller
 			$orderColIndex = (int) data_get($request->input('order'), '0.column', -1);
 			$orderDir      = strtolower((string) data_get($request->input('order'), '0.dir', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-			$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
-			$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('applications.id');
+			$pageIds = collect();
+			try {
+				$pageIdQuery = $this->applyPartnerStudentTabOrdering(clone $filteredQuery, $orderColIndex, $orderDir);
+				$pageIds = $pageIdQuery->skip($start)->take($length)->pluck('applications.id');
+			} catch (\Throwable $pageException) {
+				$this->logPartnerStudentTab('warning', 'Student tab page query failed', [
+					'partner_id' => $partnerId,
+					'list'       => $list,
+					'message'    => $pageException->getMessage(),
+				]);
+			}
 
 			$data = [];
 			if ($pageIds->isNotEmpty()) {
@@ -1864,30 +1951,18 @@ class PartnersController extends Controller
 				}
 			}
 
-			$recordsTotal = 0;
-			$recordsFiltered = 0;
-			$deferCounts = $request->boolean('defer_counts')
-				&& $start === 0
-				&& $searchValue === ''
-				&& $statusFilter === '';
-
-			if ($deferCounts) {
-				[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
-			} else {
-				try {
-					$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
-					$recordsFiltered = ($searchValue === '' && $statusFilter === '')
-						? $recordsTotal
-						: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
-				} catch (\Throwable $countException) {
-					[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, count($data));
-					$this->logPartnerStudentTab('warning', 'Student tab count failed; using estimate', [
-						'partner_id' => $partnerId,
-						'message'    => $countException->getMessage(),
-						'estimated'  => $recordsTotal,
-					]);
-				}
-			}
+			[$recordsTotal, $recordsFiltered] = $this->resolvePartnerStudentTabRecordCounts(
+				$request,
+				$partnerId,
+				$list,
+				$start,
+				$length,
+				count($data),
+				$baseQuery,
+				$filteredQuery,
+				$searchValue,
+				$statusFilter
+			);
 
 			$this->logPartnerStudentTab('info', 'getStudentTabData request completed', [
 				'partner_id'       => $partnerId,
@@ -1917,7 +1992,65 @@ class PartnersController extends Controller
 				'recordsFiltered' => 0,
 				'data'            => [],
 				'error'           => 'Unable to load student data.',
-			], 500);
+			]);
+		}
+	}
+
+	/**
+	 * Lightweight cached row counts for Student tab pagination (no row payload).
+	 */
+	public function getStudentTabCount(Request $request, ?string $id = null)
+	{
+		try {
+			$partnerId = $this->resolvePartnerTabPartnerId($request, $id);
+
+			if (!$partnerId) {
+				return response()->json(['status' => false, 'message' => 'Partner not found'], 404);
+			}
+
+			$list = $request->input('list', 'active') === 'inactive' ? 'inactive' : 'active';
+			$searchValue  = trim((string) $request->input('search', ''));
+			$statusFilter = $this->normalisePartnerStudentTabStatusFilter((string) $request->input('status_filter', ''));
+
+			$baseQuery = $this->partnerStudentTabIdQuery($partnerId, $list);
+			$filteredQuery = $this->applyPartnerStudentTabSearch(clone $baseQuery, $searchValue);
+			$filteredQuery = $this->applyPartnerStudentTabStatusFilter($filteredQuery, $statusFilter);
+
+			$recordsTotal = $this->countPartnerStudentTabQuery(clone $baseQuery, $partnerId, $list, '', '');
+			$recordsFiltered = ($searchValue === '' && $statusFilter === '')
+				? $recordsTotal
+				: $this->countPartnerStudentTabQuery(clone $filteredQuery, $partnerId, $list, $searchValue, $statusFilter);
+
+			$this->logPartnerStudentTab('info', 'getStudentTabCount completed', [
+				'partner_id'       => $partnerId,
+				'list'             => $list,
+				'records_total'    => $recordsTotal,
+				'records_filtered' => $recordsFiltered,
+			]);
+
+			return response()->json([
+				'status'          => true,
+				'recordsTotal'    => $recordsTotal,
+				'recordsFiltered' => $recordsFiltered,
+			]);
+		} catch (\Throwable $e) {
+			$this->logPartnerStudentTab('warning', 'getStudentTabCount failed; returning estimate', [
+				'route_id'  => $id,
+				'message'   => $e->getMessage(),
+				'exception' => $e::class,
+			]);
+
+			$start    = max(0, (int) $request->input('start', 0));
+			$length   = max(1, (int) $request->input('length', 25));
+			$rowCount = max(0, (int) $request->input('row_count', 0));
+			[$recordsTotal, $recordsFiltered] = $this->estimatePartnerStudentTabCounts($start, $length, $rowCount);
+
+			return response()->json([
+				'status'          => true,
+				'recordsTotal'    => $recordsTotal,
+				'recordsFiltered' => $recordsFiltered,
+				'estimated'       => true,
+			]);
 		}
 	}
 
@@ -2090,8 +2223,8 @@ class PartnersController extends Controller
 			Cache::forget("partner_students_totals_v5_{$partnerId}_inactive");
 			Cache::forget("partner_students_totals_v7_{$partnerId}_active");
 			Cache::forget("partner_students_totals_v7_{$partnerId}_inactive");
-			Cache::forget("partner_student_count_v6_{$partnerId}_active");
-			Cache::forget("partner_student_count_v6_{$partnerId}_inactive");
+			Cache::forget(self::partnerStudentTabCountCacheKey($partnerId, 'active'));
+			Cache::forget(self::partnerStudentTabCountCacheKey($partnerId, 'inactive'));
 		} catch (\Throwable $e) {
 			// Same resilience as getStudentTabData when cache is unavailable
 		}

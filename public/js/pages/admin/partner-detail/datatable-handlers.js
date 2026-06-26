@@ -268,6 +268,10 @@ jQuery(document).ready(function($){
         ? AppConfig.urls.partnersGetStudentTabTotals
         : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetStudentTabTotals') : null);
 
+    var studentCountUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetStudentTabCount)
+        ? AppConfig.urls.partnersGetStudentTabCount
+        : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetStudentTabCount') : null);
+
     var studentExportUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersExportStudentTabData)
         ? AppConfig.urls.partnersExportStudentTabData
         : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersExportStudentTabData') : null);
@@ -284,7 +288,42 @@ jQuery(document).ready(function($){
 
     var refreshTotalsTimer = null;
     var initialTotalsDelayMs = 2500;
-    var countsReloadDelayMs = 4000;
+    var countFetchDelayMs = 3000;
+
+    function applyStudentTableCounts(api, recordsTotal, recordsFiltered) {
+        if (!api) {
+            return;
+        }
+        var settings = api.settings()[0];
+        settings._iRecordsTotal = recordsTotal;
+        settings._iRecordsDisplay = recordsFiltered != null ? recordsFiltered : recordsTotal;
+        api.draw(false);
+    }
+
+    function fetchStudentTabCounts(api, list, options) {
+        if (!studentCountUrl || !api) {
+            return;
+        }
+        var payload = {
+            partner_id: partnerNumericId,
+            list: list,
+            start: api.page.info().start,
+            length: api.page.len(),
+            row_count: api.rows({ page: 'current' }).count(),
+            search: typeof api.search === 'function' ? api.search() : ''
+        };
+        if (list === 'active' && options && options.statusFilterId) {
+            payload.status_filter = normaliseStudentStatusFilterValue(
+                $('#' + options.statusFilterId).val()
+            );
+        }
+        $.get(studentCountUrl, payload, function (resp) {
+            if (!resp || !resp.status) {
+                return;
+            }
+            applyStudentTableCounts(api, resp.recordsTotal, resp.recordsFiltered);
+        });
+    }
 
     function normaliseStudentStatusFilterValue(value) {
         if (value === null || value === undefined) {
@@ -389,7 +428,7 @@ jQuery(document).ready(function($){
     function initPartnerStudentTable(options) {
         var initialTotalsScheduled = false;
         var deferStudentCounts = true;
-        var countsReloadScheduled = false;
+        var countsFetchScheduled = false;
 
         return $(options.tableSelector).DataTable({
             processing: true,
@@ -461,12 +500,12 @@ jQuery(document).ready(function($){
                     initialTotalsScheduled = true;
                     scheduleStudentTotalsRefresh(options.apiGetter(), options.list, initialTotalsDelayMs);
                 }
-                if (deferStudentCounts && !countsReloadScheduled) {
+                if (deferStudentCounts && !countsFetchScheduled) {
                     deferStudentCounts = false;
-                    countsReloadScheduled = true;
+                    countsFetchScheduled = true;
                     setTimeout(function () {
-                        options.apiGetter().ajax.reload(null, false);
-                    }, countsReloadDelayMs);
+                        fetchStudentTabCounts(options.apiGetter(), options.list, options);
+                    }, countFetchDelayMs);
                 }
             }
         });
