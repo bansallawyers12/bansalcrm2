@@ -63,5 +63,10 @@ class Invoice extends Model
     {
         return $this->hasMany('App\Models\InvoicePayment','invoice_id','id');
     }
+
+	public function application()
+	{
+		return $this->belongsTo(Application::class, 'application_id', 'id');
+	}
 }
 

@@ -1,8 +1,8 @@
 ﻿									@php
-										$appprogresscount = (int) ($applicationStatusCounts[0] ?? 0);
-										$appcompletecount = (int) ($applicationStatusCounts[1] ?? 0);
-										$appdisccount = (int) ($applicationStatusCounts[2] ?? 0);
-										$appenrolcount = (int) ($applicationStatusCounts[3] ?? 0);
+										$appprogresscount = 0;
+										$appcompletecount = 0;
+										$appdisccount = 0;
+										$appenrolcount = 0;
 									@endphp
 									<div class="row">
 										<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -11,7 +11,7 @@
 													<div class="align-items-center justify-content-between">
 														<div class="card-content">
 															<h5 class="font-13">IN PROGRESS</h5>
-															<h2 class="mb-3 font-18">{{$appprogresscount}}</h2>
+															<h2 class="mb-3 font-18" id="app-status-count-0">{{ $appprogresscount }}</h2>
 														</div>
 													</div>
 												</div>
@@ -23,7 +23,7 @@
 													<div class="align-items-center justify-content-between">
 														<div class="card-content">
 															<h5 class="font-13">COMPLETED</h5>
-															<h2 class="mb-3 font-18">{{$appcompletecount}}</h2>
+															<h2 class="mb-3 font-18" id="app-status-count-1">{{ $appcompletecount }}</h2>
 														</div>
 													</div>
 												</div>
@@ -35,7 +35,7 @@
 													<div class="align-items-center justify-content-between">
 														<div class="card-content">
 															<h5 class="font-13">DISCONTINUED</h5>
-															<h2 class="mb-3 font-18">{{$appdisccount}}</h2>
+															<h2 class="mb-3 font-18" id="app-status-count-2">{{ $appdisccount }}</h2>
 														</div>
 													</div>
 												</div>
@@ -47,7 +47,7 @@
 													<div class="align-items-center justify-content-between">
 														<div class="card-content">
 															<h5 class="font-13">ENROLLED</h5>
-															<h2 class="mb-3 font-18">{{$appenrolcount}}</h2>
+															<h2 class="mb-3 font-18" id="app-status-count-3">{{ $appenrolcount }}</h2>
 														</div>
 													</div>
 												</div>

@@ -159,6 +159,18 @@ jQuery(document).ready(function($){
         }
     }
 
+    function updateApplicationStatusCounts(counts) {
+        if (!counts) {
+            return;
+        }
+        for (var i = 0; i <= 3; i++) {
+            var el = document.getElementById('app-status-count-' + i);
+            if (el) {
+                el.textContent = counts[i] != null ? counts[i] : 0;
+            }
+        }
+    }
+
     if (activeTab === 'application' && $('.table-2').length) {
         var applicationDataUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetApplicationTabData)
             ? AppConfig.urls.partnersGetApplicationTabData
@@ -172,6 +184,12 @@ jQuery(document).ready(function($){
                 type: 'GET',
                 data: function (d) {
                     d.partner_id = partnerNumericId;
+                },
+                dataSrc: function (json) {
+                    if (json.statusCounts) {
+                        updateApplicationStatusCounts(json.statusCounts);
+                    }
+                    return json.data;
                 }
             },
             searching: true,
@@ -198,13 +216,42 @@ jQuery(document).ready(function($){
     }
 
     if (activeTab === 'accounts' && $('.invoicetable').length) {
-        $(".invoicetable").dataTable({
-            "searching": false,
-            "lengthChange": false,
-            "columnDefs": [
-                { "sortable": false, "targets": [0, 2, 3] }
+        var accountsDataUrl = (typeof AppConfig !== 'undefined' && AppConfig.urls && AppConfig.urls.partnersGetAccountsTabData)
+            ? AppConfig.urls.partnersGetAccountsTabData
+            : (typeof App !== 'undefined' && App.getUrl ? App.getUrl('partnersGetAccountsTabData') : null);
+
+        $(".invoicetable").DataTable({
+            processing: true,
+            serverSide: true,
+            searching: false,
+            lengthChange: true,
+            pageLength: 10,
+            ajax: {
+                url: accountsDataUrl,
+                type: 'GET',
+                data: function (d) {
+                    d.partner_id = partnerNumericId;
+                }
+            },
+            columns: [
+                { data: 0 },
+                { data: 1 },
+                { data: 2 },
+                { data: 3 },
+                { data: 4 },
+                { data: 5 },
+                { data: 6 }
             ],
-            order: [[1, "desc"]]
+            columnDefs: [
+                { targets: [0, 2, 3, 5, 6], orderable: false },
+                { targets: '_all', defaultContent: '' }
+            ],
+            order: [[1, 'desc']],
+            rowCallback: function (row, data) {
+                if (data[0]) {
+                    $(row).attr('id', 'iid_' + data[0]);
+                }
+            }
         });
     }
 

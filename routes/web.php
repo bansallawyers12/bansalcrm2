@@ -622,6 +622,7 @@ Route::get('/partners/getStudentTabData/{id?}', [PartnersController::class, 'get
 Route::get('/partners/getStudentTabTotals/{id?}', [PartnersController::class, 'getStudentTabTotals'])->name('partners.getStudentTabTotals');
 Route::get('/partners/exportStudentTabData/{id?}', [PartnersController::class, 'exportStudentTabData'])->name('partners.exportStudentTabData');
 Route::get('/partners/getApplicationTabData/{id?}', [PartnersController::class, 'getApplicationTabData'])->name('partners.getApplicationTabData');
+Route::get('/partners/getAccountsTabData/{id?}', [PartnersController::class, 'getAccountsTabData'])->name('partners.getAccountsTabData');
 
 Route::post('/partners/getTopInvoiceValInDB', [PartnersController::class, 'getTopInvoiceValInDB'])->name('partners.getTopInvoiceValInDB');
 Route::get('/partners/printpreviewcreateinvoice/{id}', [PartnersController::class, 'printpreviewcreateinvoice']); // Create Student Invoice print preview
