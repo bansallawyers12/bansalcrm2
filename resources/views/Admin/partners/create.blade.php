@@ -62,7 +62,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="master_category">Master Category <span class="span_req">*</span></label>
-																<select data-valid="required" id="getpartnertype" class="form-control addressselect2" name="master_category">
+																<select data-valid="required" id="getpartnertype" class="form-control tomselect" name="master_category">
 																	<option value="">Select a Master Category</option>
 																	@foreach(\App\Models\Category::all() as $clist)
 																	<option value="{{$clist->id}}">{{$clist->category_name}}</option>
@@ -78,7 +78,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="partner_type">Partner Type <span class="span_req">*</span></label>
-																<select data-valid="required" id="partner_type" class="form-control addressselect2 " name="partner_type">
+																<select data-valid="required" id="partner_type" class="form-control tomselect" name="partner_type">
 																	<option value="">Select a Partner Type</option>
 																</select>
 																@if ($errors->has('partner_type'))
@@ -113,7 +113,7 @@
 														<div class="col-12 col-md-6 col-lg-6">
 															<div class="form-group">
 																<label for="service_workflow">Service Workflow <span class="span_req">*</span></label>
-																<select data-valid="required" class="form-control addressselect2 " name="service_workflow">
+																<select data-valid="required" class="form-control tomselect" name="service_workflow">
 																	<option value="">Choose Service workflow</option>
 																	@foreach(\App\Models\Workflow::all() as $wlist)
 																		<option value="{{$wlist->id}}">{{$wlist->name}}</option>
@@ -671,59 +671,42 @@ jQuery(document).ready(function($){
     }
 
 	function whenVendorLibsReady(callback) {
-		if (typeof window.vendorLibsReady !== 'undefined' && typeof window.vendorLibsReady.then === 'function') {
-			window.vendorLibsReady.then(callback);
+		if (typeof waitForTomSelect === 'function') {
+			waitForTomSelect().then(callback);
 			return;
 		}
-		if (typeof $.fn.select2 === 'function') {
-			callback();
+		if (typeof window.vendorLibsReady !== 'undefined' && typeof window.vendorLibsReady.then === 'function') {
+			window.vendorLibsReady.then(callback);
 			return;
 		}
 		$(document).one('VendorLibsLoaded', callback);
 	}
 
-	function initPartnerSelect2() {
-		if (window.__partnerCreateSelect2Initialized) {
+	function initPartnerFormTomSelects() {
+		if (window.__partnerCreateTomSelectInitialized) {
 			return;
 		}
-		if (typeof $.fn.select2 !== 'function') {
-			console.warn('Select2 not available yet, skipping init');
+		if (typeof TomSelect === 'undefined' || typeof initTomSelect !== 'function') {
+			console.warn('Tom Select not available yet, skipping partner form init');
 			return;
 		}
 
-		console.log('Partner Create: Initializing Select2');
+		var compact = typeof compactTomSelectOptions === 'function'
+			? compactTomSelectOptions()
+			: { width: '100%', minimumResultsForSearch: Infinity };
 
-		if ($(".addbranch .modal-content").length > 0) {
-			$(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({ dropdownParent: $(".addbranch .modal-content") });
-		}
-
-		$(".addressselect2").each(function() {
-			var $element = $(this);
-			if ($element.hasClass("select2-hidden-accessible")) {
-				$element.select2('destroy');
-			}
-			try {
-				$element.select2({
-					minimumResultsForSearch: Infinity,
-					width: '100%'
-				});
-				console.log('Initialized Select2 on:', $element.attr('id') || $element.attr('name'), 'with', $element.find('option').length, 'options');
-			} catch (error) {
-				console.error('Failed to initialize Select2 on:', $element.attr('id') || $element.attr('name'), error);
-			}
-		});
-
-		window.__partnerCreateSelect2Initialized = true;
-		console.log('Partner Create: Select2 initialization complete');
-
-		if (typeof waitForTomSelect === 'function') {
-			waitForTomSelect().then(function () {
-				initTomSelect('select[name="country"]', {
-					width: '100%',
-					minimumResultsForSearch: Infinity
-				});
+		if ($(".addbranch .modal-content").length > 0 && typeof $.fn.select2 === 'function') {
+			$(".addbranch .modal-content select.select2:not(.tomselect):not(.tomselect-migrated)").select2({
+				dropdownParent: $(".addbranch .modal-content")
 			});
 		}
+
+		initTomSelectPreserveValue('#getpartnertype', compact);
+		initTomSelectPreserveValue('#partner_type', compact);
+		initTomSelectPreserveValue('select[name="service_workflow"]', compact);
+		initTomSelectPreserveValue('select[name="country"]', compact);
+
+		window.__partnerCreateTomSelectInitialized = true;
 	}
 
 	var branchdata = new Array();
@@ -747,23 +730,33 @@ jQuery(document).ready(function($){
 
     $(document).delegate('#getpartnertype','change', function(){
 		$('.popuploader').show();
-		var v = $('#getpartnertype option:selected').val();
+		var v = typeof getEnhancedSelectValue === 'function'
+			? getEnhancedSelectValue('#getpartnertype')
+			: $('#getpartnertype option:selected').val();
+		if (!v) {
+			$('.popuploader').hide();
+			if (typeof reinitTomSelectAfterHtml === 'function') {
+				var emptyCompact = typeof compactTomSelectOptions === 'function'
+					? compactTomSelectOptions()
+					: { width: '100%', minimumResultsForSearch: Infinity };
+				reinitTomSelectAfterHtml('#partner_type', '<option value="">Select a Partner Type</option>', emptyCompact);
+			}
+			return;
+		}
 		$.ajax({
 			url: '{{URL::to('/getpaymenttype')}}',
 			type:'GET',
 			data:{cat_id:v},
 			success:function(response){
 				$('.popuploader').hide();
-				$('#partner_type').html(response);
-				
-				// Re-initialize Partner Type dropdown after AJAX load
-				console.log('Partner Type: Re-initializing after AJAX with', $('#partner_type option').length, 'options');
-				$('#partner_type').select2('destroy');
-				$('#partner_type').select2({
-					minimumResultsForSearch: Infinity,
-					width: '100%'
-				});
-				console.log('Partner Type: Re-initialization complete');
+				if (typeof reinitTomSelectAfterHtml === 'function') {
+					var compact = typeof compactTomSelectOptions === 'function'
+						? compactTomSelectOptions()
+						: { width: '100%', minimumResultsForSearch: Infinity };
+					reinitTomSelectAfterHtml('#partner_type', response, compact);
+				} else {
+					$('#partner_type').html(response);
+				}
 			}
 		});
 	});
@@ -969,7 +962,7 @@ jQuery(document).ready(function($){
 	});
 
 	whenVendorLibsReady(function() {
-		initPartnerSelect2();
+		initPartnerFormTomSelects();
 	});
 
     

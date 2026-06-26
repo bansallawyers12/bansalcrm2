@@ -310,15 +310,17 @@
             config.loadThrottle = config.loadThrottle || config._select2Ajax.delay || 250;
         }
 
-        if (options.multiple) {
+        if (options.multiple || element.hasAttribute('multiple')) {
             config.plugins = ensurePlugin(config.plugins, 'remove_button');
         }
 
         if (config._select2Data) {
             config.options = config._select2Data.map(function (item) {
+                var id = item.id != null ? item.id : item.value;
                 var opt = {
-                    value: item.id != null ? item.id : item.value,
-                    text: item.text,
+                    value: id,
+                    id: id,
+                    text: item.text || item.name || '',
                     html: item.html
                 };
                 if (item.name != null) {
@@ -457,6 +459,52 @@
         return initTomSelect(el, options);
     }
 
+    /** Options for compact dropdowns (no search box) — mirrors Select2 minimumResultsForSearch: Infinity */
+    function compactTomSelectOptions(extra) {
+        return Object.assign({ width: '100%', minimumResultsForSearch: Infinity }, extra || {});
+    }
+
+    /** Destroy enhanced select, replace options HTML, re-init (AJAX cascade chains). */
+    function reinitTomSelectAfterHtml(el, html, options) {
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+        destroyEnhancedSelect(element);
+        element.innerHTML = html;
+        element.classList.add('tomselect');
+        return initTomSelect(element, options || {});
+    }
+
+    /** Init Tom Select and restore the native value (edit pages with pre-selected options). */
+    function initTomSelectPreserveValue(el, options) {
+        var element = resolveElement(el);
+        if (!element) {
+            return null;
+        }
+        if (isTomSelect(element)) {
+            return element.tomselect;
+        }
+        var currentValue = element.value;
+        var instance = initTomSelect(element, options || {});
+        if (instance && currentValue) {
+            setEnhancedSelectValue(element, currentValue, true);
+        }
+        return instance;
+    }
+
+    /** Batch init matching elements, preserving each element's current value. */
+    function initTomSelectAllPreserveValues(selector, options) {
+        var instances = [];
+        document.querySelectorAll(selector).forEach(function (element) {
+            var instance = initTomSelectPreserveValue(element, options || {});
+            if (instance) {
+                instances.push(instance);
+            }
+        });
+        return instances;
+    }
+
     function resolveModalDropdownParent(modalEl) {
         var modal = resolveElement(modalEl);
         if (!modal) {
@@ -520,6 +568,48 @@
         setEnhancedSelectValue(el, null, silent);
     }
 
+    function getEnhancedSelectValue(el) {
+        var element = resolveElement(el);
+        if (!element) {
+            return '';
+        }
+        if (element.tomselect) {
+            var value = element.tomselect.getValue();
+            if (Array.isArray(value)) {
+                return value.length ? value : '';
+            }
+            return value == null ? '' : value;
+        }
+        if (window.jQuery) {
+            var nativeVal = window.jQuery(element).val();
+            return nativeVal == null ? '' : nativeVal;
+        }
+        return element.value || '';
+    }
+
+    /** Run callback when Tom Select helpers are ready (Promise + poll fallback). */
+    function whenTomSelectReady(callback, maxAttempts) {
+        if (typeof callback !== 'function') {
+            return;
+        }
+        if (typeof waitForTomSelect === 'function') {
+            waitForTomSelect(maxAttempts).then(callback);
+            return;
+        }
+        var limit = maxAttempts || 200;
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            if (typeof TomSelect !== 'undefined' && typeof window.initTomSelect === 'function') {
+                clearInterval(timer);
+                callback();
+            } else if (attempts >= limit) {
+                clearInterval(timer);
+                console.warn('[whenTomSelectReady] Tom Select helpers not loaded after timeout');
+            }
+        }, 50);
+    }
+
     function waitForTomSelect(maxAttempts) {
         var limit = maxAttempts || 200;
 
@@ -551,10 +641,16 @@
     window.placeValidationError = placeValidationError;
     window.destroyEnhancedSelect = destroyEnhancedSelect;
     window.reinitTomSelect = reinitTomSelect;
+    window.compactTomSelectOptions = compactTomSelectOptions;
+    window.reinitTomSelectAfterHtml = reinitTomSelectAfterHtml;
+    window.initTomSelectPreserveValue = initTomSelectPreserveValue;
+    window.initTomSelectAllPreserveValues = initTomSelectAllPreserveValues;
     window.initModalTomSelects = initModalTomSelects;
     window.setEnhancedSelectValue = setEnhancedSelectValue;
+    window.getEnhancedSelectValue = getEnhancedSelectValue;
     window.clearEnhancedSelectValue = clearEnhancedSelectValue;
     window.waitForTomSelect = waitForTomSelect;
+    window.whenTomSelectReady = whenTomSelectReady;
 
     if (window.jQuery) {
         window.jQuery(document).on('shown.bs.modal', '.modal', function () {
@@ -568,9 +664,15 @@
         destroy: destroyTomSelect,
         destroyEnhanced: destroyEnhancedSelect,
         reinit: reinitTomSelect,
+        reinitAfterHtml: reinitTomSelectAfterHtml,
+        compactOptions: compactTomSelectOptions,
+        initPreserveValue: initTomSelectPreserveValue,
+        initAllPreserveValues: initTomSelectAllPreserveValues,
         initModal: initModalTomSelects,
         setValue: setEnhancedSelectValue,
+        getValue: getEnhancedSelectValue,
         clearValue: clearEnhancedSelectValue,
+        whenReady: whenTomSelectReady,
         isTomSelect: isTomSelect,
         isSelect2: isSelect2,
         getEnhancementWrapper: getEnhancementWrapper,

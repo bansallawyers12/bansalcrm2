@@ -45,7 +45,7 @@
             return App.getUrl('clientGetRecipients')
                 || App.getUrl('clientsGetRecipients')
                 || App.getUrl('getRecipients')
-                || (App.getUrl('siteUrl') || '') + '/clients/get-recipients';
+                || ((App.getUrl('siteUrl') || '') + '/clients/get-recipients');
         }
         if (window.AppConfig && window.AppConfig.urls) {
             if (window.AppConfig.urls.getRecipients) {
@@ -209,6 +209,10 @@
             initOpts.minimumInputLength = options.minimumInputLength;
         }
 
+        if (options.placeholder) {
+            initOpts.placeholder = options.placeholder;
+        }
+
         return initOpts;
     }
 
@@ -231,6 +235,120 @@
                 return data.text;
             }
         };
+    }
+
+    function collectRelatedFileEntries() {
+        var entries = [];
+
+        if (window.PageConfig && Array.isArray(window.PageConfig.relatedFilesData) && window.PageConfig.relatedFilesData.length) {
+            window.PageConfig.relatedFilesData.forEach(function (file) {
+                entries.push(buildRecipientEntry(file.id, file.name, file.email, file.status || 'Client'));
+            });
+            return entries;
+        }
+
+        if (typeof App !== 'undefined' && typeof App.getPageConfig === 'function') {
+            var pageData = App.getPageConfig('relatedFilesData');
+            if (pageData && pageData.length) {
+                pageData.forEach(function (file) {
+                    entries.push(buildRecipientEntry(file.id, file.name, file.email, file.status || 'Client'));
+                });
+                return entries;
+            }
+        }
+
+        var $ = get$();
+        if ($) {
+            $('.relatedfile').each(function () {
+                var $item = $(this);
+                var id = $item.data('id');
+                if (id) {
+                    entries.push(buildRecipientEntry(
+                        id,
+                        $item.data('name') || '',
+                        $item.data('email') || '',
+                        'Client'
+                    ));
+                }
+            });
+        }
+
+        return entries;
+    }
+
+    /**
+     * Related Files field on client/leads create & edit — AJAX search with optional preloaded selections.
+     */
+    function initRelatedFiles(options) {
+        options = options || {};
+        var selector = options.selector || 'select[name="related_files[]"]';
+        var element = resolveElement(selector);
+
+        if (!element) {
+            return null;
+        }
+
+        if (typeof window.initTomSelect !== 'function') {
+            console.warn('[RecipientSelect] initTomSelect not available for related files');
+            return null;
+        }
+
+        if (options.force || options.reinit) {
+            destroyRecipientSelect(element);
+        } else if (isEnhanced(element)) {
+            return element.tomselect || null;
+        }
+
+        var url = resolveUrl(options);
+        var isMultiple = options.multiple !== false;
+        ensureMultipleAttribute(element, isMultiple);
+
+        var entries = options.entries || collectRelatedFileEntries();
+        var initOpts = buildInitOptions(url, Object.assign({ minimumInputLength: 1 }, options));
+
+        if (entries.length) {
+            initOpts.data = entries;
+        }
+
+        var instance = window.initTomSelect(element, initOpts);
+
+        if (instance && entries.length) {
+            var ids = entries.map(function (entry) {
+                return String(entry.id);
+            });
+            if (typeof window.setEnhancedSelectValue === 'function') {
+                window.setEnhancedSelectValue(element, ids, true);
+            } else {
+                instance.setValue(ids, true);
+            }
+        }
+
+        return instance;
+    }
+
+    function ensureRelatedFiles(options, maxAttempts) {
+        var limit = maxAttempts || 50;
+        var attempts = 0;
+        var selector = (options && options.selector) || 'select[name="related_files[]"]';
+
+        function check() {
+            attempts += 1;
+            var element = resolveElement(selector);
+            if (!element) {
+                return;
+            }
+            if (typeof TomSelect === 'undefined' || typeof window.initTomSelect !== 'function') {
+                if (attempts < limit) {
+                    setTimeout(check, 50);
+                }
+                return;
+            }
+            if (!isEnhanced(element)) {
+                initRelatedFiles(options);
+            }
+        }
+
+        check();
     }
 
     function initRecipientSelect(el, options) {
@@ -393,7 +511,10 @@
         setData: setRecipientSelectData,
         setClientEmailRecipient: setClientEmailRecipient,
         getValue: getRecipientSelectValue,
-        collectFromCheckboxes: collectFromCheckboxes
+        collectFromCheckboxes: collectFromCheckboxes,
+        collectRelatedFileEntries: collectRelatedFileEntries,
+        initRelatedFiles: initRelatedFiles,
+        ensureRelatedFiles: ensureRelatedFiles
     };
 
     function waitForRecipientSelect(maxAttempts) {

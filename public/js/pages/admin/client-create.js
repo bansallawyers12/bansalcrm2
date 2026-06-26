@@ -1,6 +1,6 @@
 /**
  * Client Create Page JavaScript
- * Handles form validation, phone/email checking, and Select2 initialization
+ * Handles form validation, phone/email checking, and Tom Select initialization
  */
 
 (function($) {
@@ -9,6 +9,11 @@
     // Get URLs from AppConfig (set in blade template) or use defaults
     const checkClientExistUrl = (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.checkClientExist) || '/checkclientexist';
     const getRecipientsUrl = (window.AppConfig && window.AppConfig.urls && window.AppConfig.urls.getRecipients) || '/clients/get-recipients';
+
+    var relatedFilesInitOptions = {
+        url: getRecipientsUrl,
+        minimumInputLength: 1
+    };
 
     /**
      * Initialize phone number validation
@@ -64,130 +69,21 @@
         });
     }
 
-    /**
-     * Format Select2 repository result
-     */
-    function formatRepo(repo) {
-        if (repo.loading) {
-            return repo.text;
-        }
-
-        var $container = $(
-            "<div class='select2-result-repository ag-flex ag-space-between ag-align-center'>" +
-                "<div class='ag-flex ag-align-start'>" +
-                    "<div class='ag-flex ag-flex-column col-hr-1'>" +
-                        "<div class='ag-flex'>" +
-                            "<span class='select2-result-repository__title text-semi-bold'></span>&nbsp;" +
-                        "</div>" +
-                        "<div class='ag-flex ag-align-center'>" +
-                            "<small class='select2-result-repository__description'></small>" +
-                        "</div>" +
-                    "</div>" +
-                "</div>" +
-                "<div class='ag-flex ag-flex-column ag-align-end'>" +
-                    "<span class='ui label yellow select2-result-repository__statistics'></span>" +
-                "</div>" +
-            "</div>"
-        );
-
-        $container.find(".select2-result-repository__title").text(repo.name);
-        $container.find(".select2-result-repository__description").text(repo.email);
-        $container.find(".select2-result-repository__statistics").append(repo.status);
-
-        return $container;
-    }
-
-    /**
-     * Format Select2 repository selection
-     */
-    function formatRepoSelection(repo) {
-        return repo.name || repo.text;
-    }
-
-    /**
-     * Initialize Select2 for related files
-     */
-    function initRelatedFilesSelect2() {
-        console.log('Initializing Related Files Select2 with URL:', getRecipientsUrl);
-
-        var $relatedSelect = $('.js-data-example-ajaxcc');
-        if (!$relatedSelect.length) {
+    function initRelatedFilesTomSelect() {
+        if (typeof window.RecipientSelect === 'undefined') {
             return;
         }
-
-        if ($relatedSelect.data('select2')) {
-            $relatedSelect.select2('destroy');
+        if (typeof window.RecipientSelect.ensureRelatedFiles === 'function') {
+            window.RecipientSelect.ensureRelatedFiles(relatedFilesInitOptions);
+            return;
         }
-
-        $relatedSelect.select2({
-            multiple: true,
-            closeOnSelect: false,
-            minimumInputLength: 1,
-            ajax: {
-                url: getRecipientsUrl,
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    console.log('Search term:', params.term);
-                    return {
-                        q: params.term, // search term
-                        page: params.page || 1
-                    };
-                },
-                processResults: function(data) {
-                    console.log('Received data:', data);
-                    // Transforms the top-level key of the response object from 'items' to 'results'
-                    return {
-                        results: data.items || []
-                    };
-                },
-                cache: true
-            },
-            templateResult: formatRepo,
-            templateSelection: formatRepoSelection
-        });
-
-        console.log('Related Files Select2 initialized successfully');
-    }
-
-    function hasAjaxSelect2($select) {
-        var instance = $select.data('select2');
-        if (!instance || !instance.options || !instance.options.options) {
-            return false;
+        if (typeof window.RecipientSelect.initRelatedFiles === 'function') {
+            window.RecipientSelect.initRelatedFiles(relatedFilesInitOptions);
         }
-        var ajaxOptions = instance.options.options.ajax;
-        return !!(ajaxOptions && ajaxOptions.url);
-    }
-
-    function ensureRelatedFilesSelect2(maxAttempts) {
-        var attempts = 0;
-        var limit = maxAttempts || 50; // ~2.5s at 50ms
-
-        var check = function() {
-            attempts += 1;
-            var $relatedSelect = $('.js-data-example-ajaxcc');
-            if (!$relatedSelect.length) {
-                return;
-            }
-
-            if (typeof $.fn.select2 === 'undefined') {
-                if (attempts < limit) {
-                    return setTimeout(check, 50);
-                }
-                console.warn('Select2 is not loaded');
-                return;
-            }
-
-            if (!hasAjaxSelect2($relatedSelect)) {
-                initRelatedFilesSelect2();
-            }
-        };
-
-        check();
     }
 
     /**
-     * Initialize Tom Select on client form static fields (Phase 2).
+     * Initialize Tom Select on client form static fields (Phase 2+).
      */
     function initClientFormTomSelects() {
         if (typeof waitForTomSelect !== 'function' || typeof initTomSelect !== 'function') {
@@ -212,68 +108,85 @@
             }, fullWidth));
 
             initTomSelect('#assign_to', Object.assign({}, fullWidth, {
-                plugins: ['remove_button'],
                 closeAfterSelect: false
             }));
 
             if (document.querySelector('#tag')) {
                 initTomSelect('#tag', Object.assign({}, fullWidth, {
-                    plugins: ['remove_button'],
                     closeAfterSelect: false
                 }));
             }
+
+            if (document.querySelector('#lead_source')) {
+                initTomSelect('#lead_source', Object.assign({
+                    allowClear: true
+                }, fullWidth));
+                syncSubagentVisibility();
+            }
+
+            if (document.querySelector('select[name="subagent"]')) {
+                initTomSelect('select[name="subagent"]', Object.assign({
+                    allowClear: true
+                }, fullWidth));
+            }
         });
+    }
+
+    function getLeadSourceValue() {
+        var el = document.querySelector('#lead_source');
+        if (!el) {
+            return '';
+        }
+        if (el.tomselect) {
+            return el.tomselect.getValue() || '';
+        }
+        return el.value || '';
+    }
+
+    function syncSubagentVisibility() {
+        if (getLeadSourceValue() === 'Sub Agent') {
+            $('.is_subagent').show();
+        } else {
+            $('.is_subagent').hide();
+        }
     }
 
     /**
      * Show/hide subagent field based on source selection
      */
     function initSubagentToggle() {
-        $('#lead_source').on('change', function() {
-            if ($(this).val() == 'Sub Agent') {
-                $('.is_subagent').show();
-            } else {
-                $('.is_subagent').hide();
-            }
+        $(document).on('change', '#lead_source', function() {
+            syncSubagentVisibility();
         });
 
-        // Trigger on page load if source is already Sub Agent
-        if ($('#lead_source').val() == 'Sub Agent') {
-            $('.is_subagent').show();
-        }
+        syncSubagentVisibility();
     }
 
     /**
      * Initialize all functionality when document is ready
      */
     $(document).ready(function() {
-        // Wait for jQuery and Select2 to be available
         if (typeof $ === 'undefined') {
             console.error('jQuery is not loaded');
             return;
         }
 
-        // Initialize phone validation
         initPhoneValidation();
-
-        // Initialize email validation
         initEmailValidation();
 
-        // Initialize Select2 for related files (robust against late scripts)
-        ensureRelatedFilesSelect2();
+        if (typeof waitForRecipientSelect === 'function') {
+            waitForRecipientSelect().then(function () {
+                initRelatedFilesTomSelect();
+            });
+        } else {
+            initRelatedFilesTomSelect();
+        }
         $(window).on('load', function() {
-            ensureRelatedFilesSelect2(20);
+            initRelatedFilesTomSelect();
         });
-        setTimeout(function() {
-            ensureRelatedFilesSelect2(20);
-        }, 1000);
 
-        // Initialize Tom Select on static form fields
         initClientFormTomSelects();
-
-        // Initialize subagent toggle
         initSubagentToggle();
     });
 
 })(jQuery);
-

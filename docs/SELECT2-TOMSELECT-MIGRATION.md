@@ -35,7 +35,13 @@ Phase 0 foundation: Tom Select loads alongside Select2. No existing `.select2()`
 | `reinitTomSelect(el, options)` | Destroy then init Tom Select |
 | `initModalTomSelects(modalEl, options)` | Init all `select.tomselect` in modal on `shown.bs.modal` |
 | `setEnhancedSelectValue(el, value)` | Set value on Tom Select or native select |
+| `getEnhancedSelectValue(el)` | Read value from Tom Select or native select |
+| `whenTomSelectReady(callback)` | Run callback when helpers loaded (Promise + poll fallback) |
 | `waitForTomSelect()` | Promise when `TomSelect` global is available |
+| `reinitTomSelectAfterHtml(el, html, opts)` | AJAX cascade: destroy → replace `<option>` HTML → re-init |
+| `compactTomSelectOptions(extra)` | Full-width, no search (`minimumResultsForSearch: Infinity`) |
+| `initTomSelectPreserveValue(el, opts)` | Init and restore pre-selected native value (edit pages) |
+| `initTomSelectAllPreserveValues(sel, opts)` | Batch version of preserve-value init |
 
 ## Migration workflow (per page)
 
@@ -112,23 +118,74 @@ Modals: `shown.bs.modal` on `.modal` auto-calls `initModalTomSelects(this)` (dro
 
 ## Phase 2 — Form pages: static + multi + modal (Done)
 
-| Area | Migrated | Deferred (still Select2) |
+| Area | Migrated | Still Select2 (Phase 6+) |
 |------|----------|---------------------------|
-| Client create/edit | `#visa_type`, `country_passport`, `#country_select`, `service`, `#assign_to`, `#tag` (create only) | `related_files` (`.js-data-example-ajaxcc`), `lead_source`, `subagent` |
-| Partner create/edit | `country`, `branch_country` (add-branch modal) | `#partner_type` / `#getpartnertype` destroy-reinit, `addressselect2` fields |
-| Product create/edit | `product_type`, `intake_month` | `#intrested_product` → `#intrested_branch` destroy/reinit chain |
-| Leads create | Same static set as client create (via `client-create.js`) | `related_files` AJAX |
-| Modals (`addclientmodal`, `addpartnermodal`, `addproductmodal`) | Static: `application`, `fee_type`, `template`, `agent_id`, `checklist[]`, `degree_level`, `document_type` | `workflow`/`partner`/`product` chains, `applicationselect2*`, `productselect2`, AJAX `contact_name` |
+| Client create/edit | Static fields + **`related_files[]`** | — |
+| Partner create/edit | `country`, branch modal country, **`getpartnertype` / `partner_type` / `service_workflow`** | Add-branch modal `.select2` chain |
+| Product create/edit | **`product_type`, `intake_month`, `#intrested_product`, `#intrested_branch`** | — |
+| Leads create | Static fields + **related files, `#lead_source`, `subagent`** | — |
+| Modals (`addclientmodal`, etc.) | Static selects | `workflow`/`partner`/`product` chains, `applicationselect2*`, AJAX `contact_name` |
 
 Init: page scripts call `waitForTomSelect()` + `initTomSelect()`; modals use global `initModalTomSelects` on `shown.bs.modal`.
 
-## Phase 3 candidates
+## Phase 3 — Filter pages (Done)
 
-1. **Audit Logs** — `resources/views/Admin/auditlogs/index.blade.php`
-2. **Sheets Insights** — `resources/views/Admin/sheets/insights.blade.php`
-3. AJAX / destroy-reinit chains (related files, partner type, intrested_branch, application handlers)
+| Page | Layout | Controls |
+|------|--------|----------|
+| `Admin/auditlogs/index.blade.php` | admin | `.audit-staff-select` — single staff filter |
+| `Admin/sheets/insights.blade.php` | admin | `.insights-branch-select` — multi branch filter (`closeAfterSelect: false`; no placeholder — avoids empty `branch[]` in GET) |
 
-## Pilot pages (superseded — see Phase 3)
+## Phase 4 — Related Files AJAX + leads static selects (Done)
+
+| Area | Migrated | Notes |
+|------|----------|-------|
+| Client create | `select[name="related_files[]"]` | `RecipientSelect.initRelatedFiles()` — AJAX + `minimumInputLength: 1` |
+| Client edit | same | Preloads from `PageConfig.relatedFilesData` / `.relatedfile` hidden inputs |
+| Leads create | related files + `#lead_source` + `subagent` | Removed duplicate inline Select2 block; uses `client-create.js` |
+| `recipient-select.js` | `initRelatedFiles`, `ensureRelatedFiles`, `collectRelatedFileEntries` | Shared with email modals (same API endpoint) |
+
+Init: `waitForRecipientSelect()` → `RecipientSelect.initRelatedFiles({ minimumInputLength: 1 })` (no placeholder on multi — avoids empty `related_files[]` in POST).
+
+### Phase 4 review fixes (applied)
+
+| Issue | Fix |
+|-------|-----|
+| AJAX `valueField: 'id'` but preloaded options only had `value` | `tomselect-init.js` maps both `id` and `value` on `_select2Data` options |
+| Edit page: `waitForRecipientSelect` missing if script order wrong | Fallback poll + explicit `App.getUrl('getRecipients')` URL |
+| Multi placeholder could inject empty option | Removed `placeholder` from related files init |
+| `#lead_source` subagent toggle after Tom Select init | `syncSubagentVisibility()` uses `tomselect.getValue()` |
+| `resolveUrl` missed `getRecipients` key used on edit page | Added `App.getUrl('getRecipients')` |
+
+## Phase 5 — Destroy/reinit chains: products + partners (Done)
+
+| Area | Migrated | Pattern |
+|------|----------|---------|
+| Product create/edit | `#intrested_product`, `#intrested_branch` | `initTomSelectPreserveValue` + `reinitTomSelectAfterHtml` on partner change → `/getnewPartnerbranch` |
+| Partner create | `#getpartnertype`, `#partner_type`, `service_workflow` | `compactTomSelectOptions()` + `reinitTomSelectAfterHtml` on category change → `/getpaymenttype` |
+| Partner edit | `partner_type`, `service_workflow` | `initTomSelectAllPreserveValues` (saved selections preserved) |
+| `tomselect-init.js` | `reinitTomSelectAfterHtml`, `compactTomSelectOptions`, `initTomSelectPreserveValue`, `initTomSelectAllPreserveValues` | Shared cascade helpers |
+
+Add-branch modal `.select2` chain remains Select2 (deferred to Phase 6).
+
+### Phase 5 review fixes (applied)
+
+| Issue | Fix |
+|-------|-----|
+| Cascade change handlers read `option:selected` (unreliable with Tom Select) | `getEnhancedSelectValue()` |
+| `destroyTomSelect` removed `tomselect` class before re-init | `reinitTomSelectAfterHtml` re-adds `tomselect` class |
+| Partner create init flag set when Tom Select not loaded | Guard on `typeof TomSelect` before setting flag |
+| Edit pages: `product_type` / `intake_month` / `country` saved values | `initTomSelectPreserveValue` on all pre-filled selects |
+| Script load race on inline page scripts | `whenTomSelectReady()` poll fallback |
+| Master category cleared | Reset `#partner_type` via `reinitTomSelectAfterHtml` |
+
+## Phase 6 candidates
+
+1. Application/modal handlers — `applicationselect2`, `productselect2`, modal workflow chains
+2. Invoice, staff, agents, action pages (`.timezoneselect2`, template selects)
+3. Header modern search (`modern-search.js`) — last
+4. Ongoing sheet stage filter (`.ongoing-filter-select2`)
+
+## Pilot pages (superseded — see Phase 6)
 
 ## Phase 0 test checklist
 
@@ -200,4 +257,7 @@ s.remove();
 | 0 | Foundation — both libraries, helper, bridge CSS, exclude migrated from global init | **Done** |
 | 1 | Tier A static pilots (branch, reports, email staff sharing) | **Done** |
 | 2 | Form pages — client/partner/product/leads + modal static selects | **Done** |
-| 3+ | AJAX chains, audit logs, insights, remaining pages | Pending |
+| 3 | Filter pages — audit logs staff filter, insights branch multi-select | **Done** |
+| 4 | Related files AJAX + leads source/subagent | **Done** |
+| 5 | Product partner→branch chain; partner create/edit address selects | **Done** |
+| 6+ | Application modals, invoice/staff/agents, modern search, ongoing sheet | Pending |

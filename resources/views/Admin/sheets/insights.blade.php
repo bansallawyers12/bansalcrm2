@@ -84,7 +84,7 @@
                         </div>
                         <div class="col-12 col-md-2">
                             <label class="form-label small fw-semibold">Branch</label>
-                            <select name="branch[]" class="form-select select2" multiple>
+                            <select name="branch[]" class="form-control tomselect insights-branch-select" multiple>
                                 @foreach($branches as $b)
                                     <option value="{{ $b->id }}" {{ in_array($b->id, (array)request('branch', [])) ? 'selected' : '' }}>{{ $b->office_name }}</option>
                                 @endforeach
@@ -223,9 +223,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof flatpickr !== 'undefined') {
         flatpickr('.insights-datepicker', { dateFormat: 'd/m/Y', allowInput: true });
     }
-    // Select2
-    if ($ && $.fn.select2) {
-        $('.insights-filter-card .select2').select2({ width: '100%' });
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(function () {
+            initTomSelect('.insights-branch-select', {
+                width: '100%',
+                closeAfterSelect: false
+            });
+        });
+    } else if (typeof waitForTomSelect === 'function') {
+        waitForTomSelect().then(function () {
+            initTomSelect('.insights-branch-select', {
+                width: '100%',
+                closeAfterSelect: false
+            });
+        });
     }
 
     // Chart: Conversions by Assignee

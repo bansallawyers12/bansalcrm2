@@ -35,10 +35,6 @@
  	<!-- Note: select2, Tom Select, and DataTables are loaded from CDN above to avoid ES module issues -->
 	<!-- FullCalendar v6 CSS is now loaded automatically via JavaScript -->
 	<!-- TinyMCE - No CSS needed -->
-	<!-- Template CSS -->
-	<!--<link rel="stylesheet" href="{{--asset('css/niceCountryInput.css')--}}">-->
-	<!--<link rel="stylesheet" href="{{--asset('css/flagstrap.css')--}}">-->
-  
 	<!-- Vendor CSS now loaded via Vite (vendor-libs.js) -->
 	<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800" rel="stylesheet">
@@ -57,16 +53,9 @@
 	<!-- Modern Search CSS -->
 	<link rel="stylesheet" href="{{ asset('css/modern-search.css') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('css/modern-search.css')) }}">
 	
-    <!--<link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/jquery.dataTables.min.css">-->
-    
     <link rel="stylesheet" href="{{asset('css/dataTables_min_latest.css')}}">
     
     @stack('styles')
-    
-
-<!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> -->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>-->
-<!-- jQuery now loaded in <head> before Vite for compatibility with legacy scripts -->   
 
 <style>
 .dropbtn {
@@ -319,23 +308,9 @@ i[style*="color:rgba"] {
 	
 	<!-- Then load main app with Bootstrap, etc -->
 	@vite(['resources/js/app.js'])
-	 
-	<!--<script src="{{--asset('js/niceCountryInput.js')--}}"></script> -->  
-	<!-- Bootstrap JS loaded via app.js -> bootstrap.js; CSS loaded in <head> via app.scss -->
-	<!-- Feather Icons loaded via Vite (ui-libs.js) -->
-	<!-- FullCalendar v6 now loaded via Vite (fullcalendar-init.js) -->
- 	<!-- flatpickr, iziToast now loaded via Vite (vendor-libs.js) -->
- 	<!-- Select2 and DataTables are loaded from CDN in <head> section -->
-  
-	<!--<script src="{{--asset('js/chart.min.js')--}}"></script>-->
-  
-	 <!-- JS Libraies -->
-	<!--<script src="{{--asset('js/apexcharts.min.js')--}}"></script>--> 
-	<!-- Page Specific JS File -->	
-	<!--<script src="{{asset('js/index.js')}}"></script> -->  
+
 	<!-- TinyMCE scripts loaded conditionally via @push('tinymce-scripts') on pages that need it -->
 	@stack('tinymce-scripts')
-	<!--<script src="{{--asset('js/jquery.flagstrap.js')--}}"></script>--> 
 	@if(request()->is('agent', 'agent/*'))
 	<script src="{{ asset('js/agent-custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/agent-custom-form-validation.js')) }}" defer></script>
 	@else
@@ -646,7 +621,6 @@ i[style*="color:rgba"] {
 	@include('partials.email-from-ses-script')
 
 @stack('scripts')
-@yield('scripts')	
-	<!--<script src="{{--asset('js/custom-chart.js')--}}"></script>-->  
+@yield('scripts')
 </body>
 </html>

@@ -82,7 +82,7 @@
                     <form method="get" action="{{ route('auditlogs.index') }}" class="row g-3 align-items-end">
                         <div class="col-12 col-md-2">
                             <label class="form-label small fw-semibold">Staff</label>
-                            <select name="staff_id" class="form-select audit-staff-select">
+                            <select name="staff_id" class="form-control tomselect audit-staff-select">
                                 <option value="">All Staff</option>
                                 @foreach($staffList as $s)
                                     @php $dn = $s->full_name; @endphp
@@ -334,8 +334,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof flatpickr !== 'undefined') {
         flatpickr('.audit-datepicker', { dateFormat: 'd/m/Y', allowInput: true });
     }
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-        $('.audit-staff-select').select2({ width: '100%' });
+    if (typeof whenTomSelectReady === 'function') {
+        whenTomSelectReady(function () {
+            initTomSelect('.audit-staff-select', {
+                width: '100%',
+                allowClear: true
+            });
+        });
+    } else if (typeof waitForTomSelect === 'function') {
+        waitForTomSelect().then(function () {
+            initTomSelect('.audit-staff-select', {
+                width: '100%',
+                allowClear: true
+            });
+        });
     }
 
     var loginsByHour = @json(array_values($loginsByHour));
