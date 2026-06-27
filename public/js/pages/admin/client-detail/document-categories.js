@@ -6,7 +6,13 @@
 (function() {
     'use strict';
 
-    var toastMsg = window.toastMsg.bind(window);
+    function toastMsg(message, type) {
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(message, type);
+        } else if (message) {
+            alert(message);
+        }
+    }
 
     // Global state
     window.DocumentCategoryManager = {

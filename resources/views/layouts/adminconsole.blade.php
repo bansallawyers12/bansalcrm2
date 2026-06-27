@@ -311,6 +311,8 @@
 
 	@include('partials.email-from-ses-script')
 
+	<script src="{{ asset('js/common/utilities.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/utilities.js')) }}"></script>
+
 	@stack('scripts')
 	@yield('scripts')	
 </body>

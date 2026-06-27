@@ -72,7 +72,9 @@ function ValidateEmail(inputText) {
 window.toastMsg = function (message, type) {
     if (typeof window.showToast === 'function') {
         window.showToast(message, type);
-    } else if (message) {
+        return;
+    }
+    if (message != null && String(message).trim() !== '') {
         alert(message);
     }
 };

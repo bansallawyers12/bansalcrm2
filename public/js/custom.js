@@ -8,9 +8,11 @@
 "use strict";
 
 function crmToast(message, type) {
-	if (typeof window.showToast === 'function') {
+	if (typeof window.toastMsg === 'function') {
+		window.toastMsg(message, type);
+	} else if (typeof window.showToast === 'function') {
 		window.showToast(message, type);
-	} else {
+	} else if (message) {
 		alert(message);
 	}
 }

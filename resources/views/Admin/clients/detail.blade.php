@@ -2941,7 +2941,19 @@ $(function () {
 @if($showAlert)
 <script>
 (function () {
-    window.toastMsg("Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?", 'warning');
+    var msg = "Have u updated the following details - email address,current address,current visa,visa expiry,other fields? Pls update these details before forwarding this to anyone?";
+    function showAlertToast() {
+        if (typeof window.toastMsg === 'function') {
+            window.toastMsg(msg, 'warning');
+        } else {
+            alert(msg);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showAlertToast);
+    } else {
+        showAlertToast();
+    }
 })();
 </script>
 @endif
