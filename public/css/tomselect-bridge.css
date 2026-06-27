@@ -167,10 +167,21 @@
     overflow: visible;
 }
 
-/* Partner agreement modal */
+/* Partner agreement modal — dropdown on .ts-wrapper (omit dropdownParent in initModalTomSelects) */
+#agreementModal .ts-dropdown-content {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
 #agreementModal .ts-wrapper,
 #agreementModal .ts-dropdown {
     z-index: 9999 !important;
+}
+
+#agreementModal .ts-wrapper.focus,
+#agreementModal .ts-wrapper.dropdown-active {
+    z-index: 100002 !important;
 }
 
 #agreementModal .modal-body,

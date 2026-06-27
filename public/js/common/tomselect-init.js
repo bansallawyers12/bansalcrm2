@@ -553,8 +553,10 @@
         }
 
         var isAddApplicationModal = modal.classList.contains('add_appliation');
+        var isAgreementModal = modal.id === 'agreementModal';
+        var omitDropdownParent = isAddApplicationModal || isAgreementModal;
         var base = Object.assign({ width: '100%' }, options || {});
-        if (!isAddApplicationModal) {
+        if (!omitDropdownParent) {
             base.dropdownParent = resolveModalDropdownParent(modal);
         }
         var instances = [];
@@ -576,10 +578,15 @@
             if (modal.id === 'emailmodal') {
                 opts.dropdownParent = document.body;
             }
-            // Add Application: omit dropdownParent (same as Assign Staff popover) so the
-            // menu stays on .ts-wrapper and CSS top:100% places it under each control.
-            if (isAddApplicationModal) {
+            // Add Application / Agreement modal: omit dropdownParent (same as Assign Staff
+            // popover) so the menu stays on .ts-wrapper and CSS top:100% places it under
+            // each control. Reparenting to .modal-content breaks placement (Tom Select only
+            // positionDropdown() when dropdownParent is 'body').
+            if (isAddApplicationModal || isAgreementModal) {
                 opts.maxOptions = null;
+            }
+            if (omitDropdownParent) {
+                delete opts.dropdownParent;
             }
             if (element.multiple) {
                 opts.plugins = ensurePlugin(opts.plugins, 'remove_button');
