@@ -73,13 +73,15 @@
 .author-box .author-box-name a{font-size:18px;line-height:21px;color:#000;}
 .author-box .author-tag{}
 .author-box .author-tag span{background-color: #fbbd08;border-color: #fbbd08;color: #fff;font-size: 12px;line-height: 16px;display: inline-block;padding: 2px 12px;border-radius: 15px;margin: 10px 0px 5px;} 
-.author-box .author-mail_sms{margin:10px 0px 20px;} 
+.author-box .author-mail_sms{margin:10px 0px 20px;position:relative;z-index:2;} 
 .author-box .author-rating a{font-size:12px;line-height:21px;color:#ccc;display:inline-block;margin-right: 4px;text-transform: uppercase;}  
 .author-box .author-rating a:last-child{margin-right:0px;}
 .card.author-box .card-body .author-rating a i{font-size:21px;line-height:24px;display:block;margin:0px;}
-.author-box .author-mail_sms a{margin-right:3px;border:1px solid #dbdbdb;padding:2px;width: 28px;height: 28px;border-radius: 50%;text-align: center;display: inline-block;}
+.author-box .author-mail_sms a{margin-right:3px;border:1px solid #dbdbdb;padding:2px;width: 28px;height: 28px;border-radius: 50%;text-align: center;display: inline-flex;align-items:center;justify-content:center;position:relative;z-index:1;}
 .author-box .author-mail_sms a:last-child{margin-right:0px;} 
-.author-box .author-mail_sms a i{font-size:13px;line-height:25px;color:#dbdbdb;margin:0px!important;}
+.author-box .author-mail_sms a i,
+.author-box .author-mail_sms a svg,
+.author-box .author-mail_sms a .crm-icon{font-size:13px;line-height:25px;color:#dbdbdb;margin:0px!important;pointer-events:none;flex-shrink:0;width:1em;height:1em;}
 .author-box .author-rating a.hot.active{ color: #e46363;}
 .author-box .author-rating a.cold.active{color: #e46363;}
 .author-box .author-rating a.lost.active{ color: #e46363;}

@@ -192,7 +192,7 @@ use App\Http\Controllers\Controller;
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS">@icon('comment-alt')</a>
 									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->partner_name}}" class="clientemail" title="Compose Mail">@icon('envelope')</a> 
-									<a href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
+									<a href="{{ route('partners.edit', ['id' => base64_encode(convert_uuencode($fetchedData->id))], false) }}" title="Edit" aria-label="Edit partner">@icon('edit')</a>
 									
 									@if($fetchedData->is_archived == 0)
 										<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="Archive">@icon('archive')</a>
@@ -400,7 +400,7 @@ use App\Http\Controllers\Controller;
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu"> 
 																<a class="dropdown-item has-icon" href="{{URL::to('/products/detail/'.base64_encode(convert_uuencode(@$product->id)))}}">@icon('eye', 'regular') View</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/products/edit/'.base64_encode(convert_uuencode(@$product->id)))}}">@icon('edit', 'regular') Edit</a>
+																<a class="dropdown-item has-icon" href="{{ route('products.edit', ['id' => base64_encode(convert_uuencode($product->id))], false) }}">@icon('edit', 'regular') Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onClick="deleteAction({{@$product->id}}, 'products')">@icon('trash') Delete</a>
 															</div>
 														</div>

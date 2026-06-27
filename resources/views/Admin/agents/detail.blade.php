@@ -64,7 +64,7 @@ use App\Http\Controllers\Controller;
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS">@icon('comment-alt')</a>
 									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->full_name}}" class="clientemail" title="Compose Mail">@icon('envelope')</a>  
-									<a href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
+									<a href="{{ route('agents.edit', ['id' => base64_encode(convert_uuencode($fetchedData->id))], false) }}" title="Edit" aria-label="Edit agent">@icon('edit')</a>
 								</div>
 							</div>
 						</div>

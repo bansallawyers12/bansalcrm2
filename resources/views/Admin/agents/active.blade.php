@@ -90,7 +90,7 @@
 														<div class="dropdown d-inline">
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
-																<a class="dropdown-item has-icon" href="{{URL::to('/agents/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit', 'regular') Edit</a>
+																<a class="dropdown-item has-icon" href="{{ route('agents.edit', ['id' => base64_encode(convert_uuencode($list->id))], false) }}">@icon('edit', 'regular') Edit</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'agents')">@icon('trash') Archived</a>
 															</div>
 														</div>								  

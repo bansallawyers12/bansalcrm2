@@ -218,7 +218,7 @@
 															<button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 															<div class="dropdown-menu">
 																<a class="dropdown-item has-icon clientemail" data-id="{{@$list->id}}" data-email="{{@$list->email}}" data-name="{{@$list->first_name}} {{@$list->last_name}}" href="javascript:;" >@icon('envelope', 'regular') Email</a>
-																<a class="dropdown-item has-icon" href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$list->id)))}}">@icon('edit', 'regular') Edit</a>
+																<a class="dropdown-item has-icon" href="{{ route('clients.edit', ['id' => base64_encode(convert_uuencode($list->id))], false) }}">@icon('edit', 'regular') Edit</a>
 																<a class="dropdown-item has-icon" href="{{URL::to('/clients/export/'.$list->id)}}" title="Export Client Data">@icon('download') Export</a>
 																<a class="dropdown-item has-icon" href="javascript:;" onclick="deleteAction({{$list->id}}, 'admins')">@icon('trash') Archived</a>
 															</div>
