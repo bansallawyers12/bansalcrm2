@@ -44,37 +44,13 @@
         return null;
     }
 
-    function compactOpts(dropdownParent) {
-        var extra = { minimumResultsForSearch: Infinity };
-        if (dropdownParent) {
-            extra.dropdownParent = dropdownParent;
-        }
-        if (typeof compactTomSelectOptions === 'function') {
-            return compactTomSelectOptions(extra);
-        }
-        return Object.assign({ width: '100%' }, extra);
-    }
-
-    /** Searchable assignee dropdowns (staff lists can be long). */
-    function assigneeOpts(dropdownParent) {
+    /** Searchable action popover selects (assignee, group, etc.). */
+    function selectOpts(dropdownParent) {
         var opts = { width: '100%' };
         if (dropdownParent) {
             opts.dropdownParent = dropdownParent;
         }
         return opts;
-    }
-
-    function isTaskGroupSelect(element) {
-        return element.classList.contains('task_group') ||
-            element.id === 'task_group' ||
-            element.name === 'task_group';
-    }
-
-    function optsForSelect(element, dropdownParent) {
-        if (isTaskGroupSelect(element)) {
-            return compactOpts(dropdownParent);
-        }
-        return assigneeOpts(dropdownParent);
     }
 
     function initInContainer(container) {
@@ -95,7 +71,7 @@
             if (!element.classList.contains('tomselect')) {
                 element.classList.add('tomselect');
             }
-            var instance = initTomSelect(element, optsForSelect(element, dropdownParent));
+            var instance = initTomSelect(element, selectOpts(dropdownParent));
             if (instance) {
                 instances.push(instance);
             }
@@ -110,7 +86,7 @@
             return null;
         }
         var dropdownParent = resolveDropdownParent(container, element);
-        var opts = optsForSelect(element, dropdownParent);
+        var opts = selectOpts(dropdownParent);
         var optionsHtml = normalizeOptionsHtml(html);
 
         if (typeof reinitTomSelectAfterHtml === 'function') {
