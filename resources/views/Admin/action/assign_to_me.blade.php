@@ -162,8 +162,8 @@
 													@csrf
 													@method('DELETE')
 
-													<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">Delete</button>
-													<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+													<button type="submit" class="btn btn-danger" data-crm-confirm='Are you sure want to delete?'">Delete</button>
+													<button type="button" class="btn btn-primary btn-block" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
 														<h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
 														<div class=&quot;clearfix&quot;></div>
 													<div class=&quot;box-header with-border&quot;>
@@ -338,8 +338,8 @@
                                                     @csrf
 													@method('DELETE')
 
-													<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">Delete</button>
-													<button type="button" class="btn btn-primary btn-block" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+													<button type="submit" class="btn btn-danger" data-crm-confirm='Are you sure want to delete?'">Delete</button>
+													<button type="button" class="btn btn-primary btn-block" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
 														<h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
 														<div class=&quot;clearfix&quot;></div>
 													<div class=&quot;box-header with-border&quot;>

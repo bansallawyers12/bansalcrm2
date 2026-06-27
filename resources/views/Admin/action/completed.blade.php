@@ -266,7 +266,7 @@
 
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to delete?');">@icon('trash')</button>
+                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" data-crm-confirm='Are you sure want to delete?'">@icon('trash')</button>
 
                                                         @if($list->task_group != 'Personal Task')
                                                         {{-- Assign Staff: use template div --}}

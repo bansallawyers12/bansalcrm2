@@ -124,7 +124,7 @@ class PromotionController extends Controller
 				<div class="extra_content">
 					<div class="left">
 						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
+							<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item openpromotonform" data-id="<?php echo $promotion->id; ?>" href="javascript:;">Edit</a>
 							</div>
@@ -237,7 +237,7 @@ class PromotionController extends Controller
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('editpromotionform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>  

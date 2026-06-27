@@ -1451,7 +1451,7 @@ class ApplicationsController extends Controller
 			    $doclistdata .= '<span class="check">' . \App\Helpers\IconHelper::render('eye') . '</span>';
 			}
             $doclistdata .= '<div class="dropdown d-inline">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+                <button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
                 <div class="dropdown-menu">
                     <a target="_blank" class="dropdown-item" href="'.$doclist->myfile.'">Preview</a>
                     <a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
@@ -1553,7 +1553,7 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<span class="check">' . \App\Helpers\IconHelper::render('eye') . '</span>';
 			}
 				$doclistdata .= '<div class="dropdown d-inline">
-					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 					<div class="dropdown-menu"><a target="_blank" class="dropdown-item" href="'.$doclist->file_name.'">Preview</a>
                         <a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>
                         <a download class="dropdown-item" href="'.$doclist->file_name.'">Download</a>';
@@ -1639,7 +1639,7 @@ class ApplicationsController extends Controller
 				$doclistdata .= '<span class="check">' . \App\Helpers\IconHelper::render('eye') . '</span>';
 			}
 				$doclistdata .= '<div class="dropdown d-inline">
-					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+					<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 					<div class="dropdown-menu">
 						<a target="_blank" class="dropdown-item" href="'.asset('img/documents').'/'.$doclist->file_name.'">Preview</a>
 						<a data-id="'.$doclist->id.'" class="dropdown-item deletenote" data-href="deleteapplicationdocs" href="javascript:;">Delete</a>

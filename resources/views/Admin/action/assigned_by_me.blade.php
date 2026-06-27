@@ -131,7 +131,7 @@
                                                         {{--<a class="btn btn-primary" href="{{ url('/clients/edit/'.base64_encode(convert_uuencode(@$list->client_id)).'') }}">Edit</a>--}}
 
                                                         <?php if($list->task_group != 'Personal Task'){?>
-                                                            <button type="button" data-assignedto="{{ $list->assigned_to }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block update_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+                                                            <button type="button" data-assignedto="{{ $list->assigned_to }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block update_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content&quot;>
                                                                 <h4 class=&quot;text-center&quot;>Update Task</h4>
                                                                 <div class=&quot;clearfix&quot;></div>
                                                             <div class=&quot;box-header with-border&quot;>
@@ -202,7 +202,7 @@
                                                     <?php } ?>
 
                                                         <?php if($list->task_group != 'Personal Task'){?>
-                                                        <button type="button" data-assignedto="{{ $list->assigned_to }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" title="Reassign" data-content="<div id=&quot;popover-content&quot;>
+                                                        <button type="button" data-assignedto="{{ $list->assigned_to }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" class="btn btn-primary btn-block reassign_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" title="Reassign" data-content="<div id=&quot;popover-content&quot;>
                                                             <h4 class=&quot;text-center&quot;>Re-Assign Staff</h4>
                                                             <div class=&quot;clearfix&quot;></div>
                                                         <div class=&quot;box-header with-border&quot;>
@@ -273,7 +273,7 @@
                                                         @csrf
                                                         @method('DELETE')
 
-                                                        <!--<button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure want to delete?');">@icon('trash')</button>-->
+                                                        <!--<button type="submit" class="btn btn-danger" data-crm-confirm='Are you sure want to delete?'">@icon('trash')</button>-->
 
 
 
@@ -328,7 +328,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="completeActionModalLabel">Complete Action</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -346,7 +346,7 @@
                 <input type="hidden" id="complete_client_id" name="complete_client_id" value="">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="submitCompleteAction">Complete Action</button>
             </div>
         </div>

@@ -134,7 +134,7 @@ use App\Http\Controllers\Controller;
 								<a onclick="return confirm('Are you sure?')" href="{{URL::to('/clients/changetype/'.base64_encode(convert_uuencode($fetchedData->id)).'/lead')}}" class="badge-outline col-greenf <?php if($fetchedData->type == 'lead'){ echo 'active'; } ?>">Lead</a>
 							</div>
 							
-							<button type="button" class="btn btn-primary btn-block btn-assignaction" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="<div id=&quot;popover-content&quot;>
+							<button type="button" class="btn btn-primary btn-block btn-assignaction" data-bs-container="body" data-role="popover" data-bs-placement="auto" data-html="true" data-content="<div id=&quot;popover-content&quot;>
 									<h4 class=&quot;text-center&quot;>Assign Staff</h4>
 									<div class=&quot;clearfix&quot;></div>
 

@@ -299,7 +299,7 @@ class ProductsController extends Controller
 					</div>
 					<div class="col-12 col-md-12 col-lg-12">
 						<button onclick="customValidate('editsubjectarea')" type="button" class="btn btn-primary">Save</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 					</div>
 		<?php
 		return ob_get_clean();
@@ -506,7 +506,7 @@ return ob_get_clean();
 						</div>
 						<div class="col-12 col-md-12 col-lg-12">
 							<button onclick="customValidate('editfeeform')" type="button" class="btn btn-primary">Save</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</form>

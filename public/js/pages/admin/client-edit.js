@@ -251,13 +251,13 @@ jQuery(document).ready(function($){
         var v = $(this).attr('dataid');
         var contactid = $(this).attr('contactid');
         // Show confirmation message
-        if (confirm('Are you sure you want to delete this contact?')) {
-            // If user clicks Yes
+        crmConfirm('Are you sure you want to delete this contact?').then(function (ok) {
+            if (!ok) return;
             $('#metatag2_'+v).remove();
             if (typeof contactid !== 'undefined' && contactid !== false) {
                 $('.removesids_contact').append('<input type="hidden" name="rem_phone[]" value="'+contactid+'">');
             }
-        }
+        });
     });
 
     // Edit client phone
@@ -513,7 +513,7 @@ jQuery(document).ready(function($){
             toastMsg('At least one email address is required.', 'warning');
             return;
         }
-        if (confirm('Are you sure you want to delete this email?')) {
+        crmConfirm('Are you sure you want to delete this email?').then(function (ok) { if (!ok) return;
             $('#' + emailId).remove();
         }
     });

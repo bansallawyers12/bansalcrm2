@@ -119,7 +119,7 @@
 		</li>--}} -->
 	<li class="dropdown dropdown-list-toggle">
 		@if(Auth::user())
-			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-bs-toggle="tooltip" data-placement="bottom" title="Click To See Notifications">@icon('bell', 'solid', ['class' => 'bell'])<span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Click To See Notifications">@icon('bell', 'solid', ['class' => 'bell'])<span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
         @endif
 			<!--<div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Notifications

@@ -82,7 +82,7 @@
 												<td class="text-end text-nowrap">
 													<a href="{{ followups_console_route('blocked-times.show', $row) }}" class="btn btn-sm btn-outline-info" title="View">@icon('eye')</a>
 													<a href="{{ followups_console_route('blocked-times.edit', $row) }}" class="btn btn-sm btn-outline-warning" title="Edit">@icon('pencil-alt')</a>
-													<form action="{{ followups_console_route('blocked-times.destroy', $row) }}" method="post" class="d-inline" onsubmit="return confirm('Delete this blocked time?');">
+													<form action="{{ followups_console_route('blocked-times.destroy', $row) }}" method="post" class="d-inline" data-crm-confirm='Delete this blocked time?'">
 														@csrf
 														@method('DELETE')
 														<button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">@icon('trash-alt')</button>

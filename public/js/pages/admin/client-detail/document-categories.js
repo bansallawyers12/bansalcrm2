@@ -442,9 +442,10 @@
                     }
                 });
             } else {
-                if (confirm('Are you sure you want to delete the category "' + categoryName + '"?')) {
+                crmConfirm('Are you sure you want to delete the category "' + categoryName + '"?').then(function (ok) {
+                    if (!ok) return;
                     self.deleteCategory(categoryId);
-                }
+                });
             }
         },
 

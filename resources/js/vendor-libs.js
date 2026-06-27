@@ -23,6 +23,10 @@ window.iziToast = iziToast;
 window.TomSelect = TomSelect;
 window.DataTable = DataTable;
 
+/** Native alert kept for fallbacks when iziToast is unavailable. */
+const nativeAlert = window.alert.bind(window);
+window.__nativeAlert = nativeAlert;
+
 /**
  * Shared toast helper for legacy scripts (replaces alert()).
  * @param {string} message
@@ -60,9 +64,33 @@ window.showToast = function (message, type) {
         }
         return;
     }
-    alert(text);
+    nativeAlert(text);
 };
 window.showLegacyToast = window.showToast;
+
+/**
+ * Route legacy alert() calls to iziToast (non-blocking).
+ * showToast / toastMsg fallbacks use nativeAlert to avoid recursion.
+ */
+window.alert = function (message) {
+    if (message == null || String(message).trim() === '') {
+        return;
+    }
+    if (typeof window.showToast === 'function') {
+        var text = String(message);
+        var type = 'info';
+        if (/^error[:\s]/i.test(text)) {
+            type = 'error';
+        } else if (/^success[:\s]/i.test(text)) {
+            type = 'success';
+        } else if (/^warning[:\s]/i.test(text)) {
+            type = 'warning';
+        }
+        window.showToast(text, type);
+        return;
+    }
+    nativeAlert(message);
+};
 
 // toastMsg lives in public/js/common/utilities.js (loaded from admin layouts)
 

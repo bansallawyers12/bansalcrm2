@@ -641,7 +641,7 @@ class ActionController extends Controller
             return Datatables::of($data)
             ->addIndexColumn()
             ->addColumn('done_task', function($data) {
-                $done_task = '<input type="radio" class="complete_task" data-toggle="tooltip" title="Mark Complete!" data-id="'.$data->id.'">';
+                $done_task = '<input type="radio" class="complete_task" data-bs-toggle="tooltip" title="Mark Complete!" data-id="'.$data->id.'">';
                 return $done_task;
             })
             ->addColumn('assigner_name', function($data) {
@@ -718,7 +718,7 @@ class ActionController extends Controller
                 if (mb_strlen($description) > 190) {
                     $full_description = $description;
                     $final_desc = mb_substr($description, 0, 190);
-                    $final_desc .= '<button type="button" class="btn btn-link btn_readmore" data-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
+                    $final_desc .= '<button type="button" class="btn btn-link btn_readmore" data-bs-toggle="popover" title="" data-content="'.$full_description.'">Read more</button>';
                 } else {
                     $final_desc = $description;
                 }
@@ -807,7 +807,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('edit') . '</button>';
+                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-bs-toggle="popover" data-role="popover" title=""  data-bs-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('edit') . '</button>';
                 } else {
                     $actionBtn = '';
                 }
@@ -886,7 +886,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('tasks') . '</button>';
+                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-bs-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-bs-container="body" data-role="popover" data-bs-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;">' . \App\Helpers\IconHelper::render('tasks') . '</button>';
                 }
                 return $actionBtn;
             })
@@ -1094,7 +1094,7 @@ class ActionController extends Controller
     // ?>
     <div class="modal-header">
             <h5 class="modal-title" id="taskModalLabel"><?php echo \App\Helpers\IconHelper::render('bag'); ?> <?php echo $appointmentdetail->title ?? $appointmentdetail->service->title; ?></h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
     </div>
@@ -1121,7 +1121,7 @@ class ActionController extends Controller
 
                     <ul class="navbar-nav navbar-right">
                         <li class="dropdown dropdown-list-toggle">
-                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedstatus"><?php echo $status ?? 'Pending'; ?> <?php echo \App\Helpers\IconHelper::render('angle-down'); ?></a>
+                            <a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedstatus"><?php echo $status ?? 'Pending'; ?> <?php echo \App\Helpers\IconHelper::render('angle-down'); ?></a>
                             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
                                 <a data-status="0" data-id="<?php echo $appointmentdetail->id; ?>" data-status-name="Pending" href="javascript:;" class="dropdown-item changestatus">
                                     Pending
@@ -1148,7 +1148,7 @@ class ActionController extends Controller
                     <label for="title">Priority:</label>
                     <ul class="navbar-nav navbar-right">
                         <li class="dropdown dropdown-list-toggle">
-                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedpriority"><?php echo $appointmentdetail->priority ?? 'Low'; ?><?php echo \App\Helpers\IconHelper::render('angle-down'); ?></a>
+                            <a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedpriority"><?php echo $appointmentdetail->priority ?? 'Low'; ?><?php echo \App\Helpers\IconHelper::render('angle-down'); ?></a>
                              <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
                                 <a data-status="Low" data-id="<?php echo $appointmentdetail->id; ?>" href="javascript:;" class="dropdown-item changepriority">
                                     Low

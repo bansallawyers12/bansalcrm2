@@ -4,6 +4,7 @@
 'use strict';
 
 import '@legacy/common/utilities.js';
+import '@legacy/common/confirm-dialog.js';
 import '@legacy/common/crm-icon.js';
 import '@/lucide-init.js';
 import '@legacy/common/tomselect-init.js';

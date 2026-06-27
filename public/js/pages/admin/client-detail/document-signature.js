@@ -220,10 +220,13 @@
         },
 
         deleteField: function(fieldId) {
-            if (!confirm('Delete this signature field?')) return;
-            this.signatureFields = this.signatureFields.filter(f => f.id !== fieldId);
-            this.updateFieldsList();
-            this.renderFieldsForPage(this.currentPage);
+            var self = this;
+            crmConfirm('Delete this signature field?').then(function (ok) {
+                if (!ok) return;
+                self.signatureFields = self.signatureFields.filter(function (f) { return f.id !== fieldId; });
+                self.updateFieldsList();
+                self.renderFieldsForPage(self.currentPage);
+            });
         },
 
         makeDraggable: function(el, field) {
@@ -396,7 +399,7 @@
         },
 
         removeSignature: function(docId) {
-            if (!confirm('Remove signature request? This will cancel pending signers.')) return;
+            crmConfirm('Remove signature request? This will cancel pending signers.').then(function (ok) { if (!ok) return;
             fetch(baseUrl + '/document-signature/remove', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },

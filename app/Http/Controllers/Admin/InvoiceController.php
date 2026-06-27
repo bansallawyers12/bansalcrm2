@@ -277,7 +277,7 @@ class InvoiceController extends Controller
 				<?php }  ?>
 				<td>
 					<div class="dropdown d-inline">
-						<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+						<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 						<div class="dropdown-menu">
 							<a class="dropdown-item has-icon" href="#">Send Email</a>
 							<a target="_blank" class="dropdown-item has-icon" href="<?php echo \URL::to('invoice/view/'); ?>/<?php echo $invoicelist->id; ?>">View</a>

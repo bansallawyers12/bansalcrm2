@@ -129,7 +129,7 @@
 
 
 
-                                            <button type="button" class="btn btn-primary btn-block add_my_task" data-container="body" data-role="popover" data-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content11&quot;>
+                                            <button type="button" class="btn btn-primary btn-block add_my_task" data-bs-container="body" data-role="popover" data-bs-placement="bottom" data-html="true" data-content="<div id=&quot;popover-content11&quot;>
                                                 <h4 class=&quot;text-center&quot;>Add Action</h4>
                                                 <div class=&quot;clearfix&quot;></div>
                                             <div class=&quot;box-header with-border&quot;>
@@ -337,7 +337,7 @@ $(function () {
         "fnDrawCallback": function() {
             // Only initialize popovers that aren't already initialized
             // Support both data-toggle (legacy) and data-bs-toggle (Bootstrap 5)
-            $('[data-role="popover"], [data-toggle="popover"], [data-bs-toggle="popover"]').each(function() {
+            $('[data-role="popover"], [data-bs-toggle="popover"], [data-bs-toggle="popover"]').each(function() {
                 var $el = $(this);
                 // Check if Bootstrap 5 instance exists or jQuery data exists
                 var bsInstance = window.bootstrap && window.bootstrap.Popover ? window.bootstrap.Popover.getInstance(this) : null;

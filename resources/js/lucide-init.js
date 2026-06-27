@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import { createIcons } from 'lucide';
+import { createIcons, icons } from 'lucide';
 
 const SORT_ICON_MAP = {
     'sort-default': 'arrow-up-down',
@@ -61,6 +61,7 @@ function nodeNeedsIconHydration(node) {
 export function refreshCrmIcons(root) {
     hydrateSortIcons(root);
     createIcons({
+        icons,
         attrs: {
             'aria-hidden': 'true',
         },

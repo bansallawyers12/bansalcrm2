@@ -2714,7 +2714,7 @@ class PartnersController extends Controller
 						</div>  
 						<div class="right">
 							<div class="dropdown d-inline dropdown_ellipsis_icon">
-								<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
+								<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 								<div class="dropdown-menu">
 									<a class="dropdown-item openbranchform" data-id="<?php echo $branch->id; ?>" href="javascript:;">Edit</a>
 									<a data-id="<?php echo $branch->id; ?>" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -4421,7 +4421,7 @@ class PartnersController extends Controller
 
                     <div class="right" style="float: right;width: 15px;">
 						<div class="dropdown d-inline dropdown_ellipsis_icon">
-							<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
+							<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item opennoteform" data-id="<?php echo $list->id; ?>" href="javascript:;">Edit</a>
                                 <?php if(Auth::user()->role == 1){ ?>
@@ -4552,7 +4552,7 @@ class PartnersController extends Controller
                         <td style="white-space: initial;"><?php echo date('d/m/Y', strtotime($fetch->created_at)); ?></td>
 						<td>
 							<div class="dropdown d-inline">
-								<button class="btn btn-primary dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
+								<button class="btn btn-primary dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
 								<div class="dropdown-menu">
 									<a class="dropdown-item renamedoc" href="javascript:;">Rename</a>
 									<?php
@@ -4607,7 +4607,7 @@ class PartnersController extends Controller
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
+									<a class="dropdown-toggle" type="button" id="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo \App\Helpers\IconHelper::render('ellipsis-v'); ?></a>
 									<div class="dropdown-menu">
 										<?php
                                         if( isset($fetch->myfile_key) && $fetch->myfile_key !="")
