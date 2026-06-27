@@ -18,15 +18,6 @@
     "src": "resources/js/fullcalendar-init.js",
     "isEntry": true
   },
-  "resources/js/jquery-init.js": {
-    "file": "assets/jquery-init-8nVBr6kU.js",
-    "name": "jquery-init",
-    "src": "resources/js/jquery-init.js",
-    "isEntry": true,
-    "imports": [
-      "_rolldown-runtime-QTnfLwEv.js"
-    ]
-  },
   "resources/js/legacy-init.js": {
     "file": "assets/legacy-init-CdH25ERX.js",
     "name": "legacy-init",

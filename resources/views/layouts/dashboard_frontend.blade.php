@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bansal CRM</title>
 	
-	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<!-- jQuery 3.7.1 — single source (Phase 2a: sync in head; do not also load via Vite) -->
+	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	
 	<!-- Bootstrap CSS in head (prevents FOUC); Bootstrap JS still loaded via app.js -->
 	@vite(['resources/sass/app.scss'])
@@ -25,9 +25,6 @@
 		var site_url = "<?php echo URL::to('/'); ?>";
 		//var redirecturl = "<?php echo URL::to('/thanks'); ?>";
 	</script>
-	
-	<!-- Load jQuery FIRST as separate entry (synchronous) -->
-	@vite(['resources/js/jquery-init.js'])
 	
 	<!-- Load vendor libraries (flatpickr, datatables, izitoast, tom-select) -->
 	@vite(['resources/js/vendor-libs.js'])

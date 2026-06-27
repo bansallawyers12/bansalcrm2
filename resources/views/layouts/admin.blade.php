@@ -13,8 +13,8 @@
 	<!-- Note: IPv6 literals [::1] are NOT supported by CSP spec. Use 'localhost' which resolves to both IPv4 and IPv6. -->
 	<title>Bansal CRM | @yield('title')</title>
 	
-	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
-	<script src="{{asset('js/jquery-3.7.1.min.js')}}"></script>
+	<!-- jQuery 3.7.1 — single source (Phase 2a: sync in head; do not also load via Vite) -->
+	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	
 	<!-- Tom Select (enhanced dropdowns) -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css">
@@ -291,9 +291,6 @@ i[style*="color:rgba"] {
 				    var site_url = '{{URL::to('/')}}';
 				     var dataformat = '{{$dataformat}}';
 				    </script>
-	
-	<!-- Load jQuery FIRST as separate entry -->
-	@vite(['resources/js/jquery-init.js'])
 	
 	<!-- Load FullCalendar v6 -->
 	@vite(['resources/js/fullcalendar-init.js'])

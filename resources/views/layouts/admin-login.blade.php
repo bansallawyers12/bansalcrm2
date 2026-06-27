@@ -13,8 +13,8 @@
 	<link rel="shortcut icon" type="image/png" href="{{asset('img/favicon.png')}}"/>
 	<title>Bansal CRM | @yield('title')</title>
 	
-	<!-- Load jQuery synchronously before any other scripts to ensure availability -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<!-- jQuery 3.7.1 — single source (Phase 2a: sync in head; do not also load via Vite) -->
+	<script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 	
 	<!-- Favicons-->
 	<link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
@@ -55,9 +55,6 @@
 			img.src = '{{ asset('img/bansal_crm_background_image.jpg') }}';
 		})();
 	</script>
-	
-	<!-- Load jQuery FIRST as separate entry (synchronous) -->
-	@vite(['resources/js/jquery-init.js'])
 	
 	<!-- Then load main app with Bootstrap, etc (async) -->
 	@vite(['resources/js/app.js'])

@@ -1,6 +1,6 @@
 /**
- * jQuery is now loaded via jquery-init.js as a separate entry point
- * This ensures it's available before any legacy scripts execute
+ * jQuery is loaded synchronously in layout <head> (public/js/jquery-3.7.1.min.js).
+ * Phase 2a: single source — not bundled via Vite (required before head CDN plugins).
  */
 
 import _ from 'lodash';
