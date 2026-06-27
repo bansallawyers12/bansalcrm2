@@ -191,8 +191,8 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="author-mail_sms">
 									<a href="#" title="Compose SMS"><i class="fas fa-comment-alt"></i></a>
-									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->partner_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a> 
-									<a href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+									<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->partner_name}}" class="clientemail" title="Compose Mail"><i class="fas fa-envelope"></i></a> 
+									<a href="{{URL::to('/partners/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
 									
 									@if($fetchedData->is_archived == 0)
 										<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'partners')" title="Archive"><i class="fas fa-archive"></i></a>
@@ -359,7 +359,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade <?php echo ($activeTab === 'products') ? 'show active' : ''; ?>" id="products" role="tabpanel" aria-labelledby="products-tab">
 									@if($activeTab === 'products')
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="{{route('products.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="{{route('products.create')}}" class="btn btn-primary"><i class="fas fa-plus"></i> Add</a>
 									</div>
 									<div class="table-responsive"> 
 										<table class="table text_wrap">
@@ -416,7 +416,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade <?php echo ($activeTab === 'branches') ? 'show active' : ''; ?>" id="branches" role="tabpanel" aria-labelledby="branches-tab">
 									@if($activeTab === 'branches')
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" class="btn btn-primary openbranchnew"><i class="fa fa-plus"></i> Add</a> 
+										<a href="javascript:;" class="btn btn-primary openbranchnew"><i class="fas fa-plus"></i> Add</a> 
 									</div>
 									<div class="branch_term_list">
 									<?php
@@ -430,17 +430,17 @@ use App\Http\Controllers\Controller;
 											<div class="branch_content">
 												<h4><?php echo $branch->name; ?></h4>
 												<div class="" style="margin-top: 15px!important;">
-													<p><i class="fa fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->a; ?></p>
+													<p><i class="fas fa-map-marker-alt" style="margin-right: 10px!important;"></i> <?php echo $branch->city; ?>, <?php echo $branch->a; ?></p>
 												</div>
 											</div>
 											<div class="extra_content">
 												<div class="left">
-													<p><i class="fa fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
-													<p><i class="fa fa-envelope-o" style="margin-right: 20px!important;"></i> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
+													<p><i class="fas fa-phone" style="margin-right: 20px!important;"></i> <?php if($branch->phone != ''){ echo $branch->phone; }else{ echo '-'; } ?></p>
+													<p><i class="fas fa-envelope-o" style="margin-right: 20px!important;"></i> <?php if($branch->email != ''){ echo $branch->email; }else{ echo '-'; } ?></p>
 												</div>  
 												<div class="right">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openbranchform" data-id="{{$branch->id}}" href="javascript:;">Edit</a>
 															<a data-id="{{$branch->id}}" data-href="deletebranch" class="dropdown-item deletenote" href="javascript:;" >Delete</a>
@@ -464,7 +464,7 @@ use App\Http\Controllers\Controller;
 									@if($activeTab === 'agreements')
 									<!-- Add Agreement Button -->
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" class="btn btn-primary add_agreement_btn"><i class="fa fa-plus"></i> Add Agreement</a>
+										<a href="javascript:;" class="btn btn-primary add_agreement_btn"><i class="fas fa-plus"></i> Add Agreement</a>
 									</div>
 									
 									<!-- Agreements List -->
@@ -499,7 +499,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade <?php echo ($activeTab === 'noteterm') ? 'show active' : ''; ?>" id="noteterm" role="tabpanel" aria-labelledby="noteterm-tab">
 									@if($activeTab === 'noteterm')
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="javascript:;" datatype="note" class="create_note btn btn-primary"><i class="fas fa-plus"></i> Add</a>
 									</div>
 									<div class="note_term_list">
 										<p class="text-muted mb-0 notes-loading">Loading notes...</p>
@@ -514,7 +514,7 @@ use App\Http\Controllers\Controller;
 											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
 											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
 										</div>
-										<a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fa fa-plus"></i> Add Checklist</a>
+										<a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fas fa-plus"></i> Add Checklist</a>
 										<button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2"><i class="fas fa-upload"></i> Bulk Upload</button>
 									</div>
 									
@@ -604,7 +604,7 @@ use App\Http\Controllers\Controller;
 																			<input type="hidden" name="type" value="partner">
 																			<input type="hidden" name="doctype" value="documents">
 																			<input type="hidden" name="checklist" value="<?php echo htmlspecialchars($fetch->checklist ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-																			<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+																			<a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
 																			<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
 																		</form>
 																	</div>
@@ -633,7 +633,7 @@ use App\Http\Controllers\Controller;
 														<div class="grid_content">
 															<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 															<div class="dropdown d-inline dropdown_ellipsis_icon">
-																<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 																<div class="dropdown-menu">
 																	<?php $docType = $fetch->doc_type ? $fetch->doc_type : 'documents'; ?>
 																	<?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
@@ -818,7 +818,7 @@ use App\Http\Controllers\Controller;
 								<div class="tab-pane fade <?php echo ($activeTab === 'promotions') ? 'show active' : ''; ?>" id="promotions" role="tabpanel" aria-labelledby="promotions-tab">
 									@if($activeTab === 'promotions')
 									<div class="card-header-action text-end" style="padding-bottom:15px;">
-										<a href="javascript:;"  class="btn btn-primary add_promotion"><i class="fa fa-plus"></i> Add</a>
+										<a href="javascript:;"  class="btn btn-primary add_promotion"><i class="fas fa-plus"></i> Add</a>
 									</div>
 									<div class="promotionlists"> 
 									<?php
@@ -882,7 +882,7 @@ use App\Http\Controllers\Controller;
 											<div class="extra_content">
 												<div class="left">
 													<div class="dropdown d-inline dropdown_ellipsis_icon">
-														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+														<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 														<div class="dropdown-menu">
 															<a class="dropdown-item openpromotonform" data-id="{{$promotion->id}}" href="javascript:;">Edit</a>
 														</div>
@@ -1040,7 +1040,7 @@ use App\Http\Controllers\Controller;
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;"><?php echo $rec_val->student_count;?></td>
                                                                 <td style="padding-top: 5px !important;padding-bottom: 5px !important;">
                                                                     <?php echo "$".$rec_val->total_amount_aud;?>
-                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <a target="_blank" class="link-primary" href="{{URL::to('/partners/printpreviewcreateinvoice')}}/{{$rec_val->invoice_id}}"><i class="fas fa-print" aria-hidden="true"></i></a>
                                                                     <?php if ( isset( $rec_val->sent_option ) && $rec_val->sent_option == 'Yes' ) { ?>
                                                                     <?php } else { ?>
                                                                         <a class="link-primary updatedraftstudentinvoice" href="javascript:;" data-invoiceid="<?php echo $rec_val->invoice_id;?>"><i class="fas fa-pencil-alt"></i></a>
@@ -1124,7 +1124,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $inv_val->invoice_no;?></td>
                                                                 <td>
                                                                     <?php echo "$".$inv_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fas fa-print" aria-hidden="true"></i></a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>"><i class="fas fa-pencil-alt"></i></a>-->
                                                                     <a class="link-primary deletestudentrecordinvoice" href="javascript:;" data-uniqueid="<?php echo $inv_val->id;?>" data-invoicetype="<?php echo $inv_val->invoice_type;?>" data-partnerid="<?php echo $inv_val->partner_id;?>"><i class="fas fa-trash"></i></a>
                                                                 </td>
@@ -1200,7 +1200,7 @@ use App\Http\Controllers\Controller;
                                                                 <td><?php echo $pay_val->verified_date;?></td>
                                                                 <td>
                                                                     <?php echo "$".$pay_val->amount_aud;?>
-                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                                    <!--<a target="_blank" class="link-primary" href="{{--URL::to('/clients/printpreview')--}}/{{--$rec_val->id--}}"><i class="fas fa-print" aria-hidden="true"></i></a>
                                                                     <a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php //echo $rec_val->id;?>"><i class="fas fa-pencil-alt"></i></a>-->
                                                                     <a class="link-primary deletestudentpaymentinvoice" href="javascript:;" data-uniqueid="<?php echo $pay_val->id;?>" data-invoicetype="<?php echo $pay_val->invoice_type;?>" data-partnerid="<?php echo $pay_val->partner_id;?>"><i class="fas fa-trash"></i></a>
                                                                 </td>
@@ -2039,17 +2039,17 @@ use App\Http\Controllers\Controller;
             var documentLink = 'N/A';
             if (agreement.file_upload) {
                 var fileName = agreement.file_upload.split('/').pop();
-                documentLink = '<a href="javascript:;" class="view_agreement_doc" data-url="' + agreement.file_upload + '"><i class="fa fa-file"></i> View</a>';
+                documentLink = '<a href="javascript:;" class="view_agreement_doc" data-url="' + agreement.file_upload + '"><i class="fas fa-file"></i> View</a>';
             }
             
             var actions = '<div class="btn-group" role="group">';
-            actions += '<button type="button" class="btn btn-sm btn-primary edit_agreement" data-id="' + agreement.id + '" title="Edit"><i class="fa fa-edit"></i></button>';
+            actions += '<button type="button" class="btn btn-sm btn-primary edit_agreement" data-id="' + agreement.id + '" title="Edit"><i class="fas fa-edit"></i></button>';
             
             if (agreement.status === 'inactive') {
-                actions += '<button type="button" class="btn btn-sm btn-success set_active_agreement" data-id="' + agreement.id + '" title="Set Active"><i class="fa fa-check"></i></button>';
+                actions += '<button type="button" class="btn btn-sm btn-success set_active_agreement" data-id="' + agreement.id + '" title="Set Active"><i class="fas fa-check"></i></button>';
             }
             
-            actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete"><i class="fa fa-trash"></i></button>';
+            actions += '<button type="button" class="btn btn-sm btn-danger delete_agreement" data-id="' + agreement.id + '" title="Delete"><i class="fas fa-trash"></i></button>';
             actions += '</div>';
             
             // Main agreement row

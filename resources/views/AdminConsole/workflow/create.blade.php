@@ -14,7 +14,7 @@
 							<div class="card-header">
 								<h4>Add Workflow</h4>
 								<div class="card-header-action">
-									<a href="{{route('adminconsole.workflow.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('adminconsole.workflow.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -89,7 +89,7 @@ jQuery(document).ready(function($){
 	$('.add_stage').on('click', function(){
 		var html = '<tr>'+
 				'<td><input type="text" name="stage_name[]" placeholder="Stage Name" class="form-control"></td>'+
-				'<td><a href="javascript:;" class="remove_stage"><i class="fa fa-trash"></i></a></td>'+
+				'<td><a href="javascript:;" class="remove_stage"><i class="fas fa-trash"></i></a></td>'+
 				'<td></td>'+
 			'</tr>';
 			

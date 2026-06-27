@@ -625,7 +625,7 @@ function customValidate(formName, savetype = '')
                                                 }
 
                                                 if(printUrl != ""){
-                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                    var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'" title="Print receipt"><i class="fas fa-print" aria-hidden="true"></i></a>';
                                                 } else {
                                                     var printLink = '';
                                                 }
@@ -668,7 +668,7 @@ function customValidate(formName, savetype = '')
                                                 }
 
                                                 if(printUrl != ""){
-                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                    printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
                                                 }
 
 												editLink = '<a class="link-primary updateclientreceipt" href="javascript:;" data-id="'+lastInsertedId+'"><i class="fas fa-pencil-alt"></i></a>';
@@ -782,7 +782,7 @@ function customValidate(formName, savetype = '')
                                                 var awsLink = '';
                                             }
                                             if(printUrl != ""){
-                                                var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                var printLink = '<a target="_blank" class="link-primary" href="'+printUrl+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
                                             } else {
                                                 var printLink = '';
                                             }
@@ -823,7 +823,7 @@ function customValidate(formName, savetype = '')
                                                     var awsLink2 = '';
                                                 }
                                                 if(printUrl2 != ""){
-                                                    var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                    var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
                                                 } else {
                                                     var printLink2 = '';
                                                 }
@@ -849,7 +849,7 @@ function customValidate(formName, savetype = '')
                                             }
 
                                             if(printUrl2 != ""){
-                                                var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fa fa-print" aria-hidden="true"></i></a>';
+                                                var printLink2 = '<a target="_blank" class="link-primary" href="'+printUrl2+'"><i class="fas fa-print" aria-hidden="true"></i></a>';
                                             } else {
                                                 var printLink2 = '';
                                             }

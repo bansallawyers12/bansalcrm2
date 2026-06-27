@@ -807,12 +807,12 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fa fa-edit" aria-hidden="true"></i></button>';
+                    $actionBtn = '<button type="button"  data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'"  class="btn btn-primary btn-block update_task" data-toggle="popover" data-role="popover" title=""  data-placement="left"   data-content="'.$content1.'" style="width: 40px;display: inline;"><i class="fas fa-edit" aria-hidden="true"></i></button>';
                 } else {
                     $actionBtn = '';
                 }
 
-                $actionBtn .= ' <button class="btn btn-danger deleteNote" data-remote="'. route('action.destroy', $list->id) .'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                $actionBtn .= ' <button class="btn btn-danger deleteNote" data-remote="'. route('action.destroy', $list->id) .'"><i class="fas fa-trash" aria-hidden="true"></i></button>';
 
 
 
@@ -886,7 +886,7 @@ class ActionController extends Controller
                         </div>
                     </div>';
 
-                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fa fa-tasks" aria-hidden="true"></i></button>';
+                    $actionBtn .= ' <button type="button" data-assignedto="'.$list->assigned_to.'" data-noteid="'.$safeDescription.'" data-taskid="'.$list->id.'" data-taskgroupid="'.$safeTaskGroup.'"  data-followupdate="'.$list->action_assign_date.'" data-toggle="popover" title="" class="btn btn-primary btn-block reassign_task" data-container="body" data-role="popover" data-placement="auto" data-html="true" data-content="'.$content2.'" data-original-title="" title="" style="width: 40px;display: inline;"><i class="fas fa-tasks" aria-hidden="true"></i></button>';
                 }
                 return $actionBtn;
             })
@@ -1093,7 +1093,7 @@ class ActionController extends Controller
     // $client = \App\Models\Admin::where('id', $appointmentdetail->client_id)->first();
     // ?>
     <div class="modal-header">
-            <h5 class="modal-title" id="taskModalLabel"><i class="fa fa-bag"></i> <?php echo $appointmentdetail->title ?? $appointmentdetail->service->title; ?></h5>
+            <h5 class="modal-title" id="taskModalLabel"><i class="fas fa-bag"></i> <?php echo $appointmentdetail->title ?? $appointmentdetail->service->title; ?></h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -1121,7 +1121,7 @@ class ActionController extends Controller
 
                     <ul class="navbar-nav navbar-right">
                         <li class="dropdown dropdown-list-toggle">
-                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedstatus"><?php echo $status ?? 'Pending'; ?> <i class="fa fa-angle-down"></i></a>
+                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedstatus"><?php echo $status ?? 'Pending'; ?> <i class="fas fa-angle-down"></i></a>
                             <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
                                 <a data-status="0" data-id="<?php echo $appointmentdetail->id; ?>" data-status-name="Pending" href="javascript:;" class="dropdown-item changestatus">
                                     Pending
@@ -1148,7 +1148,7 @@ class ActionController extends Controller
                     <label for="title">Priority:</label>
                     <ul class="navbar-nav navbar-right">
                         <li class="dropdown dropdown-list-toggle">
-                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedpriority"><?php echo $appointmentdetail->priority ?? 'Low'; ?><i class="fa fa-angle-down"></i></a>
+                            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle updatedpriority"><?php echo $appointmentdetail->priority ?? 'Low'; ?><i class="fas fa-angle-down"></i></a>
                              <div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
                                 <a data-status="Low" data-id="<?php echo $appointmentdetail->id; ?>" href="javascript:;" class="dropdown-item changepriority">
                                     Low
@@ -1207,7 +1207,7 @@ class ActionController extends Controller
                         <a class="saveassignee btn btn-success" data-id="<?php echo $appointmentdetail->id; ?>" href="javascript:;">Save</a>
                     </div>
                     <div class="col-md-2">
-                        <a class="closeassignee" href="javascript:;"><i class="fa fa-times"></i></a>
+                        <a class="closeassignee" href="javascript:;"><i class="fas fa-times"></i></a>
                     </div>
                 </div>
             </div>

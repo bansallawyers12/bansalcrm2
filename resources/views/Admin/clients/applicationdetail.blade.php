@@ -41,14 +41,14 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 				data-application-id="{{ (int) $fetchData->id }}"
 				data-college-email="{{ e($collegeRecipientEmail) }}"
 				data-college-name="{{ e($collegeRecipientName) }}">
-				<i class="fa fa-envelope" aria-hidden="true"></i> College
+				<i class="fas fa-envelope" aria-hidden="true"></i> College
 			</button>
 			@endif
-			<a target="_blank" href="{{URL::to('/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fa fa-print"></i></a>
+			<a target="_blank" href="{{URL::to('/application/export/pdf/')}}/{{$fetchData->id}}" class="btn btn-primary"><i class="fas fa-print"></i></a>
           
-			<a style="<?php if($fetchData->status == 2 || $fetchData->status == 1){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger discon_application ifdiscont"><i class="fa fa-times"></i> Discontinue</a>
+			<a style="<?php if($fetchData->status == 2 || $fetchData->status == 1){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger discon_application ifdiscont"><i class="fas fa-times"></i> Discontinue</a>
 
-            <a style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger refund_application ifdiscont"><i class="fa fa-undo"></i> Refund</a>
+            <a style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-outline-danger refund_application ifdiscont"><i class="fas fa-undo"></i> Refund</a>
 
 			<?php
 			$displayback = false;
@@ -58,12 +58,12 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 				$displayback = true;
 			} 
 			?>
-			<a href="javascript:;" style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-stage="{{$fetchData->stage}}" data-id="{{$fetchData->id}}" class="btn btn-outline-primary backstage ifdiscont"><i class="fa fa-angle-left"></i> Back to Previous Stage</a>
+			<a href="javascript:;" style="<?php if($fetchData->status == 2 || $fetchData->status == 1 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-stage="{{$fetchData->stage}}" data-id="{{$fetchData->id}}" class="btn btn-outline-primary backstage ifdiscont"><i class="fas fa-angle-left"></i> Back to Previous Stage</a>
 
 			<a href="javascript:;" style="<?php if($fetchData->status == 2){ echo 'display:none;'; } ?> <?php if($displayback){  }else{ echo 'display:none;'; } ?>" data-stage="{{$fetchData->stage}}" data-id="{{$fetchData->id}}" class="btn btn-success completestage ifdiscont">Complete Application</a>
-			<a href="javascript:;" style="<?php if($displayback || $fetchData->status == 2 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-stage="{{$fetchData->stage}}" data-id="{{$fetchData->id}}" class="btn btn-success nextstage ifdiscont">Proceed to Next Stage <i class="fa fa-angle-right"></i></a>
+			<a href="javascript:;" style="<?php if($displayback || $fetchData->status == 2 || $fetchData->status == 8){ echo 'display:none;'; } ?>" data-stage="{{$fetchData->stage}}" data-id="{{$fetchData->id}}" class="btn btn-success nextstage ifdiscont">Proceed to Next Stage <i class="fas fa-angle-right"></i></a>
 
-			<a href="javascript:;" style="<?php if($fetchData->status == 1 || $fetchData->status == 2){ echo ''; }else{ echo 'display:none;'; } ?>"  data-id="{{$fetchData->id}}" class="btn btn-success revertapp">Revert <i class="fa fa-angle-right"></i></a>
+			<a href="javascript:;" style="<?php if($fetchData->status == 1 || $fetchData->status == 2){ echo ''; }else{ echo 'display:none;'; } ?>"  data-id="{{$fetchData->id}}" class="btn btn-success revertapp">Revert <i class="fas fa-angle-right"></i></a>
 
 			<span id="discontinue_reason" style="<?php if($fetchData->status == 2){ echo 'display:block;'; } else { echo 'display:none;'; } ?>">Discontinue Reason - <span id="discontinue_reason_text"><?php echo $fetchData->discontinue_reason; ?></span></span>
 
@@ -253,14 +253,14 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							<div class="accordion-header collapsed <?php echo $stage1; ?> <?php if($fetchData->stage == $stages->name && $fetchData->status != 1){ echo  'app_blue'; }  ?>" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
-									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-file-alt"></i></a>
-									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" data-appdocclientid="<?php echo $fetchData->client_id;?>" href="javascript:;"><i class="fa fa-file-image"></i></a>
+									<a title="Add Note" class="openappnote" data-app-type="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-file-alt"></i></a>
+									<a title="Add Document" class="opendocnote" data-app-type="<?php echo $stagname; ?>" data-typename="<?php echo $stages->name; ?>" data-id="<?php echo $fetchData->id; ?>" data-appdocclientid="<?php echo $fetchData->client_id;?>" href="javascript:;"><i class="fas fa-file-image"></i></a>
                                   
-                                   <a data-course="<?php echo $productdetail->name; ?>" data-school="<?php echo $partnerdetail->partner_name; ?>" data-app-type="<?php echo $stages->name; ?>" title="Actions" class="openappaction" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-calendar"></i></a>
+                                   <a data-course="<?php echo $productdetail->name; ?>" data-school="<?php echo $partnerdetail->partner_name; ?>" data-app-type="<?php echo $stages->name; ?>" title="Actions" class="openappaction" data-id="<?php echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-calendar"></i></a>
                                     
-									<!--<a data-app-type="<?php //echo $stages->name; ?>" title="Add Appointments" class="openappappoint" data-id="<?php //echo $fetchData->id; ?>" href="javascript:;"><i class="fa fa-calendar"></i></a>-->
+									<!--<a data-app-type="<?php //echo $stages->name; ?>" title="Add Appointments" class="openappappoint" data-id="<?php //echo $fetchData->id; ?>" href="javascript:;"><i class="fas fa-calendar"></i></a>-->
                                   
-									<a data-app-type="<?php echo $stages->name; ?>" title="Email" data-id="{{@$fetchData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="openclientemail" title="Compose Mail" href="javascript:;"><i class="fa fa-envelope"></i></a>
+									<a data-app-type="<?php echo $stages->name; ?>" title="Email" data-id="{{@$fetchData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="openclientemail" title="Compose Mail" href="javascript:;"><i class="fas fa-envelope"></i></a>
 								</div>
 							</div>
 							<?php
@@ -332,10 +332,10 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 														$appcount = \App\Models\ApplicationDocument::where('list_id', $applicationdocument->id)->count();
 														?>
 														<tr>
-															<td><?php if($appcount >0){ ?><span class="check"><i class="fa fa-check"></i></span><?php }else{ ?><span class="round"></span><?php } ?></td>
+															<td><?php if($appcount >0){ ?><span class="check"><i class="fas fa-check"></i></span><?php }else{ ?><span class="round"></span><?php } ?></td>
 															<td>{{@$applicationdocument->document_type}}</td>
 															<td><div class="circular-box cursor-pointer"><button class="transparent-button paddingNone">{{@$appcount}}</button></div></td>
-															<td><a data-aid="{{$fetchData->id}}" data-typename="<?php echo $stages->name; ?>" data-type="<?php echo $name; ?>" data-id="{{$applicationdocument->id}}" class="openfileupload" href="javascript:;"><i class="fa fa-plus"></i></a></td>
+															<td><a data-aid="{{$fetchData->id}}" data-typename="<?php echo $stages->name; ?>" data-type="<?php echo $name; ?>" data-id="{{$applicationdocument->id}}" class="openfileupload" href="javascript:;"><i class="fas fa-plus"></i></a></td>
 														</tr>
 														<?php } ?>
 													</tbody>
@@ -343,7 +343,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 												</table>
 												<?php } ?>
 											</div>
-											<a class="openchecklist" data-id="{{$fetchData->id}}" data-typename="<?php echo $stages->name; ?>" data-type="<?php echo $name; ?>" href="javascript:;"><i class="fa fa-plus"></i> Add New Checklist</a></li>
+											<a class="openchecklist" data-id="{{$fetchData->id}}" data-typename="<?php echo $stages->name; ?>" data-type="<?php echo $name; ?>" href="javascript:;"><i class="fas fa-plus"></i> Add New Checklist</a></li>
 										<?php } ?>
 											
 										</ul> 
@@ -368,7 +368,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 								$docdata = \App\Models\ApplicationDocumentList::where('id', $doclist->list_id)->first();
 							?>
 								<tr>
-									<td><i class="fa fa-file"></i> <?php echo $doclist->file_name; ?><br><?php echo @$docdata->document_type; ?></td>
+									<td><i class="fas fa-file"></i> <?php echo $doclist->file_name; ?><br><?php echo @$docdata->document_type; ?></td>
 									<td>
 										<?php
 										echo $doclist->typename;
@@ -381,7 +381,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 									<td>
 										<?php if($doclist->status == 1){
 											?>
-											<span class="check"><i class="fa fa-eye"></i></span>
+											<span class="check"><i class="fas fa-eye"></i></span>
 											<?php
 										} ?>
 										<div class="dropdown d-inline">
@@ -438,7 +438,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							<div class="accordion-header collapsed active" role="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $stagname; ?>_accor" aria-expanded="false">
 								<h4><?php echo $stages->name; ?></h4>
 								<div class="accord_hover">
-									<a title="Add Task" class="opentaskmodal" href="javascript:;"><i class="fa fa-suitcase"></i></a>
+									<a title="Add Task" class="opentaskmodal" href="javascript:;"><i class="fas fa-suitcase"></i></a>
 								</div>
 							</div>
 						</div>
@@ -467,7 +467,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 					<span>Start</span>
 					<div class="date_col">
 						<div class="add_date">
-							<span><i class="fa fa-plus"></i> Add</span>
+							<span><i class="fas fa-plus"></i> Add</span>
 						</div>  
 						<input type="text" value="{{@$fetchData->start_date}}" class="startdatepicker" />
 						<div class="apply_val">
@@ -482,7 +482,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 					<span>End</span>
 					<div class="date_col">
 						<div class="add_date">
-							<span><i class="fa fa-plus"></i> Add</span> 
+							<span><i class="fas fa-plus"></i> Add</span> 
 						</div>
 						<input type="text" value="{{@$fetchData->end_date}}" class="enddatepicker" />
 						<div class="apply_val">
@@ -520,7 +520,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			
 			<div class="cus_prod_fees">
 				<h5>Product Fees <span>AUD</span></h5>
-				<a href="javascript:;" data-id="{{$fetchData->id}}" data-partnerid="{{$fetchData->partner_id}}" class="openpaymentfee"><i class="fa fa-edit"></i></a>
+				<a href="javascript:;" data-id="{{$fetchData->id}}" data-partnerid="{{$fetchData->partner_id}}" class="openpaymentfee"><i class="fas fa-edit"></i></a>
 				<div class="clearfix"></div>
 			</div>
 			<!--<p class="clearfix"> 
@@ -601,7 +601,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			}
 			$nettotal = $client_revenue + $partner_revenue - $discounts;
 			?>
-				<a href="javascript:;"  data-id="{{$fetchData->id}}" class="openpaymentfeeLatest btn btn-primary btn-sm float-end"><i class="fa fa-plus"></i> Add Fee</a>
+				<a href="javascript:;"  data-id="{{$fetchData->id}}" class="openpaymentfeeLatest btn btn-primary btn-sm float-end"><i class="fas fa-plus"></i> Add Fee</a>
 				<div class="clearfix"></div>
 			</div>
           
@@ -680,7 +680,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			<p class="clearfix"> 
 				<span class="float-start">Super Agent:</span>
 				<span class="float-end text-muted">
-					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensuperagent"><i class="fa fa-plus"></i> Add</a>
+					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensuperagent"><i class="fas fa-plus"></i> Add</a>
 					<?php
 					$agent = \App\Models\Agent::where('id',$fetchData->super_agent)->first();
 					if($agent){
@@ -695,7 +695,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href="javascript:;" data-href="superagent" data-id="{{$fetchData->id}}"  class="deletenote"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="superagent" data-id="{{$fetchData->id}}"  class="deletenote"><i class="fas fa-times"></i></a>
 							</div>
 						</div>
 					</div>
@@ -705,7 +705,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			<p class="clearfix"> 
 				<span class="float-start">Sub Agent:</span>
 				<span class="float-end text-muted">
-					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensubagent"><i class="fa fa-plus"></i> Add</a>
+					<a href="javascript:;" data-id="{{$fetchData->id}}" class="btn btn-primary btn-sm opensubagent"><i class="fas fa-plus"></i> Add</a>
 					<div class="subagent_data">
 						<?php
 					$subagent = \App\Models\Agent::where('id',$fetchData->sub_agent)->first();
@@ -720,7 +720,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 							</span>
 							</div>
 							<div class="cl_del" style="display: inline-block;">
-								<a href="javascript:;" data-href="subagent" data-id="{{$fetchData->id}}"  class="deletenote"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" data-href="subagent" data-id="{{$fetchData->id}}"  class="deletenote"><i class="fas fa-times"></i></a>
 							</div>
 						</div>
 					<?php } ?>
@@ -750,7 +750,7 @@ $collegeRecipientName = $partnerdetail->partner_name ?? 'College';
 			<input type="number" class="form-control comm_amount" name="comm_amount[]" value="" placeholder="0.00" />
 		</div>
 		<div class="field_col wd10">
-			<a href="javascript:;" class="payremoveitems"><i class="fa fa-trash"></i></a> 
+			<a href="javascript:;" class="payremoveitems"><i class="fas fa-trash"></i></a> 
 		</div>
 		<div class="clearfix">		</div> 
 	</div>

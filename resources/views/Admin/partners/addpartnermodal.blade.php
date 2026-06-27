@@ -529,12 +529,12 @@
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fa fa-plus"></i> Add New Line</a>
+						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">
@@ -649,7 +649,7 @@
 						</div>	
 					</div>	
 					<div class="due_date_sec">
-						<a href="javascript:;" class="btn btn-primary due_date_btn"><i class="fa fa-plus"></i> Add Due Date</a>
+						<a href="javascript:;" class="btn btn-primary due_date_btn"><i class="fas fa-plus"></i> Add Due Date</a>
 						<div class="due_date_col">	  
 							<div class="row">	 
 								<div class="col-12 col-md-6 col-lg-6">
@@ -686,7 +686,7 @@
 									</div>
 								</div>
 								<div class="col-12 col-md-1 col-lg-1 remove_col">
-									<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+									<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 								</div>
 							</div>
 						</div>
@@ -809,7 +809,7 @@
 											</div>
 										</div>
 										<div class="remove_field">	
-											<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 										</div>
 									</div>
 								</div>
@@ -832,7 +832,7 @@
 											</div> 
 										</div>
 										<div class="remove_field">
-											<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 										</div>
 									</div> 
 									<div class="clearfix"></div>
@@ -844,7 +844,7 @@
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="add_fee_type">
-								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn"><i class="fa fa-plus"></i> Add Fee</a>
+								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn"><i class="fas fa-plus"></i> Add Fee</a>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6 text-end">
@@ -863,7 +863,7 @@
 							<div class="schedule_title">
 								<h4>Setup Invoice Scheduling</h4>
 							</div>
-							<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
+							<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
@@ -887,7 +887,7 @@
 								<div class="form-check form-check-inline">
 									<label class="form-check-label" for="allow_upload_docu">Auto Invoicing</label>
 								</div>
-								<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
+								<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
 							</div>
 						</div>	
 						<div class="col-12 col-md-6 col-lg-6">
@@ -1225,7 +1225,7 @@
                                                 <input class="form-control deposit_amount_per_row_hidden" name="amount_aud[]" type="hidden" value="" />
                                            </td>
                                             <td>
-                                                <a class="removeitems" href="javascript:;"><i class="fa fa-times"></i></a>
+                                                <a class="removeitems" href="javascript:;"><i class="fas fa-times"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1245,14 +1245,14 @@
 						</div>
 
                         <div class="col-3 col-md-3 col-lg-3">
-                            <a href="javascript:;" class="openproductrinfo"><i class="fa fa-plus"></i> Add New</a>
+                            <a href="javascript:;" class="openproductrinfo"><i class="fas fa-plus"></i> Add New</a>
                         </div>
 
 						<div class="col-9 col-md-9 col-lg-9 text-end">
                             <div class="upload_client_receipt_document" style="display:inline-block;">
                                 <input type="hidden" name="type" value="partner">
                                 <input type="hidden" name="doctype" value="student_invoice">
-                                <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                                <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                                 <input class="docclientreceiptupload" type="file" name="document_upload[]"/>
                             </div>
 
@@ -1327,7 +1327,7 @@
                                                 <input style="display: inline-block;" data-valid="required" class="form-control deposit_invoice_amount_per_row" name="amount_aud[]" type="text" value=""/>
                                             </td>
                                             <td>
-                                                <a class="removeitems_invoice" href="javascript:;"><i class="fa fa-times"></i></a>
+                                                <a class="removeitems_invoice" href="javascript:;"><i class="fas fa-times"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1347,7 +1347,7 @@
 						</div>
 
                         <div class="col-3 col-md-3 col-lg-3">
-                            <a href="javascript:;" class="openproductrinfo_invoice"><i class="fa fa-plus"></i> Add New</a>
+                            <a href="javascript:;" class="openproductrinfo_invoice"><i class="fas fa-plus"></i> Add New</a>
                         </div>
 
 						<div class="col-9 col-md-9 col-lg-9 text-end">
@@ -1355,7 +1355,7 @@
                             <div class="upload_client_receipt_document" style="display:inline-block;">
                                 <input type="hidden" name="type" value="partner">
                                 <input type="hidden" name="doctype" value="record_invoice">
-                                <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                                <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                                 <input class="docclientreceiptupload" type="file" name="document_upload[]"/>
                             </div>
 
@@ -1440,7 +1440,7 @@
                                             </td>-->
 
                                             <td>
-                                                <a class="removeitems_payment" href="javascript:;"><i class="fa fa-times"></i></a>
+                                                <a class="removeitems_payment" href="javascript:;"><i class="fas fa-times"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1460,7 +1460,7 @@
 						</div>
 
                         <div class="col-3 col-md-3 col-lg-3">
-                            <a href="javascript:;" class="openproductrinfo_payment"><i class="fa fa-plus"></i> Add New</a>
+                            <a href="javascript:;" class="openproductrinfo_payment"><i class="fas fa-plus"></i> Add New</a>
                         </div>
 
 						<div class="col-9 col-md-9 col-lg-9 text-end">
@@ -1468,7 +1468,7 @@
                             <div class="upload_client_receipt_document" style="display:inline-block;">
                                 <input type="hidden" name="type" value="partner">
                                 <input type="hidden" name="doctype" value="record_payment">
-                                <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                                <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                                 <input class="docclientreceiptupload" type="file" name="document_upload[]"/>
                             </div>
 

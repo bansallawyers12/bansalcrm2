@@ -1194,7 +1194,7 @@ class ClientDocumentController extends Controller
                                             <input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
                                             <input type="hidden" name="type" value="client">
                                             <input type="hidden" name="doctype" value="documents">
-                                            <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                                             <input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
                                         </form>
                                     </div>
@@ -1225,7 +1225,7 @@ class ClientDocumentController extends Controller
                                 <div class="grid_content">
                                     <span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
                                     <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                        <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                        <a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
                                         <div class="dropdown-menu">
                                             <?php
                                             //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
@@ -1457,7 +1457,7 @@ class ClientDocumentController extends Controller
 										<input type="hidden" name="fileid" value="<?php echo $fetch->id;?>">
 										<input type="hidden" name="type" value="client">
 										<input type="hidden" name="doctype" value="documents">
-										<a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+										<a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
 										<input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
 									</form>
 								</div>
@@ -1480,7 +1480,7 @@ class ClientDocumentController extends Controller
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 									<div class="dropdown-menu">
 										<?php
                                         //$url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
@@ -1699,7 +1699,7 @@ class ClientDocumentController extends Controller
 							<div class="grid_content">
 								<span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
 								<div class="dropdown d-inline dropdown_ellipsis_icon">
-									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+									<a class="dropdown-toggle" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 									<div class="dropdown-menu">
 										<a class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Preview</a>
 										<a download class="dropdown-item" href="<?php echo asset('img/documents'); ?>/<?php echo $fetch->myfile; ?>">Download</a>

@@ -503,7 +503,7 @@
 																	<td>{{$clientdata->first_name}}</td>
 																	<td><span class="currencyinput">${{$paymentdetail->amount_rec}}</span></td>
 																	<td>{{$paymentdetail->payment_mode}}</td>
-																	<td><!--<a href=""><i class="fa fa-envelope"></i></a>&nbsp;<a href=""><i class="fa fa-inbox"></i></a>--></td>
+																	<td><!--<a href=""><i class="fas fa-envelope"></i></a>&nbsp;<a href=""><i class="fas fa-inbox"></i></a>--></td>
 																	<td><a data-id="{{$paymentdetail->id}}" class="revertpopup btn btn-danger" href="javascript:;">Revert</a></td>
 																</tr>
 																<?php
@@ -749,12 +749,12 @@
 								<!-- <span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span> -->
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fa fa-plus"></i> Add New Line</a>
+						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">

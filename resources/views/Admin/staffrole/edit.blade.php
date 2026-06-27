@@ -19,7 +19,7 @@
 							<div class="card-header">
 								<h4>Edit Roles and Permissions</h4>
 								<div class="card-header-action">
-									<a href="{{ request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.index') : route('staffrole.index') }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{ request()->routeIs('adminconsole.*') ? route('adminconsole.staffrole.index') : route('staffrole.index') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>

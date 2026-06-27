@@ -119,8 +119,8 @@ use App\Http\Controllers\Controller;
 								
 							<div class="author-mail_sms">
 								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS"><i class="fas fa-sms"></i></a>
-								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fa fa-envelope"></i></a>
-								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fa fa-edit"></i></a>
+								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fas fa-envelope"></i></a>
+								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
 								@if($fetchedData->is_archived == 0)
 									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
 								@else
@@ -235,7 +235,7 @@ use App\Http\Controllers\Controller;
 								<h4>Personal Details</h4>
 								<a href="javascript:;" datatype="not_picked_call" class="not_picked_call" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-decoration: none;">NP</a>
 							</div>
-							<a href="javascript:;" datatype="note" class="create_note_d"><i class="fa fa-plus"></i> Add Notes</a>
+							<a href="javascript:;" datatype="note" class="create_note_d"><i class="fas fa-plus"></i> Add Notes</a>
 						</div>
 						<div class="card-body">
 							<p class="clearfix">
@@ -499,7 +499,7 @@ use App\Http\Controllers\Controller;
 							<div class="client_assign client_info_tags">
 								<span class="">Assignee:</span>
 								<span class="float-end text-muted">
-								      <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary openassigneeshow btn-sm"><i class="fa fa-plus"></i> Edit</a>
+								      <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary openassigneeshow btn-sm"><i class="fas fa-plus"></i> Edit</a>
 								    </span>
 								    <div class="clearfix"></div>
 
@@ -537,7 +537,7 @@ use App\Http\Controllers\Controller;
 											<?php } ?>
 												</select></td>
 											<td><a class="saveassignee btn btn-success" data-id="<?php echo $fetchedData->id; ?>" href="javascript:;">Save</a></td>
-											<td><a class="closeassigneeshow" href="javascript:;"><i class="fa fa-times"></i></a></td>
+											<td><a class="closeassigneeshow" href="javascript:;"><i class="fas fa-times"></i></a></td>
 								        </tr>
 								    </table>
 								</div>
@@ -546,7 +546,7 @@ use App\Http\Controllers\Controller;
 								<p class="clearfix">
                                     <span class="float-start">Services Taken:</span>
                                     <!--<span class="float-end text-muted">
-                                        <a href="javascript:;" data-id="{{--$fetchedData->id--}}" class="btn btn-primary serviceTaken btn-sm"><i class="fa fa-plus"></i> Add</a>
+                                        <a href="javascript:;" data-id="{{--$fetchedData->id--}}" class="btn btn-primary serviceTaken btn-sm"><i class="fas fa-plus"></i> Add</a>
                                     </span>-->
                                 </p>
 
@@ -610,7 +610,7 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix">
 								<span class="float-start">Tag(s):</span>
 								<span class="float-end text-muted">
-									<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary opentagspopup btn-sm"><i class="fa fa-plus"></i> Add</a>
+									<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary opentagspopup btn-sm"><i class="fas fa-plus"></i> Add</a>
 								</span>
 							</p>
 							<p>
@@ -1018,11 +1018,11 @@ use App\Http\Controllers\Controller;
 
 															<div class="activity-actions">
 																<?php if($activit->pin == 1){?>
-																	<div class="pined_note"><i class="fa fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
+																	<div class="pined_note"><i class="fas fa-thumbtack" style="font-size: 12px;color: #6777ef;"></i></div>
 																<?php } ?>
 
 																<div class="dropdown d-inline dropdown_ellipsis_icon">
-																	<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+																	<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
 																	<div class="dropdown-menu">
 																		@if(Auth::user()->role == 1)
 																		<a data-id="{{$activit->id}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
@@ -1151,7 +1151,7 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade {{ $activeTab === 'application' ? 'show active' : '' }}" id="application" role="tabpanel" aria-labelledby="application-tab">
 									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">
-										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appliation" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appliation" class="btn btn-primary"><i class="fas fa-plus"></i> Add</a>
 									</div>
 									<div class="table-responsive if_applicationdetail">
 										<table class="table text_wrap table-2">
@@ -1251,7 +1251,7 @@ use App\Http\Controllers\Controller;
                                             <a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
                                             <a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
                                         </div>
-                                        <a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fa fa-plus"></i> Add Checklist</a>
+                                        <a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fas fa-plus"></i> Add Checklist</a>
                                         <button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2"><i class="fas fa-upload"></i> Bulk Upload</button>
                                     </div>
                                     
@@ -1357,7 +1357,7 @@ use App\Http\Controllers\Controller;
                                                                             <input type="hidden" name="fileid" value="{{$fetch->id}}">
                                                                             <input type="hidden" name="type" value="client">
                                                                             <input type="hidden" name="doctype" value="documents">
-                                                                            <a href="javascript:;" class="btn btn-primary"><i class="fa fa-plus"></i> Add Document</a>
+                                                                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
                                                                             <input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
                                                                         </form>
                                                                     </div>
@@ -1419,7 +1419,7 @@ use App\Http\Controllers\Controller;
                                                         <div class="grid_content">
                                                             <span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
                                                             <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                                <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                                <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
                                                                 <div class="dropdown-menu">
                                                                     <?php $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';?>
 
@@ -1636,7 +1636,7 @@ use App\Http\Controllers\Controller;
 
 
 											<div class="cus_invice_btn dropdown d-inline">
-												<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle btn btn-outline-primary">Create Invoice <i class="fa fa-angle-down"></i></a>
+												<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle btn btn-outline-primary">Create Invoice <i class="fas fa-angle-down"></i></a>
 												<div class="dropdown-menu">
 													<a href="javascript:;" class="dropdown-item opencommissioninvoice">
 														Commission Invoice
@@ -1716,7 +1716,7 @@ use App\Http\Controllers\Controller;
                                                         ?>
                                                         <span class="<?php echo $isRefund ? 'text-danger' : ''; ?>">$<?php echo $rec_val->deposit_amount; ?></span>
                                                         <?php if($isRefund): ?><span class="badge bg-secondary">Refund</span><?php endif; ?>
-                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                                        <a target="_blank" class="link-primary" href="{{URL::to('/clients/printpreview')}}/{{$rec_val->id}}"><i class="fas fa-print" aria-hidden="true"></i></a>
                                                        <?php
                                                         if($rec_val->receipt_type == 1){
                                                         ?>

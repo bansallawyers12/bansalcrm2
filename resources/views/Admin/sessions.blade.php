@@ -226,7 +226,7 @@
 									</div>
 								</div>
 								<div class="view_btn">
-									<a href="javascript:;"><i class="fa fa-eye"></i> View More</a>
+									<a href="javascript:;"><i class="fas fa-eye"></i> View More</a>
 								</div>
 								<div class="view_all">  
 									<div class="Field_session activesession_entry_hidden" id="activesession_entry3" onclick="show_selected_session(3,'device_personalcomputer');">

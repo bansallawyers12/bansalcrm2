@@ -25,7 +25,7 @@
 							<div class="card-header">
 								<h4>Add Partners</h4>
 								<div class="card-header-action">
-									<a href="{{route('partners.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Back</a>
+									<a href="{{route('partners.index')}}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
 								</div>
 							</div>
 						</div>
@@ -45,7 +45,7 @@
 														<div class="profile_upload">
 															<div class="upload_content">
 																<img style="width:100px;height:100px;" id="output"/>
-																<i class="fa fa-camera if_image"></i>
+																<i class="fas fa-camera if_image"></i>
 																<span class="if_image">Upload Profile Image</span>
 															</div>
 															<input type="file" onchange="loadFile(event)" id="profile_img" name="profile_img" class="form-control" autocomplete="off" />
@@ -245,7 +245,7 @@
 											<div class="col-12 col-md-12 col-lg-12">
                                                 <div class="row">
                                                     <div class="col-6 col-md-6 col-lg-6">
-                                                       <a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew" style="margin-bottom: 5px;margin-left: -15px;"><i class="fa fa-plus"></i> Add Contact</a>
+                                                       <a href="javascript:;" class="btn btn-outline-primary openpartnerphonenew" style="margin-bottom: 5px;margin-left: -15px;"><i class="fas fa-plus"></i> Add Contact</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -297,7 +297,7 @@
                                             <div class="col-12 col-md-12 col-lg-12">
                                                 <div class="row">
                                                     <div class="col-6 col-md-6 col-lg-6">
-                                                    <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin-bottom: 5px;margin-left: -15px;"><i class="fa fa-plus"></i> Add Email</a>
+                                                    <a href="javascript:;" class="btn btn-outline-primary openpartneremailnew" style="margin-bottom: 5px;margin-left: -15px;"><i class="fas fa-plus"></i> Add Email</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -386,7 +386,7 @@
 										<div class="accordion-body collapse show" id="branch" data-parent="#accordion">
 											<div class="row">
 												<div class="col-12 col-md-12 col-lg-4">
-													<a href="javascript:;" class="btn btn-outline-primary openbranchnew" ><i class="fa fa-plus"></i> Add Branch</a>
+													<a href="javascript:;" class="btn btn-outline-primary openbranchnew" ><i class="fas fa-plus"></i> Add Branch</a>
 												</div>
 											</div>
 
@@ -831,8 +831,8 @@ jQuery(document).ready(function($){
 					html += '</div>';
 				    html += '<input autocomplete="off" placeholder="" name="branchstate[]" type="hidden" value="'+str[4].value+'"><input autocomplete="off" placeholder="" name="branchaddress[]" type="hidden" value="'+str[5].value+'"><input autocomplete="off" placeholder="" name="branchzip[]" type="hidden" value="'+str[6].value+'"><input autocomplete="off" placeholder="" name="branchreg[]" type="hidden" value="'+str[7].value+'"><input autocomplete="off" placeholder="" name="branchcountry_code[]" type="hidden" value="'+str[8].value+'"><input autocomplete="off" placeholder="" name="branchphone[]" type="hidden" value="'+str[9].value+'"></div>';
 				    html += '<div class="col-12 col-md-1 col-lg-1">';
-					html +=  '<a href="javascript:;" dataid="'+itag+'" class="editbranch"><i class="fa fa-edit"></i></a>';
-					html +=  '<a href="javascript:;" dataid="'+itag+'" class="deletebranch"><i class="fa fa-times"></i></a>';
+					html +=  '<a href="javascript:;" dataid="'+itag+'" class="editbranch"><i class="fas fa-edit"></i></a>';
+					html +=  '<a href="javascript:;" dataid="'+itag+'" class="deletebranch"><i class="fas fa-times"></i></a>';
 					html += '</div>';
 				    html += '</div></div>';
 				$('.branchdata').append(html);
@@ -911,8 +911,8 @@ jQuery(document).ready(function($){
 				html += '</div>';
 				html += '<input autocomplete="off" placeholder="" name="branchstate[]" type="hidden" value="'+str[4].value+'"><input autocomplete="off" placeholder="" name="branchaddress[]" type="hidden" value="'+str[5].value+'"><input autocomplete="off" placeholder="" name="branchzip[]" type="hidden" value="'+str[6].value+'"><input autocomplete="off" placeholder="" name="branchreg[]" type="hidden" value="'+str[7].value+'"><input autocomplete="off" placeholder="" name="branchcountry_code[]" type="hidden" value="'+str[8].value+'"><input autocomplete="off" placeholder="" name="branchphone[]" type="hidden" value="'+str[9].value+'"></div>';
 				html += '<div class="col-12 col-md-1 col-lg-1">';
-				html +=  '<a href="javascript:;" dataid="'+mtval+'" class="editbranch"><i class="fa fa-edit"></i></a>';
-				html +=  '<a href="javascript:;" dataid="'+mtval+'" class="deletebranch"><i class="fa fa-times"></i></a>';
+				html +=  '<a href="javascript:;" dataid="'+mtval+'" class="editbranch"><i class="fas fa-edit"></i></a>';
+				html +=  '<a href="javascript:;" dataid="'+mtval+'" class="deletebranch"><i class="fas fa-times"></i></a>';
 				html += '</div>';
 				html += '</div>';
             $('#metatag_'+mtval).html(html);
@@ -1061,8 +1061,8 @@ jQuery(document).ready(function($){
                     html += '</div>';
 
                     //html += '<div class="col-12 col-md-1 col-lg-1">';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="editpartneremail"><i class="fa fa-edit"></i></a>';
-                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="deletepartneremail"><i class="fa fa-times"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="editpartneremail"><i class="fas fa-edit"></i></a>';
+                    //html +=  '<a href="javascript:;" dataid="'+itag_email+'" class="deletepartneremail"><i class="fas fa-times"></i></a>';
                     //html += '</div>';
                     html += '</div></div>';
                 $('.partneremaildata').append(html);
@@ -1097,8 +1097,8 @@ jQuery(document).ready(function($){
                 html += '</div>';
 
                 html += '<div class="col-12 col-md-1 col-lg-1">';
-                html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="editpartneremail"><i class="fa fa-edit"></i></a>';
-                html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="deletepartneremail"><i class="fa fa-times"></i></a>';
+                html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="editpartneremail"><i class="fas fa-edit"></i></a>';
+                html +=  '<a href="javascript:;" dataid="'+mtval_email+'" class="deletepartneremail"><i class="fas fa-times"></i></a>';
                 html += '</div>';
                 html += '</div>';
             $('#metatag_'+mtval_email).html(html);
@@ -1216,8 +1216,8 @@ jQuery(document).ready(function($){
                         html += '</div>';
 
                         //html += '<div class="col-12 col-md-1 col-lg-1">';
-                        //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="editpartnerphone"><i class="fa fa-edit"></i></a>';
-                        //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="deletepartnerphone"><i class="fa fa-times"></i></a>';
+                        //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="editpartnerphone"><i class="fas fa-edit"></i></a>';
+                        //html +=  '<a href="javascript:;" dataid="'+itag_phone+'" class="deletepartnerphone"><i class="fas fa-times"></i></a>';
                         //html += '</div>';
 
                     html += '</div></div>';

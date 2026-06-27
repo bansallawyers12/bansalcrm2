@@ -15,7 +15,7 @@
 						<div class="card-header">
 							<h4>Checklists</h4>
 							<div class="card-header-action">
-								<a href="{{route('adminconsole.checklist.index')}}" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-arrow-left"></i> Back</a>
+								<a href="{{route('adminconsole.checklist.index')}}" class="btn btn-primary" style="margin-right: 10px;"><i class="fas fa-arrow-left"></i> Back</a>
 								{!! Form::submit('Update', ['class'=>'btn btn-primary'])  !!}
 							</div>
 						</div>

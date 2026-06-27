@@ -59,7 +59,7 @@
 										{!! Form::text('country_code', @$fetchedData->country_code, array('class' => 'form-control', 'placeholder'=>'e.g. +61'))  !!}
 									</div>
 									<div class="form-group">
-										{!! Form::button('<i class="fa fa-edit"></i> Update', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("my-profile")'])  !!}
+										{!! Form::button('<i class="fas fa-edit"></i> Update', ['class'=>'btn btn-primary px-4', 'onClick'=>'customValidate("my-profile")'])  !!}
 									</div>
 								</div>
 							</div>

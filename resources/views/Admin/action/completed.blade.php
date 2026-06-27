@@ -93,27 +93,27 @@
                                             <a href="{{URL::to('/action/completed?group_type=All')}}" id="All" class="group_type <?php if($task_group == 'All') { echo 'active';}?>">All <span class="countAction">{{ $assigneesCount_All_type }}</span></a> | &nbsp;
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Call')}}" id="Call" class="group_type <?php if($task_group == 'Call') { echo 'active';}?>"> <i class="fa fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Call')}}" id="Call" class="group_type <?php if($task_group == 'Call') { echo 'active';}?>"> <i class="fas fa-phone" aria-hidden="true"></i> Call <span class="countAction">{{ $assigneesCount_call_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Checklist')}}" id="Checklist" class="group_type <?php if($task_group == 'Checklist') { echo 'active';}?>"><i class="fa fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Checklist')}}" id="Checklist" class="group_type <?php if($task_group == 'Checklist') { echo 'active';}?>"><i class="fas fa-bars" aria-hidden="true"></i> Checklist <span class="countAction">{{ $assigneesCount_Checklist_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Review')}}" id="Review" class="group_type <?php if($task_group == 'Review') { echo 'active';}?>"> <i class="fa fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Review')}}" id="Review" class="group_type <?php if($task_group == 'Review') { echo 'active';}?>"> <i class="fas fa-check" aria-hidden="true"></i> Review <span class="countAction">{{ $assigneesCount_Review_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Query')}}" id="Query" class="group_type <?php if($task_group == 'Query') { echo 'active';}?>"><i class="fa fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Query')}}" id="Query" class="group_type <?php if($task_group == 'Query') { echo 'active';}?>"><i class="fas fa-question" aria-hidden="true"></i> Query <span class="countAction">{{ $assigneesCount_Query_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Urgent')}}" id="Urgent" class="group_type <?php if($task_group == 'Urgent') { echo 'active';}?>"> <i class="fa fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Urgent')}}" id="Urgent" class="group_type <?php if($task_group == 'Urgent') { echo 'active';}?>"> <i class="fas fa-flag" aria-hidden="true"></i> Urgent <span class="countAction">{{ $assigneesCount_Urgent_type }}</span></a> &nbsp;
                                             </button>
 
                                             <button type="button" class="btn btn-light">
-                                                <a href="{{URL::to('/action/completed?group_type=Personal Task')}}" id="Personal Task" class="group_type <?php if($task_group == 'Personal Task') { echo 'active';}?>"> <i class="fa fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></a> &nbsp;
+                                                <a href="{{URL::to('/action/completed?group_type=Personal Task')}}" id="Personal Task" class="group_type <?php if($task_group == 'Personal Task') { echo 'active';}?>"> <i class="fas fa-tasks" aria-hidden="true"></i> Personal Task <span class="countAction">{{ $assigneesCount_Personal_Task_type }}</span></a> &nbsp;
                                             </button>
                                         </div>
                                     </div>
@@ -261,12 +261,12 @@
                                                                 </div>
                                                             </div>
                                                          </div>
-                                                         <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task"><i class="fa fa-edit" aria-hidden="true"></i></button>
+                                                         <button type="button" data-popover-target="popover-update-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm update_task" data-bs-toggle="tooltip" title="Update Task"><i class="fas fa-edit" aria-hidden="true"></i></button>
                                                          @endif
 
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to delete?');"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to delete?');"><i class="fas fa-trash" aria-hidden="true"></i></button>
 
                                                         @if($list->task_group != 'Personal Task')
                                                         {{-- Assign Staff: use template div --}}
@@ -326,7 +326,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+                                                        <button type="button" data-popover-target="popover-assign-{{ $list->id }}" data-noteid="{{ $list->description }}" data-taskid="{{ $list->id }}" data-taskgroupid="{{ $list->task_group }}" data-followupdate="{{ $list->action_assign_date }}" data-assignedto="{{ $list->assigned_to }}" class="btn btn-primary btn-sm reassign_task" data-bs-toggle="tooltip" title="Assign Staff"><i class="fas fa-tasks" aria-hidden="true"></i></button>
                                                         @endif
                                                         </div>
                                                     </form>

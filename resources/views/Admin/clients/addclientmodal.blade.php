@@ -521,12 +521,12 @@
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fa fa-times"></i></a>
+								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fa fa-plus"></i> Add New Line</a>
+						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">
@@ -641,7 +641,7 @@
 						</div>
 					</div>
 					<div class="due_date_sec">
-						<a href="javascript:;" class="btn btn-primary due_date_btn"><i class="fa fa-plus"></i> Add Due Date</a>
+						<a href="javascript:;" class="btn btn-primary due_date_btn"><i class="fas fa-plus"></i> Add Due Date</a>
 						<input type="hidden" value="0" class="checklistdue_date" name="due_date">
 						<div class="due_date_col">
 							<div class="row">
@@ -675,7 +675,7 @@
 									</div>
 								</div>
 								<div class="col-12 col-md-1 col-lg-1 remove_col">
-									<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+									<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 								</div>
 							</div>
 						</div>
@@ -798,7 +798,7 @@
 											</div>
 										</div>
 										<div class="remove_field">
-											<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 										</div>
 									</div>
 								</div>
@@ -821,7 +821,7 @@
 											</div>
 										</div>
 										<div class="remove_field">
-											<a href="javascript:;" class="remove_btn"><i class="fa fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
 										</div>
 									</div>
 									<div class="clearfix"></div>
@@ -833,7 +833,7 @@
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="add_fee_type">
-								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn"><i class="fa fa-plus"></i> Add Fee</a>
+								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn"><i class="fas fa-plus"></i> Add Fee</a>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6 text-end">
@@ -852,7 +852,7 @@
 							<div class="schedule_title">
 								<h4>Setup Invoice Scheduling</h4>
 							</div>
-							<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
+							<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
@@ -874,7 +874,7 @@
 								<div class="form-check form-check-inline">
 									<label class="form-check-label" for="allow_upload_docu">Auto Invoicing</label>
 								</div>
-								<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
+								<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
@@ -1056,7 +1056,7 @@
 							<div class="schedule_title">
 								<h4>Setup Invoice Scheduling</h4>
 							</div>
-							<span class="schedule_note"><i class="fa fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
+							<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group">
@@ -1427,7 +1427,7 @@
                                                 </td>
                                                 <td style="text-align:center;">
                                                     <a class="removeitems text-danger" href="javascript:;" title="Remove row">
-                                                        <i class="fa fa-times"></i>
+                                                        <i class="fas fa-times"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -1444,7 +1444,7 @@
                                 </div>
 								<div class="mt-2">
 									<a href="javascript:;" class="openproductrinfo btn btn-sm btn-outline-primary">
-										<i class="fa fa-plus"></i> Add New Line
+										<i class="fas fa-plus"></i> Add New Line
 									</a>
 								</div>
                             </div>
@@ -1455,12 +1455,12 @@
 								<input type="hidden" name="type" value="client">
 								<input type="hidden" name="doctype" value="client_receipt">
 								<button type="button" class="btn btn-outline-primary btn-sm upload-receipt-doc-btn">
-									<i class="fa fa-plus"></i> Add Document
+									<i class="fas fa-plus"></i> Add Document
 								</button>
 								<input class="docclientreceiptupload d-none" type="file" name="document_upload[]" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"/>
 								<div class="selected-file-info mt-2" style="display:none;">
 									<span class="badge bg-success">
-										<i class="fa fa-file"></i> <span class="file-name-display"></span>
+										<i class="fas fa-file"></i> <span class="file-name-display"></span>
 										<button type="button" class="btn-close btn-close-white btn-sm ms-2 remove-selected-file" style="font-size:0.7rem;"></button>
 									</span>
 								</div>
