@@ -54,6 +54,15 @@
     "src": "resources/js/signature-pad-init.js",
     "isEntry": true
   },
+  "resources/js/tinymce-init.js": {
+    "file": "assets/tinymce-init-C1GrInTW.js",
+    "name": "tinymce-init",
+    "src": "resources/js/tinymce-init.js",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-QTnfLwEv.js"
+    ]
+  },
   "resources/js/vendor-libs.js": {
     "file": "assets/vendor-libs-B3QzStAL.js",
     "name": "vendor-libs",

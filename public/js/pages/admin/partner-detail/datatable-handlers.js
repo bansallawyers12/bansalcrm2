@@ -431,7 +431,7 @@ jQuery(document).ready(function($){
     function buildStudentExportButtons(list, apiGetter) {
         return [
             {
-                text: '<i class="fas fa-file-excel"></i> Excel',
+                text: '${crmIcon('file-excel')} Excel',
                 className: 'btn btn-success btn-sm',
                 action: function () {
                     var api = typeof apiGetter === 'function' ? apiGetter() : null;
@@ -439,7 +439,7 @@ jQuery(document).ready(function($){
                 }
             },
             {
-                text: '<i class="fas fa-file-csv"></i> CSV',
+                text: '${crmIcon('file-csv')} CSV',
                 className: 'btn btn-info btn-sm',
                 action: function () {
                     var api = typeof apiGetter === 'function' ? apiGetter() : null;

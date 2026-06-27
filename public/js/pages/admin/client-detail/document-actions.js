@@ -81,9 +81,9 @@
                             var subArray = res.docInfo;
                             var trRow = "";
                             if(subArray.myfile_key != ''){
-                                trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td><a target='_blank' class='dropdown-item' href='"+subArray.myfile+"'><i class='fas fa-file-image'></i> <span>"+subArray.file_name+'.'+subArray.filetype+"</span></a></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
+                                trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td><a target='_blank' class='dropdown-item' href='"+subArray.myfile+"'>${crmIcon('file-image')} <span>"+subArray.file_name+'.'+subArray.filetype+"</span></a></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
                             } else {
-                                trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td><i class='fas fa-file-image'></i> <span>"+subArray.file_name+'.'+subArray.filetype+"</span></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
+                                trRow += "<tr class='drow' id='id_"+subArray.id+"'><td>"+subArray.checklist+"</td><td>"+ res.Added_By + "<br>" + res.Added_date+"</td><td>${crmIcon('file-image')} <span>"+subArray.file_name+'.'+subArray.filetype+"</span></div></td><td>"+res.Verified_By+ "<br>" +res.Verified_At+"</td></tr>";
                             }
                             $('.notuseddocumnetlist').append(trRow);
                         }

@@ -92,7 +92,7 @@
                 const canRename = category.can_rename ? '1' : '0';
                 const canDelete = category.can_delete_category ? '1' : '0';
                 const actionsHtml = (canRename === '1' || canDelete === '1') 
-                    ? '<span class="doc-category-actions ms-1" title="Right-click for options" style="opacity:0.7;"><i class="fas fa-ellipsis-v"></i></span>'
+                    ? '<span class="doc-category-actions ms-1" title="Right-click for options" style="opacity:0.7;">${crmIcon('ellipsis-v')}</span>'
                     : '';
                 tabsHTML += `
                     <span class="doc-category-tab-wrap d-inline-block" style="margin-right: 10px; margin-bottom: 10px;">
@@ -112,7 +112,7 @@
             tabsHTML += `
                 <button class="btn btn-success add-document-category-btn" 
                         style="margin-bottom: 10px;">
-                    <i class="fas fa-plus"></i> Add Category
+                    ${crmIcon('plus')} Add Category
                 </button>
             `;
             
@@ -231,16 +231,16 @@
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <span class="text-muted small me-2">Signature:</span>
                                 <button type="button" class="btn btn-sm btn-primary document-sig-send" ${doc.signature_status === 'sent' || doc.signature_status === 'viewed' ? 'disabled' : ''} title="Send for signature">
-                                    <i class="fas fa-paper-plane"></i> Send
+                                    ${crmIcon('paper-plane')} Send
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary document-sig-revise" title="Revise placement">
-                                    <i class="fas fa-edit"></i> Revise
+                                    ${crmIcon('edit')} Revise
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger document-sig-remove" title="Remove">
-                                    <i class="fas fa-times"></i> Remove
+                                    ${crmIcon('times')} Remove
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-warning document-sig-reminder" title="Send reminder" ${showReminder ? '' : 'style="display:none;"'}>
-                                    <i class="fas fa-bell"></i> Reminder
+                                    ${crmIcon('bell')} Reminder
                                 </button>
                             </div>
                         </td>
@@ -268,7 +268,7 @@
                 return `
                     <div data-id="${doc.id}" data-name="${this.escapeHtml(doc.file_name)}" class="doc-row">
                         <a href="javascript:void(0);" onclick="previewFile('${doc.filetype}','${fileUrl}','preview-container-alldocumentlist')">
-                            <i class="fas fa-file-image"></i> <span>${this.escapeHtml(doc.file_name)}.${doc.filetype}</span>
+                            ${crmIcon('file-image')} <span>${this.escapeHtml(doc.file_name)}.${doc.filetype}</span>
                         </a>
                     </div>
                 `;
@@ -282,7 +282,7 @@
                             <input type="hidden" name="type" value="client">
                             <input type="hidden" name="doctype" value="documents">
                             <input type="hidden" name="category_id" value="${this.currentCategoryId}">
-                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
+                            <a href="javascript:;" class="btn btn-primary">${crmIcon('plus')} Add Document</a>
                             <input class="alldocupload" data-fileid="${doc.id}" type="file" name="document_upload"/>
                         </form>
                     </div>
@@ -304,13 +304,13 @@
 
             const items = [];
             if (canRename) {
-                items.push('<li><a href="javascript:;" class="category-menu-rename"><i class="fas fa-edit me-2"></i>Rename</a></li>');
+                items.push('<li><a href="javascript:;" class="category-menu-rename">${crmIcon('edit', { class: 'me-2' })}Rename</a></li>');
             }
             if (canDelete) {
-                items.push('<li><a href="javascript:;" class="category-menu-delete"><i class="fas fa-trash me-2"></i>Delete</a></li>');
+                items.push('<li><a href="javascript:;" class="category-menu-delete">${crmIcon('trash', { class: 'me-2' })}Delete</a></li>');
             }
             if (canDelete === false && canRename) {
-                items.push('<li><a href="javascript:;" class="category-menu-delete disabled text-muted" title="Move or delete all documents first"><i class="fas fa-trash me-2"></i>Delete</a></li>');
+                items.push('<li><a href="javascript:;" class="category-menu-delete disabled text-muted" title="Move or delete all documents first">${crmIcon('trash', { class: 'me-2' })}Delete</a></li>');
             }
 
             const $menu = $('<ul id="' + menuId + '" class="list-unstyled document-context-menu show bg-white border shadow-sm rounded py-2" style="position:fixed;min-width:140px;z-index:9999;">' + items.join('') + '</ul>');

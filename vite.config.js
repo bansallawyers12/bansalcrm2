@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/vendor-libs.js',  // flatpickr, iziToast, Tom Select, DataTables (CSS in layout head)
                 'resources/js/apexcharts-init.js',
                 'resources/js/signature-pad-init.js',
+                'resources/js/tinymce-init.js',
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
                 'resources/js/app.js',
                 'resources/js/pages/admin/account.js',

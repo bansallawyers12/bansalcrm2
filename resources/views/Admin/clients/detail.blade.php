@@ -118,15 +118,15 @@ use App\Http\Controllers\Controller;
 							</div>
 								
 							<div class="author-mail_sms">
-								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS"><i class="fas fa-sms"></i></a>
-								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail"><i class="fas fa-envelope"></i></a>
-								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit"><i class="fas fa-edit"></i></a>
+								<a href="javascript:;" class="send-sms-btn" data-client-id="{{ @$fetchedData->id }}" data-client-name="{{ @$fetchedData->first_name }} {{ @$fetchedData->last_name }}" title="Send SMS">@icon('sms')</a>
+								<a href="javascript:;" data-id="{{@$fetchedData->id}}" data-email="{{@$fetchedData->email}}" data-name="{{@$fetchedData->first_name}} {{@$fetchedData->last_name}}" class="clientemail" title="Compose Mail">@icon('envelope')</a>
+								<a href="{{URL::to('/clients/edit/'.base64_encode(convert_uuencode(@$fetchedData->id)))}}" title="Edit">@icon('edit')</a>
 								@if($fetchedData->is_archived == 0)
-									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive"><i class="fas fa-archive"></i></a>
+									<a class="arcivedval" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="Archive">@icon('archive')</a>
 								@else
-									<a class="arcivedval" style="background-color:rgba(239, 68, 68, 0.8);" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="UnArchive"><i class="fas fa-archive"></i></a>
+									<a class="arcivedval" style="background-color:rgba(239, 68, 68, 0.8);" href="javascript:;" onclick="arcivedAction({{$fetchedData->id}}, 'admins')" title="UnArchive">@icon('archive')</a>
 								@endif
-								<a href="javascript:;" class="client-detail-add-followup-btn" title="Add follow-up" aria-label="Add follow-up"><i class="fas fa-calendar-plus"></i></a>
+								<a href="javascript:;" class="client-detail-add-followup-btn" title="Add follow-up" aria-label="Add follow-up">@icon('calendar-plus')</a>
 							</div>
 							
 							<div style="display: flex; gap: 8px; justify-content: center; margin: 12px 0; flex-wrap: wrap;">
@@ -235,7 +235,7 @@ use App\Http\Controllers\Controller;
 								<h4>Personal Details</h4>
 								<a href="javascript:;" datatype="not_picked_call" class="not_picked_call" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-decoration: none;">NP</a>
 							</div>
-							<a href="javascript:;" datatype="note" class="create_note_d"><i class="fas fa-plus"></i> Add Notes</a>
+							<a href="javascript:;" datatype="note" class="create_note_d">@icon('plus') Add Notes</a>
 						</div>
 						<div class="card-body">
 							<p class="clearfix">
@@ -343,9 +343,9 @@ use App\Http\Controllers\Controller;
                                             if( isset($conVal->contact_type) && $conVal->contact_type != "" ){
 												if( $conVal->contact_type == "Personal" ){
 													if ( $verifiedNumber) {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="fas fa-check-circle verified-icon fa-lg"></i>';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') @icon('check-circle', 'solid', ['class' => 'verified-icon'])';
 													} else {
-														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') <i class="far fa-circle unverified-icon fa-lg"></i>';
+														$phonenoStr .= $client_country_code."".$conVal->client_phone.'('.$conVal->contact_type .') @icon('circle', 'regular', ['class' => 'unverified-icon'])';
 														if ( !empty($conVal->lead_id) && !empty($conVal->is_lead_primary) ) {
 															$leadRow = \App\Models\Admin::where('lead_id', $conVal->lead_id)->where('type','lead')->first()
 																?? \App\Models\Admin::where('id', $conVal->lead_id)->where('type','lead')->first();
@@ -395,9 +395,9 @@ use App\Http\Controllers\Controller;
 								        if ($i > 0) echo '<br/>';
 								        echo e($e['email']);
 								        if ($e['verified']) {
-								            echo ' <i class="fas fa-check-circle verified-icon fa-lg"></i>';
+								            echo ' @icon('check-circle', 'solid', ['class' => 'verified-icon'])';
 								        } else {
-								            echo ' <i class="far fa-circle unverified-icon fa-lg"></i>';
+								            echo ' @icon('circle', 'regular', ['class' => 'unverified-icon'])';
 								        }
 								    }
 								    if (empty($allEmails)) echo '—';
@@ -499,7 +499,7 @@ use App\Http\Controllers\Controller;
 							<div class="client_assign client_info_tags">
 								<span class="">Assignee:</span>
 								<span class="float-end text-muted">
-								      <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary openassigneeshow btn-sm"><i class="fas fa-plus"></i> Edit</a>
+								      <a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary openassigneeshow btn-sm">@icon('plus') Edit</a>
 								    </span>
 								    <div class="clearfix"></div>
 
@@ -537,7 +537,7 @@ use App\Http\Controllers\Controller;
 											<?php } ?>
 												</select></td>
 											<td><a class="saveassignee btn btn-success" data-id="<?php echo $fetchedData->id; ?>" href="javascript:;">Save</a></td>
-											<td><a class="closeassigneeshow" href="javascript:;"><i class="fas fa-times"></i></a></td>
+											<td><a class="closeassigneeshow" href="javascript:;">@icon('times')</a></td>
 								        </tr>
 								    </table>
 								</div>
@@ -546,7 +546,7 @@ use App\Http\Controllers\Controller;
 								<p class="clearfix">
                                     <span class="float-start">Services Taken:</span>
                                     <!--<span class="float-end text-muted">
-                                        <a href="javascript:;" data-id="{{--$fetchedData->id--}}" class="btn btn-primary serviceTaken btn-sm"><i class="fas fa-plus"></i> Add</a>
+                                        <a href="javascript:;" data-id="{{--$fetchedData->id--}}" class="btn btn-primary serviceTaken btn-sm">@icon('plus') Add</a>
                                     </span>-->
                                 </p>
 
@@ -610,7 +610,7 @@ use App\Http\Controllers\Controller;
 							<p class="clearfix">
 								<span class="float-start">Tag(s):</span>
 								<span class="float-end text-muted">
-									<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary opentagspopup btn-sm"><i class="fas fa-plus"></i> Add</a>
+									<a href="javascript:;" data-id="{{$fetchedData->id}}" class="btn btn-primary opentagspopup btn-sm">@icon('plus') Add</a>
 								</span>
 							</p>
 							<p>
@@ -842,10 +842,10 @@ use App\Http\Controllers\Controller;
 										<div class="row mt-2">
 											<div class="col-12">
 												<button type="submit" class="btn btn-primary btn-sm" style="margin-right: 8px;">
-													<i class="fas fa-search"></i> Apply Filters
+													@icon('search') Apply Filters
 												</button>
 												<a href="{{ $detailBaseUrl }}" class="btn btn-secondary btn-sm">
-													<i class="fas fa-redo"></i> Reset
+													@icon('redo') Reset
 												</a>
 												<?php if(Request::get('keyword') || Request::get('activity_type') != 'all' || Request::get('date_from') || Request::get('date_to')): ?>
 													<span class="badge bg-info ms-2" style="vertical-align: middle; padding: 6px 10px;">
@@ -1022,7 +1022,7 @@ use App\Http\Controllers\Controller;
 																<?php } ?>
 
 																<div class="dropdown d-inline dropdown_ellipsis_icon">
-																	<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+																	<a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
 																	<div class="dropdown-menu">
 																		@if(Auth::user()->role == 1)
 																		<a data-id="{{$activit->id}}" data-href="deleteactivitylog" class="dropdown-item deleteactivitylog" href="javascript:;" >Delete</a>
@@ -1151,7 +1151,7 @@ use App\Http\Controllers\Controller;
 								</div>
 								<div class="tab-pane fade {{ $activeTab === 'application' ? 'show active' : '' }}" id="application" role="tabpanel" aria-labelledby="application-tab">
 									<div class="card-header-action text-end if_applicationdetail" style="padding-bottom:15px;">
-										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appliation" class="btn btn-primary"><i class="fas fa-plus"></i> Add</a>
+										<a href="javascript:;" data-bs-toggle="modal" data-bs-target=".add_appliation" class="btn btn-primary">@icon('plus') Add</a>
 									</div>
 									<div class="table-responsive if_applicationdetail">
 										<table class="table text_wrap table-2">
@@ -1248,11 +1248,11 @@ use App\Http\Controllers\Controller;
                                     
                                     <div class="card-header-action text-end" style="padding-bottom:15px;">
                                         <div class="document_layout_type">
-                                            <a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
-                                            <a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
+                                            <a href="javascript:;" class="list active">@icon('list')</a>
+                                            <a href="javascript:;" class="grid">@icon('columns')</a>
                                         </div>
-                                        <a href="javascript:;" class="btn btn-primary add_alldocument_doc"><i class="fas fa-plus"></i> Add Checklist</a>
-                                        <button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2"><i class="fas fa-upload"></i> Bulk Upload</button>
+                                        <a href="javascript:;" class="btn btn-primary add_alldocument_doc">@icon('plus') Add Checklist</a>
+                                        <button type="button" class="btn btn-info bulk-upload-toggle-btn ms-2">@icon('upload') Bulk Upload</button>
                                     </div>
                                     
                                     <!-- Bulk Upload Dropzone (Hidden by default) -->
@@ -1326,11 +1326,11 @@ use App\Http\Controllers\Controller;
                                                                     <div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
                                                                         <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
                                                                             <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>" style="white-space: initial;">
-                                                                                <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
                                                                             </a>-->
                                                                       
                                                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-alldocumentlist')">
-                                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
                                                                         <?php } else {  //For old file upload
                                                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
@@ -1338,11 +1338,11 @@ use App\Http\Controllers\Controller;
                                                                             
                                                                             ?>
                                                                             <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>" style="white-space: initial;">
-                                                                                <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
                                                                             </a>-->
                                                                       
                                                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-alldocumentlist')">
-                                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
                                                                         <?php } ?>
                                                                     </div>
@@ -1357,7 +1357,7 @@ use App\Http\Controllers\Controller;
                                                                             <input type="hidden" name="fileid" value="{{$fetch->id}}">
                                                                             <input type="hidden" name="type" value="client">
                                                                             <input type="hidden" name="doctype" value="documents">
-                                                                            <a href="javascript:;" class="btn btn-primary"><i class="fas fa-plus"></i> Add Document</a>
+                                                                            <a href="javascript:;" class="btn btn-primary">@icon('plus') Add Document</a>
                                                                             <input class="alldocupload" data-fileid="<?php echo $fetch->id;?>" type="file" name="document_upload"/>
                                                                         </form>
                                                                     </div>
@@ -1381,16 +1381,16 @@ use App\Http\Controllers\Controller;
                                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                                                     <span class="text-muted small me-2">Signature:</span>
                                                                     <button type="button" class="btn btn-sm btn-primary document-sig-send" <?php if($sigSent): ?>disabled<?php endif; ?> title="Send for signature">
-                                                                        <i class="fas fa-paper-plane"></i> Send
+                                                                        @icon('paper-plane') Send
                                                                     </button>
                                                                     <button type="button" class="btn btn-sm btn-outline-secondary document-sig-revise" title="Revise placement">
-                                                                        <i class="fas fa-edit"></i> Revise
+                                                                        @icon('edit') Revise
                                                                     </button>
                                                                     <button type="button" class="btn btn-sm btn-outline-danger document-sig-remove" title="Remove">
-                                                                        <i class="fas fa-times"></i> Remove
+                                                                        @icon('times') Remove
                                                                     </button>
                                                                     <button type="button" class="btn btn-sm btn-outline-warning document-sig-reminder" title="Send reminder" <?php if(!$sigSent): ?>style="display:none;"<?php endif; ?>>
-                                                                        <i class="fas fa-bell"></i> Reminder
+                                                                        @icon('bell') Reminder
                                                                     </button>
                                                                 </div>
                                                             </td>
@@ -1411,7 +1411,7 @@ use App\Http\Controllers\Controller;
                                             <div class="grid_list" id="gid_<?php echo $fetch->id; ?>">
                                                 <div class="grid_col">
                                                     <div class="grid_icon">
-                                                        <i class="fas fa-file-image"></i>
+                                                        @icon('file-image')
                                                     </div>
                                                     <?php
                                                     if( isset($fetch->myfile) && $fetch->myfile != "")
@@ -1419,7 +1419,7 @@ use App\Http\Controllers\Controller;
                                                         <div class="grid_content">
                                                             <span id="grid_<?php echo $fetch->id; ?>" class="gridfilename"><?php echo $fetch->file_name; ?></span>
                                                             <div class="dropdown d-inline dropdown_ellipsis_icon">
-                                                                <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                                                                <a class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@icon('ellipsis-v')</a>
                                                                 <div class="dropdown-menu">
                                                                     <?php $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';?>
 
@@ -1492,8 +1492,8 @@ use App\Http\Controllers\Controller;
                                 <div class="tab-pane fade {{ $activeTab === 'notuseddocuments' ? 'show active' : '' }}" id="notuseddocuments" role="tabpanel" aria-labelledby="notuseddocuments-tab">
 									<!--<div class="card-header-action text-end" style="padding-bottom:15px;">
 										<div class="document_layout_type">
-											<a href="javascript:;" class="list active"><i class="fas fa-list"></i></a>
-											<a href="javascript:;" class="grid"><i class="fas fa-columns"></i></a>
+											<a href="javascript:;" class="list active">@icon('list')</a>
+											<a href="javascript:;" class="grid">@icon('columns')</a>
 										</div>
                                     </div>-->
 									<div class="list_data col-6 col-md-6 col-lg-6" style="display:inline-block;vertical-align: top;">
@@ -1549,22 +1549,22 @@ use App\Http\Controllers\Controller;
                                                                     <div data-id="{{$fetch->id}}" data-name="<?php echo $fetch->file_name; ?>" class="doc-row">
                                                                         <?php if( isset($fetch->myfile_key) && $fetch->myfile_key != ""){ //For new file upload ?>
                                                                             <!--<a target="_blank" class="dropdown-item" href="<?php //echo $fetch->myfile; ?>">
-                                                                                <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
                                                                             </a>-->
                                                                       
                                                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($fetch->myfile); ?>','preview-container-notuseddocumentlist')">
-                                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
                                                                         <?php } else {  //For old file upload
                                                                             $url = 'https://'.env('AWS_BUCKET').'.s3.'. env('AWS_DEFAULT_REGION') . '.amazonaws.com/';
                                                                             $myawsfile = $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile;
                                                                             ?>
                                                                             <!--<a target="_blank" class="dropdown-item" href="<?php //echo $url.$fetchedData->client_id.'/'.$fetch->doc_type.'/'.$fetch->myfile; ?>">
-                                                                                <i class="fas fa-file-image"></i> <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php //echo $fetch->file_name; ?><?php //echo '.'.$fetch->filetype; ?></span>
                                                                             </a>-->
                                                                       
                                                                             <a href="javascript:void(0);" onclick="previewFile('<?php echo $fetch->filetype;?>','<?php echo asset($myawsfile); ?>','preview-container-notuseddocumentlist')">
-                                                                                <i class="fas fa-file-image"></i> <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
+                                                                                @icon('file-image') <span><?php echo $fetch->file_name . '.' . $fetch->filetype; ?></span>
                                                                             </a>
                                                                         <?php } ?>
                                                                     </div>
@@ -1636,7 +1636,7 @@ use App\Http\Controllers\Controller;
 
 
 											<div class="cus_invice_btn dropdown d-inline">
-												<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle btn btn-outline-primary">Create Invoice <i class="fas fa-angle-down"></i></a>
+												<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle btn btn-outline-primary">Create Invoice @icon('angle-down')</a>
 												<div class="dropdown-menu">
 													<a href="javascript:;" class="dropdown-item opencommissioninvoice">
 														Commission Invoice
@@ -1696,7 +1696,7 @@ use App\Http\Controllers\Controller;
                                                                     $awsUrl = $url.$client_info->client_id.'/'.$client_doc_list->doc_type.'/'.$client_doc_list->myfile; 
                                                                 }
                                                                 ?>
-                                                                <a target="_blank" class="link-primary" href="<?php echo $awsUrl;?>"><i class="fas fa-file-pdf"></i></a>
+                                                                <a target="_blank" class="link-primary" href="<?php echo $awsUrl;?>">@icon('file-pdf')</a>
                                                             <?php
                                                             }
                                                         } ?>
@@ -1721,10 +1721,10 @@ use App\Http\Controllers\Controller;
                                                         if($rec_val->receipt_type == 1){
                                                         ?>
                                               			<a class="link-primary updateclientreceipt" href="javascript:;" data-id="<?php echo $rec_val->id;?>">
-                                                          <i class="fas fa-pencil-alt"></i>
+                                                          @icon('pencil-alt')
                                                         </a>
                                                         <a class="link-primary createclientrefund" href="javascript:;" data-id="<?php echo $rec_val->id;?>" data-trans-no="<?php echo e($rec_val->trans_no);?>" data-amount="<?php echo $rec_val->deposit_amount;?>" data-application-id="<?php echo $rec_val->application_id ?? '';?>" title="Create Refund">
-                                                          <i class="fas fa-undo"></i>
+                                                          @icon('undo')
                                                         </a>
                                                        <?php
                                                         }
@@ -1932,7 +1932,7 @@ use App\Http\Controllers\Controller;
 								<label for="message">Message <span class="span_req">*</span></label>
 								<div class="compose-message-container">
 									<textarea class="tinymce-simple selectedmessage" id="compose_email_message" name="message"></textarea>
-									<button type="button" class="btn btn-sm btn-outline-info compose-enhance-floating" id="composeMessageEnhanceBtn" title="AI: Fix and improve message content"><i class="fas fa-magic"></i> Enhance</button>
+									<button type="button" class="btn btn-sm btn-outline-info compose-enhance-floating" id="composeMessageEnhanceBtn" title="AI: Fix and improve message content">@icon('magic') Enhance</button>
 								</div>
 								@if ($errors->has('message'))
 									<span class="custom-error" role="alert">
@@ -1945,11 +1945,11 @@ use App\Http\Controllers\Controller;
 							<div class="form-group form-group-compact compose-labels-section compose-labels-compact">
 								<label class="d-inline">Labels</label>
 								<div class="compose-labels-display">
-									<span class="compose-label-badge compose-label-sent" title="All sent emails are automatically tagged"><i class="fas fa-paper-plane"></i> Sent</span>
+									<span class="compose-label-badge compose-label-sent" title="All sent emails are automatically tagged">@icon('paper-plane') Sent</span>
 									<div id="composeAdditionalLabelsChips" class="compose-label-chips"></div>
 									<div class="compose-add-label-wrapper dropdown">
 										<button type="button" class="btn btn-outline-secondary btn-sm compose-add-label-btn" id="composeAddLabelBtn" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-plus"></i> Add
+											@icon('plus') Add
 										</button>
 										<ul class="dropdown-menu compose-label-dropdown" id="composeLabelDropdown" aria-labelledby="composeAddLabelBtn">
 											<!-- Populated by JS when labels are loaded -->
@@ -1965,7 +1965,7 @@ use App\Http\Controllers\Controller;
 					        {{-- Hidden file input — triggered by button; files managed in JS array --}}
 					        <input type="file" id="composeAttachFileInput" class="d-none" multiple>
 					        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="composeAttachAddBtn">
-					            <i class="fas fa-paperclip"></i> Add Files
+					            @icon('paperclip') Add Files
 					        </button>
 					        <button type="button" class="btn btn-link btn-sm p-0 ms-2 compose-attach-toggle" data-bs-toggle="collapse" data-bs-target="#composeChecklistDocuments" aria-expanded="false" aria-controls="composeChecklistDocuments">
 					            <span>▼ Checklist / Documents</span>
@@ -2148,7 +2148,7 @@ use App\Http\Controllers\Controller;
 						<small class="form-text text-muted"><span id="sendSms_charCount">0</span>/1600 characters</small>
 					</div>
 					<div class="form-group">
-						<button type="submit" class="btn btn-primary" id="sendSms_submitBtn"><i class="fas fa-paper-plane"></i> Send SMS</button>
+						<button type="submit" class="btn btn-primary" id="sendSms_submitBtn">@icon('paper-plane') Send SMS</button>
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 					</div>
 				</form>
@@ -2169,7 +2169,7 @@ use App\Http\Controllers\Controller;
 				<input type="hidden" id="lead_verify_otp_lead_id" value="">
 				<div id="leadVerifyOtpSendSection">
 					<p class="text-muted">Send a verification code to this phone.</p>
-					<button type="button" class="btn btn-primary" id="leadVerifyOtpSendBtn"><i class="fas fa-paper-plane"></i> Send Code</button>
+					<button type="button" class="btn btn-primary" id="leadVerifyOtpSendBtn">@icon('paper-plane') Send Code</button>
 				</div>
 				<div id="leadVerifyOtpCodeSection" style="display: none;">
 					<label>Enter 6-digit code</label>
@@ -3207,7 +3207,7 @@ $(document).ready(function(){
 		var phone = $('#sendSms_phone').val();
 		var message = applySendSmsTemplateVariables($('#sendSms_message').val());
 		if (!phone || !message) { toastMsg('Please select a phone and enter a message.', 'warning'); return; }
-		$('#sendSms_submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+		$('#sendSms_submitBtn').prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Sending...');
 		$.ajax({
 			url: sendSmsSendUrl,
 			method: 'POST',
@@ -3225,7 +3225,7 @@ $(document).ready(function(){
 				toastMsg(res && res.message ? res.message : 'Failed to send SMS', 'error');
 			},
 			complete: function(){
-				$('#sendSms_submitBtn').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send SMS');
+				$('#sendSms_submitBtn').prop('disabled', false).html('@icon('paper-plane') Send SMS');
 			}
 		});
 	});
@@ -3243,7 +3243,7 @@ $(document).ready(function(){
 	$('#leadVerifyOtpSendBtn').on('click', function(){
 		var id = $('#lead_verify_otp_lead_id').val();
 		var btn = $(this);
-		btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+		btn.prop('disabled', true).html('@icon('spinner', 'solid', ['spin' => true]) Sending...');
 		$.post('{{ route("leads.phone.sendOTP") }}', { _token: $('input[name="_token"]').val(), lead_id: id }, function(r){
 			if (r.success) {
 				$('#leadVerifyOtpSendSection').hide();
@@ -3255,7 +3255,7 @@ $(document).ready(function(){
 					if (s <= 0) { clearInterval(leadVerifyResendTimer); $('#leadVerifyOtpResendBtn').prop('disabled', false); }
 				}, 1000);
 			} else { toastMsg(r.message || 'Failed to send code', 'error'); }
-		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Code'); });
+		}).fail(function(){ toastMsg('Request failed', 'error'); }).always(function(){ btn.prop('disabled', false).html('@icon('paper-plane') Send Code'); });
 	});
 	$('#leadVerifyOtpVerifyBtn').on('click', function(){
 		var id = $('#lead_verify_otp_lead_id').val();
@@ -3309,11 +3309,11 @@ $(document).ready(function(){
             var item = document.createElement('div');
             item.className = 'compose-attach-file-item';
             item.innerHTML =
-                '<i class="fas fa-file compose-attach-file-icon"></i>' +
+                '@icon('file', 'solid', ['class' => 'compose-attach-file-icon'])' +
                 '<span class="compose-attach-file-name" title="' + file.name + '">' + file.name + '</span>' +
                 '<span class="compose-attach-file-size">(' + formatFileSize(file.size) + ')</span>' +
                 '<button type="button" class="compose-attach-remove-btn" data-idx="' + idx + '" title="Remove">' +
-                    '<i class="fas fa-times"></i>' +
+                    '@icon('times')' +
                 '</button>';
             list.appendChild(item);
         });

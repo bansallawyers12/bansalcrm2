@@ -389,7 +389,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<div class="input-group-text">
-											<i class="fas fa-clock"></i>
+											@icon('clock')
 										</div>
 									</div>	
 									<input type="text" name="payment_date[]" placeholder="" class="datepicker form-control" />
@@ -397,12 +397,12 @@
 								<span class="span_note">Date must be in YYYY-MM-DD (2012-12-22) format.</span>
 							</div>
 							<div class="field_remove_col">
-								<a href="javascript:;" class="remove_col"><i class="fas fa-times"></i></a>
+								<a href="javascript:;" class="remove_col">@icon('times')</a>
 							</div>
 						</div>
 					</div>
 					<div class="add_payment_field">
-						<a href="javascript:;"><i class="fas fa-plus"></i> Add New Line</a>
+						<a href="javascript:;">@icon('plus') Add New Line</a>
 					</div>
 					<div class="clearfix"></div>
 					<div class="invoiceamount">
@@ -517,7 +517,7 @@
 						</div>	
 					</div>	
 					<div class="due_date_sec">
-						<a href="javascript:;" class="btn btn-primary due_date_btn"><i class="fas fa-plus"></i> Add Due Date</a>
+						<a href="javascript:;" class="btn btn-primary due_date_btn">@icon('plus') Add Due Date</a>
 						<div class="due_date_col">	  
 							<div class="row">	 
 								<div class="col-12 col-md-6 col-lg-6">
@@ -526,7 +526,7 @@
 										<div class="input-group">
 											<div class="input-group-prepend"> 
 												<div class="input-group-text">
-													<i class="fas fa-calendar-alt"></i>
+													@icon('calendar-alt')
 												</div>
 											</div>
 											{!! Form::text('appoint_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
@@ -543,7 +543,7 @@
 										<div class="input-group">
 											<div class="input-group-prepend">
 												<div class="input-group-text">
-													<i class="fas fa-clock"></i>
+													@icon('clock')
 												</div>
 											</div>
 											{!! Form::text('appoint_time', '', array('class' => 'form-control timepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Time' ))  !!}
@@ -554,7 +554,7 @@
 									</div>
 								</div>
 								<div class="col-12 col-md-1 col-lg-1 remove_col">
-									<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
+									<a href="javascript:;" class="remove_btn">@icon('trash')</a>
 								</div>
 							</div>
 						</div>
@@ -617,7 +617,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend"> 
 										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
+											@icon('calendar-alt')
 										</div>
 									</div>
 									{!! Form::text('installment_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
@@ -672,7 +672,7 @@
 											</div>
 										</div>
 										<div class="remove_field">	
-											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn">@icon('trash')</a>
 										</div>
 									</div>
 								</div>
@@ -695,7 +695,7 @@
 											</div> 
 										</div>
 										<div class="remove_field">
-											<a href="javascript:;" class="remove_btn"><i class="fas fa-trash"></i></a>
+											<a href="javascript:;" class="remove_btn">@icon('trash')</a>
 										</div>
 									</div> 
 									<div class="clearfix"></div>
@@ -707,7 +707,7 @@
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="add_fee_type">
-								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn"><i class="fas fa-plus"></i> Add Fee</a>
+								<a href="javascript:;" class="btn btn-outline-primary fee_type_btn">@icon('plus') Add Fee</a>
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6 text-end">
@@ -726,7 +726,7 @@
 							<div class="schedule_title">
 								<h4>Setup Invoice Scheduling</h4>
 							</div>
-							<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Schedule your Invoices by selecting an Invoice date for this installment.</span>
+							<span class="schedule_note">@icon('explanation-circle') Schedule your Invoices by selecting an Invoice date for this installment.</span>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
@@ -734,7 +734,7 @@
 								<div class="input-group">
 									<div class="input-group-prepend"> 
 										<div class="input-group-text">
-											<i class="fas fa-calendar-alt"></i>
+											@icon('calendar-alt')
 										</div>
 									</div>
 									{!! Form::text('invoice_date', '', array('class' => 'form-control datepicker', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Select Date' ))  !!}
@@ -750,7 +750,7 @@
 								<div class="form-check form-check-inline">
 									<label class="form-check-label" for="allow_upload_docu">Auto Invoicing</label>
 								</div>
-								<span class="schedule_note"><i class="fas fa-explanation-circle"></i> Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
+								<span class="schedule_note">@icon('explanation-circle') Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
 							</div>
 						</div>	
 						<div class="col-12 col-md-6 col-lg-6">
@@ -983,7 +983,7 @@
 								</table>	
 							</div>
 							<div class="fee_option_addbtn">
-								<a href="#" class="btn btn-primary"><i class="fas fa-plus"></i> Add Fee</a>
+								<a href="#" class="btn btn-primary">@icon('plus') Add Fee</a>
 							</div>
 							
 						</div>

@@ -1,5 +1,6 @@
 /**
  * TinyMCE Initialization Script
+ * @deprecated Loaded via Vite (resources/js/tinymce-init.js). Kept for rollback only.
  * Single rich-text editor; use .tinymce-simple (compact) or .tinymce-full (full toolbar).
  * Image upload: actual file upload to server (not URL-only).
  */

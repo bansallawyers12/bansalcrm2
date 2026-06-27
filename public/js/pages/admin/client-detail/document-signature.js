@@ -55,9 +55,9 @@
                                             <img src="" alt="PDF Page" class="img-fluid pdf-page-img" id="signaturePdfPage" style="display:none;width:100%;">
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="signaturePrevPage" disabled><i class="fas fa-chevron-left"></i> Prev</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="signaturePrevPage" disabled>${crmIcon('chevron-left')} Prev</button>
                                             <span>Page <span id="signatureCurrentPage">1</span> of <span id="signaturePageCount">1</span></span>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="signatureNextPage">Next <i class="fas fa-chevron-right"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="signatureNextPage">Next ${crmIcon('chevron-right')}</button>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -65,13 +65,13 @@
                                         <div id="signatureFieldsList" class="mb-2">
                                             <p class="text-muted small" id="signatureNoFieldsMsg">No fields yet. Click on the document.</p>
                                         </div>
-                                        <button type="button" class="btn btn-outline-primary btn-sm mb-2" id="signatureAddFieldBtn"><i class="fas fa-plus"></i> Add Field</button>
+                                        <button type="button" class="btn btn-outline-primary btn-sm mb-2" id="signatureAddFieldBtn">${crmIcon('plus')} Add Field</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" id="signatureSavePlacementBtn"><i class="fas fa-save"></i> Save</button>
+                                <button type="button" class="btn btn-primary" id="signatureSavePlacementBtn">${crmIcon('save')} Save</button>
                             </div>
                         </div>
                     </div>
@@ -209,7 +209,7 @@
                     div.className = 'signature-field-item d-flex justify-content-between align-items-center small mb-2 p-2 border rounded';
                     div.dataset.fieldId = f.id;
                     div.innerHTML = '<span class="text-muted">Field ' + (i + 1) + ' (Page ' + f.page + ')</span>' +
-                        '<button type="button" class="btn btn-outline-danger btn-sm py-0 px-1 sig-delete-field" data-field-id="' + f.id + '" title="Delete field"><i class="fas fa-times"></i></button>';
+                        '<button type="button" class="btn btn-outline-danger btn-sm py-0 px-1 sig-delete-field" data-field-id="' + f.id + '" title="Delete field">${crmIcon('times')}</button>';
                     div.querySelector('.sig-delete-field').onclick = function(e) {
                         e.stopPropagation();
                         self.deleteField(parseInt(this.getAttribute('data-field-id'), 10));

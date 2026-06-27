@@ -270,14 +270,14 @@ $(document).on('click', '.bulk-upload-toggle-btn', function() {
     
     if (dropzoneContainer.is(':visible')) {
         dropzoneContainer.slideUp();
-        $(this).html('<i class="fas fa-upload"></i> Bulk Upload');
+        $(this).html('${crmIcon('upload')} Bulk Upload');
         // Clear files
         bulkUploadFiles = [];
         dropzoneContainer.find('.bulk-upload-file-list').hide();
         dropzoneContainer.find('.file-count').text('0');
     } else {
         dropzoneContainer.slideDown();
-        $(this).html('<i class="fas fa-times"></i> Close');
+        $(this).html('${crmIcon('times')} Close');
     }
 });
 
@@ -717,7 +717,7 @@ function uploadBulkFiles(files, mappings) {
                 alert(message);
                 $('#bulk-upload-mapping-modal').hide();
                 $('.bulk-upload-dropzone-container').hide();
-                $('.bulk-upload-toggle-btn').html('<i class="fas fa-upload"></i> Bulk Upload');
+                $('.bulk-upload-toggle-btn').html('${crmIcon('upload')} Bulk Upload');
                 bulkUploadFiles = [];
                 
                 // If category system is active, reload current category documents
@@ -852,7 +852,7 @@ $(document).on('click', '.updateclientreceipt', function() {
                             </td>
                             <td style="text-align:center;">
                                 <a class="removeitems text-danger" href="javascript:;" title="Remove row">
-                                    <i class="fas fa-times"></i>
+                                    ${crmIcon('times')}
                                 </a>
                             </td>
                         </tr>
@@ -952,7 +952,7 @@ $(document).on('change', '.docclientreceiptupload', function() {
         $('.selected-file-info').slideDown();
         
         // Change button text to indicate file is attached
-        $('.upload-receipt-doc-btn').html('<i class="fas fa-check"></i> Document Attached');
+        $('.upload-receipt-doc-btn').html('${crmIcon('check')} Document Attached');
         $('.upload-receipt-doc-btn').removeClass('btn-outline-primary').addClass('btn-success');
     }
 });
@@ -966,7 +966,7 @@ $(document).on('click', '.remove-selected-file', function() {
     $('.selected-file-info').slideUp();
     
     // Reset button
-    $('.upload-receipt-doc-btn').html('<i class="fas fa-plus"></i> Add Document');
+    $('.upload-receipt-doc-btn').html('${crmIcon('plus')} Add Document');
     $('.upload-receipt-doc-btn').removeClass('btn-success').addClass('btn-outline-primary');
 });
 

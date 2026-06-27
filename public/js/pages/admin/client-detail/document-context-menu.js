@@ -61,8 +61,8 @@
                         const opentime = parent.data('personalchecklistname');
                         parent.empty().append(
                             $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
-                            $('<button class="btn btn-personalprimary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
-                            $('<button class="btn btn-personaldanger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+                            $('<button class="btn btn-personalprimary btn-sm mb-1">${crmIcon('check')}</button>'),
+                            $('<button class="btn btn-personaldanger btn-sm mb-1">${crmIcon('trash-alt', 'regular')}</button>')
                         );
                     }
                 }
@@ -81,8 +81,8 @@
                         const opentime = parent.data('name');
                         parent.empty().append(
                             $('<input style="display: inline-block;width: auto;" class="form-control opentime" type="text">').prop('value', opentime),
-                            $('<button class="btn btn-primary btn-sm mb-1"><i class="fas fa-check"></i></button>'),
-                            $('<button class="btn btn-danger btn-sm mb-1"><i class="far fa-trash-alt"></i></button>')
+                            $('<button class="btn btn-primary btn-sm mb-1">${crmIcon('check')}</button>'),
+                            $('<button class="btn btn-danger btn-sm mb-1">${crmIcon('trash-alt', 'regular')}</button>')
                         );
                     }
                 }
