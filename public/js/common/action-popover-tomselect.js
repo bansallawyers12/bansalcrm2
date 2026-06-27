@@ -124,6 +124,20 @@
         return idx >= 0 ? (element.options[idx].text || '') : '';
     }
 
+    var ACTION_POPOVER_MIN_WIDTH = 480;
+
+    /** Lock width before Tom Select init so popover does not collapse when native selects lose intrinsic sizing. */
+    function lockActionPopoverWidth(popover) {
+        if (!popover || !popover.querySelector('select.assigneeselect2')) {
+            return;
+        }
+        var viewportMax = window.innerWidth ? Math.max(280, window.innerWidth - 32) : ACTION_POPOVER_MIN_WIDTH;
+        var floor = Math.min(ACTION_POPOVER_MIN_WIDTH, viewportMax);
+        var measured = popover.getBoundingClientRect().width;
+        var locked = measured > 0 ? Math.max(measured, floor) : floor;
+        popover.style.minWidth = locked + 'px';
+    }
+
     function bindEvents() {
         if (!window.jQuery) {
             return;
@@ -134,6 +148,7 @@
             setTimeout(function () {
                 var popover = document.querySelector('.popover.show');
                 if (popover) {
+                    lockActionPopoverWidth(popover);
                     initInContainer(popover);
                 }
             }, 0);

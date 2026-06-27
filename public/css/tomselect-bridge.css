@@ -161,6 +161,15 @@
 }
 
 /* Bootstrap popovers (action pages — assign/reassign) */
+/* Keep assign/reassign popovers wide after Tom Select replaces native selects (intrinsic width) */
+.popover:has(select.assigneeselect2) {
+    min-width: min(480px, calc(100vw - 2rem));
+}
+
+.popover:has(select.assigneeselect2) .popover-body {
+    min-width: min(460px, calc(100vw - 2.5rem));
+}
+
 .popover .popover-body {
     overflow: visible !important;
 }
