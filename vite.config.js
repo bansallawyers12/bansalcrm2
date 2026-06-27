@@ -15,6 +15,8 @@ export default defineConfig({
                 'resources/js/apexcharts-init.js',
                 'resources/js/signature-pad-init.js',
                 'resources/js/tinymce-init.js',
+                'resources/js/lucide-init.js',
+                'resources/js/document-pages-icons.js',
                 'resources/js/legacy-init.js',  // Legacy initialization (waits for vendor libs)
                 'resources/js/app.js',
                 'resources/js/pages/admin/account.js',

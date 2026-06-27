@@ -73,7 +73,7 @@
 											@error('icon')
 												<div class="invalid-feedback">{{ $message }}</div>
 											@enderror
-											<small class="form-text text-muted">Enter FontAwesome icon class (e.g., fas fa-star, fas fa-flag)</small>
+											<small class="form-text text-muted">Icon name (e.g., star, flag) or legacy class (e.g., fas fa-star)</small>
 										</div>
 									</div>
 								</div>

@@ -1,8 +1,5 @@
 @php
-	$faAllVersion = (config('app.asset_version') ? config('app.asset_version') . '-' : '')
-		. filemtime(public_path('icons/font-awesome/css/all.min.css'));
-	$faShimVersion = (config('app.asset_version') ? config('app.asset_version') . '-' : '')
-		. filemtime(public_path('icons/font-awesome/css/v4-shims.min.css'));
+	$crmIconCssVersion = (config('app.asset_version') ? config('app.asset_version') . '-' : '')
+		. filemtime(public_path('css/crm-icons.css'));
 @endphp
-<link rel="stylesheet" href="{{ asset('icons/font-awesome/css/all.min.css') }}?v={{ $faAllVersion }}">
-<link rel="stylesheet" href="{{ asset('icons/font-awesome/css/v4-shims.min.css') }}?v={{ $faShimVersion }}">
+<link rel="stylesheet" href="{{ asset('css/crm-icons.css') }}?v={{ $crmIconCssVersion }}">

@@ -237,5 +237,6 @@
         
         createConfetti();
     </script>
+    @vite(['resources/js/document-pages-icons.js'])
 </body>
 </html>

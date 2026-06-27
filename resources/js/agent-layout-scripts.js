@@ -5,6 +5,7 @@
 
 import '@legacy/common/utilities.js';
 import '@legacy/common/crm-icon.js';
+import '@/lucide-init.js';
 import '@legacy/common/tomselect-init.js';
 import '@legacy/common/task-view-tomselect.js';
 import '@legacy/common/application-modal-cascade.js';

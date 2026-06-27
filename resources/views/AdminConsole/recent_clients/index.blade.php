@@ -558,8 +558,8 @@
 	}
 	
 	/* Refresh button animation */
-	#refreshBtn i.fa-spin {
-		animation: fa-spin 1s infinite linear;
+	#refreshBtn i.icon-spin {
+		animation: crm-icon-spin 1s infinite linear;
 	}
 	
 	/* Storage tabs above listing */
@@ -677,7 +677,7 @@ $(document).ready(function() {
 		var $icon = $btn.find('i');
 		
 		// Add spinning animation
-		$icon.addClass('fa-spin');
+		$icon.addClass('icon-spin');
 		$btn.prop('disabled', true);
 		
 		// Reload the page with current filters

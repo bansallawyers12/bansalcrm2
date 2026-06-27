@@ -7,8 +7,9 @@
 <div class="main-content">
 	<section class="section">
 		<div class="section-body">
-			{!! Form::open(array('url' => 'adminconsole/tags/edit', 'name'=>"add-visatype", 'autocomplete'=>'off', "enctype"=>"multipart/form-data"))  !!} 
-			{!! Form::hidden('id', @$fetchedData->id)  !!}
+			<form action="{{ url('adminconsole/tags/edit') }}" method="POST" name="add-visatype" autocomplete="off" enctype="multipart/form-data">
+			@csrf
+			<input type="hidden" name="id" value="{{ @$fetchedData->id }}">
 				<div class="row">   
 					<div class="col-12 col-md-12 col-lg-12">
 						<div class="card">
@@ -33,7 +34,7 @@
 												<div class="col-12 col-md-4 col-lg-4">
 													<div class="form-group"> 
 														<label for="name">Name <span class="span_req">*</span></label>
-														{!! Form::text('name', @$fetchedData->name, array('class' => 'form-control', 'data-valid'=>'required', 'autocomplete'=>'off','placeholder'=>'Enter Name' ))  !!}
+														<input type="text" name="name" value="{{ @$fetchedData->name }}" class="form-control" data-valid="required" autocomplete="off" placeholder="Enter Name" spellcheck="false">
 														@if ($errors->has('name'))
 															<span class="custom-error" role="alert">
 																<strong>{{ @$errors->first('name') }}</strong>
@@ -47,13 +48,13 @@
 									</div>
 								</div>
 								<div class="form-group float-end">
-									{!! Form::submit('Save', ['class'=>'btn btn-primary' ])  !!}
+									<button type="submit" class="btn btn-primary">Save</button>
 								</div> 
 							</div>
 						</div>	
 					</div>
 				</div>
-			 {!! Form::close()  !!}	
+			</form>
 		</div>
 	</section>
 </div>

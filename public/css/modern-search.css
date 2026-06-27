@@ -92,7 +92,8 @@ mark.search-highlight {
 .modern-search-result-quickview:hover {
     text-decoration: underline;
 }
-.modern-search-result-quickview .fa-bolt {
+.modern-search-result-quickview .crm-icon,
+.modern-search-result-quickview svg {
     color: #7c3aed;
 }
 .modern-search-result-quickview .quickview-hint {

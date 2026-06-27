@@ -3,21 +3,20 @@
 return [
 
     /*
-    spec columns
-    | Phase B (Lucide): replace fa-sort-alpha etc. with svg icon class once IconHelper swaps internals.
+    spec columns — Lucide sort icons hydrated via resources/js/lucide-init.js (sort-* classes).
     */
     'columns'                       => [
         'alpha'   => [
             'rows'  => ['description', 'email', 'name', 'slug'],
-            'class' => 'fas fa-sort-alpha-down',
+            'class' => 'sort-alpha',
         ],
         'amount'  => [
             'rows'  => ['amount', 'price'],
-            'class' => 'fas fa-sort-amount-down',
+            'class' => 'sort-amount',
         ],
         'numeric' => [
             'rows'  => ['created_at', 'updated_at', 'level', 'id', 'phone_number'],
-            'class' => 'fas fa-sort-numeric-down',
+            'class' => 'sort-numeric',
         ],
     ],
 
@@ -28,15 +27,13 @@ return [
 
     /*
     defines icon set to use when sorted data is none above (alpha nor amount nor numeric)
-    | Phase B (Lucide): swap to lucide class here.
      */
-    'default_icon_set'              => 'fas fa-sort',
+    'default_icon_set'              => 'sort-default',
 
     /*
     icon that shows when generating sortable link while column is not sorted
-    | Phase B (Lucide): swap to lucide class here.
      */
-    'sortable_icon'                 => 'fas fa-sort',
+    'sortable_icon'                 => 'sort-default',
 
     /*
     generated icon is clickable non-clickable (default)

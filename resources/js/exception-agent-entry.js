@@ -3,4 +3,5 @@
  */
 'use strict';
 
+import '@/lucide-init.js';
 import '@legacy/agent-custom-form-validation.js';

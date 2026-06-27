@@ -178,23 +178,45 @@ class MailReportAttachment extends Model
     }
 
     /**
-     * Get the icon class for the attachment type.
+     * CSS classes for the attachment icon (legacy callers).
      */
     public function getIconClassAttribute(): string
     {
+        $name = 'paperclip';
+        $extra = 'attachment-icon text-gray-400';
+
         if ($this->isImage()) {
-            return 'fas fa-image text-blue-500';
+            $name = 'file-image';
+            $extra = 'attachment-icon attachment-icon-image text-blue-500';
+        } elseif ($this->isPdf()) {
+            $name = 'file-pdf';
+            $extra = 'attachment-icon attachment-icon-pdf text-red-500';
+        } elseif ($this->isDocument()) {
+            $name = 'file-alt';
+            $extra = 'attachment-icon attachment-icon-word text-gray-500';
         }
-        
+
+        return \App\Helpers\IconHelper::classes($name, 'solid', ['class' => $extra]);
+    }
+
+    /**
+     * Rendered Lucide icon HTML for Blade templates.
+     */
+    public function getIconHtmlAttribute(): string
+    {
+        if ($this->isImage()) {
+            return \App\Helpers\IconHelper::render('file-image', 'solid', ['class' => 'attachment-icon attachment-icon-image text-blue-500']);
+        }
+
         if ($this->isPdf()) {
-            return 'fas fa-file-pdf text-red-500';
+            return \App\Helpers\IconHelper::render('file-pdf', 'solid', ['class' => 'attachment-icon attachment-icon-pdf text-red-500']);
         }
-        
+
         if ($this->isDocument()) {
-            return 'fas fa-file-alt text-gray-500';
+            return \App\Helpers\IconHelper::render('file-alt', 'solid', ['class' => 'attachment-icon attachment-icon-word text-gray-500']);
         }
-        
-        return 'fas fa-paperclip text-gray-400';
+
+        return \App\Helpers\IconHelper::render('paperclip', 'solid', ['class' => 'attachment-icon text-gray-400']);
     }
 
     /**
