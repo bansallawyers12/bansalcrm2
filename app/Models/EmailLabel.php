@@ -65,30 +65,41 @@ class EmailLabel extends Model
     }
 
     /**
-     * Get the display icon for the label.
+     * Resolved icon name when icon column is empty (matches label name).
+     */
+    public function defaultIconName(): string
+    {
+        $defaultIcons = [
+            'inbox' => 'inbox',
+            'sent' => 'paper-plane',
+            'draft' => 'edit',
+            'trash' => 'trash',
+            'spam' => 'ban',
+            'archive' => 'archive',
+            'work' => 'briefcase',
+            'personal' => 'user',
+            'important' => 'star',
+            'urgent' => 'exclamation-triangle',
+            'follow up' => 'flag',
+        ];
+
+        return $defaultIcons[strtolower($this->name)] ?? 'tag';
+    }
+
+    /**
+     * CSS classes for the label icon (legacy callers).
      */
     public function getDisplayIconAttribute(): string
     {
-        if ($this->icon) {
-            return $this->icon;
-        }
+        return \App\Helpers\IconHelper::classesFromStored($this->icon, [], $this->defaultIconName());
+    }
 
-        // Default icons based on label name
-        $defaultIcons = [
-            'inbox' => 'fas fa-inbox',
-            'sent' => 'fas fa-paper-plane',
-            'draft' => 'fas fa-edit',
-            'trash' => 'fas fa-trash',
-            'spam' => 'fas fa-ban',
-            'archive' => 'fas fa-archive',
-            'work' => 'fas fa-briefcase',
-            'personal' => 'fas fa-user',
-            'important' => 'fas fa-star',
-            'urgent' => 'fas fa-exclamation-triangle',
-        ];
-
-        $labelName = strtolower($this->name);
-        return $defaultIcons[$labelName] ?? 'fas fa-tag';
+    /**
+     * Rendered icon HTML for Blade templates.
+     */
+    public function getDisplayIconHtmlAttribute(): string
+    {
+        return \App\Helpers\IconHelper::renderStored($this->icon, [], $this->defaultIconName());
     }
 
     /**

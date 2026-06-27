@@ -29,14 +29,14 @@
 <nav class="navbar navbar-expand-lg main-navbar sticky">
 	<div class="form-inline me-auto">
 		<ul class="navbar-nav me-3">
-			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> <i class="fas fa-bars"></i></a></li>
-			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn"><i class="fas fa-expand"></i></a></li>
+			<li><a href="#" data-bs-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"> @icon('bars')</a></li>
+			<li><a href="#" class="nav-link nav-link-lg fullscreen-btn">@icon('expand')</a></li>
 			
 			<?php
             if( Auth::user()->role == 1 || Auth::user()->role == 12 ){ //super admin or admin
             ?>
 			<li class="dropdown dropdown-list-toggle">
-			    <a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i class="fas fa-plus"></i></a>
+			    <a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle">@icon('plus')</a>
                 <div style="width: 50px;" class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				
     				<div class="">
@@ -60,7 +60,7 @@
 			<form class="form-inline me-auto" onsubmit="return false;">
 				<div class="search-element">
 					<select class="form-control js-data-example-ajaxccsearch tomselect modern-search-field" type="search" placeholder="Search" aria-label="Search" data-width="200"></select>
-					<button class="btn" type="button"><i class="fas fa-search"></i></button>
+					<button class="btn" type="button">@icon('search')</button>
 				</div>
 			</form>
 		</li>
@@ -68,7 +68,7 @@
 	</div>
 	<ul class="navbar-nav navbar-right">
 	<li class="dropdown dropdown-list-toggle">
-	<a href="javascript:;" data-bs-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin"><i class="fas fa-sign-in-alt"></i></a>
+	<a href="javascript:;" data-bs-toggle="dropdown" title="Add Office Check-In" class="nav-link nav-link-lg opencheckin">@icon('sign-in-alt')</a>
 	</li>
 		<!-- {{--	<li class="dropdown dropdown-list-toggle">
 			<a href="#" data-bs-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i class="fas fa-envelope"></i><span class="badge headerBadge1">6</span></a>
@@ -119,7 +119,7 @@
 		</li>--}} -->
 	<li class="dropdown dropdown-list-toggle">
 		@if(Auth::user())
-			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-bs-toggle="tooltip" data-placement="bottom" title="Click To See Notifications"><i class="fas fa-bell bell"></i><span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
+			<a href="#" data-bs-toggle="dropdown" class="nav-link notification-toggle nav-link-lg" data-bs-toggle="tooltip" data-placement="bottom" title="Click To See Notifications">@icon('bell', 'solid', ['class' => 'bell'])<span class="countbell" id="countbell_notification"><?php  echo \App\Models\Notification::where('receiver_id', Auth::user()->id)->where('receiver_status', 0)->count(); ?></span></a>
         @endif
 			<!--<div class="dropdown-menu dropdown-list dropdown-menu-right pullDown">
 				<div class="dropdown-header">Notifications
@@ -155,15 +155,15 @@
             <div class="dropdown-menu dropdown-menu-right pullDown">
 				<div class="dropdown-title">{{str_limit(Auth::user()->first_name.' '.Auth::user()->last_name, 150, '...')}}</div>
 				<a href="{{route('my_profile')}}" class="dropdown-item has-icon">
-					<i class="far fa-user"></i> Profile
+					@icon('user', 'regular') Profile
 				</a>
 				@if(@Auth::user()->role == 1)
 			    <a href="{{route('adminconsole.producttype.index')}}" class="dropdown-item has-icon">
-					<i class="fas fa-cogs"></i> Admin Console
+					@icon('cogs') Admin Console
 				</a>
 				@endif
 				<div class="dropdown-divider"></div>
-				<a href="{{route('admin.logout')}}" class="dropdown-item has-icon text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> <i class="fas fa-sign-out-alt"></i> Logout</a>
+				<a href="{{route('admin.logout')}}" class="dropdown-item has-icon text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> @icon('sign-out-alt') Logout</a>
             </div>
 		</li>
 	</ul>

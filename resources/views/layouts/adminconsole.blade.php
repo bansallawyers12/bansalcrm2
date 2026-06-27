@@ -287,6 +287,7 @@
 	@else
 	<script src="{{ asset('js/custom-form-validation.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/custom-form-validation.js')) }}" defer></script>
 	@endif
+	<script src="{{ asset('js/common/crm-icon.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/crm-icon.js')) }}"></script>
 	<script src="{{ asset('js/common/tomselect-init.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/tomselect-init.js')) }}" defer></script>
 	<script src="{{ asset('js/common/task-view-tomselect.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/task-view-tomselect.js')) }}" defer></script>
 	<script src="{{ asset('js/common/recipient-select.js') }}?v={{ (config('app.asset_version') ? config('app.asset_version').'-' : '') . filemtime(public_path('js/common/recipient-select.js')) }}" defer></script>

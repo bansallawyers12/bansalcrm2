@@ -719,6 +719,7 @@
 }
 
 /* Loading spinner for email list */
+.email-v2-list .icon-spin,
 .email-v2-list .fa-spinner {
     font-size: 24px;
     color: #007bff;
@@ -1188,6 +1189,9 @@
     cursor: not-allowed;
 }
 
+.download-btn .icon-spin,
+.download-all-btn .icon-spin,
+.preview-btn .icon-spin,
 .download-btn .fa-spinner,
 .download-all-btn .fa-spinner,
 .preview-btn .fa-spinner {

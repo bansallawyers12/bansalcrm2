@@ -64,7 +64,7 @@
 									<tr id="id_{{$label->id}}">
 										<td>
 											<span class="badge" style="background-color: {{ $label->color }}; color: white; font-size: 13px;">
-												<i class="{{ $label->display_icon }}"></i> {{ $label->name }}
+												{!! $label->display_icon_html !!} {{ $label->name }}
 											</span>
 										</td>
 										<td>{{ $label->name }}</td>

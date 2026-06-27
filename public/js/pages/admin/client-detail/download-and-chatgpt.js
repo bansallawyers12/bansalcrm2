@@ -115,7 +115,7 @@ window.buildClientDocumentDownloadName = buildClientDocumentDownloadName;
             }
 
             composeMessageEnhanceBtn.disabled = true;
-            composeMessageEnhanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+            composeMessageEnhanceBtn.innerHTML = (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Enhancing...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Enhancing...');
 
             var csrfToken = (typeof App !== 'undefined' && typeof App.getCsrf === 'function')
                 ? App.getCsrf()

@@ -72,7 +72,7 @@
 									<div class="col-md-6">
 										<div class="form-group mb-4">
 											<label>Icon</label>
-											<input type="text" name="icon" class="form-control @error('icon') is-invalid @enderror" value="{{ old('icon', 'fas fa-tag') }}" placeholder="fas fa-tag">
+											<input type="text" name="icon" class="form-control @error('icon') is-invalid @enderror" value="{{ old('icon', 'tag') }}" placeholder="inbox">
 											@error('icon')
 												<div class="invalid-feedback">{{ $message }}</div>
 											@enderror

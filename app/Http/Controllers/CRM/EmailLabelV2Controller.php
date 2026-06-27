@@ -92,7 +92,7 @@ class EmailLabelV2Controller extends Controller
                 'name' => $request->name,
                 'color' => $request->color,
                 'type' => 'custom',
-                'icon' => $request->icon ?? 'fas fa-tag',
+                'icon' => $request->icon ?? 'tag',
                 'description' => $request->description,
                 'is_active' => true,
             ]);

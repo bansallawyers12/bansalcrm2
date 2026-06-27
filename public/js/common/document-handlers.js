@@ -61,7 +61,7 @@ function file_explorer() {
 function uploadFormData(formData) {
     $('.popuploader').show();
     
-    var url = App.getUrl('checklistUpload');
+    var url = App.getUrl('checklistUpload') || App.getUrl('applicationChecklistUpload');
     if (!url) {
         console.error('checklistUpload URL not configured');
         $('.popuploader').hide();

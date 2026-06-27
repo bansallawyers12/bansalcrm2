@@ -32,7 +32,7 @@ class SeedEmailLabels extends Command
             [
                 'name' => 'Follow Up',
                 'color' => '#F59E0B',
-                'icon' => 'fas fa-flag',
+                'icon' => 'flag',
                 'description' => 'Emails requiring follow-up action',
                 'type' => 'system',
                 'user_id' => null,
@@ -41,7 +41,7 @@ class SeedEmailLabels extends Command
             [
                 'name' => 'Important',
                 'color' => '#EF4444',
-                'icon' => 'fas fa-star',
+                'icon' => 'star',
                 'description' => 'High priority emails',
                 'type' => 'system',
                 'user_id' => null,
@@ -50,7 +50,7 @@ class SeedEmailLabels extends Command
             [
                 'name' => 'Inbox',
                 'color' => '#3B82F6',
-                'icon' => 'fas fa-inbox',
+                'icon' => 'inbox',
                 'description' => 'Received emails',
                 'type' => 'system',
                 'user_id' => null,
@@ -59,7 +59,7 @@ class SeedEmailLabels extends Command
             [
                 'name' => 'Sent',
                 'color' => '#10B981',
-                'icon' => 'fas fa-paper-plane',
+                'icon' => 'paper-plane',
                 'description' => 'Sent emails',
                 'type' => 'system',
                 'user_id' => null,

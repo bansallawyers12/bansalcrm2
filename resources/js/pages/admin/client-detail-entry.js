@@ -4,8 +4,6 @@
  */
 'use strict';
 
-import '@legacy/popover.js';
-
 import '@legacy/common/config.js';
 import '@legacy/common/ajax-helpers.js';
 import '@legacy/common/crud-operations.js';
@@ -42,3 +40,6 @@ import '@legacy/pages/admin/client-detail/pin-and-publish.js';
 import '@legacy/pages/admin/client-detail/notes.js';
 
 import '@legacy/pages/admin/client-detail.js';
+import '@legacy/pages/admin/client-detail/blade-inline.js';
+
+import '@legacy/popover.js';

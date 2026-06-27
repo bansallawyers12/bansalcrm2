@@ -21,7 +21,7 @@
 			}
 			?> 
 			<li class="dropdown {{@$dashclasstype}}">
-				<a href="{{route('dashboard')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
+				<a href="{{route('dashboard')}}" class="nav-link">@icon('desktop')<span>Dashboard</span></a>
 			</li>
 
 			<?php
@@ -29,22 +29,22 @@
 				|| Route::currentRouteName() === 'followups.calendar';
 			?>
 			<li class="dropdown {{ $followupMenuActive ? 'active' : '' }}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-calendar-check"></i><span>Followup</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('calendar-check')<span>Followup</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{ Route::currentRouteName() === 'followups.index' ? 'active' : '' }}">
-						<a href="{{ route('followups.index') }}" class="nav-link"><i class="fas fa-list-ul"></i><span>Listing</span></a>
+						<a href="{{ route('followups.index') }}" class="nav-link">@icon('list-ul')<span>Listing</span></a>
 					</li>
 					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'ankit' ? 'active' : '' }}">
-						<a href="{{ route('followups.calendar', ['consultant' => 'ankit']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Ankit</span></a>
+						<a href="{{ route('followups.calendar', ['consultant' => 'ankit']) }}" class="nav-link">@icon('calendar-alt', 'regular')<span>Ankit</span></a>
 					</li>
 					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'rakshita' ? 'active' : '' }}">
-						<a href="{{ route('followups.calendar', ['consultant' => 'rakshita']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Rakshita</span></a>
+						<a href="{{ route('followups.calendar', ['consultant' => 'rakshita']) }}" class="nav-link">@icon('calendar-alt', 'regular')<span>Rakshita</span></a>
 					</li>
 					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'jaspreet' ? 'active' : '' }}">
-						<a href="{{ route('followups.calendar', ['consultant' => 'jaspreet']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Jaspreet</span></a>
+						<a href="{{ route('followups.calendar', ['consultant' => 'jaspreet']) }}" class="nav-link">@icon('calendar-alt', 'regular')<span>Jaspreet</span></a>
 					</li>
 					<li class="{{ Route::currentRouteName() === 'followups.calendar' && request()->route('consultant') === 'syed' ? 'active' : '' }}">
-						<a href="{{ route('followups.calendar', ['consultant' => 'syed']) }}" class="nav-link"><i class="far fa-calendar-alt"></i><span>Syed</span></a>
+						<a href="{{ route('followups.calendar', ['consultant' => 'syed']) }}" class="nav-link">@icon('calendar-alt', 'regular')<span>Syed</span></a>
 					</li>
 				</ul>
 			</li>
@@ -56,7 +56,7 @@
 			?>
 		<!-- LEAD & PROSPECT MANAGEMENT -->
 		<li class="dropdown {{@$leadstype}}">
-			<a href="{{route('leads.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Lead Manager</span></a>
+			<a href="{{route('leads.index')}}" class="nav-link">@icon('user')<span>Lead Manager</span></a>
 		</li>
 
 			<?php
@@ -79,7 +79,7 @@
 			?>
             <li class="dropdown {{@$assigneetype}}">
 				<a href="{{route('action.index')}}" class="nav-link">
-                  <i class="fas fa-check"></i>
+                  @icon('check')
                   <span>Action
                     <span class="countTotalActivityAction" style="background: #0066cc;padding: 0px 5px;border-radius: 50%;color: #ffffff !important;margin-left: 5px;">{{ $assigneesCount }}</span>
                   </span>
@@ -88,7 +88,7 @@
 
 			<!--<li class="dropdown {{-- @$assigneetype --}}"><!--
 				<a href="#" class="menu-toggle nav-link has-dropdown">
-                    <i class="fas fa-check"></i><span>Activity   <span class="countAction" style="background: #1f1655;
+                    @icon('check')<span>Activity   <span class="countAction" style="background: #1f1655;
 					padding: 0px 5px;
 					border-radius: 50%;
 					color: #fff;">{{-- $assigneesCount --}}</span></span></a>
@@ -120,7 +120,7 @@
             }*/
 			?>
 			<li class="dropdown {{@$checlasstype}}">
-				<a href="{{route('officevisits.waiting')}}" class="nav-link"><i class="fas fa-check-circle"></i><span>In Person<span class="countInPersonWaitingAction" style="background: #0066cc;
+				<a href="{{route('officevisits.waiting')}}" class="nav-link">@icon('check-circle')<span>In Person<span class="countInPersonWaitingAction" style="background: #0066cc;
                     padding: 0px 5px;border-radius: 50%;color: #ffffff !important;margin-left: 5px;">{{ $InPersonwaitingCount }}</span></span></a>
 			</li>
 
@@ -135,7 +135,7 @@
 				if(array_key_exists('21',  $module_access)) {
 			?>
 		<li class="dropdown {{@$clientclasstype}}">
-			<a href="{{route('clients.index')}}" class="nav-link"><i class="fas fa-user"></i><span>Clients Manager</span></a>
+			<a href="{{route('clients.index')}}" class="nav-link">@icon('user')<span>Clients Manager</span></a>
 		</li>
 		<?php
 		}
@@ -148,36 +148,36 @@
 		}
 		?>
 		<li class="dropdown {{@$sheetsclasstype}}">
-			<a href="#" class="menu-toggle nav-link has-dropdown"><i class="fas fa-clipboard-list"></i><span>Sheets</span></a>
+			<a href="#" class="menu-toggle nav-link has-dropdown">@icon('clipboard-list')<span>Sheets</span></a>
 			<ul class="dropdown-menu">
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.ongoing' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.ongoing') }}">
-						<i class="fas fa-list"></i><span>Ongoing Sheet</span>
+						@icon('list')<span>Ongoing Sheet</span>
 					</a>
 				</li>
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.coe-enrolled' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.coe-enrolled') }}">
-						<i class="fas fa-graduation-cap"></i><span>COE Issued & Enrolled</span>
+						@icon('graduation-cap')<span>COE Issued & Enrolled</span>
 					</a>
 				</li>
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.discontinue' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.discontinue') }}">
-						<i class="fas fa-ban"></i><span>Discontinue</span>
+						@icon('ban')<span>Discontinue</span>
 					</a>
 				</li>
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.refund' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.refund') }}">
-						<i class="fas fa-undo"></i><span>Refund</span>
+						@icon('undo')<span>Refund</span>
 					</a>
 				</li>
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.checklist' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.checklist') }}">
-						<i class="fas fa-tasks"></i><span>Checklist</span>
+						@icon('tasks')<span>Checklist</span>
 					</a>
 				</li>
 				<li class="{{ Route::currentRouteName() == 'clients.sheets.insights' ? 'active' : '' }}">
 					<a class="nav-link" href="{{ route('clients.sheets.insights') }}">
-						<i class="fas fa-chart-bar"></i><span>Insights</span>
+						@icon('chart-bar')<span>Insights</span>
 					</a>
 				</li>
 			</ul>
@@ -189,7 +189,7 @@
 		}
 		?>
 		<li class="dropdown {{@$signatureclasstype}}">
-			<a href="{{route('signatures.index')}}" class="nav-link"><i class="fas fa-file-signature"></i><span>Signatures</span></a>
+			<a href="{{route('signatures.index')}}" class="nav-link">@icon('file-signature')<span>Signatures</span></a>
 		</li>
 
 		<?php
@@ -200,15 +200,14 @@
                     }
                     ?>
                 <li class="dropdown {{@$clientaccountmanagerclasstype}}">
-                    <a href="#" class="menu-toggle nav-link has-dropdown"><i
-                    class="fas fa-file-alt"></i><span>Client Account Manager</span></a>
+                    <a href="#" class="menu-toggle nav-link has-dropdown">@icon('file-alt')<span>Client Account Manager</span></a>
                     <ul class="dropdown-menu">
                         <li class="{{(Route::currentRouteName() == 'clients.clientreceiptlist') ? 'active' : ''}}">
-                            <a href="{{route('clients.clientreceiptlist')}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Clients Receipts</span></a>
+                            <a href="{{route('clients.clientreceiptlist')}}" class="nav-link">@icon('file-alt')<span>Clients Receipts</span></a>
                         </li>
                       
                         <!--<li class="{{--(Route::currentRouteName() == 'commissionreport') ? 'active' : ''--}}">
-                            <a href="{{--route('commissionreport')--}}" class="nav-link"><i class="fas fa-file-alt"></i><span>Commission Report</span></a>
+                            <a href="{{--route('commissionreport')--}}" class="nav-link">@icon('file-alt')<span>Commission Report</span></a>
                         </li>-->
                     </ul>
                 </li>
@@ -223,7 +222,7 @@
 				if(array_key_exists('7',  $module_access)) {
 			?>
 			<li class="dropdown {{@$partnerclasstype}}">
-				<a href="{{route('partners.index')}}" class="nav-link"><i class="fas fa-users"></i><span>Partners Manager</span></a>  
+				<a href="{{route('partners.index')}}" class="nav-link">@icon('users')<span>Partners Manager</span></a>  
 			</li>
 			<?php
 				}
@@ -235,7 +234,7 @@
 				if(array_key_exists('15',  $module_access)) {
 			?>
 			<li class="dropdown {{@$agentclasstype}}">
-				<a href="{{route('agents.active')}}" class="nav-link"><i class="fas fa-users"></i><span>Agents Manager</span></a>  
+				<a href="{{route('agents.active')}}" class="nav-link">@icon('users')<span>Agents Manager</span></a>  
 			</li>
 			<?php
 				}
@@ -251,7 +250,7 @@
 				if(array_key_exists('34',  $module_access)) {
 			?>
 			<li class="dropdown {{@$applicationclasstype}}">
-				<a href="{{route('applications.index')}}" class="nav-link"><i class="fas fa-server"></i><span>Applications Manager</span></a>  
+				<a href="{{route('applications.index')}}" class="nav-link">@icon('server')<span>Applications Manager</span></a>  
 			</li>
 			<?php
 			}  
@@ -265,7 +264,7 @@
 	
 									?>
 			<!--<li class="dropdown {{--@$clientclasstype--}}">
-				<a href="{{--URL::to('/action-calendar/')--}}" class="nav-link"><i class="fas fa-user"></i><span>Today Actions <span class="countaction" style="background: #1f1655;
+				<a href="{{--URL::to('/action-calendar/')--}}" class="nav-link">@icon('user')<span>Today Actions <span class="countaction" style="background: #1f1655;
     padding: 0px 5px;
     border-radius: 50%;
     color: #fff;">{{--$countaction--}}</span></span></a>
@@ -279,7 +278,7 @@
 				if(array_key_exists('12',  $module_access)) {
 			?>
 			<li class="dropdown {{@$productclasstype}}">
-				<a href="{{route('products.index')}}" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Products Manager</span></a>
+				<a href="{{route('products.index')}}" class="nav-link">@icon('shopping-cart')<span>Products Manager</span></a>
 			</li>
 			<?php
 				}
@@ -293,8 +292,7 @@
 			}
 			?> 	
 			<li class="dropdown {{@$accountclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-dollar-sign"></i><span>Accounts</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('dollar-sign')<span>Accounts</span></a>
 				<ul class="dropdown-menu"> 
 				<?php
 					if(array_key_exists('46',  $module_access)) {
@@ -317,7 +315,7 @@
 			}*/
 			?> 
 		<!--<liclass="dropdown@$taskclasstype">
-				<a href="{{-- route('tasks.index') --}}" class="nav-link"><i class="fas fa-list"></i><span>To Do Lists</span></a>
+				<a href="{{-- route('tasks.index') --}}" class="nav-link">@icon('list')<span>To Do Lists</span></a>
 			</li>-->
 			
 			<!-- REPORTS & ANALYTICS -->
@@ -325,8 +323,7 @@
             if( Auth::user()->role == 1 || Auth::user()->role == 12 ){ //super admin or admin
             ?>
 			<li class="dropdown">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-file-alt"></i><span>Reports</span></a> 
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('file-alt')<span>Reports</span></a> 
 				<ul class="dropdown-menu"> 
 				<?php
 					if(array_key_exists('62',  $module_access)) {
@@ -373,7 +370,7 @@
 
 			@if(Auth::user()->role ===1)
 			<li class="dropdown {{@$auditlogsclasstype}}">
-				<a href="{{route('auditlogs.index')}}" class="nav-link"><i class="fas fa-sign-in-alt"></i><span>Staff Login Log</span></a>  
+				<a href="{{route('auditlogs.index')}}" class="nav-link">@icon('sign-in-alt')<span>Staff Login Log</span></a>  
 			</li>
 			@endif
 			<?php
@@ -382,8 +379,7 @@
 			}
 			?> 			
 			<li class="dropdown {{@$userclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-user"></i><span>Staff & Access Management</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('user')<span>Staff & Access Management</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'staff.index' || Route::currentRouteName() == 'staff.active' || Route::currentRouteName() == 'staff.create' || Route::currentRouteName() == 'staff.edit' || Route::currentRouteName() == 'staff.view') ? 'active' : ''}}"><a class="nav-link" href="{{route('staff.active')}}">Staff</a></li>
 					<li class="{{(Route::currentRouteName() == 'staffrole.index' || Route::currentRouteName() == 'staffrole.create' || Route::currentRouteName() == 'staffrole.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('staffrole.index')}}">Staff Role</a></li>
@@ -395,8 +391,7 @@
 			}
 			?> 
 			<li class="dropdown {{@$servclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-user"></i><span>Services</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('user')<span>Services</span></a>
 				<ul class="dropdown-menu"> 
 					<li class="{{(Route::currentRouteName() == 'services.index' || Route::currentRouteName() == 'services.create' || Route::currentRouteName() == 'services.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('services.index')}}">Services List</a></li>
 				</ul>
@@ -407,8 +402,7 @@
 			}
 			?> 
 			<li class="dropdown {{@$provclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-user"></i><span>Providers</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('user')<span>Providers</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'providers.index' || Route::currentRouteName() == 'providers.create' || Route::currentRouteName() == 'providers.edit') ? 'active' : ''}}"><a class="nav-link" href="{{route('providers.index')}}">Providers List</a></li>
 				</ul>
@@ -419,7 +413,7 @@
 			}
 			?> 
 			<li class="dropdown {{@$leadclasstype}}">
-				<a href="{{route('leads.index')}}" class="nav-link"><i class="fas fa-briefcase"></i><span>Leads</span></a>
+				<a href="{{route('leads.index')}}" class="nav-link">@icon('briefcase')<span>Leads</span></a>
 			</li>
 			<?php
 			if(Route::currentRouteName() == 'invoice.index'){
@@ -427,8 +421,7 @@
 			}
 			?> 
 			<li class="dropdown {{@$invclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-briefcase"></i><span>Invoices</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('briefcase')<span>Invoices</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'invoice.index') ? 'active' : ''}}"><a class="nav-link" href="{{route('invoice.index')}}">Invoices</a></li>
 					<li><a class="nav-link" href="#">Payment Received</a></li>
@@ -440,7 +433,7 @@
 		}
 		?>
 			<li class="dropdown {{@$emtemclasstype}}">
-				<a href="{{route('email.index')}}" class="nav-link"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+				<a href="{{route('email.index')}}" class="nav-link">@icon('envelope')<span>Email Templates</span></a>
 			</li>
 			<?php
 			if(Route::currentRouteName() == 'my_profile' || Route::currentRouteName() == 'change_password' || Route::currentRouteName() == 'edit_api'){
@@ -448,8 +441,7 @@
 			}*/ 
 			?> 
 			<!--<li class="dropdown {{@$actsetclasstype}}">
-				<a href="#" class="menu-toggle nav-link has-dropdown"><i
-				class="fas fa-cog"></i><span>My Account & Settings</span></a>
+				<a href="#" class="menu-toggle nav-link has-dropdown">@icon('cog')<span>My Account & Settings</span></a>
 				<ul class="dropdown-menu">
 					<li class="{{(Route::currentRouteName() == 'my_profile') ? 'active' : ''}}"><a class="nav-link" href="{{route('my_profile')}}">Manage Profile</a></li>
 					<li class="{{(Route::currentRouteName() == 'change_password') ? 'active' : ''}}"><a class="nav-link" href="{{route('change_password')}}">Change Password</a></li>
@@ -457,7 +449,7 @@
 				</ul> 
 			</li>-->
 			<li class="dropdown">
-				<a href="{{route('admin.logout')}}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+				<a href="{{route('admin.logout')}}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">@icon('sign-out-alt')<span>Logout</span></a>
 			</li>
 		</ul>
 	</aside>

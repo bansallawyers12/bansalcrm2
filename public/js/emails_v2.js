@@ -7,6 +7,22 @@
 (function() {
     'use strict';
 
+    function labelIconHtml(icon, extraClass) {
+        const options = extraClass ? { class: extraClass } : {};
+        if (typeof window.crmIconStored === 'function') {
+            return window.crmIconStored(icon || 'tag', options);
+        }
+        const cls = icon || 'fas fa-tag';
+        return `<i class="${cls}${extraClass ? ' ' + extraClass : ''}" aria-hidden="true"></i>`;
+    }
+
+    function spinnerHtml(label) {
+        if (typeof window.crmIconSpinner === 'function') {
+            return window.crmIconSpinner(label || '');
+        }
+        return `<i class="fas fa-spinner fa-spin icon-spin" aria-hidden="true"></i>${label || ''}`;
+    }
+
     // =========================================================================
     // Module State
     // =========================================================================
@@ -1120,7 +1136,7 @@
         const labelBadges = (email.labels && Array.isArray(email.labels)) 
             ? email.labels.map(label => 
                 `<span class="label-badge" style="background-color: ${label.color}20; border-color: ${label.color}; color: ${label.color}">
-                    <i class="${label.icon || 'fas fa-tag'}"></i> ${label.name}
+                    ${labelIconHtml(label.icon)} ${label.name}
                 </span>`
             ).join('')
             : '';
@@ -1207,7 +1223,7 @@
             emailList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
+                        ${spinnerHtml()}
                     </div>
                     <div class="empty-state-text">
                         <h3>Loading emails...</h3>
@@ -1802,7 +1818,6 @@
         } else {
             labelContent.innerHTML = filteredLabels.map(label => {
                 const isApplied = currentLabelIds.includes(label.id);
-                const icon = label.icon || 'fas fa-tag';
                 const color = label.color || '#3B82F6';
                 
                 return `
@@ -1810,7 +1825,7 @@
                          data-label-id="${label.id}" 
                          data-label-name="${escapeHtml(label.name)}">
                         <span class="submenu-item-badge" style="background-color: ${color}20; border-color: ${color}; color: ${color}">
-                            <i class="${icon}"></i>
+                            ${labelIconHtml(label.icon)}
                         </span>
                         <span class="submenu-item-text">${escapeHtml(label.name)}</span>
                         ${isApplied ? '<i class="fas fa-check submenu-item-check"></i>' : ''}
@@ -2004,7 +2019,7 @@
             chip.style.backgroundColor = (label.color || '#3B82F6') + '20';
             chip.style.borderColor = label.color || '#3B82F6';
             chip.style.color = label.color || '#3B82F6';
-            chip.innerHTML = `<i class="${label.icon || 'fas fa-tag'}"></i><span>${escapeHtml(label.name || '')}</span><i class="fas fa-times chip-remove" data-label-id="${label.id}"></i>`;
+            chip.innerHTML = `${labelIconHtml(label.icon)}<span>${escapeHtml(label.name || '')}</span><i class="fas fa-times chip-remove" data-label-id="${label.id}"></i>`;
             chip.querySelector('.chip-remove').addEventListener('click', function() {
                 composeSelectedLabelIds = composeSelectedLabelIds.filter(id => id != label.id);
                 renderComposeLabelChips();
@@ -2104,13 +2119,13 @@
             item.dataset.labelId = label.id;
             item.dataset.labelName = label.name;
             item.dataset.labelColor = label.color || '#3B82F6';
-            item.dataset.labelIcon = label.icon || 'fas fa-tag';
+            item.dataset.labelIcon = label.icon || 'tag';
             item.dataset.labelType = label.type || 'custom';
             
             item.innerHTML = `
                 <input type="checkbox" class="label-option-checkbox" id="label-opt-${label.id}">
                 <div class="label-option-color" style="background-color: ${label.color || '#3B82F6'}"></div>
-                <i class="${label.icon || 'fas fa-tag'} label-option-icon" style="color: ${label.color || '#3B82F6'}"></i>
+                <span class="label-option-icon" style="color: ${label.color || '#3B82F6'}">${labelIconHtml(label.icon)}</span>
                 <span class="label-option-name">${escapeHtml(label.name)}</span>
                 ${label.type === 'system' ? '<span class="label-option-type">System</span>' : ''}
             `;
@@ -2235,7 +2250,7 @@
             badge.style.color = label.color;
             
             badge.innerHTML = `
-                <i class="${label.icon || 'fas fa-tag'}"></i>
+                ${labelIconHtml(label.icon)}
                 <span>${escapeHtml(label.name)}</span>
                 <i class="fas fa-times remove-label" data-label-id="${label.id}"></i>
             `;
@@ -2689,7 +2704,7 @@
                 const originalHtml = target.innerHTML;
                 const runDownload = () => {
                     target.disabled = true;
-                    target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+                    target.innerHTML = spinnerHtml(' Downloading...');
                 };
                 const finishDownload = () => {
                     target.disabled = false;
@@ -2737,7 +2752,7 @@
                     // Disable button during download
                     const originalHtml = target.innerHTML;
                     target.disabled = true;
-                    target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating ZIP...';
+                    target.innerHTML = spinnerHtml(' Creating ZIP...');
                     
                     downloadAllAttachments(mailReportId, emailSubject).finally(() => {
                         target.disabled = false;
@@ -2771,7 +2786,7 @@
             // Reset spinner for next open
             if (loading) {
                 loading.style.display = 'flex';
-                loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading preview&hellip;</span>';
+                loading.innerHTML = spinnerHtml() + '<span>Loading preview&hellip;</span>';
             }
             document.body.style.overflow = '';
         }

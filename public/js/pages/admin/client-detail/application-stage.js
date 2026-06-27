@@ -330,7 +330,7 @@ jQuery(document).ready(function($){
             },
             beforeSend: function() {
                 // Show loading indicator
-                $('.showproductfee').html('<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+                $('.showproductfee').html('<div style="text-align:center;padding:20px;">' + (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Loading...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Loading...') + '</div>');
                 $('#new_fee_option').modal('show');
             },
             success: function(response){
@@ -363,7 +363,7 @@ jQuery(document).ready(function($){
             },
             beforeSend: function() {
                 // Show loading indicator
-                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+                $('.showproductfee_latest').html('<div style="text-align:center;padding:20px;">' + (typeof crmIconSpinner === 'function' ? crmIconSpinner(' Loading...') : '<i class="fas fa-spinner fa-spin icon-spin"></i> Loading...') + '</div>');
                 $('#new_fee_option_latest').modal('show');
             },
             success: function(response){

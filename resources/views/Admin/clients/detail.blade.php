@@ -2742,6 +2742,11 @@ use App\Http\Controllers\Controller;
 @endsection
 @section('scripts')
 
+@push('scripts')
+	{{-- @stack('scripts') renders before @yield in admin layout; AppConfig inline below runs during parse before this defer module executes --}}
+	@vite(['resources/js/pages/admin/client-detail-entry.js'])
+@endpush
+
 {{-- Configuration Script: Pass Blade variables to JavaScript --}}
 <script>
     window.AppConfig = window.AppConfig || {};
@@ -3353,13 +3358,6 @@ $(document).ready(function(){
     });
 }(jQuery));
 </script>
-
-{{-- Blade-specific inline code (defer: runs after Vite bundle) --}}
-<script defer src="{{ asset('js/pages/admin/client-detail/blade-inline.js') }}?v={{ filemtime(public_path('js/pages/admin/client-detail/blade-inline.js')) }}"></script>
-
-@push('scripts')
-	@vite(['resources/js/pages/admin/client-detail-entry.js'])
-@endpush
 
 @push('tinymce-scripts')
 @include('partials.tinymce')

@@ -262,7 +262,7 @@ jQuery(document).ready(function($) {
 // ============================================================================
 
 let bulkUploadFiles = [];
-let currentClientId = PageConfig.clientId;
+let currentClientId = window.PageConfig && window.PageConfig.clientId;
 
 // Toggle bulk upload dropzone
 $(document).on('click', '.bulk-upload-toggle-btn', function() {
