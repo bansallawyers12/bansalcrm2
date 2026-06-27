@@ -1195,7 +1195,7 @@
         emailList.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">
-                    ' + crmIcon('inbox') + '
+                    ${crmIcon('inbox')}
                 </div>
                 <div class="empty-state-text">
                     <h3>${message || 'No emails found'}</h3>
@@ -1305,14 +1305,14 @@
                                 data-legacy-index="${hasNumericId ? '' : attIndex}"
                                 data-filename="${escapeHtml(downloadName)}"
                                 title="Download ${escapeHtml(att.filename || 'file')}">
-                            ' + crmIcon('download') + ' Download
+                            ${crmIcon('download')} Download
                         </button>
                         ${hasNumericId && attachmentSupportsBrowserPreview(att) ? `
                         <button type="button" class="preview-btn preview-attachment-btn" 
                                 data-attachment-id="${att.id}" 
                                 data-filename="${escapeHtml(downloadName)}"
                                 title="Open preview in new tab">
-                            " + crmIcon('eye') + " Preview
+                            ${crmIcon('eye')} Preview
                         </button>
                         ` : ''}
                     </div>
@@ -1324,7 +1324,7 @@
                 <div class="attachment-list">
                     <div class="attachment-list-header">
                         <span class="attachment-list-title">
-                            ' + crmIcon('paperclip') + ' 
+                            ${crmIcon('paperclip')} 
                             ${regularAttachments.length} Attachment${regularAttachments.length !== 1 ? 's' : ''}
                         </span>
                         ${regularAttachments.length > 1 ? `
@@ -1332,7 +1332,7 @@
                                 data-mail-report-id="${email.id}"
                                 data-email-subject="${escapeHtml(subject)}"
                                 title="Download all attachments as ZIP">
-                            ' + crmIcon('download') + ' Download All
+                            ${crmIcon('download')} Download All
                         </button>
                         ` : ''}
                     </div>
@@ -1348,7 +1348,7 @@
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
                     <h4 style="margin-bottom: 10px; font-weight: 600;">Original Email File</h4>
                     <a href="${email.preview_url}" target="_blank" class="btn btn-sm btn-primary">
-                        ' + crmIcon('download') + ' Download .msg File
+                        ${crmIcon('download')} Download .msg File
                     </a>
                 </div>
             `;

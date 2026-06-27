@@ -363,7 +363,7 @@ $(function () {
     });
   }
   
-  // TinyMCE initialization is handled in tinymce-init.js
+  // TinyMCE initialization is handled in resources/js/tinymce-init.js (Vite)
   // This code is kept for backward compatibility but TinyMCE handles initialization automatically
   // Summernote has been replaced with TinyMCE
 

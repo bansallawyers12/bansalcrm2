@@ -574,7 +574,7 @@
                                     <p>{{ $signer->email }}</p>
                                 </div>
                                 <span class="badge-status badge-{{ $signer->status }}">
-                                    @icon('{{', 'solid', ['class' => '$signer->status === 'pending' ? 'clock' : ($signer->status === 'signed' ? 'check' : 'times') }}'])
+                                    @icon($signer->status === 'pending' ? 'clock' : ($signer->status === 'signed' ? 'check' : 'times'))
                                     {{ ucfirst($signer->status) }}
                                 </span>
                             </div>
@@ -684,7 +684,7 @@
                             @endphp
                             <div class="activity-item">
                                 <div class="activity-icon {{ $iconClass }}">
-                                    @icon('{{', 'solid', ['class' => '$icon }}'])
+                                    @icon($icon)
                                 </div>
                                 <div class="activity-time">{{ $note->created_at->format('M d, Y g:i A') }}</div>
                                 <div class="activity-text">{{ $note->action_text ?? $note->note }}</div>

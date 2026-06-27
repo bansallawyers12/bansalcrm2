@@ -93,7 +93,7 @@ jQuery(document).ready(function($){
                         <input class="form-control deposit_amount_per_row_hidden" name="amount_aud[]" type="hidden" value="" />
                     </td>
                     <td>
-                        <a class="removeitems" href="javascript:;">' + crmIcon('times') + '</a>
+                        <a class="removeitems" href="javascript:;">${crmIcon('times')}</a>
                     </td>`;
         $('.productitem').append('<tr class="product_field_clone">'+clonedval+'</tr>');
 

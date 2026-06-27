@@ -759,7 +759,541 @@ $(document).ready(function() {
 								'</div>';
 						}
 						html += '<div class="text-muted small">';
-						html += crmIconSpinner(' }}'),
+						html += crmIcon('calendar', 'regular') + ' ' + data.last_activity.date;
+						html += ' | ' + crmIcon('user', 'regular') + ' ' + data.last_activity.created_by;
+						html += '</div>';
+						html += '</div>';
+					} else {
+						html += '<p class="text-muted">No activity found</p>';
+					}
+					html += '</div>';
+					
+					// Document Count & Storage Section
+					html += '<div class="col-md-6 mb-3">';
+					html += '<h6>' + crmIcon('file') + ' Documents</h6>';
+					html += '<div class="card p-3" style="background: white;">';
+					html += '<div class="d-flex align-items-center">';
+					html += '<span class="badge badge-primary" style="font-size: 1.2em; padding: 8px 12px;">' + data.document_count + '</span>';
+					html += '<span class="ml-2">' + (data.document_count === 1 ? 'file' : 'files') + ' found</span>';
+					html += '</div>';
+					var storageLabel = (data.document_storage === 'both') ? 'Local & AWS' : ((data.document_storage === 'local') ? 'Local only' : ((data.document_storage === 'aws') ? 'AWS only' : '—'));
+					if (data.document_count > 0 && data.document_storage) {
+						html += '<div class="mt-2"><small class="text-muted">Storage: </small><strong>' + storageLabel + '</strong></div>';
+						if (data.document_storage === 'both' && data.count_local != null && data.count_aws != null) {
+							html += '<div class="mt-2"><small class="text-muted">Total Local Found: </small><strong>' + data.count_local + '</strong></div>';
+							html += '<div class="mt-1"><small class="text-muted">Total AWS Found: </small><strong>' + data.count_aws + '</strong></div>';
+						}
+					}
+					// Category doc counts (local/public folder only) - clickable to show documents in popup
+					html += '<div class="mt-3 pt-2 border-top">';
+					html += '<small class="text-muted d-block mb-1">In public folder (not S3):</small>';
+					html += '<div class="d-flex flex-wrap gap-2 align-items-center">';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="application" data-count="' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Application: ' + (data.application_doc_count_local != null ? data.application_doc_count_local : 0) + '</span>';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="education" data-count="' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Education: ' + (data.education_doc_count_local != null ? data.education_doc_count_local : 0) + '</span>';
+					html += '<span class="badge badge-secondary doc-category-badge" data-client-id="' + clientId + '" data-category="migration" data-count="' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '" style="cursor: pointer;" title="Click to view documents">Migration: ' + (data.migration_doc_count_local != null ? data.migration_doc_count_local : 0) + '</span>';
+					if (data.document_storage === 'local' || data.document_storage === 'both') {
+						html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-all-docs-to-s3" data-client-id="' + clientId + '" title="Upload all Application, Education and Migration documents to S3">' + crmIcon('cloud-upload-alt') + ' Upload All These Docs to S3</button>';
+					}
+					html += '</div>';
+					// Status lines: All Docs uploaded at S3, All Docs Public Path Removed (green = Yes, red = No)
+					// Use public_path counts (docs that still have a public copy: local-only OR on S3 with doc_public_path) so status matches popup
+					var allDocsAtS3 = (data.document_count === 0) || (data.document_storage === 'aws');
+					var appPublic = (data.application_public_path_count != null ? data.application_public_path_count : 0);
+					var eduPublic = (data.education_public_path_count != null ? data.education_public_path_count : 0);
+					var migPublic = (data.migration_public_path_count != null ? data.migration_public_path_count : 0);
+					var allPublicRemoved = (appPublic === 0 && eduPublic === 0 && migPublic === 0);
+					html += '<div class="mt-3 pt-2 border-top">';
+					html += '<div class="small ' + (allDocsAtS3 ? 'text-success' : 'text-danger') + '"><strong>All Docs are uploaded at S3 - ' + (allDocsAtS3 ? 'Yes' : 'No') + '</strong></div>';
+					html += '<div class="small mt-1 ' + (allPublicRemoved ? 'text-success' : 'text-danger') + '"><strong>All Docs Public Path Removed - ' + (allPublicRemoved ? 'Yes' : 'No') + '</strong></div>';
+					html += '</div>';
+					html += '</div>';
+					html += '</div>';
+					html += '</div>';
+					
+					// Archive Button Section
+					html += '<div class="col-md-12 mt-3">';
+					html += '<div class="card p-3" style="background: white;">';
+					html += '<h6>' + crmIcon('archive') + ' Actions</h6>';
+					if (data.is_archived) {
+						html += '<button type="button" class="btn btn-sm btn-warning btn-archive-client" data-client-id="' + clientId + '" data-action="unarchive">';
+						html += crmIcon('undo') + ' Unarchive Client';
+						html += '</button>';
+						html += '<span class="ml-2 text-muted">' + crmIcon('info-circle') + ' This client is currently archived</span>';
+					} else {
+						html += '<button type="button" class="btn btn-sm btn-danger btn-archive-client" data-client-id="' + clientId + '" data-action="archive">';
+						html += crmIcon('archive') + ' Archive Client';
+						html += '</button>';
+						html += '<span class="ml-2 text-muted">' + crmIcon('info-circle') + ' Archive this client to move it to archived clients</span>';
+					}
+					html += '</div>';
+					html += '</div>';
+					
+					html += '</div>'; // End row
+					html += '</div>'; // End client-details-loaded
+					
+					$container.html(html);
+				} else {
+					$container.html('<div class="alert alert-danger">Error: ' + (response.message || 'Failed to load client details') + '</div>');
+				}
+			},
+			error: function(xhr) {
+				var errorMsg = 'Failed to load client details';
+				if (xhr.responseJSON && xhr.responseJSON.message) {
+					errorMsg = xhr.responseJSON.message;
+				}
+				$container.html('<div class="alert alert-danger">' + errorMsg + '</div>');
+			}
+		});
+	}
+	
+	// Close Migration/documents modal when Close button or X is clicked
+	$(document).on('click', '#clientDocumentsModal .btn-close, #clientDocumentsModal .modal-footer .btn-secondary', function(e) {
+		e.preventDefault();
+		$('#clientDocumentsModal').modal('hide');
+	});
+
+	// Click on Application / Education / Migration badge: show documents in modal
+	$(document).on('click', '.doc-category-badge', function() {
+		var clientId = $(this).data('client-id');
+		var category = $(this).data('category');
+		var count = $(this).data('count');
+		if (!clientId || !category) return;
+		var categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+		$('#clientDocumentsModalTitle').text(categoryLabel + ' documents');
+		$('#clientDocumentsModalBody').html('<div class="text-center py-4">' + crmIconSpinner(' Loading...') + '</div>');
+		$('#clientDocumentsModal').modal('show');
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.documentsbycategory") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId, category: category },
+			success: function(response) {
+				if (response.success) {
+					var docs = response.documents || [];
+					var label = response.category_label || categoryLabel;
+					if (docs.length === 0) {
+						$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
+					} else {
+						var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
+						// Show "Delete All [Category] Public Docs" only when all docs are on S3 and have a public (local) copy
+						var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
+						if (allOnS3WithPublic) {
+							html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3">' + crmIcon('trash-alt') + ' Delete All ' + label + ' Public Docs</button></div>';
+						}
+						html += '<ul class="list-group list-group-flush">';
+						for (var i = 0; i < docs.length; i++) {
+							var d = docs[i];
+							html += '<li class="list-group-item d-flex justify-content-between align-items-start" data-document-id="' + d.id + '">';
+							html += '<div class="text-break flex-grow-1 mr-2" style="min-width: 0;">';
+							html += '<span style="word-wrap: break-word; overflow-wrap: break-word;"><strong>' + (i + 1) + '.</strong> ' + (d.file_name || 'Document #' + d.id) + '</span>';
+							if (d.created_at) html += '<br><small class="text-muted">' + d.created_at + '</small>';
+							if (!d.is_on_s3) {
+								html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document">' + crmIcon('trash-alt') + ' Delete Document</button>';
+							}
+							html += '</div>';
+							html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0" style="gap: 10px;">';
+							if (d.preview_url) {
+								html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link">' + crmIcon('external-link-alt') + ' View</a>';
+							}
+							if (!d.is_on_s3) {
+								html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-doc-to-s3" data-document-id="' + d.id + '" title="Upload this document to S3">' + crmIcon('cloud-upload-alt') + ' Upload to S3</button>';
+							}
+							if (d.has_public_path) {
+								html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc" data-document-id="' + d.id + '" title="Delete the local copy (document remains on S3)">' + crmIcon('trash-alt') + ' Delete public doc</button>';
+							}
+							html += '</span></li>';
+						}
+						html += '</ul>';
+						$('#clientDocumentsModalBody').html(html);
+					}
+				} else {
+					$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + (response.message || 'Failed to load documents') + '</div>');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load documents';
+				$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + msg + '</div>');
+			}
+		});
+	});
+
+	// Delete all public documents in this category (modal) - only when all docs are on S3 and have local copy
+	$(document).on('click', '.btn-delete-all-public-docs', function() {
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		var category = $btn.data('category');
+		if (!clientId || !category) return;
+		if (!confirm('Delete all local (public) copies for these documents? They will remain on S3.')) return;
+		$btn.prop('disabled', true).html(crmIconSpinner(' Deleting...'));
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deleteallpublicdocsbycategory") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId, category: category },
+			success: function(response) {
+				if (response.message) {
+					toastMsg(response.message, response.success ? 'success' : 'warning');
+				}
+				// Refetch document list so modal updates (button may disappear if no public docs left)
+				$.ajax({
+					url: '{{ route("adminconsole.recentclients.documentsbycategory") }}',
+					type: 'POST',
+					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+					data: { client_id: clientId, category: category },
+					success: function(resp) {
+						if (resp.success) {
+							var docs = resp.documents || [];
+							var label = resp.category_label || category.charAt(0).toUpperCase() + category.slice(1);
+							if (docs.length === 0) {
+								$('#clientDocumentsModalBody').html('<p class="text-muted mb-0">No documents in public folder for this category.</p>');
+							} else {
+								var html = '<p class="text-muted small mb-2">' + docs.length + ' document(s)</p>';
+								var allOnS3WithPublic = docs.length > 0 && docs.every(function(d) { return d.is_on_s3 && d.has_public_path; });
+								if (allOnS3WithPublic) {
+									html += '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-danger btn-delete-all-public-docs" data-client-id="' + clientId + '" data-category="' + category + '" title="Delete all local copies; documents remain on S3">' + crmIcon('trash-alt') + ' Delete All ' + label + ' Public Docs</button></div>';
+								}
+								html += '<ul class="list-group list-group-flush">';
+								for (var i = 0; i < docs.length; i++) {
+									var d = docs[i];
+									html += '<li class="list-group-item d-flex justify-content-between align-items-start" data-document-id="' + d.id + '">';
+									html += '<div class="text-break flex-grow-1 mr-2" style="min-width: 0;">';
+									html += '<span style="word-wrap: break-word; overflow-wrap: break-word;"><strong>' + (i + 1) + '.</strong> ' + (d.file_name || 'Document #' + d.id) + '</span>';
+									if (d.created_at) html += '<br><small class="text-muted">' + d.created_at + '</small>';
+									if (!d.is_on_s3) {
+										html += '<br><button type="button" class="btn btn-sm btn-outline-danger btn-delete-document mt-1" data-document-id="' + d.id + '" title="Permanently delete this document">' + crmIcon('trash-alt') + ' Delete Document</button>';
+									}
+									html += '</div>';
+									html += '<span class="d-flex align-items-center flex-wrap flex-shrink-0" style="gap: 10px;">';
+									if (d.preview_url) {
+										html += '<a href="' + d.preview_url + '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary doc-view-link">' + crmIcon('external-link-alt') + ' View</a>';
+									}
+									if (!d.is_on_s3) {
+										html += '<button type="button" class="btn btn-sm btn-outline-success btn-upload-doc-to-s3" data-document-id="' + d.id + '" title="Upload this document to S3">' + crmIcon('cloud-upload-alt') + ' Upload to S3</button>';
+									}
+									if (d.has_public_path) {
+										html += '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc" data-document-id="' + d.id + '" title="Delete the local copy (document remains on S3)">' + crmIcon('trash-alt') + ' Delete public doc</button>';
+									}
+									html += '</span></li>';
+								}
+								html += '</ul>';
+								$('#clientDocumentsModalBody').html(html);
+							}
+						} else {
+							$('#clientDocumentsModalBody').html('<div class="alert alert-danger">' + (resp.message || 'Failed to load documents') + '</div>');
+						}
+					},
+					error: function() {
+						$('#clientDocumentsModalBody').html('<div class="alert alert-danger">Failed to refresh document list.</div>');
+					}
+				});
+				var catLabel = (category && category.length) ? (category.charAt(0).toUpperCase() + category.slice(1)) : 'Public';
+				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete All ' + catLabel + ' Public Docs');
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public documents';
+				toastMsg(msg, 'error');
+				var catLabel = (category && category.length) ? (category.charAt(0).toUpperCase() + category.slice(1)) : 'Public';
+				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete All ' + catLabel + ' Public Docs');
+			}
+		});
+	});
+
+	// Upload all Application, Education, Migration documents to S3 (button in expanded client details)
+	$(document).on('click', '.btn-upload-all-docs-to-s3', function() {
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		if (!clientId) return;
+		if (!confirm('Upload all Application, Education and Migration documents (in public folder) to S3 for this client?')) return;
+		$btn.prop('disabled', true).html(crmIconSpinner(' Uploading...'));
+		var $detailsContent = $('#client-details-content-' + clientId);
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.uploadalldocumentstos3") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { client_id: clientId },
+			success: function(response) {
+				if (response.message) {
+					toastMsg(response.message, response.success ? 'success' : 'warning');
+				}
+				if ($detailsContent.length) loadClientDetails(clientId, $detailsContent);
+				$btn.prop('disabled', false).html('' + crmIcon('cloud-upload-alt') + ' Upload All These Docs to S3');
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
+				toastMsg(msg, 'error');
+				$btn.prop('disabled', false).html('' + crmIcon('cloud-upload-alt') + ' Upload All These Docs to S3');
+			}
+		});
+	});
+
+	// Upload single document to S3 (button in documents modal)
+	$(document).on('click', '.btn-upload-doc-to-s3', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		$btn.prop('disabled', true).html(crmIconSpinner(' Uploading...'));
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.uploaddocumenttos3") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success && response.s3_url) {
+					var $li = $btn.closest('li');
+					var $viewLink = $li.find('a.doc-view-link');
+					$viewLink.attr('href', response.s3_url).attr('target', '_blank');
+					$btn.remove();
+					// Show "Delete public doc" after View (local copy can be removed now that S3 has it)
+					var deleteBtn = '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-public-doc ml-1" data-document-id="' + (response.document_id || documentId) + '" title="Delete the local copy (document remains on S3)">' + crmIcon('trash-alt') + ' Delete public doc</button>';
+					$viewLink.after(deleteBtn);
+				} else {
+					toastMsg(response.message || 'Upload failed', 'error');
+					$btn.prop('disabled', false).html('' + crmIcon('cloud-upload-alt') + ' Upload to S3');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Upload to S3 failed';
+				toastMsg(msg, 'error');
+				$btn.prop('disabled', false).html('' + crmIcon('cloud-upload-alt') + ' Upload to S3');
+			}
+		});
+	});
+
+	// Delete document permanently (documents table + public path). Only for super admin/admin; only when doc is not on S3.
+	$(document).on('click', '.btn-delete-document', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		if (!confirm('Are you sure you want to permanently delete this document? It will be removed from the documents list and from the server.')) return;
+		$btn.prop('disabled', true).html(crmIconSpinner(' Deleting...'));
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deletedocument") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success) {
+					$btn.closest('li').fadeOut(300, function() { $(this).remove(); });
+				} else {
+					toastMsg(response.message || 'Delete failed', 'error');
+					$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete Document');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete document';
+				toastMsg(msg, 'error');
+				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete Document');
+			}
+		});
+	});
+
+	// Delete public doc (after S3 upload): remove local file, clear doc_public_path
+	$(document).on('click', '.btn-delete-public-doc', function() {
+		var $btn = $(this);
+		var documentId = $btn.data('document-id');
+		if (!documentId) return;
+		if (!confirm('Delete the local (public) copy? The document will remain on S3.')) return;
+		$btn.prop('disabled', true).html(crmIconSpinner(''));
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.deletepublicdoc") }}',
+			type: 'POST',
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: { document_id: documentId },
+			success: function(response) {
+				if (response.success) {
+					$btn.remove();
+				} else {
+					toastMsg(response.message || 'Delete failed', 'error');
+					$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete public doc');
+				}
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to delete public doc';
+				toastMsg(msg, 'error');
+				$btn.prop('disabled', false).html('' + crmIcon('trash-alt') + ' Delete public doc');
+			}
+		});
+	});
+	
+	// Bulk selection: select all on page
+	$('#selectAllClients').on('change', function() {
+		var checked = $(this).prop('checked');
+		$('.client-checkbox').prop('checked', checked);
+		updateBulkArchiveState();
+	});
+	
+	$('.client-checkbox').on('change', function() {
+		updateBulkArchiveState();
+	});
+	
+	function updateBulkArchiveState() {
+		var count = $('.client-checkbox:checked').length;
+		$('#selectedCountText').text(count + ' selected');
+		$('#bulkArchiveBtn').prop('disabled', count === 0);
+		$('#bulkUploadAllDocsToS3Btn').prop('disabled', count === 0);
+		$('#selectAllClients').prop('checked', count > 0 && count === $('.client-checkbox').length);
+	}
+	
+	// Bulk archive
+	$('#bulkArchiveBtn').on('click', function() {
+		var ids = [];
+		$('.client-checkbox:checked').each(function() {
+			var id = $(this).val();
+			if (id) ids.push(id);
+		});
+		// DEBUG: Log collected IDs
+		console.log('[BulkArchive] Checkboxes checked:', $('.client-checkbox:checked').length);
+		console.log('[BulkArchive] IDs collected:', ids);
+		console.log('[BulkArchive] IDs type:', typeof ids, 'isArray:', Array.isArray(ids));
+		
+		if (ids.length === 0) {
+			toastMsg('Please select at least one client to archive.', 'warning');
+			return;
+		}
+		if (!confirm('Are you sure you want to archive ' + ids.length + ' client(s)? They will be moved to archived clients.')) {
+			return;
+		}
+		var $btn = $('#bulkArchiveBtn');
+		$btn.prop('disabled', true);
+		var originalHtml = $btn.html();
+		$btn.html(crmIconSpinner(' Archiving...'));
+		
+		var postData = { client_ids: ids };
+		console.log('[BulkArchive] Sending payload:', JSON.stringify(postData));
+		
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.bulkarchive") }}',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: postData,
+			success: function(response) {
+				console.log('[BulkArchive] Response:', response);
+				if (response.debug) {
+					console.log('[BulkArchive] Debug info:', response.debug);
+				}
+				if (response.success) {
+					var msg = response.message;
+					if (response.debug) {
+						msg += '\n\n[DEBUG] ' + JSON.stringify(response.debug, null, 2);
+					}
+					toastMsg(msg, 'success');
+					window.location.reload();
+				} else {
+					toastMsg(response.message || 'Failed to archive clients', 'error');
+					$btn.prop('disabled', false);
+					$btn.html(originalHtml);
+				}
+			},
+			error: function(xhr) {
+				console.log('[BulkArchive] Error:', xhr.status, xhr.responseText);
+				var errorMsg = 'Failed to archive clients';
+				if (xhr.responseJSON && xhr.responseJSON.message) {
+					errorMsg = xhr.responseJSON.message;
+				}
+				toastMsg(errorMsg, 'error');
+				$btn.prop('disabled', false);
+				$btn.html(originalHtml);
+			}
+		});
+	});
+
+	// Bulk upload all docs (Application, Education, Migration) to S3 + remove public paths
+	$('#bulkUploadAllDocsToS3Btn').on('click', function() {
+		var ids = [];
+		$('.client-checkbox:checked').each(function() {
+			var id = $(this).val();
+			if (id) ids.push(id);
+		});
+
+		if (ids.length === 0) {
+			toastMsg('First Select Client atlest 1 client.', 'warning');
+			return;
+		}
+
+		var $btn = $('#bulkUploadAllDocsToS3Btn');
+		var $archiveBtn = $('#bulkArchiveBtn');
+		var originalHtml = $btn.html();
+
+		$btn.prop('disabled', true).html(crmIconSpinner(' Checking...'));
+		$archiveBtn.prop('disabled', true);
+
+		$.ajax({
+			url: '{{ route("adminconsole.recentclients.bulkuploadsummary") }}',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: { client_ids: ids },
+			success: function(summary) {
+				var rows = (summary && summary.rows) ? summary.rows : [];
+				var totalClients = (summary && summary.total_clients != null) ? summary.total_clients : rows.length;
+				var totalFiles = (summary && summary.total_files != null) ? summary.total_files : 0;
+				var lines = [];
+				for (var i = 0; i < rows.length; i++) {
+					lines.push((rows[i].client_reference_id || ('ID-' + rows[i].client_id)) + ' - ' + (rows[i].total_files || 0) + ' files');
+				}
+
+				var confirmText =
+					'Selected Clients: ' + totalClients + '\n' +
+					'Total Files To Upload: ' + totalFiles + '\n\n' +
+					'Client Reference Id - Total Files:\n' +
+					(lines.length ? lines.join('\n') : 'No clients found') +
+					'\n\nProceed with upload to S3 and remove public path copies?';
+
+				if (!confirm(confirmText)) {
+					$btn.prop('disabled', false).html(originalHtml);
+					updateBulkArchiveState();
+					return;
+				}
+
+				$btn.prop('disabled', true).html(crmIconSpinner(' Uploading...'));
+
+				$.ajax({
+					url: '{{ route("adminconsole.recentclients.bulkuploadalldocumentstos3") }}',
+					type: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					},
+					data: { client_ids: ids },
+					success: function(response) {
+						toastMsg(response.message || 'Bulk upload completed.', response.success ? 'success' : 'warning');
+						window.location.reload();
+					},
+					error: function(xhr) {
+						var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Bulk upload failed';
+						toastMsg(msg, 'error');
+						$btn.prop('disabled', false).html(originalHtml);
+						updateBulkArchiveState();
+					}
+				});
+			},
+			error: function(xhr) {
+				var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Failed to load upload summary';
+				toastMsg(msg, 'error');
+				$btn.prop('disabled', false).html(originalHtml);
+				updateBulkArchiveState();
+			}
+		});
+	});
+	
+	// Handle archive button click
+	$(document).on('click', '.btn-archive-client', function() {
+		var $btn = $(this);
+		var clientId = $btn.data('client-id');
+		var action = $btn.data('action');
+		var actionText = action === 'archive' ? 'archive' : 'unarchive';
+		var $detailsContent = $('#client-details-content-' + clientId);
+		
+		if (confirm('Are you sure you want to ' + actionText + ' this client?')) {
+			// Disable button and show loading
+			$btn.prop('disabled', true);
+			var originalHtml = $btn.html();
+			$btn.html(crmIconSpinner(' Processing...'));
+			
+			$.ajax({
+				url: '{{ route("adminconsole.recentclients.togglearchive") }}',
 				type: 'POST',
 				headers: {
 					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

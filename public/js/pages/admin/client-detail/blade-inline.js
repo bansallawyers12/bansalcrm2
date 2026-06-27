@@ -852,7 +852,7 @@ $(document).on('click', '.updateclientreceipt', function() {
                             </td>
                             <td style="text-align:center;">
                                 <a class="removeitems text-danger" href="javascript:;" title="Remove row">
-                                    ' + crmIcon('times') + '
+                                    ${crmIcon('times')}
                                 </a>
                             </td>
                         </tr>

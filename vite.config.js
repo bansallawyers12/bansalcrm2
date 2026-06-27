@@ -48,6 +48,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': '/resources/js',
+            // public/js — legacy CRM scripts; import via @legacy/… from Vite entries only (see docs/PUBLIC-JS-LEGACY.md)
             '@legacy': path.resolve(__dirname, 'public/js'),
             jquery: path.resolve(__dirname, 'resources/js/jquery-global-shim.js'),
         },

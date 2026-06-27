@@ -863,7 +863,7 @@
 							<div class="schedule_title">
 								<h4>Setup Invoice Scheduling</h4>
 							</div>
-							<span class="schedule_note">@icon('explanation-circle') Schedule your Invoices by selecting an Invoice date for this installment.</span>
+							<span class="schedule_note">@icon('info-circle') Schedule your Invoices by selecting an Invoice date for this installment.</span>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6">
 							<div class="form-group"> 
@@ -887,7 +887,7 @@
 								<div class="form-check form-check-inline">
 									<label class="form-check-label" for="allow_upload_docu">Auto Invoicing</label>
 								</div>
-								<span class="schedule_note">@icon('explanation-circle') Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
+								<span class="schedule_note">@icon('info-circle') Enabling Auto Invoicing will automatically create unpaid invoices at above stated Invoice Date.</span>
 							</div>
 						</div>	
 						<div class="col-12 col-md-6 col-lg-6">

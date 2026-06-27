@@ -112,7 +112,7 @@
             tabsHTML += `
                 <button class="btn btn-success add-document-category-btn" 
                         style="margin-bottom: 10px;">
-                    ' + crmIcon('plus') + ' Add Category
+                    ${crmIcon('plus')} Add Category
                 </button>
             `;
             
@@ -231,16 +231,16 @@
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <span class="text-muted small me-2">Signature:</span>
                                 <button type="button" class="btn btn-sm btn-primary document-sig-send" ${doc.signature_status === 'sent' || doc.signature_status === 'viewed' ? 'disabled' : ''} title="Send for signature">
-                                    ' + crmIcon('paper-plane') + ' Send
+                                    ${crmIcon('paper-plane')} Send
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary document-sig-revise" title="Revise placement">
-                                    " + crmIcon('edit') + " Revise
+                                    ${crmIcon('edit')} Revise
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger document-sig-remove" title="Remove">
-                                    ' + crmIcon('times') + ' Remove
+                                    ${crmIcon('times')} Remove
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-warning document-sig-reminder" title="Send reminder" ${showReminder ? '' : 'style="display:none;"'}>
-                                    ' + crmIcon('bell') + ' Reminder
+                                    ${crmIcon('bell')} Reminder
                                 </button>
                             </div>
                         </td>
@@ -268,7 +268,7 @@
                 return `
                     <div data-id="${doc.id}" data-name="${this.escapeHtml(doc.file_name)}" class="doc-row">
                         <a href="javascript:void(0);" onclick="previewFile('${doc.filetype}','${fileUrl}','preview-container-alldocumentlist')">
-                            ' + crmIcon('file-image') + ' <span>${this.escapeHtml(doc.file_name)}.${doc.filetype}</span>
+                            ${crmIcon('file-image')} <span>${this.escapeHtml(doc.file_name)}.${doc.filetype}</span>
                         </a>
                     </div>
                 `;
@@ -282,7 +282,7 @@
                             <input type="hidden" name="type" value="client">
                             <input type="hidden" name="doctype" value="documents">
                             <input type="hidden" name="category_id" value="${this.currentCategoryId}">
-                            <a href="javascript:;" class="btn btn-primary">' + crmIcon('plus') + ' Add Document</a>
+                            <a href="javascript:;" class="btn btn-primary">${crmIcon('plus')} Add Document</a>
                             <input class="alldocupload" data-fileid="${doc.id}" type="file" name="document_upload"/>
                         </form>
                     </div>

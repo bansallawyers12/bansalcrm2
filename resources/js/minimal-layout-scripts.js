@@ -3,5 +3,6 @@
  */
 'use strict';
 
+import '@legacy/common/crm-icon.js';
 import '@legacy/scripts.js';
 import '@legacy/custom.js';
