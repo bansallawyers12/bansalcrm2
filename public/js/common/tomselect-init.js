@@ -181,11 +181,17 @@
                 case 'escapeMarkup':
                     if (typeof options.escapeMarkup === 'function' && !options.templateResult) {
                         mapped.render = mapped.render || {};
-                        mapped.render.option = function (data) {
-                            return options.escapeMarkup(data.text || '');
+                        mapped.render.option = function (data, escape) {
+                            return wrapPlainTextForTomSelect(
+                                options.escapeMarkup(data.text || ''),
+                                escape
+                            );
                         };
-                        mapped.render.item = function (data) {
-                            return options.escapeMarkup(data.text || '');
+                        mapped.render.item = function (data, escape) {
+                            return wrapPlainTextForTomSelect(
+                                options.escapeMarkup(data.text || ''),
+                                escape
+                            );
                         };
                     }
                     break;

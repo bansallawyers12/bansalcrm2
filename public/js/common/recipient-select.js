@@ -94,12 +94,29 @@
         };
     }
 
+    function escapeHtml(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /** Tom Select treats strings without '<' as CSS selectors — wrap display labels. */
+    function wrapTomSelectLabel(text) {
+        text = text == null ? '' : String(text);
+        if (!text) {
+            return '';
+        }
+        return '<span>' + escapeHtml(text) + '</span>';
+    }
+
     function formatRepo(repo) {
         if (!repo) {
             return '';
         }
         if (repo.loading) {
-            return repo.text;
+            return wrapTomSelectLabel(repo.text);
         }
         if (repo.html) {
             return repo.html;
@@ -107,7 +124,11 @@
 
         var $ = get$();
         if (!$) {
-            return repo.name || repo.text || '';
+            return buildRecipientHtml(
+                repo.name || repo.text || '',
+                repo.email || '',
+                repo.status || ''
+            );
         }
 
         var $container = $(
@@ -130,7 +151,7 @@
     }
 
     function formatRepoSelection(repo) {
-        return repo.name || repo.text || '';
+        return wrapTomSelectLabel(repo && (repo.name || repo.text));
     }
 
     function isEnhanced(element) {
@@ -228,10 +249,10 @@
                 return markup;
             },
             templateResult: function (data) {
-                return data.html || data.text || '';
+                return data.html || wrapTomSelectLabel(data.text || data.name || '');
             },
             templateSelection: function (data) {
-                return data.text || data.name || '';
+                return wrapTomSelectLabel(data.text || data.name || '');
             }
         };
     }

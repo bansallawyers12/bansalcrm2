@@ -394,9 +394,17 @@ console.log(timestring);
     });
     
     
+    function wrapTomSelectLabel(text) {
+        text = text == null ? '' : String(text);
+        if (!text) {
+            return '';
+        }
+        return '<span>' + $('<span>').text(text).html() + '</span>';
+    }
+
     function formatRepomain_addmytask (repo) {
         if (repo.loading) {
-            return repo.text;
+            return wrapTomSelectLabel(repo.text);
         }
 
         var $container = $(
@@ -432,7 +440,7 @@ console.log(timestring);
     }
 
     function formatRepoSelectionmain_addmytask (repo) {
-        return repo.name || repo.text;
+        return wrapTomSelectLabel(repo && (repo.name || repo.text));
     }
     
     
